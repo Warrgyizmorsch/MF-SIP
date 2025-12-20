@@ -1,0 +1,84 @@
+name: my_sip
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.2
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+ 
+  cupertino_icons: ^1.0.8
+  iconsax: ^0.0.8
+  loading_animation_widget: ^1.3.0
+
+  #getx 
+  get: ^4.7.3
+
+  #responsive ui
+  flutter_screenutil: ^5.9.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+ 
+  flutter_lints: ^5.0.0
+
+
+flutter:
+
+ 
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - assets/images/
+    - assets/images/onboarding/
+    - assets/logo/
+    - assets/icon/
+  #   - images/a_dot_ham.jpeg
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/to/resolution-aware-images
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/to/asset-from-package
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+
+  fonts:
+    - family: Geist
+      fonts:
+        - asset: assets/fonts/Geist-Regular.ttf
+          # weight: 400
+        - asset: assets/fonts/Geist-Black.ttf
+        - asset: assets/fonts/Geist-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Geist-ExtraBold.ttf
+        - asset: assets/fonts/Geist-ExtraLight.ttf
+        - asset: assets/fonts/Geist-Light.ttf
+        - asset: assets/fonts/Geist-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Geist-SemiBold.ttf
+        - asset: assets/fonts/Geist-Thin.ttf
+          style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  
