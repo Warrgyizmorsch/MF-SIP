@@ -13,12 +13,15 @@ class PrimaryBackBottomBar extends StatelessWidget {
 
   final String backText;
 
+  final double? bottomPadding;
+
   const PrimaryBackBottomBar({
     super.key,
     required this.primaryText,
     required this.onPrimaryPressed,
     this.onBackPressed,
     this.backText = 'Back',
+    this.bottomPadding,
   });
 
   @override
@@ -26,7 +29,7 @@ class PrimaryBackBottomBar extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(
         // bottom: MediaQuery.of(context).padding.bottom + 16,
-        bottom: Get.height * 0.02,
+        bottom: bottomPadding ?? Get.height * 0.02,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -35,10 +38,12 @@ class PrimaryBackBottomBar extends StatelessWidget {
           SizedBox(
             child: UElevatedBUtton(
               onPressed: onPrimaryPressed,
-              child: Text(primaryText, style: UTextStyles.buttonText),
+              child: Center(
+                child: Text(primaryText, style: UTextStyles.buttonText),
+              ),
             ),
           ),
-          SizedBox(height: Get.height * 0.013),
+          const SizedBox(height: 5),
 
           //back button if provided
           if (onBackPressed != null) ...[

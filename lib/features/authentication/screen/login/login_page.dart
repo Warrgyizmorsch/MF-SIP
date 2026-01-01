@@ -69,13 +69,18 @@ class LoginPage extends StatelessWidget {
                                 child: UElevatedBUtton(
                                   onPressed: () =>
                                       Get.to(() => OtpVerificationScreen()),
-                                  child: const Text(
-                                    'Get OTP',
-                                    style: TextStyle(
-                                      color: Ucolors.light,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Text(
+                                        'Get OTP',
+                                        style: TextStyle(
+                                          color: Ucolors.light,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),

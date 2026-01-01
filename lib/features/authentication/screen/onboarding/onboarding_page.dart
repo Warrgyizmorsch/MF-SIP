@@ -13,7 +13,7 @@ class OnboardingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(OnboardingController());
+    final controller = OnboardingController.instance;
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -140,13 +140,10 @@ class OnBoardingContent extends StatelessWidget {
           SizedBox(height: size.height * 0.03),
 
           // Title
-          FittedBox(
-            // alignment: AlignmentGeometry.centerLeft,
-            child: Text(
-              title,
-              style: UTextStyles.heading1,
-              textAlign: TextAlign.left,
-            ),
+          Text(
+            title,
+            style: UTextStyles.large.copyWith(fontSize: 20),
+            textAlign: TextAlign.left,
           ),
 
           SizedBox(height: size.height * 0.01),
@@ -154,8 +151,10 @@ class OnBoardingContent extends StatelessWidget {
           // Subtitle (Description)
           Text(
             subtitle,
-            style: UTextStyles.subtitle1,
-            textAlign: TextAlign.justify,
+            // style: UTextStyles.subtitle1,
+            style: UTextStyles.medium,
+            // textAlign: TextAlign.justify
+            textAlign: TextAlign.center,
           ),
 
           SizedBox(height: size.height * 0.15),

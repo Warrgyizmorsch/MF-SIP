@@ -21,17 +21,19 @@ class TopBottomDecoration extends StatelessWidget {
         Align(
           alignment: Alignment.topRight,
           child: Transform.translate(
-            offset: const Offset(10, -10),
+            offset: Offset(20, -20),
             child: Opacity(
               opacity: 0.5,
               child: Image.asset(
                 UImages.topright,
-                width: Get.width * (271 / 430),
-                height: Get.height * (270 / 932),
+
+                // width: Get.width * (271 / 430),
+                // height: Get.height * (270 / 932),
               ),
             ),
           ),
         ),
+
         if (design) ...[
           Align(
             alignment: Alignment.topRight,
@@ -41,8 +43,8 @@ class TopBottomDecoration extends StatelessWidget {
                 opacity: 1,
                 child: Image.asset(
                   UImages.topRight1,
-                  // width: Get.width * (197 / 430),
-                  // height: Get.height * (192 / 932),
+                  width: Get.width * (197 / 430),
+                  height: Get.height * (192 / 932),
                   fit: BoxFit.contain,
                 ),
               ),
@@ -95,7 +97,7 @@ class TopBottomDecoration extends StatelessWidget {
         // Bottom-left decoration – fixed
         Positioned(
           left: -10,
-          bottom: 10,
+          bottom: -5,
           child: Opacity(opacity: 0.5, child: Image.asset(UImages.buttomleft)),
         ),
 

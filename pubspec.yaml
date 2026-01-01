@@ -26,6 +26,11 @@ dependencies:
   #responsive ui
   flutter_screenutil: ^5.9.3
   pinput: ^6.0.1
+  fl_chart: ^1.1.1
+  flutter_svg: ^2.2.3
+  easy_stepper: ^0.9.1
+  readmore: ^3.0.0
+  syncfusion_flutter_gauges: ^32.1.21
 
 dev_dependencies:
   flutter_test:

@@ -16,6 +16,7 @@ class WelcomePageScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // final w = MediaQuery.of(context).size.width;
     // final h = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(
@@ -30,11 +31,22 @@ class WelcomePageScreen extends StatelessWidget {
               TitleContent1(),
 
               //Let’s Get Started Button
-              BottomPortion(),
-
+              // BottomPortion(),
               SizedBox(height: kBottomNavigationBarHeight),
             ],
           ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            16,
+            16,
+            16,
+            16 + MediaQuery.of(context).viewPadding.bottom,
+          ),
+          child: BottomPortion(),
         ),
       ),
     );
@@ -49,11 +61,11 @@ class BottomPortion extends StatelessWidget {
     return UElevatedBUtton(
       onPressed: () => Get.to(() => OnboardingPage()),
       // onPressed: () => Get.to(() => OnboardingScreen()),
-      child: Row(
-        children: [
-          Text('Let’s Get Started', style: TextStyle(color: Ucolors.light)),
-          // Icon(Icons.arrow_forward_outlined, color: Ucl,),
-        ],
+      child: Center(
+        child: Text(
+          'Let’s Get Started',
+          style: TextStyle(color: Ucolors.light),
+        ),
       ),
     );
   }
@@ -89,11 +101,14 @@ class TitleContent1 extends StatelessWidget {
                 SizedBox(width: w * 0.1),
                 Icon(Icons.check_circle, color: Ucolors.success, size: 20),
                 SizedBox(width: w * 0.03),
-                Text(
-                  text[index],
-                  style: UTextStyles.subtitle1.copyWith(color: Ucolors.dark),
+                Expanded(
+                  child: Text(
+                    softWrap: true,
+                    text[index],
+                    style: UTextStyles.subtitle1.copyWith(color: Ucolors.dark),
+                  ),
                 ),
-                Spacer(),
+                // Spacer(),
               ],
             ),
           ),
@@ -102,3 +117,85 @@ class TitleContent1 extends StatelessWidget {
     );
   }
 }
+
+class TitleContent2 extends StatelessWidget {
+  TitleContent2({super.key});
+
+  final List<String> features = [
+    'Smart Goal Tracking',
+    'Auto SIP Calculator',
+    'Flexible Investment Control',
+    'Real-Time Portfolio Insights',
+    'Risk-Based Fund Suggestions',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
+    return Expanded(
+      child: ListView(
+        // physics: const NeverScrollableScrollPhysics(), // optional - if you don't want scrolling
+        padding: EdgeInsets.symmetric(horizontal: width * 0.04),
+        children: features.map((text) {
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: width * 0.012),
+            child: Row(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start, // better for multi-line
+              children: [
+                Icon(Icons.check_circle, color: Ucolors.success, size: 22),
+                SizedBox(width: width * 0.035),
+                Expanded(
+                  // ← This is the key!
+                  child: Text(
+                    text,
+                    style: UTextStyles.subtitle1.copyWith(color: Ucolors.dark),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+
+// Row(
+//   mainAxisAlignment: MainAxisAlignment.start,
+//   crossAxisAlignment: CrossAxisAlignment.start,
+//   children: [
+//     SizedBox(width: w * 0.06),
+//     Icon(Icons.check_circle, color: Ucolors.success, size: 22),
+//     SizedBox(width: w * 0.04),
+//     Expanded(                               // ← Add this!
+//       child: Text(
+//         text[index],
+//         style: UTextStyles.subtitle1.copyWith(color: Ucolors.dark),
+//       ),
+//     ),
+//     // Remove Spacer() completely
+//   ],
+// )
+
+
+
+
+// ListTile(
+//   minLeadingWidth: 0,
+//   horizontalTitleGap: 12,
+//   leading: Icon(
+//     Icons.check_circle,
+//     color: Ucolors.success,
+//     size: 22,
+//   ),
+//   title: Text(
+//     text[index],
+//     style: UTextStyles.subtitle1.copyWith(color: Ucolors.dark),
+//   ),
+//   dense: true,
+//   visualDensity: VisualDensity.compact,
+//   contentPadding: EdgeInsets.zero,
+// )

@@ -4,7 +4,7 @@ import 'package:my_sip/utils/constant/colors.dart';
 class UElevatedBUtton extends StatelessWidget {
   const UElevatedBUtton({
     super.key,
-    required this.onPressed,
+    this.onPressed,
     this.icon,
     this.text,
     required this.child,
@@ -13,7 +13,7 @@ class UElevatedBUtton extends StatelessWidget {
     this.outlined = false,
   });
 
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final IconData? icon;
   final String? text;
   final Widget child;
@@ -26,7 +26,6 @@ class UElevatedBUtton extends StatelessWidget {
     // final widthh = MediaQuery.of(context).size.width;
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-      
         padding: EdgeInsets.zero,
 
         shape: RoundedRectangleBorder(
@@ -41,7 +40,6 @@ class UElevatedBUtton extends StatelessWidget {
                 color: Ucolors.light,
                 border: Border.all(color: Color(0xffE7E7E7)),
                 borderRadius: BorderRadius.circular(14),
-                
               )
             : BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
@@ -51,19 +49,7 @@ class UElevatedBUtton extends StatelessWidget {
         child: SizedBox(
           height: height ?? heightt * 0.065,
           width: double.infinity,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              child,
-              //     Text(
-              //       textAlign: TextAlign.center,
-              //       text!,
-              //       style: TextStyle(color: Ucolors.light),
-              //     ),
-              // SizedBox(width: 10),
-              // Icon(icon, size: 24, color: Ucolors.light),
-            ],
-          ),
+          child: child,
         ),
       ),
     );

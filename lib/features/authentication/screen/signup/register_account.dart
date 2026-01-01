@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -11,8 +9,10 @@ import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/common/widget/text/subtitle_section.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/common/widget/top_bottom_style/top_bottom_style.dart';
+import 'package:my_sip/features/authentication/screen/login/login_page.dart';
 import 'package:my_sip/features/authentication/screen/login/widget/creat_acc_if_not.dart';
 import 'package:my_sip/features/authentication/screen/login/widget/term_policy.dart';
+import 'package:my_sip/features/authentication/screen/signup/verify_pan_otp.dart';
 import 'package:my_sip/utils/constant/colors.dart';
 import 'package:my_sip/utils/constant/sizes.dart';
 import 'package:my_sip/utils/constant/text_style.dart';
@@ -32,6 +32,7 @@ class RegisterAccountScreen extends StatelessWidget {
           child: Padding(
             padding: UPadding.screenPadding,
             child: SingleChildScrollView(
+              // physics: NeverScrollableScrollPhysics(),
               child: Column(
                 // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,9 +86,37 @@ class RegisterAccountScreen extends StatelessWidget {
                           value: true,
                           onChanged: (value) {},
                         ),
-                        Text(
-                          'I agree to the Terms of Use and Privacy Policy.',
-                          // style: TextStyle(overflow: TextOverflow.ellipsis),
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'I agree to the ',
+                                style: UTextStyles.subtitle2.copyWith(
+                                  color: Ucolors.dark,
+                                ),
+                              ),
+                              TextSpan(
+                                text: 'Terms of Use',
+                                style: UTextStyles.subtitle2.copyWith(
+                                  color: Ucolors.blue,
+                                  fontWeight: FontWeight.w700,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                              TextSpan(
+                                text: ' and ',
+                                style: UTextStyles.subtitle2,
+                              ),
+                              TextSpan(
+                                text: 'Privacy Policy.',
+                                style: UTextStyles.subtitle2.copyWith(
+                                  color: Ucolors.blue,
+                                  fontWeight: FontWeight.w700,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -95,10 +124,12 @@ class RegisterAccountScreen extends StatelessWidget {
                   SizedBox(height: Get.height * 0.01),
 
                   UElevatedBUtton(
-                    onPressed: () {},
-                    child: Text(
-                      'Create Account',
-                      style: UTextStyles.buttonText,
+                    onPressed: () => Get.to(() => VerifyPanOtp()),
+                    child: Center(
+                      child: Text(
+                        'Create Account',
+                        style: UTextStyles.buttonText,
+                      ),
                     ),
                   ),
                   SizedBox(height: Get.height * 0.01),
@@ -118,7 +149,7 @@ class RegisterAccountScreen extends StatelessWidget {
                       CreataAccountIfNot(
                         firstPart: 'Already have an account?',
                         textButton: ' Login Account',
-                        voidCallback: () {},
+                        voidCallback: () => Get.to(() => LoginPage()),
                       ),
                     ],
                   ),
