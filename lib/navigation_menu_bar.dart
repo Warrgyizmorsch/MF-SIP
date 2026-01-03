@@ -133,5 +133,5 @@ const List<_NavItemData> _navItems = [
   _NavItemData(Icons.trending_up, 'Explore'),
   _NavItemData(Iconsax.chart_1, 'Dashboard'),
   _NavItemData(Iconsax.cup, 'Goal'),
-  _NavItemData(Iconsax.profile_2user, 'Profile'),
+  _NavItemData(Iconsax.user4, 'Profile'),
 ];

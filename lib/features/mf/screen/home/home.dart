@@ -1,4 +1,3 @@
-import 'package:easy_stepper/easy_stepper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -8,6 +7,8 @@ import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
+import 'package:my_sip/features/mf/screen/goal/goal.dart';
+import 'package:my_sip/features/personalization/screen/profile/profile.dart';
 import 'package:my_sip/utils/constant/colors.dart';
 import 'package:my_sip/utils/constant/images.dart';
 import 'package:my_sip/utils/constant/text_style.dart';
@@ -46,6 +47,7 @@ class HomeScreen extends StatelessWidget {
                 child: SafeArea(
                   bottom: false,
                   child: CustomProfileAppbar(
+                    onProfiletap: () => Get.to(() => ProfileScreen()),
                     backgroundColor: Colors.transparent,
                     greetingName: 'Nazzu',
                     role: 'Developer',
@@ -524,54 +526,67 @@ class HomeScreen extends StatelessWidget {
                   //   title: 'Education Goal',
                   //   iconData: Icons.school_rounded,
                   // ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Ucolors.borderColor, width: 1),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
+                  GestureDetector(
+                    onTap: () => Get.to(() => GoalScreen()),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Ucolors.borderColor,
+                          width: 1,
                         ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        // Icon container
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFEEF5FF),
-                            borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.03),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
                           ),
-                          child: Icon(Icons.add, size: 20, color: Ucolors.blue),
-                        ),
-
-                        const SizedBox(width: 12),
-
-                        // Title
-                        Expanded(
-                          child: Text(
-                            'Custom Goal',
-                            style: UTextStyles.small.copyWith(
-                              color: Ucolors.dark,
-                              fontWeight: FontWeight.w500,
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          // Icon container
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEEF5FF),
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                            child: Icon(
+                              Icons.add,
+                              size: 20,
+                              color: Ucolors.blue,
+                            ),
                           ),
-                        ),
 
-                        // Trailing arrow
-                        // const Icon(
-                        //   Icons.arrow_forward_ios_rounded,
-                        //   size: 16,
-                        //   color: Colors.grey,
-                        // ),
-                      ],
+                          const SizedBox(width: 12),
+
+                          // Title
+                          Expanded(
+                            child: Text(
+                              'Custom Goal',
+                              style: UTextStyles.small.copyWith(
+                                color: Ucolors.dark,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+
+                          // Trailing arrow
+                          // const Icon(
+                          //   Icons.arrow_forward_ios_rounded,
+                          //   size: 16,
+                          //   color: Colors.grey,
+                          // ),
+                        ],
+                      ),
                     ),
                   ),
                 ]),
@@ -628,10 +643,10 @@ class HomeScreen extends StatelessWidget {
               sliver: SliverGrid(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 1.6,
+                  childAspectRatio: 1.55,
                   mainAxisSpacing: 16,
                   crossAxisSpacing: 16,
-                  // mainAxisExtent: 100,
+                  // mainAxisExtent: 120,
                 ),
                 delegate: SliverChildListDelegate([
                   PopularFundCard(
@@ -849,7 +864,8 @@ class PopularFundCard extends StatelessWidget {
                   ),
                 ],
               ),
-              Spacer(),
+              // Spacer(),
+              Expanded(child: SizedBox()),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

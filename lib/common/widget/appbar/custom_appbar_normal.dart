@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/utils/constant/colors.dart';
 import 'package:my_sip/utils/constant/text_style.dart';
 
@@ -30,16 +32,25 @@ class CustomAppBarNormal extends StatelessWidget
 
       // leadingWidth: ,
       leading: backIcon
-          ? Container(
-              height: 20,
-              width: 20,
-              padding: EdgeInsets.only(left: 6),
-              margin: EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                color: Color(0xffEDEDED),
-                borderRadius: BorderRadius.circular(12),
+          ? InkWell(
+              onTap: () => Get.back(),
+              child: Container(
+                height: 20,
+                width: 20,
+                padding: EdgeInsets.only(left: 6),
+                margin: EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: Color(0xffEDEDED),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: CompactIcon(
+                    iconSize: 18,
+                    icon: Icons.arrow_back_ios,
+                    onPressed: () => Get.back(),
+                  ),
+                ),
               ),
-              child: Center(child: Icon(Icons.arrow_back_ios, size: 18)),
             )
           : SizedBox.shrink(),
       title: Text(

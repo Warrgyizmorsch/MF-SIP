@@ -8,7 +8,6 @@ import 'package:my_sip/features/personalization/screen/profile/details/bank_deta
 import 'package:my_sip/features/personalization/screen/profile/details/document.dart';
 import 'package:my_sip/features/personalization/screen/profile/details/help_support.dart';
 import 'package:my_sip/features/personalization/screen/profile/details/kyc_details.dart';
-import 'package:my_sip/features/personalization/screen/profile/details/nominee_details.dart';
 import 'package:my_sip/features/personalization/screen/profile/details/nominee_list.dart';
 import 'package:my_sip/features/personalization/screen/profile/details/personal_details.dart';
 import 'package:my_sip/utils/constant/colors.dart';

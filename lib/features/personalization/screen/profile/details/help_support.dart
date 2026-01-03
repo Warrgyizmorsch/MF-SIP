@@ -19,7 +19,7 @@ class HelpSupportScreen extends StatelessWidget {
             children: [
               SizedBox(height: kToolbarHeight - kTextTabBarHeight / 2),
 
-              Listtilecustom(title: 'About Us', onTap: () {}),
+              // Listtilecustom(title: 'About Us', onTap: () {}),
               Listtilecustom(title: 'Contact Support', onTap: () {}),
               Listtilecustom(title: 'Privacy Policy', onTap: () {}),
               Listtilecustom(title: 'Terms & Conditions', onTap: () {}),

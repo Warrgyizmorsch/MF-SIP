@@ -1,11 +1,21 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
-import 'package:my_sip/common/widget/button/elevated_button.dart';
-import 'package:my_sip/common/widget/text/heading_section.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/features/dashboard/screen/comparison_screen.dart';
 import 'package:my_sip/features/mf/screen/dashboard/dashboard.dart';
+import 'package:my_sip/features/mf/screen/fund_details/widget/fund_performance_bar.dart';
+import 'package:my_sip/features/mf/screen/fund_details/widget/model/fund_performance.dart';
+import 'package:my_sip/features/mf/screen/fund_details/widget/model/return_model.dart';
+import 'package:my_sip/features/mf/screen/fund_details/widget/percentage_indicator.dart';
+import 'package:my_sip/features/mf/screen/fund_details/widget/return.dart';
+import 'package:my_sip/features/mf/screen/fund_details/widget/risk_indicator_ball.dart';
+import 'package:my_sip/features/mf/screen/fund_details/widget/schemeLineChart.dart';
+import 'package:my_sip/features/mf/screen/fund_details/widget/stock_allocation_items.dart';
+import 'package:my_sip/features/mf/screen/fund_details/widget/timeselecter.dart';
 import 'package:my_sip/utils/constant/colors.dart';
 import 'package:my_sip/utils/constant/images.dart';
 import 'package:my_sip/utils/constant/text_style.dart';
@@ -44,6 +54,7 @@ class _FundDeatailsScreenState extends State<FundDeatailsScreen>
           return [
             //AppBar
             SliverAppBar(
+              automaticallyImplyLeading: false,
               pinned: true,
               flexibleSpace: CustomAppBarNormal(
                 // backIcon: false,
@@ -51,11 +62,8 @@ class _FundDeatailsScreenState extends State<FundDeatailsScreen>
                 actionsPadding: 10,
                 title: 'Fund Details',
                 action: [
-                  CompactIcon(icon: Icons.bookmark_border, onPressed: () {}),
-                  CompactIcon(
-                    icon: Icons.shopping_cart_outlined,
-                    onPressed: () {},
-                  ),
+                  CompactIcon(icon: Iconsax.shopping_cart, onPressed: () {}),
+                  CompactIcon(icon: Iconsax.archive_tick, onPressed: () {}),
                 ],
               ),
             ),
@@ -156,16 +164,417 @@ class _FundDeatailsScreenState extends State<FundDeatailsScreen>
   }
 }
 
+Widget returnsTableHeader() {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 12),
+    child: Row(
+      children: const [
+        SizedBox(
+          width: 40,
+          child: Text(
+            'Period',
+            style: TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            'Scheme',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            'Category',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            'Benchmark',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 class OverviewScreen extends StatelessWidget {
   const OverviewScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final returns = [
+      ReturnRow(period: '1M', scheme: 0.78, category: 0.01, benchmark: -0.13),
+      ReturnRow(period: '3M', scheme: 3.77, category: 4.93, benchmark: 4.29),
+      ReturnRow(period: '6M', scheme: 3.77, category: 2.68, benchmark: 2.02),
+      ReturnRow(period: '1Y', scheme: 7.86, category: 9.93, benchmark: 6.99),
+      ReturnRow(period: '2Y', scheme: 13.91, category: 11.62, benchmark: 11.14),
+      ReturnRow(period: '3Y', scheme: 19.54, category: 14.72, benchmark: 15.23),
+      ReturnRow(period: '5Y', scheme: 20.26, category: 14.86, benchmark: 14.37),
+    ];
+
+    final yearlyData = [
+      YearlyReturn('2019', 6.63),
+      YearlyReturn('2020', 4.89),
+      YearlyReturn('2021', 31.65),
+      YearlyReturn('2022', 9.72),
+      YearlyReturn('2023', 31.44),
+      YearlyReturn('2024', 13.54),
+      YearlyReturn('2025', 7.91),
+      YearlyReturn('2026', 0.69),
+    ];
+
+    final height = MediaQuery.of(context).size;
+
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 10),
       // This is crucial: it allows the NestedScrollView to coordinate scrolling
       physics: const ClampingScrollPhysics(),
       children: [
+        CustomContainer(
+          topPadding: 15,
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  StatItem1(title: 'Nav', amount: '\$ 93', percentage: ''),
+                  StatItem1(
+                    title: 'Returns (1Y)',
+                    amount: '9.4 %',
+                    amountColor: Ucolors.success,
+
+                    percentage: '',
+                  ),
+                  StatItem1(
+                    title: 'BenchMark (1Y)',
+                    amount: '8.3 %',
+                    percentage: '',
+                    amountColor: Ucolors.success,
+                  ),
+                ],
+              ),
+              SchemeLineChart(),
+              Gap(12),
+              PeriodSelector(),
+              // Container(
+              //   padding: EdgeInsets.symmetric(horizontal: 10),
+              //   height: 40,
+              //   width: double.infinity,
+              //   decoration: BoxDecoration(
+              //     color: Ucolors.borderside,
+              //     borderRadius: BorderRadius.circular(20),
+              //   ),
+              //   child: SingleChildScrollView(
+              //     scrollDirection: Axis.horizontal,
+              //     child: Row(
+              //       spacing: 30,
+              //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //       children: [
+              //         Text('1M'),
+              //         Text('3M'),
+              //         Text('6M'),
+              //         Text('1Y'),
+              //         Text('2Y'),
+              //         Text('3Y'),
+              //         Text('5Y'),
+              //       ],
+              //     ),
+              //   ),
+              // ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 5),
+          child: const USectionHeading(
+            title: 'Fund Performance',
+            showActionButton: false,
+          ),
+        ),
+        CustomContainer(
+          child: SizedBox(
+            height: 160,
+            // child: ReturnsBarChart(data: yearlyData),
+            // child: ,
+            child: YearlyReturnsChart(),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 5),
+          child: const USectionHeading(
+            title: 'Quick look',
+            showActionButton: false,
+          ),
+        ),
+        CustomContainer(
+          bottomPadding: 10,
+          topPadding: 10,
+          child: _twoColumnRow(
+            leftTitle: '5Y CAGR',
+            color: Ucolors.success,
+            leftValue: '20.23%',
+            rightTitle: '5Y SIP Return',
+            rightValue: '15.05%',
+            color2: Ucolors.success,
+          ),
+        ),
+        // Gap(10),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+          child: const USectionHeading(
+            title: 'Trailing Returns',
+            showActionButton: false,
+          ),
+        ),
+        CustomContainer(
+          child: Column(
+            children: [
+              returnsTableHeader(),
+              DashedLine(color: Colors.grey.shade200),
+
+              ...returns.map((row) => ReturnsTableRow(data: row)),
+            ],
+          ),
+        ),
+
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
+          child: const USectionHeading(
+            title: 'Fund Allocation',
+            showActionButton: false,
+          ),
+        ),
+
+        CustomContainer(
+          child: Column(
+            children: [
+              const SizedBox(height: 10),
+              Text(
+                'Market Cap',
+                style: UTextStyles.medium.copyWith(
+                  color: Ucolors.dark,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+
+              Divider(color: Colors.grey.shade200),
+
+              Gap(10),
+              Stack(
+                alignment: AlignmentGeometry.center,
+                children: [
+                  SizedBox(
+                    height: 200,
+                    width: 200,
+                    child: PieChart(
+                      PieChartData(
+                        centerSpaceColor: Colors.grey.shade200,
+                        sectionsSpace: 0,
+
+                        centerSpaceRadius: 50,
+                        // centerSpaceRadius: 0,
+                        sections: [
+                          PieChartSectionData(
+                            showTitle: false,
+
+                            value: 70,
+                            color: Colors.indigo.shade900,
+                          ),
+                          PieChartSectionData(
+                            showTitle: false,
+                            value: 10,
+                            color: Colors.deepPurpleAccent,
+                          ),
+                          PieChartSectionData(
+                            showTitle: false,
+
+                            value: 5,
+                            color: Colors.greenAccent,
+                          ),
+                          PieChartSectionData(
+                            showTitle: false,
+
+                            value: 15,
+                            color: Colors.green,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 50,
+                        child: Text(
+                          textAlign: TextAlign.center,
+                          'Equity Market Cap',
+                          style: UTextStyles.medium.copyWith(
+                            color: Ucolors.dark,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              marketCapPercentage('Large Cap', '70.4%', Colors.indigo.shade700),
+              Gap(5),
+              marketCapPercentage('Equity', '10.4%', Colors.deepPurpleAccent),
+              Gap(5),
+              marketCapPercentage('Mid Cap', '5.4%', Colors.greenAccent),
+              Gap(5),
+              marketCapPercentage('Small Cap', '15.4%', Colors.green),
+              Gap(12),
+              Divider(color: Colors.grey.shade200),
+              Gap(10),
+
+              DefaultTabController(
+                animationDuration: Duration(milliseconds: 200),
+
+                length: 2,
+
+                child: Column(
+                  children: [
+                    Container(
+                      // height: 44,
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      child: Tab(
+                        child: TabBar(
+                          // tabAlignment: TabAlignment.fill,
+                          // textScaler: TextScaler.noScaling,
+                          labelStyle: UTextStyles.buttonText.copyWith(
+                            color: Ucolors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          // isScrollable: true,
+                          dividerColor: Colors.transparent,
+                          labelColor: Colors.blue,
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          // isScrollable: true,
+                          unselectedLabelColor: Colors.grey,
+                          indicator: BoxDecoration(
+                            // color: Colors.white,
+                            color: Ucolors.light,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          tabs: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text('Top 5 Sector'),
+                            ),
+                            Text('Top 5 Stock'),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 250,
+                      child: TabBarView(
+                        children: [
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Gap(20),
+                              PercentageBar(
+                                title: 'Financial Services',
+                                percentage: 42,
+                                color: Ucolors.primary,
+                              ),
+
+                              PercentageBar(
+                                title: 'Energy',
+                                percentage: 80,
+                                color: Ucolors.primary,
+                              ),
+                              PercentageBar(
+                                title: 'Technolgy',
+                                percentage: 42,
+                                color: Ucolors.primary,
+                              ),
+                              PercentageBar(
+                                title: 'Consumer Defensive',
+                                percentage: 42,
+                                color: Ucolors.primary,
+                              ),
+                            ],
+                          ),
+                          SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                Gap(12),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  // mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'Stocks Allocation',
+                                      style: UTextStyles.caption,
+                                    ),
+                                    Text(
+                                      '% Holdings',
+                                      style: UTextStyles.caption,
+                                    ),
+                                  ],
+                                ),
+
+                                Gap(5),
+                                StockAllocationItem(
+                                  name: 'HDFC Bank Ltd',
+                                  category: 'Large Cap',
+                                  sector: 'Financial Services',
+                                  percentage: 9.08,
+                                ),
+                                StockAllocationItem(
+                                  name: 'Reliance Industries Ltd',
+                                  category: 'Large Cap',
+                                  sector: 'Energy',
+                                  percentage: 6.08,
+                                ),
+                                StockAllocationItem(
+                                  name: 'ICICI Bank Ltd',
+                                  category: 'Large Cap',
+                                  sector: 'Financial Services',
+                                  percentage: 5.54,
+                                ),
+                                StockAllocationItem(
+                                  name: 'Axis Bank Ltd',
+                                  category: 'Large Cap',
+                                  sector: 'Financial Services',
+                                  percentage: 3.97,
+                                ),
+                                StockAllocationItem(
+                                  name: 'State Bank of India',
+                                  category: 'Large Cap',
+                                  sector: 'Financial Services',
+                                  percentage: 3.81,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
         // --- Fund Overview Section ---
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
@@ -238,6 +647,24 @@ class OverviewScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              Gap(15),
+              _twoColumnRow(
+                leftTitle: 'Risk-o-Meter',
+                leftValue: 'Very HIgh',
+                rightTitle: 'Volatile',
+                rightValue: '12.42',
+                color: Ucolors.red,
+              ),
+              Gap(10),
+              _twoColumnRow(
+                leftTitle: 'Shape Ratio:',
+                leftValue: '1.05',
+                rightTitle: 'Beta',
+                rightValue: '0.9',
+              ),
+              Gap(12),
+              DashedLine(color: Colors.grey.shade400),
+
               SpeedometerGauge(value: 85), // Updated to show high risk
               Text(
                 'Your Principle Will be at:',
@@ -259,35 +686,67 @@ class OverviewScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: UTextStyles.small.copyWith(color: Ucolors.darkgrey),
               ),
-              const SizedBox(height: 5),
+              const Gap(14),
+              DashedLine(color: Colors.grey.shade400),
+              Gap(12),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: const [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RiskLegendItem(color: Colors.green, label: 'Very Low'),
+                      SizedBox(height: 14),
+                      RiskLegendItem(color: Colors.orange, label: 'Medium'),
+                      SizedBox(height: 14),
+                      RiskLegendItem(color: Colors.redAccent, label: 'High'),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RiskLegendItem(color: Colors.lightGreen, label: 'Low'),
+                      SizedBox(height: 14),
+                      RiskLegendItem(
+                        color: Colors.amber,
+                        label: 'Moderate High',
+                      ),
+                      SizedBox(height: 14),
+                      RiskLegendItem(color: Colors.red, label: 'Very High'),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 60.0, vertical: 15),
-          child: OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: Ucolors.primary.withOpacity(0.5)),
-            ),
-            onPressed: () {},
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'View full Risk Analysis',
-                  style: UTextStyles.buttonText.copyWith(
-                    color: Ucolors.primary.withOpacity(0.5),
-                  ),
-                ),
-                SizedBox(width: 10),
-                Icon(
-                  Icons.arrow_forward,
-                  color: Ucolors.primary.withOpacity(0.5),
-                ),
-              ],
-            ),
-          ),
-        ),
+        // Padding(
+        //   padding: const EdgeInsets.symmetric(horizontal: 60.0, vertical: 15),
+        //   child: OutlinedButton(
+        //     style: OutlinedButton.styleFrom(
+        //       side: BorderSide(color: Ucolors.primary.withOpacity(0.5)),
+        //     ),
+        //     onPressed: () {},
+        //     child: Row(
+        //       mainAxisAlignment: MainAxisAlignment.center,
+        //       children: [
+        //         Text(
+        //           'View full Risk Analysis',
+        //           style: UTextStyles.buttonText.copyWith(
+        //             color: Ucolors.primary.withOpacity(0.5),
+        //           ),
+        //         ),
+        //         SizedBox(width: 10),
+        //         Icon(
+        //           Icons.arrow_forward,
+        //           color: Ucolors.primary.withOpacity(0.5),
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // ),
+
         // --- Fund Comparison Section ---
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
@@ -297,7 +756,10 @@ class OverviewScreen extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: MediaQuery.of(context).size.height * 0.24,
+          // height:   MediaQuery.of(context).size.height * 0.3,
+          // height: MediaQuery.of(context).size.height * 0.23,
+          height: MediaQuery.of(context).size.height < 700 ? 210 : 195,
+
           child: ListView.builder(
             itemCount: 10,
             scrollDirection: Axis.horizontal,
@@ -305,8 +767,10 @@ class OverviewScreen extends StatelessWidget {
             itemBuilder: (context, index) => SizedBox(
               width: MediaQuery.of(context).size.width * 0.97,
               child: CustomContainer(
+                bottomPadding: 8,
                 topPadding: 15,
                 child: Column(
+                  // mainAxisSize: MainAxisSize.min,
                   children: [
                     FundComparisonItem(),
                     SizedBox(height: 5),
@@ -349,6 +813,7 @@ class OverviewScreen extends StatelessWidget {
             ),
           ),
         ),
+
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 60.0, vertical: 15),
           child: OutlinedButton(
@@ -386,7 +851,7 @@ class OverviewScreen extends StatelessWidget {
 
         // Add your Related Funds list here
         SizedBox(
-          height: 140,
+          height: 150,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: 10,
@@ -394,98 +859,108 @@ class OverviewScreen extends StatelessWidget {
             itemBuilder: (context, index) => SizedBox(
               width: MediaQuery.of(context).size.width * 0.9,
 
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    /// 🔹 Top Row (Icon + Title + Menu)
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // / Fund Icon
-                        Container(
-                          height: 40,
-                          width: 40,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.grey.shade100,
-                          ),
-                          child: ClipOval(
-                            child: Image.asset(UImages.sbi, fit: BoxFit.cover),
-                          ),
-                        ),
-
-                        // CircleAvatar(backgroundImage: AssetImage(UImages.sbi)),
-                        const SizedBox(width: 12),
-
-                        /// Title + Subtitle
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Nippon India Large Cap Fund- Growth Plan- Growth Option',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.3,
-                                ),
+              child: GestureDetector(
+                onTap: () {},
+                child: Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      /// 🔹 Top Row (Icon + Title + Menu)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // / Fund Icon
+                          Container(
+                            height: 40,
+                            width: 40,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.grey.shade100,
+                            ),
+                            child: ClipOval(
+                              child: Image.asset(
+                                UImages.sbi,
+                                fit: BoxFit.cover,
                               ),
-                            ],
+                            ),
                           ),
-                        ),
 
-                        /// Menu
-                        // const Icon(Icons.more_vert, color: Colors.grey),
-                      ],
-                    ),
+                          // CircleAvatar(backgroundImage: AssetImage(UImages.sbi)),
+                          const SizedBox(width: 12),
 
-                    const SizedBox(height: 10),
+                          /// Title + Subtitle
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  maxLines: 2,
+                                  'Nippon India Large Cap Fund- Growth Plan- Growth Option',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.3,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
 
-                    /// 🔹 Bottom Stats
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        StatItem1(
-                          title: '2Y Returns',
-                          amount: '63%',
-                          percentage: '',
-                          amountColor: Colors.green.shade800,
+                          /// Menu
+                          // const Icon(Icons.more_vert, color: Colors.grey),
+                        ],
+                      ),
 
-                          percentageColor: Ucolors.success,
-                        ),
-                        StatItem1(
-                          percentage: '',
-                          title: '3Y Returns',
-                          amount: '43%',
-                          amountColor: Colors.green.shade800,
-                          percentageColor: Ucolors.success,
-                        ),
+                      const SizedBox(height: 10),
 
-                        StatItem1(
-                          percentage: '',
-                          title: '4Y Returns',
-                          amountColor: Colors.green.shade800,
+                      /// 🔹 Bottom Stats
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          StatItem1(
+                            title: '2Y Returns',
+                            amount: '63%',
+                            percentage: '',
+                            amountColor: Colors.green.shade800,
 
-                          percentageColor: Ucolors.success,
+                            percentageColor: Ucolors.success,
+                          ),
+                          StatItem1(
+                            percentage: '',
+                            title: '3Y Returns',
+                            amount: '43%',
+                            amountColor: Colors.green.shade800,
+                            percentageColor: Ucolors.success,
+                          ),
 
-                          amount: '35%',
-                        ),
-                      ],
-                    ),
-                  ],
+                          StatItem1(
+                            percentage: '',
+                            title: '4Y Returns',
+                            amountColor: Colors.green.shade800,
+
+                            percentageColor: Ucolors.success,
+
+                            amount: '35%',
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -636,33 +1111,59 @@ class OverviewScreen extends StatelessWidget {
                   investmentDetailSection(
                     'AMC',
                     'Nippon India MF',
-                    Icons.bar_chart,
+                    Icons.bar_chart_rounded,
                   ),
                   Divider(height: 0),
                   investmentDetailSection(
                     'Email',
                     'abc.warrgyizmorch@gmail.com',
-                    Icons.circle,
+                    Icons.mail_outline,
                   ),
 
                   Divider(height: 0),
                   investmentDetailSection(
                     'Office No',
                     '1876471871',
-                    Icons.lightbulb_circle_rounded,
+                    Icons.home_work_outlined,
                   ),
                   Divider(height: 0),
                   investmentDetailSection(
                     'Website',
                     'http://www.google.com',
-                    Icons.pie_chart,
+                    Iconsax.global,
                   ),
                   Divider(height: 0),
-                  investmentDetailSection('Address', '', Icons.logout_outlined),
+                  investmentDetailSection(
+                    'Address',
+                    '',
+                    Icons.location_on_outlined,
+                  ),
                 ],
               ),
             ),
           ],
+        ),
+      ],
+    );
+  }
+
+  Widget marketCapPercentage(String title, String value, Color? color) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          '● $title',
+          style: UTextStyles.medium.copyWith(
+            color: color,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Text(
+          value,
+          style: UTextStyles.medium.copyWith(
+            color: color,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ],
     );
@@ -689,8 +1190,8 @@ class OverviewScreen extends StatelessWidget {
     return ListTile(
       leading: CircleAvatar(
         radius: 15,
-        backgroundColor: Ucolors.darkgrey.withOpacity(0.2),
-        child: Icon(Icons.person, color: Ucolors.dark),
+        backgroundColor: Ucolors.skyblue1,
+        child: Icon(Icons.person, color: Ucolors.dark, size: 13),
       ),
       title: Text(
         name,
@@ -1060,17 +1561,22 @@ class CustomContainer extends StatelessWidget {
     required this.child,
     this.topPadding = 4,
     this.bottomPadding = 15,
+    this.height,
+    this.width,
   });
 
   final Widget child;
   final double topPadding;
   final double bottomPadding;
+  final double? height, width;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsetsGeometry.symmetric(horizontal: 20),
       child: Container(
+        height: height,
+        width: width,
         padding: EdgeInsets.fromLTRB(15, topPadding, 15, bottomPadding),
         decoration: BoxDecoration(
           color: Ucolors.light,
@@ -1088,16 +1594,18 @@ Widget _twoColumnRow({
   required String leftValue,
   required String rightTitle,
   required String rightValue,
+  Color? color,
+  Color? color2,
 }) {
   return Row(
     children: [
-      Expanded(child: _infoItem(leftTitle, leftValue)),
-      Expanded(child: _infoItem(rightTitle, rightValue)),
+      Expanded(child: _infoItem(leftTitle, leftValue, color)),
+      Expanded(child: _infoItem(rightTitle, rightValue, color2)),
     ],
   );
 }
 
-Widget _infoItem(String title, String value) {
+Widget _infoItem(String title, String value, Color? color) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -1105,7 +1613,11 @@ Widget _infoItem(String title, String value) {
       const SizedBox(height: 4),
       Text(
         value,
-        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+          color: color,
+        ),
       ),
     ],
   );

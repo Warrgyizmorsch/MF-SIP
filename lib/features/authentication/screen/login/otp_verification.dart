@@ -8,6 +8,7 @@ import 'package:my_sip/common/widget/text/heading_section.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/common/widget/text/subtitle_section.dart';
 import 'package:my_sip/common/widget/top_bottom_style/top_bottom_style.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 import 'package:my_sip/utils/constant/colors.dart';
 import 'package:my_sip/utils/constant/images.dart';
 import 'package:my_sip/utils/constant/sizes.dart';
@@ -87,7 +88,7 @@ class OtpVerificationScreen extends StatelessWidget {
                 PrimaryBackBottomBar(
                   // bottomPadding: kBottomNavigationBarHeight / 2,
                   primaryText: 'Verify',
-                  onPrimaryPressed: () {},
+                  onPrimaryPressed: () => Get.to(() => NavigationMenuBar()),
                   backText: 'Back',
                   onBackPressed: () => Get.back(),
                 ),

@@ -6,7 +6,6 @@ import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/features/personalization/screen/profile/details/nominee_details.dart';
 import 'package:my_sip/utils/constant/colors.dart';
 import 'package:my_sip/utils/constant/images.dart';
-import 'package:my_sip/utils/constant/sizes.dart';
 import 'package:my_sip/utils/constant/text_style.dart';
 
 class NomineeListScreen extends StatelessWidget {
@@ -36,6 +35,7 @@ class NomineeListScreen extends StatelessWidget {
             SizedBox(height: 30),
             UElevatedBUtton(
               outlined: true,
+              onPressed: () => Get.to(() => NomineeDetailsScreen()),
               child: Center(
                 child: Text(
                   'Add Another Nominee',
