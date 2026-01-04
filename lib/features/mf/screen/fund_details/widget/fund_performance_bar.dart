@@ -160,17 +160,21 @@ class YearlyReturnsChart extends StatelessWidget {
                 return Expanded(
                   child: Padding(
                     padding: EdgeInsets.only(
+                      // right: 5,
+                      left: 5,
                       bottom: (value / 40 * 140) + 25, // auto placement
                     ),
                     child: FittedBox(
+                      // alignment: AlignmentGeometry.center,
                       child: Text(
                         '${value.toStringAsFixed(2)}%',
-                        textAlign: TextAlign.start,
+                        textAlign: TextAlign.center,
                         maxLines: 1,
 
                         style: const TextStyle(
                           overflow: TextOverflow.ellipsis,
-                          fontSize: 11,
+
+                          fontSize: 10,
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF1B7A3A),
                         ),

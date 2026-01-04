@@ -24,14 +24,14 @@ class MyApp extends StatelessWidget {
       // ),
       theme: Utheme.lightTheme,
       initialBinding: UBinding(),
-      home: SplashScreen(),
+      // home: SplashScreen(),
 
       // home: VerifyPanOtp(),
       // home: QuestionScreen(),
       // home: ComparisonScreen(),
       // home: NavigationMenuBar(),
       // home: FundComparisonScreen(),
-      // home: FundDeatailsScreen(),
+      home: FundDeatailsScreen(),
       // home: NipponFundDetailScreen(),
     );
   }

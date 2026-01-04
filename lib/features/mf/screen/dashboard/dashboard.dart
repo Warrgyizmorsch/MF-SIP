@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
@@ -11,6 +12,7 @@ import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
 import 'package:my_sip/features/personalization/screen/profile/profile.dart';
 import 'package:my_sip/utils/constant/colors.dart';
 import 'package:my_sip/utils/constant/images.dart';
+import 'package:my_sip/utils/constant/text_style.dart';
 
 enum PortfolioMenuAction { topUp, modify, pause, cancel, redemption }
 
@@ -361,7 +363,7 @@ class TransactionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -396,25 +398,39 @@ class TransactionCard extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
 
           /// 🔹 Bottom Row (Description + Source)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Funding from salary',
-                // style: TextStyle(fontSize: 14, color: Colors.grey),
-                style: Theme.of(
-                  context,
-                ).textTheme.labelLarge!.copyWith(color: Color(0xff9A9A9A)),
+              
+              Flexible(
+                child: Text(
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+
+                  'Funding from salary',
+                  style: UTextStyles.small.copyWith(color: Color(0xff9A9A9A)),
+                  // style: TextStyle(fontSize: 14, color: Colors.grey),
+                  // style: Theme.of(
+                  //   context,
+                  // ).textTheme.labelLarge!.copyWith(color: Color(0xff9A9A9A)),
+                ),
               ),
-              Text(
-                'Savings from Local Bank 1',
-                // style: TextStyle(fontSize: 14, color: Colors.grey),
-                style: Theme.of(
-                  context,
-                ).textTheme.labelLarge!.copyWith(color: Color(0xff9A9A9A)),
+              // Gap(12),
+              Flexible(
+                child: Text(
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  'Savings from Local Bank 1',
+                  style: UTextStyles.small.copyWith(color: Color(0xff9A9A9A)),
+
+                  // style: TextStyle(fontSize: 14, color: Colors.grey),
+                  // style: Theme.of(
+                  //   context,
+                  // ).textTheme.labelLarge!.copyWith(color: Color(0xff9A9A9A)),
+                ),
               ),
             ],
           ),
@@ -489,7 +505,7 @@ class PortfolioCard extends StatelessWidget {
                         ),
                       ),
                       if (subtitle) ...[
-                        SizedBox(height: 6),
+                        const SizedBox(height: 6),
                         Row(
                           children: const [
                             Text(
@@ -516,7 +532,7 @@ class PortfolioCard extends StatelessWidget {
                             Text(
                               '0.44%',
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 11,
                                 color: Colors.red,
                                 fontWeight: FontWeight.w600,
                               ),

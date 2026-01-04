@@ -274,8 +274,8 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   Positioned(
-                    left: 30,
-                    right: 30,
+                    left: 20,
+                    right: 20,
                     bottom: 0,
                     // top: 0,
                     child: Container(
@@ -285,12 +285,14 @@ class HomeScreen extends StatelessWidget {
                       // width: 400,
                       decoration: BoxDecoration(
                         color: Ucolors.light,
+
                         borderRadius: BorderRadius.circular(15),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.15),
-                            blurRadius: 10,
+                            blurRadius: 5,
                             offset: const Offset(0, 4),
+                            // spreadRadius: 5,
                           ),
                         ],
                       ),
@@ -309,10 +311,11 @@ class HomeScreen extends StatelessWidget {
                               // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 Icon(Icons.person),
-                                SizedBox(width: 10),
+                                SizedBox(width: 5),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
                                       'Onboarding task',
@@ -325,14 +328,17 @@ class HomeScreen extends StatelessWidget {
                                         color: Ucolors.dark,
                                       ),
                                     ),
-                                    FittedBox(
-                                      child: Text(
-                                        'Verify your Identity to start Investing',
-                                        maxLines: 1,
+                                    Text(
+                                      'Verify your Identity to start Investing',
+                                      softWrap: true,
 
-                                        overflow: TextOverflow.ellipsis,
-                                        style: UTextStyles.caption,
+                                      maxLines: 1,
+
+                                      overflow: TextOverflow.ellipsis,
+                                      style: UTextStyles.caption.copyWith(
+                                        // fontSize: 10,
                                       ),
+                                      // textAlign: TextAlign.start,
                                     ),
                                   ],
                                 ),

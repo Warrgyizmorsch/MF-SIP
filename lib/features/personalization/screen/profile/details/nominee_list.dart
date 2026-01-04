@@ -79,26 +79,22 @@ class NomineeList extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        subtitle: Row(
-          children: [
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(text: "Relation: ", style: UTextStyles.caption),
-                  TextSpan(
-                    text: relation,
-                    style: UTextStyles.caption.copyWith(color: Ucolors.dark),
-                  ),
-
-                  TextSpan(text: ', Percentage: ', style: UTextStyles.caption),
-                  TextSpan(
-                    text: percentage,
-                    style: UTextStyles.caption.copyWith(color: Ucolors.dark),
-                  ),
-                ],
+        subtitle: RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(text: "Relation: ", style: UTextStyles.caption),
+              TextSpan(
+                text: relation,
+                style: UTextStyles.caption.copyWith(color: Ucolors.dark),
               ),
-            ),
-          ],
+
+              TextSpan(text: ', Percentage: ', style: UTextStyles.caption),
+              TextSpan(
+                text: percentage,
+                style: UTextStyles.caption.copyWith(color: Ucolors.dark),
+              ),
+            ],
+          ),
         ),
         trailing: Icon(
           Icons.arrow_forward_ios,

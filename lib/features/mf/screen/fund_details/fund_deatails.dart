@@ -289,19 +289,63 @@ class OverviewScreen extends StatelessWidget {
             ],
           ),
         ),
+
+        // --- Fund Overview Section ---
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 5),
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
           child: const USectionHeading(
-            title: 'Fund Performance',
+            title: 'Fund Overview',
             showActionButton: false,
           ),
         ),
-        CustomContainer(
-          child: SizedBox(
-            height: 160,
-            // child: ReturnsBarChart(data: yearlyData),
-            // child: ,
-            child: YearlyReturnsChart(),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Container(
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Ucolors.light,
+              border: Border.all(color: Ucolors.borderColor),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _twoColumnRow(
+                  leftTitle: 'Min SIP',
+                  leftValue: '₹ 5,000',
+                  rightTitle: 'Min lumpsum',
+                  rightValue: '₹ 500',
+                ),
+                const SizedBox(height: 10),
+                _twoColumnRow(
+                  leftTitle: 'Expense Ratio',
+                  leftValue: '1.52%',
+                  rightTitle: 'AUM',
+                  rightValue: '₹ 50,312 Cr',
+                ),
+                const SizedBox(height: 10),
+                _twoColumnRow(
+                  leftTitle: 'Lock In',
+                  leftValue: 'No Lock-in',
+                  rightTitle: 'Launch Date',
+                  rightValue: '2007-08-08',
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Exit Load:',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+                ReadMoreText(
+                  'Nippon India Large Cap Fund – Growth charges 1.0% of sell value; if fund sold before 7 days. There are no other charges.',
+                  trimMode: TrimMode.Line,
+                  trimLines: 1,
+                  trimCollapsedText: 'Show More',
+                  trimExpandedText: 'Show Less',
+                  colorClickableText: Ucolors.primary,
+                ),
+              ],
+            ),
           ),
         ),
         Padding(
@@ -338,6 +382,110 @@ class OverviewScreen extends StatelessWidget {
               DashedLine(color: Colors.grey.shade200),
 
               ...returns.map((row) => ReturnsTableRow(data: row)),
+            ],
+          ),
+        ),
+
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 5),
+          child: const USectionHeading(
+            title: 'Fund Performance',
+            showActionButton: false,
+          ),
+        ),
+        CustomContainer(
+          child: SizedBox(
+            height: 160,
+            // child: ReturnsBarChart(data: yearlyData),
+            // child: ,
+            child: YearlyReturnsChart(),
+          ),
+        ),
+
+        // --- Risk Analysis Section ---
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
+          child: const USectionHeading(
+            title: 'Risk Analysis',
+            showActionButton: false,
+          ),
+        ),
+
+        CustomContainer(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Gap(15),
+              _twoColumnRow(
+                leftTitle: 'Risk-o-Meter',
+                leftValue: 'Very HIgh',
+                rightTitle: 'Volatile',
+                rightValue: '12.42',
+                color: Ucolors.red,
+              ),
+              Gap(10),
+              _twoColumnRow(
+                leftTitle: 'Shape Ratio:',
+                leftValue: '1.05',
+                rightTitle: 'Beta',
+                rightValue: '0.9',
+              ),
+              Gap(12),
+              DashedLine(color: Colors.grey.shade400),
+
+              SpeedometerGauge(value: 85), // Updated to show high risk
+              Text(
+                'Your Principle Will be at:',
+                style: Theme.of(
+                  context,
+                ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                'Very High Risk',
+                style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Ucolors.red,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                'Suitable for aggressive investors and investors with very high-risk tolerance.',
+                textAlign: TextAlign.center,
+                style: UTextStyles.small.copyWith(color: Ucolors.darkgrey),
+              ),
+              const Gap(14),
+              DashedLine(color: Colors.grey.shade400),
+              Gap(12),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: const [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RiskLegendItem(color: Colors.green, label: 'Very Low'),
+                      SizedBox(height: 14),
+                      RiskLegendItem(color: Colors.orange, label: 'Medium'),
+                      SizedBox(height: 14),
+                      RiskLegendItem(color: Colors.redAccent, label: 'High'),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RiskLegendItem(color: Colors.lightGreen, label: 'Low'),
+                      SizedBox(height: 14),
+                      RiskLegendItem(
+                        color: Colors.amber,
+                        label: 'Moderate High',
+                      ),
+                      SizedBox(height: 14),
+                      RiskLegendItem(color: Colors.red, label: 'Very High'),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -575,152 +723,6 @@ class OverviewScreen extends StatelessWidget {
           ),
         ),
 
-        // --- Fund Overview Section ---
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-          child: const USectionHeading(
-            title: 'Fund Overview',
-            showActionButton: false,
-          ),
-        ),
-
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Container(
-            padding: const EdgeInsets.all(15),
-            decoration: BoxDecoration(
-              color: Ucolors.light,
-              border: Border.all(color: Ucolors.borderColor),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _twoColumnRow(
-                  leftTitle: 'Min SIP',
-                  leftValue: '₹ 5,000',
-                  rightTitle: 'Min lumpsum',
-                  rightValue: '₹ 500',
-                ),
-                const SizedBox(height: 10),
-                _twoColumnRow(
-                  leftTitle: 'Expense Ratio',
-                  leftValue: '1.52%',
-                  rightTitle: 'AUM',
-                  rightValue: '₹ 50,312 Cr',
-                ),
-                const SizedBox(height: 10),
-                _twoColumnRow(
-                  leftTitle: 'Lock In',
-                  leftValue: 'No Lock-in',
-                  rightTitle: 'Launch Date',
-                  rightValue: '2007-08-08',
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Exit Load:',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-                ReadMoreText(
-                  'Nippon India Large Cap Fund – Growth charges 1.0% of sell value; if fund sold before 7 days. There are no other charges.',
-                  trimMode: TrimMode.Line,
-                  trimLines: 1,
-                  trimCollapsedText: 'Show More',
-                  trimExpandedText: 'Show Less',
-                  colorClickableText: Ucolors.primary,
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        // --- Risk Analysis Section ---
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-          child: const USectionHeading(
-            title: 'Risk Analysis',
-            showActionButton: false,
-          ),
-        ),
-
-        CustomContainer(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Gap(15),
-              _twoColumnRow(
-                leftTitle: 'Risk-o-Meter',
-                leftValue: 'Very HIgh',
-                rightTitle: 'Volatile',
-                rightValue: '12.42',
-                color: Ucolors.red,
-              ),
-              Gap(10),
-              _twoColumnRow(
-                leftTitle: 'Shape Ratio:',
-                leftValue: '1.05',
-                rightTitle: 'Beta',
-                rightValue: '0.9',
-              ),
-              Gap(12),
-              DashedLine(color: Colors.grey.shade400),
-
-              SpeedometerGauge(value: 85), // Updated to show high risk
-              Text(
-                'Your Principle Will be at:',
-                style: Theme.of(
-                  context,
-                ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                'Very High Risk',
-                style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Ucolors.red,
-                ),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                'Suitable for aggressive investors and investors with very high-risk tolerance.',
-                textAlign: TextAlign.center,
-                style: UTextStyles.small.copyWith(color: Ucolors.darkgrey),
-              ),
-              const Gap(14),
-              DashedLine(color: Colors.grey.shade400),
-              Gap(12),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      RiskLegendItem(color: Colors.green, label: 'Very Low'),
-                      SizedBox(height: 14),
-                      RiskLegendItem(color: Colors.orange, label: 'Medium'),
-                      SizedBox(height: 14),
-                      RiskLegendItem(color: Colors.redAccent, label: 'High'),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      RiskLegendItem(color: Colors.lightGreen, label: 'Low'),
-                      SizedBox(height: 14),
-                      RiskLegendItem(
-                        color: Colors.amber,
-                        label: 'Moderate High',
-                      ),
-                      SizedBox(height: 14),
-                      RiskLegendItem(color: Colors.red, label: 'Very High'),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
         // Padding(
         //   padding: const EdgeInsets.symmetric(horizontal: 60.0, vertical: 15),
         //   child: OutlinedButton(
