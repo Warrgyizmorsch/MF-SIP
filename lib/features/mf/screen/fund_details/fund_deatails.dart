@@ -261,31 +261,6 @@ class OverviewScreen extends StatelessWidget {
               SchemeLineChart(),
               Gap(12),
               PeriodSelector(),
-              // Container(
-              //   padding: EdgeInsets.symmetric(horizontal: 10),
-              //   height: 40,
-              //   width: double.infinity,
-              //   decoration: BoxDecoration(
-              //     color: Ucolors.borderside,
-              //     borderRadius: BorderRadius.circular(20),
-              //   ),
-              //   child: SingleChildScrollView(
-              //     scrollDirection: Axis.horizontal,
-              //     child: Row(
-              //       spacing: 30,
-              //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //       children: [
-              //         Text('1M'),
-              //         Text('3M'),
-              //         Text('6M'),
-              //         Text('1Y'),
-              //         Text('2Y'),
-              //         Text('3Y'),
-              //         Text('5Y'),
-              //       ],
-              //     ),
-              //   ),
-              // ),
             ],
           ),
         ),
@@ -300,6 +275,7 @@ class OverviewScreen extends StatelessWidget {
         ),
 
         Padding(
+        
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Container(
             padding: const EdgeInsets.all(15),
@@ -559,7 +535,7 @@ class OverviewScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
-                        width: 50,
+                        width: 55,
                         child: Text(
                           textAlign: TextAlign.center,
                           'Equity Market Cap',
@@ -620,10 +596,17 @@ class OverviewScreen extends StatelessWidget {
                           ),
                           tabs: [
                             Padding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12.0,
+                              ),
                               child: Text('Top 5 Sector'),
                             ),
-                            Text('Top 5 Stock'),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12.0,
+                              ),
+                              child: Text('Top 5 Stock'),
+                            ),
                           ],
                         ),
                       ),
@@ -722,32 +705,6 @@ class OverviewScreen extends StatelessWidget {
             ],
           ),
         ),
-
-        // Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 60.0, vertical: 15),
-        //   child: OutlinedButton(
-        //     style: OutlinedButton.styleFrom(
-        //       side: BorderSide(color: Ucolors.primary.withOpacity(0.5)),
-        //     ),
-        //     onPressed: () {},
-        //     child: Row(
-        //       mainAxisAlignment: MainAxisAlignment.center,
-        //       children: [
-        //         Text(
-        //           'View full Risk Analysis',
-        //           style: UTextStyles.buttonText.copyWith(
-        //             color: Ucolors.primary.withOpacity(0.5),
-        //           ),
-        //         ),
-        //         SizedBox(width: 10),
-        //         Icon(
-        //           Icons.arrow_forward,
-        //           color: Ucolors.primary.withOpacity(0.5),
-        //         ),
-        //       ],
-        //     ),
-        //   ),
-        // ),
 
         // --- Fund Comparison Section ---
         Padding(
@@ -1000,14 +957,6 @@ class OverviewScreen extends StatelessWidget {
             ],
           ),
         ),
-
-        // Padding(
-        //   padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-        //   child: const USectionHeading(
-        //     title: 'Investment Details',
-        //     showActionButton: false,
-        //   ),
-        // ),
 
         ///Investment Details
         ExpansionTile(
@@ -1325,149 +1274,6 @@ class FundComparisonItem extends StatelessWidget {
   }
 }
 
-// class OverviewScreen extends StatelessWidget {
-//   const OverviewScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return CustomScrollView(
-//       slivers: [
-//         // Top section
-//         SliverToBoxAdapter(
-//           child: Padding(
-//             padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-//             child: const USectionHeading(
-//               title: 'Fund Overview',
-//               showActionButton: false,
-//               // buttonTitle: 'See all',
-//             ),
-//           ),
-//         ),
-//         SliverToBoxAdapter(
-//           child: Padding(
-//             padding: EdgeInsetsGeometry.symmetric(horizontal: 20),
-//             child: Container(
-//               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-//               decoration: BoxDecoration(
-//                 color: Ucolors.light,
-//                 border: Border.all(color: Ucolors.borderColor),
-//                 borderRadius: BorderRadius.circular(12),
-//               ),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   _twoColumnRow(
-//                     leftTitle: 'Min SIp',
-//                     leftValue: '₹ 5,000',
-//                     rightTitle: 'Min lumpsum',
-//                     rightValue: '₹ 5,00',
-//                   ),
-//                   const SizedBox(height: 10),
-//                   _twoColumnRow(
-//                     leftTitle: 'Expense Ratio',
-//                     leftValue: '1.52%',
-//                     rightTitle: 'AUM',
-//                     rightValue: '₹ 5,00',
-//                   ),
-//                   const SizedBox(height: 10),
-
-//                   _twoColumnRow(
-//                     leftTitle: 'Lock In ',
-//                     leftValue: 'NO Lock-in',
-//                     rightTitle: 'Launch Date',
-//                     rightValue: '2002-02-02',
-//                   ),
-//                   SizedBox(height: 10),
-//                   const Text(
-//                     'Exit Load:',
-//                     style: TextStyle(fontSize: 12, color: Colors.grey),
-//                   ),
-
-//                   ReadMoreText(
-//                     'Nippon India Large Cap Fund – Growth charges 1.0% '
-//                     'of sell value; if fund sold before 7 days. '
-//                     'There are no other charges. ',
-//                     trimMode: TrimMode.Line,
-//                     trimLines: 1,
-//                     trimCollapsedText: 'Show More',
-//                     trimExpandedText: 'Show Less',
-//                     colorClickableText: Ucolors.primary,
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ),
-//         SliverToBoxAdapter(
-//           child: Padding(
-//             padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-//             child: const USectionHeading(
-//               title: 'Risk Analysis',
-//               showActionButton: false,
-//               // buttonTitle: 'See all',
-//             ),
-//           ),
-//         ),
-//         SliverToBoxAdapter(
-//           child: CustomContainer(
-//             child: Column(
-//               // mainAxisAlignment: MainAxisAlignment.start,
-//               mainAxisSize: MainAxisSize.min,
-//               crossAxisAlignment: CrossAxisAlignment.center,
-//               children: [
-//                 SpeedometerGauge(value: 50),
-//                 Text(
-//                   'Your Principle Will be at:',
-//                   style: Theme.of(
-//                     context,
-//                   ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.bold),
-//                 ),
-//                 const SizedBox(height: 3),
-//                 Text(
-//                   'Very High Risk',
-//                   style: Theme.of(context).textTheme.labelLarge!.copyWith(
-//                     fontWeight: FontWeight.bold,
-//                     color: Ucolors.red,
-//                   ),
-//                 ),
-//                 const SizedBox(height: 3),
-
-//                 Text(
-//                   textAlign: TextAlign.center,
-//                   'Suitable for balanced investments and investors with medium risk tolerance.',
-//                   style: UTextStyles.small.copyWith(color: Ucolors.darkgrey),
-//                 ),
-//                 const SizedBox(height: 5),
-//               ],
-//             ),
-//           ),
-//         ),
-
-//         SliverToBoxAdapter(
-//           child: Padding(
-//             padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-//             child: const USectionHeading(
-//               title: 'Fund Comparison',
-//               showActionButton: false,
-//               // buttonTitle: 'See all',
-//             ),
-//           ),
-//         ),
-//         SliverToBoxAdapter(
-//           child: Padding(
-//             padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-//             child: const USectionHeading(
-//               title: 'Related Funds',
-//               showActionButton: false,
-//               // buttonTitle: 'See all',
-//             ),
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
-
 class SpeedometerGauge extends StatelessWidget {
   final double value; // 0–100
 
@@ -1738,206 +1544,3 @@ Widget _metaText(
     style: TextStyle(fontSize: 12, color: color, fontWeight: fontWeight),
   );
 }
-
-// import 'package:flutter/material.dart';
-
-// class NipponFundDetailScreen extends StatelessWidget {
-//   const NipponFundDetailScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: DefaultTabController(
-//         length: 5,
-//         child: NestedScrollView(
-//           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-//             return <Widget>[
-//               // This is the part that scrolls away
-//               SliverAppBar(
-//                 expandedHeight: 220.0, // Height of the top details
-//                 pinned: true, // Keeps the TabBar at the top
-//                 floating: false,
-//                 backgroundColor: Colors.white,
-//                 elevation: 0,
-//                 leading: const Icon(Icons.arrow_back, color: Colors.black),
-//                 flexibleSpace: FlexibleSpaceBar(
-//                   collapseMode: CollapseMode.pin,
-//                   background: Padding(
-//                     padding: const EdgeInsets.only(
-//                       top: 80,
-//                       left: 16,
-//                       right: 16,
-//                     ),
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         const Text(
-//                           "Nippon India Large Cap Fund- Growth Plan",
-//                           style: TextStyle(
-//                             fontSize: 18,
-//                             fontWeight: FontWeight.bold,
-//                           ),
-//                         ),
-//                         const SizedBox(height: 10),
-//                         _buildMiniStats(), // Helper for NAV and Returns
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//                 // This is the pinned TabBar
-//                 bottom: PreferredSize(
-//                   preferredSize: const Size.fromHeight(48),
-//                   child: Container(
-//                     color: Colors.white,
-//                     child: const TabBar(
-//                       isScrollable: true,
-//                       indicatorColor: Colors.red,
-//                       labelColor: Colors.black,
-//                       unselectedLabelColor: Colors.grey,
-//                       tabs: [
-//                         Tab(text: "Overview"),
-//                         Tab(text: "Returns"),
-//                         Tab(text: "Risk"),
-//                         Tab(text: "Portfolio"),
-//                         Tab(text: "Information"),
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ];
-//           },
-//           // This is the scrollable/swipeable content below the TabBar
-//           body: const TabBarView(
-//             children: [
-//               OverviewContent(), // Your main content list
-//               Center(child: Text("Returns Content")),
-//               Center(child: Text("Risk Content")),
-//               Center(child: Text("Portfolio Content")),
-//               Center(child: Text("Info Content")),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildMiniStats() {
-//     return const Row(
-//       children: [
-//         Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Text("NAV", style: TextStyle(color: Colors.grey, fontSize: 12)),
-//             Text("₹93", style: TextStyle(fontWeight: FontWeight.bold)),
-//           ],
-//         ),
-//         SizedBox(width: 40),
-//         Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Text(
-//               "Returns (1Y)",
-//               style: TextStyle(color: Colors.grey, fontSize: 12),
-//             ),
-//             Text(
-//               "8.38%",
-//               style: TextStyle(
-//                 color: Colors.green,
-//                 fontWeight: FontWeight.bold,
-//               ),
-//             ),
-//           ],
-//         ),
-//       ],
-//     );
-//   }
-// }
-
-// // Ensure the content inside TabBarView is also scrollable
-// class OverviewContent extends StatelessWidget {
-//   const OverviewContent({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return ListView.builder(
-//       padding: const EdgeInsets.all(16),
-//       itemCount: 20,
-//       itemBuilder: (context, index) =>
-//           Card(child: ListTile(title: Text("Fund Data Point $index"))),
-//     );
-//   }
-// }
-
-// class SliverPageTabs extends SliverPersistentHeaderDelegate {
-//   final int selectedIndex;
-//   final ValueChanged<int> onTap;
-
-//   SliverPageTabs({required this.selectedIndex, required this.onTap});
-
-//   @override
-//   Widget build(
-//     BuildContext context,
-//     double shrinkOffset,
-//     bool overlapsContent,
-//   ) {
-//     // Add a Container with solid color so content doesn't bleed behind the tabs
-//     return Container(
-//       color: Colors.grey[50],
-//       alignment: Alignment.center,
-//       child: Container(
-//         height: 45,
-//         margin: const EdgeInsets.symmetric(horizontal: 16),
-//         decoration: BoxDecoration(
-//           color: Colors.grey[200],
-//           borderRadius: BorderRadius.circular(25),
-//         ),
-//         child: ListView.separated(
-//           scrollDirection: Axis.horizontal,
-//           padding: const EdgeInsets.symmetric(horizontal: 10),
-//           itemCount: 5,
-//           separatorBuilder: (_, __) => const SizedBox(width: 8),
-//           itemBuilder: (context, index) {
-//             final tabs = ['Overview', 'Returns', 'Risk', 'Portfolio', 'Info'];
-//             final isSelected = index == selectedIndex;
-//             return GestureDetector(
-//               onTap: () => onTap(index),
-//               child: Center(
-//                 child: AnimatedContainer(
-//                   duration: const Duration(milliseconds: 200),
-//                   padding: const EdgeInsets.symmetric(
-//                     horizontal: 20,
-//                     vertical: 8,
-//                   ),
-//                   decoration: BoxDecoration(
-//                     color: isSelected ? Colors.white : Colors.transparent,
-//                     borderRadius: BorderRadius.circular(20),
-//                     boxShadow: isSelected
-//                         ? [BoxShadow(color: Colors.black12, blurRadius: 4)]
-//                         : [],
-//                   ),
-//                   child: Text(
-//                     tabs[index],
-//                     style: TextStyle(
-//                       color: isSelected ? Colors.blue : Colors.grey[700],
-//                       fontWeight: isSelected
-//                           ? FontWeight.bold
-//                           : FontWeight.normal,
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             );
-//           },
-//         ),
-//       ),
-//     );
-//   }
-
-//   @override
-//   double get maxExtent => 60;
-//   @override
-//   double get minExtent => 60;
-//   @override
-//   bool shouldRebuild(covariant SliverPageTabs oldDelegate) => true;
-// }

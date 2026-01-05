@@ -13,6 +13,7 @@ class UTextFormField extends StatelessWidget {
     this.keyboardType,
     this.controller,
     this.maxLines = 1,
+    this.suffix,
   });
 
   final String? labelText;
@@ -21,6 +22,8 @@ class UTextFormField extends StatelessWidget {
   final IconData? prefixIcon;
   final IconData? sufixIcon;
   final TextEditingController? controller;
+  final Widget? suffix;
+
   final int maxLines;
   @override
   Widget build(BuildContext context) {
@@ -43,7 +46,7 @@ class UTextFormField extends StatelessWidget {
           floatingLabelStyle: TextStyle(color: Ucolors.textFormEnabled),
           hintText: hintText,
           hintStyle: TextStyle(
-            color: Ucolors.dark,
+            color: Ucolors.darkgrey.withOpacity(0.8),
             fontSize: (Get.width * 0.035).clamp(12, 14),
           ),
           prefixIcon: prefixIcon != null
@@ -59,6 +62,7 @@ class UTextFormField extends StatelessWidget {
             vertical: 0,
             horizontal: 16,
           ),
+          suffix: suffix,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide(color: Colors.grey.shade300),

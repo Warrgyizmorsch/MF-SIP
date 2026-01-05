@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:my_sip/features/authentication/model/questions/questions_model.dart';
 import 'package:my_sip/features/dashboard/screen/comparison_screen.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 
 class QuestionController extends GetxController {
   // Observables
@@ -81,7 +82,8 @@ class QuestionController extends GetxController {
 
       log('${currentStep.value}');
     } else {
-      Get.offAll(() => ComparisonScreen());
+      // Get.offAll(() => ComparisonScreen());
+      Get.offAll(() => NavigationMenuBar());
       log('DashBoard Screen');
       log('${currentStep.value}');
     }

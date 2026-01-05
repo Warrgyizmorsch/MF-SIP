@@ -13,6 +13,7 @@ class CustomAppBarNormal extends StatelessWidget
     this.backgroundColor,
     this.backIcon = true,
     this.actionsPadding,
+    this.bottom,
   });
 
   final String title;
@@ -21,10 +22,12 @@ class CustomAppBarNormal extends StatelessWidget
   final bool backIcon;
   // final
   final double? actionsPadding;
+  final PreferredSizeWidget? bottom;
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      bottom: bottom,
       backgroundColor: backgroundColor ?? Colors.grey.shade50,
       // automaticallyImplyLeading: true,
       actionsPadding: EdgeInsets.only(right: actionsPadding ?? 0),

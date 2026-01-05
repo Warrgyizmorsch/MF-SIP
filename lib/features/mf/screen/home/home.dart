@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -8,6 +10,7 @@ import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
 import 'package:my_sip/features/mf/screen/goal/goal.dart';
+import 'package:my_sip/features/mf/screen/home/product_tool/sip_calculator.dart';
 import 'package:my_sip/features/personalization/screen/profile/profile.dart';
 import 'package:my_sip/utils/constant/colors.dart';
 import 'package:my_sip/utils/constant/images.dart';
@@ -452,7 +455,7 @@ class HomeScreen extends StatelessWidget {
               sliver: SliverGrid(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
-                  childAspectRatio: 1.2,
+                  childAspectRatio: 1.1,
                   mainAxisSpacing: 0,
 
                   crossAxisSpacing: 12,
@@ -621,7 +624,11 @@ class HomeScreen extends StatelessWidget {
                   crossAxisSpacing: 16,
                 ),
                 delegate: SliverChildListDelegate([
-                  ToolsItem(title: "SIP Calculator", imgUrl: UImages.sipcalci),
+                  ToolsItem(
+                    title: "SIP Calculator",
+                    imgUrl: UImages.sipcalci,
+                    onTap: () => Get.to(() => SipCalculatorPage()),
+                  ),
                   ToolsItem(title: "STP Calculator", imgUrl: UImages.stpcalci),
                   ToolsItem(title: "SWP Calculator", imgUrl: UImages.swpcali),
                   ToolsItem(title: "Compare Fund", imgUrl: UImages.comparefund),
@@ -978,33 +985,43 @@ class GoalBaseSIPCard extends StatelessWidget {
 }
 
 class ToolsItem extends StatelessWidget {
-  const ToolsItem({super.key, required this.title, required this.imgUrl});
+  const ToolsItem({
+    super.key,
+    required this.title,
+    required this.imgUrl,
+    this.onTap,
+  });
 
   final String title;
   final String imgUrl;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(height: 45, width: 45, child: Image.asset(imgUrl)),
-        SizedBox(width: 5),
-        Flexible(
-          child: Text(
-            title,
-            style: UTextStyles.small.copyWith(
-              // color: Ucolors.hometxtblue,
-              // color: Colors.grey[600],
-              // color: Colors.black.withOpacity(0.7),
-              color: Colors.grey[600],
+    log('tap');
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(height: 45, width: 45, child: Image.asset(imgUrl)),
+          SizedBox(width: 5),
+          Flexible(
+            child: Text(
+              title,
+              style: UTextStyles.small.copyWith(
+                // color: Ucolors.hometxtblue,
+                // color: Colors.grey[600],
+                // color: Colors.black.withOpacity(0.7),
+                color: Colors.grey[600],
 
-              // fontSize: 14,
-              // fontWeight: FontWeight.w500,
+                // fontSize: 14,
+                // fontWeight: FontWeight.w500,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

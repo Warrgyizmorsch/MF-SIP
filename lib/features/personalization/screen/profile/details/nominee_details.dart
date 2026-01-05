@@ -6,6 +6,7 @@ import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/features/dashboard/screen/comparison_screen.dart';
 import 'package:my_sip/features/personalization/screen/profile/profile.dart';
+import 'package:my_sip/utils/constant/colors.dart';
 import 'package:my_sip/utils/constant/images.dart';
 
 class NomineeDetailsScreen extends StatelessWidget {
@@ -36,43 +37,72 @@ class NomineeDetailsScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   //Details
-                  const SmallHeading(smallheading: 'Full Name'),
+                  SmallHeading(
+                    smallheading: 'Full Name',
+                    fontWeight: FontWeight.w600,
+                    // color: Colors.black87,
+                  ),
                   const SizedBox(height: 5),
                   UTextFormField(
                     prefixIcon: null,
-                    hintText: 'Pratik Hinger',
+                    hintText: 'Enter nominees full name',
                     // controller: TextEditingController(text: 'Pr'),
                   ),
                   const SizedBox(height: 10),
 
-                  const SmallHeading(smallheading: 'Date of Birth'),
+                  const SmallHeading(
+                    smallheading: 'Date of Birth',
+                    fontWeight: FontWeight.w600,
+                  ),
                   const SizedBox(height: 5),
                   UTextFormField(
                     prefixIcon: null,
-                    hintText: '12/12/2000',
+                    hintText: 'DD/MM/YYYY',
                     sufixIcon: Icons.calendar_month,
                   ),
                   const SizedBox(height: 10),
 
-                  const SmallHeading(smallheading: 'Email'),
+                  const SmallHeading(
+                    fontWeight: FontWeight.w600,
+
+                    smallheading: 'Email',
+                  ),
                   const SizedBox(height: 5),
                   UTextFormField(
                     prefixIcon: null,
-                    hintText: 'abc@123gmail.com',
+                    hintText: 'Enter nominees email ID',
                   ),
                   const SizedBox(height: 10),
 
-                  const SmallHeading(smallheading: 'Phone Number(Optional)'),
+                  const SmallHeading(
+                    fontWeight: FontWeight.w600,
+
+                    smallheading: 'Phone Number(Optional)',
+                  ),
                   const SizedBox(height: 5),
-                  UTextFormField(prefixIcon: null, hintText: '+91 9283637219'),
+                  UTextFormField(
+                    prefixIcon: null,
+                    hintText: '+91 Enter nominnes mobile no.',
+                  ),
                   const SizedBox(height: 10),
 
-                  const SmallHeading(smallheading: 'Document type'),
+                  const SmallHeading(
+                    fontWeight: FontWeight.w600,
+
+                    smallheading: 'Document type',
+                  ),
                   const SizedBox(height: 5),
-                  UTextFormField(prefixIcon: null, hintText: 'Aadhar'),
+                  UTextFormField(
+                    prefixIcon: null,
+                    hintText: 'Aadhar / PAN / DL',
+                  ),
                   const SizedBox(height: 10),
 
-                  const SmallHeading(smallheading: 'Aadhar Number'),
+                  const SmallHeading(
+                    fontWeight: FontWeight.w600,
+
+                    smallheading: 'Document Number',
+                  ),
                   const SizedBox(height: 5),
                   UTextFormField(
                     prefixIcon: Icons.mail,
@@ -80,20 +110,38 @@ class NomineeDetailsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
 
-                  const SmallHeading(smallheading: 'Relation'),
+                  const SmallHeading(
+                    fontWeight: FontWeight.w600,
+
+                    smallheading: 'Relation',
+                  ),
                   const SizedBox(height: 5),
+
                   UTextFormField(
+                    // sufixIcon: ,
+                    // suffix: DropdownButton(
+                    //   items: [
+                    //     DropdownMenuItem(value: '', child: Text('Wife')),
+                    //     DropdownMenuItem(value: '', child: Text('Husband')),
+                    //     // DropdownMenuItem(child: Text('Husband')),
+                    //   ],
+                    //   onChanged: (value) {},
+                    // ),
                     prefixIcon: Icons.mail,
-                    hintText: 'Spouse (Husband / Wife)',
+                    hintText: 'Spouse (Husband / Wife / etc)',
                   ),
                   const SizedBox(height: 10),
 
-                  const SmallHeading(smallheading: 'Address'),
+                  const SmallHeading(
+                    fontWeight: FontWeight.w600,
+
+                    smallheading: 'Address',
+                  ),
                   const SizedBox(height: 5),
                   UTextFormField(
                     // controller: TextEditingController(text: 'daddab'),
                     prefixIcon: Icons.mail,
-                    hintText: 'Udaipur, Rajasthan, 313001',
+                    hintText: 'Enter your Full Address',
                   ),
                   const SizedBox(height: 10),
                 ],
