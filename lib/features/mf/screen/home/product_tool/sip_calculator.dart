@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-<<<<<<< Updated upstream
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/images.dart';
-import 'package:my_sip/core/utils/constant/text_style.dart';
-=======
-import 'package:my_sip/common/style/padding.dart';import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
+import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/table/table_header.dart';
 import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
 import 'package:my_sip/features/mf/screen/fund_details/widget/model/return_model.dart';
@@ -14,10 +10,7 @@ import 'package:my_sip/features/mf/screen/fund_details/widget/return.dart';
 import 'package:my_sip/features/mf/screen/home/product_tool/widget/InvestValue.dart';
 import 'package:my_sip/features/mf/screen/home/product_tool/widget/piechart_with_value.dart';
 import 'package:my_sip/features/mf/screen/home/product_tool/widget/sipslidertile.dart';
-import 'package:my_sip/core/utils/constant/colors.dart';
 
-// >>>>>>> d5b646f4ec43520fd1f8bb9de3682d46f88bc06a
->>>>>>> Stashed changes
 
 class SipCalculatorPage extends StatefulWidget {
   const SipCalculatorPage({super.key});

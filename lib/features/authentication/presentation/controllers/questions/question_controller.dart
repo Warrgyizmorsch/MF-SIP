@@ -2,10 +2,7 @@ import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:my_sip/features/authentication/data/models/questions_model.dart';
-<<<<<<< Updated upstream
-import 'package:my_sip/features/dashboard/screen/comparison_screen.dart';
-=======
->>>>>>> Stashed changes
+
 import 'package:my_sip/navigation_menu_bar.dart';
 
 class QuestionController extends GetxController {
