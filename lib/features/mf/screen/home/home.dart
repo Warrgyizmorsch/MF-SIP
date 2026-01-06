@@ -8,9 +8,12 @@ import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
+import 'package:my_sip/features/mf/screen/explore/explore.dart';
 import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
 import 'package:my_sip/features/mf/screen/goal/goal.dart';
 import 'package:my_sip/features/mf/screen/home/product_tool/sip_calculator.dart';
+import 'package:my_sip/features/mf/screen/home/product_tool/swp_calci.dart';
+import 'package:my_sip/features/mf/screen/home/product_tool/top_up_calculator.dart';
 import 'package:my_sip/features/personalization/screen/profile/profile.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
@@ -464,27 +467,37 @@ class HomeScreen extends StatelessWidget {
                   CollectionItem(
                     title: 'Best SIP Funds',
                     iconImg: UImages.savingbank,
-                    onTap: () {
-                      /* navigate */
-                    },
+                    onTap: () => Get.to(() => ExploreScreen()),
                   ),
                   CollectionItem(
                     title: 'High Returns',
                     iconImg: UImages.highreturn,
+                    onTap: () => Get.to(() => ExploreScreen()),
                   ),
                   CollectionItem(
+                    onTap: () => Get.to(() => ExploreScreen()),
+
                     title: 'International Funds',
                     iconImg: UImages.interfund,
                   ),
                   CollectionItem(
+                    onTap: () => Get.to(() => ExploreScreen()),
+
                     title: 'Index Funds',
                     iconImg: UImages.indexfund,
                   ),
                   CollectionItem(
+                    onTap: () => Get.to(() => ExploreScreen()),
+
                     title: 'Commodities',
                     iconImg: UImages.moneygold,
                   ),
-                  CollectionItem(title: 'Equity', iconImg: UImages.equity),
+                  CollectionItem(
+                    onTap: () => Get.to(() => ExploreScreen()),
+
+                    title: 'Equity',
+                    iconImg: UImages.equity,
+                  ),
                 ]),
               ),
             ),
@@ -512,22 +525,31 @@ class HomeScreen extends StatelessWidget {
                 ),
                 delegate: SliverChildListDelegate([
                   GoalBaseSIPCard(
+                    onTap: () => Get.to(() => GoalScreen()),
                     title: 'Car Goal',
                     iconData: Icons.directions_car_filled_rounded,
                   ),
                   GoalBaseSIPCard(
+                    onTap: () => Get.to(() => GoalScreen()),
+
                     title: 'Bike Goal',
                     iconData: Icons.pedal_bike_rounded,
                   ),
                   GoalBaseSIPCard(
+                    onTap: () => Get.to(() => GoalScreen()),
+
                     title: 'Marriage Goal',
                     iconData: Icons.favorite_border_outlined,
                   ),
                   GoalBaseSIPCard(
+                    onTap: () => Get.to(() => GoalScreen()),
+
                     title: 'Vacation Goal',
                     iconData: Icons.flight_takeoff_rounded,
                   ),
                   GoalBaseSIPCard(
+                    onTap: () => Get.to(() => GoalScreen()),
+
                     title: 'Home Goal',
                     iconData: Icons.home_rounded,
                   ),
@@ -629,13 +651,18 @@ class HomeScreen extends StatelessWidget {
                     imgUrl: UImages.sipcalci,
                     onTap: () => Get.to(() => SipCalculatorPage()),
                   ),
-                  ToolsItem(title: "STP Calculator", imgUrl: UImages.stpcalci),
-                  ToolsItem(title: "SWP Calculator", imgUrl: UImages.swpcali),
-                  ToolsItem(title: "Compare Fund", imgUrl: UImages.comparefund),
+                  // ToolsItem(title: "STP Calculator", imgUrl: UImages.stpcalci),
+                  ToolsItem(
+                    title: "SWP Calculator",
+                    imgUrl: UImages.swpcali,
+                    onTap: () => Get.to(() => SwpCalciScreen()),
+                  ),
                   ToolsItem(
                     title: "SIP Top Up Calculator",
                     imgUrl: UImages.siptopcalci,
+                    onTap: () => Get.to(() => TopUpCalculatorPage()),
                   ),
+                  ToolsItem(title: "Compare Fund", imgUrl: UImages.comparefund),
                 ]),
               ),
             ),
@@ -1041,30 +1068,33 @@ class CollectionItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Image.asset(iconImg),
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(iconImg),
 
-        const SizedBox(height: 4),
-        SizedBox(
-          width: size.width * 0.27,
-          // width: 100,
-          child: Text(
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            softWrap: true,
-            overflow: TextOverflow.ellipsis,
-            title,
-            style: UTextStyles.small.copyWith(
-              // color: Ucolors.hometxtblue,
-              color: Colors.grey[600],
+          const SizedBox(height: 4),
+          SizedBox(
+            width: size.width * 0.27,
+            // width: 100,
+            child: Text(
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              softWrap: true,
               overflow: TextOverflow.ellipsis,
+              title,
+              style: UTextStyles.small.copyWith(
+                // color: Ucolors.hometxtblue,
+                color: Colors.grey[600],
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

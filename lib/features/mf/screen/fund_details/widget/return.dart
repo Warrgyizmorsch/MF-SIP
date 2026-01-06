@@ -5,13 +5,21 @@ import 'package:my_sip/features/mf/screen/fund_details/widget/model/return_model
 class ReturnsTableRow extends StatelessWidget {
   final ReturnRow data;
 
-  const ReturnsTableRow({super.key, required this.data});
+  const ReturnsTableRow({
+    super.key,
+    required this.data,
+    this.percentage = true,
+    this.fontSize,
+  });
 
   Color _valueColor(double value) {
     if (value < 0) return Colors.red;
-    return Colors.green;
+    // return Colors.green;
+    return Colors.black;
   }
 
+  final bool percentage;
+  final double? fontSize;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -20,15 +28,16 @@ class ReturnsTableRow extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 14),
           child: Row(
             children: [
-              
               // PERIOD
               SizedBox(
                 width: 40,
                 child: Text(
                   data.period,
-                  style: const TextStyle(
+                  style: TextStyle(
+                    fontSize: fontSize,
                     fontWeight: FontWeight.w600,
-                    color: Colors.blue,
+                    // color: Colors.blue,
+                    color: Colors.black,
                   ),
                 ),
               ),
@@ -36,9 +45,12 @@ class ReturnsTableRow extends StatelessWidget {
               // SCHEME
               Expanded(
                 child: Text(
-                  '${data.scheme.toStringAsFixed(2)}%',
+                  percentage
+                      ? '${data.scheme.toStringAsFixed(2)}%'
+                      : data.scheme.toString(),
                   textAlign: TextAlign.center,
                   style: TextStyle(
+                    fontSize: fontSize,
                     color: _valueColor(data.scheme),
                     fontWeight: FontWeight.w500,
                   ),
@@ -48,9 +60,13 @@ class ReturnsTableRow extends StatelessWidget {
               // CATEGORY
               Expanded(
                 child: Text(
-                  '${data.category.toStringAsFixed(2)}%',
+                  percentage
+                      ? '${data.category.toStringAsFixed(2)}%'
+                      : data.category.toString(),
                   textAlign: TextAlign.center,
                   style: TextStyle(
+                    fontSize: fontSize,
+
                     color: _valueColor(data.category),
                     fontWeight: FontWeight.w500,
                   ),
@@ -60,14 +76,33 @@ class ReturnsTableRow extends StatelessWidget {
               // BENCHMARK
               Expanded(
                 child: Text(
-                  '${data.benchmark.toStringAsFixed(2)}%',
+                  percentage
+                      ? '${data.benchmark.toStringAsFixed(2)}%'
+                      : data.benchmark.toString(),
                   textAlign: TextAlign.center,
                   style: TextStyle(
+                    fontSize: fontSize,
+
                     color: _valueColor(data.benchmark),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
+              if (data.extra != null)
+                Expanded(
+                  child: Text(
+                    percentage
+                        ? '${data.extra!.toStringAsFixed(2)}%'
+                        : data.extra.toString(),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: fontSize,
+
+                      color: _valueColor(data.benchmark),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

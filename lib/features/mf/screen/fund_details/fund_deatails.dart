@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
+import 'package:my_sip/common/widget/table/table_header.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/features/dashboard/screen/comparison_screen.dart';
 import 'package:my_sip/features/mf/screen/dashboard/dashboard.dart';
@@ -164,44 +165,6 @@ class _FundDeatailsScreenState extends State<FundDeatailsScreen>
   }
 }
 
-Widget returnsTableHeader() {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 12),
-    child: Row(
-      children: const [
-        SizedBox(
-          width: 40,
-          child: Text(
-            'Period',
-            style: TextStyle(color: Colors.grey, fontSize: 12),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            'Scheme',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey, fontSize: 12),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            'Category',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey, fontSize: 12),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            'Benchmark',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey, fontSize: 12),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
 class OverviewScreen extends StatelessWidget {
   const OverviewScreen({super.key});
 
@@ -275,7 +238,6 @@ class OverviewScreen extends StatelessWidget {
         ),
 
         Padding(
-        
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Container(
             padding: const EdgeInsets.all(15),
@@ -354,7 +316,13 @@ class OverviewScreen extends StatelessWidget {
         CustomContainer(
           child: Column(
             children: [
-              returnsTableHeader(),
+              // returnsTableHeader(),
+              TableHeader(
+                heading1: 'Period',
+                heading2: 'Scheme',
+                heading3: 'Category',
+                heading4: 'Benchmark',
+              ),
               DashedLine(color: Colors.grey.shade200),
 
               ...returns.map((row) => ReturnsTableRow(data: row)),

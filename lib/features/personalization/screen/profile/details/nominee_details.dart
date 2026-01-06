@@ -10,7 +10,9 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 
 class NomineeDetailsScreen extends StatelessWidget {
-  const NomineeDetailsScreen({super.key});
+  NomineeDetailsScreen({super.key});
+  final TextEditingController relationController = TextEditingController();
+  final TextEditingController documnetController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +71,7 @@ class NomineeDetailsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 5),
                   UTextFormField(
-                    prefixIcon: null,
+                    prefixIcon: Icons.mail_outline,
                     hintText: 'Enter nominees email ID',
                   ),
                   const SizedBox(height: 10),
@@ -92,9 +94,21 @@ class NomineeDetailsScreen extends StatelessWidget {
                     smallheading: 'Document type',
                   ),
                   const SizedBox(height: 5),
-                  UTextFormField(
-                    prefixIcon: null,
-                    hintText: 'Aadhar / PAN / DL',
+                  InkWell(
+                    borderRadius: BorderRadius.circular(14),
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+                      _documnetMenu(context); // no keyboard
+                    },
+                    child: AbsorbPointer(
+                      absorbing: true,
+                      child: UTextFormField(
+                        controller: documnetController,
+                        prefixIcon: Iconsax.document,
+                        hintText: 'Aadhar / PAN / DL',
+                        sufixIcon: Icons.arrow_drop_down,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 10),
 
@@ -105,7 +119,7 @@ class NomineeDetailsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 5),
                   UTextFormField(
-                    prefixIcon: Icons.mail,
+                    prefixIcon: Icons.document_scanner_outlined,
                     hintText: '542191187840',
                   ),
                   const SizedBox(height: 10),
@@ -117,18 +131,21 @@ class NomineeDetailsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 5),
 
-                  UTextFormField(
-                    // sufixIcon: ,
-                    // suffix: DropdownButton(
-                    //   items: [
-                    //     DropdownMenuItem(value: '', child: Text('Wife')),
-                    //     DropdownMenuItem(value: '', child: Text('Husband')),
-                    //     // DropdownMenuItem(child: Text('Husband')),
-                    //   ],
-                    //   onChanged: (value) {},
-                    // ),
-                    prefixIcon: Icons.mail,
-                    hintText: 'Spouse (Husband / Wife / etc)',
+                  InkWell(
+                    borderRadius: BorderRadius.circular(14),
+                    onTap: () {
+                      FocusScope.of(context).unfocus(); // no keyboard
+                      _showRelationMenu(context);
+                    },
+                    child: AbsorbPointer(
+                      absorbing: true,
+                      child: UTextFormField(
+                        sufixIcon: Icons.arrow_drop_down,
+                        controller: relationController,
+                        prefixIcon: Iconsax.user,
+                        hintText: 'Select Relation',
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 10),
 
@@ -139,8 +156,7 @@ class NomineeDetailsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 5),
                   UTextFormField(
-                    // controller: TextEditingController(text: 'daddab'),
-                    prefixIcon: Icons.mail,
+                    prefixIcon: Icons.location_on_outlined,
                     hintText: 'Enter your Full Address',
                   ),
                   const SizedBox(height: 10),
@@ -150,6 +166,7 @@ class NomineeDetailsScreen extends StatelessWidget {
           ),
         ),
       ),
+
       bottomNavigationBar: SafeArea(
         top: false,
         child: BottomBarButton(
@@ -158,5 +175,45 @@ class NomineeDetailsScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _showRelationMenu(BuildContext context) async {
+    final value = await showMenu<String>(
+      color: Colors.white,
+    
+      context: context,
+      
+
+      position: const RelativeRect.fromLTRB(100, 300, 100, 100),
+      items: const [
+        PopupMenuItem(value: 'Father', child: Text('Father')),
+        PopupMenuItem(value: 'Mother', child: Text('Mother')),
+        PopupMenuItem(value: 'Wife', child: Text('Wife')),
+        PopupMenuItem(value: 'Husband', child: Text('Husband')),
+        PopupMenuItem(value: 'Son', child: Text('Son')),
+        PopupMenuItem(value: 'Daughter', child: Text('Daughter')),
+      ],
+    );
+
+    if (value != null) {
+      relationController.text = value;
+    }
+  }
+
+  void _documnetMenu(BuildContext context) async {
+    final value = await showMenu<String>(
+      context: context,
+      color: Ucolors.light,
+      position: const RelativeRect.fromLTRB(100, 300, 100, 100),
+      items: const [
+        PopupMenuItem(value: 'Aadhar', child: Text('Aadhar')),
+        PopupMenuItem(value: 'Pan', child: Text('PAN')),
+        PopupMenuItem(value: 'Driving Licence', child: Text('Driving Licence')),
+      ],
+    );
+
+    if (value != null) {
+      documnetController.text = value;
+    }
   }
 }

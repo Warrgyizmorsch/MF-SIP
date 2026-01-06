@@ -14,6 +14,7 @@ class UTextFormField extends StatelessWidget {
     this.controller,
     this.maxLines = 1,
     this.suffix,
+    this.readOnly = false,
   });
 
   final String? labelText;
@@ -23,6 +24,7 @@ class UTextFormField extends StatelessWidget {
   final IconData? sufixIcon;
   final TextEditingController? controller;
   final Widget? suffix;
+  final bool readOnly;
 
   final int maxLines;
   @override
@@ -30,10 +32,13 @@ class UTextFormField extends StatelessWidget {
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.065,
       child: TextFormField(
+        
+        readOnly: readOnly,
+
         controller: controller,
         maxLines: maxLines,
 
-        // enabled: F,
+        // enabled: false,
         keyboardType: keyboardType,
 
         decoration: InputDecoration(
@@ -58,9 +63,11 @@ class UTextFormField extends StatelessWidget {
                   onPressed: () {},
                 )
               : null,
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 0,
-            horizontal: 16,
+          contentPadding: const EdgeInsets.only(
+            left: 16,
+            right: 16,
+            // vertical: 0,
+            // horizontal: 16,
           ),
           suffix: suffix,
           border: OutlineInputBorder(
@@ -83,4 +90,5 @@ class UTextFormField extends StatelessWidget {
       ),
     );
   }
+  
 }
