@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/text/subtitle_section.dart';
 import 'package:my_sip/common/widget/top_bottom_style/top_bottom_style.dart';
-import 'package:my_sip/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
 
 class QuestionPage extends StatefulWidget {
   const QuestionPage({super.key});

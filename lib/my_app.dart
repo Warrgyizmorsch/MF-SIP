@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:my_sip/binding/bindings.dart';
-import 'package:my_sip/features/authentication/screen/onboarding/splash_screen.dart';
-import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
-import 'package:my_sip/navigation_menu_bar.dart';
-import 'package:my_sip/utils/theme/theme.dart';
+import 'package:my_sip/core/bindings/bindings.dart';
+import 'package:my_sip/core/utils/theme/theme.dart';
+
+import 'features/onboarding/presentation/pages/splash_screen.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

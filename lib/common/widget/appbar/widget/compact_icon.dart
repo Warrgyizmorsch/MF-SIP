@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_sip/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
 
 class CompactIcon extends StatelessWidget {
   const CompactIcon({

@@ -16,9 +16,9 @@ import 'package:my_sip/features/mf/screen/fund_details/widget/risk_indicator_bal
 import 'package:my_sip/features/mf/screen/fund_details/widget/schemeLineChart.dart';
 import 'package:my_sip/features/mf/screen/fund_details/widget/stock_allocation_items.dart';
 import 'package:my_sip/features/mf/screen/fund_details/widget/timeselecter.dart';
-import 'package:my_sip/utils/constant/colors.dart';
-import 'package:my_sip/utils/constant/images.dart';
-import 'package:my_sip/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/images.dart';
+import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:readmore/readmore.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 

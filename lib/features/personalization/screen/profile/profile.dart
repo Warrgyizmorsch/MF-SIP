@@ -10,9 +10,9 @@ import 'package:my_sip/features/personalization/screen/profile/details/help_supp
 import 'package:my_sip/features/personalization/screen/profile/details/kyc_details.dart';
 import 'package:my_sip/features/personalization/screen/profile/details/nominee_list.dart';
 import 'package:my_sip/features/personalization/screen/profile/details/personal_details.dart';
-import 'package:my_sip/utils/constant/colors.dart';
-import 'package:my_sip/utils/constant/images.dart';
-import 'package:my_sip/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/images.dart';
+import 'package:my_sip/core/utils/constant/text_style.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});

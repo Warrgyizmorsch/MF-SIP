@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:my_sip/utils/constant/images.dart';
+import 'package:my_sip/core/utils/constant/images.dart';
 
 class TopBottomDecoration extends StatelessWidget {
   const TopBottomDecoration({

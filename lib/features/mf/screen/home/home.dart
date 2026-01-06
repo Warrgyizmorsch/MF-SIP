@@ -12,9 +12,9 @@ import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
 import 'package:my_sip/features/mf/screen/goal/goal.dart';
 import 'package:my_sip/features/mf/screen/home/product_tool/sip_calculator.dart';
 import 'package:my_sip/features/personalization/screen/profile/profile.dart';
-import 'package:my_sip/utils/constant/colors.dart';
-import 'package:my_sip/utils/constant/images.dart';
-import 'package:my_sip/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/images.dart';
+import 'package:my_sip/core/utils/constant/text_style.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

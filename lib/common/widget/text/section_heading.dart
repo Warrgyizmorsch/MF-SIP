@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:my_sip/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
 
 class SectionHeading extends StatelessWidget {
   const SectionHeading({

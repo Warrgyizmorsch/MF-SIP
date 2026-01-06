@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:my_sip/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
 
 class FundComparisonChartWidget extends StatelessWidget {
   const FundComparisonChartWidget({super.key});

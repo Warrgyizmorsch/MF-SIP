@@ -405,9 +405,9 @@ import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/text/heading_section.dart';
 import 'package:my_sip/common/widget/text/subtitle_section.dart';
 import 'package:my_sip/common/widget/top_bottom_style/top_bottom_style.dart';
-import 'package:my_sip/features/authentication/controller/questions/question_controller.dart';
-import 'package:my_sip/utils/constant/colors.dart';
-import 'package:my_sip/utils/constant/text_style.dart';
+import 'package:my_sip/features/authentication/presentation/controllers/questions/question_controller.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/text_style.dart';
 
 class QuestionScreen extends GetView<QuestionController> {
   const QuestionScreen({super.key});
