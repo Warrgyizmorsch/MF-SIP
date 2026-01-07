@@ -8,6 +8,8 @@ import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
+import 'package:my_sip/config/routes/app_pages.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/mf/screen/explore/explore.dart';
 import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
 import 'package:my_sip/features/mf/screen/goal/goal.dart';
@@ -268,9 +270,14 @@ class HomeScreen extends StatelessWidget {
                           featureName: 'Start SIP',
                           iconPath: UImages.startsip,
                         ),
-                        FeatureSection(
-                          featureName: 'Freedom SIP',
-                          iconPath: UImages.freedomsip,
+                        GestureDetector(
+                          onTap: (){
+                            Get.toNamed(AppRoutes.freedomSipScreen);
+                          },
+                          child: FeatureSection(
+                            featureName: 'Freedom SIP',
+                            iconPath: UImages.freedomsip,
+                          ),
                         ),
                         FeatureSection(
                           featureName: 'Lumpsum',

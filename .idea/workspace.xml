@@ -6,15 +6,15 @@
   <component name="ChangeListManager">
     <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner.xcodeproj/project.pbxproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ios/Runner.xcworkspace/contents.xcworkspacedata" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner.xcworkspace/contents.xcworkspacedata" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/presentation/bindings/auth_binding.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/presentation/bindings/auth_binding.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/presentation/controllers/questions/question_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/presentation/controllers/questions/question_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/presentation/pages/signup/create_success_account.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/presentation/pages/signup/create_success_account.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/screen/question/question1.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/questions/presentation/pages/question1.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/screen/question/question_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/questions/presentation/pages/question_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/screen/question/widget/question_radio_button.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/questions/presentation/widgets/question_radio_button.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/config/routes/app_routes.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/routes/app_routes.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/core/utils/constant/images.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/utils/constant/images.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/core/utils/constant/text.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/utils/constant/text.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/core/utils/constant/text_style.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/utils/constant/text_style.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/fund_details/fund_deatails.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/mf/screen/fund_details/fund_deatails.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/home/home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/mf/screen/home/home.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/onboarding/presentation/pages/splash_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/onboarding/presentation/pages/splash_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/my_app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/my_app.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,11 +83,11 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/assets/icon" />
       <recent name="$PROJECT_DIR$/lib/features/questions/presentation/pages" />
       <recent name="$PROJECT_DIR$/lib/features/questions/presentation/widgets" />
       <recent name="$PROJECT_DIR$/lib/features/onboarding/presentation/widgets" />
       <recent name="$PROJECT_DIR$/lib/features/onboarding/presentation/pages" />
-      <recent name="$PROJECT_DIR$/lib/features/onboarding/presentation/controller" />
     </key>
   </component>
   <component name="TaskManager">
@@ -117,7 +117,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="origin/main" />
+                        <option value="origin/imam" />
                       </list>
                     </value>
                   </entry>

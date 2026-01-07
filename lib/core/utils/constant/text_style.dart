@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'colors.dart';
 
@@ -81,5 +82,261 @@ class UTextStyles {
   );
   static TextStyle small = TextStyle(
     fontSize: (Get.width * 0.03).clamp(8, 12), //subtitle
+  );
+}
+
+
+class AppTextStyles extends TextStyle {
+  AppTextStyles({
+    double size = 14.0,
+    FontWeight weight = FontWeight.w400,
+    Color super.color = Colors.black,
+    super.decoration,
+    String fontFamily = 'Geist',
+  }) : super(
+    fontSize: size.sp,
+    fontWeight: weight,
+    fontFamily: fontFamily,
+
+  );
+
+  // -------------------------
+  // HEADINGS
+  // -------------------------
+  AppTextStyles.h1({
+    Color super.color = Colors.black,
+    double size = 24.0,
+    FontWeight weight = FontWeight.w700,
+    super.decoration,
+    String fontFamily = 'Geist',
+  }) : super(
+    fontSize: size.sp,
+    fontWeight: weight,
+    fontFamily: fontFamily,
+  );
+
+  AppTextStyles.h2({
+    Color super.color = Colors.black,
+    double size = 20.0,
+    FontWeight weight = FontWeight.w600,
+    super.decoration,
+    String fontFamily = 'Geist',
+  }) : super(
+    fontSize: size.sp,
+    fontWeight: weight,
+    fontFamily: fontFamily,
+  );
+
+  AppTextStyles.h3({
+    Color super.color = Colors.black,
+    double size = 18.0,
+    FontWeight weight = FontWeight.w600,
+    super.decoration,
+    String fontFamily = 'Geist',
+  }) : super(
+    fontSize: size.sp,
+    fontWeight: weight,
+    fontFamily: fontFamily,
+  );
+
+  // -------------------------
+  // BODY SMALL
+  // -------------------------
+  AppTextStyles.bodySmall({
+    Color super.color = Colors.black,
+    double size = 12.0,
+    FontWeight weight = FontWeight.w400,
+    super.decoration,
+    String fontFamily = 'Geist',
+  }) : super(
+    fontSize: size.sp,
+    fontWeight: weight,
+    fontFamily: fontFamily,
+  );
+
+  AppTextStyles.bodySmallW500({
+    Color super.color = Colors.black,
+    double size = 12.0,
+    super.decoration,
+    String fontFamily = 'Geist',
+  }) : super(
+    fontSize: size.sp,
+    fontWeight: FontWeight.w500,
+    fontFamily: fontFamily,
+  );
+
+  AppTextStyles.bodySmallSemiBold({
+    Color super.color = Colors.black,
+    double size = 12.0,
+    super.decoration,
+    String fontFamily = 'Geist',
+  }) : super(
+    fontSize: size.sp,
+    fontWeight: FontWeight.w600,
+    fontFamily: fontFamily,
+  );
+
+  AppTextStyles.bodySmallBold({
+    Color super.color = Colors.black,
+    double size = 12.0,
+    super.decoration,
+    String fontFamily = 'Geist',
+  }) : super(
+    fontSize: size.sp,
+    fontWeight: FontWeight.w700,
+    fontFamily: fontFamily,
+  );
+
+  // -------------------------
+  // BODY MEDIUM
+  // -------------------------
+  AppTextStyles.bodyMedium({
+    Color super.color = Colors.black,
+    double size = 14.0,
+    FontWeight weight = FontWeight.w400,
+    super.decoration,
+    String fontFamily = 'Geist',
+  }) : super(
+    fontSize: size.sp,
+    fontWeight: weight,
+    fontFamily: fontFamily,
+  );
+
+  AppTextStyles.bodyMediumW500({
+    Color super.color = Colors.black,
+    double size = 14.0,
+    super.decoration,
+    String fontFamily = 'Geist',
+  }) : super(
+    fontSize: size.sp,
+    fontWeight: FontWeight.w500,
+    fontFamily: fontFamily,
+  );
+
+  AppTextStyles.bodyMediumSemiBold({
+    Color super.color = Colors.black,
+    double size = 14.0,
+    super.decoration,
+    String fontFamily = 'Geist',
+  }) : super(
+    fontSize: size.sp,
+    fontWeight: FontWeight.w600,
+    fontFamily: fontFamily,
+  );
+
+  AppTextStyles.bodyMediumBold({
+    Color super.color = Colors.black,
+    double size = 14.0,
+    super.decoration,
+    String fontFamily = 'Geist',
+  }) : super(
+    fontSize: size.sp,
+    fontWeight: FontWeight.w700,
+    fontFamily: fontFamily,
+  );
+
+  // -------------------------
+  // BODY LARGE
+  // -------------------------
+  AppTextStyles.bodyLarge({
+    Color super.color = Colors.black,
+    double size = 16.0,
+    FontWeight weight = FontWeight.w400,
+    super.decoration,
+    String fontFamily = 'Geist',
+  }) : super(
+    fontSize: size.sp,
+    fontWeight: weight,
+    fontFamily: fontFamily,
+  );
+
+  AppTextStyles.bodyLargeW500({
+    Color super.color = Colors.black,
+    double size = 16.0,
+    super.decoration,
+    String fontFamily = 'Geist',
+  }) : super(
+    fontSize: size.sp,
+    fontWeight: FontWeight.w500,
+    fontFamily: fontFamily,
+  );
+
+  AppTextStyles.bodyLargeSemiBold({
+    Color super.color = Colors.black,
+    double size = 16.0,
+    super.decoration,
+    String fontFamily = 'Geist',
+  }) : super(
+    fontSize: size.sp,
+    fontWeight: FontWeight.w600,
+    fontFamily: fontFamily,
+  );
+
+  AppTextStyles.bodyLargeBold({
+    Color super.color = Colors.black,
+    double size = 16.0,
+    super.decoration,
+    String fontFamily = 'Geist',
+  }) : super(
+    fontSize: size.sp,
+    fontWeight: FontWeight.w700,
+    fontFamily: fontFamily,
+  );
+
+  // -------------------------
+  // CAPTION
+  // -------------------------
+  AppTextStyles.caption({
+    Color super.color = Colors.grey,
+    double size = 10.0,
+    FontWeight weight = FontWeight.w500,
+    super.decoration,
+    String fontFamily = 'Geist',
+  }) : super(
+    fontSize: size.sp,
+    fontWeight: weight,
+    fontFamily: fontFamily,
+  );
+
+  // -------------------------
+  // BUTTON
+  // -------------------------
+  AppTextStyles.button({
+    Color super.color = Colors.blue,
+    double size = 14.0,
+    FontWeight weight = FontWeight.w700,
+    super.decoration,
+    String fontFamily = 'Geist',
+  }) : super(
+    fontSize: size.sp,
+    fontWeight: weight,
+    fontFamily: fontFamily,
+  );
+
+  // -------------------------
+  // CHAT
+  // -------------------------
+  AppTextStyles.chatMessage({
+    Color super.color = Colors.black,
+    double size = 12.0,
+    FontWeight weight = FontWeight.w400,
+    super.decoration,
+    String fontFamily = 'Geist',
+  }) : super(
+    fontSize: size.sp,
+    fontWeight: weight,
+    fontFamily: fontFamily,
+  );
+
+  AppTextStyles.chatMessageReceived({
+    Color super.color = Colors.grey,
+    double size = 12.0,
+    FontWeight weight = FontWeight.w400,
+    super.decoration,
+    String fontFamily = 'Geist',
+  }) : super(
+    fontSize: size.sp,
+    fontWeight: weight,
+    fontFamily: fontFamily,
   );
 }

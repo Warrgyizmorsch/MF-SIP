@@ -172,19 +172,19 @@ class _FundDeatailsScreenState extends State<FundDeatailsScreen>
             sliver: SliverToBoxAdapter(
               child: Column(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadiusGeometry.circular(12),
-                    child: Container(
-                      constraints: BoxConstraints(
-                        maxHeight: 40,
-                        maxWidth: 40,
-                      ),
-                      child: Image.asset(
-                        UImages.motilal,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
+                  // ClipRRect(
+                  //   borderRadius: BorderRadiusGeometry.circular(12),
+                  //   child: Container(
+                  //     constraints: BoxConstraints(
+                  //       maxHeight: 40,
+                  //       maxWidth: 40,
+                  //     ),
+                  //     child: Image.asset(
+                  //       UImages.motilal,
+                  //       fit: BoxFit.contain,
+                  //     ),
+                  //   ),
+                  // ),
                   const SizedBox(width: 10),
                   Row(
                     children: [

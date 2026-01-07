@@ -73,4 +73,9 @@ class UImages {
   static const String equity = 'assets/icon/equity.png';
 
   // static const String eye = 'assets/icon/eye.png';
+
+  static const String mfLogoLight = 'assets/icon/logo_mf_light.svg';
+  static const String freedomSipCard1 = 'assets/icon/freedom_sip_card_1.svg';
+  static const String freedomSipCard2 = 'assets/icon/freedom_sip_card_2.svg';
+
 }
