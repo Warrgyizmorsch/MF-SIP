@@ -61,6 +61,7 @@ class GoalScreen extends StatelessWidget {
                   const SizedBox(width: 10),
                   const Icon(Icons.add, color: Ucolors.light),
                 ],
+                
               ),
             ),
           ],

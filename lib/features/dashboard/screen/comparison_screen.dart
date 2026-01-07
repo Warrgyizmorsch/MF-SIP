@@ -11,7 +11,6 @@ import 'package:my_sip/features/dashboard/screen/widget/comparison_chart.dart';
 import 'package:my_sip/features/dashboard/screen/widget/invest_fund_list.dart';
 import 'package:my_sip/features/dashboard/screen/widget/portfolio_summary.dart';
 import 'package:my_sip/features/dashboard/screen/widget/suggest_fund_list.dart';
-import 'package:my_sip/features/mf/screen/explore/explore.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';

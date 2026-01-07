@@ -22,6 +22,7 @@ class MyApp extends StatelessWidget {
       //     surfaceTintColor: Colors.white,
       //   ),
       // ),
+      
       theme: Utheme.lightTheme,
       initialBinding: UBinding(),
       home: SplashScreen(),

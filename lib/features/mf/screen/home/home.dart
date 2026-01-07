@@ -8,9 +8,12 @@ import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/mf/screen/explore/explore.dart';
 import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
 import 'package:my_sip/features/mf/screen/goal/goal.dart';
+import 'package:my_sip/features/mf/screen/home/compare_fund.dart';
+import 'package:my_sip/features/mf/screen/home/product_tool/compare_fund.dart';
 import 'package:my_sip/features/mf/screen/home/product_tool/sip_calculator.dart';
 import 'package:my_sip/features/mf/screen/home/product_tool/swp_calci.dart';
 import 'package:my_sip/features/mf/screen/home/product_tool/top_up_calculator.dart';
@@ -662,7 +665,14 @@ class HomeScreen extends StatelessWidget {
                     imgUrl: UImages.siptopcalci,
                     onTap: () => Get.to(() => TopUpCalculatorPage()),
                   ),
-                  ToolsItem(title: "Compare Fund", imgUrl: UImages.comparefund),
+                  ToolsItem(
+                    title: "Compare Fund",
+                    imgUrl: UImages.comparefund,
+                    // onTap: () => Get.toNamed(AppRoutes.comparefund),
+                    // onTap: () => Get.to(() => FundComparisonScreen()),
+                    // onTap: () => Get.to(() => CompareFundPage()),
+                    onTap: () => Get.to(() => CompareFundsPage()),
+                  ),
                 ]),
               ),
             ),
@@ -957,7 +967,7 @@ class GoalBaseSIPCard extends StatelessWidget {
         onTap: onTap ?? () {},
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
@@ -1000,7 +1010,7 @@ class GoalBaseSIPCard extends StatelessWidget {
               // Trailing arrow
               const Icon(
                 Icons.arrow_forward_ios_rounded,
-                size: 16,
+                size: 15,
                 color: Colors.grey,
               ),
             ],
