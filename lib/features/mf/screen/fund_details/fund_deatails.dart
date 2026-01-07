@@ -33,140 +33,237 @@ class FundDeatailsScreen extends StatefulWidget {
 class _FundDeatailsScreenState extends State<FundDeatailsScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
+  final GlobalKey _overViewKey = GlobalKey();
+  final GlobalKey _returnsKey = GlobalKey();
+  final GlobalKey _riskKey = GlobalKey();
+  final GlobalKey _portfolioKey = GlobalKey();
+  final GlobalKey _infoKey = GlobalKey();
+
+  late final List<GlobalKey> _tabKeys;
+  late final ScrollController _scrollController;
+
+  bool _isTabClicked = false;
+
 
   @override
   void initState() {
     super.initState();
-    // Using TabController is better for syncing with SliverPersistentHeader
     _tabController = TabController(length: 5, vsync: this);
-    _tabController.addListener(() {
-      if (!_tabController.indexIsChanging) {
-        setState(() {}); // Rebuild to update the active tab UI in the header
-      }
-    });
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+
+    _tabKeys = [
+      _overViewKey,
+      _returnsKey,
+      _riskKey,
+      _portfolioKey,
+      _infoKey,
+    ];
   }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  /// 1. SCROLL LISTENER (Scroll -> Update Tab)
+  void _onScroll() {
+    if (_isTabClicked) return;
+
+    double offset = _scrollController.offset;
+    int activeIndex = 0;
+
+
+    double triggerOffset = kToolbarHeight + MediaQuery.of(context).padding.top + 60;
+
+    for (int i = 0; i < _tabKeys.length; i++) {
+      final key = _tabKeys[i];
+      final context = key.currentContext;
+
+      if (context != null) {
+        final box = context.findRenderObject() as RenderBox?;
+        if (box != null) {
+          final position = box.localToGlobal(Offset.zero).dy;
+
+          if (position <= triggerOffset + 50) {
+            activeIndex = i;
+          }
+        }
+      }
+    }
+
+    if (_tabController.index != activeIndex) {
+      setState(() {
+        _tabController.animateTo(activeIndex);
+      });
+    }
+  }
+
+  ///  TAB CLICK HANDLER (Tab Click -> Scroll to Section)
+  void _scrollToIndex(int index) {
+    setState(() => _isTabClicked = true);
+
+    // Update the tab controller immediately so the UI highlights the click
+    _tabController.animateTo(index);
+
+    final key = _tabKeys[index];
+    final context = key.currentContext;
+
+    if (context != null) {
+
+
+      RenderBox box = context.findRenderObject() as RenderBox;
+      RenderBox scrollBox = _scrollController.position.context.storageContext.findRenderObject() as RenderBox;
+
+      // Calculate how far down the item is inside the scroll view
+      double targetY = box.localToGlobal(Offset.zero, ancestor: scrollBox).dy;
+
+
+      double offsetAdjustment = 110.0 + MediaQuery.of(context).padding.top;
+
+      double targetScroll = _scrollController.offset + targetY - offsetAdjustment;
+
+      double clampedScroll = targetScroll.clamp(
+          0.0,
+          _scrollController.position.maxScrollExtent
+      );
+
+      _scrollController.animateTo(
+        clampedScroll,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInOutCubic, // Smoother curve
+      ).then((_) {
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (mounted) setState(() => _isTabClicked = false);
+        });
+      });
+    } else {
+      setState(() => _isTabClicked = false);
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) {
-          return [
-            //AppBar
-            SliverAppBar(
-              automaticallyImplyLeading: false,
-              pinned: true,
-              flexibleSpace: CustomAppBarNormal(
-                // backIcon: false,
-                backgroundColor: Ucolors.light,
-                actionsPadding: 10,
-                title: 'Fund Details',
-                action: [
-                  CompactIcon(icon: Iconsax.shopping_cart, onPressed: () {}),
-                  CompactIcon(icon: Iconsax.archive_tick, onPressed: () {}),
+      body: CustomScrollView(
+        controller: _scrollController,
+        slivers: [
+          SliverAppBar(
+            automaticallyImplyLeading: false,
+            pinned: true,
+            flexibleSpace: CustomAppBarNormal(
+              backgroundColor: Ucolors.light,
+              actionsPadding: 10,
+              title: 'Fund Details',
+              action: [
+                CompactIcon(icon: Iconsax.shopping_cart, onPressed: () {}),
+                CompactIcon(icon: Iconsax.archive_tick, onPressed: () {}),
+              ],
+            ),
+          ),
+          SliverToBoxAdapter(child: SizedBox(height: 20)),
+          SliverPadding(
+            padding: EdgeInsetsGeometry.symmetric(horizontal: 20),
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadiusGeometry.circular(12),
+                    child: Container(
+                      constraints: BoxConstraints(
+                        maxHeight: 40,
+                        maxWidth: 40,
+                      ),
+                      child: Image.asset(
+                        UImages.motilal,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadiusGeometry.circular(12),
+                        child: Container(
+                          constraints: BoxConstraints(maxHeight: 40, maxWidth: 40),
+                          child: Image.asset(UImages.motilal, fit: BoxFit.contain),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Nippon India Large Cap Fund- Growth Plan- Growth Option',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _metaText('Equity'), _dot(),
+                      _metaText('Large cap'), _dot(),
+                      _metaText('Very High', color: Ucolors.red), _dot(),
+                      _metaText('Status:'),
+                      _metaText('Open', color: Ucolors.success, fontWeight: FontWeight.bold),
+                    ],
+                  ),
                 ],
               ),
             ),
-            SliverToBoxAdapter(child: SizedBox(height: 20)),
-
-            ///
-            SliverPadding(
-              padding: EdgeInsetsGeometry.symmetric(horizontal: 20),
-              sliver: SliverToBoxAdapter(
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadiusGeometry.circular(12),
-                          child: Container(
-                            constraints: BoxConstraints(
-                              maxHeight: 40,
-                              maxWidth: 40,
-                            ),
-                            child: Image.asset(
-                              UImages.motilal,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            'Nippon India Large Cap Fund- Growth Plan- Growth Option',
-                            style: Theme.of(context).textTheme.bodyLarge!
-                                .copyWith(fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-                    Row(
-                      // alignment: WrapAlignment.spaceEvenly,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      // runSpacing: 4,
-                      children: [
-                        _metaText('Equity'),
-                        _dot(),
-                        _metaText('Large cap'),
-                        _dot(),
-                        _metaText('Very High', color: Ucolors.red),
-                        _dot(),
-                        _metaText('Status:'),
-
-                        _metaText(
-                          'Open',
-                          color: Ucolors.success,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+          ),
+          SliverToBoxAdapter(child: SizedBox(height: 10)),
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: SliverPageTabs(
+              selectedIndex: _tabController.index,
+              onTap: (index) => _scrollToIndex(index),
             ),
-            SliverToBoxAdapter(child: SizedBox(height: 10)),
-
-            SliverPersistentHeader(
-              pinned: true,
-              // floating: false,
-              delegate: SliverPageTabs(
-                selectedIndex: _tabController.index,
-                onTap: (index) {
-                  _tabController.animateTo(index);
-                  setState(() {});
-                },
-              ),
+          ),
+          SliverToBoxAdapter(
+            child: OverviewScreen(
+              overViewKey: _overViewKey,
+              returnsKey: _returnsKey,
+              riskKey: _riskKey,
+              portfolioKey: _portfolioKey,
+              infoKey: _infoKey,
             ),
-          ];
-        },
-        body: TabBarView(
-          controller: _tabController,
-          children: [
-            OverviewScreen(), // Ensure this uses a ListView or CustomScrollView
-            Center(child: Text('Returns Page')),
-            Center(child: Text('Risk Page')),
-            Center(child: Text('Portfolio Page')),
-            Center(child: Text('Info Page')),
-          ],
-        ),
+          )
+        ],
       ),
       bottomNavigationBar: SafeArea(
         top: false,
-        child: BottomBarButton(
-          firstButton: 'Lumpsum',
-          secondButton: 'Start SIP',
-        ),
+        child: BottomBarButton(firstButton: 'Lumpsum', secondButton: 'Start SIP'),
       ),
     );
   }
 }
 
+
+
 class OverviewScreen extends StatelessWidget {
-  const OverviewScreen({super.key});
+  final GlobalKey overViewKey;
+  final GlobalKey returnsKey;
+  final GlobalKey riskKey;
+  final GlobalKey portfolioKey;
+ final GlobalKey infoKey;
+   const OverviewScreen({
+    super.key,
+    required this.overViewKey,
+    required this.returnsKey,
+    required this.riskKey,
+    required this.portfolioKey,
+     required this.infoKey
+  } );
 
   @override
   Widget build(BuildContext context) {
@@ -193,12 +290,12 @@ class OverviewScreen extends StatelessWidget {
 
     final height = MediaQuery.of(context).size;
 
-    return ListView(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      // This is crucial: it allows the NestedScrollView to coordinate scrolling
-      physics: const ClampingScrollPhysics(),
+    return Column(
+
+
       children: [
         CustomContainer(
+
           topPadding: 15,
           child: Column(
             children: [
@@ -230,6 +327,7 @@ class OverviewScreen extends StatelessWidget {
 
         // --- Fund Overview Section ---
         Padding(
+          key: overViewKey,
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
           child: const USectionHeading(
             title: 'Fund Overview',
@@ -307,6 +405,7 @@ class OverviewScreen extends StatelessWidget {
         ),
         // Gap(10),
         Padding(
+          key: returnsKey,
           padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
           child: const USectionHeading(
             title: 'Trailing Returns',
@@ -348,6 +447,7 @@ class OverviewScreen extends StatelessWidget {
 
         // --- Risk Analysis Section ---
         Padding(
+          key: riskKey,
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
           child: const USectionHeading(
             title: 'Risk Analysis',
@@ -435,6 +535,7 @@ class OverviewScreen extends StatelessWidget {
         ),
 
         Padding(
+          key: portfolioKey,
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
           child: const USectionHeading(
             title: 'Fund Allocation',
@@ -894,6 +995,7 @@ class OverviewScreen extends StatelessWidget {
           ),
         ),
         Padding(
+          key: infoKey,
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
           child: const USectionHeading(
             title: 'About this Fund',
@@ -1430,7 +1532,11 @@ class SliverPageTabs extends SliverPersistentHeaderDelegate {
       );
     }
   }
-
+  @override
+  bool shouldRebuild(covariant SliverPageTabs oldDelegate) {
+    // This forces the header to rebuild when the index passed from parent changes
+    return oldDelegate.selectedIndex != selectedIndex;
+  }
   @override
   Widget build(
     BuildContext context,
@@ -1492,10 +1598,7 @@ class SliverPageTabs extends SliverPersistentHeaderDelegate {
   @override
   double get minExtent => 50;
 
-  @override
-  bool shouldRebuild(covariant SliverPageTabs oldDelegate) {
-    return oldDelegate.selectedIndex != selectedIndex;
-  }
+
 }
 
 Widget _dot() {
@@ -1512,3 +1615,8 @@ Widget _metaText(
     style: TextStyle(fontSize: 12, color: color, fontWeight: fontWeight),
   );
 }
+
+
+
+
+

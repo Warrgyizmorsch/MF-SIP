@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:my_sip/features/authentication/data/models/questions_model.dart';
-
 import 'package:my_sip/navigation_menu_bar.dart';
 
 class QuestionController extends GetxController {
