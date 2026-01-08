@@ -271,7 +271,7 @@ class HomeScreen extends StatelessWidget {
                           iconPath: UImages.startsip,
                         ),
                         GestureDetector(
-                          onTap: (){
+                          onTap: () {
                             Get.toNamed(AppRoutes.freedomSipScreen);
                           },
                           child: FeatureSection(
@@ -669,7 +669,11 @@ class HomeScreen extends StatelessWidget {
                     imgUrl: UImages.siptopcalci,
                     onTap: () => Get.to(() => TopUpCalculatorPage()),
                   ),
-                  ToolsItem(title: "Compare Fund", imgUrl: UImages.comparefund),
+                  ToolsItem(
+                    title: "Compare Fund",
+                    imgUrl: UImages.comparefund,
+                    onTap: () => Get.toNamed(AppRoutes.comparefund),
+                  ),
                 ]),
               ),
             ),
@@ -986,7 +990,9 @@ class GoalBaseSIPCard extends StatelessWidget {
                   color: const Color(0xFFEEF5FF),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(iconData, size: 20, color: Ucolors.blue),
+                child: Center(
+                  child: Icon(iconData, size: 18, color: Ucolors.blue),
+                ),
               ),
 
               const SizedBox(width: 12),
@@ -1007,7 +1013,7 @@ class GoalBaseSIPCard extends StatelessWidget {
               // Trailing arrow
               const Icon(
                 Icons.arrow_forward_ios_rounded,
-                size: 16,
+                size: 15,
                 color: Colors.grey,
               ),
             ],

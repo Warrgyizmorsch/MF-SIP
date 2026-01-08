@@ -299,7 +299,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                                                 heading1: 'Years',
                                                 heading2: 'Investment',
                                                 heading3: 'Profit',
-                                                heading4: 'Current Value',
+                                                heading4: 'Current',
                                               ),
                                               DashedLine(
                                                 color: Ucolors.borderColor,

@@ -70,7 +70,7 @@ class NomineeDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 5),
                   UTextFormField(
                     prefixIcon: null,
-                    hintText: 'Enter nominees full name',
+                    hintText: 'Enter nominee full name',
                     // controller: TextEditingController(text: 'Pr'),
                   ),
                   const SizedBox(height: 10),

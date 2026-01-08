@@ -194,7 +194,6 @@ import 'package:gap/gap.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
-import 'package:my_sip/core/utils/theme/widget_theme/text_theme.dart';
 import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
 
 class CompareFundsPage extends StatelessWidget {

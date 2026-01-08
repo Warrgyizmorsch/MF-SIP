@@ -143,7 +143,7 @@ class TopUpCalculatorPage extends StatelessWidget {
                     TableHeader(
                       heading1: 'Metric',
                       heading2: 'Invested',
-                      heading3: 'Future Value',
+                      heading3: 'Future',
                       heading4: 'Profit',
                     ),
                     DashedLine(color: Colors.grey.shade300, dashSpace: 0),
@@ -228,12 +228,12 @@ class TopUpCalculatorPage extends StatelessWidget {
                                   title1: 'Step-up Future Value',
                                   title2: 'Step-up Profit',
                                   list: [
-                                    Text(
-                                      'You can withdraw ₹500 per month for 5 years at 10.5% expected return.',
-                                      textAlign: TextAlign.center,
-                                      style: UTextStyles.caption,
-                                    ),
-                                    Gap(10),
+                                    // Text(
+                                    //   'You can withdraw ₹500 per month for 5 years at 10.5% expected return.',
+                                    //   textAlign: TextAlign.center,
+                                    //   style: UTextStyles.caption,
+                                    // ),
+                                    // Gap(10),
                                     InvestValue(
                                       color: Colors.black87,
 

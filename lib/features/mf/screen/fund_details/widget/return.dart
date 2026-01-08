@@ -83,17 +83,20 @@ class ReturnsTableRow extends StatelessWidget {
 
               // CATEGORY
               Expanded(
-                child: Text(
-                  percentage
-                      ? '${data.category.toStringAsFixed(2)}%'
-                      : formatIndianNumber(data.category.toDouble()),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: fontSize,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    percentage
+                        ? '${data.category.toStringAsFixed(2)}%'
+                        : formatIndianNumber(data.category.toDouble()),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: fontSize,
 
-                    // color: _valueColor(data.category),
-                    color: color3 ?? _valueColor(data.category),
-                    fontWeight: FontWeight.w400,
+                      // color: _valueColor(data.category),
+                      color: color3 ?? _valueColor(data.category),
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ),
               ),
