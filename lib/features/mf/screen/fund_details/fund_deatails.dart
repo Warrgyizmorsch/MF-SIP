@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
+import 'package:my_sip/common/widget/table/table_header.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/features/dashboard/screen/comparison_screen.dart';
 import 'package:my_sip/features/mf/screen/dashboard/dashboard.dart';
@@ -16,9 +17,9 @@ import 'package:my_sip/features/mf/screen/fund_details/widget/risk_indicator_bal
 import 'package:my_sip/features/mf/screen/fund_details/widget/schemeLineChart.dart';
 import 'package:my_sip/features/mf/screen/fund_details/widget/stock_allocation_items.dart';
 import 'package:my_sip/features/mf/screen/fund_details/widget/timeselecter.dart';
-import 'package:my_sip/utils/constant/colors.dart';
-import 'package:my_sip/utils/constant/images.dart';
-import 'package:my_sip/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/images.dart';
+import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:readmore/readmore.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
@@ -32,178 +33,237 @@ class FundDeatailsScreen extends StatefulWidget {
 class _FundDeatailsScreenState extends State<FundDeatailsScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
+  final GlobalKey _overViewKey = GlobalKey();
+  final GlobalKey _returnsKey = GlobalKey();
+  final GlobalKey _riskKey = GlobalKey();
+  final GlobalKey _portfolioKey = GlobalKey();
+  final GlobalKey _infoKey = GlobalKey();
+
+  late final List<GlobalKey> _tabKeys;
+  late final ScrollController _scrollController;
+
+  bool _isTabClicked = false;
+
 
   @override
   void initState() {
     super.initState();
-    // Using TabController is better for syncing with SliverPersistentHeader
     _tabController = TabController(length: 5, vsync: this);
-    _tabController.addListener(() {
-      if (!_tabController.indexIsChanging) {
-        setState(() {}); // Rebuild to update the active tab UI in the header
-      }
-    });
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+
+    _tabKeys = [
+      _overViewKey,
+      _returnsKey,
+      _riskKey,
+      _portfolioKey,
+      _infoKey,
+    ];
   }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  /// 1. SCROLL LISTENER (Scroll -> Update Tab)
+  void _onScroll() {
+    if (_isTabClicked) return;
+
+    double offset = _scrollController.offset;
+    int activeIndex = 0;
+
+
+    double triggerOffset = kToolbarHeight + MediaQuery.of(context).padding.top + 60;
+
+    for (int i = 0; i < _tabKeys.length; i++) {
+      final key = _tabKeys[i];
+      final context = key.currentContext;
+
+      if (context != null) {
+        final box = context.findRenderObject() as RenderBox?;
+        if (box != null) {
+          final position = box.localToGlobal(Offset.zero).dy;
+
+          if (position <= triggerOffset + 50) {
+            activeIndex = i;
+          }
+        }
+      }
+    }
+
+    if (_tabController.index != activeIndex) {
+      setState(() {
+        _tabController.animateTo(activeIndex);
+      });
+    }
+  }
+
+  ///  TAB CLICK HANDLER (Tab Click -> Scroll to Section)
+  void _scrollToIndex(int index) {
+    setState(() => _isTabClicked = true);
+
+    // Update the tab controller immediately so the UI highlights the click
+    _tabController.animateTo(index);
+
+    final key = _tabKeys[index];
+    final context = key.currentContext;
+
+    if (context != null) {
+
+
+      RenderBox box = context.findRenderObject() as RenderBox;
+      RenderBox scrollBox = _scrollController.position.context.storageContext.findRenderObject() as RenderBox;
+
+      // Calculate how far down the item is inside the scroll view
+      double targetY = box.localToGlobal(Offset.zero, ancestor: scrollBox).dy;
+
+
+      double offsetAdjustment = 110.0 + MediaQuery.of(context).padding.top;
+
+      double targetScroll = _scrollController.offset + targetY - offsetAdjustment;
+
+      double clampedScroll = targetScroll.clamp(
+          0.0,
+          _scrollController.position.maxScrollExtent
+      );
+
+      _scrollController.animateTo(
+        clampedScroll,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInOutCubic, // Smoother curve
+      ).then((_) {
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (mounted) setState(() => _isTabClicked = false);
+        });
+      });
+    } else {
+      setState(() => _isTabClicked = false);
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) {
-          return [
-            //AppBar
-            SliverAppBar(
-              automaticallyImplyLeading: false,
-              pinned: true,
-              flexibleSpace: CustomAppBarNormal(
-                // backIcon: false,
-                backgroundColor: Ucolors.light,
-                actionsPadding: 10,
-                title: 'Fund Details',
-                action: [
-                  CompactIcon(icon: Iconsax.shopping_cart, onPressed: () {}),
-                  CompactIcon(icon: Iconsax.archive_tick, onPressed: () {}),
+      body: CustomScrollView(
+        controller: _scrollController,
+        slivers: [
+          SliverAppBar(
+            automaticallyImplyLeading: false,
+            pinned: true,
+            flexibleSpace: CustomAppBarNormal(
+              backgroundColor: Ucolors.light,
+              actionsPadding: 10,
+              title: 'Fund Details',
+              action: [
+                CompactIcon(icon: Iconsax.shopping_cart, onPressed: () {}),
+                CompactIcon(icon: Iconsax.archive_tick, onPressed: () {}),
+              ],
+            ),
+          ),
+          SliverToBoxAdapter(child: SizedBox(height: 20)),
+          SliverPadding(
+            padding: EdgeInsetsGeometry.symmetric(horizontal: 20),
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  // ClipRRect(
+                  //   borderRadius: BorderRadiusGeometry.circular(12),
+                  //   child: Container(
+                  //     constraints: BoxConstraints(
+                  //       maxHeight: 40,
+                  //       maxWidth: 40,
+                  //     ),
+                  //     child: Image.asset(
+                  //       UImages.motilal,
+                  //       fit: BoxFit.contain,
+                  //     ),
+                  //   ),
+                  // ),
+                  const SizedBox(width: 10),
+                  Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadiusGeometry.circular(12),
+                        child: Container(
+                          constraints: BoxConstraints(maxHeight: 40, maxWidth: 40),
+                          child: Image.asset(UImages.motilal, fit: BoxFit.contain),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Nippon India Large Cap Fund- Growth Plan- Growth Option',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _metaText('Equity'), _dot(),
+                      _metaText('Large cap'), _dot(),
+                      _metaText('Very High', color: Ucolors.red), _dot(),
+                      _metaText('Status:'),
+                      _metaText('Open', color: Ucolors.success, fontWeight: FontWeight.bold),
+                    ],
+                  ),
                 ],
               ),
             ),
-            SliverToBoxAdapter(child: SizedBox(height: 20)),
-
-            ///
-            SliverPadding(
-              padding: EdgeInsetsGeometry.symmetric(horizontal: 20),
-              sliver: SliverToBoxAdapter(
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadiusGeometry.circular(12),
-                          child: Container(
-                            constraints: BoxConstraints(
-                              maxHeight: 40,
-                              maxWidth: 40,
-                            ),
-                            child: Image.asset(
-                              UImages.motilal,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            'Nippon India Large Cap Fund- Growth Plan- Growth Option',
-                            style: Theme.of(context).textTheme.bodyLarge!
-                                .copyWith(fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-                    Row(
-                      // alignment: WrapAlignment.spaceEvenly,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      // runSpacing: 4,
-                      children: [
-                        _metaText('Equity'),
-                        _dot(),
-                        _metaText('Large cap'),
-                        _dot(),
-                        _metaText('Very High', color: Ucolors.red),
-                        _dot(),
-                        _metaText('Status:'),
-
-                        _metaText(
-                          'Open',
-                          color: Ucolors.success,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+          ),
+          SliverToBoxAdapter(child: SizedBox(height: 10)),
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: SliverPageTabs(
+              selectedIndex: _tabController.index,
+              onTap: (index) => _scrollToIndex(index),
             ),
-            SliverToBoxAdapter(child: SizedBox(height: 10)),
-
-            SliverPersistentHeader(
-              pinned: true,
-              // floating: false,
-              delegate: SliverPageTabs(
-                selectedIndex: _tabController.index,
-                onTap: (index) {
-                  _tabController.animateTo(index);
-                  setState(() {});
-                },
-              ),
+          ),
+          SliverToBoxAdapter(
+            child: OverviewScreen(
+              overViewKey: _overViewKey,
+              returnsKey: _returnsKey,
+              riskKey: _riskKey,
+              portfolioKey: _portfolioKey,
+              infoKey: _infoKey,
             ),
-          ];
-        },
-        body: TabBarView(
-          controller: _tabController,
-          children: [
-            OverviewScreen(), // Ensure this uses a ListView or CustomScrollView
-            Center(child: Text('Returns Page')),
-            Center(child: Text('Risk Page')),
-            Center(child: Text('Portfolio Page')),
-            Center(child: Text('Info Page')),
-          ],
-        ),
+          )
+        ],
       ),
       bottomNavigationBar: SafeArea(
         top: false,
-        child: BottomBarButton(
-          firstButton: 'Lumpsum',
-          secondButton: 'Start SIP',
-        ),
+        child: BottomBarButton(firstButton: 'Lumpsum', secondButton: 'Start SIP'),
       ),
     );
   }
 }
 
-Widget returnsTableHeader() {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 12),
-    child: Row(
-      children: const [
-        SizedBox(
-          width: 40,
-          child: Text(
-            'Period',
-            style: TextStyle(color: Colors.grey, fontSize: 12),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            'Scheme',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey, fontSize: 12),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            'Category',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey, fontSize: 12),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            'Benchmark',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey, fontSize: 12),
-          ),
-        ),
-      ],
-    ),
-  );
-}
+
 
 class OverviewScreen extends StatelessWidget {
-  const OverviewScreen({super.key});
+  final GlobalKey overViewKey;
+  final GlobalKey returnsKey;
+  final GlobalKey riskKey;
+  final GlobalKey portfolioKey;
+ final GlobalKey infoKey;
+   const OverviewScreen({
+    super.key,
+    required this.overViewKey,
+    required this.returnsKey,
+    required this.riskKey,
+    required this.portfolioKey,
+     required this.infoKey
+  } );
 
   @override
   Widget build(BuildContext context) {
@@ -230,12 +290,12 @@ class OverviewScreen extends StatelessWidget {
 
     final height = MediaQuery.of(context).size;
 
-    return ListView(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      // This is crucial: it allows the NestedScrollView to coordinate scrolling
-      physics: const ClampingScrollPhysics(),
+    return Column(
+
+
       children: [
         CustomContainer(
+
           topPadding: 15,
           child: Column(
             children: [
@@ -261,37 +321,13 @@ class OverviewScreen extends StatelessWidget {
               SchemeLineChart(),
               Gap(12),
               PeriodSelector(),
-              // Container(
-              //   padding: EdgeInsets.symmetric(horizontal: 10),
-              //   height: 40,
-              //   width: double.infinity,
-              //   decoration: BoxDecoration(
-              //     color: Ucolors.borderside,
-              //     borderRadius: BorderRadius.circular(20),
-              //   ),
-              //   child: SingleChildScrollView(
-              //     scrollDirection: Axis.horizontal,
-              //     child: Row(
-              //       spacing: 30,
-              //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //       children: [
-              //         Text('1M'),
-              //         Text('3M'),
-              //         Text('6M'),
-              //         Text('1Y'),
-              //         Text('2Y'),
-              //         Text('3Y'),
-              //         Text('5Y'),
-              //       ],
-              //     ),
-              //   ),
-              // ),
             ],
           ),
         ),
 
         // --- Fund Overview Section ---
         Padding(
+          key: overViewKey,
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
           child: const USectionHeading(
             title: 'Fund Overview',
@@ -369,6 +405,7 @@ class OverviewScreen extends StatelessWidget {
         ),
         // Gap(10),
         Padding(
+          key: returnsKey,
           padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
           child: const USectionHeading(
             title: 'Trailing Returns',
@@ -378,7 +415,13 @@ class OverviewScreen extends StatelessWidget {
         CustomContainer(
           child: Column(
             children: [
-              returnsTableHeader(),
+              // returnsTableHeader(),
+              TableHeader(
+                heading1: 'Period',
+                heading2: 'Scheme',
+                heading3: 'Category',
+                heading4: 'Benchmark',
+              ),
               DashedLine(color: Colors.grey.shade200),
 
               ...returns.map((row) => ReturnsTableRow(data: row)),
@@ -404,6 +447,7 @@ class OverviewScreen extends StatelessWidget {
 
         // --- Risk Analysis Section ---
         Padding(
+          key: riskKey,
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
           child: const USectionHeading(
             title: 'Risk Analysis',
@@ -491,6 +535,7 @@ class OverviewScreen extends StatelessWidget {
         ),
 
         Padding(
+          key: portfolioKey,
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
           child: const USectionHeading(
             title: 'Fund Allocation',
@@ -559,7 +604,7 @@ class OverviewScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
-                        width: 50,
+                        width: 55,
                         child: Text(
                           textAlign: TextAlign.center,
                           'Equity Market Cap',
@@ -620,10 +665,17 @@ class OverviewScreen extends StatelessWidget {
                           ),
                           tabs: [
                             Padding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12.0,
+                              ),
                               child: Text('Top 5 Sector'),
                             ),
-                            Text('Top 5 Stock'),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12.0,
+                              ),
+                              child: Text('Top 5 Stock'),
+                            ),
                           ],
                         ),
                       ),
@@ -722,32 +774,6 @@ class OverviewScreen extends StatelessWidget {
             ],
           ),
         ),
-
-        // Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 60.0, vertical: 15),
-        //   child: OutlinedButton(
-        //     style: OutlinedButton.styleFrom(
-        //       side: BorderSide(color: Ucolors.primary.withOpacity(0.5)),
-        //     ),
-        //     onPressed: () {},
-        //     child: Row(
-        //       mainAxisAlignment: MainAxisAlignment.center,
-        //       children: [
-        //         Text(
-        //           'View full Risk Analysis',
-        //           style: UTextStyles.buttonText.copyWith(
-        //             color: Ucolors.primary.withOpacity(0.5),
-        //           ),
-        //         ),
-        //         SizedBox(width: 10),
-        //         Icon(
-        //           Icons.arrow_forward,
-        //           color: Ucolors.primary.withOpacity(0.5),
-        //         ),
-        //       ],
-        //     ),
-        //   ),
-        // ),
 
         // --- Fund Comparison Section ---
         Padding(
@@ -969,6 +995,7 @@ class OverviewScreen extends StatelessWidget {
           ),
         ),
         Padding(
+          key: infoKey,
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
           child: const USectionHeading(
             title: 'About this Fund',
@@ -1000,14 +1027,6 @@ class OverviewScreen extends StatelessWidget {
             ],
           ),
         ),
-
-        // Padding(
-        //   padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-        //   child: const USectionHeading(
-        //     title: 'Investment Details',
-        //     showActionButton: false,
-        //   ),
-        // ),
 
         ///Investment Details
         ExpansionTile(
@@ -1325,149 +1344,6 @@ class FundComparisonItem extends StatelessWidget {
   }
 }
 
-// class OverviewScreen extends StatelessWidget {
-//   const OverviewScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return CustomScrollView(
-//       slivers: [
-//         // Top section
-//         SliverToBoxAdapter(
-//           child: Padding(
-//             padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-//             child: const USectionHeading(
-//               title: 'Fund Overview',
-//               showActionButton: false,
-//               // buttonTitle: 'See all',
-//             ),
-//           ),
-//         ),
-//         SliverToBoxAdapter(
-//           child: Padding(
-//             padding: EdgeInsetsGeometry.symmetric(horizontal: 20),
-//             child: Container(
-//               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-//               decoration: BoxDecoration(
-//                 color: Ucolors.light,
-//                 border: Border.all(color: Ucolors.borderColor),
-//                 borderRadius: BorderRadius.circular(12),
-//               ),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   _twoColumnRow(
-//                     leftTitle: 'Min SIp',
-//                     leftValue: '₹ 5,000',
-//                     rightTitle: 'Min lumpsum',
-//                     rightValue: '₹ 5,00',
-//                   ),
-//                   const SizedBox(height: 10),
-//                   _twoColumnRow(
-//                     leftTitle: 'Expense Ratio',
-//                     leftValue: '1.52%',
-//                     rightTitle: 'AUM',
-//                     rightValue: '₹ 5,00',
-//                   ),
-//                   const SizedBox(height: 10),
-
-//                   _twoColumnRow(
-//                     leftTitle: 'Lock In ',
-//                     leftValue: 'NO Lock-in',
-//                     rightTitle: 'Launch Date',
-//                     rightValue: '2002-02-02',
-//                   ),
-//                   SizedBox(height: 10),
-//                   const Text(
-//                     'Exit Load:',
-//                     style: TextStyle(fontSize: 12, color: Colors.grey),
-//                   ),
-
-//                   ReadMoreText(
-//                     'Nippon India Large Cap Fund – Growth charges 1.0% '
-//                     'of sell value; if fund sold before 7 days. '
-//                     'There are no other charges. ',
-//                     trimMode: TrimMode.Line,
-//                     trimLines: 1,
-//                     trimCollapsedText: 'Show More',
-//                     trimExpandedText: 'Show Less',
-//                     colorClickableText: Ucolors.primary,
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ),
-//         SliverToBoxAdapter(
-//           child: Padding(
-//             padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-//             child: const USectionHeading(
-//               title: 'Risk Analysis',
-//               showActionButton: false,
-//               // buttonTitle: 'See all',
-//             ),
-//           ),
-//         ),
-//         SliverToBoxAdapter(
-//           child: CustomContainer(
-//             child: Column(
-//               // mainAxisAlignment: MainAxisAlignment.start,
-//               mainAxisSize: MainAxisSize.min,
-//               crossAxisAlignment: CrossAxisAlignment.center,
-//               children: [
-//                 SpeedometerGauge(value: 50),
-//                 Text(
-//                   'Your Principle Will be at:',
-//                   style: Theme.of(
-//                     context,
-//                   ).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.bold),
-//                 ),
-//                 const SizedBox(height: 3),
-//                 Text(
-//                   'Very High Risk',
-//                   style: Theme.of(context).textTheme.labelLarge!.copyWith(
-//                     fontWeight: FontWeight.bold,
-//                     color: Ucolors.red,
-//                   ),
-//                 ),
-//                 const SizedBox(height: 3),
-
-//                 Text(
-//                   textAlign: TextAlign.center,
-//                   'Suitable for balanced investments and investors with medium risk tolerance.',
-//                   style: UTextStyles.small.copyWith(color: Ucolors.darkgrey),
-//                 ),
-//                 const SizedBox(height: 5),
-//               ],
-//             ),
-//           ),
-//         ),
-
-//         SliverToBoxAdapter(
-//           child: Padding(
-//             padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-//             child: const USectionHeading(
-//               title: 'Fund Comparison',
-//               showActionButton: false,
-//               // buttonTitle: 'See all',
-//             ),
-//           ),
-//         ),
-//         SliverToBoxAdapter(
-//           child: Padding(
-//             padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-//             child: const USectionHeading(
-//               title: 'Related Funds',
-//               showActionButton: false,
-//               // buttonTitle: 'See all',
-//             ),
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
-
 class SpeedometerGauge extends StatelessWidget {
   final double value; // 0–100
 
@@ -1656,7 +1532,11 @@ class SliverPageTabs extends SliverPersistentHeaderDelegate {
       );
     }
   }
-
+  @override
+  bool shouldRebuild(covariant SliverPageTabs oldDelegate) {
+    // This forces the header to rebuild when the index passed from parent changes
+    return oldDelegate.selectedIndex != selectedIndex;
+  }
   @override
   Widget build(
     BuildContext context,
@@ -1718,10 +1598,7 @@ class SliverPageTabs extends SliverPersistentHeaderDelegate {
   @override
   double get minExtent => 50;
 
-  @override
-  bool shouldRebuild(covariant SliverPageTabs oldDelegate) {
-    return oldDelegate.selectedIndex != selectedIndex;
-  }
+
 }
 
 Widget _dot() {
@@ -1739,205 +1616,7 @@ Widget _metaText(
   );
 }
 
-// import 'package:flutter/material.dart';
 
-// class NipponFundDetailScreen extends StatelessWidget {
-//   const NipponFundDetailScreen({super.key});
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: DefaultTabController(
-//         length: 5,
-//         child: NestedScrollView(
-//           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-//             return <Widget>[
-//               // This is the part that scrolls away
-//               SliverAppBar(
-//                 expandedHeight: 220.0, // Height of the top details
-//                 pinned: true, // Keeps the TabBar at the top
-//                 floating: false,
-//                 backgroundColor: Colors.white,
-//                 elevation: 0,
-//                 leading: const Icon(Icons.arrow_back, color: Colors.black),
-//                 flexibleSpace: FlexibleSpaceBar(
-//                   collapseMode: CollapseMode.pin,
-//                   background: Padding(
-//                     padding: const EdgeInsets.only(
-//                       top: 80,
-//                       left: 16,
-//                       right: 16,
-//                     ),
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         const Text(
-//                           "Nippon India Large Cap Fund- Growth Plan",
-//                           style: TextStyle(
-//                             fontSize: 18,
-//                             fontWeight: FontWeight.bold,
-//                           ),
-//                         ),
-//                         const SizedBox(height: 10),
-//                         _buildMiniStats(), // Helper for NAV and Returns
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//                 // This is the pinned TabBar
-//                 bottom: PreferredSize(
-//                   preferredSize: const Size.fromHeight(48),
-//                   child: Container(
-//                     color: Colors.white,
-//                     child: const TabBar(
-//                       isScrollable: true,
-//                       indicatorColor: Colors.red,
-//                       labelColor: Colors.black,
-//                       unselectedLabelColor: Colors.grey,
-//                       tabs: [
-//                         Tab(text: "Overview"),
-//                         Tab(text: "Returns"),
-//                         Tab(text: "Risk"),
-//                         Tab(text: "Portfolio"),
-//                         Tab(text: "Information"),
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ];
-//           },
-//           // This is the scrollable/swipeable content below the TabBar
-//           body: const TabBarView(
-//             children: [
-//               OverviewContent(), // Your main content list
-//               Center(child: Text("Returns Content")),
-//               Center(child: Text("Risk Content")),
-//               Center(child: Text("Portfolio Content")),
-//               Center(child: Text("Info Content")),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
 
-//   Widget _buildMiniStats() {
-//     return const Row(
-//       children: [
-//         Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Text("NAV", style: TextStyle(color: Colors.grey, fontSize: 12)),
-//             Text("₹93", style: TextStyle(fontWeight: FontWeight.bold)),
-//           ],
-//         ),
-//         SizedBox(width: 40),
-//         Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Text(
-//               "Returns (1Y)",
-//               style: TextStyle(color: Colors.grey, fontSize: 12),
-//             ),
-//             Text(
-//               "8.38%",
-//               style: TextStyle(
-//                 color: Colors.green,
-//                 fontWeight: FontWeight.bold,
-//               ),
-//             ),
-//           ],
-//         ),
-//       ],
-//     );
-//   }
-// }
 
-// // Ensure the content inside TabBarView is also scrollable
-// class OverviewContent extends StatelessWidget {
-//   const OverviewContent({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return ListView.builder(
-//       padding: const EdgeInsets.all(16),
-//       itemCount: 20,
-//       itemBuilder: (context, index) =>
-//           Card(child: ListTile(title: Text("Fund Data Point $index"))),
-//     );
-//   }
-// }
-
-// class SliverPageTabs extends SliverPersistentHeaderDelegate {
-//   final int selectedIndex;
-//   final ValueChanged<int> onTap;
-
-//   SliverPageTabs({required this.selectedIndex, required this.onTap});
-
-//   @override
-//   Widget build(
-//     BuildContext context,
-//     double shrinkOffset,
-//     bool overlapsContent,
-//   ) {
-//     // Add a Container with solid color so content doesn't bleed behind the tabs
-//     return Container(
-//       color: Colors.grey[50],
-//       alignment: Alignment.center,
-//       child: Container(
-//         height: 45,
-//         margin: const EdgeInsets.symmetric(horizontal: 16),
-//         decoration: BoxDecoration(
-//           color: Colors.grey[200],
-//           borderRadius: BorderRadius.circular(25),
-//         ),
-//         child: ListView.separated(
-//           scrollDirection: Axis.horizontal,
-//           padding: const EdgeInsets.symmetric(horizontal: 10),
-//           itemCount: 5,
-//           separatorBuilder: (_, __) => const SizedBox(width: 8),
-//           itemBuilder: (context, index) {
-//             final tabs = ['Overview', 'Returns', 'Risk', 'Portfolio', 'Info'];
-//             final isSelected = index == selectedIndex;
-//             return GestureDetector(
-//               onTap: () => onTap(index),
-//               child: Center(
-//                 child: AnimatedContainer(
-//                   duration: const Duration(milliseconds: 200),
-//                   padding: const EdgeInsets.symmetric(
-//                     horizontal: 20,
-//                     vertical: 8,
-//                   ),
-//                   decoration: BoxDecoration(
-//                     color: isSelected ? Colors.white : Colors.transparent,
-//                     borderRadius: BorderRadius.circular(20),
-//                     boxShadow: isSelected
-//                         ? [BoxShadow(color: Colors.black12, blurRadius: 4)]
-//                         : [],
-//                   ),
-//                   child: Text(
-//                     tabs[index],
-//                     style: TextStyle(
-//                       color: isSelected ? Colors.blue : Colors.grey[700],
-//                       fontWeight: isSelected
-//                           ? FontWeight.bold
-//                           : FontWeight.normal,
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             );
-//           },
-//         ),
-//       ),
-//     );
-//   }
-
-//   @override
-//   double get maxExtent => 60;
-//   @override
-//   double get minExtent => 60;
-//   @override
-//   bool shouldRebuild(covariant SliverPageTabs oldDelegate) => true;
-// }

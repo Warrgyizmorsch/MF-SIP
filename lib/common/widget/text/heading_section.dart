@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_sip/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/constant/text_style.dart';
 
 class HeadingText extends StatelessWidget {
   const HeadingText({super.key, required this.title});

@@ -4,10 +4,11 @@ import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/features/mf/screen/dashboard/dashboard.dart';
+import 'package:my_sip/features/mf/screen/explore/filterpage.dart';
 import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
-import 'package:my_sip/utils/constant/colors.dart';
-import 'package:my_sip/utils/constant/images.dart';
-import 'package:my_sip/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/images.dart';
+import 'package:my_sip/core/utils/constant/text_style.dart';
 
 class ExploreScreen extends StatelessWidget {
   const ExploreScreen({super.key});
@@ -58,7 +59,10 @@ class ExploreScreen extends StatelessWidget {
                       // borderRadius: BorderRadius.circular(2),
                       shape: BoxShape.circle,
                     ),
-                    child: CompactIcon(icon: Icons.tune, onPressed: () {}),
+                    child: CompactIcon(
+                      icon: Icons.tune,
+                      onPressed: () => Get.to(() => Filterpage()),
+                    ),
                   ),
 
                   Container(
@@ -76,7 +80,7 @@ class ExploreScreen extends StatelessWidget {
                           _FilterChip(
                             icon: Icons.filter_list_sharp,
                             label: 'Sort by',
-                            isSelected: true,
+                            // isSelected: true,
                           ),
                           _FilterChip(label: 'Equity'),
                           _FilterChip(label: 'Debt'),

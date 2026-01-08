@@ -1,12 +1,15 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
-import 'package:my_sip/utils/constant/colors.dart';
-import 'package:my_sip/utils/constant/images.dart';
-import 'package:my_sip/utils/constant/text_style.dart';
+import 'package:my_sip/features/personalization/screen/profile/details/add_another_bank.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/images.dart';
+import 'package:my_sip/core/utils/constant/text_style.dart';
 
 class BankDetailsScreen extends StatelessWidget {
   const BankDetailsScreen({super.key});
@@ -21,7 +24,8 @@ class BankDetailsScreen extends StatelessWidget {
         ),
         child: Column(
           children: [
-            SizedBox(height: kToolbarHeight - kTextTabBarHeight / 2),
+            // SizedBox(height: kToolbarHeight - kTextTabBarHeight / 2),
+            Gap(10),
 
             //Bank card
             BankCard(
@@ -30,7 +34,7 @@ class BankDetailsScreen extends StatelessWidget {
               bankLogo: UImages.icici,
               color: Ucolors.icicibankGradient,
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 15),
 
             //Acoount Details
             Card(
@@ -49,7 +53,7 @@ class BankDetailsScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 15),
 
             //Button
             UElevatedBUtton(
@@ -61,10 +65,11 @@ class BankDetailsScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 15),
 
             //Button
             UElevatedBUtton(
+              onPressed: () => Get.to(() => AddAnotherBankPage()),
               outlined: true,
               child: Center(
                 child: Text(
@@ -73,15 +78,15 @@ class BankDetailsScreen extends StatelessWidget {
                 ),
               ),
             ),
-            Spacer(),
+            // Spacer(),
 
             //Button
-            UElevatedBUtton(
-              // outlined: true,
-              child: Center(
-                child: Text('Continue', style: UTextStyles.buttonText),
-              ),
-            ),
+            // UElevatedBUtton(
+            //   // outlined: true,
+            //   child: Center(
+            //     child: Text('Continue', style: UTextStyles.buttonText),
+            //   ),
+            // ),
           ],
         ),
       ),

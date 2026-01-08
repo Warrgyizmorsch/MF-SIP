@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
-import 'package:my_sip/utils/constant/colors.dart';
-import 'package:my_sip/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/text_style.dart';
 
 class CustomAppBarNormal extends StatelessWidget
     implements PreferredSizeWidget {
@@ -13,6 +13,7 @@ class CustomAppBarNormal extends StatelessWidget
     this.backgroundColor,
     this.backIcon = true,
     this.actionsPadding,
+    this.bottom,
   });
 
   final String title;
@@ -21,10 +22,12 @@ class CustomAppBarNormal extends StatelessWidget
   final bool backIcon;
   // final
   final double? actionsPadding;
+  final PreferredSizeWidget? bottom;
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      bottom: bottom,
       backgroundColor: backgroundColor ?? Colors.grey.shade50,
       // automaticallyImplyLeading: true,
       actionsPadding: EdgeInsets.only(right: actionsPadding ?? 0),

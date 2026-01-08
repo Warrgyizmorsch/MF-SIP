@@ -5,8 +5,8 @@ import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/subtitle_section.dart';
 import 'package:my_sip/features/personalization/screen/profile/profile.dart';
-import 'package:my_sip/utils/constant/colors.dart';
-import 'package:my_sip/utils/constant/images.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/images.dart';
 
 class KycDetailsScreen extends StatelessWidget {
   const KycDetailsScreen({super.key});

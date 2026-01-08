@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -6,12 +8,18 @@ import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
+import 'package:my_sip/config/routes/app_pages.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/features/mf/screen/explore/explore.dart';
 import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
 import 'package:my_sip/features/mf/screen/goal/goal.dart';
+import 'package:my_sip/features/mf/screen/home/product_tool/sip_calculator.dart';
+import 'package:my_sip/features/mf/screen/home/product_tool/swp_calci.dart';
+import 'package:my_sip/features/mf/screen/home/product_tool/top_up_calculator.dart';
 import 'package:my_sip/features/personalization/screen/profile/profile.dart';
-import 'package:my_sip/utils/constant/colors.dart';
-import 'package:my_sip/utils/constant/images.dart';
-import 'package:my_sip/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/images.dart';
+import 'package:my_sip/core/utils/constant/text_style.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -262,9 +270,14 @@ class HomeScreen extends StatelessWidget {
                           featureName: 'Start SIP',
                           iconPath: UImages.startsip,
                         ),
-                        FeatureSection(
-                          featureName: 'Freedom SIP',
-                          iconPath: UImages.freedomsip,
+                        GestureDetector(
+                          onTap: (){
+                            Get.toNamed(AppRoutes.freedomSipScreen);
+                          },
+                          child: FeatureSection(
+                            featureName: 'Freedom SIP',
+                            iconPath: UImages.freedomsip,
+                          ),
                         ),
                         FeatureSection(
                           featureName: 'Lumpsum',
@@ -452,7 +465,7 @@ class HomeScreen extends StatelessWidget {
               sliver: SliverGrid(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
-                  childAspectRatio: 1.2,
+                  childAspectRatio: 1.1,
                   mainAxisSpacing: 0,
 
                   crossAxisSpacing: 12,
@@ -461,27 +474,37 @@ class HomeScreen extends StatelessWidget {
                   CollectionItem(
                     title: 'Best SIP Funds',
                     iconImg: UImages.savingbank,
-                    onTap: () {
-                      /* navigate */
-                    },
+                    onTap: () => Get.to(() => ExploreScreen()),
                   ),
                   CollectionItem(
                     title: 'High Returns',
                     iconImg: UImages.highreturn,
+                    onTap: () => Get.to(() => ExploreScreen()),
                   ),
                   CollectionItem(
+                    onTap: () => Get.to(() => ExploreScreen()),
+
                     title: 'International Funds',
                     iconImg: UImages.interfund,
                   ),
                   CollectionItem(
+                    onTap: () => Get.to(() => ExploreScreen()),
+
                     title: 'Index Funds',
                     iconImg: UImages.indexfund,
                   ),
                   CollectionItem(
+                    onTap: () => Get.to(() => ExploreScreen()),
+
                     title: 'Commodities',
                     iconImg: UImages.moneygold,
                   ),
-                  CollectionItem(title: 'Equity', iconImg: UImages.equity),
+                  CollectionItem(
+                    onTap: () => Get.to(() => ExploreScreen()),
+
+                    title: 'Equity',
+                    iconImg: UImages.equity,
+                  ),
                 ]),
               ),
             ),
@@ -509,22 +532,31 @@ class HomeScreen extends StatelessWidget {
                 ),
                 delegate: SliverChildListDelegate([
                   GoalBaseSIPCard(
+                    onTap: () => Get.to(() => GoalScreen()),
                     title: 'Car Goal',
                     iconData: Icons.directions_car_filled_rounded,
                   ),
                   GoalBaseSIPCard(
+                    onTap: () => Get.to(() => GoalScreen()),
+
                     title: 'Bike Goal',
                     iconData: Icons.pedal_bike_rounded,
                   ),
                   GoalBaseSIPCard(
+                    onTap: () => Get.to(() => GoalScreen()),
+
                     title: 'Marriage Goal',
                     iconData: Icons.favorite_border_outlined,
                   ),
                   GoalBaseSIPCard(
+                    onTap: () => Get.to(() => GoalScreen()),
+
                     title: 'Vacation Goal',
                     iconData: Icons.flight_takeoff_rounded,
                   ),
                   GoalBaseSIPCard(
+                    onTap: () => Get.to(() => GoalScreen()),
+
                     title: 'Home Goal',
                     iconData: Icons.home_rounded,
                   ),
@@ -621,14 +653,23 @@ class HomeScreen extends StatelessWidget {
                   crossAxisSpacing: 16,
                 ),
                 delegate: SliverChildListDelegate([
-                  ToolsItem(title: "SIP Calculator", imgUrl: UImages.sipcalci),
-                  ToolsItem(title: "STP Calculator", imgUrl: UImages.stpcalci),
-                  ToolsItem(title: "SWP Calculator", imgUrl: UImages.swpcali),
-                  ToolsItem(title: "Compare Fund", imgUrl: UImages.comparefund),
+                  ToolsItem(
+                    title: "SIP Calculator",
+                    imgUrl: UImages.sipcalci,
+                    onTap: () => Get.to(() => SipCalculatorPage()),
+                  ),
+                  // ToolsItem(title: "STP Calculator", imgUrl: UImages.stpcalci),
+                  ToolsItem(
+                    title: "SWP Calculator",
+                    imgUrl: UImages.swpcali,
+                    onTap: () => Get.to(() => SwpCalciScreen()),
+                  ),
                   ToolsItem(
                     title: "SIP Top Up Calculator",
                     imgUrl: UImages.siptopcalci,
+                    onTap: () => Get.to(() => TopUpCalculatorPage()),
                   ),
+                  ToolsItem(title: "Compare Fund", imgUrl: UImages.comparefund),
                 ]),
               ),
             ),
@@ -978,33 +1019,43 @@ class GoalBaseSIPCard extends StatelessWidget {
 }
 
 class ToolsItem extends StatelessWidget {
-  const ToolsItem({super.key, required this.title, required this.imgUrl});
+  const ToolsItem({
+    super.key,
+    required this.title,
+    required this.imgUrl,
+    this.onTap,
+  });
 
   final String title;
   final String imgUrl;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(height: 45, width: 45, child: Image.asset(imgUrl)),
-        SizedBox(width: 5),
-        Flexible(
-          child: Text(
-            title,
-            style: UTextStyles.small.copyWith(
-              // color: Ucolors.hometxtblue,
-              // color: Colors.grey[600],
-              // color: Colors.black.withOpacity(0.7),
-              color: Colors.grey[600],
+    log('tap');
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(height: 45, width: 45, child: Image.asset(imgUrl)),
+          SizedBox(width: 5),
+          Flexible(
+            child: Text(
+              title,
+              style: UTextStyles.small.copyWith(
+                // color: Ucolors.hometxtblue,
+                // color: Colors.grey[600],
+                // color: Colors.black.withOpacity(0.7),
+                color: Colors.grey[600],
 
-              // fontSize: 14,
-              // fontWeight: FontWeight.w500,
+                // fontSize: 14,
+                // fontWeight: FontWeight.w500,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -1024,30 +1075,33 @@ class CollectionItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Image.asset(iconImg),
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(iconImg),
 
-        const SizedBox(height: 4),
-        SizedBox(
-          width: size.width * 0.27,
-          // width: 100,
-          child: Text(
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            softWrap: true,
-            overflow: TextOverflow.ellipsis,
-            title,
-            style: UTextStyles.small.copyWith(
-              // color: Ucolors.hometxtblue,
-              color: Colors.grey[600],
+          const SizedBox(height: 4),
+          SizedBox(
+            width: size.width * 0.27,
+            // width: 100,
+            child: Text(
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              softWrap: true,
               overflow: TextOverflow.ellipsis,
+              title,
+              style: UTextStyles.small.copyWith(
+                // color: Ucolors.hometxtblue,
+                color: Colors.grey[600],
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -32,6 +32,18 @@ dependencies:
   readmore: ^3.0.0
   syncfusion_flutter_gauges: ^32.1.21
   gap: ^3.0.1
+  package_info_plus: ^9.0.0 # package info
+  mime: ^2.0.0 # post form image upload Unit8
+  http: ^1.2.2 # api calls
+  flutter_secure_storage: ^9.2.4 # local storage
+  dartz: ^0.10.1   # data sources, repositories & useCases
+  equatable: ^2.0.7
+  intl: ^0.20.2
+
+
+
+
+
 
 dev_dependencies:
   flutter_test:

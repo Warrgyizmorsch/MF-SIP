@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:my_sip/binding/bindings.dart';
-import 'package:my_sip/features/authentication/screen/onboarding/splash_screen.dart';
-import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
-import 'package:my_sip/utils/theme/theme.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/bindings/bindings.dart';
+import 'package:my_sip/core/utils/theme/theme.dart';
+
+import 'config/routes/app_pages.dart';
+import 'features/onboarding/presentation/pages/splash_screen.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -11,28 +14,34 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: 'My SIP',
-      // theme: ThemeData(
-      //   bottomSheetTheme: BottomSheetThemeData(backgroundColor: Colors.white),
-      //   fontFamily: 'Geist',
-      //   scaffoldBackgroundColor: Colors.white,
-      //   appBarTheme: AppBarTheme(
-      //     backgroundColor: Colors.white,
-      //     surfaceTintColor: Colors.white,
-      //   ),
-      // ),
-      theme: Utheme.lightTheme,
-      initialBinding: UBinding(),
-      // home: SplashScreen(),
-
-      // home: VerifyPanOtp(),
-      // home: QuestionScreen(),
-      // home: ComparisonScreen(),
-      // home: NavigationMenuBar(),
-      // home: FundComparisonScreen(),
-      home: FundDeatailsScreen(),
-      // home: NipponFundDetailScreen(),
+    return ScreenUtilInit(
+      designSize: const Size(390, 844),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      child: GetMaterialApp(
+        title: 'My SIP',
+        // theme: ThemeData(
+        //   bottomSheetTheme: BottomSheetThemeData(backgroundColor: Colors.white),
+        //   fontFamily: 'Geist',
+        //   scaffoldBackgroundColor: Colors.white,
+        //   appBarTheme: AppBarTheme(
+        //     backgroundColor: Colors.white,
+        //     surfaceTintColor: Colors.white,
+        //   ),
+        // ),
+        theme: Utheme.lightTheme,
+        initialBinding: UBinding(),
+        initialRoute: AppRoutes.splash,
+        getPages: AppPages.pages(),
+      
+        // home: VerifyPanOtp(),
+        // home: QuestionScreen(),
+        // home: ComparisonScreen(),
+        // home: NavigationMenuBar(),
+        // home: FundComparisonScreen(),
+        // home: FundDeatailsScreen(),
+        // home: NipponFundDetailScreen(),
+      ),
     );
   }
 }
