@@ -11,7 +11,6 @@ import 'package:my_sip/features/mf/screen/home/product_tool/widget/InvestValue.d
 import 'package:my_sip/features/mf/screen/home/product_tool/widget/piechart_with_value.dart';
 import 'package:my_sip/features/mf/screen/home/product_tool/widget/sipslidertile.dart';
 
-
 class SipCalculatorPage extends StatefulWidget {
   const SipCalculatorPage({super.key});
 
@@ -53,7 +52,10 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
       ReturnRow(period: '5', scheme: 600000, category: 105218, benchmark: 5218),
     ];
     return Scaffold(
-      backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
+      backgroundColor: Colors.white.withOpacity(0.96),
+
+      // backgroundColor: The
       appBar: CustomAppBarNormal(title: 'SIP Calculator'),
       body: SingleChildScrollView(
         child: Padding(
@@ -156,13 +158,16 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                               max: 30,
                             ),
                             Container(
+                              // margin: EdgeInsets.all(9),
                               padding: EdgeInsets.symmetric(
                                 horizontal: 15,
                                 vertical: 15,
                               ),
                               width: double.infinity,
                               decoration: BoxDecoration(
+                                color: Ucolors.light,
                                 borderRadius: BorderRadius.circular(10),
+
                                 border: Border.all(color: Ucolors.borderside),
                               ),
                               child: DefaultTabController(
@@ -298,10 +303,11 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                                               ),
                                               DashedLine(
                                                 color: Ucolors.borderColor,
+                                                dashSpace: 0,
                                               ),
                                               ...returns.map(
                                                 (row) => ReturnsTableRow(
-                                                  
+                                                  color3: Colors.green.shade600,
                                                   data: row,
                                                   percentage: false,
                                                 ),
@@ -446,6 +452,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                             width: double.infinity,
 
                             decoration: BoxDecoration(
+                              color: Ucolors.light,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(color: Ucolors.borderside),
                             ),

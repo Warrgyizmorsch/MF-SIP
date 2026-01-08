@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/table/table_header.dart';
@@ -12,7 +13,6 @@ import 'package:my_sip/features/mf/screen/home/product_tool/widget/InvestValue.d
 import 'package:my_sip/features/mf/screen/home/product_tool/widget/piechart_with_value.dart';
 import 'package:my_sip/features/mf/screen/home/product_tool/widget/sipslidertile.dart';
 
-
 class TopUpCalculatorPage extends StatelessWidget {
   const TopUpCalculatorPage({super.key});
 
@@ -20,13 +20,13 @@ class TopUpCalculatorPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final normalvsstep = [
       ReturnRow(
-        period: 'Normal SIP',
+        period: 'Normal',
         scheme: 3000000,
         category: 5600897,
         benchmark: 2600897,
       ),
       ReturnRow(
-        period: 'Step-up SIP',
+        period: 'Step-up',
         scheme: 3000000,
         category: 5600897,
         benchmark: 2600897,
@@ -35,7 +35,7 @@ class TopUpCalculatorPage extends StatelessWidget {
     final returns = [
       ReturnRow(
         period: '1',
-        scheme: 120000,
+        scheme: 1200000,
         category: 35661,
         benchmark: 415661,
         extra: 421,
@@ -70,6 +70,7 @@ class TopUpCalculatorPage extends StatelessWidget {
       ),
     ];
     return Scaffold(
+      backgroundColor: Colors.white.withOpacity(0.96),
       appBar: CustomAppBarNormal(title: 'SIP Top-Up Calculator'),
       body: Padding(
         padding: UPadding.screenPadding.copyWith(top: 20, bottom: 20),
@@ -124,6 +125,15 @@ class TopUpCalculatorPage extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
                 width: double.infinity,
                 decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 6,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: Ucolors.borderside),
                 ),
@@ -132,15 +142,17 @@ class TopUpCalculatorPage extends StatelessWidget {
                   children: [
                     TableHeader(
                       heading1: 'Metric',
-                      heading2: 'Invested Amount',
+                      heading2: 'Invested',
                       heading3: 'Future Value',
                       heading4: 'Profit',
                     ),
+                    DashedLine(color: Colors.grey.shade300, dashSpace: 0),
                     ...normalvsstep.map(
                       (e) => ReturnsTableRow(
+                        color4: Colors.green.shade600,
                         data: e,
                         percentage: false,
-                        fontSize: 10,
+                        // fontSize: 10,
                       ),
                     ),
                   ],
@@ -153,7 +165,9 @@ class TopUpCalculatorPage extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
+                  color: Ucolors.light,
+                  borderRadius: BorderRadius.circular(20),
+
                   border: Border.all(color: Ucolors.borderside),
                 ),
                 child: DefaultTabController(
@@ -221,16 +235,22 @@ class TopUpCalculatorPage extends StatelessWidget {
                                     ),
                                     Gap(10),
                                     InvestValue(
+                                      color: Colors.black87,
+
                                       title: 'Step-up Invested',
                                       value: '184777777',
                                       // color: Ucolors.pri,
                                     ),
                                     InvestValue(
+                                      color: Colors.black87,
+
                                       title: 'Step-up Future Value',
                                       value: '184777777',
                                       // color: Ucolors.dark,
                                     ),
                                     InvestValue(
+                                      color: Colors.black87,
+
                                       title: 'Step-up Profit',
                                       value: '184777777',
                                       // color: Ucolors.success,
@@ -251,15 +271,20 @@ class TopUpCalculatorPage extends StatelessWidget {
                               children: [
                                 TableHeader(
                                   heading1: 'Years',
-                                  heading2: 'Step-up Invested',
-                                  heading3: 'Normal Value',
-                                  heading4: 'Step-up Value',
-                                  heading5: 'Extra Gain',
+                                  heading2: 'Invested',
+                                  heading3: 'Normal',
+                                  heading4: 'Step-up',
+                                  heading5: 'Extra',
                                 ),
-                                DashedLine(color: Ucolors.borderColor),
+                                DashedLine(
+                                  color: Ucolors.borderColor,
+                                  dashSpace: 0,
+                                ),
                                 ...returns.map(
                                   (row) => ReturnsTableRow(
-                                    fontSize: 10,
+                                    color5: Colors.green.shade600,
+                                    // color4: Colors.green,
+                                    // fontSize: 10,
                                     data: row,
                                     percentage: false,
                                   ),

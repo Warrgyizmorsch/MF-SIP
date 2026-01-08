@@ -6,13 +6,36 @@ import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/features/dashboard/screen/comparison_screen.dart';
 import 'package:my_sip/features/personalization/screen/profile/profile.dart';
-import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 
 class NomineeDetailsScreen extends StatelessWidget {
   NomineeDetailsScreen({super.key});
   final TextEditingController relationController = TextEditingController();
   final TextEditingController documnetController = TextEditingController();
+  final List<String> relations = [
+    'Aunt',
+    'Brother-In-Law',
+    'Brother',
+    'Daughter',
+    'Daughter-In-Law',
+    'Father',
+    'Father-In-Law',
+    'Grand Daughter',
+    'Grand Father',
+    'Grand Mother',
+    'Mother',
+    'Mother-In-Law',
+    'Son',
+    'Spouse',
+    'Testing',
+  ];
+  final List<String> document = [
+    'Aadhar',
+    'PAN',
+    'Driving License',
+    'Passport',
+    'Other',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +121,12 @@ class NomineeDetailsScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(14),
                     onTap: () {
                       FocusScope.of(context).unfocus();
-                      _documnetMenu(context); // no keyboard
+                      // _documnetMenu(context); // no keyboard
+                      showRelationBottomSheet(
+                        context,
+                        document,
+                        documnetController,
+                      );
                     },
                     child: AbsorbPointer(
                       absorbing: true,
@@ -135,7 +163,13 @@ class NomineeDetailsScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(14),
                     onTap: () {
                       FocusScope.of(context).unfocus(); // no keyboard
-                      _showRelationMenu(context);
+                      // _showRelationMenu(context);
+                      // _showRelationBottomSheet(context);
+                      showRelationBottomSheet(
+                        context,
+                        relations,
+                        relationController,
+                      );
                     },
                     child: AbsorbPointer(
                       absorbing: true,
@@ -177,43 +211,112 @@ class NomineeDetailsScreen extends StatelessWidget {
     );
   }
 
-  void _showRelationMenu(BuildContext context) async {
-    final value = await showMenu<String>(
-      color: Colors.white,
-    
+  void showRelationBottomSheet(
+    BuildContext context,
+    List list,
+    TextEditingController controller,
+  ) {
+    showModalBottomSheet(
       context: context,
-      
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      transitionAnimationController: AnimationController(
+        vsync: Navigator.of(context),
+        duration: const Duration(milliseconds: 750),
+      ),
+      builder: (_) {
+        String selected = controller.text;
 
-      position: const RelativeRect.fromLTRB(100, 300, 100, 100),
-      items: const [
-        PopupMenuItem(value: 'Father', child: Text('Father')),
-        PopupMenuItem(value: 'Mother', child: Text('Mother')),
-        PopupMenuItem(value: 'Wife', child: Text('Wife')),
-        PopupMenuItem(value: 'Husband', child: Text('Husband')),
-        PopupMenuItem(value: 'Son', child: Text('Son')),
-        PopupMenuItem(value: 'Daughter', child: Text('Daughter')),
-      ],
+        return DraggableScrollableSheet(
+          initialChildSize: 0.7,
+          minChildSize: 0.4,
+          maxChildSize: 0.9,
+          expand: false,
+          builder: (context, scrollController) {
+            return StatefulBuilder(
+              builder: (context, setState) {
+                return Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 12),
+
+                      // Drag Handle
+                      Container(
+                        height: 4,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      const Text(
+                        'Select Nominee Relation',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+                      // Text('Search'),
+
+                      // List container
+                      Expanded(
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF4F7FB),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: ListView.separated(
+                            controller: scrollController,
+                            // itemCount: relations.length,
+                            itemCount: list.length,
+                            separatorBuilder: (_, __) =>
+                                Divider(color: Colors.grey.shade300, height: 1),
+                            itemBuilder: (context, index) {
+                              final item = list[index];
+
+                              return ListTile(
+                                title: Text(item),
+                                trailing: Radio<String>(
+                                  value: item,
+                                  groupValue: selected,
+                                  onChanged: (value) {
+                                    setState(() => selected = value!);
+                                    controller.text = value!;
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                onTap: () {
+                                  setState(() => selected = item);
+                                  controller.text = item;
+                                  Navigator.pop(context);
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
     );
-
-    if (value != null) {
-      relationController.text = value;
-    }
-  }
-
-  void _documnetMenu(BuildContext context) async {
-    final value = await showMenu<String>(
-      context: context,
-      color: Ucolors.light,
-      position: const RelativeRect.fromLTRB(100, 300, 100, 100),
-      items: const [
-        PopupMenuItem(value: 'Aadhar', child: Text('Aadhar')),
-        PopupMenuItem(value: 'Pan', child: Text('PAN')),
-        PopupMenuItem(value: 'Driving Licence', child: Text('Driving Licence')),
-      ],
-    );
-
-    if (value != null) {
-      documnetController.text = value;
-    }
   }
 }

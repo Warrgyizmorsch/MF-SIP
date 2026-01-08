@@ -4,14 +4,43 @@ import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
+import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 
 class AddAnotherBankPage extends StatelessWidget {
   AddAnotherBankPage({super.key});
   final TextEditingController bank = TextEditingController();
+  final List<String> banks = [
+    'State Bank of India',
+    'HDFC Bank',
+    'ICICI Bank',
+    'Axis Bank',
+    'Punjab National Bank',
+    'Bank of Baroda',
+    'Canara Bank',
+    'Union Bank of India',
+    'Bank of India',
+    'Indian Bank',
+    'Central Bank of India',
+    'Indian Overseas Bank',
+    'UCO Bank',
+    'Punjab & Sind Bank',
+    'IDBI Bank',
+    'Kotak Mahindra Bank',
+    'IndusInd Bank',
+    'Yes Bank',
+    'Federal Bank',
+    'RBL Bank',
+    'South Indian Bank',
+    'Bandhan Bank',
+    'IDFC First Bank',
+    'AU Small Finance Bank',
+    'Equitas Small Finance Bank',
+    'Ujjivan Small Finance Bank',
+    'Jana Small Finance Bank',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +67,13 @@ class AddAnotherBankPage extends StatelessWidget {
             InkWell(
               onTap: () {
                 FocusScope.of(context).unfocus();
-                banknamelist(context);
+                showSelectionBottomSheet(
+                  controller: bank,
+                  context: context,
+                  title: 'Search',
+                  items: banks,
+                  selectedValue: bank.text,
+                );
               },
 
               child: AbsorbPointer(
@@ -52,7 +87,6 @@ class AddAnotherBankPage extends StatelessWidget {
               ),
             ),
             Gap(15),
-            // Gap(15),s
             UTextFormField(
               prefixIcon: Icons.onetwothree,
               hintText: 'Account Number',
