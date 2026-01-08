@@ -5,7 +5,7 @@ import 'package:my_sip/common/widget/text/heading_section.dart';
 import 'package:my_sip/common/widget/text/subtitle_section.dart';
 import 'package:my_sip/common/widget/top_bottom_style/top_bottom_style.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/questions/question_controller.dart';
-import 'package:my_sip/features/authentication/screen/question/question1.dart';
+import 'package:my_sip/features/questions/presentation/pages/question1.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 

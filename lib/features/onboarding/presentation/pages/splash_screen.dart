@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/welcome_page.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
@@ -20,10 +22,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
     // Simulate some startup work
     Timer(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => WelcomePageScreen()),
-      );
+      Get.toNamed(AppRoutes.home);
+      // Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => WelcomePageScreen()),
+      // );
     });
   }
 
