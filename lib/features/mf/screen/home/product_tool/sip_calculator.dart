@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:my_sip/common/style/padding.dart';
+import 'package:my_sip/core/utils/calculator/model/lumpsum.dart/lumpsummodel.dart';
+import 'package:my_sip/core/utils/calculator/model/model.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/table/table_header.dart';
@@ -19,9 +21,30 @@ class SipCalculatorPage extends StatefulWidget {
 }
 
 class _SipCalculatorPageState extends State<SipCalculatorPage> {
+  SipResult get sipResult => calculateSip(
+    monthlyInvestment: monthlyInvestment,
+    annualRate: returnRate,
+    years: years,
+  );
+  SipResult get lumpsumResult => calculateLumpsum(
+    investment: monthlyInvestment,
+    annualRate: returnRate,
+    years: years,
+  );
+
   double monthlyInvestment = 5000;
   double returnRate = 11.9;
   double years = 5;
+
+  //lumpsum
+  double totalInvestment = 0;
+  double returnRatelumpsum = 11.9;
+  double yearslumpsum = 5;
+
+  //sip
+  double monthlyInvestmentt = 0;
+  double returnRateSIp = 11.9;
+  double yearsSip = 5;
   @override
   Widget build(BuildContext context) {
     final returns = [
@@ -65,22 +88,10 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Text(
-                //   'SIP Calculator',
-                //   style: UTextStyles.medium.copyWith(
-                //     color: Ucolors.dark,
-                //     fontWeight: FontWeight.bold,
-                //   ),
-                // ),
-                // Gap(15),
                 Tab(
                   child: TabBar(
                     indicatorSize: TabBarIndicatorSize.tab,
 
-                    // tabAlignment: TabAlignment.start,
-                    // tabAlignment: TabAlignment.startOffset,s
-                    // dividerHeight: 40,
-                    // isScrollable: true,
                     unselectedLabelColor: Colors.grey,
                     dividerColor: Colors.transparent,
                     labelColor: Ucolors.primary,
@@ -137,9 +148,9 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                               // valueFormatter: (val) => '${val.toStringAsFixed(1)}%',
                               suffix: '%',
                               onChanged: (val) {
-                                // setState(() {
-                                //   returnRate = val;
-                                // });
+                                setState(() {
+                                  returnRate = val;
+                                });
                               },
                             ),
 
@@ -268,22 +279,37 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                                                 list: [
                                                   InvestValue(
                                                     title: 'Investment amount ',
-                                                    value: '123',
+                                                    // value: '123',
+                                                    value:
+                                                        '₹${sipResult.invested.toStringAsFixed(0)}',
+
                                                     color: Colors.grey.shade800,
                                                   ),
                                                   InvestValue(
                                                     title: 'Est Returns ',
-                                                    value: '123',
+                                                    // value: '123',
+                                                    value:
+                                                        '₹${sipResult.returns.toStringAsFixed(0)}',
+
                                                     color: Colors.grey.shade800,
                                                   ),
                                                   InvestValue(
                                                     title: 'Total Value',
-                                                    value: '123',
+                                                    // value: '123',
+                                                    value:
+                                                        '₹${sipResult.totalValue.toStringAsFixed(0)}',
+
                                                     color: Ucolors.dark,
                                                   ),
                                                 ],
-                                                piechartvalue1: 70,
-                                                piechartvalue2: 30,
+                                                // piechartvalue1: 70,
+                                                piechartvalue1:
+                                                    sipResult.returns,
+
+                                                // piechartvalue2: 30,
+                                                piechartvalue2:
+                                                    sipResult.invested,
+
                                                 piechartcolor2: Ucolors.primary
                                                     .withOpacity(0.2),
                                                 piechartcolor1: Ucolors.primary,

@@ -3,7 +3,6 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/features/mf/screen/home/product_tool/widget/image_slider_thumb.dart';
 
-
 class SipSliderTile2 extends StatefulWidget {
   final String title;
   final double value;
@@ -143,6 +142,7 @@ class _SipSliderTileState extends State<SipSliderTile2> {
               setState(() {
                 _currentValue = val;
                 _controller.text = val.toInt().toString();
+                // _controller.text = val.toString();
               });
               widget.onChanged(val);
             },

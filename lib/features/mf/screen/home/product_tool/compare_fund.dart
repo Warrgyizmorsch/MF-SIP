@@ -419,7 +419,7 @@ class CompareFundsPage extends StatelessWidget {
             Gap(3),
             Text(
               overflow: TextOverflow.ellipsis,
-              maxLines: 2,
+              maxLines: 3,
               'Nippon India Large Cap Fund- Growth Plan- Growth Option',
               style: UTextStyles.medium.copyWith(
                 color: Ucolors.dark,

@@ -143,7 +143,7 @@ class TopUpCalculatorPage extends StatelessWidget {
                     TableHeader(
                       heading1: 'Metric',
                       heading2: 'Invested',
-                      heading3: 'Future Value',
+                      heading3: 'Future',
                       heading4: 'Profit',
                     ),
                     DashedLine(color: Colors.grey.shade300, dashSpace: 0),
