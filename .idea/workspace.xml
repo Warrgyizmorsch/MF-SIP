@@ -5,16 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/config/routes/app_routes.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/routes/app_routes.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/utils/constant/images.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/utils/constant/images.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/core/utils/constant/text.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/utils/constant/text.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/utils/constant/text_style.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/utils/constant/text_style.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/fund_details/fund_deatails.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/mf/screen/fund_details/fund_deatails.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/home/home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/mf/screen/home/home.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/core/utils/helper/helpers.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/utils/helper/helpers.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/freedom_sip_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/freedom_sip_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/home/product_tool/widget/sipslidertile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/mf/screen/home/product_tool/widget/sipslidertile.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/features/onboarding/presentation/pages/splash_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/onboarding/presentation/pages/splash_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/my_app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/my_app.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -74,7 +74,7 @@
     "cidr.known.project.marker": "true",
     "com.google.services.firebase.aqiPopupShown": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "nithik-branch",
     "io.flutter.project.isFirstOpen": "true",
     "io.flutter.reload.alreadyRun": "true",
     "settings.editor.selected.configurable": "dart.settings",
@@ -117,7 +117,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="origin/imam" />
+                        <option value="nithik-branch" />
                       </list>
                     </value>
                   </entry>

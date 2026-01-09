@@ -1,7 +1,15 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 
+
+
+final priceFormatter = NumberFormat.currency(
+  locale: 'hi_IN',
+  symbol: '₹',
+  decimalDigits: 0,
+);
 void createLog(dynamic message) {
   if (!kDebugMode) return; // Only show in debug mode
 

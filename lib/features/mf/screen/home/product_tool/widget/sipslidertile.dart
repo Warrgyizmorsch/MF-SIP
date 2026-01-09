@@ -3,6 +3,12 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/features/mf/screen/home/product_tool/widget/image_slider_thumb.dart';
 
+
+import 'package:flutter/material.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/images.dart';
+import 'package:my_sip/features/mf/screen/home/product_tool/widget/image_slider_thumb.dart';
+
 class SipSliderTile2 extends StatefulWidget {
   final String title;
   final double value;
@@ -11,6 +17,8 @@ class SipSliderTile2 extends StatefulWidget {
   final String? suffix; // ₹, %, Yr
   final ValueChanged<double> onChanged;
   final String? prefix;
+  final SliderComponentShape? customThumb;
+  final Color? activeColor; // Added parameter for color override
 
   const SipSliderTile2({
     super.key,
@@ -21,6 +29,8 @@ class SipSliderTile2 extends StatefulWidget {
     required this.suffix,
     required this.onChanged,
     this.prefix,
+    this.customThumb,
+    this.activeColor, // Initialize parameter
   });
 
   @override
@@ -60,10 +70,13 @@ class _SipSliderTileState extends State<SipSliderTile2> {
 
   @override
   Widget build(BuildContext context) {
+    // Determine the active color (fallback to Ucolors.primary)
+    final effectiveColor = widget.activeColor ?? Ucolors.primary;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        /// Title + Editable  Box
+        /// Title + Editable Box
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -74,7 +87,8 @@ class _SipSliderTileState extends State<SipSliderTile2> {
               width: 100,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
-                color: Ucolors.primary.withOpacity(0.1),
+                // Use effectiveColor for background tint
+                color: effectiveColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Row(
@@ -83,7 +97,7 @@ class _SipSliderTileState extends State<SipSliderTile2> {
                     Text(
                       widget.prefix.toString(),
                       style: TextStyle(
-                        color: Ucolors.primary,
+                        color: effectiveColor, // Use effectiveColor
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -91,9 +105,7 @@ class _SipSliderTileState extends State<SipSliderTile2> {
                   Expanded(
                     child: TextField(
                       style: TextStyle(
-                        // color: Ucolors.success,
-                        // backgroundColor: Colors.amber,
-                        color: Ucolors.primary,
+                        color: effectiveColor, // Use effectiveColor
                       ),
                       controller: _controller,
                       keyboardType: TextInputType.number,
@@ -109,9 +121,8 @@ class _SipSliderTileState extends State<SipSliderTile2> {
                   if (widget.suffix != null)
                     Text(
                       widget.suffix.toString(),
-                      style: const TextStyle(
-                        // color: Color(0xFF1DBF8E),
-                        color: Ucolors.primary,
+                      style: TextStyle(
+                        color: effectiveColor, // Use effectiveColor
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -125,14 +136,16 @@ class _SipSliderTileState extends State<SipSliderTile2> {
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
             trackHeight: 3,
-            activeTrackColor: Ucolors.primary,
+            activeTrackColor: effectiveColor, // Use effectiveColor
             inactiveTrackColor: Colors.grey.shade300,
             thumbColor: Colors.white,
             overlayColor: Colors.transparent,
-            thumbShape: ImageSliderThumb(
-              thumbRadius: 015,
-              image: AssetImage(UImages.imp),
-            ),
+            // Use customThumb if provided, otherwise default to ImageSliderThumb
+            thumbShape: widget.customThumb ??
+                ImageSliderThumb(
+                  thumbRadius: 15,
+                  image: AssetImage(UImages.imp),
+                ),
           ),
           child: Slider(
             value: _currentValue,

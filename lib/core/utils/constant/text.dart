@@ -26,4 +26,10 @@ class UText {
   static const String freedomSipStep2Title = 'Step 2. Distribution Phase (SWP)';
   static const String freedomSipStep2desc = 'Select a Target Scheme to shift your corpus \nto a safe fund nd start your SWP.';
   static const String freedomSipStep2button = 'Select SWP Fund';
+  static const String sipTenureTitle = 'Select your SIP Tenure';
+  static const String sipTenureDrag = 'Drag the slider to adjust';
+  static const String growthSchemeScreenTitle = 'Select your Growth Scheme';
+  static const String growthSchemeScreenKnowMore = 'Investing in fundamentally strong, well - managed \ncompanies wi...';
+
+
 }
