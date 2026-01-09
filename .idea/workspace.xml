@@ -5,16 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/config/routes/app_routes.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/routes/app_routes.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/utils/constant/text.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/utils/constant/text.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/utils/helper/helpers.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/utils/helper/helpers.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/freedom_sip_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/freedom_sip_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/home/product_tool/widget/sipslidertile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/mf/screen/home/product_tool/widget/sipslidertile.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/onboarding/presentation/pages/splash_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/onboarding/presentation/pages/splash_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/growth_scheme_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/growth_scheme_screen.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,17 +72,17 @@
     "git-widget-placeholder": "nithik-branch",
     "io.flutter.project.isFirstOpen": "true",
     "io.flutter.reload.alreadyRun": "true",
-    "settings.editor.selected.configurable": "dart.settings",
+    "settings.editor.selected.configurable": "AndroidSdkUpdater",
     "show.migrate.to.gradle.popup": "false"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/assets/images" />
       <recent name="$PROJECT_DIR$/assets/icon" />
       <recent name="$PROJECT_DIR$/lib/features/questions/presentation/pages" />
       <recent name="$PROJECT_DIR$/lib/features/questions/presentation/widgets" />
       <recent name="$PROJECT_DIR$/lib/features/onboarding/presentation/widgets" />
-      <recent name="$PROJECT_DIR$/lib/features/onboarding/presentation/pages" />
     </key>
   </component>
   <component name="TaskManager">

@@ -263,7 +263,7 @@ class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
                       );
                       return;
                     }
-                    Get.toNamed(AppRoutes.sipTenureScreen);
+                    Get.toNamed(AppRoutes.accumulationanddistributionscreen);
                   },
                   child: Center(
                     child: Text(
