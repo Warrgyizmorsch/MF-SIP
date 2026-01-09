@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
+import 'package:my_sip/config/routes/app_pages.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text.dart';
@@ -22,14 +25,20 @@ class _FreedomSipScreenState extends State<FreedomSipScreen> {
         top: true,
         child: Column(
           children: [
-           Row(
-             spacing: 10.0,
-             mainAxisAlignment: MainAxisAlignment.center,
-             children: [
-               SvgPicture.asset(UImages.mfLogoLight, height: 20,),
-               Text(UText.freedomSipTitle, style: AppTextStyles.bodyMedium(color: Colors.white),)
-             ],
-           ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(UImages.mfLogoLight, height: 20),
+                  const SizedBox(width: 10),
+                  Text(
+                    UText.freedomSipTitle,
+                    style: AppTextStyles.bodyLarge(color: Colors.white),
+                  )
+                ],
+              ),
+            ),
             SizedBox(height: 10.0,),
         Container(
           decoration: BoxDecoration(
@@ -95,7 +104,7 @@ class _FreedomSipScreenState extends State<FreedomSipScreen> {
                 child: UElevatedBUtton(
 
                   onPressed: () {
-                    // Handle tap
+                    Get.toNamed(AppRoutes.sipTenureScreen);
                   },
                   child: Center(
                     child: Text(
