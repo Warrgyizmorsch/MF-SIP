@@ -271,7 +271,7 @@ class HomeScreen extends StatelessWidget {
                           iconPath: UImages.startsip,
                         ),
                         GestureDetector(
-                          onTap: (){
+                          onTap: () {
                             Get.toNamed(AppRoutes.freedomSipScreen);
                           },
                           child: FeatureSection(
@@ -669,7 +669,11 @@ class HomeScreen extends StatelessWidget {
                     imgUrl: UImages.siptopcalci,
                     onTap: () => Get.to(() => TopUpCalculatorPage()),
                   ),
-                  ToolsItem(title: "Compare Fund", imgUrl: UImages.comparefund),
+                  ToolsItem(
+                    title: "Compare Fund",
+                    imgUrl: UImages.comparefund,
+                    onTap: () => Get.toNamed(AppRoutes.comparefund),
+                  ),
                 ]),
               ),
             ),

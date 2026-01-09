@@ -1,9 +1,14 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:intl/intl.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
+import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
+import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/dashboard/screen/comparison_screen.dart';
 import 'package:my_sip/features/personalization/screen/profile/profile.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
@@ -70,7 +75,7 @@ class NomineeDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 5),
                   UTextFormField(
                     prefixIcon: null,
-                    hintText: 'Enter nominees full name',
+                    hintText: 'Enter nominee full name',
                     // controller: TextEditingController(text: 'Pr'),
                   ),
                   const SizedBox(height: 10),
@@ -80,10 +85,24 @@ class NomineeDetailsScreen extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                   const SizedBox(height: 5),
-                  UTextFormField(
-                    prefixIcon: null,
-                    hintText: 'DD/MM/YYYY',
-                    sufixIcon: Icons.calendar_month,
+                  InkWell(
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+
+                      showCupertinoDatePicker(context);
+                    },
+                    child: AbsorbPointer(
+                      absorbing: true,
+                      child: UTextFormField(
+                        controller: dobController,
+                        readOnly: true,
+
+                        prefixIcon: null,
+                        hintText: 'DD/MM/YYYY',
+
+                        sufixIcon: Icons.calendar_month,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 10),
 
@@ -95,7 +114,7 @@ class NomineeDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 5),
                   UTextFormField(
                     prefixIcon: Icons.mail_outline,
-                    hintText: 'Enter nominees email ID',
+                    hintText: 'Enter nominee email ID',
                   ),
                   const SizedBox(height: 10),
 
@@ -107,7 +126,7 @@ class NomineeDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 5),
                   UTextFormField(
                     prefixIcon: null,
-                    hintText: '+91 Enter nominnes mobile no.',
+                    hintText: '+91 Enter nominee mobile no.',
                   ),
                   const SizedBox(height: 10),
 
@@ -121,7 +140,6 @@ class NomineeDetailsScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(14),
                     onTap: () {
                       FocusScope.of(context).unfocus();
-                      // _documnetMenu(context); // no keyboard
                       showRelationBottomSheet(
                         context,
                         document,
@@ -191,7 +209,7 @@ class NomineeDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 5),
                   UTextFormField(
                     prefixIcon: Icons.location_on_outlined,
-                    hintText: 'Enter your Full Address',
+                    hintText: 'Enter your full address',
                   ),
                   const SizedBox(height: 10),
                 ],
@@ -210,6 +228,91 @@ class NomineeDetailsScreen extends StatelessWidget {
       ),
     );
   }
+
+  final TextEditingController dobController = TextEditingController();
+
+  void showCupertinoDatePicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      transitionAnimationController: AnimationController(
+        vsync: Navigator.of(context),
+        duration: const Duration(milliseconds: 750),
+      ),
+      builder: (_) {
+        DateTime selectedDate = DateTime.now();
+
+        return SizedBox(
+          height: MediaQuery.of(context).size.height * 0.4,
+          child: Column(
+            children: [
+              const SizedBox(height: 12),
+
+              // Drag Handle
+              Container(
+                height: 4,
+                width: 40,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              const Text(
+                'Select Date Of Birth',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+
+              Expanded(
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.date,
+                  initialDateTime: DateTime(2000, 1, 1),
+                  maximumDate: DateTime.now(),
+                  onDateTimeChanged: (date) {
+                    selectedDate = date;
+                  },
+                ),
+              ),
+
+              Padding(
+                // padding: const EdgeInsets.all(20.0),
+                padding: EdgeInsetsGeometry.symmetric(
+                  horizontal: 30,
+                  vertical: 15,
+                ),
+                child: UElevatedBUtton(
+                  // width: MediaQuery.of(context).size.width / 2,
+                  onPressed: () {
+                    dobController.text = DateFormat(
+                      'dd/MM/yyyy',
+                    ).format(selectedDate);
+                    Navigator.pop(context);
+                  },
+                  child: Center(
+                    child: Text('Select Date', style: UTextStyles.buttonText),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // void datepicker(BuildContext context) {
+  //   showCupertinoModalPopup(
+  //     context: context,
+  //     builder: (context) {
+  //       return SizedBox(
+  //         height: MediaQuery.of(context).size.height * 0.3,
+  //         child: CupertinoDatePicker(onDateTimeChanged: (value) {}),
+  //       );
+  //     },
+  //   );
+  // }
 
   void showRelationBottomSheet(
     BuildContext context,

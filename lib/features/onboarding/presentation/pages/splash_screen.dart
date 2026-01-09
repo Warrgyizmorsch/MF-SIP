@@ -22,6 +22,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
     // Simulate some startup work
     Timer(const Duration(seconds: 3), () {
+      // Get.toNamed(AppRoutes.home);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => WelcomePageScreen()),
+      );
       Get.toNamed(AppRoutes.navMenuBar);
       // Navigator.pushReplacement(
       //   context,

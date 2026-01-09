@@ -155,6 +155,7 @@ class _SipSliderTileState extends State<SipSliderTile2> {
               setState(() {
                 _currentValue = val;
                 _controller.text = val.toInt().toString();
+                // _controller.text = val.toString();
               });
               widget.onChanged(val);
             },

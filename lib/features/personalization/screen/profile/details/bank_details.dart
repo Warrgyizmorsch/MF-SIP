@@ -32,7 +32,8 @@ class BankDetailsScreen extends StatelessWidget {
               bankName: 'ICICI Bank',
               cardNumber: '123456789',
               bankLogo: UImages.icici,
-              color: Ucolors.icicibankGradient,
+              // color: Ucolors.icicibankGradient,
+              color: Ucolors.backgroundGradient,
             ),
             SizedBox(height: 15),
 
@@ -47,8 +48,8 @@ class BankDetailsScreen extends StatelessWidget {
                   children: [
                     bankinfo('Account', '4501560103'),
                     bankinfo('IFSC Code', 'ICIC0000045'),
-                    bankinfo('Branch Name', 'MADHUBAN, UDAIPUR'),
-                    bankinfo('Account Type', 'Saving Account'),
+                    // bankinfo('Branch Name', 'MADHUBAN, UDAIPUR'),
+                    // bankinfo('Account Type', 'Saving Account'),
                   ],
                 ),
               ),
