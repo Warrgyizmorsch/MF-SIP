@@ -3,14 +3,13 @@ import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/table/table_header.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/features/home/product_tool/swp_calculator/formula/swp_formula.dart';
-import 'package:my_sip/features/home/product_tool/widget/InvestValue.dart';
-import 'package:my_sip/features/home/product_tool/widget/piechart_with_value.dart';
-import 'package:my_sip/features/home/product_tool/widget/sipslidertile.dart';
-
-import '../../fund_details/data/models/return_model.dart';
-import '../../fund_details/presentation/pages/fund_deatails.dart';
-import '../../fund_details/presentation/widgets/return.dart';
+import 'package:my_sip/features/home/presentation/widgets/product_tool/swp_calculator/formula/swp_formula.dart';
+import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/InvestValue.dart';
+import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/piechart_with_value.dart';
+import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/sipslidertile.dart';
+import '../../../../fund_details/data/models/return_model.dart';
+import '../../../../fund_details/presentation/pages/fund_deatails.dart';
+import '../../../../fund_details/presentation/widgets/return.dart';
 
 class SwpCalciScreen extends StatefulWidget {
   const SwpCalciScreen({super.key});

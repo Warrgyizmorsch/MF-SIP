@@ -47,7 +47,7 @@
 // }
 
 
-import 'package:my_sip/features/home/product_tool/swp_calculator/model/swp_report_row.dart';
+import 'package:my_sip/features/home/presentation/widgets/product_tool/swp_calculator/model/swp_report_row.dart';
 
 class SwpResult {
   final List<SwpYearReport> report;

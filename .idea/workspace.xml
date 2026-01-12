@@ -6,14 +6,29 @@
   <component name="ChangeListManager">
     <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/common/widget/commonslider/sip_slider_with_bg.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/widget/commonslider/sip_slider_with_bg.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/accumulationAndDistributionScreen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/accumulationAndDistributionScreen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/sip_tenure_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/sip_tenure_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/sip_process/presentation/pages/monthly_sip_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/sip_process/presentation/pages/monthly_sip_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/macos/Runner.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/macos/Runner.xcodeproj/project.pbxproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/macos/Runner.xcworkspace/contents.xcworkspacedata" beforeDir="false" afterPath="$PROJECT_DIR$/macos/Runner.xcworkspace/contents.xcworkspacedata" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/my_sip.iml" beforeDir="false" afterPath="$PROJECT_DIR$/my_sip.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/authentication/data/datasources/auth_remote_data_source.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/data/datasources/auth_remote_data_source.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/authentication/domain/repositories/auth_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/domain/repositories/auth_repository.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/appbar_section/cart_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/cart/presentation/pages/cart_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/appbar_section/notification_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/pages/notification_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/appbar_section/watchlist_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/pages/watchlist_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/compare_fund_dummy.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/product_tool/StepUp/formula/step_up_formula.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/StepUp/formula/step_up_formula.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/product_tool/StepUp/model/step_up_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/StepUp/model/step_up_model.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/product_tool/compare_fund.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/compare_fund.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/product_tool/sip_calculator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/sip_calculator.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/product_tool/swp_calci.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/swp_calci.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/product_tool/swp_calculator/formula/swp_formula.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/swp_calculator/formula/swp_formula.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/product_tool/swp_calculator/model/swp_report_row.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/swp_calculator/model/swp_report_row.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/product_tool/swp_calculator/model/swp_result.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/swp_calculator/model/swp_result.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/product_tool/top_up_calculator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/top_up_calculator.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/product_tool/widget/InvestValue.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/widget/InvestValue.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/product_tool/widget/image_slider_thumb.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/widget/image_slider_thumb.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/product_tool/widget/piechart_with_value.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/widget/piechart_with_value.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/product_tool/widget/sipslidertile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/widget/sipslidertile.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/navigation_menu_bar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/navigation_menu_bar.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,25 +77,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Flutter.main.dart.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;nithik-branch&quot;,
-    &quot;io.flutter.project.isFirstOpen&quot;: &quot;true&quot;,
-    &quot;io.flutter.reload.alreadyRun&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/nithikmali/StudioProjects/MF-SIP/lib/features/mf/screen/goal&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;AndroidSdkUpdater&quot;,
-    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Flutter.main.dart.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "com.google.services.firebase.aqiPopupShown": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "nithik-branch",
+    "io.flutter.project.isFirstOpen": "true",
+    "io.flutter.reload.alreadyRun": "true",
+    "last_opened_file_path": "/Users/nithikmali/StudioProjects/MF-SIP/lib/features/mf/screen/goal",
+    "settings.editor.selected.configurable": "AndroidSdkUpdater",
+    "show.migrate.to.gradle.popup": "false"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/lib/features/mf/screen/goal" />
@@ -88,11 +103,11 @@
       <recent name="$PROJECT_DIR$/lib/features/mf/screen/explore" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/lib/features/home/presentation/pages" />
+      <recent name="$PROJECT_DIR$/lib/features/cart/presentation/pages" />
       <recent name="$PROJECT_DIR$/lib/features/dashboard/presentation/widgets" />
       <recent name="$PROJECT_DIR$/lib/features/dashboard/presentation/pages" />
       <recent name="$PROJECT_DIR$/lib/features/mf/screen/dashboard/presentation/controllers" />
-      <recent name="$PROJECT_DIR$/lib/features/mf/screen/goal/presentation/pages" />
-      <recent name="$PROJECT_DIR$/lib/features/mf/screen/fund_details/data/models" />
     </key>
   </component>
   <component name="TaskManager">

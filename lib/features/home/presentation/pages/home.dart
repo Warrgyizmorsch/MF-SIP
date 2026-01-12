@@ -11,16 +11,16 @@ import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/config/routes/app_pages.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
-import 'package:my_sip/features/home/product_tool/swp_calci.dart';
-import 'package:my_sip/features/home/product_tool/top_up_calculator.dart';
+import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_calculator.dart';
 import 'package:my_sip/features/goal/presentation/pages/goal.dart';
-import 'package:my_sip/features/home/product_tool/sip_calculator.dart';
 import 'package:my_sip/features/personalization/screen/profile/profile.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 
-import '../fund_details/presentation/pages/fund_deatails.dart';
+import '../../../fund_details/presentation/pages/fund_deatails.dart';
+import '../widgets/product_tool/sip_calculator.dart';
+import '../widgets/product_tool/swp_calci.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

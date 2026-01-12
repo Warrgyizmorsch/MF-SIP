@@ -195,7 +195,8 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 
-import '../../fund_details/presentation/pages/fund_deatails.dart';
+import '../../../../fund_details/presentation/pages/fund_deatails.dart';
+
 
 class CompareFundsPage extends StatelessWidget {
   CompareFundsPage({super.key});

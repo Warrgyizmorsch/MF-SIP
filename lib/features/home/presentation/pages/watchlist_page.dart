@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 
-import '../../explore/presentation/pages/explore.dart';
+import '../../../explore/presentation/pages/explore.dart';
 
 class WatchlistPage extends StatelessWidget {
   const WatchlistPage({super.key});

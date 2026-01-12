@@ -9,11 +9,11 @@ import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/table/table_header.dart';
 import 'package:my_sip/features/fund_details/data/models/return_model.dart';
 import 'package:my_sip/features/fund_details/presentation/widgets/return.dart';
-import 'package:my_sip/features/home/product_tool/widget/InvestValue.dart';
-import 'package:my_sip/features/home/product_tool/widget/piechart_with_value.dart';
-import 'package:my_sip/features/home/product_tool/widget/sipslidertile.dart';
+import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/InvestValue.dart';
+import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/sipslidertile.dart';
+import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/piechart_with_value.dart';
 
-import '../../fund_details/presentation/pages/fund_deatails.dart';
+import '../../../../fund_details/presentation/pages/fund_deatails.dart';
 
 class SipCalculatorPage extends StatefulWidget {
   const SipCalculatorPage({super.key});
