@@ -665,7 +665,7 @@ class HomeScreen extends StatelessWidget {
                     onTap: () => Get.to(() => SwpCalciScreen()),
                   ),
                   ToolsItem(
-                    title: "SIP Top Up Calculator",
+                    title: "Step-Up Calculator",
                     imgUrl: UImages.siptopcalci,
                     onTap: () => Get.to(() => TopUpCalculatorPage()),
                   ),

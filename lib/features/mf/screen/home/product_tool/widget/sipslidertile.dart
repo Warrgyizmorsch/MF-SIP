@@ -3,12 +3,6 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/features/mf/screen/home/product_tool/widget/image_slider_thumb.dart';
 
-
-import 'package:flutter/material.dart';
-import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/images.dart';
-import 'package:my_sip/features/mf/screen/home/product_tool/widget/image_slider_thumb.dart';
-
 class SipSliderTile2 extends StatefulWidget {
   final String title;
   final double value;
@@ -140,8 +134,11 @@ class _SipSliderTileState extends State<SipSliderTile2> {
             inactiveTrackColor: Colors.grey.shade300,
             thumbColor: Colors.white,
             overlayColor: Colors.transparent,
+            tickMarkShape: SliderTickMarkShape.noTickMark,
+
             // Use customThumb if provided, otherwise default to ImageSliderThumb
-            thumbShape: widget.customThumb ??
+            thumbShape:
+                widget.customThumb ??
                 ImageSliderThumb(
                   thumbRadius: 15,
                   image: AssetImage(UImages.imp),
@@ -151,13 +148,19 @@ class _SipSliderTileState extends State<SipSliderTile2> {
             value: _currentValue,
             min: widget.min,
             max: widget.max,
+
+            // divisions: ,
+            divisions: (widget.max - widget.min).toInt(), // 🔥 integer steps
+
             onChanged: (val) {
+              final whole = val.roundToDouble(); // safety
+
               setState(() {
-                _currentValue = val;
-                _controller.text = val.toInt().toString();
+                _currentValue = whole;
+                _controller.text = whole.toInt().toString();
                 // _controller.text = val.toString();
               });
-              widget.onChanged(val);
+              widget.onChanged(whole);
             },
           ),
         ),

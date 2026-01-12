@@ -15,6 +15,7 @@ class ReturnsTableRow extends StatelessWidget {
     this.color3,
     this.color4,
     this.color5,
+    this.width,
   });
 
   Color _valueColor(double value) {
@@ -28,6 +29,7 @@ class ReturnsTableRow extends StatelessWidget {
   final Color? color3;
   final Color? color4;
   final Color? color5;
+  final double? width;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -37,18 +39,33 @@ class ReturnsTableRow extends StatelessWidget {
           child: Row(
             children: [
               // PERIOD
+              // SizedBox(
+              //   width: 40,
+              //   child: FittedBox(
+              //     fit: BoxFit.scaleDown,
+              //     child: Text(
+              //       data.period,
+              //       style: TextStyle(
+              //         // fontSize: 16,
+              //         fontWeight: FontWeight.w400,
+              //         // color: Colors.blue,
+              //         color: Colors.black,
+              //       ),
+              //     ),
+              //   ),
+              // ),
               SizedBox(
-                width: 40,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    data.period,
-                    style: TextStyle(
-                      // fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      // color: Colors.blue,
-                      color: Colors.black,
-                    ),
+                width: width ?? 40, // IMPORTANT: enough for "Step-up SIP"
+                child: Text(
+                  data.period,
+                  textAlign: TextAlign.center,
+                  // maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    // fontSize: fontSize ?? 14,
+                    fontWeight: FontWeight.w500,
+                    // height: 1.3, // controls line spacing
+                    color: Colors.black,
                   ),
                 ),
               ),
@@ -169,22 +186,32 @@ class ReturnsTableRow extends StatelessWidget {
 //   }
 // }
 
+// String formatIndianNumber(double value) {
+//   final indianFormatter = NumberFormat('#,##,###', 'en_IN');
+//   final isNegative = value < 0;
+//   final absValue = value.abs();
+
+//   String formatted;
+
+//   if (absValue >= 10000000) {
+//     double cr = absValue / 10000000;
+//     formatted = cr % 1 == 0 ? '${cr.toInt()}Cr' : '${cr.toStringAsFixed(2)}Cr';
+//   } else if (absValue >= 100000) {
+//     double l = absValue / 100000;
+//     formatted = l % 1 == 0 ? '${l.toInt()}L' : '${l.toStringAsFixed(1)}L';
+//   } else {
+//     formatted = indianFormatter.format(absValue.round());
+//   }
+
+//   return '${isNegative ? '-' : ''}₹$formatted';
+// }
+
 String formatIndianNumber(double value) {
-  final indianFormatter = NumberFormat('#,##,###', 'en_IN');
-  final isNegative = value < 0;
-  final absValue = value.abs();
+  final indianFormatter = NumberFormat.currency(
+    locale: 'en_IN',
+    symbol: '₹',
+    decimalDigits: 0,
+  );
 
-  String formatted;
-
-  if (absValue >= 10000000) {
-    double cr = absValue / 10000000;
-    formatted = cr % 1 == 0 ? '${cr.toInt()}Cr' : '${cr.toStringAsFixed(2)}Cr';
-  } else if (absValue >= 100000) {
-    double l = absValue / 100000;
-    formatted = l % 1 == 0 ? '${l.toInt()}L' : '${l.toStringAsFixed(1)}L';
-  } else {
-    formatted = indianFormatter.format(absValue.round());
-  }
-
-  return '${isNegative ? '-' : ''}₹$formatted';
+  return indianFormatter.format(value);
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:my_sip/common/style/padding.dart';
+import 'package:my_sip/core/utils/calculator/buildreport/buildreport.dart';
 import 'package:my_sip/core/utils/calculator/model/lumpsum.dart/lumpsummodel.dart';
 import 'package:my_sip/core/utils/calculator/model/model.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
@@ -21,59 +22,64 @@ class SipCalculatorPage extends StatefulWidget {
 }
 
 class _SipCalculatorPageState extends State<SipCalculatorPage> {
+  final ScrollController horizontalCtrl = ScrollController();
+
   SipResult get sipResult => calculateSip(
     monthlyInvestment: monthlyInvestment,
     annualRate: returnRate,
     years: years,
   );
   SipResult get lumpsumResult => calculateLumpsum(
-    investment: monthlyInvestment,
-    annualRate: returnRate,
-    years: years,
+    investment: totalInvestment,
+    annualRate: returnRatelumpsum,
+    years: yearslumpsum,
   );
 
-  double monthlyInvestment = 5000;
-  double returnRate = 11.9;
+  //sip
+  double monthlyInvestment = 100;
+  double returnRate = 12;
   double years = 5;
 
   //lumpsum
-  double totalInvestment = 0;
-  double returnRatelumpsum = 11.9;
-  double yearslumpsum = 5;
+  double totalInvestment = 100;
+  double returnRatelumpsum = 12;
+  double yearslumpsum = 1;
 
-  //sip
-  double monthlyInvestmentt = 0;
-  double returnRateSIp = 11.9;
-  double yearsSip = 5;
   @override
   Widget build(BuildContext context) {
-    final returns = [
-      ReturnRow(
-        period: '1',
-        scheme: 120000,
-        category: 35661,
-        benchmark: 415661,
-      ),
-      ReturnRow(
-        period: '2',
-        scheme: 240000,
-        category: 64575,
-        benchmark: 324575,
-      ),
-      ReturnRow(
-        period: '3',
-        scheme: 360000,
-        category: 86202,
-        benchmark: 226202,
-      ),
-      ReturnRow(
-        period: '4',
-        scheme: 480000,
-        category: 99960,
-        benchmark: 119960,
-      ),
-      ReturnRow(period: '5', scheme: 600000, category: 105218, benchmark: 5218),
-    ];
+    final returns = buildSipReport(
+      monthlyInvestment: monthlyInvestment,
+      annualRate: returnRate,
+      years: years.toInt(),
+    );
+
+    // final returns = [
+    //   ReturnRow(
+    //     period: '1',
+    //     scheme: 120000,
+    //     category: 35661,
+    //     benchmark: 415661,
+    //   ),
+    //   ReturnRow(
+    //     period: '2',
+    //     scheme: 240000,
+    //     category: 64575,
+    //     benchmark: 324575,
+    //   ),
+    //   ReturnRow(
+    //     period: '3',
+    //     scheme: 360000,
+    //     category: 86202,
+    //     benchmark: 226202,
+    //   ),
+    //   ReturnRow(
+    //     period: '4',
+    //     scheme: 480000,
+    //     category: 99960,
+    //     benchmark: 119960,
+    //   ),
+    //   ReturnRow(period: '5', scheme: 600000, category: 105218, benchmark: 5218),
+    // ];
     return Scaffold(
       // backgroundColor: Colors.white,
       backgroundColor: Colors.white.withOpacity(0.96),
@@ -129,7 +135,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                             SipSliderTile2(
                               title: 'Monthly Investment',
                               value: monthlyInvestment,
-                              min: 500,
+                              min: 100,
                               max: 100000,
                               // valueFormatter: (val) => '₹ ${val.toInt()}',
                               suffix: '₹',
@@ -149,6 +155,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                               suffix: '%',
                               onChanged: (val) {
                                 setState(() {
+                                  // returnRate = val.round().toDouble();
                                   returnRate = val;
                                 });
                               },
@@ -160,6 +167,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                               suffix: 'Years',
                               onChanged: (val) {
                                 setState(() {
+                                  // years = val.round().toDouble();
                                   years = val;
                                 });
                               },
@@ -280,24 +288,24 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                                                   InvestValue(
                                                     title: 'Investment amount ',
                                                     // value: '123',
-                                                    value:
-                                                        '₹${sipResult.invested.toStringAsFixed(0)}',
+                                                    value: sipResult.invested
+                                                        .toStringAsFixed(0),
 
                                                     color: Colors.grey.shade800,
                                                   ),
                                                   InvestValue(
                                                     title: 'Est Returns ',
                                                     // value: '123',
-                                                    value:
-                                                        '₹${sipResult.returns.toStringAsFixed(0)}',
+                                                    value: sipResult.returns
+                                                        .toStringAsFixed(0),
 
                                                     color: Colors.grey.shade800,
                                                   ),
                                                   InvestValue(
                                                     title: 'Total Value',
                                                     // value: '123',
-                                                    value:
-                                                        '₹${sipResult.totalValue.toStringAsFixed(0)}',
+                                                    value: sipResult.totalValue
+                                                        .toStringAsFixed(0),
 
                                                     color: Ucolors.dark,
                                                   ),
@@ -319,26 +327,54 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                                           ),
 
                                           //Report table
-                                          Column(
-                                            children: [
-                                              TableHeader(
-                                                heading1: 'Years',
-                                                heading2: 'Investment',
-                                                heading3: 'Profit',
-                                                heading4: 'Current Value',
-                                              ),
-                                              DashedLine(
-                                                color: Ucolors.borderColor,
-                                                dashSpace: 0,
-                                              ),
-                                              ...returns.map(
-                                                (row) => ReturnsTableRow(
-                                                  color3: Colors.green.shade600,
-                                                  data: row,
-                                                  percentage: false,
+                                          Expanded(
+                                            child: SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              child: SizedBox(
+                                                width: 400,
+                                                child: Column(
+                                                  children: [
+                                                    TableHeader(
+                                                      heading1: 'Years',
+                                                      heading2: 'Investment',
+                                                      heading3: 'Profit',
+                                                      heading4: 'Current Value',
+                                                    ),
+                                                    DashedLine(
+                                                      color:
+                                                          Ucolors.borderColor,
+                                                      dashSpace: 0,
+                                                    ),
+                                                    // ...returns.map(
+                                                    //   (row) => ReturnsTableRow(
+                                                    //     color3: Colors.green.shade600,
+                                                    //     data: row,
+                                                    //     percentage: false,
+                                                    //   ),
+                                                    // ),
+                                                    Expanded(
+                                                      child: ListView.builder(
+                                                        itemCount:
+                                                            returns.length,
+                                                        itemBuilder:
+                                                            (context, index) {
+                                                              final row =
+                                                                  returns[index];
+                                                              return ReturnsTableRow(
+                                                                color3: Colors
+                                                                    .green
+                                                                    .shade600,
+                                                                data: row,
+                                                                percentage:
+                                                                    false,
+                                                              );
+                                                            },
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
-                                            ],
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -429,29 +465,29 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                           Gap(18),
                           SipSliderTile2(
                             title: 'Total Investment',
-                            value: monthlyInvestment,
-                            min: 500,
+                            value: totalInvestment,
+                            min: 100,
                             max: 100000,
                             // valueFormatter: (val) => '₹ ${val.toInt()}',
                             suffix: '₹',
 
                             onChanged: (value) {
                               setState(() {
-                                monthlyInvestment = value;
+                                totalInvestment = value;
                               });
                             },
                           ),
                           SipSliderTile2(
                             title: 'Expected return rate (p.a)',
-                            value: returnRate,
+                            value: returnRatelumpsum,
                             min: 1,
                             max: 30,
                             // valueFormatter: (val) => '${val.toStringAsFixed(1)}%',
                             suffix: '%',
                             onChanged: (val) {
-                              // setState(() {
-                              //   returnRate = val;
-                              // });
+                              setState(() {
+                                returnRatelumpsum = val;
+                              });
                             },
                           ),
 
@@ -461,7 +497,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                             suffix: 'Years',
                             onChanged: (val) {
                               setState(() {
-                                years = val;
+                                yearslumpsum = val;
                               });
                             },
 
@@ -488,17 +524,25 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                               list: [
                                 InvestValue(
                                   title: 'Investment amount ',
-                                  value: '123',
+                                  // value: '123',
+                                  value:
+                                      '${lumpsumResult.invested.toStringAsFixed(0)}',
                                   color: Colors.grey.shade800,
                                 ),
                                 InvestValue(
                                   title: 'Est Returns ',
-                                  value: '123',
+                                  // value: '123',
+                                  value:
+                                      '${lumpsumResult.returns.toStringAsFixed(0)}',
+
                                   color: Colors.grey.shade800,
                                 ),
                                 InvestValue(
                                   title: 'Total Value',
-                                  value: '123',
+                                  // value: '123',
+                                  value:
+                                      '${lumpsumResult.totalValue.toStringAsFixed(0)}',
+
                                   color: Ucolors.dark,
                                 ),
                               ],

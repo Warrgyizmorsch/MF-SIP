@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
+import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
 import 'package:my_sip/features/mf/screen/dashboard/dashboard.dart';
 import 'package:my_sip/features/mf/screen/explore/filterpage.dart';
 import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
@@ -11,7 +13,15 @@ import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 
 class ExploreScreen extends StatelessWidget {
-  const ExploreScreen({super.key});
+  ExploreScreen({super.key});
+  final items = [
+    'Popularity',
+    '1Y Returns',
+    '3Y Returns',
+    '5Y Returns',
+    'Rating',
+  ];
+  final TextEditingController sort = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -66,26 +76,68 @@ class ExploreScreen extends StatelessWidget {
                   ),
 
                   Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    margin: const EdgeInsets.symmetric(horizontal: 5),
                     height: 30, // controls line height
                     width: 1, // controls thickness
                     color: Ucolors.borderside,
                   ),
+                  // Expanded(
+                  //   child: SizedBox(
+                  //     height: 42,
+                  //     child: ListView(
+                  //       scrollDirection: Axis.horizontal,
+                  //       children: [
+                  //         _FilterChip(
+                  //           icon: Icons.filter_list_sharp,
+                  //           label: 'Sort by',
+                  //           // isSelected: true,
+                  //         ),
+                  //         _FilterChip(label: 'Equity'),
+                  //         _FilterChip(label: 'Debt'),
+                  //         _FilterChip(label: 'Hybrid'),
+                  //         _FilterChip(label: 'Commodities', isSelected: true),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
                   Expanded(
                     child: SizedBox(
-                      height: 42,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
+                      height: 40,
+                      child: Row(
                         children: [
-                          _FilterChip(
-                            icon: Icons.filter_list_sharp,
-                            label: 'Sort by',
-                            // isSelected: true,
+                          // _FilterChip(
+                          //   label: 'Sort by',
+                          //   icon: Icons.filter_list_sharp,
+                          // ),
+                          Expanded(
+                            child: SearchBar(
+                              backgroundColor: MaterialStateProperty.all(
+                                Colors.white,
+                              ),
+                              leading: Icon(Icons.search),
+                              hintText: 'Search',
+                            ),
                           ),
-                          _FilterChip(label: 'Equity'),
-                          _FilterChip(label: 'Debt'),
-                          _FilterChip(label: 'Hybrid'),
-                          _FilterChip(label: 'Commodities', isSelected: true),
+                          Gap(2),
+                          InkWell(
+                            onTap: () => showSelectionBottomSheet(
+                              selectedValue: sort.text,
+                              search: false,
+                              context: context,
+
+                              title: 'Sort by ${sort.text}',
+                              items: items,
+                              controller: sort,
+                            ),
+                            child: _FilterChip(
+                              label:
+                                  // '${sort.text.isEmpty ? 'Sort by ' : sort.text}',
+                                  'Sort by',
+                              icon: Icons.filter_list_sharp,
+                            ),
+                          ),
+                          // Gap(2),
+                          // _FilterChip(label: 'Sort by'),
                         ],
                       ),
                     ),
@@ -337,9 +389,10 @@ class _FilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.only(right: 0),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        margin: EdgeInsets.only(left: 5),
         decoration: BoxDecoration(
           color: isSelected ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(14),

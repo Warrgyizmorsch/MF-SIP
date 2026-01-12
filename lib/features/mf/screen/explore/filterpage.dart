@@ -368,6 +368,31 @@ class CategoriesPanel extends StatefulWidget {
 
 class _CategoriesPanelState extends State<CategoriesPanel> {
   bool indexFundsOnly = false;
+  final List<String> equity = [
+    "Flexi Cap",
+    "International",
+    "Large Cap",
+    "Mid Cap",
+    "Multi Cap",
+  ];
+
+  final List<String> debt = ["Banking PSU", "Corporate", "Floater", "Liquid"];
+
+  final List<String> hybrid = [
+    "Arbitrage",
+    "Balanced Hybrid",
+    "Aggressive Hyb",
+    "Multi Asset",
+  ];
+
+  final List<String> commodities = ["Gold", "Silver"];
+
+  final List<String> elssFilters = [
+    "Tax Saving (80C)",
+    "3-Year Lock-in",
+    "Equity Exposure",
+    "Long-Term Wealth",
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -417,12 +442,12 @@ class _CategoriesPanelState extends State<CategoriesPanel> {
           ),
         ),
         const SizedBox(height: 16),
-        _expandTile('Equity'),
+        _expandTile('Equity', equity),
 
         // DashedLine(dashWidth: 0, height: 2, color: Ucolors.dark),
-        _expandTile('Debt'),
-        _expandTile('Hybrid'),
-        _expandTile('Commodities'),
+        _expandTile('Debt', debt),
+        _expandTile('Hybrid', hybrid),
+        _expandTile('Commodities', commodities),
       ],
     );
   }
@@ -482,7 +507,7 @@ class _CategoriesPanelState extends State<CategoriesPanel> {
   //     // ],
   //   );
   // }
-  Widget _expandTile(String title) {
+  Widget _expandTile(String title, List<String> list) {
     return ExpansionTile(
       // dense: true,
       tilePadding: const EdgeInsets.symmetric(horizontal: 12),
@@ -505,18 +530,19 @@ class _CategoriesPanelState extends State<CategoriesPanel> {
       ),
 
       children: List.generate(
-        5,
+        // 5
+        list.length,
         (index) => Column(
           children: [
             CheckboxListTile(
-              contentPadding: const EdgeInsets.only(left: 36, right: 12),
+              contentPadding: const EdgeInsets.only(left: 10, right: 12),
               dense: true,
               visualDensity: VisualDensity.compact,
               controlAffinity: ListTileControlAffinity.leading,
               value: false,
               onChanged: (value) {},
-              title: const Text(
-                'Flexi Cap',
+              title: Text(
+                list[index],
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -623,11 +649,21 @@ class FundHousePanel extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.only(left: 16, top: 16),
       children: [
-        TextField(
-          decoration: InputDecoration(
-            hintText: 'Search fund house',
-            prefixIcon: const Icon(Icons.search),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        Padding(
+          padding: const EdgeInsets.only(right: 7.0),
+          child: TextField(
+            decoration: InputDecoration(
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Ucolors.primary),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              // contentPadding: EdgeInsets.only(right: 10),
+              hintText: 'Search fund house',
+              prefixIcon: const Icon(Icons.search),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 12),

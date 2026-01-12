@@ -19,7 +19,6 @@ class OtpVerificationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final h = Get.height;
     // final w = Get.height;
     return Scaffold(
       backgroundColor: Colors.white,
