@@ -7,6 +7,7 @@ import 'package:my_sip/features/mf/screen/home/home.dart';
 import 'package:my_sip/features/mf/screen/home/product_tool/compare_fund.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/splash_screen.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
+import '../../features/freedom_sip/presentation/pages/accumulationAndDistributionScreen.dart';
 import '../../features/freedom_sip/presentation/pages/growth_scheme_screen.dart';
 import 'app_routes.dart';
 
@@ -35,6 +36,10 @@ class AppPages {
     GetPage(
       name: AppRoutes.growthSchemeScreen,
       page: () => const GrowthSchemeScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.accumulationanddistributionscreen,
+      page: () => const Accumulationanddistributionscreen(),
     ),
   ];
 }
