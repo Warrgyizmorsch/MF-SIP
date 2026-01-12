@@ -82,7 +82,8 @@ class QuestionController extends GetxController {
       log('${currentStep.value}');
     } else {
       // Get.offAll(() => ComparisonScreen());
-      Get.offAll(() => NavigationMenuBar());
+      // Get.offAll(() => NavigationMenuBar());
+      Get.to(() => NavigationMenuBar());
       log('DashBoard Screen');
       log('${currentStep.value}');
     }

@@ -67,17 +67,17 @@ class HomeScreen extends StatelessWidget {
                     action: [
                       CompactIcon(
                         icon: Iconsax.notification,
-                        onPressed: () {},
+                        onPressed: () => Get.toNamed(AppRoutes.notification),
                         iconColor: Ucolors.light,
                       ),
                       CompactIcon(
                         icon: Iconsax.shopping_cart,
-                        onPressed: () {},
+                        onPressed: () => Get.toNamed(AppRoutes.cart),
                         iconColor: Ucolors.light,
                       ),
                       CompactIcon(
                         icon: Iconsax.archive_tick,
-                        onPressed: () {},
+                        onPressed: () => Get.toNamed(AppRoutes.watchlist),
                         iconColor: Ucolors.light,
                       ),
                     ],
@@ -277,7 +277,7 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ),
                         GestureDetector(
-                          onTap: (){
+                          onTap: () {
                             Get.toNamed(AppRoutes.freedomSipScreen);
                           },
                           child: FeatureSection(
@@ -671,11 +671,15 @@ class HomeScreen extends StatelessWidget {
                     onTap: () => Get.to(() => SwpCalciScreen()),
                   ),
                   ToolsItem(
-                    title: "SIP Top Up Calculator",
+                    title: "Step-Up Calculator",
                     imgUrl: UImages.siptopcalci,
                     onTap: () => Get.to(() => TopUpCalculatorPage()),
                   ),
-                  ToolsItem(title: "Compare Fund", imgUrl: UImages.comparefund),
+                  ToolsItem(
+                    title: "Compare Fund",
+                    imgUrl: UImages.comparefund,
+                    onTap: () => Get.toNamed(AppRoutes.comparefund),
+                  ),
                 ]),
               ),
             ),

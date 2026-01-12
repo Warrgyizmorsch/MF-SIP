@@ -6,13 +6,14 @@ import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
-import 'package:my_sip/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/personalization/screen/profile/profile.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 
 import '../../../fund_details/presentation/pages/fund_deatails.dart';
+import '../controllers/dashboard_controller.dart';
 
 enum PortfolioMenuAction { topUp, modify, pause, cancel, redemption }
 
@@ -140,17 +141,17 @@ class DashboardScreen extends StatelessWidget {
               action: [
                 CompactIcon(
                   icon: Iconsax.notification,
-                  onPressed: () {},
+                  onPressed: () => Get.toNamed(AppRoutes.notification),
                   iconColor: Ucolors.dark,
                 ),
                 CompactIcon(
                   icon: Iconsax.shopping_cart,
-                  onPressed: () {},
+                  onPressed: () => Get.toNamed(AppRoutes.cart),
                   iconColor: Ucolors.dark,
                 ),
                 CompactIcon(
                   icon: Iconsax.archive_tick,
-                  onPressed: () {},
+                  onPressed: () => Get.toNamed(AppRoutes.watchlist),
                   iconColor: Ucolors.dark,
                 ),
               ],
@@ -404,7 +405,6 @@ class TransactionCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              
               Flexible(
                 child: Text(
                   overflow: TextOverflow.ellipsis,

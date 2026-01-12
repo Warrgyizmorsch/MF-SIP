@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -29,30 +30,40 @@ class BankDetailsScreen extends StatelessWidget {
 
             //Bank card
             BankCard(
-              bankName: 'ICICI Bank',
-              cardNumber: '123456789',
-              bankLogo: UImages.icici,
-              color: Ucolors.icicibankGradient,
+              ifsccode: 'SBIN0031163',
+              bankName: 'SBI',
+              cardNumber: '00000036150491589',
+              bankLogo: UImages.sbi,
+              // color: Ucolors.icicibankGradient,
+              color: Ucolors.backgroundGradient,
             ),
             SizedBox(height: 15),
+            BankCard(
+              ifsccode: 'ICIC0000004',
+              bankName: 'ICICI',
+              cardNumber: '000405007899',
+              bankLogo: UImages.icici,
+              color: Ucolors.icicibankGradient,
+              // color: Ucolors.backgroundGradient,
+            ),
 
             //Acoount Details
-            Card(
-              elevation: 4,
-              color: Ucolors.light,
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    bankinfo('Account', '4501560103'),
-                    bankinfo('IFSC Code', 'ICIC0000045'),
-                    bankinfo('Branch Name', 'MADHUBAN, UDAIPUR'),
-                    bankinfo('Account Type', 'Saving Account'),
-                  ],
-                ),
-              ),
-            ),
+            // Card(
+            //   elevation: 4,
+            //   color: Ucolors.light,
+            //   child: Padding(
+            //     padding: const EdgeInsets.all(15.0),
+            //     child: Column(
+            //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //       children: [
+            //         bankinfo('Account', '4501560103'),
+            //         bankinfo('IFSC Code', 'ICIC0000045'),
+            //         // bankinfo('Branch Name', 'MADHUBAN, UDAIPUR'),
+            //         // bankinfo('Account Type', 'Saving Account'),
+            //       ],
+            //     ),
+            //   ),
+            // ),
             SizedBox(height: 15),
 
             //Button
@@ -118,12 +129,14 @@ class BankCard extends StatelessWidget {
     required this.cardNumber,
     required this.bankLogo,
     required this.color,
+    required this.ifsccode,
   });
 
   final String bankName;
   final String cardNumber;
   final String bankLogo;
   final Gradient color;
+  final String ifsccode;
 
   @override
   Widget build(BuildContext context) {
@@ -139,43 +152,29 @@ class BankCard extends StatelessWidget {
         child: Stack(
           children: [
             // Top Right Delete Icon
-            Positioned(
-              top: 0,
-              right: 0,
-              child: InkWell(
-                onTap: () {
-                  log('delete');
-                },
-                child: Container(
-                  height: 40,
-                  width: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    // shape: BoxShape.circle,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  padding: const EdgeInsets.all(8),
-                  // child: IconButton( Icon(Iconsax.trash, color: Colors.deepOrange, size: 20),
-                  child: Icon(
-                    Iconsax.trash,
-                    color: Colors.deepOrange,
-                    size: 18,
-                  ),
-                ),
-              ),
-            ),
+            Positioned(top: 0, right: 0, child: Deleteiconwithcontainer()),
 
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Bank Name
-                Text(
-                  bankName,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  children: [
+                    CircleAvatar(
+                      maxRadius: 18,
+                      backgroundImage: AssetImage(bankLogo),
+                      // child: Image.asset(UImages.sbi)
+                    ),
+                    Gap(6),
+                    Text(
+                      bankName,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
 
                 const SizedBox(height: 6),
@@ -183,6 +182,7 @@ class BankCard extends StatelessWidget {
                 // Primary Row
                 Row(
                   children: const [
+                    Gap(8),
                     Icon(Icons.verified, color: Colors.lightGreen, size: 18),
                     SizedBox(width: 6),
                     Text(
@@ -209,7 +209,14 @@ class BankCard extends StatelessWidget {
                       ),
                     ),
                     Spacer(),
-                    Image.asset(bankLogo),
+                    // Image.asset(bankLogo),
+                    Text(
+                      ifsccode,
+                      style: UTextStyles.subtitle2.copyWith(
+                        color: Ucolors.light,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ],
                 ),
 
@@ -218,6 +225,32 @@ class BankCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class Deleteiconwithcontainer extends StatelessWidget {
+  const Deleteiconwithcontainer({super.key, this.containercolor});
+
+  final Color? containercolor;
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        log('delete');
+      },
+      child: Container(
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+          color: containercolor ?? Colors.white,
+          // shape: BoxShape.circle,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        padding: const EdgeInsets.all(8),
+        // child: IconButton( Icon(Iconsax.trash, color: Colors.deepOrange, size: 20),
+        child: Icon(Iconsax.trash, color: Colors.deepOrange, size: 18),
       ),
     );
   }

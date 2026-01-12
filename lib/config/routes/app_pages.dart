@@ -8,34 +8,29 @@ import 'package:my_sip/features/onboarding/presentation/pages/splash_screen.dart
 import 'package:my_sip/navigation_menu_bar.dart';
 import '../../features/freedom_sip/presentation/pages/accumulationAndDistributionScreen.dart';
 import '../../features/freedom_sip/presentation/pages/growth_scheme_screen.dart';
+import '../../features/fund_details/presentation/pages/fund_deatails.dart';
+import '../../features/home/appbar_section/cart_page.dart';
+import '../../features/home/appbar_section/notification_page.dart';
+import '../../features/home/appbar_section/watchlist_page.dart';
+import '../../features/home/product_tool/compare_fund.dart';
 import '../../features/sip_process/presentation/pages/monthly_sip_screen.dart';
 import 'app_routes.dart';
 
-
-
 class AppPages {
-  static  pages() => [
-    GetPage(
-      name: AppRoutes.splash,
-      page: () => const SplashScreen(),
-    ),
-    GetPage(
-      name: AppRoutes.home,
-      page: () => const HomeScreen(),
-    ),
-    GetPage(
-      name: AppRoutes.navMenuBar,
-      page: () => const NavigationMenuBar(),
-    ),
+  static pages() => [
+    GetPage(name: AppRoutes.splash, page: () => const SplashScreen()),
+    GetPage(name: AppRoutes.home, page: () => const HomeScreen()),
+    GetPage(name: AppRoutes.navMenuBar, page: () => const NavigationMenuBar()),
     GetPage(
       name: AppRoutes.login,
       page: () => const LoginPage(),
-      binding: AuthBinding()
+      binding: AuthBinding(),
     ),
     GetPage(
       name: AppRoutes.freedomSipScreen,
       page: () => const FreedomSipScreen(),
     ),
+    GetPage(name: AppRoutes.comparefund, page: () => CompareFundsPage()),
     GetPage(
       name: AppRoutes.sipTenureScreen,
       page: () => const SipTenureScreen(),
@@ -44,6 +39,14 @@ class AppPages {
       name: AppRoutes.growthSchemeScreen,
       page: () => const GrowthSchemeScreen(),
     ),
+
+    GetPage(
+      name: AppRoutes.funddetails,
+      page: () => const FundDeatailsScreen(),
+    ),
+    GetPage(name: AppRoutes.watchlist, page: () => WatchlistPage()),
+    GetPage(name: AppRoutes.cart, page: () => CartPage()),
+    GetPage(name: AppRoutes.notification, page: () => NotificationPage()),
     GetPage(
       name: AppRoutes.accumulationanddistributionscreen,
       page: () => const Accumulationanddistributionscreen(),
