@@ -48,8 +48,9 @@ class AppPages {
       name: AppRoutes.accumulationanddistributionscreen,
       page: () => const Accumulationanddistributionscreen(),
     ),    GetPage(
-      name: AppRoutes.accumulationanddistributionscreen,
+      name: AppRoutes.startSipScreen,
       page: () => const MonthlySipScreen(),
     ),
+
   ];
 }
