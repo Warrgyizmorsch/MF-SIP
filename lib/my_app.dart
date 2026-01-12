@@ -6,7 +6,6 @@ import 'package:my_sip/core/bindings/bindings.dart';
 import 'package:my_sip/core/utils/theme/theme.dart';
 
 import 'config/routes/app_pages.dart';
-import 'features/onboarding/presentation/pages/splash_screen.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

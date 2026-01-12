@@ -6,6 +6,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/mf/controller/dashboard_controller/dashboard_controller.dart';
 import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
 import 'package:my_sip/features/personalization/screen/profile/profile.dart';
@@ -139,17 +140,17 @@ class DashboardScreen extends StatelessWidget {
               action: [
                 CompactIcon(
                   icon: Iconsax.notification,
-                  onPressed: () {},
+                  onPressed: () => Get.toNamed(AppRoutes.notification),
                   iconColor: Ucolors.dark,
                 ),
                 CompactIcon(
                   icon: Iconsax.shopping_cart,
-                  onPressed: () {},
+                  onPressed: () => Get.toNamed(AppRoutes.cart),
                   iconColor: Ucolors.dark,
                 ),
                 CompactIcon(
                   icon: Iconsax.archive_tick,
-                  onPressed: () {},
+                  onPressed: () => Get.toNamed(AppRoutes.watchlist),
                   iconColor: Ucolors.dark,
                 ),
               ],
@@ -403,7 +404,6 @@ class TransactionCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              
               Flexible(
                 child: Text(
                   overflow: TextOverflow.ellipsis,

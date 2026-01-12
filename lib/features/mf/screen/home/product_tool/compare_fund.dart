@@ -279,23 +279,32 @@ class CompareFundsPage extends StatelessWidget {
             // _addFundSection(context),
             Row(
               children: [
+                // Expanded(
+                //   child: GestureDetector(
+                //     onTap: () {
+                //       _openSearchBottomSheet(context);
+                //     },
+                //     child: headercard1(
+                //       'Nippon India Large Cap Fund- Growth Plan- Growth Option',
+                //       UImages.sbi,
+                //       true,
+                //     ),
+                //   ),
+                // ),
                 Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      _openSearchBottomSheet(context);
-                    },
-                    child: headercard(),
+                  child: Comparecard(
+                    title:
+                        'Nippon India Large Cap Fund- Growth Plan- Growth Option',
+                    url: UImages.sbi,
                   ),
                 ),
+
                 Gap(2),
-                Text(
-                  'v/s',
-                  style: UTextStyles.large.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+
+                // Expanded(child: headercard1('Add A fund', ' ', false)),
+                Expanded(
+                  child: Comparecard(title: '', url: '', isAdd: true),
                 ),
-                Gap(2),
-                Expanded(child: headercard1()),
               ],
             ),
             Gap(12),
@@ -353,85 +362,9 @@ class CompareFundsPage extends StatelessWidget {
     );
   }
 
-  Widget headercard() {
-    return Container(
-      height: 100,
-      // color: Colors.grey.shade300,
-      margin: EdgeInsets.symmetric(horizontal: 2),
-
-      decoration: BoxDecoration(
-        // color: Colors.grey.shade300,
-        color: Ucolors.skyblue.withOpacity(0.4),
-        borderRadius: BorderRadius.circular(10),
-
-        border: Border.all(color: Ucolors.dark.withOpacity(0.2), width: 1),
-      ),
-
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.add_circle_outline, color: Ucolors.primary),
-          Text('Add a Fund'),
-        ],
-      ),
-    );
-  }
-
-  Widget headercard1() {
-    return Card(
-      elevation: 5,
-      color: Colors.white,
-
-      child: Container(
-        // margin: EdgeInsets.symmetric(horizontal: 10),
-        // height: 80,
-        // width: 80,
-        // color: Colors.grey.shade300,
-        // margin: EdgeInsets.symmetric(horizontal: 2),
-        padding: EdgeInsets.only(left: 20, top: 15, bottom: 15, right: 20),
-
-        decoration: BoxDecoration(
-          // color: Colors.grey.shade300,
-          // color: Ucolors.skyblue.withOpacity(0.4),
-          color: Ucolors.light,
-          borderRadius: BorderRadius.circular(20),
-
-          // border: Border.all(color: Ucolors.dark.withOpacity(0.2), width: 0),
-        ),
-
-        child: Column(
-          // mainAxisAlignment: MainAxisAlignment.center,
-          // mainAxisAlignment: MainAxisAlignment.spaceAround,
-          // mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CircleAvatar(
-                  maxRadius: 18,
-                  backgroundImage: AssetImage(UImages.sbi),
-                  // child: Image.asset(UImages.sbi),
-                ),
-                Icon(Icons.compare_arrows_outlined, color: Ucolors.red),
-              ],
-            ),
-            Gap(3),
-            Text(
-              overflow: TextOverflow.ellipsis,
-              maxLines: 4,
-              'Nippon India Large Cap Fund- Growth Plan- Growth Option',
-              style: UTextStyles.medium.copyWith(
-                color: Ucolors.dark,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            // Icon(Icons.add_circle_outline, color: Ucolors.primary),
-            // Text('Add a Fund'),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget headercard1(String title, String url, bool isAdd) {
+  //   return comparecard();
+  // }
 
   // ---------------- ADD FUND SECTION ----------------
   Widget _addFundSection(BuildContext context) {
@@ -544,6 +477,122 @@ class CompareFundsPage extends StatelessWidget {
 
   Widget _placeholder(String text) {
     return SizedBox(height: 120, child: Center(child: Text(text)));
+  }
+}
+
+class Comparecard extends StatelessWidget {
+  const Comparecard({
+    super.key,
+    required this.title,
+    required this.url,
+    this.isAdd = false,
+  });
+
+  final String title;
+  final String url;
+  final bool isAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _openSearchBottomSheet(context),
+      child: Card(
+        elevation: 5,
+        color: Colors.white,
+
+        child: SizedBox(
+          height: 130,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: !isAdd
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CircleAvatar(
+                            maxRadius: 18,
+                            backgroundImage: AssetImage(url),
+                            // child: Image.asset(UImages.sbi),
+                          ),
+                          Icon(
+                            Icons.compare_arrows_outlined,
+                            color: Ucolors.red,
+                          ),
+                        ],
+                      ),
+                      // Gap(3),
+                      Text(
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 3,
+                        title,
+                        style: UTextStyles.medium.copyWith(
+                          color: Ucolors.dark,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  )
+                : Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [Icon(Icons.add), Text('Add fund')],
+                    ),
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openSearchBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.6,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                color: Ucolors.primary,
+                width: double.infinity,
+                child: const Center(
+                  child: Text(
+                    "SEARCH MUTUAL FUNDS",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: "Search fund",
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 

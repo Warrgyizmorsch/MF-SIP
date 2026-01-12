@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
+import 'package:my_sip/common/widget/showbottomsheet/datepicker.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/features/dashboard/screen/comparison_screen.dart';
@@ -9,7 +10,9 @@ import 'package:my_sip/features/personalization/screen/profile/profile.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 
 class PersonalDetailsScreen extends StatelessWidget {
-  const PersonalDetailsScreen({super.key});
+  PersonalDetailsScreen({super.key});
+
+  final TextEditingController dobController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -47,10 +50,32 @@ class PersonalDetailsScreen extends StatelessWidget {
 
                   const SmallHeading(smallheading: 'Date of Birth'),
                   const SizedBox(height: 5),
-                  UTextFormField(
-                    prefixIcon: null,
-                    hintText: '12/12/2000',
-                    sufixIcon: Icons.calendar_month,
+                  // UTextFormField(
+                  //   prefixIcon: null,
+                  //   hintText: '12/12/2000',
+                  //   sufixIcon: Icons.calendar_month,
+                  // ),
+                  InkWell(
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+
+                      showDOBPickerBottomSheet(
+                        context: context,
+                        controller: dobController,
+                      );
+                    },
+                    child: AbsorbPointer(
+                      absorbing: true,
+                      child: UTextFormField(
+                        controller: dobController,
+                        readOnly: true,
+
+                        prefixIcon: null,
+                        hintText: 'DD/MM/YYYY',
+
+                        sufixIcon: Icons.calendar_month,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 10),
 
@@ -80,9 +105,9 @@ class PersonalDetailsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
 
-                  const SmallHeading(smallheading: 'Income Slab'),
+                  const SmallHeading(smallheading: 'Income Yearly'),
                   const SizedBox(height: 5),
-                  UTextFormField(prefixIcon: Icons.mail, hintText: 'Pratik'),
+                  UTextFormField(prefixIcon: Icons.mail, hintText: '3481'),
                   const SizedBox(height: 10),
 
                   const SmallHeading(smallheading: 'Address'),
@@ -92,6 +117,7 @@ class PersonalDetailsScreen extends StatelessWidget {
                     prefixIcon: Icons.mail,
                     hintText: 'Udaipur, Rajasthan, 313001',
                   ),
+
                   const SizedBox(height: 10),
                 ],
               ),

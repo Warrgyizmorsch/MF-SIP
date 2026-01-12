@@ -1,11 +1,13 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/table/table_header.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/dashboard/screen/comparison_screen.dart';
 import 'package:my_sip/features/mf/screen/dashboard/dashboard.dart';
 import 'package:my_sip/features/mf/screen/fund_details/widget/fund_performance_bar.dart';
@@ -44,7 +46,6 @@ class _FundDeatailsScreenState extends State<FundDeatailsScreen>
 
   bool _isTabClicked = false;
 
-
   @override
   void initState() {
     super.initState();
@@ -52,13 +53,7 @@ class _FundDeatailsScreenState extends State<FundDeatailsScreen>
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
 
-    _tabKeys = [
-      _overViewKey,
-      _returnsKey,
-      _riskKey,
-      _portfolioKey,
-      _infoKey,
-    ];
+    _tabKeys = [_overViewKey, _returnsKey, _riskKey, _portfolioKey, _infoKey];
   }
 
   @override
@@ -76,8 +71,8 @@ class _FundDeatailsScreenState extends State<FundDeatailsScreen>
     double offset = _scrollController.offset;
     int activeIndex = 0;
 
-
-    double triggerOffset = kToolbarHeight + MediaQuery.of(context).padding.top + 60;
+    double triggerOffset =
+        kToolbarHeight + MediaQuery.of(context).padding.top + 60;
 
     for (int i = 0; i < _tabKeys.length; i++) {
       final key = _tabKeys[i];
@@ -113,38 +108,39 @@ class _FundDeatailsScreenState extends State<FundDeatailsScreen>
     final context = key.currentContext;
 
     if (context != null) {
-
-
       RenderBox box = context.findRenderObject() as RenderBox;
-      RenderBox scrollBox = _scrollController.position.context.storageContext.findRenderObject() as RenderBox;
+      RenderBox scrollBox =
+          _scrollController.position.context.storageContext.findRenderObject()
+              as RenderBox;
 
       // Calculate how far down the item is inside the scroll view
       double targetY = box.localToGlobal(Offset.zero, ancestor: scrollBox).dy;
 
-
       double offsetAdjustment = 110.0 + MediaQuery.of(context).padding.top;
 
-      double targetScroll = _scrollController.offset + targetY - offsetAdjustment;
+      double targetScroll =
+          _scrollController.offset + targetY - offsetAdjustment;
 
       double clampedScroll = targetScroll.clamp(
-          0.0,
-          _scrollController.position.maxScrollExtent
+        0.0,
+        _scrollController.position.maxScrollExtent,
       );
 
-      _scrollController.animateTo(
-        clampedScroll,
-        duration: const Duration(milliseconds: 600),
-        curve: Curves.easeInOutCubic, // Smoother curve
-      ).then((_) {
-        Future.delayed(const Duration(milliseconds: 100), () {
-          if (mounted) setState(() => _isTabClicked = false);
-        });
-      });
+      _scrollController
+          .animateTo(
+            clampedScroll,
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeInOutCubic, // Smoother curve
+          )
+          .then((_) {
+            Future.delayed(const Duration(milliseconds: 100), () {
+              if (mounted) setState(() => _isTabClicked = false);
+            });
+          });
     } else {
       setState(() => _isTabClicked = false);
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -191,8 +187,14 @@ class _FundDeatailsScreenState extends State<FundDeatailsScreen>
                       ClipRRect(
                         borderRadius: BorderRadiusGeometry.circular(12),
                         child: Container(
-                          constraints: BoxConstraints(maxHeight: 40, maxWidth: 40),
-                          child: Image.asset(UImages.motilal, fit: BoxFit.contain),
+                          constraints: BoxConstraints(
+                            maxHeight: 40,
+                            maxWidth: 40,
+                          ),
+                          child: Image.asset(
+                            UImages.motilal,
+                            fit: BoxFit.contain,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -201,7 +203,8 @@ class _FundDeatailsScreenState extends State<FundDeatailsScreen>
                           'Nippon India Large Cap Fund- Growth Plan- Growth Option',
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.w600),
+                          style: Theme.of(context).textTheme.bodyLarge!
+                              .copyWith(fontWeight: FontWeight.w600),
                         ),
                       ),
                     ],
@@ -210,11 +213,18 @@ class _FundDeatailsScreenState extends State<FundDeatailsScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _metaText('Equity'), _dot(),
-                      _metaText('Large cap'), _dot(),
-                      _metaText('Very High', color: Ucolors.red), _dot(),
+                      _metaText('Equity'),
+                      _dot(),
+                      _metaText('Large cap'),
+                      _dot(),
+                      _metaText('Very High', color: Ucolors.red),
+                      _dot(),
                       _metaText('Status:'),
-                      _metaText('Open', color: Ucolors.success, fontWeight: FontWeight.bold),
+                      _metaText(
+                        'Open',
+                        color: Ucolors.success,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ],
                   ),
                 ],
@@ -237,33 +247,34 @@ class _FundDeatailsScreenState extends State<FundDeatailsScreen>
               portfolioKey: _portfolioKey,
               infoKey: _infoKey,
             ),
-          )
+          ),
         ],
       ),
       bottomNavigationBar: SafeArea(
         top: false,
-        child: BottomBarButton(firstButton: 'Lumpsum', secondButton: 'Start SIP'),
+        child: BottomBarButton(
+          firstButton: 'Lumpsum',
+          secondButton: 'Start SIP',
+        ),
       ),
     );
   }
 }
-
-
 
 class OverviewScreen extends StatelessWidget {
   final GlobalKey overViewKey;
   final GlobalKey returnsKey;
   final GlobalKey riskKey;
   final GlobalKey portfolioKey;
- final GlobalKey infoKey;
-   const OverviewScreen({
+  final GlobalKey infoKey;
+  const OverviewScreen({
     super.key,
     required this.overViewKey,
     required this.returnsKey,
     required this.riskKey,
     required this.portfolioKey,
-     required this.infoKey
-  } );
+    required this.infoKey,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -291,11 +302,8 @@ class OverviewScreen extends StatelessWidget {
     final height = MediaQuery.of(context).size;
 
     return Column(
-
-
       children: [
         CustomContainer(
-
           topPadding: 15,
           child: Column(
             children: [
@@ -490,6 +498,7 @@ class OverviewScreen extends StatelessWidget {
                 style: Theme.of(context).textTheme.labelLarge!.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Ucolors.red,
+                  fontSize: 18,
                 ),
               ),
               const SizedBox(height: 3),
@@ -794,48 +803,54 @@ class OverviewScreen extends StatelessWidget {
 
             itemBuilder: (context, index) => SizedBox(
               width: MediaQuery.of(context).size.width * 0.97,
-              child: CustomContainer(
-                bottomPadding: 8,
-                topPadding: 15,
-                child: Column(
-                  // mainAxisSize: MainAxisSize.min,
-                  children: [
-                    FundComparisonItem(),
-                    SizedBox(height: 5),
-                    Row(
-                      children: [
-                        // Left dashed line
-                        Expanded(
-                          child: DashedLine(color: Colors.blue.shade200),
-                        ),
-
-                        // VS circlef
-                        Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 8),
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.blue, width: 1.5),
+              child: GestureDetector(
+                onTap: () => Get.toNamed(AppRoutes.comparefund),
+                child: CustomContainer(
+                  bottomPadding: 8,
+                  topPadding: 15,
+                  child: Column(
+                    // mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FundComparisonItem(),
+                      SizedBox(height: 5),
+                      Row(
+                        children: [
+                          // Left dashed line
+                          Expanded(
+                            child: DashedLine(color: Colors.blue.shade200),
                           ),
-                          child: const Text(
-                            'VS',
-                            style: TextStyle(
-                              color: Colors.blue,
-                              fontWeight: FontWeight.w600,
+
+                          // VS circlef
+                          Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 8),
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.blue,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: const Text(
+                              'VS',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
-                        ),
 
-                        // Right dashed line
-                        Expanded(
-                          child: DashedLine(color: Colors.blue.shade200),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 5),
+                          // Right dashed line
+                          Expanded(
+                            child: DashedLine(color: Colors.blue.shade200),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 5),
 
-                    FundComparisonItem(),
-                  ],
+                      FundComparisonItem(),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -848,7 +863,7 @@ class OverviewScreen extends StatelessWidget {
             style: OutlinedButton.styleFrom(
               side: BorderSide(color: Ucolors.primary.withOpacity(0.5)),
             ),
-            onPressed: () {},
+            onPressed: () => Get.toNamed(AppRoutes.comparefund),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -888,7 +903,7 @@ class OverviewScreen extends StatelessWidget {
               width: MediaQuery.of(context).size.width * 0.9,
 
               child: GestureDetector(
-                onTap: () {},
+                // onTap: () => Get.toNamed(AppRoutes.funddetails),
                 child: Container(
                   margin: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -1199,11 +1214,20 @@ class OverviewScreen extends StatelessWidget {
       title: Row(
         children: [
           Icon(icon, color: Ucolors.blue),
-          SizedBox(width: 5),
-          Text(title),
+          Gap(8),
+          Text(
+            title,
+            style: UTextStyles.medium.copyWith(fontWeight: FontWeight.w400),
+          ),
         ],
       ),
-      trailing: Text(value),
+      trailing: Text(
+        value,
+        style: UTextStyles.medium.copyWith(
+          fontWeight: FontWeight.w600,
+          color: Ucolors.dark,
+        ),
+      ),
     );
   }
 
@@ -1357,62 +1381,82 @@ class SpeedometerGauge extends StatelessWidget {
       child: SfRadialGauge(
         axes: [
           RadialAxis(
-            radiusFactor: 1,
-            centerY: 0.8,
-
-            // centerX: 0,
             minimum: 0,
             maximum: 100,
             startAngle: 180,
             endAngle: 0,
+            centerY: 0.8,
+            radiusFactor: 1,
             showTicks: false,
             showLabels: false,
+
             axisLineStyle: const AxisLineStyle(
-              thickness: 0.15,
-              thicknessUnit: GaugeSizeUnit.factor,
+              thickness: 0,
               color: Colors.transparent,
             ),
 
-            // COLOR SEGMENTS
             ranges: [
               GaugeRange(
                 startValue: 0,
-                endValue: 20,
+                endValue: 18,
                 color: Colors.green,
-                startWidth: 15,
-                endWidth: 15,
+                startWidth: 14,
+                endWidth: 14,
               ),
+              GaugeRange(
+                startValue: 18,
+                endValue: 20,
+                color: Colors.transparent,
+              ),
+
               GaugeRange(
                 startValue: 20,
-                endValue: 40,
+                endValue: 38,
                 color: Colors.lightGreen,
-                startWidth: 15,
-                endWidth: 15,
+                startWidth: 14,
+                endWidth: 14,
               ),
+              GaugeRange(
+                startValue: 38,
+                endValue: 40,
+                color: Colors.transparent,
+              ),
+
               GaugeRange(
                 startValue: 40,
-                endValue: 60,
-                color: Colors.yellow,
-                startWidth: 15,
-                endWidth: 15,
+                endValue: 58,
+                color: Colors.amber,
+                startWidth: 14,
+                endWidth: 14,
               ),
               GaugeRange(
-                startValue: 60,
-                endValue: 80,
-                color: Colors.orange,
-                startWidth: 15,
-                endWidth: 15,
+                startValue: 58,
+                endValue: 60,
+                color: Colors.transparent,
               ),
+
+              GaugeRange(
+                startValue: 60,
+                endValue: 78,
+                color: Colors.orange,
+                startWidth: 14,
+                endWidth: 14,
+              ),
+              GaugeRange(
+                startValue: 78,
+                endValue: 80,
+                color: Colors.transparent,
+              ),
+
               GaugeRange(
                 startValue: 80,
                 endValue: 100,
                 color: Colors.red,
-                startWidth: 15,
-                endWidth: 15,
+                startWidth: 14,
+                endWidth: 14,
               ),
             ],
 
-            // NEEDLE
             pointers: [
               NeedlePointer(
                 value: value,
@@ -1429,6 +1473,86 @@ class SpeedometerGauge extends StatelessWidget {
           ),
         ],
       ),
+
+      //  SfRadialGauge(
+      //   // backgroundColor: Colors.green,
+      //   axes: [
+      //     RadialAxis(
+      //       // interval: 3,
+      //       radiusFactor: 1,
+      //       centerY: 0.8,
+
+      //       // centerX: 0,
+      //       minimum: 0,
+      //       maximum: 100,
+      //       startAngle: 180,
+      //       endAngle: 0,
+      //       showTicks: false,
+      //       showLabels: false,
+
+      //       axisLineStyle: const AxisLineStyle(
+      //         thickness: 0.15,
+
+      //         thicknessUnit: GaugeSizeUnit.factor,
+      //         color: Colors.transparent,
+      //       ),
+
+      //       // COLOR SEGMENTS
+      //       ranges: [
+      //         GaugeRange(
+      //           startValue: 0,
+      //           endValue: 20,
+      //           color: Colors.green,
+      //           startWidth: 15,
+      //           endWidth: 15,
+      //         ),
+      //         GaugeRange(
+      //           startValue: 20,
+      //           endValue: 40,
+      //           color: Colors.lightGreen,
+      //           startWidth: 15,
+      //           endWidth: 15,
+      //         ),
+      //         GaugeRange(
+      //           startValue: 40,
+      //           endValue: 60,
+      //           color: Colors.yellow,
+      //           startWidth: 15,
+      //           endWidth: 15,
+      //         ),
+      //         GaugeRange(
+      //           startValue: 60,
+      //           endValue: 80,
+      //           color: Colors.orange,
+      //           startWidth: 15,
+      //           endWidth: 15,
+      //         ),
+      //         GaugeRange(
+      //           startValue: 80,
+      //           endValue: 100,
+      //           color: Colors.red,
+      //           startWidth: 15,
+      //           endWidth: 15,
+      //         ),
+      //       ],
+
+      //       // NEEDLE
+      //       pointers: [
+      //         NeedlePointer(
+      //           value: value,
+      //           needleLength: 0.6,
+      //           needleStartWidth: 1,
+      //           needleEndWidth: 4,
+      //           needleColor: Colors.black,
+      //           knobStyle: const KnobStyle(
+      //             color: Colors.black,
+      //             knobRadius: 0.06,
+      //           ),
+      //         ),
+      //       ],
+      //     ),
+      //   ],
+      // ),
     );
   }
 }
@@ -1532,11 +1656,13 @@ class SliverPageTabs extends SliverPersistentHeaderDelegate {
       );
     }
   }
+
   @override
   bool shouldRebuild(covariant SliverPageTabs oldDelegate) {
     // This forces the header to rebuild when the index passed from parent changes
     return oldDelegate.selectedIndex != selectedIndex;
   }
+
   @override
   Widget build(
     BuildContext context,
@@ -1579,7 +1705,7 @@ class SliverPageTabs extends SliverPersistentHeaderDelegate {
                 child: Text(
                   tabs[index],
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 14,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                     color: isSelected ? Ucolors.primary : Colors.grey.shade700,
                   ),
@@ -1597,8 +1723,6 @@ class SliverPageTabs extends SliverPersistentHeaderDelegate {
 
   @override
   double get minExtent => 50;
-
-
 }
 
 Widget _dot() {
@@ -1615,8 +1739,3 @@ Widget _metaText(
     style: TextStyle(fontSize: 12, color: color, fontWeight: fontWeight),
   );
 }
-
-
-
-
-

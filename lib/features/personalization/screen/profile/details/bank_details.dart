@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -151,31 +152,7 @@ class BankCard extends StatelessWidget {
         child: Stack(
           children: [
             // Top Right Delete Icon
-            Positioned(
-              top: 0,
-              right: 0,
-              child: InkWell(
-                onTap: () {
-                  log('delete');
-                },
-                child: Container(
-                  height: 40,
-                  width: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    // shape: BoxShape.circle,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  padding: const EdgeInsets.all(8),
-                  // child: IconButton( Icon(Iconsax.trash, color: Colors.deepOrange, size: 20),
-                  child: Icon(
-                    Iconsax.trash,
-                    color: Colors.deepOrange,
-                    size: 18,
-                  ),
-                ),
-              ),
-            ),
+            Positioned(top: 0, right: 0, child: Deleteiconwithcontainer()),
 
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,6 +225,32 @@ class BankCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class Deleteiconwithcontainer extends StatelessWidget {
+  const Deleteiconwithcontainer({super.key, this.containercolor});
+
+  final Color? containercolor;
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        log('delete');
+      },
+      child: Container(
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+          color: containercolor ?? Colors.white,
+          // shape: BoxShape.circle,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        padding: const EdgeInsets.all(8),
+        // child: IconButton( Icon(Iconsax.trash, color: Colors.deepOrange, size: 20),
+        child: Icon(Iconsax.trash, color: Colors.deepOrange, size: 18),
       ),
     );
   }
