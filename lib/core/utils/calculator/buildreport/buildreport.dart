@@ -1,5 +1,6 @@
 import 'package:my_sip/core/utils/calculator/mothlyeffectiverate.dart';
-import 'package:my_sip/features/mf/screen/fund_details/widget/model/return_model.dart';
+
+import '../../../../features/fund_details/data/models/return_model.dart';
 
 List<ReturnRow> buildSipReport({
   required double monthlyInvestment,

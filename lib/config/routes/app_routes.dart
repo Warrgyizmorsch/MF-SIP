@@ -12,4 +12,5 @@ class AppRoutes {
   static const notification = '/notification';
   static const cart = '/cart';
   static const accumulationanddistributionscreen = '/accumulationanddistributionscreen';
+  static const startSipScreen = '/startSipScreen';
 }

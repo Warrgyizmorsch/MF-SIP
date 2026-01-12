@@ -9,7 +9,7 @@ import '../../../../core/utils/constant/colors.dart';
 import '../../../../core/utils/constant/images.dart';
 import '../../../../core/utils/constant/text.dart';
 import '../../../../core/utils/constant/text_style.dart';
-import '../../../mf/screen/fund_details/fund_deatails.dart';
+import '../../../fund_details/presentation/pages/fund_deatails.dart';
 
 class GrowthSchemeScreen extends StatefulWidget {
   const GrowthSchemeScreen({super.key});

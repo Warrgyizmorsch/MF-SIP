@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:my_sip/core/network/network_api_service.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
+import 'package:my_sip/core/utils/constant/appUrl.dart';
 
 import '../../../../core/utils/helper/helpers.dart';
 
@@ -10,9 +11,11 @@ class AuthRemoteDataSource {
 
   AuthRemoteDataSource(this._apiService);
 
+
+  // model for datasource
   Future<Either<Result<String>,ApiError>>login(Map<String,dynamic> data) async {
     try {
-      final resp = await _apiService.postApi( "", data);
+      final resp = await _apiService.postApi("${Appurl.baseUrl}/login", data);
       createLog("[Auth Remote Data Source] Login Response: ${resp.body}");
       if(resp.statusCode == 200){
         // Todo write model parsing for the login response

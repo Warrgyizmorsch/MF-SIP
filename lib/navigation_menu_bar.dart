@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:my_sip/features/mf/screen/dashboard/dashboard.dart';
-import 'package:my_sip/features/mf/screen/explore/explore.dart';
-import 'package:my_sip/features/mf/screen/goal/goal.dart';
-import 'package:my_sip/features/mf/screen/home/home.dart';
+import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
+import 'package:my_sip/features/explore/presentation/pages/explore.dart';
+import 'package:my_sip/features/goal/presentation/pages/goal.dart';
+import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/personalization/screen/profile/profile.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 

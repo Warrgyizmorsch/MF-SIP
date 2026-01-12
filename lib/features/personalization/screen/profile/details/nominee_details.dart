@@ -9,9 +9,10 @@ import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
-import 'package:my_sip/features/dashboard/screen/comparison_screen.dart';
 import 'package:my_sip/features/personalization/screen/profile/profile.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
+
+import '../../../../dashboard/presentation/pages/comparison_screen.dart';
 
 class NomineeDetailsScreen extends StatelessWidget {
   NomineeDetailsScreen({super.key});

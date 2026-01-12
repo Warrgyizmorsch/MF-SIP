@@ -39,7 +39,6 @@ class _AccumulationanddistributionscreenState
         child: Column(
           children: [
             const SizedBox(height: 20),
-            // --- Tab Bar Section ---
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Container(
@@ -78,14 +77,12 @@ class _AccumulationanddistributionscreenState
               flex: 2,
               child: TabBarView(
                 children: [
-                  // 1. Accumulation Tab Content
                   Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
 
-                        // THE CHART WIDGET IS HERE
                         ...[
                           Container(
                             height: 200,

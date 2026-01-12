@@ -3,16 +3,17 @@ import 'package:my_sip/features/authentication/presentation/bindings/auth_bindin
 import 'package:my_sip/features/authentication/presentation/pages/login/login_page.dart';
 import 'package:my_sip/features/freedom_sip/presentation/pages/freedom_sip_screen.dart';
 import 'package:my_sip/features/freedom_sip/presentation/pages/sip_tenure_screen.dart';
-import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
-import 'package:my_sip/features/mf/screen/home/appbar_section/cart_page.dart';
-import 'package:my_sip/features/mf/screen/home/appbar_section/notification_page.dart';
-import 'package:my_sip/features/mf/screen/home/appbar_section/watchlist_page.dart';
-import 'package:my_sip/features/mf/screen/home/home.dart';
-import 'package:my_sip/features/mf/screen/home/product_tool/compare_fund.dart';
+import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/splash_screen.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
 import '../../features/freedom_sip/presentation/pages/accumulationAndDistributionScreen.dart';
 import '../../features/freedom_sip/presentation/pages/growth_scheme_screen.dart';
+import '../../features/fund_details/presentation/pages/fund_deatails.dart';
+import '../../features/cart/presentation/pages/cart_page.dart';
+import '../../features/home/presentation/pages/notification_page.dart';
+import '../../features/home/presentation/pages/watchlist_page.dart';
+import '../../features/home/presentation/widgets/product_tool/compare_fund.dart';
+import '../../features/sip_process/presentation/pages/monthly_sip_screen.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -49,6 +50,10 @@ class AppPages {
     GetPage(
       name: AppRoutes.accumulationanddistributionscreen,
       page: () => const Accumulationanddistributionscreen(),
+    ),    GetPage(
+      name: AppRoutes.startSipScreen,
+      page: () => const MonthlySipScreen(),
     ),
+
   ];
 }
