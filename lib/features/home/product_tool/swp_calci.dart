@@ -4,12 +4,13 @@ import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/table/table_header.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
-import 'package:my_sip/features/mf/screen/fund_details/widget/model/return_model.dart';
-import 'package:my_sip/features/mf/screen/fund_details/widget/return.dart';
-import 'package:my_sip/features/mf/screen/home/product_tool/widget/InvestValue.dart';
-import 'package:my_sip/features/mf/screen/home/product_tool/widget/piechart_with_value.dart';
-import 'package:my_sip/features/mf/screen/home/product_tool/widget/sipslidertile.dart';
+import 'package:my_sip/features/fund_details/data/models/return_model.dart';
+import 'package:my_sip/features/fund_details/presentation/widgets/return.dart';
+import 'package:my_sip/features/home/product_tool/widget/InvestValue.dart';
+import 'package:my_sip/features/home/product_tool/widget/piechart_with_value.dart';
+import 'package:my_sip/features/home/product_tool/widget/sipslidertile.dart';
+
+import '../../fund_details/presentation/pages/fund_deatails.dart';
 
 class SwpCalciScreen extends StatelessWidget {
   const SwpCalciScreen({super.key});

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
-import 'package:my_sip/features/mf/screen/fund_details/widget/model/return_model.dart';
+import 'package:my_sip/features/fund_details/data/models/return_model.dart';
+
+import '../pages/fund_deatails.dart';
 
 class ReturnsTableRow extends StatelessWidget {
   final ReturnRow data;

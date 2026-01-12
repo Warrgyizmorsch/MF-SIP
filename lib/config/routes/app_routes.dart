@@ -7,4 +7,5 @@ class AppRoutes {
   static const sipTenureScreen = '/sipTenureScreen';
   static const growthSchemeScreen = '/growthSchemeScreen';
   static const accumulationanddistributionscreen = '/accumulationanddistributionscreen';
+  static const startSipScreen = '/startSipScreen';
 }

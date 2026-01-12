@@ -5,11 +5,44 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/common/widget/commonslider/sip_slider_with_bg.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/widget/commonslider/sip_slider_with_bg.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/config/routes/app_routes.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/routes/app_routes.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/dashboard/screen/comparison_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/dashboard/presentation/pages/comparison_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/dashboard/screen/widget/comparison_chart.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/dashboard/presentation/widgets/comparison_chart.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/dashboard/screen/widget/invest_fund_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/dashboard/presentation/widgets/invest_fund_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/dashboard/screen/widget/portfolio_summary.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/dashboard/presentation/widgets/portfolio_summary.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/dashboard/screen/widget/suggest_fund_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/dashboard/presentation/widgets/suggest_fund_list.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/growth_scheme_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/growth_scheme_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/controller/dashboard_controller/dashboard_controller.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/dashboard/dashboard.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/explore/explore.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/explore/filterpage.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/fund_details/fund_deatails.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/fund_details/widget/fund_performance_bar.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/fund_details/widget/model/fund_performance.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/fund_details/widget/model/return_model.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/fund_details/widget/percentage_indicator.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/fund_details/widget/return.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/fund_details/widget/risk_indicator_ball.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/fund_details/widget/schemeLineChart.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/fund_details/widget/stock_allocation_items.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/fund_details/widget/timeselecter.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/goal/goal.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/home/compare_fund.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/home/home.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/home/product_tool/compare_fund.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/home/product_tool/sip_calculator.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/home/product_tool/swp_calci.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/home/product_tool/top_up_calculator.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/home/product_tool/widget/InvestValue.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/home/product_tool/widget/image_slider_thumb.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/home/product_tool/widget/piechart_with_value.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mf/screen/home/product_tool/widget/sipslidertile.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/screen/profile/details/nominee_details.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/screen/profile/details/nominee_details.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/screen/profile/details/personal_details.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/screen/profile/details/personal_details.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/navigation_menu_bar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/navigation_menu_bar.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,17 +105,23 @@
     "git-widget-placeholder": "nithik-branch",
     "io.flutter.project.isFirstOpen": "true",
     "io.flutter.reload.alreadyRun": "true",
+    "last_opened_file_path": "/Users/nithikmali/StudioProjects/MF-SIP/lib/features/mf/screen/goal",
     "settings.editor.selected.configurable": "AndroidSdkUpdater",
     "show.migrate.to.gradle.popup": "false"
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/lib/features/mf/screen/goal" />
+      <recent name="$PROJECT_DIR$/lib/features/mf/screen/fund_details" />
+      <recent name="$PROJECT_DIR$/lib/features/mf/screen/explore" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/assets/images" />
-      <recent name="$PROJECT_DIR$/assets/icon" />
-      <recent name="$PROJECT_DIR$/lib/features/questions/presentation/pages" />
-      <recent name="$PROJECT_DIR$/lib/features/questions/presentation/widgets" />
-      <recent name="$PROJECT_DIR$/lib/features/onboarding/presentation/widgets" />
+      <recent name="$PROJECT_DIR$/lib/features/dashboard/presentation/widgets" />
+      <recent name="$PROJECT_DIR$/lib/features/dashboard/presentation/pages" />
+      <recent name="$PROJECT_DIR$/lib/features/mf/screen/dashboard/presentation/controllers" />
+      <recent name="$PROJECT_DIR$/lib/features/mf/screen/goal/presentation/pages" />
+      <recent name="$PROJECT_DIR$/lib/features/mf/screen/fund_details/data/models" />
     </key>
   </component>
   <component name="TaskManager">

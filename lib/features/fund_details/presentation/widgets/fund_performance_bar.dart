@@ -72,7 +72,7 @@
 // }
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:my_sip/features/mf/screen/fund_details/widget/model/fund_performance.dart';
+import 'package:my_sip/features/fund_details/data/models/fund_performance.dart';
 
 class YearlyReturnsChart extends StatelessWidget {
   const YearlyReturnsChart({super.key, this.height});

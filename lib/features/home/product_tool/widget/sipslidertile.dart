@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
-import 'package:my_sip/features/mf/screen/home/product_tool/widget/image_slider_thumb.dart';
+import 'package:my_sip/features/home/product_tool/widget/image_slider_thumb.dart';
 
 
 import 'package:flutter/material.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
-import 'package:my_sip/features/mf/screen/home/product_tool/widget/image_slider_thumb.dart';
+import 'package:my_sip/features/home/product_tool/widget/image_slider_thumb.dart';
 
 class SipSliderTile2 extends StatefulWidget {
   final String title;

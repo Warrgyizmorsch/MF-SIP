@@ -6,12 +6,13 @@ import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
-import 'package:my_sip/features/mf/controller/dashboard_controller/dashboard_controller.dart';
-import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
+import 'package:my_sip/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:my_sip/features/personalization/screen/profile/profile.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+
+import '../../../fund_details/presentation/pages/fund_deatails.dart';
 
 enum PortfolioMenuAction { topUp, modify, pause, cancel, redemption }
 

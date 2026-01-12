@@ -7,14 +7,15 @@ import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
-import 'package:my_sip/features/dashboard/screen/widget/comparison_chart.dart';
-import 'package:my_sip/features/dashboard/screen/widget/invest_fund_list.dart';
-import 'package:my_sip/features/dashboard/screen/widget/portfolio_summary.dart';
-import 'package:my_sip/features/dashboard/screen/widget/suggest_fund_list.dart';
+import 'package:my_sip/features/dashboard/presentation/widgets/comparison_chart.dart';
+import 'package:my_sip/features/dashboard/presentation/widgets/invest_fund_list.dart';
+import 'package:my_sip/features/dashboard/presentation/widgets/suggest_fund_list.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+
+import '../widgets/portfolio_summary.dart';
 
 class ComparisonScreen extends StatelessWidget {
   const ComparisonScreen({super.key});

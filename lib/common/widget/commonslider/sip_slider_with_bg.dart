@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
-import 'package:my_sip/features/mf/screen/home/product_tool/widget/image_slider_thumb.dart';
+import 'package:my_sip/features/home/product_tool/widget/image_slider_thumb.dart';
 
 
 class SipSliderWithBg extends StatefulWidget {

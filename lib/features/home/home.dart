@@ -10,16 +10,17 @@ import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/config/routes/app_pages.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
-import 'package:my_sip/features/mf/screen/explore/explore.dart';
-import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
-import 'package:my_sip/features/mf/screen/goal/goal.dart';
-import 'package:my_sip/features/mf/screen/home/product_tool/sip_calculator.dart';
-import 'package:my_sip/features/mf/screen/home/product_tool/swp_calci.dart';
-import 'package:my_sip/features/mf/screen/home/product_tool/top_up_calculator.dart';
+import 'package:my_sip/features/explore/presentation/pages/explore.dart';
+import 'package:my_sip/features/home/product_tool/swp_calci.dart';
+import 'package:my_sip/features/home/product_tool/top_up_calculator.dart';
+import 'package:my_sip/features/goal/presentation/pages/goal.dart';
+import 'package:my_sip/features/home/product_tool/sip_calculator.dart';
 import 'package:my_sip/features/personalization/screen/profile/profile.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+
+import '../fund_details/presentation/pages/fund_deatails.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -266,9 +267,14 @@ class HomeScreen extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        FeatureSection(
-                          featureName: 'Start SIP',
-                          iconPath: UImages.startsip,
+                        GestureDetector(
+                          onTap : () {
+                            Get.toNamed(AppRoutes.startSipScreen);
+                          },
+                          child: FeatureSection(
+                            featureName: 'Start SIP',
+                            iconPath: UImages.startsip,
+                          ),
                         ),
                         GestureDetector(
                           onTap: (){
