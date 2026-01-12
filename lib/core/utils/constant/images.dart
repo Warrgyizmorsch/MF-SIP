@@ -1,5 +1,4 @@
 class UImages {
-
   //Imf logo
   static const String imp = 'assets/logo/imf.png';
 
@@ -30,7 +29,7 @@ class UImages {
   static const String avatar = 'assets/images/avatarr.png';
 
   static const String sbi = 'assets/logo/sbi.png';
-  static const String icici = 'assets/logo/icicbank.png';
+  static const String icici = 'assets/logo/icicibank.png';
   static const String motilal = 'assets/logo/motilal.png';
 
   //Icons
@@ -77,5 +76,4 @@ class UImages {
   static const String mfLogoLight = 'assets/icon/logo_mf_light.svg';
   static const String freedomSipCard1 = 'assets/icon/freedom_sip_card_1.svg';
   static const String freedomSipCard2 = 'assets/icon/freedom_sip_card_2.svg';
-
 }

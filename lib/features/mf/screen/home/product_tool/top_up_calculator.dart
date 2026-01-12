@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/table/table_header.dart';
@@ -9,66 +8,52 @@ import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
 import 'package:my_sip/features/mf/screen/fund_details/widget/model/return_model.dart';
 import 'package:my_sip/features/mf/screen/fund_details/widget/return.dart';
+import 'package:my_sip/features/mf/screen/home/product_tool/StepUp/formula/step_up_formula.dart';
+import 'package:my_sip/features/mf/screen/home/product_tool/StepUp/model/step_up_model.dart';
 import 'package:my_sip/features/mf/screen/home/product_tool/widget/InvestValue.dart';
 import 'package:my_sip/features/mf/screen/home/product_tool/widget/piechart_with_value.dart';
 import 'package:my_sip/features/mf/screen/home/product_tool/widget/sipslidertile.dart';
 
-class TopUpCalculatorPage extends StatelessWidget {
+class TopUpCalculatorPage extends StatefulWidget {
   const TopUpCalculatorPage({super.key});
 
   @override
+  State<TopUpCalculatorPage> createState() => _TopUpCalculatorPageState();
+}
+
+class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
+  double baseAmount = 500;
+  double stepUpValue = 500;
+  int years = 10;
+  double returnRate = 12;
+
+  StepUpType stepUpType = StepUpType.amount;
+
+  @override
   Widget build(BuildContext context) {
-    final normalvsstep = [
+    final result = simulateStepUpSip(
+      baseMonthly: baseAmount,
+      stepUpType: stepUpType,
+      stepUpValue: stepUpValue,
+      years: years,
+      annualRate: returnRate,
+    );
+
+    final summaryRows = [
       ReturnRow(
-        period: 'Normal',
-        scheme: 3000000,
-        category: 5600897,
-        benchmark: 2600897,
+        period: 'Normal SIP',
+        scheme: result.normal.invested,
+        category: result.normal.value,
+        benchmark: result.normal.profit,
       ),
       ReturnRow(
-        period: 'Step-up',
-        scheme: 3000000,
-        category: 5600897,
-        benchmark: 2600897,
-      ),
-    ];
-    final returns = [
-      ReturnRow(
-        period: '1',
-        scheme: 1200000,
-        category: 35661,
-        benchmark: 415661,
-        extra: 421,
-      ),
-      ReturnRow(
-        period: '2',
-        scheme: 240000,
-        category: 64575,
-        benchmark: 324575,
-        extra: 421,
-      ),
-      ReturnRow(
-        period: '3',
-        scheme: 360000,
-        category: 86202,
-        benchmark: 226202,
-        extra: 421,
-      ),
-      ReturnRow(
-        period: '4',
-        scheme: 480000,
-        category: 99960,
-        benchmark: 119960,
-        extra: 421,
-      ),
-      ReturnRow(
-        period: '5',
-        scheme: 600000,
-        category: 105218,
-        benchmark: 5218,
-        extra: 421,
+        period: 'Stepup SIP',
+        scheme: result.stepUp.invested,
+        category: result.stepUp.value,
+        benchmark: result.stepUp.profit,
       ),
     ];
+
     return Scaffold(
       backgroundColor: Colors.white.withOpacity(0.96),
       appBar: CustomAppBarNormal(title: 'SIP Top-Up Calculator'),
@@ -79,40 +64,60 @@ class TopUpCalculatorPage extends StatelessWidget {
             children: [
               SipSliderTile2(
                 title: 'I want to invest (per month)',
-                value: 10000,
-                min: 10000,
-                max: 1000000,
+                // value: 10000,
+                value: baseAmount,
+                // min: 10000,
+                min: 500,
+                max: 100000,
                 suffix: null,
                 prefix: '₹',
 
-                onChanged: (value) {},
+                onChanged: (value) {
+                  setState(() {
+                    baseAmount = value;
+                  });
+                },
               ),
               SipSliderTile2(
                 title: 'Increase SIP every year',
-                value: 500,
+                // value: 500,
+                value: stepUpValue,
                 min: 500,
-                max: 1000000,
+                max: 20000,
                 // suffix: '₹',
                 suffix: null,
                 prefix: '₹',
-                onChanged: (value) {},
+                onChanged: (value) {
+                  setState(() {
+                    stepUpValue = value;
+                  });
+                },
               ),
               SipSliderTile2(
                 title: 'Over a period of',
-                value: 1,
+                // value: 1,
+                value: years.toDouble(),
                 min: 1,
-                max: 50,
+                max: 30,
                 suffix: 'Years',
-                onChanged: (value) {},
+                onChanged: (value) {
+                  setState(() {
+                    years = value.toInt();
+                  });
+                },
               ),
               SipSliderTile2(
                 // prefix: 'da',
                 title: 'Expected rate of return %',
-                value: 1,
-                min: 0,
-                max: 50,
+                value: returnRate,
+                min: 1,
+                max: 20,
                 suffix: '%',
-                onChanged: (value) {},
+                onChanged: (value) {
+                  setState(() {
+                    returnRate = value;
+                  });
+                },
               ),
 
               Row(
@@ -137,25 +142,36 @@ class TopUpCalculatorPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: Ucolors.borderside),
                 ),
-                child: Column(
-                  // mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TableHeader(
-                      heading1: 'Metric',
-                      heading2: 'Invested',
-                      heading3: 'Future',
-                      heading4: 'Profit',
-                    ),
-                    DashedLine(color: Colors.grey.shade300, dashSpace: 0),
-                    ...normalvsstep.map(
-                      (e) => ReturnsTableRow(
-                        color4: Colors.green.shade600,
-                        data: e,
-                        percentage: false,
-                        // fontSize: 10,
+                child: Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SizedBox(
+                      width: 400,
+                      child: Column(
+                        // mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TableHeader(
+                            width: 80,
+                            heading1: 'Metric',
+                            heading2: 'Invested',
+                            heading3: 'Future',
+                            heading4: 'Profit',
+                          ),
+                          DashedLine(color: Colors.grey.shade300, dashSpace: 0),
+                          ...summaryRows.map(
+                            (e) => ReturnsTableRow(
+                              width: 80,
+                              // fontSize: 10,
+                              color4: Colors.green.shade600,
+                              data: e,
+                              percentage: false,
+                              // fontSize: 10,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
 
@@ -179,10 +195,6 @@ class TopUpCalculatorPage extends StatelessWidget {
                         child: TabBar(
                           indicatorSize: TabBarIndicatorSize.tab,
 
-                          // tabAlignment: TabAlignment.start,
-                          // tabAlignment: TabAlignment.startOffset,s
-                          // dividerHeight: 40,
-                          // isScrollable: true,
                           unselectedLabelColor: Colors.grey,
                           dividerColor: Colors.transparent,
                           labelColor: Ucolors.primary,
@@ -216,48 +228,48 @@ class TopUpCalculatorPage extends StatelessWidget {
                         ),
                       ),
                       SizedBox(
-                        height: 500,
+                        height: 400,
                         child: TabBarView(
                           children: [
                             //Visual representation
                             Column(
                               // mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Gap(12),
+                                // Gap(12),
                                 PieChartWithValue(
-                                  title1: 'Step-up Future Value',
+                                  title1: 'Step-up Invested',
                                   title2: 'Step-up Profit',
                                   list: [
-                                    Text(
-                                      'You can withdraw ₹500 per month for 5 years at 10.5% expected return.',
-                                      textAlign: TextAlign.center,
-                                      style: UTextStyles.caption,
-                                    ),
-                                    Gap(10),
                                     InvestValue(
                                       color: Colors.black87,
 
                                       title: 'Step-up Invested',
-                                      value: '184777777',
+                                      // value: '184777777',
+                                      value: result.stepUp.invested
+                                          .toStringAsFixed(0),
                                       // color: Ucolors.pri,
                                     ),
                                     InvestValue(
                                       color: Colors.black87,
 
                                       title: 'Step-up Future Value',
-                                      value: '184777777',
-                                      // color: Ucolors.dark,
+                                      value: result.stepUp.value
+                                          .toStringAsFixed(
+                                            0,
+                                          ), // color: Ucolors.dark,
                                     ),
                                     InvestValue(
                                       color: Colors.black87,
 
                                       title: 'Step-up Profit',
-                                      value: '184777777',
+                                      // value: '184777777',
+                                      value: result.stepUp.profit
+                                          .toStringAsFixed(0),
                                       // color: Ucolors.success,
                                     ),
                                   ],
-                                  piechartvalue1: 30,
-                                  piechartvalue2: 70,
+                                  piechartvalue1: result.stepUp.invested,
+                                  piechartvalue2: result.stepUp.profit,
                                   piechartcolor1: Ucolors.primary,
                                   piechartcolor2: Ucolors.primary.withOpacity(
                                     0.1,
@@ -267,29 +279,57 @@ class TopUpCalculatorPage extends StatelessWidget {
                             ),
 
                             //Report table
-                            Column(
-                              children: [
-                                TableHeader(
-                                  heading1: 'Years',
-                                  heading2: 'Invested',
-                                  heading3: 'Normal',
-                                  heading4: 'Step-up',
-                                  heading5: 'Extra',
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: SizedBox(
+                                width: 500,
+                                child: Column(
+                                  children: [
+                                    TableHeader(
+                                      heading1: 'Years',
+                                      heading2: 'Invested',
+                                      heading3: 'Normal',
+                                      heading4: 'Step-up',
+                                      heading5: 'Extra',
+                                    ),
+                                    DashedLine(
+                                      color: Ucolors.borderColor,
+                                      dashSpace: 0,
+                                    ),
+
+                                    Expanded(
+                                      child: ListView.builder(
+                                        // itemCount: returns.length,
+
+                                        // itemBuilder: (context, index) {
+                                        //   final row = returns[index];
+                                        //   return ReturnsTableRow(
+                                        //     // color3: Colors.green.shade600,
+                                        //     color5: Ucolors.success,
+                                        //     data: row,
+                                        //     percentage: false,
+                                        //   );
+                                        // },
+                                        itemCount: result.detailRows.length,
+                                        itemBuilder: (_, i) {
+                                          final r = result.detailRows[i];
+                                          return ReturnsTableRow(
+                                            percentage: false,
+                                            color5: Ucolors.success,
+                                            data: ReturnRow(
+                                              period: r.year.toString(),
+                                              scheme: r.stepInvested,
+                                              category: r.normalValue,
+                                              benchmark: r.stepValue,
+                                              extra: r.extraGain,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                DashedLine(
-                                  color: Ucolors.borderColor,
-                                  dashSpace: 0,
-                                ),
-                                ...returns.map(
-                                  (row) => ReturnsTableRow(
-                                    color5: Colors.green.shade600,
-                                    // color4: Colors.green,
-                                    // fontSize: 10,
-                                    data: row,
-                                    percentage: false,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ],
                         ),

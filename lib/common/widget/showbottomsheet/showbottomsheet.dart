@@ -6,6 +6,7 @@ Future<String?> showSelectionBottomSheet({
   required List<String> items,
   String? selectedValue,
   required TextEditingController controller,
+  bool search = true,
 }) {
   return showModalBottomSheet<String>(
     context: context,
@@ -16,7 +17,7 @@ Future<String?> showSelectionBottomSheet({
       List<String> filteredItems = List.from(items);
       final searchController = TextEditingController();
       void selectItem(String value) {
-        controller.text = value; 
+        controller.text = value;
         Navigator.pop(context);
       }
 
@@ -61,36 +62,38 @@ Future<String?> showSelectionBottomSheet({
                     const SizedBox(height: 12),
 
                     // 🔍 SEARCH BOX
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: TextField(
-                        controller: searchController,
-                        onChanged: (value) {
-                          setState(() {
-                            filteredItems = items
-                                .where(
-                                  (e) => e.toLowerCase().contains(
-                                    value.toLowerCase(),
-                                  ),
-                                )
-                                .toList();
-                          });
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Search',
-                          prefixIcon: const Icon(Icons.search),
-                          filled: true,
-                          fillColor: const Color(0xFFF4F7FB),
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 0,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                      ),
-                    ),
+                    search
+                        ? Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: TextField(
+                              controller: searchController,
+                              onChanged: (value) {
+                                setState(() {
+                                  filteredItems = items
+                                      .where(
+                                        (e) => e.toLowerCase().contains(
+                                          value.toLowerCase(),
+                                        ),
+                                      )
+                                      .toList();
+                                });
+                              },
+                              decoration: InputDecoration(
+                                hintText: 'Search',
+                                prefixIcon: const Icon(Icons.search),
+                                filled: true,
+                                fillColor: const Color(0xFFF4F7FB),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 0,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide.none,
+                                ),
+                              ),
+                            ),
+                          )
+                        : SizedBox.shrink(),
 
                     const SizedBox(height: 12),
 
@@ -111,6 +114,7 @@ Future<String?> showSelectionBottomSheet({
                             final item = filteredItems[index];
 
                             return ListTile(
+                              // titleAlignment: ListTileTitleAlignment.threeLine,
                               title: Text(item),
                               trailing: Radio<String>(
                                 value: item,

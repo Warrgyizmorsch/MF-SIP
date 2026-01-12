@@ -27,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
         context,
         MaterialPageRoute(builder: (context) => WelcomePageScreen()),
       );
-      Get.toNamed(AppRoutes.navMenuBar);
+      // Get.toNamed(AppRoutes.navMenuBar);
       // Navigator.pushReplacement(
       //   context,
       //   MaterialPageRoute(builder: (context) => WelcomePageScreen()),
