@@ -11,6 +11,7 @@ import 'package:my_sip/features/mf/screen/home/home.dart';
 import 'package:my_sip/features/mf/screen/home/product_tool/compare_fund.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/splash_screen.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
+import '../../features/freedom_sip/presentation/pages/accumulationAndDistributionScreen.dart';
 import '../../features/freedom_sip/presentation/pages/growth_scheme_screen.dart';
 import 'app_routes.dart';
 
@@ -45,5 +46,9 @@ class AppPages {
     GetPage(name: AppRoutes.watchlist, page: () => WatchlistPage()),
     GetPage(name: AppRoutes.cart, page: () => CartPage()),
     GetPage(name: AppRoutes.notification, page: () => NotificationPage()),
+    GetPage(
+      name: AppRoutes.accumulationanddistributionscreen,
+      page: () => const Accumulationanddistributionscreen(),
+    ),
   ];
 }

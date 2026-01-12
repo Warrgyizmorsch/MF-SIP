@@ -11,4 +11,5 @@ class AppRoutes {
   static const watchlist = '/watchlist';
   static const notification = '/notification';
   static const cart = '/cart';
+  static const accumulationanddistributionscreen = '/accumulationanddistributionscreen';
 }
