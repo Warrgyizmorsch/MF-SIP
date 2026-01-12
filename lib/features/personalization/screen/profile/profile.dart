@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
@@ -60,6 +61,27 @@ class ProfileScreen extends StatelessWidget {
 
                 /// Logout Button
                 LogoutButton(),
+
+                Gap(15),
+
+                Column(
+                  children: [
+                    Text('Version 1.0.0', style: UTextStyles.small),
+                    Gap(18),
+                    Text(
+                      'Ridit Finworld',
+                      style: UTextStyles.small.copyWith(
+                        fontWeight: FontWeight.bold,
+                        // color: Ucolors.darkgrey,
+                      ),
+                    ),
+                    Text(
+                      'AMFI registered mutual fund distributor',
+                      style: UTextStyles.small,
+                    ),
+                    Text('AMFI ARN NO: 123456', style: UTextStyles.small),
+                  ],
+                ),
 
                 SizedBox(height: 20),
               ],

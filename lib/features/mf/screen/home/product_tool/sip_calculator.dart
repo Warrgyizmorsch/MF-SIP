@@ -327,7 +327,8 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                                           ),
 
                                           //Report table
-                                          Expanded(
+                                          SizedBox(
+                                            height: 400,
                                             child: SingleChildScrollView(
                                               scrollDirection: Axis.horizontal,
                                               child: SizedBox(
@@ -352,24 +353,29 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                                                     //     percentage: false,
                                                     //   ),
                                                     // ),
-                                                    Expanded(
-                                                      child: ListView.builder(
-                                                        itemCount:
-                                                            returns.length,
-                                                        itemBuilder:
-                                                            (context, index) {
-                                                              final row =
-                                                                  returns[index];
-                                                              return ReturnsTableRow(
-                                                                color3: Colors
-                                                                    .green
-                                                                    .shade600,
-                                                                data: row,
-                                                                percentage:
-                                                                    false,
-                                                              );
-                                                            },
-                                                      ),
+                                                    SizedBox(
+                                                      height: 350,
+                                                      child: returns.isEmpty
+                                                          ? Center(
+                                                              child:
+                                                                  CircularProgressIndicator(),
+                                                            )
+                                                          : ListView.builder(
+                                                              itemCount: returns
+                                                                  .length,
+                                                              itemBuilder: (context, index) {
+                                                                final row =
+                                                                    returns[index];
+                                                                return ReturnsTableRow(
+                                                                  color3: Colors
+                                                                      .green
+                                                                      .shade600,
+                                                                  data: row,
+                                                                  percentage:
+                                                                      false,
+                                                                );
+                                                              },
+                                                            ),
                                                     ),
                                                   ],
                                                 ),

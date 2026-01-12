@@ -66,17 +66,17 @@ class HomeScreen extends StatelessWidget {
                     action: [
                       CompactIcon(
                         icon: Iconsax.notification,
-                        onPressed: () {},
+                        onPressed: () => Get.toNamed(AppRoutes.notification),
                         iconColor: Ucolors.light,
                       ),
                       CompactIcon(
                         icon: Iconsax.shopping_cart,
-                        onPressed: () {},
+                        onPressed: () => Get.toNamed(AppRoutes.cart),
                         iconColor: Ucolors.light,
                       ),
                       CompactIcon(
                         icon: Iconsax.archive_tick,
-                        onPressed: () {},
+                        onPressed: () => Get.toNamed(AppRoutes.watchlist),
                         iconColor: Ucolors.light,
                       ),
                     ],

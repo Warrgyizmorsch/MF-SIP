@@ -11,9 +11,16 @@ import 'package:my_sip/features/mf/screen/fund_details/fund_deatails.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/features/personalization/screen/profile/details/bank_details.dart';
 
-class ExploreScreen extends StatelessWidget {
+class ExploreScreen extends StatefulWidget {
   ExploreScreen({super.key});
+
+  @override
+  State<ExploreScreen> createState() => _ExploreScreenState();
+}
+
+class _ExploreScreenState extends State<ExploreScreen> {
   final items = [
     'Popularity',
     '1Y Returns',
@@ -21,7 +28,26 @@ class ExploreScreen extends StatelessWidget {
     '5Y Returns',
     'Rating',
   ];
+
   final TextEditingController sort = TextEditingController();
+
+  late FocusNode _searchFocus;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchFocus = FocusNode();
+
+    _searchFocus.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchFocus.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,36 +107,16 @@ class ExploreScreen extends StatelessWidget {
                     width: 1, // controls thickness
                     color: Ucolors.borderside,
                   ),
-                  // Expanded(
-                  //   child: SizedBox(
-                  //     height: 42,
-                  //     child: ListView(
-                  //       scrollDirection: Axis.horizontal,
-                  //       children: [
-                  //         _FilterChip(
-                  //           icon: Icons.filter_list_sharp,
-                  //           label: 'Sort by',
-                  //           // isSelected: true,
-                  //         ),
-                  //         _FilterChip(label: 'Equity'),
-                  //         _FilterChip(label: 'Debt'),
-                  //         _FilterChip(label: 'Hybrid'),
-                  //         _FilterChip(label: 'Commodities', isSelected: true),
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
+
                   Expanded(
                     child: SizedBox(
                       height: 40,
                       child: Row(
                         children: [
-                          // _FilterChip(
-                          //   label: 'Sort by',
-                          //   icon: Icons.filter_list_sharp,
-                          // ),
                           Expanded(
                             child: SearchBar(
+                              onTapOutside: (event) => _searchFocus.unfocus(),
+                              focusNode: _searchFocus,
                               backgroundColor: MaterialStateProperty.all(
                                 Colors.white,
                               ),
@@ -119,25 +125,25 @@ class ExploreScreen extends StatelessWidget {
                             ),
                           ),
                           Gap(2),
-                          InkWell(
-                            onTap: () => showSelectionBottomSheet(
-                              selectedValue: sort.text,
-                              search: false,
-                              context: context,
+                          !_searchFocus.hasFocus
+                              ? InkWell(
+                                  onTap: () => showSelectionBottomSheet(
+                                    selectedValue: sort.text,
+                                    search: false,
+                                    context: context,
 
-                              title: 'Sort by ${sort.text}',
-                              items: items,
-                              controller: sort,
-                            ),
-                            child: _FilterChip(
-                              label:
-                                  // '${sort.text.isEmpty ? 'Sort by ' : sort.text}',
-                                  'Sort by',
-                              icon: Icons.filter_list_sharp,
-                            ),
-                          ),
-                          // Gap(2),
-                          // _FilterChip(label: 'Sort by'),
+                                    title: 'Sort by ${sort.text}',
+                                    items: items,
+                                    controller: sort,
+                                  ),
+                                  child: _FilterChip(
+                                    label:
+                                        // '${sort.text.isEmpty ? 'Sort by ' : sort.text}',
+                                        'Sort by',
+                                    icon: Icons.filter_list_sharp,
+                                  ),
+                                )
+                              : SizedBox.shrink(),
                         ],
                       ),
                     ),
@@ -173,7 +179,10 @@ class ExploreScreen extends StatelessWidget {
 }
 
 class MutualFundCard extends StatelessWidget {
-  const MutualFundCard({super.key});
+  const MutualFundCard({super.key, this.isDelete = false, this.containercolor});
+
+  final bool isDelete;
+  final Color? containercolor;
 
   @override
   Widget build(BuildContext context) {
@@ -238,58 +247,61 @@ class MutualFundCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                PopupMenuButton<PortfolioMenuAction>(
-                  color: Ucolors.light,
-                  icon: const Icon(Icons.more_vert, color: Colors.grey),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  // elevation: 6,
-                  offset: const Offset(0, 40),
-                  onSelected: (value) {
-                    switch (value) {
-                      case PortfolioMenuAction.topUp:
-                        // log('top up');
-                        break;
 
-                      case PortfolioMenuAction.modify:
-                        break;
-                      case PortfolioMenuAction.pause:
-                        break;
-                      case PortfolioMenuAction.cancel:
-                        break;
-                      case PortfolioMenuAction.redemption:
-                        break;
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    buildMenuItem(
-                      icon: Iconsax.card_send,
-                      text: 'Add to cart',
-                      value: PortfolioMenuAction.topUp,
-                    ),
-                    buildMenuItem(
-                      icon: Iconsax.edit_2,
-                      text: 'Buy SIP',
-                      value: PortfolioMenuAction.modify,
-                    ),
-                    buildMenuItem(
-                      icon: Iconsax.pause,
-                      text: 'Buy Lumpsum',
-                      value: PortfolioMenuAction.pause,
-                    ),
-                    buildMenuItem(
-                      icon: Iconsax.trash,
-                      text: 'Add to watchlist',
-                      value: PortfolioMenuAction.cancel,
-                    ),
-                    buildMenuItem(
-                      icon: Iconsax.receipt,
-                      text: 'Fund Details',
-                      value: PortfolioMenuAction.redemption,
-                    ),
-                  ],
-                ),
+                !isDelete
+                    ? PopupMenuButton<PortfolioMenuAction>(
+                        color: Ucolors.light,
+                        icon: const Icon(Icons.more_vert, color: Colors.grey),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        // elevation: 6,
+                        offset: const Offset(0, 40),
+                        onSelected: (value) {
+                          switch (value) {
+                            case PortfolioMenuAction.topUp:
+                              // log('top up');
+                              break;
+
+                            case PortfolioMenuAction.modify:
+                              break;
+                            case PortfolioMenuAction.pause:
+                              break;
+                            case PortfolioMenuAction.cancel:
+                              break;
+                            case PortfolioMenuAction.redemption:
+                              break;
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          buildMenuItem(
+                            icon: Iconsax.card_send,
+                            text: 'Add to cart',
+                            value: PortfolioMenuAction.topUp,
+                          ),
+                          buildMenuItem(
+                            icon: Iconsax.edit_2,
+                            text: 'Buy SIP',
+                            value: PortfolioMenuAction.modify,
+                          ),
+                          buildMenuItem(
+                            icon: Iconsax.pause,
+                            text: 'Buy Lumpsum',
+                            value: PortfolioMenuAction.pause,
+                          ),
+                          buildMenuItem(
+                            icon: Iconsax.add,
+                            text: 'Add to watchlist',
+                            value: PortfolioMenuAction.cancel,
+                          ),
+                          buildMenuItem(
+                            icon: Iconsax.receipt,
+                            text: 'Fund Details',
+                            value: PortfolioMenuAction.redemption,
+                          ),
+                        ],
+                      )
+                    : Deleteiconwithcontainer(containercolor: containercolor),
                 // const Icon(Icons.more_vert),
               ],
             ),

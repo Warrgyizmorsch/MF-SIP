@@ -207,7 +207,8 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
                               ),
 
                               //2nd correct
-                              Expanded(
+                              SizedBox(
+                                height: 450,
                                 child: SingleChildScrollView(
                                   scrollDirection: Axis
                                       .horizontal, // 🔑 one horizontal scroll
@@ -230,23 +231,31 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
                                         ),
 
                                         /// BODY (VERTICAL SCROLL HERE ✅)
-                                        Expanded(
-                                          child: ListView.builder(
-                                            itemCount: swp.report.length,
-                                            itemBuilder: (_, i) {
-                                              final r = swp.report[i];
-                                              return ReturnsTableRow(
-                                                percentage: false,
-                                                color3: Colors.green,
-                                                data: ReturnRow(
-                                                  period: r.year.toString(),
-                                                  scheme: r.withdrawn,
-                                                  category: r.profit,
-                                                  benchmark: r.remaining,
+                                        SizedBox(
+                                          height: 370,
+                                          child: swp.report.isEmpty
+                                              ? Center(
+                                                  child: Text(
+                                                    'No Data Available',
+                                                  ),
+                                                )
+                                              : ListView.builder(
+                                                  itemCount: swp.report.length,
+                                                  itemBuilder: (_, i) {
+                                                    final r = swp.report[i];
+                                                    return ReturnsTableRow(
+                                                      percentage: false,
+                                                      color3: Colors.green,
+                                                      data: ReturnRow(
+                                                        period: r.year
+                                                            .toString(),
+                                                        scheme: r.withdrawn,
+                                                        category: r.profit,
+                                                        benchmark: r.remaining,
+                                                      ),
+                                                    );
+                                                  },
                                                 ),
-                                              );
-                                            },
-                                          ),
                                         ),
                                       ],
                                     ),

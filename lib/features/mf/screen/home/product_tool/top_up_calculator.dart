@@ -142,34 +142,32 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: Ucolors.borderside),
                 ),
-                child: Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: SizedBox(
-                      width: 400,
-                      child: Column(
-                        // mainAxisSize: MainAxisSize.min,
-                        children: [
-                          TableHeader(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: SizedBox(
+                    width: 400,
+                    child: Column(
+                      // mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TableHeader(
+                          width: 80,
+                          heading1: 'Metric',
+                          heading2: 'Invested',
+                          heading3: 'Future',
+                          heading4: 'Profit',
+                        ),
+                        DashedLine(color: Colors.grey.shade300, dashSpace: 0),
+                        ...summaryRows.map(
+                          (e) => ReturnsTableRow(
                             width: 80,
-                            heading1: 'Metric',
-                            heading2: 'Invested',
-                            heading3: 'Future',
-                            heading4: 'Profit',
+                            // fontSize: 10,
+                            color4: Colors.green.shade600,
+                            data: e,
+                            percentage: false,
+                            // fontSize: 10,
                           ),
-                          DashedLine(color: Colors.grey.shade300, dashSpace: 0),
-                          ...summaryRows.map(
-                            (e) => ReturnsTableRow(
-                              width: 80,
-                              // fontSize: 10,
-                              color4: Colors.green.shade600,
-                              data: e,
-                              percentage: false,
-                              // fontSize: 10,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -297,7 +295,8 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
                                       dashSpace: 0,
                                     ),
 
-                                    Expanded(
+                                    SizedBox(
+                                      height: 350,
                                       child: ListView.builder(
                                         // itemCount: returns.length,
 
