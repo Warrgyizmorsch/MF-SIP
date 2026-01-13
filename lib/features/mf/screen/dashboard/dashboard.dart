@@ -117,6 +117,7 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(PortfolioTabController());
+    final size=MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Ucolors.light,
       body: CustomScrollView(
@@ -144,6 +145,7 @@ class DashboardScreen extends StatelessWidget {
                   iconColor: Ucolors.dark,
                 ),
                 CompactIcon(
+
                   icon: Iconsax.shopping_cart,
                   onPressed: () => Get.toNamed(AppRoutes.cart),
                   iconColor: Ucolors.dark,

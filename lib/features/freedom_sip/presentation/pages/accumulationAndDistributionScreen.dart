@@ -16,6 +16,7 @@ class Accumulationanddistributionscreen extends StatefulWidget {
 
 class _AccumulationanddistributionscreenState
     extends State<Accumulationanddistributionscreen> {
+      
   final data = {
     "SIP Amount" : "₹ 5,000",
     "Tenure" : "5 Years",
