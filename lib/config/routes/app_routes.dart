@@ -13,4 +13,5 @@ class AppRoutes {
   static const cart = '/cart';
   static const accumulationanddistributionscreen = '/accumulationanddistributionscreen';
   static const startSipScreen = '/startSipScreen';
+  static const personaldetails = '/personaldetails';
 }

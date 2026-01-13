@@ -8,7 +8,6 @@ import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
-import 'package:my_sip/config/routes/app_pages.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_calculator.dart';
@@ -58,7 +57,7 @@ class HomeScreen extends StatelessWidget {
                   child: CustomProfileAppbar(
                     onProfiletap: () => Get.to(() => ProfileScreen()),
                     backgroundColor: Colors.transparent,
-                    greetingName: 'Nazzu',
+                    greetingName: 'Developer',
                     role: 'Developer',
                     iconColor: Ucolors.light,
                     roleColor: Ucolors.borderColor,
@@ -268,7 +267,7 @@ class HomeScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         GestureDetector(
-                          onTap : () {
+                          onTap: () {
                             Get.toNamed(AppRoutes.startSipScreen);
                           },
                           child: FeatureSection(

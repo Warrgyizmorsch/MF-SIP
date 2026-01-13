@@ -5,6 +5,7 @@ import 'package:my_sip/features/freedom_sip/presentation/pages/freedom_sip_scree
 import 'package:my_sip/features/freedom_sip/presentation/pages/sip_tenure_screen.dart';
 import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/splash_screen.dart';
+import 'package:my_sip/features/personalization/screen/profile/details/personal_details.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
 import '../../features/freedom_sip/presentation/pages/accumulationAndDistributionScreen.dart';
 import '../../features/freedom_sip/presentation/pages/growth_scheme_screen.dart';
@@ -50,10 +51,12 @@ class AppPages {
     GetPage(
       name: AppRoutes.accumulationanddistributionscreen,
       page: () => const Accumulationanddistributionscreen(),
-    ),    GetPage(
+    ),
+    GetPage(
       name: AppRoutes.startSipScreen,
       page: () => const MonthlySipScreen(),
     ),
 
+    GetPage(name: AppRoutes.personaldetails, page: () => PersonalDetailsScreen(),)
   ];
 }

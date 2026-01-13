@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/bindings/bindings.dart';
 import 'package:my_sip/core/utils/theme/theme.dart';
+import 'package:my_sip/features/authentication/presentation/pages/signup/verify_pan_otp.dart';
+import 'package:my_sip/features/onboarding/presentation/pages/welcome_page.dart';
 
 import 'config/routes/app_pages.dart';
 
@@ -29,10 +31,11 @@ class MyApp extends StatelessWidget {
         //   ),
         // ),
         theme: Utheme.lightTheme,
+
         initialBinding: UBinding(),
         initialRoute: AppRoutes.splash,
         getPages: AppPages.pages(),
-      
+
         // home: VerifyPanOtp(),
         // home: QuestionScreen(),
         // home: ComparisonScreen(),
@@ -40,6 +43,7 @@ class MyApp extends StatelessWidget {
         // home: FundComparisonScreen(),
         // home: FundDeatailsScreen(),
         // home: NipponFundDetailScreen(),
+        // home: WelcomePageScreen(),
       ),
     );
   }
