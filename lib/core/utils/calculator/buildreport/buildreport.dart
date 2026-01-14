@@ -9,6 +9,8 @@ List<ReturnRow> buildSipReport({
 }) {
   final monthlyRate = effectiveMonthlyRate(annualRate);
 
+  final int startYear = DateTime.now().year; // 👈 change here
+
   double invested = 0;
   double value = 0;
   List<ReturnRow> report = [];
@@ -21,10 +23,12 @@ List<ReturnRow> buildSipReport({
 
     report.add(
       ReturnRow(
-        period: year.toString(),
-        scheme: invested,               // Investment
-        category: value - invested,     // Profit
-        benchmark: value,               // Total Value
+        // period: year.toString(),
+        period: (startYear + year - 1).toString(), // ✅ 2026, 2027...
+
+        scheme: invested, // Investment
+        category: value - invested, // Profit
+        benchmark: value, // Total Value
       ),
     );
   }
