@@ -20,8 +20,18 @@ class MyApp extends StatelessWidget {
       splitScreenMode: true,
       child: GetMaterialApp(
         title: 'My SIP',
+        // theme: ThemeData(
+        //   bottomSheetTheme: BottomSheetThemeData(backgroundColor: Colors.white),
+        //   fontFamily: 'Geist',
+        //   scaffoldBackgroundColor: Colors.white,
+        //   appBarTheme: AppBarTheme(
+        //     backgroundColor: Colors.white,
+        //     surfaceTintColor: Colors.white,
+        //   ),
+        // ),
         theme: Utheme.lightTheme,
         initialBinding: UBinding(),
+        initialRoute: AppRoutes.splash,
         getPages: AppPages.pages(),
         initialRoute: AppRoutes.splash,
         builder: (context, widget) => ResponsiveBreakpoints.builder(

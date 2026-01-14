@@ -21,7 +21,6 @@ import 'package:my_sip/core/utils/constant/text_style.dart';
 import '../../../fund_details/presentation/pages/fund_deatails.dart';
 import '../widgets/product_tool/sip_calculator.dart';
 import '../widgets/product_tool/swp_calci.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -29,31 +28,23 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
-    final isTablet = ResponsiveBreakpoints.of(context).equals(TABLET);
-    final isMobile = ResponsiveBreakpoints.of(context).equals(MOBILE);
-
-
-    final horizontalPadding = isDesktop ? 60.0 : (isTablet ? 32.0 : 16.0);
-
-    final collectionColumns = isDesktop ? 6 : (isTablet ? 4 : 3);
-    final goalColumns = isDesktop ? 4 : (isTablet ? 3 : 2);
-    final toolColumns = isDesktop ? 4 : (isTablet ? 3 : 2);
-    final fundColumns = isDesktop ? 4 : (isTablet ? 3 : 2);
-
     return Scaffold(
+      // backgroundColor: Color(0xffF5F5F7),
       backgroundColor: Colors.white,
       body: SafeArea(
         top: false,
         child: CustomScrollView(
           slivers: [
-
+            //Appbar
             SliverAppBar(
               pinned: true,
               snap: false,
               automaticallyImplyLeading: false,
+
               backgroundColor: Colors.transparent,
+              // expandedHeight: 200,
               flexibleSpace: Container(
+                // height: 260,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment(-0.8, -0.7),
@@ -99,14 +90,182 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
 
+            // SliverToBoxAdapter(
+            //   child: Column(
+            //     children: [
+            //       // 1. Gradient header with quick action buttons
+            //       Container(
+            //         height: 180,
+            //         // 180, // fixed reasonable height – adjust once, works everywhere
+            //         decoration: const BoxDecoration(
+            //           gradient: LinearGradient(
+            //             begin: Alignment(-0.8, -1.0),
+            //             end: Alignment(0.1, 1.0),
+            //             stops: [0.0, 0.9784],
+            //             colors: [Color(0xFF07315C), Color(0xFF0280C0)],
+            //           ),
+            //         ),
+            //         child: SafeArea(
+            //           bottom: false,
+            //           child: Padding(
+            //             padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+            //             child: Column(
+            //               children: [
+            //                 // Greeting row (if needed – optional)
+            //                 // Row(...)
+            //                 // const Spacer(),
 
+            //                 // Three feature buttons
+            //                 Row(
+            //                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            //                   children: [
+            //                     FeatureSection(
+            //                       featureName: 'Start SIP',
+            //                       iconPath: UImages.startsip,
+            //                     ),
+            //                     FeatureSection(
+            //                       featureName: 'Freedom SIP',
+            //                       iconPath: UImages.freedomsip,
+            //                     ),
+            //                     FeatureSection(
+            //                       featureName: 'Lumpsum',
+            //                       iconPath: UImages.glyph,
+            //                     ),
+            //                   ],
+            //                 ),
+
+            //                 const SizedBox(height: 20),
+            //               ],
+            //             ),
+            //           ),
+            //         ),
+            //       ),
+
+            //       // 2. KYC progress card – negative offset for natural overlap
+            //       Padding(
+            //         padding: const EdgeInsets.symmetric(horizontal: 24),
+            //         child: Transform.translate(
+            //           offset: const Offset(
+            //             0,
+            //             -40,
+            //           ), // ← controls overlap amount (tune 40–60)
+            //           child: Material(
+            //             elevation: 4, // subtle shadow
+            //             borderRadius: BorderRadius.circular(12),
+            //             color: Ucolors.light,
+            //             child: Padding(
+            //               padding: const EdgeInsets.all(16),
+            //               child: Column(
+            //                 crossAxisAlignment: CrossAxisAlignment.start,
+            //                 children: [
+            //                   // Title + arrow
+            //                   Row(
+            //                     mainAxisAlignment:
+            //                         MainAxisAlignment.spaceBetween,
+            //                     children: [
+            //                       const Text(
+            //                         'Complete Your KYC',
+            //                         style: TextStyle(
+            //                           fontSize: 16,
+            //                           fontWeight: FontWeight.w600,
+            //                           color: Ucolors.dark,
+            //                         ),
+            //                       ),
+            //                       IconButton(
+            //                         icon: const Icon(
+            //                           Icons.arrow_forward_ios_rounded,
+            //                           size: 18,
+            //                           color: Ucolors.primary,
+            //                         ),
+            //                         onPressed: () {
+            //                           // Navigate to KYC flow
+            //                         },
+            //                       ),
+            //                     ],
+            //                   ),
+
+            //                   const SizedBox(height: 16),
+
+            //                   // Stepper
+            //                   SingleChildScrollView(
+            //                     scrollDirection: Axis.horizontal,
+            //                     child: EasyStepper(
+            //                       activeStep: 2, // Step 3 active
+            //                       stepRadius: 10,
+            //                       // lineLength: 40,
+            //                       // lineThickness: 2,
+            //                       finishedStepBackgroundColor: Colors.lightBlue,
+            //                       activeStepIconColor: Colors.lightBlue,
+            //                       finishedStepIconColor: Colors.white,
+            //                       // defaultStepIconColor: Colors.grey,
+            //                       activeStepBorderColor: Colors.lightBlue,
+            //                       steps: const [
+            //                         EasyStep(
+            //                           icon: Icon(
+            //                             Icons.check_circle,
+            //                             color: Colors.white,
+            //                           ),
+            //                         ),
+            //                         EasyStep(
+            //                           icon: Icon(
+            //                             Icons.check_circle,
+            //                             color: Colors.white,
+            //                           ),
+            //                         ),
+            //                         EasyStep(
+            //                           icon: Icon(
+            //                             Icons.circle,
+            //                             color: Colors.lightBlue,
+            //                             size: 12,
+            //                           ),
+            //                         ),
+            //                         EasyStep(
+            //                           icon: Icon(
+            //                             Icons.circle_outlined,
+            //                             color: Colors.grey,
+            //                           ),
+            //                         ),
+            //                         EasyStep(
+            //                           icon: Icon(
+            //                             Icons.circle_outlined,
+            //                             color: Colors.grey,
+            //                           ),
+            //                         ),
+            //                       ],
+            //                     ),
+            //                   ),
+            //                 ],
+            //               ),
+            //             ),
+            //           ),
+            //         ),
+            //       ),
+
+            //       // const SizedBox(height: 24), // space before next section
+            //     ],
+            //   ),
+            // ),
+
+            //Header Section --KYC and ,start sip , freedom sip , lumpsum
             SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal:  0),
-                child: Stack(
-                  children: [
-                    SizedBox(
-                      height: isDesktop ? size.height * 0.3 : size.height * 0.3,
+              child: Stack(
+                children: [
+                  SizedBox(
+                    height: size.height * 0.3,
+                    // child: Container(color),
+                  ),
+                  Container(
+                    height: size.height * 0.21,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment(-0.8, -1.0),
+                        end: Alignment(0.1, 1.0),
+                        stops: const [0.0, 0.9784],
+                        colors: [
+                          const Color(0xFF07315C),
+                          const Color(0xFF0280C0),
+                        ],
+                      ),
                     ),
                     Container(
                       height: isDesktop ? size.height * 0.15 : size.height * 0.21,
@@ -117,64 +276,65 @@ class HomeScreen extends StatelessWidget {
                           stops: const [0.0, 0.9784],
                           colors: [Color(0xFF07315C), Color(0xFF0280C0)],
                         ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          GestureDetector(
-                            onTap: () => Get.toNamed(AppRoutes.startSipScreen),
-                            child: FeatureSection(
-                              featureName: 'Start SIP',
-                              iconPath: UImages.startsip,
-                            ),
+                        GestureDetector(
+                          onTap: () {
+                            Get.toNamed(AppRoutes.freedomSipScreen);
+                          },
+                          child: FeatureSection(
+                            featureName: 'Freedom SIP',
+                            iconPath: UImages.freedomsip,
                           ),
-                          GestureDetector(
-                            onTap: () => Get.toNamed(AppRoutes.freedomSipScreen),
-                            child: FeatureSection(
-                              featureName: 'Freedom SIP',
-                              iconPath: UImages.freedomsip,
-                            ),
-                          ),
-                          FeatureSection(
-                            featureName: 'Lumpsum',
-                            iconPath: UImages.glyph,
+                        ),
+                        FeatureSection(
+                          featureName: 'Lumpsum',
+                          iconPath: UImages.glyph,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                    left: 20,
+                    right: 20,
+                    bottom: 0,
+                    // top: 0,
+                    child: Container(
+                      height: size.height * 0.13,
+                      // height: 108,
+                      // width: size.width / 2,
+                      // width: 400,
+                      decoration: BoxDecoration(
+                        color: Ucolors.light,
+
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.15),
+                            blurRadius: 5,
+                            offset: const Offset(0, 4),
+                            // spreadRadius: 5,
                           ),
                         ],
                       ),
-                    ),
-                    Positioned(
-                      left: isDesktop ? 0 : 20,
-                      right: isDesktop ? 0 : 20,
-                      bottom: 0,
-                      child: Container(
-                        height: isDesktop ? 90 : size.height * 0.13,
-                        constraints: BoxConstraints(
-                          maxWidth: isDesktop ? 800 : double.infinity,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          left: 10.0,
+                          top: 10,
+                          bottom: 10,
+                          right: 15,
                         ),
-                        margin: EdgeInsets.symmetric(
-                          horizontal: isDesktop ? size.width * 0.1 : 0,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Ucolors.light,
-                          borderRadius: BorderRadius.circular(15),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.15),
-                              blurRadius: 5,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Row(
-                            children: [
-                              Icon(Icons.person, size: isDesktop ? 28 : 24),
-                              SizedBox(width: isDesktop ? 15 : 10),
-                              Expanded(
-                                child: Column(
+                        child: Column(
+                          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Row(
+                              // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Icon(Icons.person),
+                                SizedBox(width: 5),
+                                Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
                                       'Onboarding task',
@@ -187,31 +347,119 @@ class HomeScreen extends StatelessWidget {
                                         color: Ucolors.dark,
                                       ),
                                     ),
-                                    if (!isDesktop)
-                                      Text(
-                                        'Verify your Identity to start Investing',
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: UTextStyles.caption,
+                                    Text(
+                                      'Verify your Identity to start Investing',
+                                      softWrap: true,
+
+                                      maxLines: 1,
+
+                                      overflow: TextOverflow.ellipsis,
+                                      style: UTextStyles.caption.copyWith(
+                                        // fontSize: 10,
                                       ),
+                                      // textAlign: TextAlign.start,
+                                    ),
                                   ],
                                 ),
-                              ),
-                              Icon(Icons.arrow_forward_ios, size: isDesktop ? 14 : 12),
-                            ],
-                          ),
+                                Spacer(),
+                                Icon(Icons.arrow_forward_ios, size: 12),
+                                // SizedBox(width: 10),
+                              ],
+                            ),
+                            // Row(
+                            //   // mainAxisSize: MainAxisSize.min,
+                            //   mainAxisAlignment: MainAxisAlignment.start,
+                            //   children: [
+                            //     SectionHeading(
+                            //       sectionTitle: 'Complete Your KYC',
+                            //       fontWeight: FontWeight.w500,
+                            //       textcolor: Ucolors.dark,
+                            //     ),
+                            //     SizedBox(width: 5),
+                            //     CompactIcon(
+                            //       iconSize: 15,
+                            //       icon: Icons.arrow_forward_ios,
+
+                            //       onPressed: () {},
+                            //     ),
+                            //   ],
+                            // ),
+
+                            // SizedBox(height: 5),
+                            // SingleChildScrollView(
+                            //   scrollDirection: Axis.horizontal,
+                            //   child: EasyStepper(
+                            //     activeStepBorderColor: Colors.lightBlue,
+                            //     finishedStepBackgroundColor: Colors.lightBlue,
+                            //     activeStepIconColor: Colors.lightBlue,
+
+                            //     // color
+                            //     stepRadius: 4,
+                            //     activeStep: 2,
+
+                            //     // highlights Step 3
+                            //     stepShape: StepShape.circle,
+                            //     lineStyle: LineStyle(
+                            //       lineSpace: 0,
+                            //       lineLength: 30,
+                            //       activeLineColor: Colors.lightBlue,
+                            //       defaultLineColor: Colors.lightBlue,
+                            //       lineThickness: 1,
+                            //     ),
+                            //     steps: [
+                            //       EasyStep(
+                            //         title: 'Step 1',
+
+                            //         icon: Icon(Icons.check),
+                            //       ),
+                            //       EasyStep(
+                            //         title: 'Step 2',
+                            //         icon: Icon(Icons.check),
+                            //       ),
+                            //       EasyStep(
+                            //         title: 'Step 3',
+                            //         icon: Icon(Icons.circle),
+                            //       ),
+                            //       EasyStep(
+                            //         title: 'Step 4',
+                            //         icon: Icon(Icons.circle_outlined),
+                            //       ),
+
+                            //       EasyStep(
+
+                            //         title: 'Step 5',
+                            //         icon: Icon(Icons.circle_outlined),
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
+                          ],
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: Container(
+                      height: size.height * 0.025,
+                      width: size.width / 2.3,
+                      decoration: BoxDecoration(
+                        color: Ucolors.primary,
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(25),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
 
-
+            ///-------------Collection Part ---------------///
             SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(horizontalPadding, 20, horizontalPadding, 0),
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
                 child: const SectionHeading(
                   sectionTitle: 'Collection',
                   fontWeight: FontWeight.w500,
@@ -219,12 +467,13 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             SliverPadding(
-              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               sliver: SliverGrid(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: collectionColumns,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
                   childAspectRatio: 1.1,
                   mainAxisSpacing: 0,
+
                   crossAxisSpacing: 12,
                 ),
                 delegate: SliverChildListDelegate([
@@ -239,45 +488,51 @@ class HomeScreen extends StatelessWidget {
                     onTap: () => Get.to(() => ExploreScreen()),
                   ),
                   CollectionItem(
+                    onTap: () => Get.to(() => ExploreScreen()),
+
                     title: 'International Funds',
                     iconImg: UImages.interfund,
-                    onTap: () => Get.to(() => ExploreScreen()),
                   ),
                   CollectionItem(
+                    onTap: () => Get.to(() => ExploreScreen()),
+
                     title: 'Index Funds',
                     iconImg: UImages.indexfund,
-                    onTap: () => Get.to(() => ExploreScreen()),
                   ),
                   CollectionItem(
+                    onTap: () => Get.to(() => ExploreScreen()),
+
                     title: 'Commodities',
                     iconImg: UImages.moneygold,
-                    onTap: () => Get.to(() => ExploreScreen()),
                   ),
                   CollectionItem(
+                    onTap: () => Get.to(() => ExploreScreen()),
+
                     title: 'Equity',
                     iconImg: UImages.equity,
-                    onTap: () => Get.to(() => ExploreScreen()),
                   ),
                 ]),
               ),
             ),
 
-
+            ///-------------Create Goal Base SIP Part ---------------///
             SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(horizontalPadding, 20, horizontalPadding, 12),
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
                 child: const USectionHeading(
                   title: 'Create Goal Base SIP',
                   showActionButton: false,
                 ),
               ),
             ),
+
             SliverPadding(
-              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               sliver: SliverGrid(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: goalColumns,
-                  childAspectRatio: isDesktop ? 3.5 : 2.8,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, // 2 columns — most popular choice
+                  childAspectRatio:
+                      2.8, // tune this: 1.3–1.55 usually looks best
                   mainAxisSpacing: 16,
                   crossAxisSpacing: 16,
                 ),
@@ -289,33 +544,103 @@ class HomeScreen extends StatelessWidget {
                   ),
                   GoalBaseSIPCard(
                     onTap: () => Get.to(() => GoalScreen()),
+
                     title: 'Bike Goal',
                     iconData: Icons.pedal_bike_rounded,
                   ),
                   GoalBaseSIPCard(
                     onTap: () => Get.to(() => GoalScreen()),
+
                     title: 'Marriage Goal',
                     iconData: Icons.favorite_border_outlined,
                   ),
                   GoalBaseSIPCard(
                     onTap: () => Get.to(() => GoalScreen()),
+
                     title: 'Vacation Goal',
                     iconData: Icons.flight_takeoff_rounded,
                   ),
                   GoalBaseSIPCard(
                     onTap: () => Get.to(() => GoalScreen()),
+
                     title: 'Home Goal',
                     iconData: Icons.home_rounded,
                   ),
-                  _buildCustomGoalCard(),
+                  // GoalBaseSIPCard(
+                  //   title: 'Education Goal',
+                  //   iconData: Icons.school_rounded,
+                  // ),
+                  GestureDetector(
+                    onTap: () => Get.to(() => GoalScreen()),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Ucolors.borderColor,
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.03),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          // Icon container
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEEF5FF),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.add,
+                              size: 20,
+                              color: Ucolors.blue,
+                            ),
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          // Title
+                          Expanded(
+                            child: Text(
+                              'Custom Goal',
+                              style: UTextStyles.small.copyWith(
+                                color: Ucolors.dark,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+
+                          // Trailing arrow
+                          // const Icon(
+                          //   Icons.arrow_forward_ios_rounded,
+                          //   size: 16,
+                          //   color: Colors.grey,
+                          // ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ]),
               ),
             ),
 
-
+            ///-------------Products & Tool Part ---------------///
             SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: USectionHeading(
                   title: 'Products & Tool',
                   buttonTitle: 'See all',
@@ -323,12 +648,13 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ),
+
             SliverPadding(
-              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               sliver: SliverGrid(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: toolColumns,
-                  childAspectRatio: isDesktop ? 4.5 : 3.2,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 3.2, // tune: 2.8–3.5
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 16,
                 ),
@@ -338,6 +664,7 @@ class HomeScreen extends StatelessWidget {
                     imgUrl: UImages.sipcalci,
                     onTap: () => Get.to(() => SipCalculatorPage()),
                   ),
+                  // ToolsItem(title: "STP Calculator", imgUrl: UImages.stpcalci),
                   ToolsItem(
                     title: "SWP Calculator",
                     imgUrl: UImages.swpcali,
@@ -357,28 +684,31 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
 
-
+            ///-------------Popular Funds Part ---------------///
             SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(horizontalPadding, 20, horizontalPadding, 0),
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
                 child: const USectionHeading(
                   title: 'Popular Funds',
                   showActionButton: true,
                 ),
               ),
             ),
+
             SliverPadding(
-              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               sliver: SliverGrid(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: fundColumns,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
                   childAspectRatio: 1.55,
                   mainAxisSpacing: 16,
                   crossAxisSpacing: 16,
+                  // mainAxisExtent: 120,
                 ),
                 delegate: SliverChildListDelegate([
                   PopularFundCard(
                     onTap: () => Get.to(() => FundDeatailsScreen()),
+
                     name: 'SBI Gold Fund',
                     imgPath: UImages.sbi,
                   ),
@@ -389,11 +719,13 @@ class HomeScreen extends StatelessWidget {
                   ),
                   PopularFundCard(
                     onTap: () => Get.to(() => FundDeatailsScreen()),
+
                     name: 'Motilal Ostwal Midcap Fund',
                     imgPath: UImages.motilal,
                   ),
                   PopularFundCard(
                     onTap: () => Get.to(() => FundDeatailsScreen()),
+
                     name: 'Bandhan Small Cap Fund',
                     imgPath: UImages.motilal,
                   ),
@@ -401,12 +733,12 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
 
-
+            ///-------------Video’s & Blogs Part ---------------///
             SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(horizontalPadding, 20, horizontalPadding, 0),
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
                 child: const USectionHeading(
-                  title: "Video's & Blogs",
+                  title: 'Video’s & Blogs',
                   showActionButton: true,
                   buttonTitle: 'See all',
                 ),
@@ -414,20 +746,16 @@ class HomeScreen extends StatelessWidget {
             ),
             SliverToBoxAdapter(
               child: SizedBox(
-                height: isDesktop ? 280 : (isTablet ? 240 : size.height * 0.25),
+                height: size.height * 0.25,
+                // width: size.height * 0.9,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   children: [
-                    YoutubeThumbnail(
-                      videoId: 'yo5aL4Plbso',
-                      width: isDesktop ? 450 : (isTablet ? 380 : 340),
-                    ),
+                    YoutubeThumbnail(videoId: 'yo5aL4Plbso'),
                     const SizedBox(width: 16),
-                    YoutubeThumbnail(
-                      videoId: 't7lUSiddFd4',
-                      width: isDesktop ? 450 : (isTablet ? 380 : 340),
-                    ),
+
+                    YoutubeThumbnail(videoId: 't7lUSiddFd4'),
                     const SizedBox(width: 16),
                   ],
                 ),
@@ -440,54 +768,7 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-
-  Widget _buildCustomGoalCard() {
-    return GestureDetector(
-      onTap: () => Get.to(() => GoalScreen()),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Ucolors.borderColor, width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEEF5FF),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(Icons.add, size: 20, color: Ucolors.blue),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'Custom Goal',
-                style: UTextStyles.small.copyWith(
-                  color: Ucolors.dark,
-                  fontWeight: FontWeight.w500,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
-
-
 
 class YoutubeThumbnail extends StatelessWidget {
   const YoutubeThumbnail({
@@ -532,7 +813,7 @@ class YoutubeThumbnail extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-
+              // Thumbnail image
               Image.network(
                 thumbnailUrl,
                 fit: BoxFit.cover,
@@ -542,7 +823,7 @@ class YoutubeThumbnail extends StatelessWidget {
                 ),
               ),
 
-
+              // Semi-transparent overlay
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -559,7 +840,7 @@ class YoutubeThumbnail extends StatelessWidget {
                   width: 64,
                   height: 64,
                   decoration: BoxDecoration(
-                    color: const Color(0xfff44336),
+                    color: const Color(0xfff44336), // YouTube red
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
@@ -615,10 +896,10 @@ class PopularFundCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: Column(
-
+            // crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-
+              // Logo
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -634,13 +915,13 @@ class PopularFundCard extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                         overflow: TextOverflow.ellipsis,
 
-
+                        // fontSize: 12,
                       ),
                     ),
                   ),
                 ],
               ),
-
+              // Spacer(),
               Expanded(child: SizedBox()),
               Row(
                 mainAxisSize: MainAxisSize.min,
@@ -708,7 +989,7 @@ class GoalBaseSIPCard extends StatelessWidget {
           ),
           child: Row(
             children: [
-
+              // Icon container
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
@@ -720,7 +1001,7 @@ class GoalBaseSIPCard extends StatelessWidget {
 
               const SizedBox(width: 12),
 
-
+              // Title
               Expanded(
                 child: Text(
                   title,
@@ -733,7 +1014,7 @@ class GoalBaseSIPCard extends StatelessWidget {
                 ),
               ),
 
-
+              // Trailing arrow
               const Icon(
                 Icons.arrow_forward_ios_rounded,
                 size: 16,
@@ -773,13 +1054,13 @@ class ToolsItem extends StatelessWidget {
             child: Text(
               title,
               style: UTextStyles.small.copyWith(
-
-
-
+                // color: Ucolors.hometxtblue,
+                // color: Colors.grey[600],
+                // color: Colors.black.withOpacity(0.7),
                 color: Colors.grey[600],
 
-
-
+                // fontSize: 14,
+                // fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -815,7 +1096,7 @@ class CollectionItem extends StatelessWidget {
           const SizedBox(height: 4),
           SizedBox(
             width: size.width * 0.27,
-
+            // width: 100,
             child: Text(
               textAlign: TextAlign.center,
               maxLines: 2,
@@ -823,7 +1104,7 @@ class CollectionItem extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               title,
               style: UTextStyles.small.copyWith(
-
+                // color: Ucolors.hometxtblue,
                 color: Colors.grey[600],
                 overflow: TextOverflow.ellipsis,
               ),
@@ -853,7 +1134,7 @@ class FeatureSection extends StatelessWidget {
         Container(
           height: 60,
           width: 60,
-
+          // padding: EdgeInsets.all(15),
           decoration: BoxDecoration(
             color: Ucolors.primary,
             borderRadius: BorderRadius.circular(20),

@@ -53,9 +53,7 @@ class GoalScreen extends StatelessWidget {
             const SizedBox(height: 25),
 
             UElevatedBUtton(
-              onPressed: () {
-
-              },
+              onPressed: () {},
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
