@@ -14,7 +14,4 @@ class AppRoutes {
   static const accumulationanddistributionscreen = '/accumulationanddistributionscreen';
   static const startSipScreen = '/startSipScreen';
   static const personaldetails = '/personaldetails';
-  static const investingApproachScreen = '/investingApproachScreen';
-  static const selectFundsScreen = '/selectFundsScreen';
-  static const createGoal = '/CreateGoal';
 }

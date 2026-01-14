@@ -6,8 +6,6 @@ import 'package:my_sip/features/freedom_sip/presentation/pages/sip_tenure_screen
 import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/splash_screen.dart';
 import 'package:my_sip/features/personalization/screen/profile/details/personal_details.dart';
-import 'package:my_sip/features/sip_process/presentation/pages/investing_approach_screen.dart';
-import 'package:my_sip/features/sip_process/presentation/pages/select_funds_screen.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
 import '../../features/freedom_sip/presentation/pages/accumulationAndDistributionScreen.dart';
 import '../../features/freedom_sip/presentation/pages/growth_scheme_screen.dart';
@@ -57,14 +55,6 @@ class AppPages {
     GetPage(
       name: AppRoutes.startSipScreen,
       page: () => const MonthlySipScreen(),
-    ),
-    GetPage(
-      name: AppRoutes.investingApproachScreen,
-      page: () => const InvestingApproachScreen(),
-    ),
-    GetPage(
-      name: AppRoutes.selectFundsScreen,
-      page: () => const SelectFundsScreen(),
     ),
 
     GetPage(name: AppRoutes.personaldetails, page: () => PersonalDetailsScreen(),)
