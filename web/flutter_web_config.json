@@ -1,0 +1,4 @@
+{
+  "url_strategy" : "path",
+"renderer" : "html"
+}
