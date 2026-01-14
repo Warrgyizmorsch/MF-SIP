@@ -76,4 +76,10 @@ class UImages {
   static const String mfLogoLight = 'assets/icon/logo_mf_light.svg';
   static const String freedomSipCard1 = 'assets/icon/freedom_sip_card_1.svg';
   static const String freedomSipCard2 = 'assets/icon/freedom_sip_card_2.svg';
+  static const String tickInCircle = "assets/icon/logo_tick_in_circle.svg";
+  static const String logoAccount = "assets/icon/logo_account.svg";
+  static const String logoShield = "assets/icon/logo_shield.svg";
+  static const String logoCurrency = "assets/icon/logo_currency.svg";
+  static const String logoHighGrowthFunds = "assets/icon/logo_high_growth_funds.svg";
+  static const String logoSuggestedPortfolio = "assets/icon/logo_suggested_portfolio.svg";
 }

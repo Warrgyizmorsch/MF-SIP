@@ -86,6 +86,7 @@ class UTextStyles {
 }
 
 
+
 class AppTextStyles extends TextStyle {
   AppTextStyles({
     double size = 14.0,
@@ -94,10 +95,9 @@ class AppTextStyles extends TextStyle {
     super.decoration,
     String fontFamily = 'Geist',
   }) : super(
-    fontSize: size.sp,
+    fontSize: size, // Removed .sp
     fontWeight: weight,
     fontFamily: fontFamily,
-
   );
 
   // -------------------------
@@ -110,7 +110,7 @@ class AppTextStyles extends TextStyle {
     super.decoration,
     String fontFamily = 'Geist',
   }) : super(
-    fontSize: size.sp,
+    fontSize: size, // Removed .sp
     fontWeight: weight,
     fontFamily: fontFamily,
   );
@@ -122,7 +122,7 @@ class AppTextStyles extends TextStyle {
     super.decoration,
     String fontFamily = 'Geist',
   }) : super(
-    fontSize: size.sp,
+    fontSize: size, // Removed .sp
     fontWeight: weight,
     fontFamily: fontFamily,
   );
@@ -134,7 +134,7 @@ class AppTextStyles extends TextStyle {
     super.decoration,
     String fontFamily = 'Geist',
   }) : super(
-    fontSize: size.sp,
+    fontSize: size, // Removed .sp
     fontWeight: weight,
     fontFamily: fontFamily,
   );
@@ -149,7 +149,7 @@ class AppTextStyles extends TextStyle {
     super.decoration,
     String fontFamily = 'Geist',
   }) : super(
-    fontSize: size.sp,
+    fontSize: size, // Removed .sp
     fontWeight: weight,
     fontFamily: fontFamily,
   );
@@ -160,7 +160,7 @@ class AppTextStyles extends TextStyle {
     super.decoration,
     String fontFamily = 'Geist',
   }) : super(
-    fontSize: size.sp,
+    fontSize: size, // Removed .sp
     fontWeight: FontWeight.w500,
     fontFamily: fontFamily,
   );
@@ -171,7 +171,7 @@ class AppTextStyles extends TextStyle {
     super.decoration,
     String fontFamily = 'Geist',
   }) : super(
-    fontSize: size.sp,
+    fontSize: size, // Removed .sp
     fontWeight: FontWeight.w600,
     fontFamily: fontFamily,
   );
@@ -182,7 +182,7 @@ class AppTextStyles extends TextStyle {
     super.decoration,
     String fontFamily = 'Geist',
   }) : super(
-    fontSize: size.sp,
+    fontSize: size, // Removed .sp
     fontWeight: FontWeight.w700,
     fontFamily: fontFamily,
   );
@@ -197,7 +197,7 @@ class AppTextStyles extends TextStyle {
     super.decoration,
     String fontFamily = 'Geist',
   }) : super(
-    fontSize: size.sp,
+    fontSize: size, // Removed .sp
     fontWeight: weight,
     fontFamily: fontFamily,
   );
@@ -208,7 +208,7 @@ class AppTextStyles extends TextStyle {
     super.decoration,
     String fontFamily = 'Geist',
   }) : super(
-    fontSize: size.sp,
+    fontSize: size, // Removed .sp
     fontWeight: FontWeight.w500,
     fontFamily: fontFamily,
   );
@@ -219,7 +219,7 @@ class AppTextStyles extends TextStyle {
     super.decoration,
     String fontFamily = 'Geist',
   }) : super(
-    fontSize: size.sp,
+    fontSize: size, // Removed .sp
     fontWeight: FontWeight.w600,
     fontFamily: fontFamily,
   );
@@ -230,7 +230,7 @@ class AppTextStyles extends TextStyle {
     super.decoration,
     String fontFamily = 'Geist',
   }) : super(
-    fontSize: size.sp,
+    fontSize: size, // Removed .sp
     fontWeight: FontWeight.w700,
     fontFamily: fontFamily,
   );
@@ -245,7 +245,7 @@ class AppTextStyles extends TextStyle {
     super.decoration,
     String fontFamily = 'Geist',
   }) : super(
-    fontSize: size.sp,
+    fontSize: size, // Removed .sp
     fontWeight: weight,
     fontFamily: fontFamily,
   );
@@ -256,7 +256,7 @@ class AppTextStyles extends TextStyle {
     super.decoration,
     String fontFamily = 'Geist',
   }) : super(
-    fontSize: size.sp,
+    fontSize: size, // Removed .sp
     fontWeight: FontWeight.w500,
     fontFamily: fontFamily,
   );
@@ -267,7 +267,7 @@ class AppTextStyles extends TextStyle {
     super.decoration,
     String fontFamily = 'Geist',
   }) : super(
-    fontSize: size.sp,
+    fontSize: size, // Removed .sp
     fontWeight: FontWeight.w600,
     fontFamily: fontFamily,
   );
@@ -278,7 +278,7 @@ class AppTextStyles extends TextStyle {
     super.decoration,
     String fontFamily = 'Geist',
   }) : super(
-    fontSize: size.sp,
+    fontSize: size, // Removed .sp
     fontWeight: FontWeight.w700,
     fontFamily: fontFamily,
   );
@@ -293,7 +293,7 @@ class AppTextStyles extends TextStyle {
     super.decoration,
     String fontFamily = 'Geist',
   }) : super(
-    fontSize: size.sp,
+    fontSize: size, // Removed .sp
     fontWeight: weight,
     fontFamily: fontFamily,
   );
@@ -308,7 +308,7 @@ class AppTextStyles extends TextStyle {
     super.decoration,
     String fontFamily = 'Geist',
   }) : super(
-    fontSize: size.sp,
+    fontSize: size, // Removed .sp
     fontWeight: weight,
     fontFamily: fontFamily,
   );
@@ -323,7 +323,7 @@ class AppTextStyles extends TextStyle {
     super.decoration,
     String fontFamily = 'Geist',
   }) : super(
-    fontSize: size.sp,
+    fontSize: size, // Removed .sp
     fontWeight: weight,
     fontFamily: fontFamily,
   );
@@ -335,7 +335,7 @@ class AppTextStyles extends TextStyle {
     super.decoration,
     String fontFamily = 'Geist',
   }) : super(
-    fontSize: size.sp,
+    fontSize: size, // Removed .sp
     fontWeight: weight,
     fontFamily: fontFamily,
   );

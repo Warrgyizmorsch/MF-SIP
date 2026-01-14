@@ -4,7 +4,28 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="" />
+    <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/config/routes/app_routes.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/routes/app_routes.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/core/utils/constant/colors.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/utils/constant/colors.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/core/utils/constant/images.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/utils/constant/images.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/core/utils/constant/text_style.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/utils/constant/text_style.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/accumulationAndDistributionScreen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/accumulationAndDistributionScreen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/freedom_sip_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/freedom_sip_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/growth_scheme_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/growth_scheme_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/sip_tenure_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/sip_tenure_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/pages/goal.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/pages/goal.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/sip_process/presentation/pages/monthly_sip_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/sip_process/presentation/pages/monthly_sip_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/my_app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/my_app.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/navigation_menu_bar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/navigation_menu_bar.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/services/session_manager.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/session_manager.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -29,11 +50,17 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="module-info" />
         <option value="Dart File" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="nithik-branch" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectColorInfo">{
@@ -66,23 +93,24 @@
     "git-widget-placeholder": "nithik-branch",
     "io.flutter.project.isFirstOpen": "true",
     "io.flutter.reload.alreadyRun": "true",
-    "last_opened_file_path": "/Users/nithikmali/StudioProjects/MF-SIP/lib/features/mf/screen/goal",
+    "last_opened_file_path": "/Users/nithikmali/StudioProjects/MF-SIP/web",
     "settings.editor.selected.configurable": "AndroidSdkUpdater",
     "show.migrate.to.gradle.popup": "false"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/web" />
       <recent name="$PROJECT_DIR$/lib/features/mf/screen/goal" />
       <recent name="$PROJECT_DIR$/lib/features/mf/screen/fund_details" />
       <recent name="$PROJECT_DIR$/lib/features/mf/screen/explore" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/lib/features/sip_process/domain/entity" />
+      <recent name="$PROJECT_DIR$/lib/features/sip_process/data/model" />
+      <recent name="$PROJECT_DIR$/assets/icon" />
       <recent name="$PROJECT_DIR$/lib/features/home/presentation/pages" />
       <recent name="$PROJECT_DIR$/lib/features/cart/presentation/pages" />
-      <recent name="$PROJECT_DIR$/lib/features/dashboard/presentation/widgets" />
-      <recent name="$PROJECT_DIR$/lib/features/dashboard/presentation/pages" />
-      <recent name="$PROJECT_DIR$/lib/features/mf/screen/dashboard/presentation/controllers" />
     </key>
   </component>
   <component name="TaskManager">

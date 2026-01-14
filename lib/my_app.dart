@@ -6,6 +6,7 @@ import 'package:my_sip/core/bindings/bindings.dart';
 import 'package:my_sip/core/utils/theme/theme.dart';
 import 'package:my_sip/features/authentication/presentation/pages/signup/verify_pan_otp.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/welcome_page.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 import 'config/routes/app_pages.dart';
 
@@ -21,19 +22,9 @@ class MyApp extends StatelessWidget {
       splitScreenMode: true,
       child: GetMaterialApp(
         title: 'My SIP',
-        // theme: ThemeData(
-        //   bottomSheetTheme: BottomSheetThemeData(backgroundColor: Colors.white),
-        //   fontFamily: 'Geist',
-        //   scaffoldBackgroundColor: Colors.white,
-        //   appBarTheme: AppBarTheme(
-        //     backgroundColor: Colors.white,
-        //     surfaceTintColor: Colors.white,
-        //   ),
-        // ),
         theme: Utheme.lightTheme,
 
         initialBinding: UBinding(),
-        initialRoute: AppRoutes.splash,
         getPages: AppPages.pages(),
 
         // home: VerifyPanOtp(),
@@ -44,6 +35,16 @@ class MyApp extends StatelessWidget {
         // home: FundDeatailsScreen(),
         // home: NipponFundDetailScreen(),
         // home: WelcomePageScreen(),
+        initialRoute: AppRoutes.splash,
+        builder: (context, widget) => ResponsiveBreakpoints.builder(
+          child: ClampingScrollWrapper.builder(context, widget!),
+          breakpoints: [
+            const Breakpoint(start: 0, end: 450, name: MOBILE),
+            const Breakpoint(start: 451, end: 800, name: TABLET),
+            const Breakpoint(start: 801, end: 1920, name: DESKTOP),
+            const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
+          ],
+        ),
       ),
     );
   }
