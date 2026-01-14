@@ -231,16 +231,14 @@ class BankCard extends StatelessWidget {
 }
 
 class Deleteiconwithcontainer extends StatelessWidget {
-  const Deleteiconwithcontainer({super.key, this.containercolor, this.delete});
+  const Deleteiconwithcontainer({super.key, this.containercolor});
 
   final Color? containercolor;
-  final VoidCallback? delete;
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
         log('delete');
-        delete;
       },
       child: Container(
         height: 40,

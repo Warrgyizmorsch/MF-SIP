@@ -8,6 +8,7 @@ import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
+import 'package:my_sip/config/routes/app_pages.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_calculator.dart';
@@ -54,33 +55,36 @@ class HomeScreen extends StatelessWidget {
                 ),
                 child: SafeArea(
                   bottom: false,
-                  child: CustomProfileAppbar(
-                    onProfiletap: () => Get.to(() => ProfileScreen()),
-                    backgroundColor: Colors.transparent,
-                    greetingName: 'Developer',
-                    role: 'Developer',
-                    iconColor: Ucolors.light,
-                    roleColor: Ucolors.borderColor,
-                    greetingNameColor: Ucolors.light,
-                    avatar: AssetImage(UImages.avatar),
-                    action: [
-                      CompactIcon(
-                        icon: Iconsax.notification,
-                        onPressed: () => Get.toNamed(AppRoutes.notification),
-                        iconColor: Ucolors.light,
-                      ),
-                      CompactIcon(
-                        icon: Iconsax.shopping_cart,
-                        onPressed: () => Get.toNamed(AppRoutes.cart),
-                        iconColor: Ucolors.light,
-                      ),
-                      CompactIcon(
-                        icon: Iconsax.archive_tick,
-                        onPressed: () => Get.toNamed(AppRoutes.watchlist),
-                        iconColor: Ucolors.light,
-                      ),
-                    ],
-                    actionsPadding: EdgeInsets.only(right: 16),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                    child: CustomProfileAppbar(
+                      onProfiletap: () => Get.to(() => ProfileScreen()),
+                      backgroundColor: Colors.transparent,
+                      greetingName: 'Nazzu',
+                      role: 'Developer',
+                      iconColor: Ucolors.light,
+                      roleColor: Ucolors.borderColor,
+                      greetingNameColor: Ucolors.light,
+                      avatar: AssetImage(UImages.avatar),
+                      action: [
+                        CompactIcon(
+                          icon: Iconsax.notification,
+                          onPressed: () => Get.toNamed(AppRoutes.notification),
+                          iconColor: Ucolors.light,
+                        ),
+                        CompactIcon(
+                          icon: Iconsax.shopping_cart,
+                          onPressed: () => Get.toNamed(AppRoutes.cart),
+                          iconColor: Ucolors.light,
+                        ),
+                        CompactIcon(
+                          icon: Iconsax.archive_tick,
+                          onPressed: () => Get.toNamed(AppRoutes.watchlist),
+                          iconColor: Ucolors.light,
+                        ),
+                      ],
+                      actionsPadding: EdgeInsets.zero,
+                    ),
                   ),
                 ),
               ),
@@ -263,17 +267,14 @@ class HomeScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Get.toNamed(AppRoutes.startSipScreen);
-                          },
-                          child: FeatureSection(
-                            featureName: 'Start SIP',
-                            iconPath: UImages.startsip,
-                          ),
+                    Container(
+                      height: isDesktop ? size.height * 0.15 : size.height * 0.21,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment(-0.8, -1.0),
+                          end: Alignment(0.1, 1.0),
+                          stops: const [0.0, 0.9784],
+                          colors: [Color(0xFF07315C), Color(0xFF0280C0)],
                         ),
                         GestureDetector(
                           onTap: () {

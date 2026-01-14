@@ -7,6 +7,7 @@ import 'package:my_sip/core/utils/calculator/model/model.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/table/table_header.dart';
+import 'package:my_sip/features/fund_details/data/models/return_model.dart';
 import 'package:my_sip/features/fund_details/presentation/widgets/return.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/InvestValue.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/sipslidertile.dart';
@@ -138,8 +139,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                               min: 100,
                               max: 100000,
                               // valueFormatter: (val) => '₹ ${val.toInt()}',
-                              suffix: null,
-                              prefix: '₹',
+                              suffix: '₹',
 
                               onChanged: (value) {
                                 setState(() {
@@ -289,36 +289,24 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                                                   InvestValue(
                                                     title: 'Investment amount ',
                                                     // value: '123',
-                                                    // value: sipResult.invested
-                                                    //     .toStringAsFixed(0),
-                                                    value: formatIndianNumber(
-                                                      sipResult.invested,
-                                                    ),
-                                                    inrFomat: false,
+                                                    value: sipResult.invested
+                                                        .toStringAsFixed(0),
 
                                                     color: Colors.grey.shade800,
                                                   ),
                                                   InvestValue(
                                                     title: 'Est Returns ',
                                                     // value: '123',
-                                                    // value: sipResult.returns
-                                                    //     .toStringAsFixed(0),
-                                                    value: formatIndianNumber(
-                                                      sipResult.returns,
-                                                    ),
-                                                    inrFomat: false,
+                                                    value: sipResult.returns
+                                                        .toStringAsFixed(0),
 
                                                     color: Colors.grey.shade800,
                                                   ),
                                                   InvestValue(
                                                     title: 'Total Value',
-                                                    inrFomat: false,
                                                     // value: '123',
-                                                    // value: sipResult.totalValue
-                                                    //     .toStringAsFixed(0),
-                                                    value: formatIndianNumber(
-                                                      sipResult.totalValue,
-                                                    ),
+                                                    value: sipResult.totalValue
+                                                        .toStringAsFixed(0),
 
                                                     color: Ucolors.dark,
                                                   ),
@@ -488,8 +476,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                             min: 100,
                             max: 100000,
                             // valueFormatter: (val) => '₹ ${val.toInt()}',
-                            suffix: null,
-                            prefix: '₹',
+                            suffix: '₹',
 
                             onChanged: (value) {
                               setState(() {
@@ -545,43 +532,29 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                                 InvestValue(
                                   title: 'Investment amount ',
                                   // value: '123',
-                                  // value: lumpsumResult.invested.toStringAsFixed(
-                                  //   0,
-                                  // ),
-                                  inrFomat: false,
-                                  value: formatIndianNumber(
-                                    lumpsumResult.invested,
-                                  ),
+                                  value:
+                                      '${lumpsumResult.invested.toStringAsFixed(0)}',
                                   color: Colors.grey.shade800,
                                 ),
                                 InvestValue(
                                   title: 'Est Returns ',
                                   // value: '123',
-                                  // value: lumpsumResult.returns.toStringAsFixed(
-                                  //   0,
-                                  // ),
-                                  inrFomat: false,
-                                  value: formatIndianNumber(
-                                    lumpsumResult.returns,
-                                  ),
+                                  value:
+                                      '${lumpsumResult.returns.toStringAsFixed(0)}',
 
                                   color: Colors.grey.shade800,
                                 ),
                                 InvestValue(
-                                  inrFomat: false,
                                   title: 'Total Value',
                                   // value: '123',
-                                  // value: lumpsumResult.totalValue
-                                  //     .toStringAsFixed(0),
-                                  value: formatIndianNumber(
-                                    lumpsumResult.totalValue,
-                                  ),
+                                  value:
+                                      '${lumpsumResult.totalValue.toStringAsFixed(0)}',
 
                                   color: Ucolors.dark,
                                 ),
                               ],
-                              piechartvalue1: lumpsumResult.returns,
-                              piechartvalue2: lumpsumResult.invested,
+                              piechartvalue1: 70,
+                              piechartvalue2: 30,
                               piechartcolor2: Ucolors.primary.withOpacity(0.2),
                               piechartcolor1: Ucolors.primary,
                             ),

@@ -14,7 +14,6 @@ import '../../../../fund_details/presentation/pages/fund_deatails.dart';
 import '../../../../fund_details/presentation/widgets/return.dart';
 import 'StepUp/formula/step_up_formula.dart';
 import 'StepUp/model/step_up_model.dart';
-
 class TopUpCalculatorPage extends StatefulWidget {
   const TopUpCalculatorPage({super.key});
 
@@ -240,42 +239,30 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
                                   title2: 'Step-up Profit',
                                   list: [
                                     InvestValue(
-                                      inrFomat: false,
                                       color: Colors.black87,
 
                                       title: 'Step-up Invested',
-                                      value: formatIndianNumber(
-                                        result.stepUp.invested,
-                                      ),
-
-                                      // value: result.stepUp.invested
-                                      //     .toStringAsFixed(0),
+                                      // value: '184777777',
+                                      value: result.stepUp.invested
+                                          .toStringAsFixed(0),
                                       // color: Ucolors.pri,
                                     ),
                                     InvestValue(
                                       color: Colors.black87,
 
                                       title: 'Step-up Future Value',
-                                      inrFomat: false,
-                                      value: formatIndianNumber(
-                                        result.stepUp.value,
-                                      ),
-                                      // value: result.stepUp.value
-                                      //     .toStringAsFixed(
-                                      //       0,
-                                      //     ), // color: Ucolors.dark,
+                                      value: result.stepUp.value
+                                          .toStringAsFixed(
+                                            0,
+                                          ), // color: Ucolors.dark,
                                     ),
                                     InvestValue(
                                       color: Colors.black87,
 
                                       title: 'Step-up Profit',
-                                      inrFomat: false,
-                                      value: formatIndianNumber(
-                                        result.stepUp.profit,
-                                      ),
                                       // value: '184777777',
-                                      // value: result.stepUp.profit
-                                      //     .toStringAsFixed(0),
+                                      value: result.stepUp.profit
+                                          .toStringAsFixed(0),
                                       // color: Ucolors.success,
                                     ),
                                   ],

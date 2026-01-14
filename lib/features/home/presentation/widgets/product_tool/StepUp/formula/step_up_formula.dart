@@ -187,7 +187,6 @@ StepUpSipResult simulateStepUpSip({
   double monthly = baseMonthly;
   double invested = 0;
   double value = 0;
-  final int startYear = DateTime.now().year; // 👈 change here
 
   final List<ChartRow> chartData = [];
   final List<DetailRow> detailRows = [];
@@ -218,9 +217,7 @@ StepUpSipResult simulateStepUpSip({
 
       detailRows.add(
         DetailRow(
-          // year: year,
-          year: (startYear + year - 1), // ✅ 2026, 2027...
-
+          year: year,
           stepInvested: invested,
           stepValue: value,
           stepProfit: value - invested,

@@ -158,14 +158,8 @@ class _FundDeatailsScreenState extends State<FundDeatailsScreen>
               actionsPadding: 10,
               title: 'Fund Details',
               action: [
-                CompactIcon(
-                  icon: Iconsax.shopping_cart,
-                  onPressed: () => Get.toNamed(AppRoutes.cart),
-                ),
-                CompactIcon(
-                  icon: Iconsax.archive_tick,
-                  onPressed: () => Get.toNamed(AppRoutes.watchlist),
-                ),
+                CompactIcon(icon: Iconsax.shopping_cart, onPressed: () {}),
+                CompactIcon(icon: Iconsax.archive_tick, onPressed: () {}),
               ],
             ),
           ),

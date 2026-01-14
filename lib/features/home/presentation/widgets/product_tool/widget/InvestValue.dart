@@ -7,13 +7,11 @@ class InvestValue extends StatelessWidget {
     required this.title,
     required this.value,
     this.color,
-    this.inrFomat = true,
   });
 
   final String title;
   final String value;
   final Color? color;
-  final bool inrFomat;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +22,7 @@ class InvestValue extends StatelessWidget {
         children: [
           Text(title, style: UTextStyles.caption),
           Text(
-            inrFomat ? '₹ $value' : value,
+            '₹ $value',
             style: UTextStyles.medium.copyWith(
               fontWeight: FontWeight.w600,
               // color: Ucolors.dark,

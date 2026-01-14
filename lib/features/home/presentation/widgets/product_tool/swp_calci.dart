@@ -59,7 +59,6 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
               SipSliderTile2(
                 title: 'Withdraw per month',
                 value: monthlyWithdrawal,
-                // value: for,
                 min: 500,
                 max: 1000000,
                 // suffix: '₹',
@@ -168,44 +167,34 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
                                     piechartvalue2: swp.remainingValue,
                                     list: [
                                       InvestValue(
-                                        inrFomat: false,
                                         title: 'Invest Amount',
-                                        value: formatIndianNumber(
-                                          initialInvestment,
-                                        ),
-                                        // value: initialInvestment
-                                        //     .toStringAsFixed(0),
+                                        value: initialInvestment
+                                            .toStringAsFixed(0),
                                       ),
                                       InvestValue(
                                         title: 'Total Withdrawn',
-                                        inrFomat: false,
-                                        value: formatIndianNumber(
-                                          swp.totalWithdrawn,
-                                        ),
-                                        // value: swp.totalWithdrawn
-                                        //     .toStringAsFixed(0),
+                                        // value: formatIndianNumber(
+                                        //   swp.totalWithdrawn,
+                                        // ),
+                                        value: swp.totalWithdrawn
+                                            .toStringAsFixed(0),
                                       ),
                                       InvestValue(
-                                        inrFomat: false,
                                         title: 'Remaining Value',
-                                        value: formatIndianNumber(
-                                          swp.remainingValue,
-                                        ),
-                                        // value: swp.remainingValue
-                                        //     .toStringAsFixed(0),
+                                        // value: formatIndianNumber(
+                                        //   swp.remainingValue,
+                                        // ),
+                                        value: swp.remainingValue
+                                            .toStringAsFixed(0),
                                       ),
                                       InvestValue(
-                                        inrFomat: false,
                                         title: 'Total Profit',
                                         // value: formatIndianNumber(
                                         //   swp.totalProfit,
                                         // ),
-                                        value: formatIndianNumber(
-                                          swp.totalProfit,
+                                        value: swp.totalProfit.toStringAsFixed(
+                                          0,
                                         ),
-                                        // value: swp.totalProfit.toStringAsFixed(
-                                        //   0,
-                                        // ),
                                       ),
                                     ],
                                     piechartcolor1: Ucolors.primary,
