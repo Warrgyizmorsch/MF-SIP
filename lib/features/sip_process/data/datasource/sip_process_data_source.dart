@@ -3,14 +3,19 @@ import 'package:my_sip/core/network/network_api_service.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/features/sip_process/data/model/fund_model.dart';
+import 'package:get/get.dart';
+
 
 class SipProcessDataSource {
-  final NetworkServicesApi _networkServicesApi;
 
-  SipProcessDataSource(this._networkServicesApi);
+  final NetworkServicesApi _networkServicesApi = Get.find<NetworkServicesApi>();
 
-  Future<Either<ApiError, Result<List<FundModel>>>> getSipFunds() async {
+
+  SipProcessDataSource();
+
+  Future<Either<Result<List<FundModel>>, ApiError>> getSipFunds() async {
     try {
+
       final response = await _networkServicesApi.getApi("YOUR_ENDPOINT_HERE");
 
       if (response.statusCode == 200) {
@@ -27,16 +32,16 @@ class SipProcessDataSource {
             .map((item) => FundModel.fromJson(item))
             .toList();
 
-        return Right(Result.success(funds));
+        return Left(Result.success(funds));
 
       } else {
-        return Left(ApiError(
+        return Right(ApiError(
             message: "Server Error: ${response.statusCode}",
             statusCode: response.statusCode
         ));
       }
     } catch (e) {
-      return Left(ApiError(
+      return Right(ApiError(
         message: "Something went wrong: $e",
       ));
     }

@@ -15,6 +15,7 @@ import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/home/presentation/pages/notification_page.dart';
 import '../../features/home/presentation/pages/watchlist_page.dart';
 import '../../features/home/presentation/widgets/product_tool/compare_fund.dart';
+import '../../features/sip_process/presentation/bindings/sip_process_binding.dart';
 import '../../features/sip_process/presentation/pages/monthly_sip_screen.dart';
 import 'app_routes.dart';
 
@@ -64,6 +65,7 @@ class AppPages {
     GetPage(
       name: AppRoutes.selectFundsScreen,
       page: () => const SelectFundsScreen(),
+      binding: SipProcessBinding(),
     ),
 
   ];

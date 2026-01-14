@@ -10,6 +10,5 @@ class UBinding extends Bindings {
   void dependencies() {
     Get.put(QuestionController());
     Get.put(OnboardingController());
-    Get.lazyPut<BaseApiServices>(() => NetworkServicesApi());
-  }
+    Get.lazyPut(() => NetworkServicesApi());  }
 }
