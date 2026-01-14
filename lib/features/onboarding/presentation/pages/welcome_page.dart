@@ -14,8 +14,7 @@ class WelcomePageScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final w = MediaQuery.of(context).size.width;
-    // final h = MediaQuery.of(context).size.height;
+   
 
     return Scaffold(
       appBar: AppBar(),
@@ -86,8 +85,7 @@ class TitleContent1 extends StatelessWidget {
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
     final s = MediaQuery.of(context).size;
-    log('${Get.width} ${Get.height}');
-    log('${s.width} ${s.height}');
+   
     return Expanded(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

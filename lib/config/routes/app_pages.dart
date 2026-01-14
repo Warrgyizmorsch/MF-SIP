@@ -3,6 +3,7 @@ import 'package:my_sip/features/authentication/presentation/bindings/auth_bindin
 import 'package:my_sip/features/authentication/presentation/pages/login/login_page.dart';
 import 'package:my_sip/features/freedom_sip/presentation/pages/freedom_sip_screen.dart';
 import 'package:my_sip/features/freedom_sip/presentation/pages/sip_tenure_screen.dart';
+import 'package:my_sip/features/goal/presentation/pages/ihavegoal.dart';
 import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/splash_screen.dart';
 import 'package:my_sip/features/personalization/screen/profile/details/personal_details.dart';
@@ -57,6 +58,10 @@ class AppPages {
       page: () => const MonthlySipScreen(),
     ),
 
-    GetPage(name: AppRoutes.personaldetails, page: () => PersonalDetailsScreen(),)
+    GetPage(
+      name: AppRoutes.personaldetails,
+      page: () => PersonalDetailsScreen(),
+    ),
+    GetPage(name: AppRoutes.ihavegoal, page: () => IhavegoalPage()),
   ];
 }

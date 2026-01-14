@@ -14,4 +14,5 @@ class AppRoutes {
   static const accumulationanddistributionscreen = '/accumulationanddistributionscreen';
   static const startSipScreen = '/startSipScreen';
   static const personaldetails = '/personaldetails';
+  static const ihavegoal= '/ihavegoal';
 }

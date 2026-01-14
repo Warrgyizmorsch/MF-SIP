@@ -27,7 +27,10 @@ class CartPage extends StatelessWidget {
 }
 
 class CartBottomBar extends StatelessWidget {
-  const CartBottomBar({super.key});
+  const CartBottomBar({super.key, this.title, this.buttonText});
+
+  final String? title;
+  final String?  buttonText;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +50,7 @@ class CartBottomBar extends StatelessWidget {
                 spacing: 0,
                 children: [
                   Text(
-                    'Amount Payable ',
+                    title ?? 'Amount Payable ',
                     style: UTextStyles.small.copyWith(
                       fontSize: 12,
                       color: Colors.grey,
@@ -65,7 +68,7 @@ class CartBottomBar extends StatelessWidget {
                 // height: 50,
                 // width: 50,
                 child: Center(
-                  child: Text('Purchase', style: UTextStyles.buttonText),
+                  child: Text( buttonText ??'Purchase', style: UTextStyles.buttonText),
                 ),
               ),
             ),

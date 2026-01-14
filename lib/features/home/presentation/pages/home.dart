@@ -10,6 +10,7 @@ import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
+import 'package:my_sip/features/goal/presentation/pages/ihavegoal.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_calculator.dart';
 import 'package:my_sip/features/goal/presentation/pages/goal.dart';
 import 'package:my_sip/features/personalization/screen/profile/profile.dart';
@@ -570,7 +571,7 @@ class HomeScreen extends StatelessWidget {
                   //   iconData: Icons.school_rounded,
                   // ),
                   GestureDetector(
-                    onTap: () => Get.to(() => GoalScreen()),
+                    onTap: () => Get.to(() => IhavegoalPage()),
                     child: Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 12,

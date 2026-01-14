@@ -15,6 +15,7 @@ class UTextFormField extends StatelessWidget {
     this.maxLines = 1,
     this.suffix,
     this.readOnly = false,
+    this.backgroundColor,
   });
 
   final String? labelText;
@@ -25,6 +26,7 @@ class UTextFormField extends StatelessWidget {
   final TextEditingController? controller;
   final Widget? suffix;
   final bool readOnly;
+  final Color? backgroundColor;
 
   final int maxLines;
   @override
@@ -32,7 +34,6 @@ class UTextFormField extends StatelessWidget {
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.065,
       child: TextFormField(
-        
         readOnly: readOnly,
 
         controller: controller,
@@ -42,6 +43,10 @@ class UTextFormField extends StatelessWidget {
         keyboardType: keyboardType,
 
         decoration: InputDecoration(
+          fillColor: backgroundColor,
+          filled: backgroundColor != null ? true : false,
+
+          // fillColor: Colors.amber,
           // visualDensity: VisualDensity(vertical: 1),
           labelText: labelText,
           labelStyle: TextStyle(
@@ -90,5 +95,4 @@ class UTextFormField extends StatelessWidget {
       ),
     );
   }
-  
 }
