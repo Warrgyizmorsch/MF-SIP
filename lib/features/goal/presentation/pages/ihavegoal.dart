@@ -26,6 +26,7 @@ class IhavegoalPage extends StatelessWidget {
     'Educatoin',
     'Bike',
     'Personalize',
+    'other'
   ];
 
   final TextEditingController goalName = TextEditingController();
