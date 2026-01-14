@@ -4,8 +4,6 @@ import 'package:get/get.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/bindings/bindings.dart';
 import 'package:my_sip/core/utils/theme/theme.dart';
-import 'package:my_sip/features/authentication/presentation/pages/signup/verify_pan_otp.dart';
-import 'package:my_sip/features/onboarding/presentation/pages/welcome_page.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import 'config/routes/app_pages.dart';
@@ -23,18 +21,8 @@ class MyApp extends StatelessWidget {
       child: GetMaterialApp(
         title: 'My SIP',
         theme: Utheme.lightTheme,
-
         initialBinding: UBinding(),
         getPages: AppPages.pages(),
-
-        // home: VerifyPanOtp(),
-        // home: QuestionScreen(),
-        // home: ComparisonScreen(),
-        // home: NavigationMenuBar(),
-        // home: FundComparisonScreen(),
-        // home: FundDeatailsScreen(),
-        // home: NipponFundDetailScreen(),
-        // home: WelcomePageScreen(),
         initialRoute: AppRoutes.splash,
         builder: (context, widget) => ResponsiveBreakpoints.builder(
           child: ClampingScrollWrapper.builder(context, widget!),

@@ -5,7 +5,6 @@ import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
-import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
@@ -72,12 +71,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
               action: [
                 CompactIcon(
                   icon: Iconsax.shopping_cart,
-                  onPressed: () => Get.toNamed(AppRoutes.cart),
+                  onPressed: () {},
                   iconColor: Ucolors.dark,
                 ),
                 CompactIcon(
                   icon: Iconsax.archive_tick,
-                  onPressed: () => Get.toNamed(AppRoutes.watchlist),
+                  onPressed: () {},
                   iconColor: Ucolors.dark,
                 ),
               ],

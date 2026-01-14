@@ -64,9 +64,9 @@ class ReturnsTableRow extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     // fontSize: fontSize ?? 14,
-                    fontWeight: FontWeight.w400,
+                    fontWeight: FontWeight.w500,
                     // height: 1.3, // controls line spacing
-                    // color: Colors.black,
+                    color: Colors.black,
                   ),
                 ),
               ),
