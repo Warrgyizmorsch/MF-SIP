@@ -137,7 +137,6 @@
 //   return report;
 // }
 
-
 import 'dart:math';
 import '../model/swp_report_row.dart';
 import '../model/swp_result.dart';
@@ -161,6 +160,7 @@ SwpResult calculateSwp({
 
   final List<SwpYearReport> report = [];
   int? exhaustedAtYear;
+  final int startYear = DateTime.now().year; // 👈 change here
 
   for (int month = 1; month <= totalMonths; month++) {
     // 1️⃣ interest first
@@ -186,7 +186,9 @@ SwpResult calculateSwp({
 
       report.add(
         SwpYearReport(
-          year: year,
+          // year: year,
+          year: (startYear + year - 1), // ✅ 2026, 2027...
+
           withdrawn: withdrawn.roundToDouble(),
           remaining: balance.roundToDouble(),
           profit: profit.roundToDouble(),
@@ -206,9 +208,8 @@ SwpResult calculateSwp({
     report: report,
     totalWithdrawn: withdrawn.roundToDouble(),
     remainingValue: last?.remaining ?? 0,
-    totalProfit:
-        (withdrawn + (last?.remaining ?? 0) - initialInvestment)
-            .roundToDouble(),
+    totalProfit: (withdrawn + (last?.remaining ?? 0) - initialInvestment)
+        .roundToDouble(),
     exhaustedAtYear: exhaustedAtYear,
   );
 }

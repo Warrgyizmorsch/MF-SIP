@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/style/padding.dart';
+import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/subtitle_section.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/personalization/screen/profile/details/bank_details.dart';
 import 'package:my_sip/features/personalization/screen/profile/details/document.dart';
 import 'package:my_sip/features/personalization/screen/profile/details/help_support.dart';
 import 'package:my_sip/features/personalization/screen/profile/details/kyc_details.dart';
 import 'package:my_sip/features/personalization/screen/profile/details/nominee_list.dart';
-import 'package:my_sip/features/personalization/screen/profile/details/personal_details.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
@@ -23,6 +24,7 @@ class ProfileScreen extends StatelessWidget {
     // final sz = MediaQuery.of(context).size;
 
     return Scaffold(
+      appBar: CustomAppBarNormal(title: 'Profile', backIcon: false),
       // appBar: AppBar(),
       body: Padding(
         padding: UPadding.screenPadding,
@@ -32,22 +34,21 @@ class ProfileScreen extends StatelessWidget {
               // crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(height: kToolbarHeight),
+                SizedBox(height: kToolbarHeight / 2),
 
                 /// Profile Header
                 ProfileHeader(
                   onTap: () {},
-                  name: 'Pratik',
+                  name: 'Developer',
                   img: UImages.avatar,
-                  subtitle: 'abc@gmail.com',
+                  subtitle: 'developer@gmail.com',
                   icon: Icons.edit,
                 ),
 
                 /// Personal Details Button
-                PersonalDetailsButton(
-                  onPressed: () => Get.to(() => PersonalDetailsScreen()),
-                ),
-
+                // PersonalDetailsButton(
+                //   onPressed: () => Get.to(() => PersonalDetailsScreen()),
+                // ),
                 SizedBox(height: 20),
 
                 /// Upgrade Banner
@@ -153,6 +154,12 @@ class ActivityGeneralSection extends StatelessWidget {
             onTap: () => Get.to(() => KycDetailsScreen()),
             title: 'KYC Details',
             images: UImages.archiveadd,
+          ),
+          Listtilecustom(
+            // onTap: () => Get.to(() => PersonalDetailsScreen()),
+            onTap: () => Get.toNamed(AppRoutes.personaldetails),
+            title: 'Personal Details',
+            images: UImages.verify,
           ),
           Listtilecustom(
             onTap: () => Get.to(() => BankDetailsScreen()),
