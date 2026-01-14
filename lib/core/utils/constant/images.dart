@@ -26,7 +26,7 @@ class UImages {
   static const String message = 'assets/icon/msg.png';
   static const String success = 'assets/images/successcreateacc.png';
   static const String comparison = 'assets/images/Comparison.png';
-  static const String avatar = 'assets/images/avatarr.png';
+  static const String avatar = 'assets/images/image.png';
 
   static const String sbi = 'assets/logo/sbi.png';
   static const String icici = 'assets/logo/icicibank.png';
