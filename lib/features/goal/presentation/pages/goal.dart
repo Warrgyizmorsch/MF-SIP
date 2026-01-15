@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 
@@ -53,7 +55,7 @@ class GoalScreen extends StatelessWidget {
             const SizedBox(height: 25),
 
             UElevatedBUtton(
-              onPressed: () {},
+              onPressed: () => Get.toNamed(AppRoutes.ihavegoal),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -61,7 +63,6 @@ class GoalScreen extends StatelessWidget {
                   const SizedBox(width: 10),
                   const Icon(Icons.add, color: Ucolors.light),
                 ],
-                
               ),
             ),
           ],

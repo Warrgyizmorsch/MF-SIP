@@ -538,30 +538,36 @@ class HomeScreen extends StatelessWidget {
                 ),
                 delegate: SliverChildListDelegate([
                   GoalBaseSIPCard(
-                    onTap: () => Get.to(() => GoalScreen()),
+                    // onTap: () => Get.to(() => GoalScreen()),
+                    onTap: () => Get.to(() => IhavegoalPage()),
+
                     title: 'Car Goal',
                     iconData: Icons.directions_car_filled_rounded,
                   ),
                   GoalBaseSIPCard(
-                    onTap: () => Get.to(() => GoalScreen()),
+                    // onTap: () => Get.to(() => GoalScreen()),
+                    onTap: () => Get.to(() => IhavegoalPage()),
 
                     title: 'Bike Goal',
                     iconData: Icons.pedal_bike_rounded,
                   ),
                   GoalBaseSIPCard(
-                    onTap: () => Get.to(() => GoalScreen()),
+                    // onTap: () => Get.to(() => GoalScreen()),
+                    onTap: () => Get.to(() => IhavegoalPage()),
 
                     title: 'Marriage Goal',
                     iconData: Icons.favorite_border_outlined,
                   ),
                   GoalBaseSIPCard(
-                    onTap: () => Get.to(() => GoalScreen()),
+                    // onTap: () => Get.to(() => GoalScreen()),
+                    onTap: () => Get.to(() => IhavegoalPage()),
 
                     title: 'Vacation Goal',
                     iconData: Icons.flight_takeoff_rounded,
                   ),
                   GoalBaseSIPCard(
-                    onTap: () => Get.to(() => GoalScreen()),
+                    // onTap: () => Get.to(() => GoalScreen()),
+                    onTap: () => Get.to(() => IhavegoalPage()),
 
                     title: 'Home Goal',
                     iconData: Icons.home_rounded,

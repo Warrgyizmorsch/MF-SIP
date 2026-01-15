@@ -17,4 +17,5 @@ class AppRoutes {
   static const ihavegoal= '/ihavegoal';
   static const successfullcreategoal= '/successfullcreategoal';
   static const goalviewcard= '/goalviewcard';
+  static const goaldetails= '/goaldetails';
 }
