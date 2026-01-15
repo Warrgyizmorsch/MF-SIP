@@ -3,6 +3,8 @@ import 'package:my_sip/features/authentication/presentation/bindings/auth_bindin
 import 'package:my_sip/features/authentication/presentation/pages/login/login_page.dart';
 import 'package:my_sip/features/freedom_sip/presentation/pages/freedom_sip_screen.dart';
 import 'package:my_sip/features/freedom_sip/presentation/pages/sip_tenure_screen.dart';
+import 'package:my_sip/features/goal/presentation/pages/goalsuccess.dart';
+import 'package:my_sip/features/goal/presentation/pages/goalviewcard.dart';
 import 'package:my_sip/features/goal/presentation/pages/ihavegoal.dart';
 import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/splash_screen.dart';
@@ -63,5 +65,10 @@ class AppPages {
       page: () => PersonalDetailsScreen(),
     ),
     GetPage(name: AppRoutes.ihavegoal, page: () => IhavegoalPage()),
+    GetPage(
+      name: AppRoutes.successfullcreategoal,
+      page: () => GoalsuccessPage(),
+    ),
+    GetPage(name: AppRoutes.goalviewcard, page: () => GoalviewcardPage()),
   ];
 }

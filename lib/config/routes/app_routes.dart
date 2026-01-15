@@ -15,4 +15,6 @@ class AppRoutes {
   static const startSipScreen = '/startSipScreen';
   static const personaldetails = '/personaldetails';
   static const ihavegoal= '/ihavegoal';
+  static const successfullcreategoal= '/successfullcreategoal';
+  static const goalviewcard= '/goalviewcard';
 }

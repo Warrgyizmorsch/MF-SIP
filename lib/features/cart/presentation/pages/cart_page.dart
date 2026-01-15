@@ -21,16 +21,25 @@ class CartPage extends StatelessWidget {
         itemCount: 5,
       ),
 
-      bottomNavigationBar: SafeArea(top: false, child: CartBottomBar()),
+      bottomNavigationBar: SafeArea(top: false, child: CartBottomBar(ontap: () {
+        
+      },)),
     );
   }
 }
 
 class CartBottomBar extends StatelessWidget {
-  const CartBottomBar({super.key, this.title, this.buttonText});
+  const CartBottomBar({
+    super.key,
+    this.title,
+    this.buttonText,
+    this.amountColor, required this.ontap,
+  });
 
   final String? title;
-  final String?  buttonText;
+  final String? buttonText;
+  final Color? amountColor;
+  final VoidCallback ontap;
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +67,10 @@ class CartBottomBar extends StatelessWidget {
                   ),
                   Text(
                     '₹ 5,000',
-                    style: TextStyle(fontSize: 25, color: Ucolors.success),
+                    style: TextStyle(
+                      fontSize: 25,
+                      color: amountColor ?? Ucolors.success,
+                    ),
                   ),
                 ],
               ),
@@ -66,9 +78,13 @@ class CartBottomBar extends StatelessWidget {
             Expanded(
               child: UElevatedBUtton(
                 // height: 50,
+                onPressed: ontap,
                 // width: 50,
                 child: Center(
-                  child: Text( buttonText ??'Purchase', style: UTextStyles.buttonText),
+                  child: Text(
+                    buttonText ?? 'Purchase',
+                    style: UTextStyles.buttonText,
+                  ),
                 ),
               ),
             ),

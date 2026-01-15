@@ -19,7 +19,7 @@ class _PeriodSelectorState extends State<PeriodSelector> {
       height: 40,
       padding: const EdgeInsets.symmetric(horizontal: 6),
       decoration: BoxDecoration(
-        color: Ucolors.borderside,
+        color: Color(0xffF3F4F6),
         borderRadius: BorderRadius.circular(20),
       ),
       child: SingleChildScrollView(
@@ -33,11 +33,12 @@ class _PeriodSelectorState extends State<PeriodSelector> {
                 setState(() => selectedIndex = index);
               },
               child: AnimatedContainer(
-                
                 duration: const Duration(milliseconds: 200),
                 margin: const EdgeInsets.symmetric(horizontal: 6),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: isSelected ? Colors.white : Colors.transparent,
                   borderRadius: BorderRadius.circular(16),
@@ -47,9 +48,7 @@ class _PeriodSelectorState extends State<PeriodSelector> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: isSelected
-                        ? Ucolors.primary
-                        : Colors.grey,
+                    color: isSelected ? Ucolors.primary : Colors.grey,
                   ),
                 ),
               ),
