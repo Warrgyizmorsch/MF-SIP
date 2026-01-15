@@ -19,7 +19,9 @@ import '../../features/home/presentation/pages/notification_page.dart';
 import '../../features/home/presentation/pages/watchlist_page.dart';
 import '../../features/home/presentation/widgets/product_tool/compare_fund.dart';
 import '../../features/sip_process/presentation/bindings/sip_process_binding.dart';
+import '../../features/sip_process/presentation/pages/investing_approach_screen.dart';
 import '../../features/sip_process/presentation/pages/monthly_sip_screen.dart';
+import '../../features/sip_process/presentation/pages/select_funds_screen.dart';
 import 'app_routes.dart';
 
 class AppPages {

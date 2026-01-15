@@ -13,6 +13,8 @@ class AppRoutes {
   static const cart = '/cart';
   static const accumulationanddistributionscreen = '/accumulationanddistributionscreen';
   static const startSipScreen = '/startSipScreen';
+  static const investingApproachScreen = '/investingApproachScreen';
+  static const selectFundsScreen = '/selectFundsScreen';
   static const personaldetails = '/personaldetails';
   static const ihavegoal= '/ihavegoal';
   static const successfullcreategoal= '/successfullcreategoal';
