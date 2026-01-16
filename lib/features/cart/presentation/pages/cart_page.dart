@@ -6,7 +6,7 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
-import 'package:my_sip/features/personalization/screen/profile/details/bank_details.dart';
+import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({super.key});

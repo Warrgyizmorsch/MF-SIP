@@ -12,20 +12,21 @@
     <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/config/routes/app_routes.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/routes/app_routes.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/network/network_api_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/network/network_api_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/utils/constant/appUrl.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/utils/constant/appUrl.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/utils/constant/images.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/utils/constant/images.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/features/authentication/data/datasources/auth_remote_data_source.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/data/datasources/auth_remote_data_source.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/data/models/auth_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/data/models/auth_model.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/data/repositories/auth_repository_impl.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/data/repositories/auth_repository_impl.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/domain/entitites/auth_entity.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/domain/entitites/auth_entity.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/domain/repositories/auth_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/domain/repositories/auth_repository.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/domain/usecases/auth_use_cases.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/domain/usecases/auth_use_cases.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/presentation/bindings/auth_binding.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/presentation/bindings/auth_binding.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/presentation/controllers/auth/auth_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/presentation/controllers/auth/auth_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/presentation/pages/login/login_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/presentation/pages/login/login_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/presentation/pages/signup/register_account.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/presentation/pages/signup/register_account.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/cart/presentation/pages/cart_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/cart/presentation/pages/cart_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/dashboard/presentation/pages/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/dashboard/presentation/pages/dashboard.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/explore/presentation/pages/explore.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/explore/presentation/pages/explore.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/screen/profile/details/add_another_bank.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/pages/add_another_bank.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/screen/profile/details/bank_details.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/widgets/bank_details.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/screen/profile/details/document.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/widgets/document.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/screen/profile/details/help_support.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/widgets/help_support.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/screen/profile/details/kyc_details.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/widgets/kyc_details.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/screen/profile/details/nominee_details.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/widgets/nominee_details.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/screen/profile/details/nominee_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/widgets/nominee_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/screen/profile/details/personal_details.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/widgets/personal_details.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/screen/profile/profile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/pages/profile.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/navigation_menu_bar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/navigation_menu_bar.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -107,11 +108,11 @@
       <recent name="$PROJECT_DIR$/lib/features/mf/screen/fund_details" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/lib/features/personalization/presentation/pages" />
+      <recent name="$PROJECT_DIR$/lib/features/personalization/presentation/widgets" />
       <recent name="$PROJECT_DIR$/lib/features/home/presentation/pages" />
       <recent name="$PROJECT_DIR$/lib/features/cart/presentation/pages" />
       <recent name="$PROJECT_DIR$/lib/features/dashboard/presentation/widgets" />
-      <recent name="$PROJECT_DIR$/lib/features/dashboard/presentation/pages" />
-      <recent name="$PROJECT_DIR$/lib/features/mf/screen/dashboard/presentation/controllers" />
     </key>
   </component>
   <component name="TaskManager">

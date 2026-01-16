@@ -33,7 +33,7 @@ class AuthRemoteDataSource {
 
   Future<Either<Result<RegisterResponseModel>,ApiError>>registerUser(Map<String,dynamic> data) async {
     try {
-      final resp = await _apiService.postFormData("${Appurl.baseUrl}/register", data,);
+      final resp = await _apiService.postFormData("${Appurl.baseUrl}/api/register", data,);
       createLog("[Auth Remote Data Source] Register Response: ${resp.body}");
       if(resp.statusCode == 200){
         final result = RegisterResponseModel.fromJson(resp.body);
