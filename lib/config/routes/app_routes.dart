@@ -3,6 +3,7 @@ class AppRoutes {
   static const navMenuBar = '/navMenuBar';
   static const splash = '/';
   static const login = '/login';
+  static const registerAccountScreen = '/registerAccountScreen';
   static const freedomSipScreen = '/freedomSipScreen';
   static const comparefund = '/comparefund';
   static const sipTenureScreen = '/sipTenureScreen';

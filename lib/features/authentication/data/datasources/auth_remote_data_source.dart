@@ -16,7 +16,7 @@ class AuthRemoteDataSource {
   // model for datasource
   Future<Either<Result<LoginResponseModel>,ApiError>>loginWithEmailAndPassword(Map<String,dynamic> data) async {
     try {
-      final resp = await _apiService.postApi("${Appurl.baseUrl}/login", data);
+      final resp = await _apiService.postFormData("${Appurl.baseUrl}/login", data);
       createLog("[Auth Remote Data Source] Login Response: ${resp.body}");
       if(resp.statusCode == 200){
         final result = LoginResponseModel.fromJson(resp.body);
@@ -27,6 +27,23 @@ class AuthRemoteDataSource {
       }
     } catch(e){
       return Right(ApiError(message: 'Login Failed with Exception $e'));
+    }
+  }
+
+
+  Future<Either<Result<RegisterResponseModel>,ApiError>>registerUser(Map<String,dynamic> data) async {
+    try {
+      final resp = await _apiService.postFormData("${Appurl.baseUrl}/register", data,);
+      createLog("[Auth Remote Data Source] Register Response: ${resp.body}");
+      if(resp.statusCode == 200){
+        final result = RegisterResponseModel.fromJson(resp.body);
+
+        return Left(Result.success(result));
+      } else {
+        return Right(ApiError(message: 'Register Failed'));
+      }
+    } catch(e){
+      return Right(ApiError(message: 'Register Failed with Exception $e'));
     }
   }
 }

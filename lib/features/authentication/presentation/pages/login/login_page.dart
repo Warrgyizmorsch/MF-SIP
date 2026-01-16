@@ -8,6 +8,8 @@ import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/common/widget/text/subtitle_section.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/common/widget/top_bottom_style/top_bottom_style.dart';
+import 'package:my_sip/config/routes/app_pages.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/authentication/presentation/pages/login/otp_verification.dart';
 import 'package:my_sip/features/authentication/presentation/widgets/creat_acc_if_not.dart';
 import 'package:my_sip/features/authentication/presentation/widgets/term_policy.dart';
@@ -103,7 +105,7 @@ class LoginPage extends StatelessWidget {
                                 firstPart: 'Dont have an account? ',
                                 textButton: 'Create Account',
                                 voidCallback: () =>
-                                    Get.to(() => RegisterAccountScreen()),
+                                    Get.toNamed(AppRoutes.registerAccountScreen),
                               ),
 
                               SizedBox(height: Get.height * 0.02),

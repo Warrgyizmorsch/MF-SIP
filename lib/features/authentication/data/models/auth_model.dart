@@ -74,3 +74,20 @@ class UserModel {
 
 
 }
+
+
+class RegisterResponseModel {
+  final String? token;
+  final String? message;
+  final UserModel userModel;
+
+  RegisterResponseModel({required this.token, required this.message, required this.userModel});
+
+  factory RegisterResponseModel.fromJson(Map<String, dynamic> json) {
+    return RegisterResponseModel(
+      token: json['token'],
+      message: json['message'],
+      userModel: UserModel.fromJson(json),
+    );
+  }
+}

@@ -317,11 +317,11 @@ class _HeadersInterceptor extends Interceptor {
     final version = await _getAppVersion();
     final platform = _getPlatformHeader();
 
-    options.headers.addAll({
-      'app': 'true',
-      'platform': platform,
-      'version': version,
-    });
+    // options.headers.addAll({
+    //   'app': 'true',
+    //   'platform': platform,
+    //   'version': version,
+    // });
 
     createLog("[API] Request: ${options.method} ${options.uri}");
     createLog("[API] Headers: ${options.headers}");

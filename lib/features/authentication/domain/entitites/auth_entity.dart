@@ -17,6 +17,20 @@ class LoginResponseEntity  extends Equatable{
 }
 
 
+class RegisterResponseEntity extends Equatable {
+  final String? token;
+  final String? message;
+  final UserModel userModel;
+
+  const RegisterResponseEntity({required this.token, required this.message, required this.userModel});
+
+  @override
+  List<Object?> get props => [
+    token, message, userModel
+  ];
+}
+
+
 
 class UserEntity extends Equatable {
   final int id;
@@ -71,7 +85,15 @@ extension LoginResponseEntityx on LoginResponseModel {
 }
 
 
-
+extension RegisterResponseModelx on RegisterResponseModel {
+  RegisterResponseEntity toEntity() {
+    return RegisterResponseEntity(
+      token: token,
+      message: message,
+      userModel: userModel,
+    );
+  }
+}
 
 extension UserModelx on UserModel {
   UserEntity toEntity() {

@@ -1,3 +1,3 @@
 class Appurl {
-  static const baseUrl = "";
+  static const baseUrl = "https://sip-backend.londonstreetstore.com/public";
 }

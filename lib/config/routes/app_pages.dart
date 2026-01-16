@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:my_sip/features/authentication/presentation/bindings/auth_binding.dart';
 import 'package:my_sip/features/authentication/presentation/pages/login/login_page.dart';
+import 'package:my_sip/features/authentication/presentation/pages/signup/register_account.dart';
 import 'package:my_sip/features/freedom_sip/presentation/pages/freedom_sip_screen.dart';
 import 'package:my_sip/features/freedom_sip/presentation/pages/sip_tenure_screen.dart';
 import 'package:my_sip/features/goal/presentation/pages/goaldetails.dart';
@@ -32,6 +33,11 @@ class AppPages {
     GetPage(
       name: AppRoutes.login,
       page: () => const LoginPage(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.registerAccountScreen,
+      page: () => const RegisterAccountScreen(),
       binding: AuthBinding(),
     ),
     GetPage(
