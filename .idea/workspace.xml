@@ -10,13 +10,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/data/datasources/auth_remote_data_source.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/data/datasources/auth_remote_data_source.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/data/models/auth_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/data/models/auth_model.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/data/repositories/auth_repository_impl.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/data/repositories/auth_repository_impl.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/domain/entitites/auth_entity.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/domain/entitites/auth_entity.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/domain/repositories/auth_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/domain/repositories/auth_repository.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/domain/usecases/login_use_case.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/domain/usecases/login_use_case.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/presentation/controllers/auth/auth_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/presentation/controllers/auth/auth_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/services/session_manager.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/session_manager.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,7 +70,7 @@
     "cidr.known.project.marker": "true",
     "com.google.services.firebase.aqiPopupShown": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "nithik-branch",
+    "git-widget-placeholder": "nazzu",
     "io.flutter.project.isFirstOpen": "true",
     "io.flutter.reload.alreadyRun": "true",
     "last_opened_file_path": "/Users/nithikmali/StudioProjects/MF-SIP/lib/features/mf/screen/goal",
