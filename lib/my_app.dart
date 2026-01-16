@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/bindings/bindings.dart';
 import 'package:my_sip/core/utils/theme/theme.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 import 'config/routes/app_pages.dart';
 
@@ -19,12 +20,19 @@ class MyApp extends StatelessWidget {
       splitScreenMode: true,
       child: GetMaterialApp(
         title: 'My SIP',
-
         theme: Utheme.lightTheme,
-
         initialBinding: UBinding(),
-        initialRoute: AppRoutes.splash,
         getPages: AppPages.pages(),
+        initialRoute: AppRoutes.splash,
+        builder: (context, widget) => ResponsiveBreakpoints.builder(
+          child: ClampingScrollWrapper.builder(context, widget!),
+          breakpoints: [
+            const Breakpoint(start: 0, end: 450, name: MOBILE),
+            const Breakpoint(start: 451, end: 800, name: TABLET),
+            const Breakpoint(start: 801, end: 1920, name: DESKTOP),
+            const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
+          ],
+        ),
       ),
     );
   }

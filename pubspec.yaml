@@ -36,11 +36,14 @@ dependencies:
   mime: ^2.0.0 # post form image upload Unit8
   dio: ^5.9.0 # api calls
   flutter_secure_storage: ^9.2.4 # local storage
+  shared_preferences: ^2.5.4
+  responsive_framework: ^1.5.1
   dartz: ^0.10.1   # data sources, repositories & useCases
   equatable: ^2.0.7
   intl: ^0.20.2
   percent_indicator: ^4.2.5
   dotted_border: ^3.1.0
+
 
 
 
