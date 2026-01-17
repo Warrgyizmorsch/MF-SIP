@@ -1,4 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
 
 Future<String?> showSelectionBottomSheet({
   required BuildContext context,
@@ -7,6 +10,7 @@ Future<String?> showSelectionBottomSheet({
   String? selectedValue,
   required TextEditingController controller,
   bool search = true,
+  List<String>? imgLogo,
 }) {
   return showModalBottomSheet<String>(
     context: context,
@@ -112,8 +116,28 @@ Future<String?> showSelectionBottomSheet({
                               Divider(height: 1, color: Colors.grey.shade300),
                           itemBuilder: (context, index) {
                             final item = filteredItems[index];
+                            // final img = imgLogo![index];
 
                             return ListTile(
+                              leading:
+                                  (imgLogo != null && index < imgLogo.length)
+                                  ? CircleAvatar(
+                                      backgroundImage: NetworkImage(
+                                        imgLogo[index],
+                                      ),
+                                    )
+                                  : null,
+                              // leading:
+                              //     (imgLogo != null && imgLogo.length > index)
+                              //     ? CircleAvatar(
+                              //         backgroundImage: NetworkImage(
+                              //           imgLogo[index],
+                              //         ),
+                              //       )
+                              //     : null,
+                              // CircleAvatar(
+                              //   backgroundImage: NetworkImage(img),
+                              // ),
                               // titleAlignment: ListTileTitleAlignment.threeLine,
                               title: Text(item),
                               trailing: Radio<String>(

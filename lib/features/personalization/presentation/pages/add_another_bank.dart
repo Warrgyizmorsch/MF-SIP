@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
@@ -8,39 +11,13 @@ import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/features/personalization/controller/bank_list_controller.dart';
 
-class AddAnotherBankPage extends StatelessWidget {
+class AddAnotherBankPage extends GetView<BankController> {
   AddAnotherBankPage({super.key});
   final TextEditingController bank = TextEditingController();
-  final List<String> banks = [
-    'State Bank of India',
-    'HDFC Bank',
-    'ICICI Bank',
-    'Axis Bank',
-    'Punjab National Bank',
-    'Bank of Baroda',
-    'Canara Bank',
-    'Union Bank of India',
-    'Bank of India',
-    'Indian Bank',
-    'Central Bank of India',
-    'Indian Overseas Bank',
-    'UCO Bank',
-    'Punjab & Sind Bank',
-    'IDBI Bank',
-    'Kotak Mahindra Bank',
-    'IndusInd Bank',
-    'Yes Bank',
-    'Federal Bank',
-    'RBL Bank',
-    'South Indian Bank',
-    'Bandhan Bank',
-    'IDFC First Bank',
-    'AU Small Finance Bank',
-    'Equitas Small Finance Bank',
-    'Ujjivan Small Finance Bank',
-    'Jana Small Finance Bank',
-  ];
+
+  // final BankController controller = Get.find<BankController>();
 
   @override
   Widget build(BuildContext context) {
@@ -64,28 +41,45 @@ class AddAnotherBankPage extends StatelessWidget {
             ),
             Gap(20),
 
-            InkWell(
-              onTap: () {
-                FocusScope.of(context).unfocus();
-                showSelectionBottomSheet(
-                  controller: bank,
-                  context: context,
-                  title: 'Search',
-                  items: banks,
-                  selectedValue: bank.text,
-                );
-              },
+            Obx(() {
+              log("Current Bank List Length: ${controller.bankList.length}");
+              return InkWell(
+                onTap: () {
+                  log(
+                    "Current Bank List Length: ${controller.bankList.length}",
+                  );
+                  controller.isLoading.value || controller.bankList.isEmpty
+                      ? null
+                      : FocusScope.of(context).unfocus();
+                  showSelectionBottomSheet(
+                    controller: bank,
+                    context: context,
+                    title: 'Search',
+                    imgLogo: controller.bankList
+                        .map((element) => element.bankLogo ?? '')
+                        .toList(),
+                    items: controller.bankList
+                        .map((element) => element.bankName ?? '')
+                        .toList(),
+                    selectedValue: bank.text,
+                  );
+                },
 
-              child: AbsorbPointer(
-                absorbing: true,
-                child: UTextFormField(
-                  sufixIcon: Icons.arrow_drop_down,
-                  controller: bank,
-                  prefixIcon: Iconsax.bank,
-                  hintText: 'Enter Bank Name',
+                child: AbsorbPointer(
+                  absorbing: true,
+                  child: UTextFormField(
+                    sufixIcon: controller.isLoading.value
+                        ? null
+                        : Icons.arrow_drop_down,
+                    controller: bank,
+                    prefixIcon: Iconsax.bank,
+                    hintText: controller.isLoading.value
+                        ? 'Loading banks'
+                        : 'Enter Bank Name',
+                  ),
                 ),
-              ),
-            ),
+              );
+            }),
             Gap(15),
             UTextFormField(
               prefixIcon: Icons.onetwothree,

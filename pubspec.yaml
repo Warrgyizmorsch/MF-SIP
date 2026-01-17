@@ -43,6 +43,7 @@ dependencies:
   intl: ^0.20.2
   percent_indicator: ^4.2.5
   dotted_border: ^3.1.0
+  cached_network_image: ^3.4.1
 
 
 

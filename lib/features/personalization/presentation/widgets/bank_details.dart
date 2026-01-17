@@ -7,6 +7,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/personalization/presentation/pages/add_another_bank.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
@@ -80,7 +81,7 @@ class BankDetailsScreen extends StatelessWidget {
 
             //Button
             UElevatedBUtton(
-              onPressed: () => Get.to(() => AddAnotherBankPage()),
+              onPressed: () => Get.toNamed(AppRoutes.addanotherbank),
               outlined: true,
               child: Center(
                 child: Text(

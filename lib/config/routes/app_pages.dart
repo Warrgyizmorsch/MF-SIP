@@ -10,6 +10,8 @@ import 'package:my_sip/features/goal/presentation/pages/goalviewcard.dart';
 import 'package:my_sip/features/goal/presentation/pages/ihavegoal.dart';
 import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/splash_screen.dart';
+import 'package:my_sip/features/personalization/presentation/bindings/BankBinding.dart';
+import 'package:my_sip/features/personalization/presentation/pages/add_another_bank.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
 import '../../features/freedom_sip/presentation/pages/accumulationAndDistributionScreen.dart';
 import '../../features/freedom_sip/presentation/pages/growth_scheme_screen.dart';
@@ -91,5 +93,11 @@ class AppPages {
     ),
     GetPage(name: AppRoutes.goalviewcard, page: () => GoalviewcardPage()),
     GetPage(name: AppRoutes.goaldetails, page: () => GoaldetailsPage()),
+
+    GetPage(
+      name: AppRoutes.addanotherbank,
+      page: () => AddAnotherBankPage(),
+      binding: Bankbinding()
+    ),
   ];
 }

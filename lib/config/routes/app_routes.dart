@@ -21,4 +21,5 @@ class AppRoutes {
   static const successfullcreategoal= '/successfullcreategoal';
   static const goalviewcard= '/goalviewcard';
   static const goaldetails= '/goaldetails';
+  static const addanotherbank= '/addanotherbank';
 }

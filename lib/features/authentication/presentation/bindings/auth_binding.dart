@@ -13,18 +13,29 @@ import '../controllers/auth/auth_controller.dart';
 class AuthBinding extends Bindings {
   @override
   void dependencies() {
+    Get.lazyPut(() => NetworkServicesApi());
+
     // 1. Data Source (Lowest Level)
-    Get.lazyPut<AuthRemoteDataSource>(() => AuthRemoteDataSource(Get.find<NetworkServicesApi>()),);
+    Get.lazyPut<AuthRemoteDataSource>(
+      () => AuthRemoteDataSource(Get.find<NetworkServicesApi>()),
+    );
 
     // 2. Repository (Depends on Data Source)
-    Get.lazyPut<AuthRepository>(() => AuthRepositoryImpl(Get.find<AuthRemoteDataSource>()),);
+    Get.lazyPut<AuthRepository>(
+      () => AuthRepositoryImpl(Get.find<AuthRemoteDataSource>()),
+    );
 
     // 3. Use Cases (Depends on Repository)
     Get.lazyPut(() => LoginUseCase(Get.find<AuthRepository>()));
     Get.lazyPut(() => RegisterUseCase(Get.find<AuthRepository>()));
 
     // 4. Wrapper Use Case (Depends on LoginUseCase)
-    Get.lazyPut(() => AuthUseCases(loginUseCase: Get.find<LoginUseCase>(), registerUseCase: Get.find<RegisterUseCase>()));
+    Get.lazyPut(
+      () => AuthUseCases(
+        loginUseCase: Get.find<LoginUseCase>(),
+        registerUseCase: Get.find<RegisterUseCase>(),
+      ),
+    );
 
     // 5. Controller (Highest Level - Depends on Wrapper)
     Get.lazyPut(() => AuthController(authUseCases: Get.find<AuthUseCases>()));
