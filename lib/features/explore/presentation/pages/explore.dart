@@ -99,7 +99,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     ),
                     child: CompactIcon(
                       icon: Icons.tune,
-                      onPressed: () => Get.to(() => Filterpage()),
+                      // onPressed: () => Get.to(() => Filterpage()),
+                      onPressed: () => Get.toNamed(AppRoutes.filterpage),
                     ),
                   ),
 

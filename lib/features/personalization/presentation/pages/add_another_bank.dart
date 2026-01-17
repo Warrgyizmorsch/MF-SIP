@@ -11,7 +11,7 @@ import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
-import 'package:my_sip/features/personalization/controller/bank_list_controller.dart';
+import 'package:my_sip/features/personalization/presentation/controllers/bank_list_controller.dart';
 
 class AddAnotherBankPage extends GetView<BankController> {
   AddAnotherBankPage({super.key});

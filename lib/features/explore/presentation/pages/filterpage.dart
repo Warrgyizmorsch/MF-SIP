@@ -197,9 +197,11 @@
 //   }
 // }
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 
 import '../../../fund_details/presentation/pages/fund_deatails.dart';
 
@@ -639,6 +641,10 @@ class FundHousePanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // final controller= Get.put(FundhouseController())
+    //  Get.find()
+    // final controller = Get.find<FundhouseController>();
+
     final funds = [
       'Axis Mutual Fund',
       'HDFC Mutual Fund',

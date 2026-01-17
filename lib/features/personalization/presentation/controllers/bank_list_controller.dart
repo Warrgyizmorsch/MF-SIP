@@ -7,7 +7,7 @@ class BankController extends GetxController {
 
   BankController(this._getBankUseCases);
 
-  var isLoading = false.obs;
+  RxBool isLoading = false.obs;
   var bankList = <BankItemEntity>[].obs;
   var errorMessage = ''.obs;
 

@@ -22,4 +22,5 @@ class AppRoutes {
   static const goalviewcard= '/goalviewcard';
   static const goaldetails= '/goaldetails';
   static const addanotherbank= '/addanotherbank';
+  static const filterpage= '/filterpage';
 }

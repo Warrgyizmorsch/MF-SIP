@@ -1,8 +1,7 @@
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/src/bindings_interface.dart';
+
 import 'package:my_sip/core/network/network_api_service.dart';
-import 'package:my_sip/features/personalization/controller/bank_list_controller.dart';
+import 'package:my_sip/features/personalization/presentation/controllers/bank_list_controller.dart';
 import 'package:my_sip/features/personalization/data/datasource/personalisation_remote_data_source.dart';
 import 'package:my_sip/features/personalization/data/repository/personalisation_repository_impl.dart';
 import 'package:my_sip/features/personalization/domain/repository/personalisation_repository.dart';

@@ -9,7 +9,7 @@ class BankListResponseModel {
   factory BankListResponseModel.fromJson(Map<String, dynamic> json) {
     return BankListResponseModel(
         success: json.parse<bool>('success'),
-        data: json.parseListOf('data', ((e) => BankItemModel.fromJson(e))) ?? [],
+        data: json.parseListOf('data', ((e) => BankItemModel.fromJson(e)) ) ?? [],
     );
   }
 
