@@ -41,8 +41,8 @@ class FundHouseItemModel {
       amcCode: json.parse<String>('amc_code'),
       amcName: json.parse<String>('amc_name'),
       amcLogo: json.parse<String>('amc_logo'),
-      // status: json.parse<int>('status'),
-      status: int.tryParse(json.parse<String>('status') ?? ''),
+      status: json.parse<int>('status'),
+      // status: int.tryParse(json.parse<String>('status') ?? ''),
       createdAt: json.parse<String>('created_at'),
       amcLogoURl: json.parse<String>('amc_logo_url'),
     );

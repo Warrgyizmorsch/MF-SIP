@@ -11,7 +11,7 @@ class FundHouseRepoImple extends FundHouseRepository {
   FundHouseRepoImple(this._remoteDs);
 
   @override
-  Future<Either<Result<FundHouseItemEntity>, ApiError>> getFundHouse(
+  Future<Either<Result<FundHouseResponseEntity>, ApiError>> getFundHouse(
     Map<String, dynamic> data,
   ) async {
     try {
