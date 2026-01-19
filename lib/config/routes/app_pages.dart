@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:my_sip/features/authentication/presentation/bindings/auth_binding.dart';
 import 'package:my_sip/features/authentication/presentation/pages/login/login_page.dart';
+import 'package:my_sip/features/authentication/presentation/pages/login/otp_verification.dart';
 import 'package:my_sip/features/authentication/presentation/pages/signup/register_account.dart';
 import 'package:my_sip/features/explore/presentation/bindings/fundhousebinding.dart';
 import 'package:my_sip/features/explore/presentation/pages/filterpage.dart';
@@ -106,6 +107,11 @@ class AppPages {
       name: AppRoutes.filterpage,
       page: () => Filterpage(),
       binding: Fundhousebinding(),
+    ),
+    GetPage(
+      name: AppRoutes.otpVerificationScreen,
+      page: () => OtpVerificationScreen(),
+      binding: AuthBinding(),
     ),
   ];
 }
