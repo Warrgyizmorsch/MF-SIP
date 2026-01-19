@@ -8,89 +8,131 @@ import 'package:my_sip/common/widget/text/heading_section.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/common/widget/text/subtitle_section.dart';
 import 'package:my_sip/common/widget/top_bottom_style/top_bottom_style.dart';
+import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/sizes.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:pinput/pinput.dart';
 
-class OtpVerificationScreen extends StatelessWidget {
+class OtpVerificationScreen extends GetView<AuthController> {
   const OtpVerificationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // final w = Get.height;
     return Scaffold(
       backgroundColor: Colors.white,
-      // appBar: AppBar(),
       resizeToAvoidBottomInset: false,
       body: TopBottomDecoration(
         child: SafeArea(
           child: Padding(
             padding: UPadding.screenPadding,
             child: Column(
-              // crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(height: USizes.spcaeFromTop),
-
-                ///Message logo
                 Center(child: Image.asset(UImages.message)),
-
                 const SizedBox(height: 15),
-
-                //Heading
                 const HeadingText(title: 'Verify Your Number'),
                 const SizedBox(height: 10),
-
-                //Subtitle
                 const SubtitleText(
-                  subtitle:
-                      'To verify your account, enter the 6 digit OTP code that we sent to your number ***87.',
+                  subtitle: 'To verify your account, enter the 6 digit OTP code that we sent to your number.',
                 ),
-
                 const SizedBox(height: 25),
 
-                SimpleOtpField(length: 6),
-                const SizedBox(height: 15),
+                // -- OTP INPUT --
+                Pinput(
+                  separatorBuilder: (index) => const SizedBox(width: 5),
+                  controller: controller.otpController,
+                  autofocus: true,
+                  showCursor: false,
+                  length: 6,
+                  keyboardType: TextInputType.number,
 
-                //Timer
-                Text(
-                  '00:59',
-                  style: UTextStyles.heading2.copyWith(color: Ucolors.blue),
+                  defaultPinTheme: PinTheme(
+                    width: 50, height: 50,
+                    textStyle: const TextStyle(fontSize: 24, color: Colors.black),
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Ucolors.darkgrey, width: 2),
+                        borderRadius: BorderRadius.circular(15)
+                    ),
+                  ),
+                  focusedPinTheme: PinTheme(
+                    width: 50, height: 50,
+                    textStyle: const TextStyle(fontSize: 24, color: Colors.black),
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Ucolors.primary, width: 2),
+                        borderRadius: BorderRadius.circular(15)
+                    ),
+                  ),
+                  onCompleted: (pin) {
+                    controller.verifyOtpAndLogin();
+                  },
                 ),
 
+                const SizedBox(height: 15),
+                Obx(() => Text(
+                  "00:${controller.remainingSeconds.value.toString().padLeft(2, '0')}",
+                  style: UTextStyles.heading2.copyWith(
+                    color: controller.remainingSeconds.value > 0 ? Ucolors.blue : Colors.grey,
+                  ),
+                )),
                 const SizedBox(height: 10),
-
-                //small heading
-                const SmallHeading(smallheading: 'Didnt get the email?'),
-
+                const SmallHeading(smallheading: "Didn't get the code?"),
                 const SizedBox(height: 15),
 
-                UElevatedBUtton(
+
+                Obx(() => controller.isOtpSendLoading.value
+                    ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2)
+                )
+                    : UElevatedBUtton(
                   height: Get.height * 0.060,
                   outlined: true,
-                  onPressed: () {},
+
+
+                  onPressed: (controller.isResendEnabled.value && !controller.isOtpSendLoading.value)
+                      ? () => controller.resendOtp()
+                      : null,
+
                   child: Center(
-                    child: Text(
+                    child:  Text(
                       'Resend Code',
                       style: UTextStyles.buttonText.copyWith(
-                        color: Ucolors.dark,
+
+                        color: controller.isResendEnabled.value ? Ucolors.dark : Colors.grey,
                         fontSize: 14,
                       ),
                     ),
                   ),
-                ),
-                // SizedBox(height: Get.height * 0.2),
-                Spacer(),
+                )),
 
-                // Verify button and back button
-                PrimaryBackBottomBar(
-                  // bottomPadding: kBottomNavigationBarHeight / 2,
-                  primaryText: 'Verify',
-                  onPrimaryPressed: () => Get.to(() => NavigationMenuBar()),
-                  backText: 'Back',
-                  onBackPressed: () => Get.back(),
-                ),
+                const Spacer(),
+
+                // -- VERIFY BUTTON --
+                Obx(() => controller.isOtpVerifyLoading.value
+                    ? const CircularProgressIndicator(color: Ucolors.primary)
+                    : UElevatedBUtton(
+                    onPressed: controller.isOtpVerifyLoading.value
+                        ? null
+                        : () => controller.verifyOtpAndLogin(),
+                    child: Center(
+                      child:  Text("Verify", style: AppTextStyles.bodyLarge(color: Colors.white)),
+                    )
+                )),
+
+                const SizedBox(height: 10),
+
+                // -- BACK BUTTON --
+                UElevatedBUtton(
+                    onPressed: () => Get.back(),
+                    outlined: true,
+                    child: Center(
+                        child: Text("Back", style: AppTextStyles.bodyLarge())
+                    )
+                )
               ],
             ),
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/authentication/presentation/pages/login/login_page.dart';
 
 class OnboardingController extends GetxController {
@@ -18,7 +19,7 @@ class OnboardingController extends GetxController {
   //next page
   void nextPage() {
     if (currentIndex.value == 3) {
-      Get.to(() => LoginPage());
+      Get.toNamed(AppRoutes.login);
       return;
     }
     currentIndex++;

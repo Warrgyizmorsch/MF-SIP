@@ -3,17 +3,19 @@
 import '../../../../core/utils/helper/custom_json_parser.dart';
 
 class LoginResponseModel {
+  final bool success;
   final String? token;
   final String? message;
   final UserModel userModel;
 
-  LoginResponseModel({required this.token, required this.message, required this.userModel});
+  LoginResponseModel({required this.success,required this.token, required this.message, required this.userModel});
 
   factory LoginResponseModel.fromJson(Map<String, dynamic> json) {
     return LoginResponseModel(
-      token: json['token'],
-      message: json['message'],
-      userModel: UserModel.fromJson(json),
+      success: json.parse<bool>('success') ?? false,
+      token: json.parse('token'),
+      message: json.parse<String>('message'),
+      userModel: UserModel.fromJson(json['user']),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
@@ -6,19 +7,22 @@ import 'package:my_sip/common/widget/button/social_button.dart';
 import 'package:my_sip/common/widget/text/heading_section.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/common/widget/text/subtitle_section.dart';
+import 'package:my_sip/common/widget/text_form/text_field_component.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/common/widget/top_bottom_style/top_bottom_style.dart';
 import 'package:my_sip/config/routes/app_pages.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
 import 'package:my_sip/features/authentication/presentation/pages/login/otp_verification.dart';
 import 'package:my_sip/features/authentication/presentation/widgets/creat_acc_if_not.dart';
 import 'package:my_sip/features/authentication/presentation/widgets/term_policy.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 
+import '../../../../../core/utils/enums/enums.dart';
 import '../signup/register_account.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends GetView<AuthController> {
   const LoginPage({super.key});
 
   @override
@@ -34,7 +38,7 @@ class LoginPage extends StatelessWidget {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   padding: UPadding.screenPadding.copyWith(
                     bottom: kBottomNavigationBarHeight,
                   ),
@@ -43,12 +47,9 @@ class LoginPage extends StatelessWidget {
                       minHeight: constraints.maxHeight,
                     ),
                     child: Column(
-                      // mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        // Top Section – IMF logo , title , subtitle , image
                         LoginTopSection(size: size),
 
-                        // Middle  Section
                         Padding(
                           padding: const EdgeInsets.only(
                             bottom: kBottomNavigationBarHeight,
@@ -57,60 +58,57 @@ class LoginPage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              //Mobile Number textform field
-                              UTextFormField(
-                                labelText: 'Mobile Number',
-                                prefixIcon: Icons.phone_android,
-                                hintText: 'Enter the number',
+
+                              CustomTextField(
+                                controller: controller.mobileController,
+                                label: "Mobile Number",
+                                hintColor: Colors.grey.shade600,
+                                validationType: ValidationType.phone,
+                                keyboardType: TextInputType.phone,
+                                leading: SvgPicture.asset(
+                                  UImages.mobile,
+                                  height: 20,
+                                  fit: BoxFit.scaleDown,
+                                  colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.srcIn),
+                                ),
                               ),
 
                               SizedBox(height: Get.height * 0.019),
 
-                              ///Get otp elevated button
-                              SizedBox(
-                                width: double.infinity,
-                                child: UElevatedBUtton(
-                                  onPressed: () =>
-                                      Get.to(() => OtpVerificationScreen()),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Text(
-                                        'Get OTP',
-                                        style: TextStyle(
-                                          color: Ucolors.light,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                              /// GET OTP BUTTON
+                              Obx(
+                                    () => controller.isOtpSendLoading.value
+                                        ? CircularProgressIndicator(color: Ucolors.primary, strokeWidth: 2)
+                                        : UElevatedBUtton(
+
+                                      onPressed: controller.isOtpSendLoading.value
+                                          ? null
+                                          : () => controller.sendOtp(),
+                                      child:  Center(
+                                            child: const Text(
+                                                                                  'Get OTP',
+                                                                                  style: TextStyle(
+                                            color: Ucolors.light,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                                                                  ),
+                                                                                ),
+                                          ),
+                                    ),
                               ),
 
+                              // ... Rest of your UI (Social buttons, create account, etc) ...
                               SizedBox(height: Get.height * 0.01),
-
-                              //Divider Header ---- or login with
                               SmallHeading(smallheading: 'or login with'),
-
                               SizedBox(height: Get.height * 0.01),
-
-                              //Google Apple social Button
                               USocialButton(),
-
                               SizedBox(height: Get.height * 0.02),
-
-                              //Bottom Section ---- Create account, Privacy and term
                               CreataAccountIfNot(
                                 firstPart: 'Dont have an account? ',
                                 textButton: 'Create Account',
-                                voidCallback: () =>
-                                    Get.toNamed(AppRoutes.registerAccountScreen),
+                                voidCallback: () => Get.toNamed(AppRoutes.registerAccountScreen),
                               ),
-
                               SizedBox(height: Get.height * 0.02),
-
-                              //term & condition
                               TermAndPolicy(),
                             ],
                           ),
