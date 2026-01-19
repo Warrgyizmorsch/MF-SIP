@@ -19,13 +19,13 @@ class AuthRemoteDataSource {
       final resp = await _apiService.postFormData("${Appurl.baseUrl}/api/login", data);
       createLog("[Auth Remote Data Source] Login Response: ${resp}");
 
-      if (resp['success'] == true){
+      // if (resp['success'] == true){
         final result = LoginResponseModel.fromJson(resp);
 
         return Left(Result.success(result));
-      } else {
-        return Right(ApiError(message: 'Login Failed'));
-      }
+      // } else {
+      //   return Right(ApiError(message: 'Login Failed'));
+      // }
     } catch(e){
       return Right(ApiError(message: 'Login Failed with Exception $e'));
     }
