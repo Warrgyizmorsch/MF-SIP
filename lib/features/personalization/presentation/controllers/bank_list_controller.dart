@@ -27,7 +27,6 @@ class BankController extends GetxController {
       result.fold(
         (success) {
           if (success.data != null) {
-            // Direct assignment to trigger GetX observers
             bankList.assignAll(success.data!.data);
             print("CONTROLLER: Successfully assigned ${bankList.length} banks");
           }

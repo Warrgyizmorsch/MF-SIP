@@ -10,7 +10,7 @@ class GetFundhouseUsecase {
 
   GetFundhouseUsecase(this._repository);
 
-  Future<Either<Result<FundHouseItemEntity>, ApiError>> call(
+  Future<Either<Result<FundHouseResponseEntity>, ApiError>> call(
     Map<String, dynamic> data,
   ) async {
     return await _repository.getFundHouse(data);

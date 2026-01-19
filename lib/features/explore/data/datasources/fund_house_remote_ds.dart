@@ -11,7 +11,7 @@ class FundHouseRemoteDs {
 
   FundHouseRemoteDs(this._apiService);
 
-  Future<Either<Result<FundHouseItemModel>, ApiError>> getFundHouse(
+  Future<Either<Result<FundHouseResponseModel>, ApiError>> getFundHouse(
     Map<String, dynamic> data,
   ) async {
     try {
@@ -21,11 +21,11 @@ class FundHouseRemoteDs {
       );
 
       createLog(
-        "[Fund House Remote Data Source] BankListResponseModel Response: $resp",
+        "[Fund House Remote Data Source] FundHouseListResponseModel Response: $resp",
       );
 
       if (resp['success'] == true) {
-        final result = FundHouseItemModel.fromJson(resp);
+        final result = FundHouseResponseModel.fromJson(resp);
         return Left(Result.success(result));
       } else {
         return Right(

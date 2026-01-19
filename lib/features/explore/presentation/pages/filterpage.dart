@@ -1,204 +1,8 @@
-// import 'package:flutter/material.dart';
-// import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
-// import 'package:my_sip/core/utils/constant/colors.dart';
-// import 'package:my_sip/core/utils/constant/text_style.dart';
-
-// class Filterpage extends StatelessWidget {
-//   const Filterpage({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final List<String> leftMenu = [
-//       'Sort by',
-//       'Categories',
-//       'Risk',
-//       'Ratings',
-//       'Fund House',
-//     ];
-
-//     return Scaffold(
-//       appBar: CustomAppBarNormal(
-//         bottom: PreferredSize(
-//           preferredSize: Size(double.infinity, 1),
-//           child: Divider(height: 0),
-//         ),
-
-//         title: 'Filters',
-//         actionsPadding: 15,
-//         action: [
-//           Text(
-//             'Clear all',
-//             style: UTextStyles.caption.copyWith(
-//               decoration: TextDecoration.underline,
-//             ),
-//           ),
-//         ],
-//       ),
-//       body: Row(
-//         // mainAxisSize: MainAxisSize.min,
-//         children: [
-//           Container(
-//             width: 120,
-//             decoration: const BoxDecoration(
-//               border: Border(right: BorderSide(color: Colors.black12)),
-//             ),
-//             child: ListView.separated(
-//               padding: EdgeInsets.zero,
-
-//               separatorBuilder: (context, index) => Divider(
-//                 height: 0,
-//                 color: Ucolors.borderside.withOpacity(0.3),
-//               ),
-
-//               itemCount: leftMenu.length,
-//               itemBuilder: (context, index) {
-//                 // final selected = selectedMenuIndex == index;
-//                 return InkWell(
-//                   child: Container(
-//                     padding: const EdgeInsets.symmetric(
-//                       vertical: 20,
-//                       horizontal: 12,
-//                     ),
-//                     // color: selected ? Colors.grey.shade200 : Colors.white,
-//                     child: Text(
-//                       leftMenu[index],
-//                       style: TextStyle(
-//                         color: Color(0xff4C4B50),
-//                         // fontWeight: selected
-//                         // ? FontWeight.bold
-//                         // : FontWeight.normal,
-//                       ),
-//                     ),
-//                   ),
-//                 );
-//               },
-//             ),
-//           ),
-
-//           Expanded(child: FilterCategoryPanel()),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-// class _CategoryItem extends StatelessWidget {
-//   final String title;
-
-//   const _CategoryItem({required this.title});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.only(bottom: 0),
-//       child: Row(
-//         children: [
-//           Checkbox(value: false, onChanged: (_) {}),
-//           Expanded(
-//             child: Text(
-//               title,
-//               style: const TextStyle(fontSize: 16, color: Color(0xff4C4B50)),
-//             ),
-//           ),
-//           const Icon(
-//             Icons.keyboard_arrow_down,
-//             color: Color(0xff4C4B50),
-//             size: 14,
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-// class FilterCategoryPanel extends StatefulWidget {
-//   const FilterCategoryPanel({super.key});
-
-//   @override
-//   State<FilterCategoryPanel> createState() => _FilterCategoryPanelState();
-// }
-
-// class _FilterCategoryPanelState extends State<FilterCategoryPanel> {
-//   bool indexFundsOnly = false;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: EdgeInsets.all(16),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           /// Index Funds Toggle
-//           Container(
-//             width: double.infinity,
-//             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-//             decoration: BoxDecoration(
-//               borderRadius: BorderRadius.circular(12),
-//               border: Border.all(color: Colors.black12),
-//             ),
-//             child: Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//               mainAxisSize: MainAxisSize.min,
-//               children: [
-//                 Flexible(
-//                   child: const Text(
-//                     'Index Funds only',
-//                     style: TextStyle(fontSize: 12),
-//                   ),
-//                 ),
-//                 Flexible(
-//                   // fit: FlexFit.loose,
-//                   // flex: 0,
-//                   child: SwitchTheme(
-//                     data: SwitchThemeData(
-//                       trackColor: MaterialStateProperty.resolveWith((states) {
-//                         if (states.contains(MaterialState.selected)) {
-//                           return Ucolors.primary;
-//                         }
-//                         return const Color(0xFFF0F0F0);
-//                       }),
-//                       thumbColor: MaterialStateProperty.all(Colors.white),
-//                       trackOutlineColor: MaterialStateProperty.all(
-//                         Colors.transparent,
-//                       ),
-//                       trackOutlineWidth: MaterialStateProperty.all(0),
-//                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-//                     ),
-//                     child: Switch(
-//                       value: indexFundsOnly,
-//                       onChanged: (value) {
-//                         setState(() {
-//                           indexFundsOnly = value;
-//                         });
-//                       },
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-
-//           const SizedBox(height: 14),
-
-//           /// Categories
-//           _CategoryItem(title: 'Equity'),
-//           Divider(height: 10, color: Ucolors.borderside.withOpacity(0.3)),
-//           _CategoryItem(title: 'Debt'),
-//           Divider(height: 10, color: Ucolors.borderside.withOpacity(0.3)),
-
-//           _CategoryItem(title: 'Hybrid'),
-//           Divider(height: 10, color: Ucolors.borderside.withOpacity(0.3)),
-
-//           _CategoryItem(title: 'Commodities'),
-//           Divider(height: 10, color: Ucolors.borderside.withOpacity(0.3)),
-//         ],
-//       ),
-//     );
-//   }
-// }
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
+import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
@@ -213,6 +17,8 @@ class Filterpage extends StatefulWidget {
 }
 
 class _FilterpageState extends State<Filterpage> {
+  final FundhouseController controller = Get.find();
+
   int selectedMenuIndex = 0;
 
   final List<String> leftMenu = [
@@ -304,6 +110,18 @@ class _FilterpageState extends State<Filterpage> {
           Expanded(child: _buildRightPanel()),
         ],
       ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: const UElevatedBUtton(
+            child: Center(
+              child: Text('View All', style: TextStyle(color: Ucolors.light)),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -318,7 +136,7 @@ class _FilterpageState extends State<Filterpage> {
       case 3:
         return const RatingsPanel();
       case 4:
-        return const FundHousePanel();
+        return FundHousePanel();
       default:
         return const SizedBox();
     }
@@ -637,61 +455,68 @@ class RatingsPanel extends StatelessWidget {
 }
 
 class FundHousePanel extends StatelessWidget {
-  const FundHousePanel({super.key});
+  FundHousePanel({super.key});
+
+  final FundhouseController controller = Get.find<FundhouseController>();
 
   @override
   Widget build(BuildContext context) {
-    // final controller= Get.put(FundhouseController())
-    //  Get.find()
-    // final controller = Get.find<FundhouseController>();
+    log('${controller.fundlist.length} fundlist');
 
-    final funds = [
-      'Axis Mutual Fund',
-      'HDFC Mutual Fund',
-      'ICICI Prudential',
-      'SBI Mutual Fund',
-      'DSP Mutual Fund',
-    ];
-
-    return ListView(
-      padding: const EdgeInsets.only(left: 16, top: 16),
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(right: 7.0),
-          child: TextField(
-            decoration: InputDecoration(
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Ucolors.primary),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              // contentPadding: EdgeInsets.only(right: 10),
-              hintText: 'Search fund house',
-              prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+    return Obx(
+      () => ListView(
+        padding: const EdgeInsets.only(left: 16, top: 16),
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 7.0),
+            child: TextField(
+              onChanged: controller.searchFundHouse,
+              decoration: InputDecoration(
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Ucolors.primary),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                // contentPadding: EdgeInsets.only(right: 10),
+                hintText: 'Search fund house',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 12),
-        ...funds.map(
-          (e) => CheckboxListTile(
-            shape: Border(bottom: BorderSide(color: Ucolors.borderside)),
-            contentPadding: EdgeInsets.zero,
-            dense: true,
-            isThreeLine: false,
-            controlAffinity: ListTileControlAffinity.leading,
-            value: false,
-            onChanged: (value) {},
-            title: Text(e),
-          ),
-        ),
+          const SizedBox(height: 12),
 
-        // ...funds.map(
-        //   (e) =>
-        //       CheckboxListTile(value: false, onChanged: (_) {}, title: Text(e)),
-        // ),
-      ],
+          if (controller.isLoading.value)
+            Center(child: CircularProgressIndicator(color: Ucolors.primary))
+          else if (controller.filteredFundlist.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(32),
+              child: Center(
+                child: Text(
+                  "No fund houses found",
+                  style: TextStyle(color: Colors.grey, fontSize: 15),
+                ),
+              ),
+            )
+          else
+            ...controller.filteredFundlist.map(
+              (e) => CheckboxListTile(
+                activeColor: Ucolors.primary,
+                shape: Border(bottom: BorderSide(color: Ucolors.borderside)),
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+                isThreeLine: false,
+                controlAffinity: ListTileControlAffinity.leading,
+                value: controller.selectAmcname.contains(e.amcName),
+                onChanged: (bool? echeck) =>
+                    controller.toggleSelection(e.amcName),
+
+                title: Text(e.amcName.toString()),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
