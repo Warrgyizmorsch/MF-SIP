@@ -141,6 +141,38 @@ class AuthController extends GetxController {
     );
   }
 
+  Future<void> loginWithEmailAndPassword() async {
+    if(emailController.text.isEmpty){
+      Get.snackbar("Error", "Please enter your Email");
+      return;
+    }
+    if(passwordController.text.isEmpty){
+      Get.snackbar("Error", "Please enter your Password");
+      return;
+    }
+    isLoginLoading.value = true;
+    final requestData = {
+      "email": emailController.text.trim(),
+      "password": passwordController.text.trim()
+    };
+
+    final result = await _authUseCases.loginUseCase.call(requestData);
+
+    result.fold(
+            (success) {
+              isLoginLoading.value = false;
+          Get.snackbar("Login Success", "User Logged in Successfully", colorText: Colors.white, backgroundColor: Colors.green);
+          Get.offAllNamed(AppRoutes.navMenuBar);
+        },
+            (error) {
+          createLog("loginWithEmailAndPassword Error $error");
+          Get.snackbar("loginWithEmailAndPassword Failed", error.message);
+          isLoginLoading.value = false;
+        }
+    );
+  }
+
+
   Future<void> verifyOtpAndLogin() async {
     isOtpVerifyLoading.value = true;
     final requestData = {
@@ -163,10 +195,16 @@ class AuthController extends GetxController {
         }
     );
   }
+
+
+
   Future<void> resendOtp() async {
     // We can reuse sendOtp logic
     await sendOtp();
   }
+
+
+
   Future<void> register(String name, String email,String mobile,String pan,String password ) async {
     isRegisterLoading.value = true;
     final requestData = {

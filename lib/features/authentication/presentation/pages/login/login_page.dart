@@ -60,13 +60,13 @@ class LoginPage extends GetView<AuthController> {
                             children: [
 
                               CustomTextField(
-                                controller: controller.mobileController,
-                                label: "Mobile Number",
+                                controller: controller.emailController,
+                                label: "Email",
                                 hintColor: Colors.grey.shade600,
-                                validationType: ValidationType.phone,
-                                keyboardType: TextInputType.phone,
+                                validationType: ValidationType.email,
+                                keyboardType: TextInputType.emailAddress,
                                 leading: SvgPicture.asset(
-                                  UImages.mobile,
+                                  UImages.email,
                                   height: 20,
                                   fit: BoxFit.scaleDown,
                                   colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.srcIn),
@@ -74,19 +74,34 @@ class LoginPage extends GetView<AuthController> {
                               ),
 
                               SizedBox(height: Get.height * 0.019),
+                              CustomTextField(
+                                obscureText: true,
+                                controller: controller.passwordController,
+                                label: "Password",
+                                hintColor: Colors.grey.shade600,
+                                validationType: ValidationType.required,
+                                leading: SvgPicture.asset(
+                                  UImages.key,
+                                  height: 20,
+                                  fit: BoxFit.scaleDown,
+                                  colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.srcIn),
+                                ),
+                              ),
+                              SizedBox(height: Get.height * 0.019),
+
 
                               /// GET OTP BUTTON
                               Obx(
-                                    () => controller.isOtpSendLoading.value
+                                    () => controller.isLoginLoading.value
                                         ? CircularProgressIndicator(color: Ucolors.primary, strokeWidth: 2)
                                         : UElevatedBUtton(
 
-                                      onPressed: controller.isOtpSendLoading.value
+                                      onPressed: controller.isLoginLoading.value
                                           ? null
-                                          : () => controller.sendOtp(),
+                                          : () => controller.loginWithEmailAndPassword(),
                                       child:  Center(
                                             child: const Text(
-                                                                                  'Get OTP',
+                                                                                  'Login',
                                                                                   style: TextStyle(
                                             color: Ucolors.light,
                                             fontSize: 16,
