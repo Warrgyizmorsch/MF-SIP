@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -9,14 +10,15 @@ import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
+import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
 
 import '../../../dashboard/presentation/pages/dashboard.dart';
 import '../../../fund_details/presentation/pages/fund_deatails.dart';
-import 'filterpage.dart';
 
 class ExploreScreen extends StatefulWidget {
-  ExploreScreen({super.key});
+  const ExploreScreen({super.key});
 
   @override
   State<ExploreScreen> createState() => _ExploreScreenState();
@@ -32,6 +34,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   ];
 
   final TextEditingController sort = TextEditingController();
+  final MutualFundController controller = Get.find();
 
   late FocusNode _searchFocus;
 
@@ -172,8 +175,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
           ///  MUTUAL FUND LIST
           SliverList(
             delegate: SliverChildBuilderDelegate((context, index) {
-              return const MutualFundCard();
-            }, childCount: 10),
+              final fund = controller.mutualfund[index];
+
+              return MutualFundCard(entity: fund);
+            }, childCount: controller.mutualfund.length),
           ),
         ],
       ),
@@ -182,10 +187,16 @@ class _ExploreScreenState extends State<ExploreScreen> {
 }
 
 class MutualFundCard extends StatelessWidget {
-  const MutualFundCard({super.key, this.isDelete = false, this.containercolor});
+  const MutualFundCard({
+    super.key,
+    this.isDelete = false,
+    this.containercolor,
+    this.entity,
+  });
 
   final bool isDelete;
   final Color? containercolor;
+  final MutualFundListEntity? entity;
 
   @override
   Widget build(BuildContext context) {
@@ -213,11 +224,12 @@ class MutualFundCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   // radius: 18,
                   maxRadius: 20,
                   backgroundColor: Colors.grey,
-                  backgroundImage: AssetImage(UImages.sbi),
+                  // backgroundImage: AssetImage(UImages.sbi),
+                  backgroundImage: NetworkImage(entity!.amc!.amcLogoUrl!),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -225,7 +237,9 @@ class MutualFundCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Nippon India Large Cap Fund - Growth Plan',
+                        // 'Nippon India Large Cap Fund - Growth Plan',
+                        entity!.baseSchemeName.toString(),
+                        // entity.baseSchemeName.toString(),
                         style: Theme.of(context).textTheme.titleSmall!.copyWith(
                           fontWeight: FontWeight.w600,
                           color: Color(0xff383838),
