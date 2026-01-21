@@ -3,7 +3,9 @@ import 'package:get/get.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 
 class TermAndPolicy extends StatelessWidget {
-  const TermAndPolicy({super.key});
+  const TermAndPolicy({super.key, this.term});
+
+  final String? term;
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +16,7 @@ class TermAndPolicy extends StatelessWidget {
         text: TextSpan(
           style: TextStyle(fontSize: 14, color: Ucolors.darkgrey),
           children: [
-            const TextSpan(text: 'By "Login Account", you agree to the '),
+            TextSpan(text: term ?? 'By "Login Account", you agree to the '),
             TextSpan(
               text: 'Terms of Use',
               style: const TextStyle(

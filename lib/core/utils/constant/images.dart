@@ -80,12 +80,19 @@ class UImages {
   static const String logoAccount = "assets/icon/logo_account.svg";
   static const String logoShield = "assets/icon/logo_shield.svg";
   static const String logoCurrency = "assets/icon/logo_currency.svg";
-  static const String logoHighGrowthFunds = "assets/icon/logo_high_growth_funds.svg";
-  static const String logoSuggestedPortfolio = "assets/icon/logo_suggested_portfolio.svg";
+  static const String logoHighGrowthFunds =
+      "assets/icon/logo_high_growth_funds.svg";
+  static const String logoSuggestedPortfolio =
+      "assets/icon/logo_suggested_portfolio.svg";
   static const String card = "assets/icon/logo_card.svg";
   static const String email = "assets/icon/logo_email.svg";
   static const String key = "assets/icon/logo_key.svg";
   static const String user = "assets/icon/logo_user.svg";
   static const String mobile = "assets/icon/logo_mobile.svg";
 
+  //Payment
+  static const String paytm = "assets/icon/paytm.png";
+  static const String phonepe = "assets/icon/phonepe.png";
+  static const String gpat = "assets/icon/gpay.png";
+  static const String amazon = "assets/icon/amazon.png";
 }

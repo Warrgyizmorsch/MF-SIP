@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:get/get.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
@@ -50,8 +49,7 @@ class GoaldetailsPage extends StatelessWidget {
                     indicator: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
 
-                      // color: Ucolors.primary.withOpacity(0.1),
-                      color: Ucolors.dark,
+                      color: Ucolors.primary,
                     ),
 
                     tabs: [Text('Goal'), Text('Record')],

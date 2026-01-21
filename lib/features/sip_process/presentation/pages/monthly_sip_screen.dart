@@ -1,6 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/freedom_sip/presentation/widgets/sip_amount_selector.dart';
 import 'package:my_sip/features/sip_process/presentation/widgets/sip_projection_chart.dart';
 import '../../../../common/widget/button/elevated_button.dart';
@@ -342,7 +344,8 @@ class _MonthlySipScreenState extends State<MonthlySipScreen> {
               const SizedBox(width: 16),
               Expanded(
                 child: UElevatedBUtton(
-                  onPressed: () {},
+                  onPressed: () =>
+                      Get.toNamed(AppRoutes.investingApproachScreen),
                   child: Center(
                     child: Text(
                       'Select Sip Fund',

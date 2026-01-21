@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
@@ -21,7 +23,7 @@ class _AccumulationanddistributionscreenState
     "Tenure": "5 Years",
     "Exp. Return Rate": "15.00%",
     "Total Inv.": "₹3.00 Lac",
-    "Exp. SIP Corpus": "₹4.43 Lac"
+    "Exp. SIP Corpus": "₹4.43 Lac",
   };
   final distributionData = {
     "SWP Amount": "₹4,273",
@@ -32,14 +34,12 @@ class _AccumulationanddistributionscreenState
 
   @override
   Widget build(BuildContext context) {
-
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
     final isTablet = ResponsiveBreakpoints.of(context).equals(TABLET);
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: const CustomAppBarNormal(title: 'Freedom SIP'),
-
 
       bottomNavigationBar: isDesktop
           ? null
@@ -61,19 +61,16 @@ class _AccumulationanddistributionscreenState
     );
   }
 
-
   Widget _buildDesktopStructure(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         Expanded(
           flex: 3,
           child: DefaultTabController(
             length: 2,
             child: Column(
               children: [
-
                 Container(
                   height: 60,
                   decoration: BoxDecoration(
@@ -90,7 +87,7 @@ class _AccumulationanddistributionscreenState
                           color: Colors.black.withOpacity(0.05),
                           blurRadius: 4,
                           offset: const Offset(0, 2),
-                        )
+                        ),
                       ],
                     ),
                     dividerColor: Colors.transparent,
@@ -105,7 +102,6 @@ class _AccumulationanddistributionscreenState
                   ),
                 ),
                 const SizedBox(height: 20),
-
 
                 Expanded(
                   child: Container(
@@ -138,7 +134,6 @@ class _AccumulationanddistributionscreenState
           ),
         ),
 
-
         const SizedBox(width: 20),
         SizedBox(
           width: 350,
@@ -162,7 +157,7 @@ class _AccumulationanddistributionscreenState
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     UElevatedBUtton(
-                      onPressed: () {},
+                      onPressed: () => Get.toNamed(AppRoutes.paymentScreen),
                       child: Center(
                         child: Text(
                           'Checkout',
@@ -177,7 +172,9 @@ class _AccumulationanddistributionscreenState
                       child: Center(
                         child: Text(
                           'Back',
-                          style: AppTextStyles.bodyMedium(color: Ucolors.primary),
+                          style: AppTextStyles.bodyMedium(
+                            color: Ucolors.primary,
+                          ),
                         ),
                       ),
                     ),
@@ -191,39 +188,27 @@ class _AccumulationanddistributionscreenState
     );
   }
 
-
   Widget _buildDesktopInnerContent(
-      BuildContext context,
-      Map<String, String> schemeData,
-      String title,
-      String period,
-      ) {
+    BuildContext context,
+    Map<String, String> schemeData,
+    String title,
+    String period,
+  ) {
     return SingleChildScrollView(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
-          Expanded(
-            flex: 3,
-            child: _buildChart(context, period, true, false),
-          ),
+          Expanded(flex: 3, child: _buildChart(context, period, true, false)),
           const SizedBox(width: 40),
 
           Expanded(
             flex: 2,
-            child: _buildSchemeDetails(
-              context,
-              schemeData,
-              title,
-              true,
-              false,
-            ),
+            child: _buildSchemeDetails(context, schemeData, title, true, false),
           ),
         ],
       ),
     );
   }
-
 
   Widget _buildMobileStructure(BuildContext context, bool isTablet) {
     return DefaultTabController(
@@ -232,9 +217,7 @@ class _AccumulationanddistributionscreenState
         children: [
           const SizedBox(height: 20),
           Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: isTablet ? 60 : 20,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: isTablet ? 60 : 20),
             child: Container(
               height: 50,
               decoration: BoxDecoration(
@@ -253,7 +236,7 @@ class _AccumulationanddistributionscreenState
                       color: Colors.black.withOpacity(0.05),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
-                    )
+                    ),
                   ],
                 ),
                 dividerColor: Colors.transparent,
@@ -294,12 +277,12 @@ class _AccumulationanddistributionscreenState
   }
 
   Widget _buildMobileTabContent(
-      BuildContext context,
-      Map<String, String> schemeData,
-      String title,
-      String period,
-      bool isTablet,
-      ) {
+    BuildContext context,
+    Map<String, String> schemeData,
+    String title,
+    String period,
+    bool isTablet,
+  ) {
     return SingleChildScrollView(
       padding: EdgeInsets.all(isTablet ? 30 : 20),
       child: Column(
@@ -307,26 +290,18 @@ class _AccumulationanddistributionscreenState
         children: [
           _buildChart(context, period, false, isTablet),
           SizedBox(height: isTablet ? 25 : 15),
-          _buildSchemeDetails(
-            context,
-            schemeData,
-            title,
-            false,
-            isTablet,
-          ),
+          _buildSchemeDetails(context, schemeData, title, false, isTablet),
         ],
       ),
     );
   }
 
-
-
   Widget _buildChart(
-      BuildContext context,
-      String period,
-      bool isDesktop,
-      bool isTablet,
-      ) {
+    BuildContext context,
+    String period,
+    bool isDesktop,
+    bool isTablet,
+  ) {
     return Column(
       children: [
         Container(
@@ -339,15 +314,11 @@ class _AccumulationanddistributionscreenState
         ),
         const SizedBox(height: 10),
         Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: isDesktop ? 0 : 20,
-          ),
+          padding: EdgeInsets.symmetric(horizontal: isDesktop ? 0 : 20),
           child: Text(
             "*Graph showing ${period.contains('2025') ? 'Accumulation' : 'Distribution'} phase from period $period",
             textAlign: TextAlign.center,
-            style: AppTextStyles.bodySmall(
-              size: isDesktop ? 13 : 12.0,
-            ),
+            style: AppTextStyles.bodySmall(size: isDesktop ? 13 : 12.0),
           ),
         ),
       ],
@@ -355,12 +326,12 @@ class _AccumulationanddistributionscreenState
   }
 
   Widget _buildSchemeDetails(
-      BuildContext context,
-      Map<String, String> schemeData,
-      String title,
-      bool isDesktop,
-      bool isTablet,
-      ) {
+    BuildContext context,
+    Map<String, String> schemeData,
+    String title,
+    bool isDesktop,
+    bool isTablet,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -416,9 +387,7 @@ class _AccumulationanddistributionscreenState
                 child: Column(
                   children: schemeData.entries.map((entry) {
                     return Padding(
-                      padding: EdgeInsets.only(
-                        bottom: isDesktop ? 16 : 12,
-                      ),
+                      padding: EdgeInsets.only(bottom: isDesktop ? 16 : 12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -443,10 +412,10 @@ class _AccumulationanddistributionscreenState
                     );
                   }).toList(),
                 ),
-              )
+              ),
             ],
           ),
-        )
+        ),
       ],
     );
   }
@@ -485,7 +454,7 @@ class _AccumulationanddistributionscreenState
             const SizedBox(width: 16),
             Expanded(
               child: UElevatedBUtton(
-                onPressed: () {},
+                onPressed: () => Get.toNamed(AppRoutes.paymentScreen),
                 child: Center(
                   child: Text(
                     'Checkout',

@@ -24,4 +24,5 @@ class AppRoutes {
   static const addanotherbank= '/addanotherbank';
   static const filterpage= '/filterpage';
   static const otpVerificationScreen= '/otpVerificationScreen';
+  static const paymentScreen= '/paymentScreen';
 }

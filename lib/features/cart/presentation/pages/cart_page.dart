@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/features/authentication/presentation/widgets/term_policy.dart';
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
 
@@ -20,10 +23,15 @@ class CartPage extends StatelessWidget {
         itemBuilder: (context, index) => CartItemCard(),
         itemCount: 5,
       ),
+      persistentFooterDecoration: BoxDecoration(),
+      persistentFooterButtons: [
+        TermAndPolicy(term: 'By Proceeding I accept the '),
+      ],
 
-      bottomNavigationBar: SafeArea(top: false, child: CartBottomBar(ontap: () {
-        
-      },)),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: CartBottomBar(ontap: () => Get.toNamed(AppRoutes.paymentScreen)),
+      ),
     );
   }
 }
@@ -33,7 +41,8 @@ class CartBottomBar extends StatelessWidget {
     super.key,
     this.title,
     this.buttonText,
-    this.amountColor, required this.ontap,
+    this.amountColor,
+    required this.ontap,
   });
 
   final String? title;

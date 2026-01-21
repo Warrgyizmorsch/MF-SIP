@@ -171,15 +171,31 @@ class _ExploreScreenState extends State<ExploreScreen> {
               ),
             ),
           ),
+          Obx(() {
+            if (controller.isLoading.value || controller.mutualfund.isEmpty) {
+              SliverFillRemaining(
+                child: Center(
+                  child: CircularProgressIndicator(color: Ucolors.primary),
+                ),
+              );
+            }
+            // if (controller.mutualfund.isEmpty) {
+            //   return const SliverFillRemaining(
+            //     // hasScrollBody: false,
+            //     child: Center(child: Text("No mutual funds found")),
+            //   );
+            // }
 
-          ///  MUTUAL FUND LIST
-          SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final fund = controller.mutualfund[index];
+            return
+            ///  MUTUAL FUND LIST
+            SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final fund = controller.mutualfund[index];
 
-              return MutualFundCard(entity: fund);
-            }, childCount: controller.mutualfund.length),
-          ),
+                return MutualFundCard(entity: fund);
+              }, childCount: controller.mutualfund.length),
+            );
+          }),
         ],
       ),
     );

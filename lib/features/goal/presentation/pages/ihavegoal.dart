@@ -68,7 +68,14 @@ class IhavegoalPage extends StatelessWidget {
       bottomNavigationBar: SafeArea(
         top: false,
         child: CartBottomBar(
-          ontap: () => Get.toNamed(AppRoutes.successfullcreategoal),
+          ontap: () => Get.toNamed(
+            AppRoutes.successfullcreategoal,
+            arguments: {
+              'textButton': 'See Details',
+
+              'nextroute': AppRoutes.goalviewcard,
+            },
+          ),
           amountColor: Ucolors.blue,
           title: 'Installment Amount',
           buttonText: 'Start SIP',
@@ -255,14 +262,11 @@ class SIPSection extends StatelessWidget {
             onChanged: (value) {},
           ),
 
-          SmallHeading(smallheading: 'Frequency', fontWeight: FontWeight.w700),
+          // SmallHeading(smallheading: 'Frequency', fontWeight: FontWeight.w700),
+          // Gap(10),
 
-          Gap(10),
-
-          FrequencySelector(),
-
-          Gap(15),
-
+          // FrequencySelector(),
+          // Gap(15),
           SipSliderTile2(
             title: 'Duration',
             value: 1,
@@ -346,29 +350,40 @@ class GoalNameSelect extends StatelessWidget {
       children: [
         Row(children: [SmallHeading(smallheading: 'Goal Name')]),
         Gap(5),
-        InkWell(
-          onTap: () {
-            FocusScope.of(context).unfocus();
-            showSelectionBottomSheet(
-              search: false,
-              context: context,
-              title: 'Select Goal Name',
-              items: goal,
-              controller: goalName,
-              selectedValue: goalName.text,
-            );
-          },
-          child: AbsorbPointer(
-            absorbing: true,
-            child: UTextFormField(
-              controller: goalName,
-              backgroundColor: Colors.white,
-              hintText: 'e.g. New Car, Buy House, Investment, etc',
-              sufixIcon: Icons.arrow_drop_down,
-              prefixIcon: null,
-            ),
-          ),
+        // InkWell(
+        //   onTap: () {
+        //     FocusScope.of(context).unfocus();
+        //     showSelectionBottomSheet(
+        //       search: false,
+        //       context: context,
+        //       title: 'Select Goal Name',
+        //       items: goal,
+        //       controller: goalName,
+        //       selectedValue: goalName.text,
+        //     );
+        //   },
+        //   child: AbsorbPointer(
+        //     absorbing: true,
+        //     child: UTextFormField(
+        //       controller: goalName,
+        //       backgroundColor: Colors.white,
+        //       hintText: 'e.g. New Car, Buy House, Investment, etc',
+        //       sufixIcon: Icons.arrow_drop_down,
+        //       prefixIcon: null,
+        //     ),w
+        //   ),
+        // ),
+        UTextFormField(
+          prefixIcon: null,
+          controller: TextEditingController(text: 'Car'),
+          backgroundColor: Colors.white,
         ),
+        if (goalName.value.text == 'Other')
+          UTextFormField(
+            backgroundColor: Colors.white,
+            prefixIcon: null,
+            hintText: 'Enter your Goal',
+          ),
       ],
     );
   }

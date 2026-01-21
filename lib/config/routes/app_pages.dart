@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:my_sip/core/bindings/bindings.dart';
 import 'package:my_sip/features/authentication/presentation/bindings/auth_binding.dart';
 import 'package:my_sip/features/authentication/presentation/pages/login/login_page.dart';
 import 'package:my_sip/features/authentication/presentation/pages/login/otp_verification.dart';
@@ -15,6 +16,7 @@ import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/splash_screen.dart';
 import 'package:my_sip/features/personalization/presentation/bindings/BankBinding.dart';
 import 'package:my_sip/features/personalization/presentation/pages/add_another_bank.dart';
+import 'package:my_sip/features/sip_process/presentation/pages/payment_screen.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
 import '../../features/freedom_sip/presentation/pages/accumulationAndDistributionScreen.dart';
 import '../../features/freedom_sip/presentation/pages/growth_scheme_screen.dart';
@@ -34,7 +36,11 @@ class AppPages {
   static pages() => [
     GetPage(name: AppRoutes.splash, page: () => const SplashScreen()),
     GetPage(name: AppRoutes.home, page: () => const HomeScreen()),
-    GetPage(name: AppRoutes.navMenuBar, page: () => const NavigationMenuBar()),
+    GetPage(
+      binding: UBinding(),
+      name: AppRoutes.navMenuBar,
+      page: () => const NavigationMenuBar(),
+    ),
     GetPage(
       name: AppRoutes.login,
       page: () => const LoginPage(),
@@ -113,5 +119,7 @@ class AppPages {
       page: () => OtpVerificationScreen(),
       binding: AuthBinding(),
     ),
+
+    GetPage(name: AppRoutes.paymentScreen, page: () => PaymentScreen()),
   ];
 }

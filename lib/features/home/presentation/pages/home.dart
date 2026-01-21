@@ -12,7 +12,6 @@ import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
 import 'package:my_sip/features/goal/presentation/pages/ihavegoal.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_calculator.dart';
-import 'package:my_sip/features/goal/presentation/pages/goal.dart';
 import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
@@ -539,7 +538,8 @@ class HomeScreen extends StatelessWidget {
                 delegate: SliverChildListDelegate([
                   GoalBaseSIPCard(
                     // onTap: () => Get.to(() => GoalScreen()),
-                    onTap: () => Get.to(() => IhavegoalPage()),
+                    // onTap: () => Get.to(() => IhavegoalPage()),
+                    onTap: () => Get.toNamed(AppRoutes.ihavegoal),
 
                     title: 'Car Goal',
                     iconData: Icons.directions_car_filled_rounded,

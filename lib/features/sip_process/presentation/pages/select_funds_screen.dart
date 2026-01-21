@@ -33,7 +33,11 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
 
   int _selectedIndex = -1;
 
-  final styleTags = ["12 - 15 % CAGR", "Medium Volatility", "Ideal for 5+ Years"];
+  final styleTags = [
+    "12 - 15 % CAGR",
+    "Medium Volatility",
+    "Ideal for 5+ Years",
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +58,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                     Text(
                       UText.freedomSipTitle,
                       style: AppTextStyles.bodyLarge(color: Colors.white),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -72,7 +76,10 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 30),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8.0,
+                          horizontal: 30,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -82,14 +89,23 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                               style: AppTextStyles.bodyLargeBold(),
                             ),
                             RichText(
-                                maxLines: 2,
-                                text: TextSpan(
-                                    text: "Investing in fundamentally strong, well-managed companies with",
-                                    style: AppTextStyles.bodySmall(size: 10, color: Colors.grey),
-                                    children: [
-                                      TextSpan(text: " Know More", style: AppTextStyles.bodySmallSemiBold(color: Colors.black45))
-                                    ]
-                                )
+                              maxLines: 2,
+                              text: TextSpan(
+                                text:
+                                    "Investing in fundamentally strong, well-managed companies with",
+                                style: AppTextStyles.bodySmall(
+                                  size: 10,
+                                  color: Colors.grey,
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: " Know More",
+                                    style: AppTextStyles.bodySmallSemiBold(
+                                      color: Colors.black45,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                             const SizedBox(height: 5),
                             Wrap(
@@ -97,18 +113,24 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                               runSpacing: 4.0,
                               children: styleTags.map((tag) {
                                 return Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12.0,
+                                    vertical: 6.0,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Colors.grey.withAlpha(40),
                                     borderRadius: BorderRadius.circular(20.0),
                                   ),
                                   child: Text(
                                     tag,
-                                    style: AppTextStyles.bodySmall(size: 9, color: Colors.black54),
+                                    style: AppTextStyles.bodySmall(
+                                      size: 9,
+                                      color: Colors.black54,
+                                    ),
                                   ),
                                 );
                               }).toList(),
-                            )
+                            ),
                           ],
                         ),
                       ),
@@ -127,7 +149,9 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                             ),
                             Text(
                               "By MF radiant Finworld Team",
-                              style: AppTextStyles.bodySmall(color: Colors.grey),
+                              style: AppTextStyles.bodySmall(
+                                color: Colors.grey,
+                              ),
                             ),
                           ],
                         ),
@@ -136,23 +160,25 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                       const SizedBox(height: 15),
 
                       controller.obx(
-                            (state) => ListView.separated(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        (state) => ListView.separated(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 10,
+                          ),
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: state?.length ?? 0,
-                          separatorBuilder: (c, i) => const SizedBox(height: 12),
+                          separatorBuilder: (c, i) =>
+                              const SizedBox(height: 12),
                           itemBuilder: (context, index) {
                             return _buildSchemeCard(state![index], index);
                           },
                         ),
 
-
                         onLoading: const Padding(
                           padding: EdgeInsets.all(40.0),
                           child: Center(child: CircularProgressIndicator()),
                         ),
-
 
                         onError: (error) => Padding(
                           padding: const EdgeInsets.all(20.0),
@@ -200,16 +226,23 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
               Expanded(
                 child: UElevatedBUtton(
                   onPressed: () {
-                    if(_selectedIndex != -1 && controller.state != null) {
+                    if (_selectedIndex != -1 && controller.state != null) {
                       final selectedFund = controller.state![_selectedIndex];
-                      Get.toNamed(AppRoutes.investingApproachScreen, arguments: selectedFund);
+                      Get.toNamed(
+                        // AppRoutes.investingApproachScreen,
+                        AppRoutes.cart,
+                        arguments: selectedFund,
+                      );
                     } else {
-                      Get.snackbar("Selection Required", "Please select a fund to proceed");
+                      Get.snackbar(
+                        "Selection Required",
+                        "Please select a fund to proceed",
+                      );
                     }
                   },
                   child: Center(
                     child: Text(
-                      'Select Sip Fund',
+                      'Next',
                       style: AppTextStyles.bodyMedium(color: Colors.white),
                     ),
                   ),
@@ -258,11 +291,11 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                     style: AppTextStyles.bodyMediumSemiBold(),
                     overflow: TextOverflow.ellipsis,
                   ),
-                )
+                ),
               ],
             ),
             const SizedBox(height: 10),
-            Divider(color: Colors.grey.shade300, thickness: 1,),
+            Divider(color: Colors.grey.shade300, thickness: 1),
             const SizedBox(height: 10),
 
             FittedBox(
@@ -276,7 +309,10 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                       const SizedBox(width: 4),
                       Text(
                         fund.riskType,
-                        style: AppTextStyles.bodySmall(color: Colors.grey, size: 11),
+                        style: AppTextStyles.bodySmall(
+                          color: Colors.grey,
+                          size: 11,
+                        ),
                       ),
                     ],
                   ),
@@ -285,16 +321,24 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
 
                   Row(
                     children: [
-                      Text("SIP Returns: ",
-                          style: AppTextStyles.bodySmall(color: Colors.grey, size: 11)),
+                      Text(
+                        "SIP Returns: ",
+                        style: AppTextStyles.bodySmall(
+                          color: Colors.grey,
+                          size: 11,
+                        ),
+                      ),
                       Text(
                         fund.sipReturns,
-                        style: AppTextStyles.bodySmall(color: Colors.green, size: 11),
+                        style: AppTextStyles.bodySmall(
+                          color: Colors.green,
+                          size: 11,
+                        ),
                       ),
                       Text(
                         " pa",
                         style: AppTextStyles.bodySmall(color: Colors.grey),
-                      )
+                      ),
                     ],
                   ),
 
@@ -302,18 +346,26 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
 
                   Row(
                     children: [
-                      Text("Rating: ",
-                          style: AppTextStyles.bodySmall(color: Colors.grey, size: 11)),
+                      Text(
+                        "Rating: ",
+                        style: AppTextStyles.bodySmall(
+                          color: Colors.grey,
+                          size: 11,
+                        ),
+                      ),
                       const Icon(Icons.star, color: Colors.amber, size: 12),
                       Text(
                         " ${fund.rating}",
-                        style: AppTextStyles.bodySmall(color: Colors.black, size: 11),
+                        style: AppTextStyles.bodySmall(
+                          color: Colors.black,
+                          size: 11,
+                        ),
                       ),
                     ],
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

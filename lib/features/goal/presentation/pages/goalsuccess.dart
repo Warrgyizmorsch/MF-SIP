@@ -12,6 +12,12 @@ class GoalsuccessPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final args = Get.arguments ?? {};
+    final title = args?['title'] ?? 'Goal Create Success';
+    final subtitle = args?['subtitle'] ?? 'Your goal is created';
+    final textButton = args?['textButton'] ?? 'Continue';
+    final String? nextRoute = args?['nextroute'];
+
     return Scaffold(
       backgroundColor: Color(0xffB0E3FD),
       body: Padding(
@@ -24,7 +30,7 @@ class GoalsuccessPage extends StatelessWidget {
               Icon(Icons.verified, size: 50, color: Ucolors.blue),
               const Gap(10),
               Text(
-                'Goal Create Success',
+                title ?? 'Goal Create Success',
                 style: UTextStyles.medium.copyWith(
                   color: Ucolors.blue,
                   fontSize: 17,
@@ -33,7 +39,8 @@ class GoalsuccessPage extends StatelessWidget {
               ),
               Text(
                 textAlign: TextAlign.center,
-                'Lorem Ipsum issis simply dummy text of the printing and',
+                subtitle ??
+                    'Lorem Ipsum issis simply dummy text of the printing and',
                 style: UTextStyles.small.copyWith(color: Ucolors.dark),
               ),
             ],
@@ -45,10 +52,10 @@ class GoalsuccessPage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: UElevatedBUtton(
           color: Ucolors.blue,
-          onPressed: () => Get.toNamed(AppRoutes.goalviewcard),
+          onPressed: () => Get.toNamed( nextRoute ?? AppRoutes.comparefund),
           child: Center(
             child: Text(
-              'See Detail',
+              textButton ?? 'See Detail',
               style: UTextStyles.buttonText.copyWith(color: Ucolors.light),
             ),
           ),

@@ -14,7 +14,8 @@ class UBinding extends Bindings {
   void dependencies() {
     Get.put(QuestionController());
     Get.put(OnboardingController());
-    Get.lazyPut(() => NetworkServicesApi());
+    // Get.lazyPut(() => NetworkServicesApi());
+    Get.put(NetworkServicesApi(), permanent: true);
 
     ///Mutual Fund Repository
 

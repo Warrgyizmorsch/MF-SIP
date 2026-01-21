@@ -19,8 +19,6 @@ class InvestingApproachScreen extends StatefulWidget {
 }
 
 class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
-
-
   int _selectedApproach = 0;
 
   @override
@@ -42,7 +40,7 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
                     Text(
                       UText.freedomSipTitle,
                       style: AppTextStyles.bodyLarge(color: Colors.white),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -58,10 +56,11 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                            vertical: 8.0, horizontal: 30),
+                          vertical: 8.0,
+                          horizontal: 30,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -73,13 +72,14 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
                             Text(
                               "According to your inputs your investing style is",
                               style: AppTextStyles.bodySmall(
-                                  size: 10, color: Colors.grey),
+                                size: 10,
+                                color: Colors.grey,
+                              ),
                             ),
                           ],
                         ),
                       ),
                       const SizedBox(height: 5),
-
 
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -90,22 +90,21 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
                             color: Ucolors.blue,
                             borderRadius: BorderRadius.circular(20),
                             gradient: LinearGradient(
-                              colors: [
-                                Ucolors.blue,
-                                Ucolors.primary,
-                              ],
+                              colors: [Ucolors.blue, Ucolors.primary],
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                             ),
                           ),
                           child: Column(
-
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.max,
                             children: [
                               Padding(
                                 padding: const EdgeInsets.only(
-                                    left: 8.0, right: 8, top: 8),
+                                  left: 8.0,
+                                  right: 8,
+                                  top: 8,
+                                ),
                                 child: Row(
                                   children: [
                                     SvgPicture.asset(UImages.tickInCircle),
@@ -113,28 +112,36 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
                                     Text(
                                       "Your Profile",
                                       style: AppTextStyles.bodyLargeBold(
-                                          color: Ucolors.textLight),
-                                    )
+                                        color: Ucolors.textLight,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
                               const SizedBox(height: 10),
 
-
-                              _buildProfileRow(UImages.logoAccount,
-                                  "Investor Type", "Experienced Investor"),
+                              _buildProfileRow(
+                                UImages.logoAccount,
+                                "Investor Type",
+                                "Experienced Investor",
+                              ),
                               const SizedBox(height: 10),
-                              _buildProfileRow(UImages.logoShield,
-                                  "Risk Appetite", "High"),
+                              _buildProfileRow(
+                                UImages.logoShield,
+                                "Risk Appetite",
+                                "High",
+                              ),
                               const SizedBox(height: 10),
-                              _buildProfileRow(UImages.logoCurrency,
-                                  "Monthly SIP", "₹ 5,000"),
+                              _buildProfileRow(
+                                UImages.logoCurrency,
+                                "Monthly SIP",
+                                "₹ 5,000",
+                              ),
                               const SizedBox(height: 10),
                             ],
                           ),
                         ),
                       ),
-
 
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -147,17 +154,16 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
                             ),
                             const SizedBox(height: 10),
 
-
                             _buildSelectionCard(
                               index: 0,
                               iconPath: UImages.logoHighGrowthFunds,
                               topText: "Fund Recommendation",
                               mainText: "Best High Growth Funds",
-                              subText: "List of funds suggested by mutual fund analysis",
+                              subText:
+                                  "List of funds suggested by mutual fund analysis",
                             ),
 
                             const SizedBox(height: 10),
-
 
                             _buildSelectionCard(
                               index: 1,
@@ -210,7 +216,6 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
               Expanded(
                 child: UElevatedBUtton(
                   onPressed: () {
-
                     Get.toNamed(AppRoutes.selectFundsScreen);
                   },
                   child: Center(
@@ -227,7 +232,6 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
       ),
     );
   }
-
 
   Widget _buildSelectionCard({
     required int index,
@@ -251,13 +255,10 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
 
           gradient: isSelected
               ? const LinearGradient(
-            colors: [
-              Color(0xFFD7EFFF),
-              Color(0xFFFFFFFF),
-            ],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          )
+                  colors: [Color(0xFFD7EFFF), Color(0xFFFFFFFF)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                )
               : null,
           border: Border.all(
             color: isSelected ? Ucolors.primary : Colors.grey,
@@ -275,15 +276,9 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    topText,
-                    style: AppTextStyles.bodySmall(size: 10),
-                  ),
+                  Text(topText, style: AppTextStyles.bodySmall(size: 10)),
                   const SizedBox(height: 2),
-                  Text(
-                    mainText,
-                    style: AppTextStyles.bodyLargeSemiBold(),
-                  ),
+                  Text(mainText, style: AppTextStyles.bodyLargeSemiBold()),
                   const SizedBox(height: 2),
                   Text(
                     subText,
@@ -299,7 +294,6 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
       ),
     );
   }
-
 
   Widget _buildProfileRow(String icon, String label, String value) {
     return Padding(
@@ -320,7 +314,7 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
               Color(0xffA2A2A2),
               Color(0xff494949),
               Color(0xffA9A9A9),
-              Color(0xff060606)
+              Color(0xff060606),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -341,12 +335,16 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label,
-                      style: AppTextStyles.bodyLarge(color: Ucolors.textLight)),
-                  Text(value,
-                      style: AppTextStyles.bodyMedium(color: Colors.white))
+                  Text(
+                    label,
+                    style: AppTextStyles.bodyLarge(color: Ucolors.textLight),
+                  ),
+                  Text(
+                    value,
+                    style: AppTextStyles.bodyMedium(color: Colors.white),
+                  ),
                 ],
-              )
+              ),
             ],
           ),
         ),
