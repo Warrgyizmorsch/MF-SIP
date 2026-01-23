@@ -6,7 +6,6 @@ import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
-import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
@@ -20,14 +19,63 @@ import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/sipslidertile.dart';
 
 class IhavegoalPage extends StatelessWidget {
-  const IhavegoalPage({super.key});
+  IhavegoalPage({super.key});
+
+  final Map<String, Map<String, dynamic>> goalConfig = {
+    'car': {
+      'amount': 1000000, // 10 L
+      'duration': 5,
+      'rate': 12,
+      'name': 'Car',
+    },
+    'bike': {
+      'amount': 150000, // 1.5 L
+      'duration': 3,
+      'rate': 12,
+      'name': 'Bike',
+    },
+    'home': {
+      'amount': 3000000, // 30 L
+      'duration': 10,
+      'rate': 12,
+      'name': 'Home',
+    },
+    'marriage': {
+      'amount': 500000, // 5 L
+      'duration': 5,
+      'rate': 12,
+      'name': 'Marriage',
+    },
+    'vacation': {
+      'amount': 100000, // 1 L
+      'duration': 2,
+      'rate': 12,
+      'name': 'Vacation',
+    },
+    'custom': {
+      'amount': 100000, // 1 L
+      'duration': 2,
+      'rate': 12,
+      'name': 'Custom',
+    },
+  };
 
   @override
   Widget build(BuildContext context) {
+    final args = Get.arguments ?? {};
+    final String goalType = args['goalType'] ?? 'custom';
+
+    final goalData = goalConfig[goalType]!;
+
+    final double amount = goalData['amount']!.toDouble();
+    final int duration = goalData['duration']!.toInt();
+    final double rate = goalData['rate']!.toDouble();
+    final String name = goalData['name']!;
+
     return Scaffold(
       backgroundColor: Color(0xffF3F4F6),
       appBar: CustomAppBarNormal(
-        title: 'Create New Goal',
+        title: 'Create $name Goal',
         action: [CompactIcon(icon: Iconsax.info_circle, onPressed: () {})],
         actionsPadding: 15,
       ),
@@ -42,10 +90,10 @@ class IhavegoalPage extends StatelessWidget {
               CoverSection(),
 
               ///Goal Name Select
-              GoalNameSelect(),
+              GoalNameSelect(goalName: name),
 
               //SIP section
-              SIPSection(),
+              SIPSection(amount: amount, duration: duration),
 
               const Gap(20),
 
@@ -238,8 +286,16 @@ class ProjectionIcon extends StatelessWidget {
 }
 
 class SIPSection extends StatelessWidget {
-  const SIPSection({super.key});
+  const SIPSection({
+    super.key,
+    required this.amount,
+    required this.duration,
+    this.rate = 12,
+  });
 
+  final double amount;
+  final int duration;
+  final double rate;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -255,9 +311,9 @@ class SIPSection extends StatelessWidget {
           SipSliderTile2(
             prefix: '₹',
             title: 'I need',
-            value: 100,
+            value: amount,
             min: 100,
-            max: 100000,
+            max: 3000000,
             suffix: '',
             onChanged: (value) {},
           ),
@@ -269,7 +325,7 @@ class SIPSection extends StatelessWidget {
           // Gap(15),
           SipSliderTile2(
             title: 'Duration',
-            value: 1,
+            value: duration.toDouble(),
             min: 1,
             max: 30,
             suffix: 'Yrs',
@@ -280,7 +336,7 @@ class SIPSection extends StatelessWidget {
 
           SipSliderTile2(
             title: 'Expected Returns',
-            value: 1,
+            value: rate,
             min: 1,
             max: 30,
             suffix: '%',
@@ -329,7 +385,7 @@ class _FrequencySelectorState extends State<FrequencySelector> {
 }
 
 class GoalNameSelect extends StatelessWidget {
-  GoalNameSelect({super.key});
+  GoalNameSelect({super.key, required this.goalName});
 
   final List<String> goal = [
     'Car',
@@ -342,7 +398,8 @@ class GoalNameSelect extends StatelessWidget {
     'Other',
   ];
 
-  final TextEditingController goalName = TextEditingController();
+  // final TextEditingController goalName = TextEditingController();
+  final String goalName;
 
   @override
   Widget build(BuildContext context) {
@@ -375,10 +432,11 @@ class GoalNameSelect extends StatelessWidget {
         // ),
         UTextFormField(
           prefixIcon: null,
-          controller: TextEditingController(text: 'Car'),
+
+          controller: TextEditingController(text: goalName),
           backgroundColor: Colors.white,
         ),
-        if (goalName.value.text == 'Other')
+        if (goalName == 'Other')
           UTextFormField(
             backgroundColor: Colors.white,
             prefixIcon: null,

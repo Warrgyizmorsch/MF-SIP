@@ -74,12 +74,17 @@ class CartBottomBar extends StatelessWidget {
                       color: Colors.grey,
                     ),
                   ),
-                  Text(
-                    '₹ 5,000',
-                    style: TextStyle(
-                      fontSize: 25,
-                      color: amountColor ?? Ucolors.success,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        '₹ 5,000',
+                        style: TextStyle(
+                          fontSize: 25,
+                          color: amountColor ?? Ucolors.success,
+                        ),
+                      ),
+                      Text(' /Monthly'),
+                    ],
                   ),
                 ],
               ),

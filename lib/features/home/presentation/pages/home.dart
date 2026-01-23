@@ -22,7 +22,7 @@ import '../widgets/product_tool/sip_calculator.dart';
 import '../widgets/product_tool/swp_calci.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -365,73 +365,6 @@ class HomeScreen extends StatelessWidget {
                                 // SizedBox(width: 10),
                               ],
                             ),
-                            // Row(
-                            //   // mainAxisSize: MainAxisSize.min,
-                            //   mainAxisAlignment: MainAxisAlignment.start,
-                            //   children: [
-                            //     SectionHeading(
-                            //       sectionTitle: 'Complete Your KYC',
-                            //       fontWeight: FontWeight.w500,
-                            //       textcolor: Ucolors.dark,
-                            //     ),
-                            //     SizedBox(width: 5),
-                            //     CompactIcon(
-                            //       iconSize: 15,
-                            //       icon: Icons.arrow_forward_ios,
-
-                            //       onPressed: () {},
-                            //     ),
-                            //   ],
-                            // ),
-
-                            // SizedBox(height: 5),
-                            // SingleChildScrollView(
-                            //   scrollDirection: Axis.horizontal,
-                            //   child: EasyStepper(
-                            //     activeStepBorderColor: Colors.lightBlue,
-                            //     finishedStepBackgroundColor: Colors.lightBlue,
-                            //     activeStepIconColor: Colors.lightBlue,
-
-                            //     // color
-                            //     stepRadius: 4,
-                            //     activeStep: 2,
-
-                            //     // highlights Step 3
-                            //     stepShape: StepShape.circle,
-                            //     lineStyle: LineStyle(
-                            //       lineSpace: 0,
-                            //       lineLength: 30,
-                            //       activeLineColor: Colors.lightBlue,
-                            //       defaultLineColor: Colors.lightBlue,
-                            //       lineThickness: 1,
-                            //     ),
-                            //     steps: [
-                            //       EasyStep(
-                            //         title: 'Step 1',
-
-                            //         icon: Icon(Icons.check),
-                            //       ),
-                            //       EasyStep(
-                            //         title: 'Step 2',
-                            //         icon: Icon(Icons.check),
-                            //       ),
-                            //       EasyStep(
-                            //         title: 'Step 3',
-                            //         icon: Icon(Icons.circle),
-                            //       ),
-                            //       EasyStep(
-                            //         title: 'Step 4',
-                            //         icon: Icon(Icons.circle_outlined),
-                            //       ),
-
-                            //       EasyStep(
-
-                            //         title: 'Step 5',
-                            //         icon: Icon(Icons.circle_outlined),
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
                           ],
                         ),
                       ),
@@ -537,37 +470,45 @@ class HomeScreen extends StatelessWidget {
                 ),
                 delegate: SliverChildListDelegate([
                   GoalBaseSIPCard(
-                    // onTap: () => Get.to(() => GoalScreen()),
-                    // onTap: () => Get.to(() => IhavegoalPage()),
-                    onTap: () => Get.toNamed(AppRoutes.ihavegoal),
+                    onTap: () => Get.toNamed(
+                      AppRoutes.ihavegoal,
+                      arguments: {'goalType': 'car'},
+                    ),
 
                     title: 'Car Goal',
                     iconData: Icons.directions_car_filled_rounded,
                   ),
                   GoalBaseSIPCard(
-                    // onTap: () => Get.to(() => GoalScreen()),
-                    onTap: () => Get.to(() => IhavegoalPage()),
-
                     title: 'Bike Goal',
                     iconData: Icons.pedal_bike_rounded,
+                    onTap: () => Get.toNamed(
+                      AppRoutes.ihavegoal,
+                      arguments: {'goalType': 'bike'},
+                    ),
                   ),
                   GoalBaseSIPCard(
-                    // onTap: () => Get.to(() => GoalScreen()),
-                    onTap: () => Get.to(() => IhavegoalPage()),
+                    onTap: () => Get.toNamed(
+                      AppRoutes.ihavegoal,
+                      arguments: {'goalType': 'marriage'},
+                    ),
 
                     title: 'Marriage Goal',
                     iconData: Icons.favorite_border_outlined,
                   ),
                   GoalBaseSIPCard(
-                    // onTap: () => Get.to(() => GoalScreen()),
-                    onTap: () => Get.to(() => IhavegoalPage()),
+                    onTap: () => Get.toNamed(
+                      AppRoutes.ihavegoal,
+                      arguments: {'goalType': 'vacation'},
+                    ),
 
                     title: 'Vacation Goal',
                     iconData: Icons.flight_takeoff_rounded,
                   ),
                   GoalBaseSIPCard(
-                    // onTap: () => Get.to(() => GoalScreen()),
-                    onTap: () => Get.to(() => IhavegoalPage()),
+                    onTap: () => Get.toNamed(
+                      AppRoutes.ihavegoal,
+                      arguments: {'goalType': 'home'},
+                    ),
 
                     title: 'Home Goal',
                     iconData: Icons.home_rounded,
@@ -577,7 +518,10 @@ class HomeScreen extends StatelessWidget {
                   //   iconData: Icons.school_rounded,
                   // ),
                   GestureDetector(
-                    onTap: () => Get.to(() => IhavegoalPage()),
+                    onTap: () => Get.toNamed(
+                      AppRoutes.ihavegoal,
+                      // arguments: {'goalType': 'bike'},
+                    ),
                     child: Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 12,

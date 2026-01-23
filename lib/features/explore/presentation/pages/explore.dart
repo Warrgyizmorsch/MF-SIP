@@ -171,20 +171,22 @@ class _ExploreScreenState extends State<ExploreScreen> {
               ),
             ),
           ),
+
           Obx(() {
-            if (controller.isLoading.value || controller.mutualfund.isEmpty) {
-              SliverFillRemaining(
+            if (controller.isLoading.value) {
+              return const SliverFillRemaining(
+                hasScrollBody: false,
                 child: Center(
                   child: CircularProgressIndicator(color: Ucolors.primary),
                 ),
               );
             }
-            // if (controller.mutualfund.isEmpty) {
-            //   return const SliverFillRemaining(
-            //     // hasScrollBody: false,
-            //     child: Center(child: Text("No mutual funds found")),
-            //   );
-            // }
+            if (controller.mutualfund.isEmpty) {
+              return const SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(child: Text("No mutual funds found")),
+              );
+            }
 
             return
             ///  MUTUAL FUND LIST

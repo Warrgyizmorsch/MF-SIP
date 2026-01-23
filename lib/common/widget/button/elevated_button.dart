@@ -12,6 +12,7 @@ class UElevatedBUtton extends StatelessWidget {
     this.width,
     this.outlined = false,
     this.color,
+    this.circular,
   });
 
   final VoidCallback? onPressed;
@@ -21,6 +22,7 @@ class UElevatedBUtton extends StatelessWidget {
   final double? height, width;
   final bool outlined;
   final Color? color;
+  final double? circular;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +33,7 @@ class UElevatedBUtton extends StatelessWidget {
         padding: EdgeInsets.zero,
 
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadiusGeometry.circular(14),
+          borderRadius: BorderRadiusGeometry.circular(circular ?? 12),
         ),
       ),
       onPressed: onPressed,
@@ -41,10 +43,10 @@ class UElevatedBUtton extends StatelessWidget {
             ? BoxDecoration(
                 color: Ucolors.light,
                 border: Border.all(color: Color(0xffE7E7E7)),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(circular ?? 12),
               )
             : BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(circular ?? 12),
                 color: color,
 
                 gradient: color != null ? null : Ucolors.backgroundGradient,

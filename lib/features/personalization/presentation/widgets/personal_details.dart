@@ -3,6 +3,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/showbottomsheet/datepicker.dart';
+import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/comparison_screen.dart';
@@ -13,6 +14,19 @@ class PersonalDetailsScreen extends StatelessWidget {
   PersonalDetailsScreen({super.key});
 
   final TextEditingController dobController = TextEditingController();
+  final List<String> wealthSources = [
+    'Salary',
+    'Business Income',
+    'Freelancing',
+    'Mutual Funds',
+    'Stocks',
+    'Real Estate',
+    'Rental Income',
+    'Fixed Deposits',
+    'Gold',
+    'Digital Products',
+  ];
+  final TextEditingController wealthSourcesController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -99,10 +113,28 @@ class PersonalDetailsScreen extends StatelessWidget {
 
                   const SmallHeading(smallheading: 'Wealth Source'),
                   const SizedBox(height: 5),
-                  UTextFormField(
-                    prefixIcon: Icons.mail,
-                    hintText: 'Individual',
+
+                  InkWell(
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+                      showSelectionBottomSheet(
+                        search: false,
+                        context: context,
+                        title: 'Select Wealth Source',
+                        items: wealthSources,
+                        controller: wealthSourcesController,
+                      );
+                    },
+                    child: AbsorbPointer(
+                      absorbing: true,
+                      child: UTextFormField(
+                        controller: wealthSourcesController,
+                        prefixIcon: Icons.mail,
+                        hintText: 'Individual',
+                      ),
+                    ),
                   ),
+
                   const SizedBox(height: 10),
 
                   const SmallHeading(smallheading: 'Income Yearly'),
