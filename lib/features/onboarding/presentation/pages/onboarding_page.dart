@@ -462,7 +462,7 @@ class RichTypewriterText extends StatefulWidget {
 
 class _RichTypewriterTextState extends State<RichTypewriterText> {
   int _charCount = 0;
-  late final List<_SpanChar> _characters;
+  late  List<_SpanChar> _characters;
 
   @override
   void initState() {

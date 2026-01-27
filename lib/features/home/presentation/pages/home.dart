@@ -9,6 +9,9 @@ import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/utils/helper/helpers.dart';
+import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
 import 'package:my_sip/features/goal/presentation/pages/ihavegoal.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_calculator.dart';
@@ -24,9 +27,12 @@ import '../widgets/product_tool/swp_calci.dart';
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
 
+  final cartController = Get.find<CartController>();
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final authController = Get.find<AuthController>();
     return Scaffold(
       // backgroundColor: Color(0xffF5F5F7),
       backgroundColor: Colors.white,
@@ -57,8 +63,9 @@ class HomeScreen extends StatelessWidget {
                   child: CustomProfileAppbar(
                     onProfiletap: () => Get.to(() => ProfileScreen()),
                     backgroundColor: Colors.transparent,
-                    greetingName: 'Developer',
-                    role: 'Developer',
+                    greetingName: authController.user.value!.name,
+                    //  greetingName: user,
+                    role: UHelperFunction.getGreetingMsg(),
                     iconColor: Ucolors.light,
                     roleColor: Ucolors.borderColor,
                     greetingNameColor: Ucolors.light,
@@ -69,10 +76,42 @@ class HomeScreen extends StatelessWidget {
                         onPressed: () => Get.toNamed(AppRoutes.notification),
                         iconColor: Ucolors.light,
                       ),
-                      CompactIcon(
-                        icon: Iconsax.shopping_cart,
-                        onPressed: () => Get.toNamed(AppRoutes.cart),
-                        iconColor: Ucolors.light,
+                      // CompactIcon(
+                      //   icon: Iconsax.shopping_cart,
+                      //   onPressed: () => Get.toNamed(AppRoutes.cart),
+                      //   iconColor: Ucolors.light,
+                      // ),
+                      Obx(
+                        () => Stack(
+                          children: [
+                            CompactIcon(
+                              icon: Iconsax.shopping_cart,
+                              onPressed: () => Get.toNamed(AppRoutes.cart),
+                              iconColor: Ucolors.light,
+                            ),
+                            if (cartController.itemsCount > 0)
+                              Positioned(
+                                right: 0,
+                                top: -5,
+
+                                // bottom: 0,
+                                child: Container(
+                                  padding: EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: Ucolors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Text(
+                                    cartController.itemsCount.toString(),
+
+                                    style: UTextStyles.buttonText.copyWith(
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                       CompactIcon(
                         icon: Iconsax.archive_tick,

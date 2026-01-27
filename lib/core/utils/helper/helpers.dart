@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 
-
-
 final priceFormatter = NumberFormat.currency(
   locale: 'hi_IN',
   symbol: '₹',
@@ -46,5 +44,24 @@ void createLog(dynamic message) {
 
     print("$bottomBorder\n"); // End with a newline
   }
+}
 
+class UHelperFunction {
+  static String getGreetingMsg() {
+    final hour = DateTime.now().hour;
+
+    if (hour >= 5 && hour < 12) {
+      // 5am -  12pm
+      return 'Good Morning';
+    } else if (hour >= 12 && hour < 16) {
+      // 12pm - 4pm
+      return 'Good Afternoon';
+    }
+    if (hour >= 16 && hour < 19) {
+      // 4pm - 7pm
+      return 'Good Evening';
+    } else {
+      return 'Good night';
+    }
+  }
 }

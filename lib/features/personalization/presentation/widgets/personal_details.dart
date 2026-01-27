@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
@@ -6,11 +7,12 @@ import 'package:my_sip/common/widget/showbottomsheet/datepicker.dart';
 import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
+import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/comparison_screen.dart';
 import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 
-class PersonalDetailsScreen extends StatelessWidget {
+class PersonalDetailsScreen extends GetView<AuthController> {
   PersonalDetailsScreen({super.key});
 
   final TextEditingController dobController = TextEditingController();
@@ -27,9 +29,11 @@ class PersonalDetailsScreen extends StatelessWidget {
     'Digital Products',
   ];
   final TextEditingController wealthSourcesController = TextEditingController();
+  final AuthController controller = Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
+    final user = controller.user.value!;
     return Scaffold(
       appBar: CustomAppBarNormal(title: 'Personal Info'),
       body: Padding(
@@ -56,9 +60,12 @@ class PersonalDetailsScreen extends StatelessWidget {
                   const SmallHeading(smallheading: 'Full Name'),
                   const SizedBox(height: 5),
                   UTextFormField(
+                    readOnly: true,
+
                     prefixIcon: null,
                     hintText: 'Pratik Hinger',
-                    // controller: TextEditingController(text: 'Pr'),
+                    // controller: controller.nameController,
+                    controller: TextEditingController(text: user.name),
                   ),
                   const SizedBox(height: 10),
 
@@ -96,19 +103,29 @@ class PersonalDetailsScreen extends StatelessWidget {
                   const SmallHeading(smallheading: 'Email'),
                   const SizedBox(height: 5),
                   UTextFormField(
+                    readOnly: true,
                     prefixIcon: null,
                     hintText: 'abc@123gmail.com',
+                    controller: TextEditingController(text: user.email),
                   ),
                   const SizedBox(height: 10),
 
                   const SmallHeading(smallheading: 'Phone Number'),
                   const SizedBox(height: 5),
-                  UTextFormField(prefixIcon: null, hintText: '+91 9283637219'),
+                  UTextFormField(
+                    prefixIcon: null,
+                    hintText: '+91 9283637219',
+                    controller: TextEditingController(text: user.mobile),
+                  ),
                   const SizedBox(height: 10),
 
                   const SmallHeading(smallheading: 'PAN Number'),
                   const SizedBox(height: 5),
-                  UTextFormField(prefixIcon: null, hintText: 'CCMS2373IM'),
+                  UTextFormField(
+                    prefixIcon: null,
+                    hintText: 'CCMS2373IM',
+                    controller: TextEditingController(text: user.panCard),
+                  ),
                   const SizedBox(height: 10),
 
                   const SmallHeading(smallheading: 'Wealth Source'),

@@ -7,6 +7,7 @@ import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
 import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
@@ -113,7 +114,9 @@ class BottomWaveClipper extends CustomClipper<Path> {
 }
 
 class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key});
+   DashboardScreen({super.key});
+
+  final AuthController controller=  Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {

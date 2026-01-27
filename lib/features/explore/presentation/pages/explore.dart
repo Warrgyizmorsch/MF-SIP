@@ -5,11 +5,13 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
+import 'package:my_sip/common/widget/shimmer/shimmer.dart';
 import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/features/cart/data/model/cartItem_model.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
@@ -35,6 +37,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   final TextEditingController sort = TextEditingController();
   final MutualFundController controller = Get.find();
+  final CartController cartController = Get.find();
 
   late FocusNode _searchFocus;
 
@@ -64,6 +67,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           SliverAppBar(
             automaticallyImplyLeading: false,
             pinned: true,
+            // expandedHeight: 80,
 
             // leadingWidth: 20,
             // expandedHeight: 200,
@@ -73,10 +77,37 @@ class _ExploreScreenState extends State<ExploreScreen> {
               actionsPadding: 15,
               // backIcon: ,
               action: [
-                CompactIcon(
-                  icon: Iconsax.shopping_cart,
-                  onPressed: () => Get.toNamed(AppRoutes.cart),
-                  iconColor: Ucolors.dark,
+                Obx(
+                  () => Stack(
+                    children: [
+                      CompactIcon(
+                        icon: Iconsax.shopping_cart,
+                        onPressed: () => Get.toNamed(AppRoutes.cart),
+                        iconColor: Ucolors.dark,
+                      ),
+                      if (cartController.itemsCount > 0)
+                        Positioned(
+                          right: 0,
+                          top: -5,
+
+                          // bottom: 0,
+                          child: Container(
+                            padding: EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: Ucolors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              cartController.itemsCount.toString(),
+
+                              style: UTextStyles.buttonText.copyWith(
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
                 CompactIcon(
                   icon: Iconsax.archive_tick,
@@ -205,7 +236,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 }
 
 class MutualFundCard extends StatelessWidget {
-  const MutualFundCard({
+  MutualFundCard({
     super.key,
     this.isDelete = false,
     this.containercolor,
@@ -215,6 +246,7 @@ class MutualFundCard extends StatelessWidget {
   final bool isDelete;
   final Color? containercolor;
   final MutualFundListEntity? entity;
+  final CartController controller = Get.find<CartController>();
 
   @override
   Widget build(BuildContext context) {
@@ -247,7 +279,18 @@ class MutualFundCard extends StatelessWidget {
                   maxRadius: 20,
                   backgroundColor: Colors.grey,
                   // backgroundImage: AssetImage(UImages.sbi),
-                  backgroundImage: NetworkImage(entity!.amc!.amcLogoUrl!),
+                  // backgroundImage:  NetworkImage(entity!.amc!.amcLogoUrl!),
+                  child: ClipOval(
+                    child: CachedNetworkImage(
+                      imageUrl: entity!.amc!.amcLogoUrl!,
+                      fadeInDuration: const Duration(milliseconds: 300),
+
+                      placeholder: (context, url) =>
+                          UShimmerEffect(width: 40, height: 40, radius: 20),
+                      errorWidget: (context, url, error) =>
+                          Icon(Icons.image_not_supported),
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -295,6 +338,25 @@ class MutualFundCard extends StatelessWidget {
                         onSelected: (value) {
                           switch (value) {
                             case PortfolioMenuAction.topUp:
+                              controller.addItem(
+                                CartItem(
+                                  fundId: entity!.amc!.id.toString(),
+                                  fundName: entity!.baseSchemeName.toString(),
+                                  logoUrl: entity!.amc!.amcLogoUrl.toString(),
+                                ),
+                              );
+                              Get.snackbar(
+                                margin: EdgeInsets.symmetric(
+                                  vertical: 15,
+                                  horizontal: 15,
+                                ),
+                                colorText: Ucolors.light,
+                                'Add to cart',
+                                entity!.baseSchemeName.toString(),
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Ucolors.primary,
+                              );
+
                               // log('top up');
                               break;
 

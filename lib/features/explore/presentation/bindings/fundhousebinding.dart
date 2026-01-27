@@ -29,7 +29,7 @@ class Fundhousebinding extends Bindings {
     Get.lazyPut<FundHouseRepository>(() => FundHouseRepoImple(Get.find()));
 
     // 4. Register the Use Case
-    Get.lazyPut(() => GetFundhouseUsecase(Get.find()));
+    Get.lazyPut(() => GetFundhouseUsecase(Get.find()), fenix: true);
 
     // 5. Finally, register the Controller
     Get.lazyPut(() => FundhouseController(Get.find()));

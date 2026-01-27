@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -6,6 +9,7 @@ import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
+import 'package:my_sip/common/widget/table/table_header.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
@@ -14,9 +18,13 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/cart/presentation/pages/cart_page.dart';
-import 'package:my_sip/features/freedom_sip/presentation/widgets/sip_growth_chart.dart';
+import 'package:my_sip/features/fund_details/data/models/return_model.dart';
+import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
+import 'package:my_sip/features/fund_details/presentation/widgets/return.dart';
+import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
 import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/sipslidertile.dart';
+import 'package:my_sip/features/sip_process/presentation/widgets/sip_projection_chart.dart';
 
 class IhavegoalPage extends StatelessWidget {
   IhavegoalPage({super.key});
@@ -62,6 +70,9 @@ class IhavegoalPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    log('build');
+    final controller = Get.put(GoalSipController());
+
     final args = Get.arguments ?? {};
     final String goalType = args['goalType'] ?? 'custom';
 
@@ -71,6 +82,10 @@ class IhavegoalPage extends StatelessWidget {
     final int duration = goalData['duration']!.toInt();
     final double rate = goalData['rate']!.toDouble();
     final String name = goalData['name']!;
+
+    controller.setTarget(goalData['amount'].toDouble());
+    controller.setYears(goalData['duration'].toDouble());
+    controller.setRate(goalData['rate'].toDouble());
 
     return Scaffold(
       backgroundColor: Color(0xffF3F4F6),
@@ -93,7 +108,7 @@ class IhavegoalPage extends StatelessWidget {
               GoalNameSelect(goalName: name),
 
               //SIP section
-              SIPSection(amount: amount, duration: duration),
+              SIPSection(amount: amount, duration: duration, rate: rate),
 
               const Gap(20),
 
@@ -115,18 +130,21 @@ class IhavegoalPage extends StatelessWidget {
       ),
       bottomNavigationBar: SafeArea(
         top: false,
-        child: CartBottomBar(
-          ontap: () => Get.toNamed(
-            AppRoutes.successfullcreategoal,
-            arguments: {
-              'textButton': 'See Details',
+        child: Obx(
+          () => CartBottomBar(
+            ontap: () => Get.toNamed(
+              AppRoutes.successfullcreategoal,
+              arguments: {
+                'textButton': 'See Details',
 
-              'nextroute': AppRoutes.goalviewcard,
-            },
+                'nextroute': AppRoutes.goalviewcard,
+              },
+            ),
+            amount: controller.monthlySip.value.toStringAsFixed(0),
+            amountColor: Ucolors.blue,
+            title: 'Installment Amount',
+            buttonText: 'Start SIP',
           ),
-          amountColor: Ucolors.blue,
-          title: 'Installment Amount',
-          buttonText: 'Start SIP',
         ),
       ),
     );
@@ -182,9 +200,70 @@ class ProjectionGraph extends StatefulWidget {
 }
 
 class _ProjectionGraphState extends State<ProjectionGraph> {
+  final List<FlSpot> investedSpots = [
+    FlSpot(1, 38208),
+    FlSpot(2, 76416),
+    FlSpot(3, 114624),
+    FlSpot(4, 152832),
+    FlSpot(5, 191040),
+    FlSpot(6, 229248),
+    FlSpot(7, 267456),
+    FlSpot(8, 305664),
+  ];
+
+  final List<FlSpot> projectedSpots = [
+    FlSpot(1, 40649),
+    FlSpot(2, 86175),
+    FlSpot(3, 137164),
+    FlSpot(4, 194273),
+    FlSpot(5, 258234),
+    FlSpot(6, 329870),
+    FlSpot(7, 410103),
+    FlSpot(8, 499964),
+  ];
+
   int selectedView = 0;
+
+  // List<FlSpot> investedSpots1(List<ReturnRow> rows) {
+  //   return rows.map((e) {
+  //     return FlSpot(
+  //       double.parse(e.period), // X = Year
+  //       e.scheme, // Y = Invested
+  //     );
+  //   }).toList();
+  // }
+
+  // List<FlSpot> valueSpots1(List<ReturnRow> rows) {
+  //   return rows.map((e) {
+  //     return FlSpot(
+  //       double.parse(e.period), // X = Year
+  //       e.category, // Y = Value
+  //     );
+  //   }).toList();
+  // }
+
+  List<FlSpot> investedSpotsFromRows(List<ReturnRow> rows) {
+    return rows.map((e) {
+      return FlSpot(
+        double.parse(e.period), // Year
+        e.scheme, // Invested
+      );
+    }).toList();
+  }
+
+  List<FlSpot> valueSpotsFromRows(List<ReturnRow> rows) {
+    return rows.map((e) {
+      return FlSpot(
+        double.parse(e.period), // Year
+        e.category, // Current value
+      );
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
+    log('build');
+    final controller = Get.find<GoalSipController>();
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
@@ -234,22 +313,72 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
 
           const Gap(20),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '● Invest',
-                style: UTextStyles.small.copyWith(color: Color(0xff868686)),
-              ),
-              Text(
-                '● Value',
-                style: UTextStyles.small.copyWith(color: Color(0xff213C73)),
-              ),
-            ],
-          ),
+          if (selectedView == 0) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '● Invest',
+                  style: UTextStyles.small.copyWith(color: Color(0xff868686)),
+                ),
+                Text(
+                  '● Value',
+                  style: UTextStyles.small.copyWith(color: Color(0xff213C73)),
+                ),
+              ],
+            ),
 
-          // const Gap(15),
-          SipGrowthChart(),
+            const Gap(25),
+            // SipGrowthChart(),
+            // SipProjectionChart(
+            //   investedSpots: investedSpots,
+            //   projectedSpots: projectedSpots,
+            // ),
+            Obx(() {
+              final rows = controller.buildYearlyReport();
+
+              if (rows.isEmpty) {
+                return const SizedBox(
+                  height: 200,
+                  child: CircularProgressIndicator(),
+                );
+              }
+
+              return SipProjectionChart(
+                investedSpots: investedSpotsFromRows(rows),
+                projectedSpots: valueSpotsFromRows(rows),
+              );
+            }),
+          ] else
+            Obx(() {
+              final result = controller.buildYearlyReport();
+
+              return Column(
+                children: [
+                  TableHeader(
+                    heading1: 'Year',
+                    heading2: 'Invest',
+                    heading3: 'Curent',
+                    heading4: 'Profit',
+                  ),
+                  DashedLine(color: Ucolors.borderColor, dashSpace: 0),
+                  ListView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: result.length,
+                    itemBuilder: (context, index) {
+                      final row = result[index];
+                      return ReturnsTableRow(
+                        // color3: Colors.green.shade600,
+                        color4: Colors.green,
+                        data: row,
+                        percentage: false,
+                      );
+                    },
+                  ),
+                ],
+              );
+            }),
         ],
       ),
     );
@@ -298,6 +427,9 @@ class SIPSection extends StatelessWidget {
   final double rate;
   @override
   Widget build(BuildContext context) {
+    log('build');
+    final controller = Get.find<GoalSipController>();
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
@@ -315,7 +447,9 @@ class SIPSection extends StatelessWidget {
             min: 100,
             max: 3000000,
             suffix: '',
-            onChanged: (value) {},
+            onChanged: (value) {
+              controller.setTarget(value);
+            },
           ),
 
           // SmallHeading(smallheading: 'Frequency', fontWeight: FontWeight.w700),
@@ -329,7 +463,9 @@ class SIPSection extends StatelessWidget {
             min: 1,
             max: 30,
             suffix: 'Yrs',
-            onChanged: (value) {},
+            onChanged: (value) {
+              controller.setYears(value);
+            },
           ),
 
           Gap(15),
@@ -340,7 +476,76 @@ class SIPSection extends StatelessWidget {
             min: 1,
             max: 30,
             suffix: '%',
-            onChanged: (value) {},
+            onChanged: (value) {
+              log('${controller.futureValue} + future value');
+              log('${controller.invested} + Invested');
+              log('${controller.monthlySip} + mothly');
+
+              controller.setRate(value);
+            },
+          ),
+
+          Obx(
+            () => Row(
+              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: AllValue(
+                    title: 'Invested',
+                    value: controller.invested.toDouble(),
+                  ),
+                ),
+                Expanded(
+                  child: AllValue(
+                    title: 'Future Value',
+                    value: controller.targetAmount.toDouble(),
+                  ),
+                ),
+                Expanded(
+                  child: AllValue(
+                    title: 'Total Return',
+                    value: controller.totalReturn.toDouble(),
+                    textColor: Ucolors.success,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class AllValue extends StatelessWidget {
+  const AllValue({
+    super.key,
+    required this.title,
+    required this.value,
+    this.textColor,
+  });
+
+  final String title;
+  final double value;
+  final Color? textColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+      child: Column(
+        children: [
+          Text(
+            title,
+            style: UTextStyles.medium.copyWith(fontWeight: FontWeight.w600),
+          ),
+          Gap(5),
+          Text(
+            '₹${value.toDouble().toStringAsFixed(0)}',
+            style: TextStyle(
+              color: textColor ?? Ucolors.dark,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),

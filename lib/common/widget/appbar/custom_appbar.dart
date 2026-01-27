@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/helper/helpers.dart';
+import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
 
 class CustomProfileAppbar extends StatelessWidget
     implements PreferredSizeWidget {
-  const CustomProfileAppbar({
+  CustomProfileAppbar({
     super.key,
     required this.greetingName,
     this.action,
@@ -31,9 +34,11 @@ class CustomProfileAppbar extends StatelessWidget
   final Color? iconColor;
   final EdgeInsetsGeometry? actionsPadding;
   final Color? actionIconcolor;
+  final AuthController controller = Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
+    final user = controller.user.value!;
     return AppBar(
       actionsPadding: actionsPadding,
 
@@ -60,9 +65,10 @@ class CustomProfileAppbar extends StatelessWidget
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              //role
+              //Greeting
               Text(
-                role,
+                UHelperFunction.getGreetingMsg(),
+
                 textAlign: TextAlign.start,
                 style: UTextStyles.subtitle1.copyWith(
                   color: roleColor ?? Ucolors.dark,
@@ -73,7 +79,8 @@ class CustomProfileAppbar extends StatelessWidget
                 children: [
                   //Name
                   Text(
-                    'Hi, $greetingName',
+                    // greetingName,
+                    user.name,
                     style: UTextStyles.heading1.copyWith(
                       fontSize: 14,
                       color: greetingNameColor,

@@ -3,7 +3,10 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:my_sip/config/routes/app_pages.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
+import 'package:my_sip/features/authentication/data/models/auth_model.dart';
+import 'package:my_sip/features/authentication/domain/entitites/auth_entity.dart';
 import 'package:my_sip/features/authentication/domain/usecases/auth_use_cases.dart';
 import 'package:flutter/material.dart';
 import '../../pages/signup/verify_pan_otp.dart';
@@ -17,6 +20,10 @@ class AuthController extends GetxController {
   final RxBool isVerifyLoading = false.obs;
   final RxBool isOtpSendLoading = false.obs;
   final RxBool isOtpVerifyLoading = false.obs;
+  final RxBool isNumberValid = true.obs;
+  final RxBool isOtpError = false.obs;
+  final RxBool isPhoneNotRegistered = false.obs;
+  final RxBool isPhoneValidForLogin = false.obs;
 
   // -- Registration Form Controllers --
   final GlobalKey<FormState> registerFormKey = GlobalKey<FormState>();
@@ -30,13 +37,18 @@ class AuthController extends GetxController {
 
   // -- Checkbox State --
   final RxBool isAgreed = false.obs;
+  final phoneFocusNode = FocusNode();
 
   // -- Timer State --
-  final RxInt remainingSeconds = 60.obs;
+  final RxInt remainingSeconds = 10.obs;
   final RxBool isResendEnabled = false.obs;
   Timer? _timer;
 
-  AuthController({required AuthUseCases authUseCases}) : _authUseCases = authUseCases;
+  // -- User Record
+  Rxn<UserEntity> user = Rxn<UserEntity>();
+
+  AuthController({required AuthUseCases authUseCases})
+    : _authUseCases = authUseCases;
 
   @override
   void onClose() {
@@ -47,11 +59,13 @@ class AuthController extends GetxController {
     panController.dispose();
     passwordController.dispose();
     otpController.dispose();
+
     super.onClose();
   }
+
   void startResendTimer() {
     isResendEnabled.value = false;
-    remainingSeconds.value = 60;
+    remainingSeconds.value = 10;
     _timer?.cancel();
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -67,8 +81,12 @@ class AuthController extends GetxController {
   String? validatePassword(String? value) {
     if (value == null || value.isEmpty) return 'Password is required';
     if (value.length < 8) return 'Must be at least 8 characters';
-    if (!value.contains(RegExp(r'[A-Z]'))) return 'Must contain an uppercase letter';
-    if (!value.contains(RegExp(r'[a-z]'))) return 'Must contain a lowercase letter';
+    if (!value.contains(RegExp(r'[A-Z]'))) {
+      return 'Must contain an uppercase letter';
+    }
+    if (!value.contains(RegExp(r'[a-z]'))) {
+      return 'Must contain a lowercase letter';
+    }
     if (!value.contains(RegExp(r'[0-9]'))) return 'Must contain a number';
     return null;
   }
@@ -92,7 +110,13 @@ class AuthController extends GetxController {
         return;
       }
 
-      register(nameController.text.trim(), emailController.text.trim(), mobileController.text.trim(), panController.text.trim(), passwordController.text.trim());
+      register(
+        nameController.text.trim(),
+        emailController.text.trim(),
+        mobileController.text.trim(),
+        panController.text.trim(),
+        passwordController.text.trim(),
+      );
     }
   }
 
@@ -114,117 +138,192 @@ class AuthController extends GetxController {
   //   );
   // }
 
-
-
-
   Future<void> sendOtp() async {
-    if(mobileController.text.isEmpty){
-      Get.snackbar("Error", "Please enter your mobile number");
+    if (mobileController.text.isEmpty) {
+      Get.snackbar(
+        "Phone number required",
+        "Please enter your mobile number to continue.",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
       return;
     }
     isOtpSendLoading.value = true;
+    isLoginLoading.value = true;
+
     startResendTimer();
-    final requestData = {"phone" : mobileController.text.trim()};
+    final requestData = {"phone": mobileController.text.trim()};
     final result = await _authUseCases.sendOtpUseCase.call(requestData);
 
     result.fold(
-            (success) {
-              isOtpSendLoading.value = false;
-              Get.snackbar("Otp sent Successfully", "Hey, we just send an otp to ${mobileController.text.trim()}", colorText: Colors.white, backgroundColor: Colors.green);
-              Get.toNamed(AppRoutes.otpVerificationScreen);
-            } ,
-            (error) {
-              createLog("Send Otp $error");
-              Get.snackbar("Send Otp Failed", error.message);
-              isOtpSendLoading.value = false;
-            }
+      (success) {
+        isOtpSendLoading.value = false;
+        isLoginLoading.value = false;
+        Get.snackbar(
+          "Otp sent Successfully",
+          "Hey, we just send an otp to ${mobileController.text.trim()}",
+          colorText: Colors.white,
+          backgroundColor: Colors.green,
+        );
+        Get.toNamed(AppRoutes.otpVerificationScreen);
+      },
+      (error) {
+        isNumberValid.value = false;
+        isLoginLoading.value = false;
+        isPhoneNotRegistered.value = true;
+
+        // mobileController.clear();
+
+        createLog("Send Otp $error");
+        // Get.snackbar("Send Otp Failed", error.message);
+        Get.snackbar(
+          "Account not found",
+          'Please register using this mobile number.',
+          backgroundColor: Ucolors.red,
+          colorText: Colors.white,
+        );
+        isOtpSendLoading.value = false;
+      },
     );
   }
 
   Future<void> loginWithEmailAndPassword() async {
-    if(emailController.text.isEmpty){
+    if (emailController.text.isEmpty) {
       Get.snackbar("Error", "Please enter your Email");
       return;
     }
-    if(passwordController.text.isEmpty){
+    if (passwordController.text.isEmpty) {
       Get.snackbar("Error", "Please enter your Password");
       return;
     }
     isLoginLoading.value = true;
     final requestData = {
       "email": emailController.text.trim(),
-      "password": passwordController.text.trim()
+      "password": passwordController.text.trim(),
     };
 
     final result = await _authUseCases.loginUseCase.call(requestData);
 
     result.fold(
-            (success) {
-              isLoginLoading.value = false;
-          Get.snackbar("Login Success", "User Logged in Successfully", colorText: Colors.white, backgroundColor: Colors.green);
-          Get.offAllNamed(AppRoutes.navMenuBar);
-        },
-            (error) {
-          createLog("loginWithEmailAndPassword Error $error");
-          Get.snackbar("loginWithEmailAndPassword Failed", error.message);
-          isLoginLoading.value = false;
-        }
+      (success) {
+        isLoginLoading.value = false;
+
+        user.value = success.data!.userModel.toEntity();
+
+        Get.snackbar(
+          "Login Success",
+          "User Logged in Successfully",
+          colorText: Colors.white,
+          backgroundColor: Colors.green,
+        );
+        Get.offAllNamed(AppRoutes.navMenuBar);
+      },
+      (error) {
+        createLog("loginWithEmailAndPassword Error $error");
+        Get.snackbar("loginWithEmailAndPassword Failed", error.message);
+        isLoginLoading.value = false;
+      },
     );
   }
-
 
   Future<void> verifyOtpAndLogin() async {
     isOtpVerifyLoading.value = true;
     final requestData = {
       "phone": mobileController.text.trim(),
-      "otp": otpController.text.trim()
+      "otp": otpController.text.trim(),
     };
 
     final result = await _authUseCases.verifyOtpUseCase.call(requestData);
 
     result.fold(
-            (success) {
-          isOtpVerifyLoading.value = false;
-          Get.snackbar("Verify Otp Success", "OTP Verified Successfully", colorText: Colors.white, backgroundColor: Colors.green);
-          Get.offAllNamed(AppRoutes.navMenuBar);
-        },
-            (error) {
-          createLog("Verify Otp Error $error");
-          Get.snackbar("Verify Otp Failed", error.message);
-          isOtpVerifyLoading.value = false;
-        }
+      (success) {
+        isOtpVerifyLoading.value = false;
+
+        final userController = Get.find<AuthController>();
+
+        user.value = success.data!.userModel.toEntity();
+
+        Get.snackbar(
+          "Verify Otp Success",
+          "OTP Verified Successfully",
+          colorText: Colors.white,
+          backgroundColor: Colors.green,
+        );
+        Get.offAllNamed(AppRoutes.navMenuBar);
+      },
+      (error) {
+        isOtpError.value = true;
+        otpController.clear();
+
+        createLog("Verify Otp Error $error");
+        Get.snackbar(
+          "Invalid OTP",
+          "The OTP you entered is incorrect. Please try again.",
+
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        isOtpVerifyLoading.value = false;
+      },
     );
   }
-
-
 
   Future<void> resendOtp() async {
     // We can reuse sendOtp logic
     await sendOtp();
   }
 
-
-
-  Future<void> register(String name, String email,String mobile,String pan,String password ) async {
+  Future<void> register(
+    String name,
+    String email,
+    String mobile,
+    String pan,
+    String password,
+  ) async {
     isRegisterLoading.value = true;
     final requestData = {
-      "name" : name,
-      "email" : email,
-      "mobile" : mobile,
-      "pan_card" : pan,
-      "password" : password
+      "name": name,
+      "email": email,
+      "mobile": mobile,
+      "pan_card": pan,
+      "password": password,
     };
 
     final result = await _authUseCases.registerUseCase.call(requestData);
     result.fold(
-            (success) {
-          isRegisterLoading.value = false;
-          Get.offAllNamed(AppRoutes.login);
-        },
-            (error) {
-          Get.snackbar("Registration Failed", error.message);
-          isRegisterLoading.value = false;
-        }
+      (success) {
+        isRegisterLoading.value = false;
+        Get.offAllNamed(AppRoutes.login);
+      },
+      (error) {
+        Get.snackbar("Registration Failed", error.message);
+        isRegisterLoading.value = false;
+      },
     );
+  }
+
+  void logOut() {
+    user.value = null;
+    mobileController.clear();
+    otpController.clear();
+
+    Get.offAllNamed(AppRoutes.login);
+  }
+
+  //Pan validator
+  String? validatePanCard(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'PAN card number is required';
+    }
+
+    final pan = value.trim().toUpperCase();
+
+    final panRegex = RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$');
+
+    if (!panRegex.hasMatch(pan)) {
+      return 'Enter a valid PAN card number';
+    }
+
+    return null; // ✅ valid
   }
 }

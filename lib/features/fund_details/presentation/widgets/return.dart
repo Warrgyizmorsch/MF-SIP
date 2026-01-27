@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/fund_details/data/models/return_model.dart';
 
 import '../pages/fund_deatails.dart';
@@ -63,7 +62,7 @@ class ReturnsTableRow extends StatelessWidget {
                   // maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    // fontSize: fontSize ?? 14,
+                    // fontSize: fontSize ?? 12,
                     fontWeight: FontWeight.w400,
                     // height: 1.3, // controls line spacing
                     // color: Colors.black,

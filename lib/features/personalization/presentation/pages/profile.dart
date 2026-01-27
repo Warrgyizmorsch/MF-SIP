@@ -7,6 +7,7 @@ import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/subtitle_section.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/document.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/help_support.dart';
@@ -22,6 +23,8 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // final sz = MediaQuery.of(context).size;
+    final controller = Get.find<AuthController>();
+    final user = controller.user.value!;
 
     return Scaffold(
       appBar: CustomAppBarNormal(title: 'Profile', backIcon: false),
@@ -39,9 +42,9 @@ class ProfileScreen extends StatelessWidget {
                 /// Profile Header
                 ProfileHeader(
                   onTap: () {},
-                  name: 'Developer',
+                  name: user.name,
                   img: UImages.avatar,
-                  subtitle: 'developer@gmail.com',
+                  subtitle: user.email,
                   icon: Icons.edit,
                 ),
 
@@ -99,6 +102,7 @@ class LogoutButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<AuthController>();
     return SizedBox(
       width: double.infinity,
       height: Get.height * 0.063,
@@ -112,7 +116,8 @@ class LogoutButton extends StatelessWidget {
           // fixedSize: Size(double.infinity, 44),
         ),
         iconAlignment: IconAlignment.end,
-        onPressed: () {},
+        // onPressed: () => Get.offAllNamed(AppRoutes.login),
+        onPressed: () => controller.logOut(),
 
         icon: Image.asset(UImages.logout),
         label: Text(

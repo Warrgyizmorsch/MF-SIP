@@ -30,21 +30,43 @@ class AuthBinding extends Bindings {
     // 3. Use Cases (Depends on Repository)
     Get.lazyPut(() => LoginUseCase(Get.find<AuthRepository>()));
     Get.lazyPut(() => RegisterUseCase(Get.find<AuthRepository>()));
-    Get.lazyPut(() => SendOtpUseCase(authRepository: Get.find<AuthRepository>()));
-    Get.lazyPut(() => VerifyOtpUseCase(authRepository: Get.find<AuthRepository>()));
-
+    Get.lazyPut(
+      () => SendOtpUseCase(authRepository: Get.find<AuthRepository>()),
+    );
+    Get.lazyPut(
+      () => VerifyOtpUseCase(authRepository: Get.find<AuthRepository>()),
+    );
 
     // 4. Wrapper Use Case (Depends on LoginUseCase)
-    Get.lazyPut(
-      () => AuthUseCases(
+    // Get.lazyPut(
+
+    //   () => AuthUseCases(
+
+    //     loginUseCase: Get.find<LoginUseCase>(),
+    //     registerUseCase: Get.find<RegisterUseCase>(),
+    //     sendOtpUseCase: Get.find<SendOtpUseCase>(),
+    //     verifyOtpUseCase: Get.find<VerifyOtpUseCase>(),
+    //   ),
+
+    // );
+    Get.put<AuthUseCases>(
+      AuthUseCases(
         loginUseCase: Get.find<LoginUseCase>(),
         registerUseCase: Get.find<RegisterUseCase>(),
         sendOtpUseCase: Get.find<SendOtpUseCase>(),
         verifyOtpUseCase: Get.find<VerifyOtpUseCase>(),
       ),
+      permanent: true,
     );
 
     // 5. Controller (Highest Level - Depends on Wrapper)
-    Get.lazyPut(() => AuthController(authUseCases: Get.find<AuthUseCases>()));
+    // Get.lazyPut<AuthController>(
+    //   () => AuthController(authUseCases: Get.find<AuthUseCases>()),
+    //   fenix: true,
+    // );
+    Get.put<AuthController>(
+      AuthController(authUseCases: Get.find<AuthUseCases>()),
+      permanent: true,
+    );
   }
 }

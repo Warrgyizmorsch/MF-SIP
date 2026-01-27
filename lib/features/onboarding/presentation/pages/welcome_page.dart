@@ -14,8 +14,6 @@ class WelcomePageScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   
-
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(
@@ -63,7 +61,7 @@ class BottomPortion extends StatelessWidget {
       child: Center(
         child: Text(
           'Let’s Get Started',
-          style: TextStyle(color: Ucolors.light),
+          style: TextStyle(color: Ucolors.light, fontSize: 16),
         ),
       ),
     );
@@ -85,7 +83,7 @@ class TitleContent1 extends StatelessWidget {
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
     final s = MediaQuery.of(context).size;
-   
+
     return Expanded(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

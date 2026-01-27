@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/data/datasources/mutualfund_remote_ds.dart';
 import 'package:my_sip/features/explore/data/repositories/mutual_fund_repo_implement.dart';
 import 'package:my_sip/features/explore/domain/repositories/mutual_fund_repository.dart';
@@ -12,10 +13,17 @@ import '../network/network_api_service.dart';
 class UBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put(QuestionController());
-    Get.put(OnboardingController());
+    // Get.put(QuestionController());
+    // Get.put(OnboardingController());
+    Get.lazyPut<QuestionController>(() => QuestionController(), fenix: true);
+    Get.lazyPut<OnboardingController>(
+      () => OnboardingController(),
+      fenix: true,
+    );
+
     // Get.lazyPut(() => NetworkServicesApi());
-    Get.put(NetworkServicesApi(), permanent: true);
+    // Get.put(NetworkServicesApi(), permanent: true);
+    Get.lazyPut<NetworkServicesApi>(() => NetworkServicesApi(), fenix: true);
 
     ///Mutual Fund Repository
 
@@ -30,6 +38,9 @@ class UBinding extends Bindings {
     Get.lazyPut(() => GetMutualFundListUsecases(Get.find()));
 
     // 5. Finally, register the Controller
-    Get.lazyPut(() => MutualFundController(Get.find()));
+    Get.lazyPut(() => MutualFundController(Get.find()), fenix: true);
+
+    Get.put<CartController>(CartController(), permanent: true);
+
   }
 }

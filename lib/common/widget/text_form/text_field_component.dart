@@ -4,11 +4,6 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 
 import '../../../core/utils/enums/enums.dart';
 
-
-
-
-
-
 class CustomTextField extends StatefulWidget {
   final String? label;
   final String? hint;
@@ -159,16 +154,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
     return FormField<String>(
-
       validator: _validate,
       initialValue: widget.controller?.text,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       builder: (FormFieldState<String> field) {
         EdgeInsets contentPadding = widget.height != null
             ? EdgeInsets.symmetric(
-          vertical: (widget.height! - widget.textSize) / 2 - 8,
-          horizontal: 12,
-        )
+                vertical: (widget.height! - widget.textSize) / 2 - 8,
+                horizontal: 12,
+              )
             : const EdgeInsets.symmetric(vertical: 12, horizontal: 12);
 
         if (widget.trailing != null || widget.obscureText) {
@@ -194,34 +188,40 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   AbsorbPointer(
                     absorbing: !widget.isEnabled,
                     child: TextFormField(
-
+                      maxLength: widget.maxLength,
 
                       focusNode: widget.focusNode,
                       controller: widget.controller,
                       obscureText: _obscure,
-                      keyboardType: widget.keyboardType ??
+                      keyboardType:
+                          widget.keyboardType ??
                           (widget.maxLines > 1
                               ? TextInputType.multiline
                               : TextInputType.text),
                       inputFormatters: widget.inputFormatters,
                       enabled: widget.enabled && widget.isEnabled,
-                      onFieldSubmitted: widget.isEnabled ? widget.onSubmitted : null,
+                      onFieldSubmitted: widget.isEnabled
+                          ? widget.onSubmitted
+                          : null,
                       textInputAction: widget.textInputAction,
                       style: TextStyle(
-                        color:  widget.textColor,
+                        color: widget.textColor,
                         fontSize: widget.textSize,
                       ),
                       minLines: widget.minLines,
                       maxLines: widget.obscureText ? 1 : widget.maxLines,
                       onChanged: widget.isEnabled
                           ? (value) {
-                        field.didChange(value);
-                        widget.onChanged?.call(value);
-                      }
+                              field.didChange(value);
+                              widget.onChanged?.call(value);
+                            }
                           : null,
                       decoration: InputDecoration(
+                        counterText: '',
                         isDense: true,
-                        contentPadding: contentPadding.copyWith(right: 40), // spacing for trailing
+                        contentPadding: contentPadding.copyWith(
+                          right: 40,
+                        ), // spacing for trailing
                         labelText: widget.label,
                         labelStyle: TextStyle(
                           color: widget.labelColor,
@@ -229,19 +229,26 @@ class _CustomTextFieldState extends State<CustomTextField> {
                         ),
                         hintText: widget.hint,
                         hintStyle: TextStyle(
-                          color: widget.isEnabled ? widget.hintColor : Colors.grey,
+                          color: widget.isEnabled
+                              ? widget.hintColor
+                              : Colors.grey,
                           fontSize: widget.hintSize,
                         ),
                         errorText: null,
+
                         prefixIcon: widget.leading != null
                             ? GestureDetector(
-                          onTap: widget.isEnabled ? widget.onLeadingTap : null,
-                          child: IconTheme(
-
-                            data: IconThemeData(color: widget.leadingColor, size: 10),
-                            child: widget.leading!,
-                          ),
-                        )
+                                onTap: widget.isEnabled
+                                    ? widget.onLeadingTap
+                                    : null,
+                                child: IconTheme(
+                                  data: IconThemeData(
+                                    color: widget.leadingColor,
+                                    size: 10,
+                                  ),
+                                  child: widget.leading!,
+                                ),
+                              )
                             : null,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -249,13 +256,13 @@ class _CustomTextFieldState extends State<CustomTextField> {
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
+                          borderSide: BorderSide(color: widget.borderColor),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
 
-                          borderSide: const BorderSide(
-                            color: Ucolors.textFormEnabled,
+                          borderSide: BorderSide(
+                            color: widget.focusedBorderColor,
                             width: 2,
                           ),
                         ),
@@ -266,13 +273,13 @@ class _CustomTextFieldState extends State<CustomTextField> {
                           borderSide: BorderSide(color: Colors.red, width: 1),
                         ),
                         disabledBorder: OutlineInputBorder(
-                          borderSide:
-                          BorderSide(color: widget.borderColor.withOpacity(0.5)),
+                          borderSide: BorderSide(
+                            color: widget.borderColor.withOpacity(0.5),
+                          ),
                         ),
                       ),
                     ),
                   ),
-
 
                   if (widget.trailing != null)
                     Positioned(
@@ -288,7 +295,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
                         ),
                       ),
                     ),
-
 
                   if (widget.obscureText)
                     Positioned(
@@ -313,16 +319,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 padding: const EdgeInsets.only(left: 12, top: 1),
                 child: Text(
                   displayedError,
-                  style: const TextStyle(
-                    color: Colors.red,
-                    fontSize: 10,
-                  ),
+                  style: const TextStyle(color: Colors.red, fontSize: 10),
                 ),
               ),
           ],
         );
-
-
       },
     );
   }

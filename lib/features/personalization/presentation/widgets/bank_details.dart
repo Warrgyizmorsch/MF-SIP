@@ -239,10 +239,7 @@ class Deleteiconwithcontainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        log('delete');
-        delete;
-      },
+      onTap: delete,
       child: Container(
         height: 40,
         width: 40,

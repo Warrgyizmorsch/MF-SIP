@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -8,21 +9,32 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/authentication/presentation/widgets/term_policy.dart';
+import 'package:my_sip/features/cart/data/model/cartItem_model.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
 
 class CartPage extends StatelessWidget {
-  const CartPage({super.key});
+  CartPage({super.key});
+
+  final controller = Get.find<CartController>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarNormal(title: 'Cart'),
-      body: ListView.builder(
-        padding: EdgeInsets.symmetric(vertical: 8),
-        itemBuilder: (context, index) => CartItemCard(),
-        itemCount: 5,
-      ),
+      body: Obx(() {
+        if (controller.itemsCount == 0) {
+          return Center(child: Text('No item in the cart'));
+        }
+
+        return ListView.builder(
+          padding: EdgeInsets.symmetric(vertical: 8),
+          itemBuilder: (context, index) =>
+              CartItemCard(item: controller.items[index], index: index),
+          itemCount: controller.itemsCount,
+        );
+      }),
       persistentFooterDecoration: BoxDecoration(),
       persistentFooterButtons: [
         TermAndPolicy(term: 'By Proceeding I accept the '),
@@ -30,7 +42,12 @@ class CartPage extends StatelessWidget {
 
       bottomNavigationBar: SafeArea(
         top: false,
-        child: CartBottomBar(ontap: () => Get.toNamed(AppRoutes.paymentScreen)),
+        child: Obx(
+          () => CartBottomBar(
+            amount: controller.totolAmount.toString(),
+            ontap: () => Get.toNamed(AppRoutes.paymentScreen),
+          ),
+        ),
       ),
     );
   }
@@ -43,12 +60,14 @@ class CartBottomBar extends StatelessWidget {
     this.buttonText,
     this.amountColor,
     required this.ontap,
+    this.amount,
   });
 
   final String? title;
   final String? buttonText;
   final Color? amountColor;
   final VoidCallback ontap;
+  final String? amount;
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +96,7 @@ class CartBottomBar extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        '₹ 5,000',
+                        amount ?? '₹ 5,000',
                         style: TextStyle(
                           fontSize: 25,
                           color: amountColor ?? Ucolors.success,
@@ -110,7 +129,10 @@ class CartBottomBar extends StatelessWidget {
 }
 
 class CartItemCard extends StatelessWidget {
-  const CartItemCard({super.key});
+  const CartItemCard({super.key, required this.item, required this.index});
+
+  final CartItem item;
+  final int index;
 
   @override
   Widget build(BuildContext context) {
@@ -130,12 +152,12 @@ class CartItemCard extends StatelessWidget {
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: const [
-          FundHeader(),
+        children: [
+          FundHeader(item: item, index: index),
           SizedBox(height: 12),
           DashedLine(color: Color(0xffACACAC)),
           SizedBox(height: 12),
-          InvestmentInputsRow(),
+          InvestmentInputsRow(item: item),
         ],
       ),
     );
@@ -143,16 +165,20 @@ class CartItemCard extends StatelessWidget {
 }
 
 class FundHeader extends StatelessWidget {
-  const FundHeader({super.key});
+  FundHeader({super.key, required this.item, required this.index});
+  final CartItem item;
+  final int index;
+
+  final CartController controller = Get.find<CartController>();
 
   @override
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const CircleAvatar(
+        CircleAvatar(
           radius: 22,
-          backgroundImage: AssetImage(UImages.motilal),
+          backgroundImage: CachedNetworkImageProvider(item.logoUrl),
         ),
         const SizedBox(width: 12),
 
@@ -161,7 +187,7 @@ class FundHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Motilal Ostwal Small Cap Fund',
+                item.fundName,
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
               SizedBox(height: 4),
@@ -228,6 +254,7 @@ class FundHeader extends StatelessWidget {
         ),
 
         Deleteiconwithcontainer(
+          delete: () => controller.removeItem(index),
           containercolor: Colors.redAccent.withOpacity(0.1),
         ),
       ],
@@ -235,228 +262,250 @@ class FundHeader extends StatelessWidget {
   }
 }
 
-class InvestmentInputsRow extends StatefulWidget {
-  const InvestmentInputsRow({super.key});
+class InvestmentInputsRow extends StatelessWidget {
+  const InvestmentInputsRow({super.key, required this.item});
 
-  @override
-  State<InvestmentInputsRow> createState() => _InvestmentInputsRowState();
-}
-
-class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
-  String invType = 'SIP';
-  String sipDate = '1';
-  String amount = '500';
-  String stepup = '6m';
+  final CartItem item;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            /// Investment Type
-            Expanded(
-              flex: 3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Inv. Type',
-                    style: UTextStyles.small.copyWith(color: Color(0xff5B5B5B)),
-                  ),
-                  const SizedBox(height: 6),
-                  _box(
-                    child: DropdownButton<String>(
-                      dropdownColor: Colors.white,
-
-                      isDense: true,
-
-                      value: invType,
-                      isExpanded: true,
-                      underline: const SizedBox(),
-                      items: const [
-                        DropdownMenuItem(value: 'SIP', child: Text('SIP')),
-                        DropdownMenuItem(
-                          value: 'Lumpsum',
-                          child: Text('Lumpsum'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'stepup',
-                          child: Text('Step Up'),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        setState(() => invType = value!);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(width: 12),
-
-            invType != 'Lumpsum'
-                ?
-                  /// SIP Date
-                  Expanded(
-                    flex: 2,
-                    // flex: ,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'SIP Date',
-                          style: UTextStyles.small.copyWith(
-                            color: Color(0xff5B5B5B),
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        _box(
-                          child: DropdownButton<String>(
-                            menuMaxHeight: 300,
-                            dropdownColor: Colors.white,
-
-                            isDense: true,
-                            value: sipDate,
-                            isExpanded: true,
-                            underline: const SizedBox(),
-                            items: List.generate(
-                              28,
-                              (i) => DropdownMenuItem(
-                                value: '${i + 1}',
-                                child: Text('${i + 1}'),
-                              ),
-                            ),
-                            onChanged: (value) {
-                              setState(() => sipDate = value!);
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : SizedBox.shrink(),
-
-            const SizedBox(width: 12),
-
-            /// Amount
-            Expanded(
-              flex: 3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Inv Amount',
-                    style: UTextStyles.small.copyWith(color: Color(0xff5B5B5B)),
-                  ),
-                  const SizedBox(height: 6),
-                  _box(
-                    child: TextField(
-                      keyboardType: TextInputType.number,
-
-                      decoration: InputDecoration(
-                        hintText: amount,
-
-                        border: InputBorder.none,
-                        isCollapsed: true,
-                      ),
-                      onChanged: (value) {
-                        amount = value;
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const Gap(15),
-
-        invType == 'stepup'
-            ? Container(
-                // height: 50,
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                decoration: BoxDecoration(
-                  color: Color(0xffEAF5FF),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Row(
+    return Obx(
+      () => Column(
+        children: [
+          Row(
+            children: [
+              /// Investment Type
+              Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      'Inv. Type',
+                      style: UTextStyles.small.copyWith(
+                        color: Color(0xff5B5B5B),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    _box(
+                      child: DropdownButton<String>(
+                        dropdownColor: Colors.white,
+
+                        isDense: true,
+
+                        value: item.invType.value,
+                        isExpanded: true,
+                        underline: const SizedBox(),
+                        items: const [
+                          DropdownMenuItem(value: 'SIP', child: Text('SIP')),
+                          DropdownMenuItem(
+                            value: 'lumpsum',
+                            child: Text('Lumpsum'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'stepup',
+                            child: Text('Step Up'),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          // setState(() => invType = value!);
+                          item.invType.value = value!;
+                          // item.amount.value = value == 'lumpsum'
+                          //     ? 25000
+                          //     : value == 'SIP '
+                          //     ? 12330
+                          //     : 10000;
+                          if (value == 'lumpsum') {
+                            item.amount.value = 25000;
+                          } else if (value == 'SIP') {
+                            item.amount.value = 12330;
+                          } else if (value == 'stepup') {
+                            item.amount.value = 100000;
+                            item.stepupFrequency.value = '6m'; // ✅ IMPORTANT
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(width: 12),
+
+              // invType != 'lumpsum'
+              //     ?
+              item.invType.value != 'lumpsum'
+                  ?
+                    /// SIP Date
                     Expanded(
+                      flex: 2,
+                      // flex: ,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Step up Frequency',
-                            style: TextStyle(fontSize: 10),
+                            'SIP Date',
+                            style: UTextStyles.small.copyWith(
+                              color: Color(0xff5B5B5B),
+                            ),
                           ),
-                          const Gap(5),
+                          const SizedBox(height: 6),
                           _box(
                             child: DropdownButton<String>(
-                              // style: TextStyle(color: Ucolors.dark),
-                              isExpanded: true,
+                              menuMaxHeight: 300,
+                              dropdownColor: Colors.white,
+
                               isDense: true,
-                              underline: SizedBox(),
-                              value: stepup,
-                              items: [
-                                DropdownMenuItem(
-                                  value: '6m',
-                                  child: Text('6 month'),
+                              value: item.sipDate.value.toString(),
+                              isExpanded: true,
+                              underline: const SizedBox(),
+                              items: List.generate(
+                                28,
+                                (i) => DropdownMenuItem(
+                                  value: '${i + 1}',
+                                  child: Text('${i + 1}'),
                                 ),
-                                DropdownMenuItem(
-                                  value: '1y',
-                                  child: Text('1 Year'),
-                                ),
-                                DropdownMenuItem(
-                                  value: '2y',
-                                  child: Text('2 Year '),
-                                ),
-                                DropdownMenuItem(
-                                  value: '5y',
-                                  child: Text('5 Year'),
-                                ),
-                              ],
+                              ),
                               onChanged: (value) {
-                                setState(() {});
-                                stepup = value.toString();
+                                // item.invType.value = value!;
+                                item.sipDate.value = int.parse(value!);
+
+                                // setState(() => sipDate = value!);
                               },
                             ),
                           ),
                         ],
                       ),
+                    )
+                  : SizedBox.shrink(),
+
+              const SizedBox(width: 12),
+
+              /// Amount
+              Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Inv Amount',
+                      style: UTextStyles.small.copyWith(
+                        color: Color(0xff5B5B5B),
+                      ),
                     ),
+                    const SizedBox(height: 6),
+                    _box(
+                      child: TextField(
+                        keyboardType: TextInputType.number,
+                        controller: TextEditingController(
+                          text: item.amount.value.toString(),
+                        ),
 
-                    Gap(20),
-
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Step Up Amount',
-                            style: TextStyle(fontSize: 10),
-                          ),
-                          Gap(5),
-                          _box(
-                            child: TextField(
-                              onChanged: (value) {},
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                isCollapsed: true,
-                                isDense: true,
-                                border: InputBorder.none,
-                              ),
-                            ),
-                          ),
-                        ],
+                        decoration: InputDecoration(
+                          // hintText: amount,
+                          border: InputBorder.none,
+                          isCollapsed: true,
+                        ),
+                        onChanged: (value) {
+                          // amount = value;
+                          item.amount.value = int.tryParse(value) ?? 0;
+                        },
                       ),
                     ),
                   ],
                 ),
-              )
-            : SizedBox.shrink(),
-      ],
+              ),
+            ],
+          ),
+          const Gap(15),
+
+          item.invType.value == 'stepup'
+              ? Container(
+                  // height: 50,
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: Color(0xffEAF5FF),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Step up Frequency',
+                              style: TextStyle(fontSize: 10),
+                            ),
+                            const Gap(5),
+                            _box(
+                              child: DropdownButton<String>(
+                                // style: TextStyle(color: Ucolors.dark),
+                                isExpanded: true,
+                                isDense: true,
+                                underline: SizedBox(),
+                                value: item.stepupFrequency.value,
+                                items: [
+                                  DropdownMenuItem(
+                                    value: '6m',
+                                    child: Text('6 month'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: '1y',
+                                    child: Text('1 Year'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: '2y',
+                                    child: Text('2 Year '),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: '5y',
+                                    child: Text('5 Year'),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  item.stepupFrequency.value = value!;
+
+                                  // setState(() {});
+                                  // stepup = value.toString();
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      Gap(20),
+
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Step Up Amount',
+                              style: TextStyle(fontSize: 10),
+                            ),
+                            Gap(5),
+                            _box(
+                              child: TextField(
+                                onChanged: (value) {},
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  isCollapsed: true,
+                                  isDense: true,
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : SizedBox.shrink(),
+        ],
+      ),
     );
   }
 

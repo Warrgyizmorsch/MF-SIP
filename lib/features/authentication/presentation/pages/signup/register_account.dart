@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/style/padding.dart';
@@ -19,8 +20,6 @@ import 'package:my_sip/core/utils/constant/text_style.dart';
 import '../../controllers/auth/auth_controller.dart';
 import '../../widgets/creat_acc_if_not.dart';
 import '../../widgets/term_policy.dart';
-
-
 
 class RegisterAccountScreen extends GetView<AuthController> {
   const RegisterAccountScreen({super.key});
@@ -63,7 +62,10 @@ class RegisterAccountScreen extends GetView<AuthController> {
                         height: 5,
                         width: 5,
                         fit: BoxFit.scaleDown,
-                        colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.srcIn),
+                        colorFilter: const ColorFilter.mode(
+                          Colors.grey,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
                     SizedBox(height: Get.height * 0.01),
@@ -77,13 +79,18 @@ class RegisterAccountScreen extends GetView<AuthController> {
                         UImages.email,
                         height: 20,
                         fit: BoxFit.scaleDown,
-                        colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.srcIn),
+                        colorFilter: const ColorFilter.mode(
+                          Colors.grey,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
                     SizedBox(height: Get.height * 0.01),
 
                     // --- Mobile ---
                     CustomTextField(
+                      maxLength: 10,
+
                       controller: controller.mobileController,
                       label: "Mobile Number",
                       validationType: ValidationType.phone,
@@ -92,7 +99,10 @@ class RegisterAccountScreen extends GetView<AuthController> {
                         UImages.mobile,
                         height: 20,
                         fit: BoxFit.scaleDown,
-                        colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.srcIn),
+                        colorFilter: const ColorFilter.mode(
+                          Colors.grey,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
 
@@ -102,12 +112,20 @@ class RegisterAccountScreen extends GetView<AuthController> {
                     CustomTextField(
                       controller: controller.panController,
                       label: "Pan Number",
-                      validationType: ValidationType.required,
+                      keyboardType: TextInputType.text,
+                      validationType: ValidationType.custom,
+                      customValidator: controller.validatePanCard,
+
+                      inputFormatters: [PanInputFormatter()],
+
                       leading: SvgPicture.asset(
                         UImages.card,
                         height: 20,
                         fit: BoxFit.scaleDown,
-                        colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.srcIn),
+                        colorFilter: const ColorFilter.mode(
+                          Colors.grey,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
 
@@ -124,7 +142,10 @@ class RegisterAccountScreen extends GetView<AuthController> {
                         UImages.key,
                         height: 20,
                         fit: BoxFit.scaleDown,
-                        colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.srcIn),
+                        colorFilter: const ColorFilter.mode(
+                          Colors.grey,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
 
@@ -133,7 +154,7 @@ class RegisterAccountScreen extends GetView<AuthController> {
                     SmallHeading(
                       fontsize: Get.width * 0.03,
                       smallheading:
-                      'Password must contain: 8+ characters, uppercase, lowercase, and number ',
+                          'Password must contain: 8+ characters, uppercase, lowercase, and number ',
                     ),
 
                     // --- Checkbox with Obx ---
@@ -141,11 +162,13 @@ class RegisterAccountScreen extends GetView<AuthController> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Obx(() => Checkbox(
-                            side: BorderSide(color: Ucolors.darkgrey),
-                            value: controller.isAgreed.value,
-                            onChanged: controller.toggleAgreement,
-                          )),
+                          Obx(
+                            () => Checkbox(
+                              side: BorderSide(color: Ucolors.darkgrey),
+                              value: controller.isAgreed.value,
+                              onChanged: controller.toggleAgreement,
+                            ),
+                          ),
                           RichText(
                             text: TextSpan(
                               children: [
@@ -184,25 +207,31 @@ class RegisterAccountScreen extends GetView<AuthController> {
                     SizedBox(height: Get.height * 0.01),
 
                     // --- Submit Button (With Loading State) ---
-                    Obx(() => UElevatedBUtton(
-                      onPressed: controller.isRegisterLoading.value
-                          ? null // Disable while loading
-                          : controller.submitRegisterForm,
-                      child: Center(
-                        child: controller.isRegisterLoading.value
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : Text(
-                          'Create Account',
-                          style: UTextStyles.buttonText,
+                    Obx(
+                      () => UElevatedBUtton(
+                        onPressed: controller.isRegisterLoading.value
+                            ? null // Disable while loading
+                            : controller.submitRegisterForm,
+                        child: Center(
+                          child: controller.isRegisterLoading.value
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : Text(
+                                  'Create Account',
+                                  style: UTextStyles.buttonText,
+                                ),
                         ),
                       ),
-                    )),
+                    ),
 
                     SizedBox(height: Get.height * 0.01),
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [SmallHeading(smallheading: 'or register with')],
+                      children: [
+                        SmallHeading(smallheading: 'or register with'),
+                      ],
                     ),
                     SizedBox(height: Get.height * 0.01),
 
@@ -230,6 +259,59 @@ class RegisterAccountScreen extends GetView<AuthController> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    return newValue.copyWith(text: newValue.text.toUpperCase());
+  }
+}
+
+class PanInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    String text = newValue.text.toUpperCase();
+
+    // Max length 10
+    if (text.length > 10) {
+      text = text.substring(0, 10);
+    }
+
+    final buffer = StringBuffer();
+
+    for (int i = 0; i < text.length; i++) {
+      final char = text[i];
+
+      if (i < 5) {
+        // First 5 must be letters
+        if (RegExp(r'[A-Z]').hasMatch(char)) {
+          buffer.write(char);
+        }
+      } else if (i < 9) {
+        // Next 4 must be digits
+        if (RegExp(r'[0-9]').hasMatch(char)) {
+          buffer.write(char);
+        }
+      } else {
+        // Last must be letter
+        if (RegExp(r'[A-Z]').hasMatch(char)) {
+          buffer.write(char);
+        }
+      }
+    }
+
+    return TextEditingValue(
+      text: buffer.toString(),
+      selection: TextSelection.collapsed(offset: buffer.length),
     );
   }
 }
