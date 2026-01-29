@@ -6,7 +6,6 @@ import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/authentication/presentation/widgets/term_policy.dart';
 import 'package:my_sip/features/cart/data/model/cartItem_model.dart';
@@ -254,7 +253,47 @@ class FundHeader extends StatelessWidget {
         ),
 
         Deleteiconwithcontainer(
-          delete: () => controller.removeItem(index),
+          delete: () {
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                // backgroundColor: Ucolors.primary,
+                title: Text('Are you sure ? '),
+                actions: [
+                  TextButton(
+                    onPressed: () => Get.back(),
+                    child: Text(
+                      'No',
+                      style: TextStyle(fontSize: 14, color: Ucolors.blue),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Get.snackbar(
+                        margin: EdgeInsets.symmetric(
+                          vertical: 15,
+                          horizontal: 15,
+                        ),
+                        colorText: Ucolors.light,
+                        'Remove from cart',
+                        item.fundName.toString(),
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: Ucolors.red,
+                      );
+
+                      controller.removeItem(index);
+                    },
+                    child: Text(
+                      'Yes',
+                      style: TextStyle(fontSize: 14, color: Colors.red),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+          // delete: () => controller.removeItem(index),
           containercolor: Colors.redAccent.withOpacity(0.1),
         ),
       ],

@@ -323,9 +323,12 @@ class HomeScreen extends StatelessWidget {
                             iconPath: UImages.freedomsip,
                           ),
                         ),
-                        FeatureSection(
-                          featureName: 'Lumpsum',
-                          iconPath: UImages.glyph,
+                        GestureDetector(
+                          onTap: () => Get.toNamed(AppRoutes.startSipScreen),
+                          child: FeatureSection(
+                            featureName: 'Lumpsum',
+                            iconPath: UImages.glyph,
+                          ),
                         ),
                       ],
                     ),

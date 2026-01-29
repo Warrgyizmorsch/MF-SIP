@@ -6,6 +6,7 @@ import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
+import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 
 import '../../../fund_details/presentation/pages/fund_deatails.dart';
 
@@ -18,6 +19,7 @@ class Filterpage extends StatefulWidget {
 
 class _FilterpageState extends State<Filterpage> {
   final FundhouseController controller = Get.find();
+  final MutualFundController mutualFundController = Get.find();
 
   int selectedMenuIndex = 0;
 
@@ -115,9 +117,25 @@ class _FilterpageState extends State<Filterpage> {
 
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: const UElevatedBUtton(
-            child: Center(
-              child: Text('View All', style: TextStyle(color: Ucolors.light)),
+          child: Obx(
+            () => UElevatedBUtton(
+              // onPressed:  () => Get.back(
+              //   result: controller.selectedAmcIds.toList(),
+              //   // result: {
+              //   //   'amc_id': controller.selectedAmcIds.toList(),
+              //   //   'scheme_type': controller.selectedSchemeTyep.toList(),w
+              //   // },
+              // ),
+              // onPressed: controller.selectedFundCount.value == 0
+              //     ? null
+              //     : () => Get.back(result: controller.buildParam()),
+              onPressed: () => Get.back(result: controller.buildParam()),
+              child: Center(
+                child: Text(
+                  'View All ${controller.selectedFundCount}',
+                  style: TextStyle(color: Ucolors.light),
+                ),
+              ),
             ),
           ),
         ),
@@ -128,13 +146,13 @@ class _FilterpageState extends State<Filterpage> {
   Widget _buildRightPanel() {
     switch (selectedMenuIndex) {
       case 0:
-        return const SortByPanel();
+        return SortByPanel();
       case 1:
-        return const CategoriesPanel();
+        return CategoriesPanel();
       case 2:
-        return const RiskPanel();
+        return RiskPanel();
       case 3:
-        return const RatingsPanel();
+        return RatingsPanel();
       case 4:
         return FundHousePanel();
       default:
@@ -144,51 +162,52 @@ class _FilterpageState extends State<Filterpage> {
 }
 
 class SortByPanel extends StatelessWidget {
-  const SortByPanel({super.key});
+  SortByPanel({super.key});
+  final FundhouseController controller = Get.find();
 
   @override
   Widget build(BuildContext context) {
-    final items = [
-      'Popularity',
-      '1Y Returns',
-      '3Y Returns',
-      '5Y Returns',
-      'Rating',
-    ];
+    final Map<String, String> options = {
+      'Popularity': 'popularity',
+      '1Y Returns': '1y',
+      '3Y Returns': '3y',
+      '5Y Returns': '5y',
+      'Rating': 'rating',
+    };
 
-    return ListView(
-      padding: EdgeInsets.only(left: 16),
-      children: items
-          .map(
-            (e) => RadioListTile(
-              dense: true,
-              isThreeLine: false,
-              // visualDensity: VisualDensity(horizontal: 2),
-              shape: Border(
-                top: BorderSide(color: Ucolors.borderColor, width: 0.5),
-                bottom: BorderSide(color: Ucolors.borderColor, width: 0.5),
+    return Obx(
+      () => ListView(
+        padding: EdgeInsets.only(left: 16),
+        children: options.entries
+            .map(
+              (e) => RadioListTile<String>(
+                dense: true,
+                isThreeLine: false,
+                // visualDensity: VisualDensity(horizontal: 2),
+                shape: Border(
+                  top: BorderSide(color: Ucolors.borderColor, width: 0.5),
+                  bottom: BorderSide(color: Ucolors.borderColor, width: 0.5),
+                ),
+                value: e.value,
+                groupValue: controller.sortBy.value,
+                onChanged: (v) => controller.sortBy.value = v!,
+
+                title: Text(e.key),
+                activeColor: Ucolors.primary,
               ),
-              value: e,
-              groupValue: 'Popularity',
-              onChanged: (_) {},
-              title: Text(e),
-              activeColor: Ucolors.primary,
-            ),
-          )
-          .toList(),
+            )
+            .toList(),
+      ),
     );
   }
 }
 
-class CategoriesPanel extends StatefulWidget {
-  const CategoriesPanel({super.key});
+class CategoriesPanel extends StatelessWidget {
+  CategoriesPanel({super.key});
 
-  @override
-  State<CategoriesPanel> createState() => _CategoriesPanelState();
-}
-
-class _CategoriesPanelState extends State<CategoriesPanel> {
   bool indexFundsOnly = false;
+  final FundhouseController controller = Get.find();
+
   final List<String> equity = [
     "Flexi Cap",
     "International",
@@ -248,14 +267,12 @@ class _CategoriesPanelState extends State<CategoriesPanel> {
                     trackOutlineWidth: MaterialStateProperty.all(0),
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  child: Switch(
-                    // splashRadius: 5,
-                    value: indexFundsOnly,
-                    onChanged: (v) {
-                      setState(() {
-                        indexFundsOnly = v;
-                      });
-                    },
+                  child: Obx(
+                    () => Switch(
+                      // splashRadius: 5,
+                      value: controller.indexFundOnly.value,
+                      onChanged: (v) => controller.indexFundOnly.toggle(),
+                    ),
                   ),
                 ),
               ],
@@ -263,118 +280,69 @@ class _CategoriesPanelState extends State<CategoriesPanel> {
           ),
         ),
         const SizedBox(height: 16),
-        _expandTile('Equity', equity),
+        _expandTile('Equity', equity, 'equity'),
 
         // DashedLine(dashWidth: 0, height: 2, color: Ucolors.dark),
-        _expandTile('Debt', debt),
-        _expandTile('Hybrid', hybrid),
-        _expandTile('Commodities', commodities),
+        _expandTile('Debt', debt, 'debt'),
+        _expandTile('Hybrid', hybrid, 'hybrid'),
+        _expandTile('Commodities', commodities, 'commodities'),
       ],
     );
   }
 
   // Widget _expandTile(String title) {
-  //   return ExpansionTile(
-  //     // shape: Border(bottom: BorderSide(color: Ucolors.borderColor)),
-  //     visualDensity: VisualDensity(vertical: 0),
-  //     leading: Checkbox(value: false, onChanged: (value) {}),
-  //     dense: true,
-  //     title: Text(title),
-  //     trailing: const Icon(Icons.keyboard_arrow_down),
-  //     children: List.generate(
-  //       5,
-  //       (index) => Column(
-  //         children: [
-  //           CheckboxListTile(
-  //             contentPadding: const EdgeInsets.only(left: 48),
-  //             dense: true,
-  //             controlAffinity: ListTileControlAffinity.leading,
-  //             value: false,
-  //             onChanged: (value) {},
-  //             title: const Text('Flexi Cap'),
-  //           ),
+  Widget _expandTile(String title, List<String> list, String schemeType) {
+    return Obx(
+      () => ExpansionTile(
+        // dense: true,
+        tilePadding: const EdgeInsets.symmetric(horizontal: 12),
+        childrenPadding: const EdgeInsets.only(left: 12),
+        visualDensity: VisualDensity.compact,
+        trailing: const Icon(Icons.keyboard_arrow_down, size: 20),
 
-  //           const Divider(
-  //             color: Ucolors.borderColor,
-  //             height: 1,
-  //             thickness: 1,
-  //             indent: 72,
-  //             endIndent: 0,
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-
-  //     //  [
-  //     //   // ListTile(title: Text('Sub Category 1')),
-  //     //   // ListTile(title: Text('Sub Category 2')),
-  //     //   // ...List.generate(
-  //     //   //   5,
-  //     //   //   (index) => CheckboxListTile(
-  //     //   //     // shape: Border(bottom: BorderSide(color: Ucolors.borderColor,)),
-  //     //   //     // shape: Border(bottom: BorderSide(color: Ucolors.borderside)),
-  //     //   //     contentPadding: EdgeInsets.only(left: 50),
-  //     //   //     dense: true,
-  //     //   //     // isThreeLine: true,
-  //     //   //     controlAffinity: ListTileControlAffinity.leading,
-
-  //     //   //     // side: BorderSide(color: Colors.black),
-  //     //   //     shape: Border(bottom: BorderSide(color: Ucolors.borderColor)),
-  //     //   //     value: false,
-  //     //   //     onChanged: (value) {},
-  //     //   //     title: Text('Flexi Cap'),
-  //     //   //   ),
-  //     //   // ),
-  //     // ],
-  //   );
-  // }
-  Widget _expandTile(String title, List<String> list) {
-    return ExpansionTile(
-      // dense: true,
-      tilePadding: const EdgeInsets.symmetric(horizontal: 12),
-      childrenPadding: const EdgeInsets.only(left: 12),
-      visualDensity: VisualDensity.compact,
-      trailing: const Icon(Icons.keyboard_arrow_down, size: 20),
-
-      title: Row(
-        children: [
-          Checkbox(
-            // splashRadius: 6,
-            value: false,
-            onChanged: (value) {},
-            visualDensity: VisualDensity.compact,
-          ),
-          Expanded(
-            child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
-          ),
-        ],
-      ),
-
-      children: List.generate(
-        // 5
-        list.length,
-        (index) => Column(
+        title: Row(
           children: [
-            CheckboxListTile(
-              contentPadding: const EdgeInsets.only(left: 10, right: 12),
-              dense: true,
+            Checkbox(
+              activeColor: Ucolors.primary,
+              // splashRadius: 6,
+              value: controller.selectedSchemeTyep.contains(schemeType),
+              onChanged: (value) {
+                controller.toggleSchemeType(schemeType);
+              },
               visualDensity: VisualDensity.compact,
-              controlAffinity: ListTileControlAffinity.leading,
-              value: false,
-              onChanged: (value) {},
-              title: Text(
-                list[index],
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
             ),
-            const Divider(
-              height: 1,
-              thickness: 1,
-              indent: 36,
-              color: Ucolors.borderColor,
+            Expanded(
+              child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
           ],
+        ),
+
+        children: List.generate(
+          // 5
+          list.length,
+          (index) => Column(
+            children: [
+              CheckboxListTile(
+                contentPadding: const EdgeInsets.only(left: 10, right: 12),
+                dense: true,
+                visualDensity: VisualDensity.compact,
+                controlAffinity: ListTileControlAffinity.leading,
+                value: false,
+                onChanged: (value) {},
+                title: Text(
+                  list[index],
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const Divider(
+                height: 1,
+                thickness: 1,
+                indent: 36,
+                color: Ucolors.borderColor,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -382,11 +350,11 @@ class _CategoriesPanelState extends State<CategoriesPanel> {
 }
 
 class RiskPanel extends StatelessWidget {
-  const RiskPanel({super.key});
-
+  RiskPanel({super.key});
+  final FundhouseController controller = Get.find();
   @override
   Widget build(BuildContext context) {
-    final risks = [
+    final List<String> risks = [
       'Low',
       'Moderately Low',
       'Moderate',
@@ -395,61 +363,73 @@ class RiskPanel extends StatelessWidget {
       'Very High',
     ];
 
-    return ListView(
-      padding: EdgeInsets.only(left: 16),
-      // padding: EdgeInsets.only(bottom: 10),
-      children: risks
-          .map(
-            (e) => CheckboxListTile(
-              dense: true,
-              activeColor: Ucolors.primary,
-              isThreeLine: false,
-              shape: Border(
-                top: BorderSide(color: Ucolors.borderColor, width: 0.5),
-                bottom: BorderSide(color: Ucolors.borderColor, width: 0.5),
-              ),
-              value: false,
-              onChanged: (_) {},
-              title: Text(e),
-              controlAffinity: ListTileControlAffinity.leading,
+    return Obx(
+      () => ListView(
+        padding: EdgeInsets.only(left: 16),
+        // padding: EdgeInsets.only(bottom: 10),
+        children: risks.map((risk) {
+          final key = risk.toLowerCase().replaceAll(' ', '_');
+
+          return CheckboxListTile(
+            dense: true,
+            activeColor: Ucolors.primary,
+            isThreeLine: false,
+            shape: Border(
+              top: BorderSide(color: Ucolors.borderColor, width: 0.5),
+              bottom: BorderSide(color: Ucolors.borderColor, width: 0.5),
             ),
-          )
-          .toList(),
+            value: controller.selectedRisk.contains(key),
+            onChanged: (_) => controller.toggleRisk(risk),
+            title: Text(risk),
+            controlAffinity: ListTileControlAffinity.leading,
+          );
+        }).toList(),
+      ),
     );
   }
 }
 
 class RatingsPanel extends StatelessWidget {
-  const RatingsPanel({super.key});
+  RatingsPanel({super.key});
+
+  final FundhouseController controller = Get.find();
+
+  final Map<String, int> ratings = {
+    '5 ★': 5,
+    '4+ ★': 4,
+    '3+ ★': 3,
+    '2+ ★': 2,
+    '1+ ★': 1,
+  };
 
   @override
   Widget build(BuildContext context) {
-    final ratings = ['5 ★', '4+ ★', '3+ ★', '2+ ★', '1+ ★'];
+    return Obx(
+      () => ListView(
+        // padding: EdgeInsets.zero,
+        padding: const EdgeInsets.only(left: 16),
 
-    return ListView(
-      // padding: EdgeInsets.zero,
-      padding: const EdgeInsets.only(left: 16),
-
-      children: ratings
-          .map(
-            (e) => RadioListTile(
-              dense: true,
-              isThreeLine: false,
-              shape: Border(
-                bottom: BorderSide(
-                  color: Ucolors.borderColor,
-                  // strokeAlign: BorderSide.strokeAlignCenter,
-                  // style: BorderStyle.
+        children: ratings.entries
+            .map(
+              (e) => RadioListTile<int>(
+                dense: true,
+                isThreeLine: false,
+                shape: Border(
+                  bottom: BorderSide(
+                    color: Ucolors.borderColor,
+                    // strokeAlign: BorderSide.strokeAlignCenter,
+                    // style: BorderStyle.
+                  ),
                 ),
+                value: e.value,
+                groupValue: controller.selectedRating.value,
+                onChanged: (value) => controller.toggleRating(value!),
+                title: Text(e.key),
+                activeColor: Ucolors.primary,
               ),
-              value: e,
-              groupValue: '5 ★',
-              onChanged: (_) {},
-              title: Text(e),
-              activeColor: Ucolors.primary,
-            ),
-          )
-          .toList(),
+            )
+            .toList(),
+      ),
     );
   }
 }
@@ -508,9 +488,12 @@ class FundHousePanel extends StatelessWidget {
                 dense: true,
                 isThreeLine: false,
                 controlAffinity: ListTileControlAffinity.leading,
-                value: controller.selectAmcname.contains(e.amcName),
-                onChanged: (bool? echeck) =>
-                    controller.toggleSelection(e.amcName),
+                value: controller.selectedAmcIds.contains(e.id),
+                onChanged: (bool? echeck) {
+                  controller.toggleSelection(e.id);
+
+                  log(e.id.toString());
+                },
 
                 title: Text(e.amcName.toString()),
               ),

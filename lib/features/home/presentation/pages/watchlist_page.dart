@@ -14,7 +14,7 @@ class WatchlistPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBarNormal(title: 'Watchlist'),
+      appBar: CustomAppBarNormal(title: 'Wishlist'),
       body: Obx(() {
         if (controller.isLoading.value) {
           return Center(

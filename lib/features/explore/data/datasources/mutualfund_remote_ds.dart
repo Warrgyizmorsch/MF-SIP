@@ -11,15 +11,13 @@ class MutualfundRemoteDs {
 
   MutualfundRemoteDs(this._servicesApi);
 
-   Future<Either<Result<MutualFundListResponseModel>, ApiError>> getFundHouse(
+  Future<Either<Result<MutualFundListResponseModel>, ApiError>> getFundHouse(
     Map<String, dynamic> data,
   ) async {
     try {
       final resp = await _servicesApi.getApi(
         "${Appurl.baseUrl}/api/v1/mutual-funds",
         queryParameters: data,
-        
-
       );
 
       createLog(
@@ -30,14 +28,10 @@ class MutualfundRemoteDs {
         final result = MutualFundListResponseModel.fromJson(resp);
         return Left(Result.success(result));
       } else {
-        return Right(
-          ApiError(message: 'MutualFund Failed: Success was false'),
-        );
+        return Right(ApiError(message: 'MutualFund Failed: Success was false'));
       }
     } catch (e) {
-      return Right(
-        ApiError(message: 'Mutual Failed with Exception $e'),
-      );
+      return Right(ApiError(message: 'Mutual Failed with Exception $e'));
     }
   }
 }

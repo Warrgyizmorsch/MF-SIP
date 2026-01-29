@@ -67,15 +67,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
           SliverAppBar(
             automaticallyImplyLeading: false,
             pinned: true,
-            // expandedHeight: 80,
 
-            // leadingWidth: 20,
-            // expandedHeight: 200,
             flexibleSpace: CustomAppBarNormal(
               title: 'All Mutual Funds',
               backgroundColor: Ucolors.light,
               actionsPadding: 15,
-              // backIcon: ,
               action: [
                 Obx(
                   () => Stack(
@@ -133,7 +129,23 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     ),
                     child: CompactIcon(
                       icon: Icons.tune,
-                      onPressed: () => Get.toNamed(AppRoutes.filterpage),
+                      // onPressed: () => Get.toNamed(AppRoutes.filterpage),
+                      onPressed: () async {
+                        final result = await Get.toNamed(AppRoutes.filterpage);
+
+                        // if (result != null && result is List<int>) {
+                        //   await controller.fetchFundsByAmc(result);
+                        //   // await controller.fetchFundsByCategories(
+                        //   //   result.toString(),
+                        //   // );
+                        // }
+                        if (result != null && result is Map<String, dynamic>) {
+                          // await controller.fetchFunds(result);
+                          await Get.find<MutualFundController>().fetchFunds(
+                            result,
+                          );
+                        }
+                      },
                     ),
                   ),
 
@@ -158,6 +170,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
                               ),
                               leading: Icon(Icons.search),
                               hintText: 'Search',
+                              onChanged: (value) {
+                                // controller.searchFundFn(value);
+                                controller.searchFundApi(value);
+                              },
                             ),
                           ),
                           Gap(2),
@@ -190,15 +206,22 @@ class _ExploreScreenState extends State<ExploreScreen> {
             ),
           ),
 
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('1,601 funds', style: UTextStyles.small),
-                  Text('‹› 3 Year Returns', style: UTextStyles.small),
-                ],
+          Obx(
+            () => SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      controller.selectedFundCount.value == 0
+                          ? '${controller.mutualfund.length} funds'
+                          : '${controller.selectedFundCount}  funds',
+                      style: UTextStyles.small,
+                    ),
+                    Text('‹› 3 Year Returns', style: UTextStyles.small),
+                  ],
+                ),
               ),
             ),
           ),
@@ -223,10 +246,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
             ///  MUTUAL FUND LIST
             SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
-                final fund = controller.mutualfund[index];
+                final fund = controller.searchFund[index];
 
                 return MutualFundCard(entity: fund);
-              }, childCount: controller.mutualfund.length),
+              }, childCount: controller.searchFund.length),
             );
           }),
         ],
@@ -240,12 +263,12 @@ class MutualFundCard extends StatelessWidget {
     super.key,
     this.isDelete = false,
     this.containercolor,
-    this.entity,
+    required this.entity,
   });
 
   final bool isDelete;
   final Color? containercolor;
-  final MutualFundListEntity? entity;
+  final MutualFundListEntity entity;
   final CartController controller = Get.find<CartController>();
 
   @override
@@ -282,7 +305,7 @@ class MutualFundCard extends StatelessWidget {
                   // backgroundImage:  NetworkImage(entity!.amc!.amcLogoUrl!),
                   child: ClipOval(
                     child: CachedNetworkImage(
-                      imageUrl: entity!.amc!.amcLogoUrl!,
+                      imageUrl: entity.amc?.amcLogoUrl ?? '',
                       fadeInDuration: const Duration(milliseconds: 300),
 
                       placeholder: (context, url) =>
@@ -299,7 +322,7 @@ class MutualFundCard extends StatelessWidget {
                     children: [
                       Text(
                         // 'Nippon India Large Cap Fund - Growth Plan',
-                        entity!.baseSchemeName.toString(),
+                        entity.baseSchemeName ?? 'Unknown Fund',
                         // entity.baseSchemeName.toString(),
                         style: Theme.of(context).textTheme.titleSmall!.copyWith(
                           fontWeight: FontWeight.w600,
@@ -340,9 +363,9 @@ class MutualFundCard extends StatelessWidget {
                             case PortfolioMenuAction.topUp:
                               controller.addItem(
                                 CartItem(
-                                  fundId: entity!.amc!.id.toString(),
-                                  fundName: entity!.baseSchemeName.toString(),
-                                  logoUrl: entity!.amc!.amcLogoUrl.toString(),
+                                  fundId: entity.amc?.id?.toString() ?? '',
+                                  fundName: entity.baseSchemeName ?? '',
+                                  logoUrl: entity.amc?.amcLogoUrl ?? '',
                                 ),
                               );
                               Get.snackbar(

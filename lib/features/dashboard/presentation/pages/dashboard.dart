@@ -8,6 +8,7 @@ import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
@@ -114,9 +115,10 @@ class BottomWaveClipper extends CustomClipper<Path> {
 }
 
 class DashboardScreen extends StatelessWidget {
-   DashboardScreen({super.key});
+  DashboardScreen({super.key});
 
-  final AuthController controller=  Get.find<AuthController>();
+  final AuthController controller = Get.find<AuthController>();
+  final CartController cartController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -147,10 +149,42 @@ class DashboardScreen extends StatelessWidget {
                   onPressed: () => Get.toNamed(AppRoutes.notification),
                   iconColor: Ucolors.dark,
                 ),
-                CompactIcon(
-                  icon: Iconsax.shopping_cart,
-                  onPressed: () => Get.toNamed(AppRoutes.cart),
-                  iconColor: Ucolors.dark,
+                // CompactIcon(
+                //   icon: Iconsax.shopping_cart,
+                //   onPressed: () => Get.toNamed(AppRoutes.cart),
+                //   iconColor: Ucolors.dark,
+                // ),
+                Obx(
+                  () => Stack(
+                    children: [
+                      CompactIcon(
+                        icon: Iconsax.shopping_cart,
+                        onPressed: () => Get.toNamed(AppRoutes.cart),
+                        iconColor: Ucolors.dark,
+                      ),
+                      if (cartController.itemsCount > 0)
+                        Positioned(
+                          right: 0,
+                          top: -5,
+
+                          // bottom: 0,
+                          child: Container(
+                            padding: EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: Ucolors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              cartController.itemsCount.toString(),
+
+                              style: UTextStyles.buttonText.copyWith(
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
                 CompactIcon(
                   icon: Iconsax.archive_tick,
