@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -145,6 +146,10 @@ class _FundDeatailsScreenState extends State<FundDeatailsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final args = Get.arguments as Map<String, dynamic>;
+    final schemeName = args['scheme'];
+    final imgUrl = args['imgUrl'];
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: CustomScrollView(
@@ -191,23 +196,25 @@ class _FundDeatailsScreenState extends State<FundDeatailsScreen>
                   const SizedBox(width: 10),
                   Row(
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadiusGeometry.circular(12),
+                      ClipOval(
                         child: Container(
+                          decoration: BoxDecoration(shape: BoxShape.circle),
                           constraints: BoxConstraints(
                             maxHeight: 40,
                             maxWidth: 40,
                           ),
-                          child: Image.asset(
-                            UImages.motilal,
-                            fit: BoxFit.contain,
-                          ),
+                          child: CachedNetworkImage(imageUrl: imgUrl),
+                          //  Image.asset(
+                          //   UImages.motilal,
+                          //   fit: BoxFit.contain,
+                          // ),
                         ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'Nippon India Large Cap Fund- Growth Plan- Growth Option',
+                          // 'Nippon India Large Cap Fund- Growth Plan- Growth Option',
+                          schemeName,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.bodyLarge!

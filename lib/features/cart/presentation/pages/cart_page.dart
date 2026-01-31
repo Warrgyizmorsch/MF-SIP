@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -20,11 +22,20 @@ class CartPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // log('${Get.arguments}');
+    final args = Get.arguments as Map<String, dynamic>?;
+    if (args != null && args['monthlyAmount'] != null) {
+      controller.monthlyAmount.value = int.parse(
+        args['monthlyAmount'].toString(),
+      );
+    }
+    // final monthly = args?['monthlyAmount'];
+    // final amount = args['totalAmount'] ?? '';
     return Scaffold(
       appBar: CustomAppBarNormal(title: 'Cart'),
       body: Obx(() {
         if (controller.itemsCount == 0) {
-          return Center(child: Text('No item in the cart'));
+          return Center(child: Text('Add scheme to cart'));
         }
 
         return ListView.builder(
@@ -43,8 +54,38 @@ class CartPage extends StatelessWidget {
         top: false,
         child: Obx(
           () => CartBottomBar(
+            goalAmount: controller.items.isEmpty
+                ? null
+                : '/${controller.monthlyAmount.value.toString()}',
             amount: controller.totolAmount.toString(),
-            ontap: () => Get.toNamed(AppRoutes.paymentScreen),
+            ontap: () {
+              if (controller.monthlyAmount.value != controller.totolAmount) {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(
+                      'SIP amount is insufficient for this goal.\nPlease increase the amount or duration.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text('Back'),
+                      ),
+
+                      TextButton(
+                        onPressed: () => Get.toNamed(AppRoutes.paymentScreen),
+                        child: Text('Purchase'),
+                      ),
+                    ],
+                  ),
+                );
+
+                // Get.toNamed(AppRoutes.paymentScreen);
+              }
+              // else {
+              //   Get.toNamed(AppRoutes.paymentScreen);
+              // }
+            },
           ),
         ),
       ),
@@ -60,6 +101,7 @@ class CartBottomBar extends StatelessWidget {
     this.amountColor,
     required this.ontap,
     this.amount,
+    this.goalAmount,
   });
 
   final String? title;
@@ -67,6 +109,7 @@ class CartBottomBar extends StatelessWidget {
   final Color? amountColor;
   final VoidCallback ontap;
   final String? amount;
+  final String? goalAmount;
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +144,12 @@ class CartBottomBar extends StatelessWidget {
                           color: amountColor ?? Ucolors.success,
                         ),
                       ),
-                      Text(' /Monthly'),
+                      Text(
+                        goalAmount ?? '/Monthly',
+                        style: TextStyle(
+                          fontSize: goalAmount != null ? 25 : 14,
+                        ),
+                      ),
                     ],
                   ),
                 ],

@@ -4,6 +4,7 @@ import 'package:my_sip/features/explore/data/datasources/mutualfund_remote_ds.da
 import 'package:my_sip/features/explore/data/repositories/mutual_fund_repo_implement.dart';
 import 'package:my_sip/features/explore/domain/repositories/mutual_fund_repository.dart';
 import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_usecases.dart';
+import 'package:my_sip/features/explore/domain/usecases/get_scheme_infousecase.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/onboarding/presentation/controller/onboarding_controller.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/questions/question_controller.dart';
@@ -27,20 +28,24 @@ class UBinding extends Bindings {
 
     ///Mutual Fund Repository
 
-    Get.lazyPut(() => MutualfundRemoteDs(Get.find()));
+    Get.lazyPut(() => MutualfundRemoteDs(Get.find()), fenix: true);
 
     // 3. Register the Repository
     Get.lazyPut<MutualFundRepository>(
       () => MutualFundRepoImplement(Get.find()),
+      fenix: true,
     );
 
     // 4. Register the Use Case
-    Get.lazyPut(() => GetMutualFundListUsecases(Get.find()));
+    Get.lazyPut(() => GetMutualFundListUsecases(Get.find()), fenix: true);
+    Get.lazyPut(() => GetSchemeInfousecase(Get.find()), fenix: true);
 
     // 5. Finally, register the Controller
-    Get.lazyPut(() => MutualFundController(Get.find()), fenix: true);
+    Get.lazyPut(
+      () => MutualFundController(Get.find(), Get.find()),
+      fenix: true,
+    );
 
     Get.put<CartController>(CartController(), permanent: true);
-
   }
 }

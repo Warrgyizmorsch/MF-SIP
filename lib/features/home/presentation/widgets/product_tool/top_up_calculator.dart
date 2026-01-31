@@ -151,7 +151,7 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
                       // mainAxisSize: MainAxisSize.min,
                       children: [
                         TableHeader(
-                          width: 80,
+                          width: 100,
                           heading1: 'Metric',
                           heading2: 'Invested',
                           heading3: 'Future',
@@ -160,7 +160,7 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
                         DashedLine(color: Colors.grey.shade300, dashSpace: 0),
                         ...summaryRows.map(
                           (e) => ReturnsTableRow(
-                            width: 80,
+                            width: 100,
                             // fontSize: 10,
                             color4: Colors.green.shade600,
                             data: e,

@@ -55,10 +55,10 @@ class ReturnsTableRow extends StatelessWidget {
               //   ),
               // ),
               SizedBox(
-                width: width ?? 40, // IMPORTANT: enough for "Step-up SIP"
+                width: width ?? 80, // IMPORTANT: enough for "Step-up SIP"
                 child: Text(
                   data.period,
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.start,
                   // maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(

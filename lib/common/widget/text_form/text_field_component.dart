@@ -145,6 +145,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         }
         break;
       case ValidationType.none:
+      // ignore: unreachable_switch_default
       default:
         return null;
     }

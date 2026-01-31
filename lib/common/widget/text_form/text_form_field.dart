@@ -74,6 +74,7 @@ class UTextFormField extends StatelessWidget {
             // vertical: 0,
             // horizontal: 16,
           ),
+
           suffix: suffix,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
@@ -86,10 +87,7 @@ class UTextFormField extends StatelessWidget {
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
 
-            borderSide: const BorderSide(
-              color: Ucolors.textFormEnabled,
-              width: 2,
-            ),
+            borderSide: BorderSide(color: Ucolors.textFormEnabled, width: 2),
           ),
         ),
       ),

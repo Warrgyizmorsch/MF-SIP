@@ -45,25 +45,38 @@ class NetworkServicesApi implements BaseApiServices {
 
   @override
   Future<dynamic> getApi(
-      String url, {
-        Map<String, dynamic>? queryParameters,
-      }) async {
+    String url, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
     try {
-      final response = await _dio.get(
-        url,
-        queryParameters: queryParameters,
-      );
+      final response = await _dio.get(url, queryParameters: queryParameters);
       return _handleResponse(response);
     } on DioException catch (e) {
       throw _handleDioError(e);
     }
   }
 
-
+  // @override
+  // Future<dynamic> postApi(String url, dynamic data) async {
+  //   try {
+  //     final response = await _dio.post(url, data: data);
+  //     return _handleResponse(response);
+  //   } on DioException catch (e) {
+  //     throw _handleDioError(e);
+  //   }
+  // }
   @override
-  Future<dynamic> postApi(String url, dynamic data) async {
+  Future<dynamic> postApi(
+    String url, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+  }) async {
     try {
-      final response = await _dio.post(url, data: data);
+      final response = await _dio.post(
+        url,
+        data: data,
+        queryParameters: queryParameters,
+      );
       return _handleResponse(response);
     } on DioException catch (e) {
       throw _handleDioError(e);
@@ -110,9 +123,7 @@ class NetworkServicesApi implements BaseApiServices {
       final response = await _dio.post(
         url,
         data: FormData.fromMap(data),
-        options: Options(
-          contentType: 'application/x-www-form-urlencoded',
-        ),
+        options: Options(contentType: 'application/x-www-form-urlencoded'),
       );
       return _handleResponse(response);
     } on DioException catch (e) {
@@ -126,11 +137,11 @@ class NetworkServicesApi implements BaseApiServices {
 
   @override
   Future<dynamic> postMultipart(
-      String url,
-      Map<String, String> fields,
-      List<Uint8List> files,
-      List<String> fileNames,
-      ) async {
+    String url,
+    Map<String, String> fields,
+    List<Uint8List> files,
+    List<String> fileNames,
+  ) async {
     try {
       final formData = FormData();
 
@@ -159,9 +170,7 @@ class NetworkServicesApi implements BaseApiServices {
       final response = await _dio.post(
         url,
         data: formData,
-        options: Options(
-          contentType: 'multipart/form-data',
-        ),
+        options: Options(contentType: 'multipart/form-data'),
       );
 
       return _handleResponse(response);
@@ -181,17 +190,19 @@ class NetworkServicesApi implements BaseApiServices {
   }) async {
     try {
       // Create a separate Dio instance for S3 uploads (no interceptors)
-      final s3Dio = Dio(BaseOptions(
-        connectTimeout: const Duration(seconds: 60),
-        sendTimeout: const Duration(seconds: 60),
-        receiveTimeout: const Duration(seconds: 60),
-      ));
+      final s3Dio = Dio(
+        BaseOptions(
+          connectTimeout: const Duration(seconds: 60),
+          sendTimeout: const Duration(seconds: 60),
+          receiveTimeout: const Duration(seconds: 60),
+        ),
+      );
 
       // Different approach for web vs mobile
       final response = await s3Dio.put(
         uploadUrl,
         data: kIsWeb
-            ? bytes  // Web: Direct bytes
+            ? bytes // Web: Direct bytes
             : Stream.fromIterable(bytes.map((e) => [e])), // Mobile: Stream
         options: Options(
           headers: {
@@ -259,17 +270,15 @@ class NetworkServicesApi implements BaseApiServices {
         if (kIsWeb) {
           return NoInternetException(
             "Network error on web. Check:\n"
-                "1. Your internet connection\n"
-                "2. CORS configuration on your backend\n"
-                "3. Backend URL is correct and accessible",
+            "1. Your internet connection\n"
+            "2. CORS configuration on your backend\n"
+            "3. Backend URL is correct and accessible",
           );
         }
         return NoInternetException('No internet connection');
 
       default:
-        return FetchDataException(
-          error.message ?? 'Unexpected error occurred',
-        );
+        return FetchDataException(error.message ?? 'Unexpected error occurred');
     }
   }
 
@@ -306,9 +315,9 @@ class NetworkServicesApi implements BaseApiServices {
 class _HeadersInterceptor extends Interceptor {
   @override
   void onRequest(
-      RequestOptions options,
-      RequestInterceptorHandler handler,
-      ) async {
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     // skips interceptor [for s3 uploads]
     if (options.extra['skipAuthInterceptor'] == true) {
       createLog("[API] Request: ${options.method} ${options.uri}");
@@ -362,9 +371,9 @@ class _HeadersInterceptor extends Interceptor {
 class _AuthInterceptor extends Interceptor {
   @override
   void onRequest(
-      RequestOptions options,
-      RequestInterceptorHandler handler,
-      ) async {
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     // Skip auth for certain requests (like S3 uploads)
     if (options.extra['skipAuthInterceptor'] == true) {
       return super.onRequest(options, handler);
@@ -381,10 +390,7 @@ class _AuthInterceptor extends Interceptor {
   }
 
   @override
-  void onError(
-      DioException err,
-      ErrorInterceptorHandler handler,
-      ) async {
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
     // Handle 401 - Token expired or invalid
     if (err.response?.statusCode == 401) {
       createLog("[API] 401 Error - Attempting token refresh");
@@ -440,7 +446,6 @@ class _AuthInterceptor extends Interceptor {
 class _LoggingInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-
     createLog('│ REQUEST: ${options.method} ${options.uri}');
     createLog('│ Headers: ${options.headers}');
     if (options.data != null) {
@@ -452,8 +457,9 @@ class _LoggingInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-
-    createLog('│ RESPONSE: ${response.statusCode} ${response.requestOptions.uri}');
+    createLog(
+      '│ RESPONSE: ${response.statusCode} ${response.requestOptions.uri}',
+    );
     createLog('│ Data: ${response.data}');
 
     super.onResponse(response, handler);
@@ -461,8 +467,9 @@ class _LoggingInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-
-    createLog('│ ERROR: ${err.requestOptions.method} ${err.requestOptions.uri}');
+    createLog(
+      '│ ERROR: ${err.requestOptions.method} ${err.requestOptions.uri}',
+    );
     createLog('│ Type: ${err.type}');
     createLog('│ Message: ${err.message}');
     if (err.response != null) {
@@ -485,7 +492,6 @@ class _ErrorInterceptor extends Interceptor {
   }
 }
 
-
 // lib/core/exceptions/app_exceptions.dart
 
 /// Base exception class for all app exceptions
@@ -494,11 +500,7 @@ class AppException implements Exception {
   final String? prefix;
   final int? statusCode;
 
-  AppException({
-    required this.message,
-    this.prefix,
-    this.statusCode,
-  });
+  AppException({required this.message, this.prefix, this.statusCode});
 
   @override
   String toString() {
@@ -509,85 +511,76 @@ class AppException implements Exception {
 /// Exception for network connectivity issues
 class NoInternetException extends AppException {
   NoInternetException([String? message])
-      : super(
-    message: message ?? 'No internet connection',
-    prefix: 'No Internet',
-  );
+    : super(
+        message: message ?? 'No internet connection',
+        prefix: 'No Internet',
+      );
 }
 
 /// Exception for request timeout
 class RequestTimeoutException extends AppException {
   RequestTimeoutException([String? message])
-      : super(
-    message: message ?? 'Request timeout',
-    prefix: 'Timeout',
-  );
+    : super(message: message ?? 'Request timeout', prefix: 'Timeout');
 }
 
 /// Exception for bad requests (400)
 class BadRequestException extends AppException {
   BadRequestException([String? message])
-      : super(
-    message: message ?? 'Bad request',
-    prefix: 'Bad Request',
-    statusCode: 400,
-  );
+    : super(
+        message: message ?? 'Bad request',
+        prefix: 'Bad Request',
+        statusCode: 400,
+      );
 }
 
 /// Exception for unauthorized access (401)
 class UnauthorizedException extends AppException {
   UnauthorizedException([String? message])
-      : super(
-    message: message ?? 'Unauthorized access',
-    prefix: 'Unauthorized',
-    statusCode: 401,
-  );
+    : super(
+        message: message ?? 'Unauthorized access',
+        prefix: 'Unauthorized',
+        statusCode: 401,
+      );
 }
 
 /// Exception for forbidden access (403)
 class ForbiddenException extends AppException {
   ForbiddenException([String? message])
-      : super(
-    message: message ?? 'Access forbidden',
-    prefix: 'Forbidden',
-    statusCode: 403,
-  );
+    : super(
+        message: message ?? 'Access forbidden',
+        prefix: 'Forbidden',
+        statusCode: 403,
+      );
 }
 
 /// Exception for not found (404)
 class NotFoundException extends AppException {
   NotFoundException([String? message])
-      : super(
-    message: message ?? 'Resource not found',
-    prefix: 'Not Found',
-    statusCode: 404,
-  );
+    : super(
+        message: message ?? 'Resource not found',
+        prefix: 'Not Found',
+        statusCode: 404,
+      );
 }
 
 /// Exception for server errors (500+)
 class ServerException extends AppException {
   ServerException([String? message])
-      : super(
-    message: message ?? 'Internal server error',
-    prefix: 'Server Error',
-    statusCode: 500,
-  );
+    : super(
+        message: message ?? 'Internal server error',
+        prefix: 'Server Error',
+        statusCode: 500,
+      );
 }
 
 /// Exception for data fetching errors
 class FetchDataException extends AppException {
   FetchDataException([String? message])
-      : super(
-    message: message ?? 'Error fetching data',
-    prefix: 'Fetch Error',
-  );
+    : super(message: message ?? 'Error fetching data', prefix: 'Fetch Error');
 }
 
 /// Exception for data parsing errors
 class InvalidInputException extends AppException {
   InvalidInputException([String? message])
-      : super(
-    message: message ?? 'Invalid input',
-    prefix: 'Invalid Input',
-  );
+    : super(message: message ?? 'Invalid input', prefix: 'Invalid Input');
 }

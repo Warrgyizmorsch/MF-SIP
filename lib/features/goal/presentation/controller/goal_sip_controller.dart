@@ -283,7 +283,13 @@ class GoalSipController extends GetxController {
   final futureValue = 0.obs;
   final totalReturn = 0.obs;
 
+  // Yearly report
   final yearlyReport = <ReturnRow>[].obs;
+
+  ///Popular Funds Contains
+  // final selectedPopularFund = <int>{}.obs;
+  final selectedPopularFund = <String>{}.obs;
+  // RxList<int> selectedPopularFund = <int>[].obs;
 
   @override
   void onInit() {
@@ -291,6 +297,7 @@ class GoalSipController extends GetxController {
     _recalculate();
   }
 
+  ///// -------------- Goal Calculation ---------------///
   void setTarget(double value) {
     targetAmount.value = value;
     _recalculate();
@@ -320,14 +327,14 @@ class GoalSipController extends GetxController {
       invested.value = 0;
       futureValue.value = 0;
       totalReturn.value = 0;
-      yearlyReport.clear(); // ✅ clear report
+      yearlyReport.clear(); //  clear report
 
       return;
     }
 
     final r = _effectiveMonthlyRate(annualRate.value);
 
-    // ✅ Step 1: exact SIP (double)
+    //  Step 1: exact SIP (double)
     double exactSip;
     if (r == 0) {
       exactSip = targetAmount.value / totalMonths;
@@ -336,11 +343,11 @@ class GoalSipController extends GetxController {
       exactSip = targetAmount.value / factor;
     }
 
-    // ✅ Step 2: ROUND like website
+    //  Step 2: ROUND like website
     final int roundedSip = exactSip.round();
     monthlySip.value = roundedSip;
 
-    // ✅ Step 3: build projection using ROUNDED SIP ONLY
+    //  Step 3: build projection using ROUNDED SIP ONLY
     int investedTmp = 0;
     double valueTmp = 0;
 
@@ -357,6 +364,7 @@ class GoalSipController extends GetxController {
     yearlyReport.value = buildYearlyReport();
   }
 
+  // ------Report -- //
   List<ReturnRow> buildYearlyReport() {
     final int yearsCount = years.value.round();
     final int sip = monthlySip.value;
@@ -387,5 +395,24 @@ class GoalSipController extends GetxController {
     }
 
     return rows;
+  }
+  //--------------------------------------------------///
+
+  ///// ---------Popular Fund ----------//
+
+  // void toggleFund(String id) {
+  //   selectedPopularFund.contains(id)
+  //       ? selectedPopularFund.remove(id)
+  //       : selectedPopularFund.add(id);
+  // }
+
+    void toggleFund(String fundName) {
+    selectedPopularFund.contains(fundName)
+        ? selectedPopularFund.remove(fundName)
+        : selectedPopularFund.add(fundName);
+  }
+
+  bool isSelectedFund(String fundName) {
+    return selectedPopularFund.contains(fundName);
   }
 }

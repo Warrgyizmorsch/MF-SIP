@@ -35,7 +35,7 @@ import 'app_routes.dart';
 class AppPages {
   static pages() => [
     GetPage(name: AppRoutes.splash, page: () => const SplashScreen()),
-    GetPage(name: AppRoutes.home, page: () =>  HomeScreen()),
+    GetPage(name: AppRoutes.home, page: () =>  HomeScreen(),),
     GetPage(
       binding: UBinding(),
       name: AppRoutes.navMenuBar,

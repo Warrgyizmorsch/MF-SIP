@@ -349,6 +349,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                                                 child: Column(
                                                   children: [
                                                     TableHeader(
+                                                      
                                                       heading1: 'Years',
                                                       heading2: 'Investment',
                                                       heading3: 'Profit',

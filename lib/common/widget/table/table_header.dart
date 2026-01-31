@@ -25,7 +25,7 @@ class TableHeader extends StatelessWidget {
       child: Row(
         children: [
           SizedBox(
-            width: width ?? 40,
+            width: width ?? 80,
             child: Text(
               heading1,
               style: TextStyle(

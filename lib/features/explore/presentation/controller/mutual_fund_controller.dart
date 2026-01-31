@@ -2,12 +2,18 @@ import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
+import 'package:my_sip/features/explore/domain/entities/scheme_info_entity.dart';
 import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_usecases.dart';
+import 'package:my_sip/features/explore/domain/usecases/get_scheme_infousecase.dart';
 
 class MutualFundController extends GetxController {
   final GetMutualFundListUsecases _getMutualFundListUsecases;
+  final GetSchemeInfousecase _getSchemeInfousecase;
 
-  MutualFundController(this._getMutualFundListUsecases);
+  MutualFundController(
+    this._getMutualFundListUsecases,
+    this._getSchemeInfousecase,
+  );
 
   RxBool isLoading = false.obs;
   RxString errorMessage = ''.obs;
@@ -18,12 +24,19 @@ class MutualFundController extends GetxController {
 
   final selectedFundCount = 0.obs;
 
+  final popularFundSelect = <int>{}.obs;
+
+  //Scheme info
+  final schemeinfo = <SchemeDetailEntity>[].obs;
+
   @override
   void onInit() {
     super.onInit();
     fetchMutualFund();
+    schemedeatails();
   }
 
+  // Scheme list for explore page
   Future<void> fetchMutualFund() async {
     log("CONTROLLER: Successfully assigned ${mutualfund.length} banks");
     try {
@@ -186,5 +199,41 @@ class MutualFundController extends GetxController {
       (success) => success.data?.pagination?.total ?? 0,
       (_) => 0,
     );
+  }
+
+  ////// Scheme info
+  Future<void> schemedeatails() async {
+    log('scheme call ');
+    log("CONTROLLER: Successfully assigned ${schemeinfo.length} scheme info");
+    try {
+      isLoading(true);
+      errorMessage('');
+      log('scheme 2');
+      final result = await _getSchemeInfousecase.getSchemeInfo({});
+      log('scheme 3');
+
+      result.fold(
+        (success) {
+          if (success.data != null) {
+            schemeinfo.assignAll([success.data!]);
+            log('scheme 4');
+
+            // filteredFundlist.assignAll(fundlist);
+            log(
+              "CONTROLLER: Successfully assigned ${schemeinfo.length} schemeinfo",
+            );
+          }
+        },
+        (error) {
+          errorMessage.value = error.message ?? "Failed to load banks";
+          print("CONTROLLER ERROR: ${errorMessage.value}");
+        },
+      );
+    } catch (e) {
+      errorMessage.value = "An unexpected error occurred: $e";
+      print("CONTROLLER ERROR: ${errorMessage.value}");
+    } finally {
+      isLoading(false);
+    }
   }
 }

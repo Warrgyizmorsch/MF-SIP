@@ -15,9 +15,11 @@ import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/features/cart/data/model/cartItem_model.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/cart/presentation/pages/cart_page.dart';
+import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/fund_details/data/models/return_model.dart';
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
 import 'package:my_sip/features/fund_details/presentation/widgets/return.dart';
@@ -67,6 +69,8 @@ class IhavegoalPage extends StatelessWidget {
       'name': 'Custom',
     },
   };
+
+  final CartController cartController = Get.find<CartController>();
 
   @override
   Widget build(BuildContext context) {
@@ -132,14 +136,16 @@ class IhavegoalPage extends StatelessWidget {
         top: false,
         child: Obx(
           () => CartBottomBar(
-            ontap: () => Get.toNamed(
-              AppRoutes.successfullcreategoal,
-              arguments: {
-                'textButton': 'See Details',
-
-                'nextroute': AppRoutes.goalviewcard,
-              },
-            ),
+            ontap: () {
+              cartController.monthlyAmount.value = controller.monthlySip.value
+                  .toInt();
+              Get.toNamed(
+                AppRoutes.cart,
+                // arguments: {
+                //   'monthlyAmount': controller.monthlySip.value.toStringAsFixed(0),
+                // },
+              );
+            },
             amount: controller.monthlySip.value.toStringAsFixed(0),
             amountColor: Ucolors.blue,
             title: 'Installment Amount',
@@ -152,42 +158,105 @@ class IhavegoalPage extends StatelessWidget {
 }
 
 class PopularFund extends StatelessWidget {
-  const PopularFund({super.key});
+  PopularFund({super.key});
+
+  final MutualFundController controller = Get.find();
+  final GoalSipController goalSipController = Get.find();
+  final CartController cartController = Get.find();
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 300,
-      child: GridView.count(
+      child: GridView.builder(
+        itemCount: controller.searchFund.length.clamp(0, 4),
+        // scrollDirection: Axis.horizontal,
         shrinkWrap: true,
-        childAspectRatio: 1.55,
-        mainAxisSpacing: 16,
-        crossAxisSpacing: 16,
 
-        // physics: const NeverScrollableScrollPhysics(),
-        crossAxisCount: 2,
-        children: [
-          PopularFundCard(
-            onTap: () => Get.toNamed(AppRoutes.funddetails),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
 
-            name: 'SBI Gold Fund',
-            imgPath: UImages.sbi,
-          ),
-          PopularFundCard(
-            onTap: () => Get.toNamed(AppRoutes.funddetails),
-            name: 'Parag Parikh Flexi Cap Fund',
-            imgPath: UImages.sbi,
-          ),
-          PopularFundCard(
-            name: 'Motilal Ostwal Midcap Fund',
-            imgPath: UImages.motilal,
-          ),
-          PopularFundCard(
-            name: 'Bandhan Small Cap Fund',
-            imgPath: UImages.motilal,
-          ),
-        ],
+          childAspectRatio: 1.55,
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 16,
+        ),
+        itemBuilder: (context, index) {
+          final fund = controller.searchFund[index];
+          final id = fund.amc?.id;
+          if (id == null) return const SizedBox();
+          final img = fund.amc?.amcLogoUrl ?? '';
+          final name = fund.baseSchemeName ?? 'Unknown Name';
+          // final code =fund.variants[index].schemeCode;
+          return Obx(
+            () => GestureDetector(
+              // behavior: HitTestBehavior.opaque,
+              onTap: () {
+                log('tap to popular fund');
+                final isSelected = goalSipController.isSelectedFund(name);
+                log('call');
+                log(isSelected.toString());
+
+                //toggle selection
+                goalSipController.toggleFund(name);
+                log('call 1');
+
+                !isSelected
+                    ? cartController.addItem(
+                        CartItem(
+                          fundId: id.toString(),
+                          fundName: name,
+                          logoUrl: img,
+                        ),
+                      )
+                    : cartController.removeItemByName(name);
+                log('call 2');
+
+                log('${goalSipController.selectedPopularFund}');
+              },
+              child: PopularFundCard(
+                borderColor: goalSipController.isSelectedFund(name)
+                    ? Ucolors.primary
+                    : Ucolors.borderColor,
+
+                isNetwork: true,
+                imgPath: img,
+                name: name,
+              ),
+            ),
+          );
+        },
       ),
+      // GridView.count(
+      //   shrinkWrap: true,
+      //   childAspectRatio: 1.55,
+      //   mainAxisSpacing: 16,
+      //   crossAxisSpacing: 16,
+
+      //   // physics: const NeverScrollableScrollPhysics(),
+      //   crossAxisCount: 2,
+      //   children: [
+      //     PopularFundCard(
+
+      //       onTap: () => Get.toNamed(AppRoutes.funddetails),
+
+      //       name: 'SBI Gold Fund',
+      //       imgPath: UImages.sbi,
+      //     ),
+      //     PopularFundCard(
+      //       onTap: () => Get.toNamed(AppRoutes.funddetails),
+      //       name: 'Parag Parikh Flexi Cap Fund',
+      //       imgPath: UImages.sbi,
+      //     ),
+      //     PopularFundCard(
+      //       name: 'Motilal Ostwal Midcap Fund',
+      //       imgPath: UImages.motilal,
+      //     ),
+      //     PopularFundCard(
+      //       name: 'Bandhan Small Cap Fund',
+      //       imgPath: UImages.motilal,
+      //     ),
+      //   ],
+      // ),
     );
   }
 }
@@ -636,12 +705,13 @@ class GoalNameSelect extends StatelessWidget {
         //   ),
         // ),
         UTextFormField(
+          readOnly: true,
           prefixIcon: null,
 
           controller: TextEditingController(text: goalName),
           backgroundColor: Colors.white,
         ),
-        if (goalName == 'Other')
+        if (goalName == 'Custom')
           UTextFormField(
             backgroundColor: Colors.white,
             prefixIcon: null,

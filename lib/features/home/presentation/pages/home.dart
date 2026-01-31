@@ -1,11 +1,13 @@
 import 'dart:developer';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
+import 'package:my_sip/common/widget/shimmer/shimmer.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
@@ -699,25 +701,22 @@ class HomeScreen extends StatelessWidget {
                 ),
                 delegate: SliverChildListDelegate([
                   PopularFundCard(
-                    onTap: () => Get.to(() => FundDeatailsScreen()),
-
+                    // onTap: () => Get.to(() => FundDeatailsScreen()),
                     name: 'SBI Gold Fund',
                     imgPath: UImages.sbi,
                   ),
                   PopularFundCard(
-                    onTap: () => Get.to(() => FundDeatailsScreen()),
+                    // onTap: () => Get.to(() => FundDeatailsScreen()),
                     name: 'Parag Parikh Flexi Cap Fund',
                     imgPath: UImages.sbi,
                   ),
                   PopularFundCard(
-                    onTap: () => Get.to(() => FundDeatailsScreen()),
-
+                    // onTap: () => Get.to(() => FundDeatailsScreen()),
                     name: 'Motilal Ostwal Midcap Fund',
                     imgPath: UImages.motilal,
                   ),
                   PopularFundCard(
-                    onTap: () => Get.to(() => FundDeatailsScreen()),
-
+                    // onTap: () => Get.to(() => FundDeatailsScreen()),
                     name: 'Bandhan Small Cap Fund',
                     imgPath: UImages.motilal,
                   ),
@@ -863,11 +862,15 @@ class PopularFundCard extends StatelessWidget {
     required this.imgPath,
     required this.name,
     this.onTap,
+    this.isNetwork = false,
+    this.borderColor = Ucolors.borderColor,
   });
 
   final String imgPath;
   final String name;
   final VoidCallback? onTap;
+  final bool isNetwork;
+  final Color borderColor;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -876,7 +879,7 @@ class PopularFundCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Ucolors.borderColor),
+          border: Border.all(color: borderColor),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.04),
@@ -895,7 +898,27 @@ class PopularFundCard extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CircleAvatar(backgroundImage: AssetImage(imgPath)),
+                  ClipOval(
+                    child: CircleAvatar(
+                      // radius: 15,
+                      // backgroundImage: isNetwork
+                      //     ? CachedNetworkImageProvider(imgPath)
+                      //     //  NetworkImage(imgPath)
+                      //     : AssetImage(imgPath),
+                      child: isNetwork
+                          ? CachedNetworkImage(
+                              imageUrl: imgPath,
+                              placeholder: (context, url) => UShimmerEffect(
+                                width: 40,
+                                height: 40,
+                                radius: 20,
+                              ),
+                              errorWidget: (context, url, error) =>
+                                  Icon(Icons.image_not_supported),
+                            )
+                          : Image.asset(imgPath),
+                    ),
+                  ),
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(

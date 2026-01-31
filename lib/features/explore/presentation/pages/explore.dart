@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -247,6 +249,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 final fund = controller.searchFund[index];
+                // print()
 
                 return MutualFundCard(entity: fund);
               }, childCount: controller.searchFund.length),
@@ -270,11 +273,22 @@ class MutualFundCard extends StatelessWidget {
   final Color? containercolor;
   final MutualFundListEntity entity;
   final CartController controller = Get.find<CartController>();
+  final MutualFundController mutualFundController =
+      Get.find<MutualFundController>();
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Get.to(() => FundDeatailsScreen()),
+      // onTap: () => Get.to(() => FundDeatailsScreen()),
+      onTap: () {
+        Get.toNamed(
+          AppRoutes.funddetails,
+          arguments: {
+            'scheme': entity.baseSchemeName,
+            'imgUrl': entity.amc?.amcLogoUrl ?? '',
+          },
+        );
+      },
 
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -375,7 +389,7 @@ class MutualFundCard extends StatelessWidget {
                                 ),
                                 colorText: Ucolors.light,
                                 'Add to cart',
-                                entity!.baseSchemeName.toString(),
+                                entity.baseSchemeName.toString(),
                                 snackPosition: SnackPosition.BOTTOM,
                                 backgroundColor: Ucolors.primary,
                               );
