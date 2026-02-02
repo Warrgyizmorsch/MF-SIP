@@ -141,8 +141,7 @@ class PaymentScreen extends StatelessWidget {
       bottomNavigationBar: SafeArea(
         top: false,
         child: CartBottomBar(
-          
-          amount: amount.toString() ,
+          amount: amount.toString(),
           title: 'Amount Payable',
           ontap: () => Get.toNamed(
             AppRoutes.successfullcreategoal,
@@ -150,8 +149,8 @@ class PaymentScreen extends StatelessWidget {
               'title': 'Congratulations',
               'subtitle':
                   'Lorem Ipsum is simply dummy text of the printing and',
-              'textButton': 'Go to Dashboard',
-              'nextroute': AppRoutes.navMenuBar,
+              'textButton': 'Go to Goal section',
+              'nextroute': AppRoutes.goalviewcard,
             },
           ),
         ),
