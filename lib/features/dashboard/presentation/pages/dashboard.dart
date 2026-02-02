@@ -490,7 +490,7 @@ class PortfolioCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Get.to(() => FundDeatailsScreen()),
+      onTap: () => Get.to(() => FundDetailsScreen()),
 
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

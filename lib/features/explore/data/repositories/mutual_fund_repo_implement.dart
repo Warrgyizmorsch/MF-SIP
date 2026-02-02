@@ -37,28 +37,28 @@ class MutualFundRepoImplement extends MutualFundRepository {
     }
   }
 
-  @override
-  //////////  Scheme Info
-  Future<Either<Result<SchemeDetailEntity>, ApiError>> getSchemeInfo(
-    Map<String, dynamic> data,
-  ) async {
-    try {
-      final result = await _mutualfundRemoteDs.getSchemeInfo(data);
-      return result.fold(
-        (success) {
-          if (success.isSuccess && success.data != null) {
-            final result = success.data?.toEntity();
-            return Left(Result.success(result));
-          } else {
-            return Right(ApiError(message: 'Scheme info details Failed'));
-          }
-        },
-        (error) {
-          return Right(ApiError(message: 'scheme info details failed $error'));
-        },
-      );
-    } catch (e) {
-      return Right(ApiError(message: 'Scheme info  fund list  Failed $e'));
-    }
-  }
+  // @override
+  // //////////  Scheme Info
+  // Future<Either<Result<SchemeDetailEntity>, ApiError>> getSchemeInfo(
+  //   Map<String, dynamic> data,
+  // ) async {
+  //   try {
+  //     final result = await _mutualfundRemoteDs.getSchemeInfo(data);
+  //     return result.fold(
+  //       (success) {
+  //         if (success.isSuccess && success.data != null) {
+  //           final result = success.data?.toEntity();
+  //           return Left(Result.success(result));
+  //         } else {
+  //           return Right(ApiError(message: 'Scheme info details Failed'));
+  //         }
+  //       },
+  //       (error) {
+  //         return Right(ApiError(message: 'scheme info details failed $error'));
+  //       },
+  //     );
+  //   } catch (e) {
+  //     return Right(ApiError(message: 'Scheme info  fund list  Failed $e'));
+  //   }
+  // }
 }

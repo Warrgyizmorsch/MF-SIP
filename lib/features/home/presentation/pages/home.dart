@@ -11,6 +11,7 @@ import 'package:my_sip/common/widget/shimmer/shimmer.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
@@ -711,7 +712,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     final fund = mutualcontroller.searchFund[index];
                     final id = fund.amc?.id;
                     if (id == null) return const SizedBox();
-                    final img = fund.amc?.amcLogoUrl ?? '';
+                    final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}" ?? '';
                     final name = fund.baseSchemeName ?? 'Unknown Name';
                     print(
                       '${mutualcontroller.searchFund.length} mutual fund $name $img',

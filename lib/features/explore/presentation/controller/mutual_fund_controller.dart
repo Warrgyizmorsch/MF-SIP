@@ -4,15 +4,15 @@ import 'package:get/get.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/explore/domain/entities/scheme_info_entity.dart';
 import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_usecases.dart';
-import 'package:my_sip/features/explore/domain/usecases/get_scheme_infousecase.dart';
+import 'package:my_sip/features/explore/domain/usecases/get_fund_detail_use_case.dart';
 
 class MutualFundController extends GetxController {
   final GetMutualFundListUsecases _getMutualFundListUsecases;
-  final GetSchemeInfousecase _getSchemeInfousecase;
+  // final GetSchemeInfousecase _getSchemeInfousecase;
 
   MutualFundController(
     this._getMutualFundListUsecases,
-    this._getSchemeInfousecase,
+    // this._getSchemeInfousecase,
   );
 
   RxBool isLoading = false.obs;
@@ -33,7 +33,7 @@ class MutualFundController extends GetxController {
   void onInit() {
     super.onInit();
     // fetchMutualFund();
-    schemedeatails();
+    // schemedeatails();
   }
 
   // Scheme list for explore page
@@ -202,38 +202,38 @@ class MutualFundController extends GetxController {
   }
 
   ////// Scheme info
-  Future<void> schemedeatails() async {
-    log('scheme call ');
-    log("CONTROLLER: Successfully assigned ${schemeinfo.length} scheme info");
-    try {
-      isLoading(true);
-      errorMessage('');
-      log('scheme 2');
-      final result = await _getSchemeInfousecase.getSchemeInfo({});
-      log('scheme 3');
-
-      result.fold(
-        (success) {
-          if (success.data != null) {
-            schemeinfo.assignAll([success.data!]);
-            log('scheme 4');
-
-            // filteredFundlist.assignAll(fundlist);
-            log(
-              "CONTROLLER: Successfully assigned ${schemeinfo.length} schemeinfo",
-            );
-          }
-        },
-        (error) {
-          errorMessage.value = error.message ?? "Failed to load banks";
-          print("CONTROLLER ERROR: ${errorMessage.value}");
-        },
-      );
-    } catch (e) {
-      errorMessage.value = "An unexpected error occurred: $e";
-      print("CONTROLLER ERROR: ${errorMessage.value}");
-    } finally {
-      isLoading(false);
-    }
-  }
+  // Future<void> schemedeatails() async {
+  //   log('scheme call ');
+  //   log("CONTROLLER: Successfully assigned ${schemeinfo.length} scheme info");
+  //   try {
+  //     isLoading(true);
+  //     errorMessage('');
+  //     log('scheme 2');
+  //     final result = await _getSchemeInfousecase.getSchemeInfo({});
+  //     log('scheme 3');
+  //
+  //     result.fold(
+  //       (success) {
+  //         if (success.data != null) {
+  //           schemeinfo.assignAll([success.data!]);
+  //           log('scheme 4');
+  //
+  //           // filteredFundlist.assignAll(fundlist);
+  //           log(
+  //             "CONTROLLER: Successfully assigned ${schemeinfo.length} schemeinfo",
+  //           );
+  //         }
+  //       },
+  //       (error) {
+  //         errorMessage.value = error.message ?? "Failed to load banks";
+  //         print("CONTROLLER ERROR: ${errorMessage.value}");
+  //       },
+  //     );
+  //   } catch (e) {
+  //     errorMessage.value = "An unexpected error occurred: $e";
+  //     print("CONTROLLER ERROR: ${errorMessage.value}");
+  //   } finally {
+  //     isLoading(false);
+  //   }
+  // }
 }

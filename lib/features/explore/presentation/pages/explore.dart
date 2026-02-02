@@ -10,8 +10,10 @@ import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/shimmer/shimmer.dart';
 import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/cart/data/model/cartItem_model.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
@@ -278,6 +280,7 @@ class MutualFundCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // createLog("ffff${Appurl.baseUrl}${entity.amc?.amcLogoUrl}");
     return GestureDetector(
       // onTap: () => Get.to(() => FundDeatailsScreen()),
       onTap: () {
@@ -285,7 +288,7 @@ class MutualFundCard extends StatelessWidget {
           AppRoutes.funddetails,
           arguments: {
             'scheme': entity.baseSchemeName,
-            'imgUrl': entity.amc?.amcLogoUrl ?? '',
+            'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
           },
         );
       },
@@ -314,13 +317,13 @@ class MutualFundCard extends StatelessWidget {
                 CircleAvatar(
                   // radius: 18,
                   maxRadius: 20,
-                  backgroundColor: Colors.grey,
+                  backgroundColor: Colors.transparent,
                   // backgroundImage: AssetImage(UImages.sbi),
                   // backgroundImage:  NetworkImage(entity!.amc!.amcLogoUrl!),
                   child: ClipOval(
                     child: CachedNetworkImage(
 
-                      imageUrl: entity.amc?.amcLogoUrl ?? '',
+                      imageUrl: "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
                       fadeInDuration: const Duration(milliseconds: 300),
 
                       placeholder: (context, url) =>

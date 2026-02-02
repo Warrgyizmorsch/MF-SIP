@@ -12,6 +12,7 @@ import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:readmore/readmore.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
@@ -19,6 +20,7 @@ import '../../../dashboard/presentation/pages/comparison_screen.dart';
 import '../../../dashboard/presentation/pages/dashboard.dart';
 import '../../data/models/fund_performance.dart';
 import '../../data/models/return_model.dart';
+import '../controllers/fund_details_controller.dart';
 import '../widgets/fund_performance_bar.dart';
 import '../widgets/percentage_indicator.dart';
 import '../widgets/return.dart';
@@ -27,251 +29,269 @@ import '../widgets/schemeLineChart.dart';
 import '../widgets/stock_allocation_items.dart';
 import '../widgets/timeselecter.dart';
 
-class FundDeatailsScreen extends StatefulWidget {
-  const FundDeatailsScreen({super.key});
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
+import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
+import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
+import 'package:my_sip/common/widget/table/table_header.dart';
+import 'package:my_sip/common/widget/text/view_all.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/images.dart';
+import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:readmore/readmore.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 
-  @override
-  State<FundDeatailsScreen> createState() => _FundDeatailsScreenState();
-}
+import '../../../dashboard/presentation/pages/comparison_screen.dart';
+import '../../../dashboard/presentation/pages/dashboard.dart';
+import '../../data/models/fund_performance.dart';
+import '../../data/models/return_model.dart';
+import '../controllers/fund_details_controller.dart';
+import '../widgets/fund_performance_bar.dart';
+import '../widgets/percentage_indicator.dart';
+import '../widgets/return.dart';
+import '../widgets/risk_indicator_ball.dart';
+import '../widgets/schemeLineChart.dart';
+import '../widgets/stock_allocation_items.dart';
+import '../widgets/timeselecter.dart';
 
-class _FundDeatailsScreenState extends State<FundDeatailsScreen>
-    with TickerProviderStateMixin {
-  late TabController _tabController;
-  final GlobalKey _overViewKey = GlobalKey();
-  final GlobalKey _returnsKey = GlobalKey();
-  final GlobalKey _riskKey = GlobalKey();
-  final GlobalKey _portfolioKey = GlobalKey();
-  final GlobalKey _infoKey = GlobalKey();
-
-  late final List<GlobalKey> _tabKeys;
-  late final ScrollController _scrollController;
-
-  bool _isTabClicked = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 5, vsync: this);
-    _scrollController = ScrollController();
-    _scrollController.addListener(_onScroll);
-
-    _tabKeys = [_overViewKey, _returnsKey, _riskKey, _portfolioKey, _infoKey];
-  }
-
-  @override
-  void dispose() {
-    _scrollController.removeListener(_onScroll);
-    _scrollController.dispose();
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  /// 1. SCROLL LISTENER (Scroll -> Update Tab)
-  void _onScroll() {
-    if (_isTabClicked) return;
-
-    double offset = _scrollController.offset;
-    int activeIndex = 0;
-
-    double triggerOffset =
-        kToolbarHeight + MediaQuery.of(context).padding.top + 60;
-
-    for (int i = 0; i < _tabKeys.length; i++) {
-      final key = _tabKeys[i];
-      final context = key.currentContext;
-
-      if (context != null) {
-        final box = context.findRenderObject() as RenderBox?;
-        if (box != null) {
-          final position = box.localToGlobal(Offset.zero).dy;
-
-          if (position <= triggerOffset + 50) {
-            activeIndex = i;
-          }
-        }
-      }
-    }
-
-    if (_tabController.index != activeIndex) {
-      setState(() {
-        _tabController.animateTo(activeIndex);
-      });
-    }
-  }
-
-  ///  TAB CLICK HANDLER (Tab Click -> Scroll to Section)
-  void _scrollToIndex(int index) {
-    setState(() => _isTabClicked = true);
-
-    // Update the tab controller immediately so the UI highlights the click
-    _tabController.animateTo(index);
-
-    final key = _tabKeys[index];
-    final context = key.currentContext;
-
-    if (context != null) {
-      RenderBox box = context.findRenderObject() as RenderBox;
-      RenderBox scrollBox =
-          _scrollController.position.context.storageContext.findRenderObject()
-              as RenderBox;
-
-      // Calculate how far down the item is inside the scroll view
-      double targetY = box.localToGlobal(Offset.zero, ancestor: scrollBox).dy;
-
-      double offsetAdjustment = 110.0 + MediaQuery.of(context).padding.top;
-
-      double targetScroll =
-          _scrollController.offset + targetY - offsetAdjustment;
-
-      double clampedScroll = targetScroll.clamp(
-        0.0,
-        _scrollController.position.maxScrollExtent,
-      );
-
-      _scrollController
-          .animateTo(
-            clampedScroll,
-            duration: const Duration(milliseconds: 600),
-            curve: Curves.easeInOutCubic, // Smoother curve
-          )
-          .then((_) {
-            Future.delayed(const Duration(milliseconds: 100), () {
-              if (mounted) setState(() => _isTabClicked = false);
-            });
-          });
-    } else {
-      setState(() => _isTabClicked = false);
-    }
-  }
+class FundDetailsScreen extends GetView<FundDetailsController> {
+  const FundDetailsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final args = Get.arguments as Map<String, dynamic>;
-    final schemeName = args['scheme'];
-    final imgUrl = args['imgUrl'];
-
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: CustomScrollView(
-        controller: _scrollController,
-        slivers: [
-          SliverAppBar(
-            automaticallyImplyLeading: false,
-            pinned: true,
-            flexibleSpace: CustomAppBarNormal(
-              backgroundColor: Ucolors.light,
-              actionsPadding: 10,
-              title: 'Fund Details',
-              action: [
-                CompactIcon(
-                  icon: Iconsax.shopping_cart,
-                  onPressed: () => Get.toNamed(AppRoutes.cart),
-                ),
-                CompactIcon(
-                  icon: Iconsax.archive_tick,
-                  onPressed: () => Get.toNamed(AppRoutes.watchlist),
-                ),
-              ],
-            ),
-          ),
-          SliverToBoxAdapter(child: SizedBox(height: 20)),
-          SliverPadding(
-            padding: EdgeInsetsGeometry.symmetric(horizontal: 20),
-            sliver: SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  // ClipRRect(
-                  //   borderRadius: BorderRadiusGeometry.circular(12),
-                  //   child: Container(
-                  //     constraints: BoxConstraints(
-                  //       maxHeight: 40,
-                  //       maxWidth: 40,
-                  //     ),
-                  //     child: Image.asset(
-                  //       UImages.motilal,
-                  //       fit: BoxFit.contain,
-                  //     ),
-                  //   ),
-                  // ),
-                  const SizedBox(width: 10),
-                  Row(
+      body: Obx(() {
+        // Show loading state
+        if (controller.isLoading.value) {
+          return CustomScrollView(
+            slivers: [
+              _buildAppBar(),
+              SliverFillRemaining(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ClipOval(
-                        child: Container(
-                          decoration: BoxDecoration(shape: BoxShape.circle),
-                          constraints: BoxConstraints(
-                            maxHeight: 40,
-                            maxWidth: 40,
+                      CircularProgressIndicator(color: Ucolors.primary),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Loading fund details...',
+                        style: TextStyle(color: Ucolors.darkgrey),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        }
+
+        // Show error state
+        if (controller.hasError.value) {
+          return CustomScrollView(
+            slivers: [
+              _buildAppBar(),
+              SliverFillRemaining(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Iconsax.info_circle, size: 64, color: Ucolors.red),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Failed to load fund details',
+                          style: Theme.of(context).textTheme.titleLarge,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          controller.errorMessage.value,
+                          style: TextStyle(color: Ucolors.darkgrey),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton.icon(
+                          onPressed: controller.retryFetchingDetails,
+                          icon: const Icon(Iconsax.refresh),
+                          label: const Text('Retry'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Ucolors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
+                            ),
                           ),
-                          child: CachedNetworkImage(imageUrl: imgUrl),
-                          //  Image.asset(
-                          //   UImages.motilal,
-                          //   fit: BoxFit.contain,
-                          // ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          // 'Nippon India Large Cap Fund- Growth Plan- Growth Option',
-                          schemeName,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodyLarge!
-                              .copyWith(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 5),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _metaText('Equity'),
-                      _dot(),
-                      _metaText('Large cap'),
-                      _dot(),
-                      _metaText('Very High', color: Ucolors.red),
-                      _dot(),
-                      _metaText('Status:'),
-                      _metaText(
-                        'Open',
-                        color: Ucolors.success,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ],
-                  ),
-                ],
+                ),
+              ),
+            ],
+          );
+        }
+
+        // Show data state
+        return CustomScrollView(
+          controller: controller.scrollController,
+          slivers: [
+            _buildAppBar(),
+            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+            _buildFundHeader(context),
+            const SliverToBoxAdapter(child: SizedBox(height: 10)),
+
+            // Use GetBuilder for the TabBar to react to index changes
+            GetBuilder<FundDetailsController>(
+              id: 'tabs',
+              builder: (controller) => SliverPersistentHeader(
+                pinned: true,
+                delegate: SliverPageTabs(
+                  selectedIndex: controller.tabController.index,
+                  onTap: (index) => controller.scrollToIndex(index),
+                ),
               ),
             ),
-          ),
-          SliverToBoxAdapter(child: SizedBox(height: 10)),
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: SliverPageTabs(
-              selectedIndex: _tabController.index,
-              onTap: (index) => _scrollToIndex(index),
+
+            SliverToBoxAdapter(
+              child: OverviewScreen(
+                overViewKey: controller.overViewKey,
+                returnsKey: controller.returnsKey,
+                riskKey: controller.riskKey,
+                portfolioKey: controller.portfolioKey,
+                infoKey: controller.infoKey,
+              ),
             ),
+          ],
+        );
+      }),
+      bottomNavigationBar: Obx(() {
+        // Only show bottom bar when data is loaded successfully
+        if (controller.isLoading.value || controller.hasError.value) {
+          return const SizedBox.shrink();
+        }
+        return const SafeArea(
+          top: false,
+          child: BottomBarButton(
+            firstButton: 'Lumpsum',
+            secondButton: 'Start SIP',
           ),
-          SliverToBoxAdapter(
-            child: OverviewScreen(
-              overViewKey: _overViewKey,
-              returnsKey: _returnsKey,
-              riskKey: _riskKey,
-              portfolioKey: _portfolioKey,
-              infoKey: _infoKey,
-            ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildAppBar() {
+    return SliverAppBar(
+      automaticallyImplyLeading: false,
+      pinned: true,
+      flexibleSpace: CustomAppBarNormal(
+        backgroundColor: Ucolors.light,
+        actionsPadding: 10,
+        title: 'Fund Details',
+        action: [
+          CompactIcon(
+            icon: Iconsax.shopping_cart,
+            onPressed: () => Get.toNamed(AppRoutes.cart),
+          ),
+          CompactIcon(
+            icon: Iconsax.archive_tick,
+            onPressed: () => Get.toNamed(AppRoutes.watchlist),
           ),
         ],
       ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: BottomBarButton(
-          firstButton: 'Lumpsum',
-          secondButton: 'Start SIP',
-        ),
+    );
+  }
+
+  Widget _buildFundHeader(BuildContext context) {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      sliver: SliverToBoxAdapter(
+        child: Obx(() {
+          final fund = controller.fundDetail.value;
+          createLog("Fund is $fund");
+
+          return Column(
+            children: [
+              Row(
+                children: [
+                  // Using your helper logic or CustomCachedImage helper provided earlier
+                  ClipOval(
+                    child: CachedNetworkImage(
+                      imageUrl: controller.imgUrl,
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
+                      errorWidget: (context, url, error) => Container(
+                        width: 40,
+                        height: 40,
+                        color: Colors.grey[300],
+                        child: Icon(Icons.image_not_supported, color: Colors.grey[600]),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      fund?.schemeName ?? '',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodyLarge!
+                          .copyWith(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _metaText(fund?.schemeCategory ?? 'Equity'),
+                  _dot(),
+                  // _metaText(fund?.schemeCategory.toUpperCase() ?? 'Large cap'),
+                  // _dot(),
+                  _metaText(
+                    fund?.riskometerValue.toUpperCase() ?? 'Very High',
+                    color: _getRiskColor(fund?.riskometerValue ?? ''),
+                  ),
+                  _dot(),
+                  _metaText('STATUS:'),
+                  _metaText(
+                    fund?.schemeStatus.toUpperCase().split(" ")[0] ?? 'Open',
+                    color: (fund?.schemeStatus.toLowerCase() == 'open')
+                        ? Ucolors.success
+                        : Ucolors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ],
+              ),
+            ],
+          );
+        }),
       ),
     );
+  }
+
+  Color _getRiskColor(String risk) {
+    final riskLower = risk.toLowerCase();
+    if (riskLower.contains('very high') || riskLower.contains('veryhigh')) {
+      return Ucolors.red;
+    } else if (riskLower.contains('high')) {
+      return Colors.orange;
+    } else if (riskLower.contains('moderate')) {
+      return Colors.yellow[700]!;
+    } else if (riskLower.contains('low')) {
+      return Ucolors.success;
+    }
+    return Ucolors.darkgrey;
   }
 }
 
@@ -740,7 +760,7 @@ class OverviewScreen extends StatelessWidget {
                                 Gap(12),
                                 Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  MainAxisAlignment.spaceBetween,
                                   // mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
@@ -1679,10 +1699,10 @@ class SliverPageTabs extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
+      BuildContext context,
+      double shrinkOffset,
+      bool overlapsContent,
+      ) {
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToActiveTab());
     return Container(
       decoration: BoxDecoration(
@@ -1744,10 +1764,10 @@ Widget _dot() {
 }
 
 Widget _metaText(
-  String text, {
-  Color color = Colors.grey,
-  FontWeight fontWeight = FontWeight.normal,
-}) {
+    String text, {
+      Color color = Colors.grey,
+      FontWeight fontWeight = FontWeight.normal,
+    }) {
   return Text(
     text,
     style: TextStyle(fontSize: 12, color: color, fontWeight: fontWeight),

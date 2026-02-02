@@ -8,6 +8,7 @@ import 'package:my_sip/features/explore/presentation/bindings/fundhousebinding.d
 import 'package:my_sip/features/explore/presentation/pages/filterpage.dart';
 import 'package:my_sip/features/freedom_sip/presentation/pages/freedom_sip_screen.dart';
 import 'package:my_sip/features/freedom_sip/presentation/pages/sip_tenure_screen.dart';
+import 'package:my_sip/features/fund_details/presentation/bindings/fund_detail_binding.dart';
 import 'package:my_sip/features/goal/presentation/pages/goaldetails.dart';
 import 'package:my_sip/features/goal/presentation/pages/goalsuccess.dart';
 import 'package:my_sip/features/goal/presentation/pages/goalviewcard.dart';
@@ -67,7 +68,8 @@ class AppPages {
 
     GetPage(
       name: AppRoutes.funddetails,
-      page: () => const FundDeatailsScreen(),
+      page: () => const FundDetailsScreen(),
+      binding:  FundDetailBinding()
     ),
     GetPage(name: AppRoutes.watchlist, page: () => WatchlistPage()),
     GetPage(name: AppRoutes.cart, page: () => CartPage()),

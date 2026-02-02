@@ -9,6 +9,7 @@ import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/text_form/text_field_component.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/core/utils/enums/enums.dart';
@@ -227,7 +228,7 @@ class FundHeader extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 22,
-          backgroundImage: CachedNetworkImageProvider(item.logoUrl),
+          backgroundImage: CachedNetworkImageProvider("${Appurl.baseUrl}${item.logoUrl}"),
         ),
         const SizedBox(width: 12),
 

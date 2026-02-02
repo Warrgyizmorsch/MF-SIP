@@ -48,7 +48,7 @@ class MutualFundListModel {
 
   factory MutualFundListModel.fromJson(Map<String, dynamic> json) {
     return MutualFundListModel(
-      baseSchemeName: json.parse<String>('base_scheme_name'),
+      baseSchemeName: json.parse<String>('fund_name'),
       schemeType: json.parse<String>('scheme_type'),
       isin: json.parse<String>('isin'),
       minSipAmount: json.parse<int>('min_sip_amount'),
@@ -72,8 +72,8 @@ class AmcModel {
   factory AmcModel.fromJson(Map<String, dynamic> json) {
     return AmcModel(
       id: json.parse<int>('id'),
-      amcName: json.parse<String>('amc_name'),
-      amcLogoUrl: json.parse<String>('amc_logo_url'),
+      amcName: json.parse<String>('name'),
+      amcLogoUrl: json.parse<String>('logo_url'),
     );
   }
 }
