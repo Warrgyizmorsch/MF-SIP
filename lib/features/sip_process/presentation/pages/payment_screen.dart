@@ -141,6 +141,7 @@ class PaymentScreen extends StatelessWidget {
       bottomNavigationBar: SafeArea(
         top: false,
         child: CartBottomBar(
+          
           amount: amount.toString() ,
           title: 'Amount Payable',
           ontap: () => Get.toNamed(

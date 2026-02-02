@@ -11,6 +11,7 @@ import 'package:my_sip/features/authentication/presentation/controllers/auth/aut
 import 'package:my_sip/features/dashboard/presentation/pages/comparison_screen.dart';
 import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
+import 'package:my_sip/services/session_manager.dart';
 
 class PersonalDetailsScreen extends GetView<AuthController> {
   PersonalDetailsScreen({super.key});
@@ -33,7 +34,8 @@ class PersonalDetailsScreen extends GetView<AuthController> {
 
   @override
   Widget build(BuildContext context) {
-    final user = controller.user.value!;
+    final user = SessionManager.instance.getUserData;
+
     return Scaffold(
       appBar: CustomAppBarNormal(title: 'Personal Info'),
       body: Padding(
@@ -65,7 +67,7 @@ class PersonalDetailsScreen extends GetView<AuthController> {
                     prefixIcon: null,
                     hintText: 'Pratik Hinger',
                     // controller: controller.nameController,
-                    controller: TextEditingController(text: user.name),
+                    controller: TextEditingController(text: user?.name ?? ''),
                   ),
                   const SizedBox(height: 10),
 
@@ -106,7 +108,7 @@ class PersonalDetailsScreen extends GetView<AuthController> {
                     readOnly: true,
                     prefixIcon: null,
                     hintText: 'abc@123gmail.com',
-                    controller: TextEditingController(text: user.email),
+                    controller: TextEditingController(text: user?.email ?? ''),
                   ),
                   const SizedBox(height: 10),
 
@@ -115,7 +117,9 @@ class PersonalDetailsScreen extends GetView<AuthController> {
                   UTextFormField(
                     prefixIcon: null,
                     hintText: '+91 9283637219',
-                    controller: TextEditingController(text: user.mobile),
+                    controller: TextEditingController(
+                      text: user?.mobile ?? ' ',
+                    ),
                   ),
                   const SizedBox(height: 10),
 
@@ -124,7 +128,9 @@ class PersonalDetailsScreen extends GetView<AuthController> {
                   UTextFormField(
                     prefixIcon: null,
                     hintText: 'CCMS2373IM',
-                    controller: TextEditingController(text: user.panCard),
+                    controller: TextEditingController(
+                      text: user?.panCard ?? 'None',
+                    ),
                   ),
                   const SizedBox(height: 10),
 
