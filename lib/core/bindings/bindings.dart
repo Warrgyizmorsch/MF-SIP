@@ -7,6 +7,7 @@ import 'package:my_sip/features/explore/domain/repositories/mutual_fund_reposito
 import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_usecases.dart';
 import 'package:my_sip/features/explore/domain/usecases/get_scheme_infousecase.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
+import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
 import 'package:my_sip/features/onboarding/presentation/controller/onboarding_controller.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/questions/question_controller.dart';
 
@@ -27,22 +28,22 @@ class UBinding extends Bindings {
 
     // 1. Data Source (Lowest Level)
     Get.lazyPut<AuthRemoteDataSource>(
-          () => AuthRemoteDataSource(Get.find<NetworkServicesApi>()),
+      () => AuthRemoteDataSource(Get.find<NetworkServicesApi>()),
     );
 
     // 2. Repository (Depends on Data Source)
     Get.lazyPut<AuthRepository>(
-          () => AuthRepositoryImpl(Get.find<AuthRemoteDataSource>()),
+      () => AuthRepositoryImpl(Get.find<AuthRemoteDataSource>()),
     );
 
     // 3. Use Cases (Depends on Repository)
     Get.lazyPut(() => LoginUseCase(Get.find<AuthRepository>()));
     Get.lazyPut(() => RegisterUseCase(Get.find<AuthRepository>()));
     Get.lazyPut(
-          () => SendOtpUseCase(authRepository: Get.find<AuthRepository>()),
+      () => SendOtpUseCase(authRepository: Get.find<AuthRepository>()),
     );
     Get.lazyPut(
-          () => VerifyOtpUseCase(authRepository: Get.find<AuthRepository>()),
+      () => VerifyOtpUseCase(authRepository: Get.find<AuthRepository>()),
     );
 
     // 4. Wrapper Use Case (Depends on LoginUseCase)
@@ -109,5 +110,8 @@ class UBinding extends Bindings {
     );
 
     Get.put<CartController>(CartController(), permanent: true);
+
+    // Goal controller
+    Get.lazyPut(() => GoalSipController(), fenix: true);
   }
 }

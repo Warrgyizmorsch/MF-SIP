@@ -296,6 +296,15 @@ class GoalSipController extends GetxController {
     super.onInit();
     _recalculate();
   }
+  void initFromGoal({
+    required double amount,
+    required double years,
+    required double rate,
+  }) {
+    setTarget(amount);
+    setYears(years);
+    setRate(rate);
+  }
 
   ///// -------------- Goal Calculation ---------------///
   void setTarget(double value) {

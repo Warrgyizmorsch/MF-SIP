@@ -28,7 +28,7 @@ import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/sipslidertile.dart';
 import 'package:my_sip/features/sip_process/presentation/widgets/sip_projection_chart.dart';
 
-class IhavegoalPage extends StatelessWidget {
+class IhavegoalPage extends GetView<GoalSipController> {
   IhavegoalPage({super.key});
 
   final Map<String, Map<String, dynamic>> goalConfig = {
@@ -75,7 +75,6 @@ class IhavegoalPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     log('build');
-    final controller = Get.put(GoalSipController());
 
     final args = Get.arguments ?? {};
     final String goalType = args['goalType'] ?? 'custom';
@@ -87,9 +86,16 @@ class IhavegoalPage extends StatelessWidget {
     final double rate = goalData['rate']!.toDouble();
     final String name = goalData['name']!;
 
-    controller.setTarget(goalData['amount'].toDouble());
-    controller.setYears(goalData['duration'].toDouble());
-    controller.setRate(goalData['rate'].toDouble());
+    // controller.setTarget(goalData['amount'].toDouble());
+    // controller.setYears(goalData['duration'].toDouble());
+    // controller.setRate(goalData['rate'].toDouble());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.initFromGoal(
+        amount: goalData['amount'].toDouble(),
+        years: goalData['duration'].toDouble(),
+        rate: goalData['rate'].toDouble(),
+      );
+    });
 
     return Scaffold(
       backgroundColor: Color(0xffF3F4F6),
@@ -139,12 +145,14 @@ class IhavegoalPage extends StatelessWidget {
             ontap: () {
               cartController.monthlyAmount.value = controller.monthlySip.value
                   .toInt();
-              Get.toNamed(
-                AppRoutes.cart,
-                // arguments: {
-                //   'monthlyAmount': controller.monthlySip.value.toStringAsFixed(0),
-                // },
-              );
+              controller.selectedPopularFund.isNotEmpty
+                  ? Get.toNamed(
+                      AppRoutes.cart,
+                      // arguments: {
+                      //   'monthlyAmount': controller.monthlySip.value.toStringAsFixed(0),
+                      // },
+                    )
+                  : null;
             },
             amount: controller.monthlySip.value.toStringAsFixed(0),
             amountColor: Ucolors.blue,
@@ -168,8 +176,7 @@ class PopularFund extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 300,
-      child: 
-      GridView.builder(
+      child: GridView.builder(
         itemCount: controller.searchFund.length.clamp(0, 4),
         // scrollDirection: Axis.horizontal,
         shrinkWrap: true,
