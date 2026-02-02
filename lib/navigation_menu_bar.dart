@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
@@ -11,10 +12,16 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 
 import 'core/utils/constant/images.dart';
 
-
 class NavigationBarController extends GetxController {
   static NavigationBarController get instance => Get.find();
   final RxInt selectedIndex = 0.obs;
+  final mutualFundController = Get.find<MutualFundController>();
+
+  @override
+  void onInit() {
+    mutualFundController.fetchMutualFund();
+    super.onInit();
+  }
 
   final List<Widget> screens = [
     HomeScreen(),
@@ -24,7 +31,6 @@ class NavigationBarController extends GetxController {
     ProfileScreen(),
   ];
 }
-
 
 class NavigationMenuBar extends StatelessWidget {
   const NavigationMenuBar({super.key});
@@ -38,17 +44,16 @@ class NavigationMenuBar extends StatelessWidget {
     return Scaffold(
       body: Row(
         children: [
-
           if (isDesktop || isTablet)
             _DesktopSideNav(isDesktop: isDesktop, isTablet: isTablet),
 
-
           Expanded(
-            child: Obx(() => controller.screens[controller.selectedIndex.value]),
+            child: Obx(
+              () => controller.screens[controller.selectedIndex.value],
+            ),
           ),
         ],
       ),
-
 
       bottomNavigationBar: (isDesktop || isTablet)
           ? null
@@ -57,15 +62,11 @@ class NavigationMenuBar extends StatelessWidget {
   }
 }
 
-
 class _DesktopSideNav extends StatelessWidget {
   final bool isDesktop;
   final bool isTablet;
 
-  const _DesktopSideNav({
-    required this.isDesktop,
-    required this.isTablet,
-  });
+  const _DesktopSideNav({required this.isDesktop, required this.isTablet});
 
   @override
   Widget build(BuildContext context) {
@@ -77,10 +78,7 @@ class _DesktopSideNav extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(
-          right: BorderSide(
-            color: Colors.grey.shade200,
-            width: 1,
-          ),
+          right: BorderSide(color: Colors.grey.shade200, width: 1),
         ),
         boxShadow: [
           BoxShadow(
@@ -93,7 +91,6 @@ class _DesktopSideNav extends StatelessWidget {
       child: SafeArea(
         child: Column(
           children: [
-
             Container(
               padding: EdgeInsets.symmetric(
                 vertical: 24,
@@ -101,59 +98,55 @@ class _DesktopSideNav extends StatelessWidget {
               ),
               child: isDesktop
                   ? Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      gradient: Ucolors.backgroundGradient,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      Icons.trending_up,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'My SIP',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Ucolors.dark,
-                    ),
-                  ),
-                ],
-              )
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            gradient: Ucolors.backgroundGradient,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            Icons.trending_up,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          'My SIP',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Ucolors.dark,
+                          ),
+                        ),
+                      ],
+                    )
                   : Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  gradient: Ucolors.backgroundGradient,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  Icons.trending_up,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        gradient: Ucolors.backgroundGradient,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        Icons.trending_up,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
             ),
 
             const SizedBox(height: 20),
 
-
             Expanded(
               child: ListView.builder(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isDesktop ? 12 : 8,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: isDesktop ? 12 : 8),
                 itemCount: _navItems.length,
                 itemBuilder: (context, index) {
                   return Obx(() {
-                    final isSelected =
-                        controller.selectedIndex.value == index;
+                    final isSelected = controller.selectedIndex.value == index;
                     return _DesktopNavItem(
                       item: _navItems[index],
                       isSelected: isSelected,
@@ -164,7 +157,6 @@ class _DesktopSideNav extends StatelessWidget {
                 },
               ),
             ),
-
 
             if (isDesktop)
               Container(
@@ -212,7 +204,6 @@ class _DesktopSideNav extends StatelessWidget {
     );
   }
 }
-
 
 class _DesktopNavItem extends StatelessWidget {
   final _NavItemData item;
@@ -268,8 +259,9 @@ class _DesktopNavItem extends StatelessWidget {
                       item.label,
                       style: TextStyle(
                         fontSize: 15,
-                        fontWeight:
-                        isSelected ? FontWeight.w600 : FontWeight.w400,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w400,
                         color: isSelected ? Ucolors.blue : Ucolors.darkgrey,
                       ),
                     ),
@@ -283,7 +275,6 @@ class _DesktopNavItem extends StatelessWidget {
     );
   }
 }
-
 
 class _MobileBottomNavBar extends StatelessWidget {
   const _MobileBottomNavBar();
@@ -310,14 +301,13 @@ class _MobileBottomNavBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: List.generate(
             _navItems.length,
-                (index) => _MobileNavItem(index: index),
+            (index) => _MobileNavItem(index: index),
           ),
         ),
       ),
     );
   }
 }
-
 
 class _MobileNavItem extends StatelessWidget {
   final int index;
@@ -369,7 +359,6 @@ class _MobileNavItem extends StatelessWidget {
     });
   }
 }
-
 
 class _NavItemData {
   final IconData icon;

@@ -72,10 +72,7 @@ class CartPage extends StatelessWidget {
                         child: Text('Back'),
                       ),
 
-                      // TextButton(
-                      //   onPressed: () => Get.toNamed(AppRoutes.paymentScreen),
-                      //   child: Text('Purchase'),
-                      // ),
+                     
                     ],
                   ),
                 );
@@ -83,7 +80,10 @@ class CartPage extends StatelessWidget {
                 // Get.toNamed(AppRoutes.paymentScreen);
               } else if (controller.monthlyAmount.value ==
                   controller.totolAmount) {
-                Get.toNamed(AppRoutes.paymentScreen);
+                    
+                Get.toNamed(AppRoutes.paymentScreen, arguments: {
+                  'amount' : controller.totolAmount
+                });
               } else if (controller.monthlyAmount.value <
                   controller.totolAmount) {
                 log('Inscrease');

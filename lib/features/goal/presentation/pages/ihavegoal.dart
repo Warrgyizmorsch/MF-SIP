@@ -168,7 +168,8 @@ class PopularFund extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 300,
-      child: GridView.builder(
+      child: 
+      GridView.builder(
         itemCount: controller.searchFund.length.clamp(0, 4),
         // scrollDirection: Axis.horizontal,
         shrinkWrap: true,

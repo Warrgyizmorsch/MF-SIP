@@ -14,22 +14,34 @@ import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
-import 'package:my_sip/features/goal/presentation/pages/ihavegoal.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_calculator.dart';
 import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 
-import '../../../fund_details/presentation/pages/fund_deatails.dart';
 import '../widgets/product_tool/sip_calculator.dart';
 import '../widgets/product_tool/swp_calci.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   final cartController = Get.find<CartController>();
+
+  final mutualcontroller = Get.find<MutualFundController>();
+
+  @override
+  void initState() {
+    // mutualcontroller.fetchMutualFund();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -618,11 +630,6 @@ class HomeScreen extends StatelessWidget {
                           ),
 
                           // Trailing arrow
-                          // const Icon(
-                          //   Icons.arrow_forward_ios_rounded,
-                          //   size: 16,
-                          //   color: Colors.grey,
-                          // ),
                         ],
                       ),
                     ),
@@ -690,37 +697,36 @@ class HomeScreen extends StatelessWidget {
             ),
 
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 1.55,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
-                  // mainAxisExtent: 120,
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              sliver: Obx(
+                () => SliverGrid.builder(
+                  itemCount: mutualcontroller.searchFund.length.clamp(0, 4),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    childAspectRatio: 1.55,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    crossAxisCount: 2,
+                  ),
+                  itemBuilder: (context, index) {
+                    final fund = mutualcontroller.searchFund[index];
+                    final id = fund.amc?.id;
+                    if (id == null) return const SizedBox();
+                    final img = fund.amc?.amcLogoUrl ?? '';
+                    final name = fund.baseSchemeName ?? 'Unknown Name';
+                    print(
+                      '${mutualcontroller.searchFund.length} mutual fund $name $img',
+                    );
+                    return PopularFundCard(
+                      onTap: () => Get.toNamed(
+                        AppRoutes.funddetails,
+                        arguments: {'scheme': name, 'imgUrl': img},
+                      ),
+                      isNetwork: true,
+                      imgPath: img,
+                      name: name,
+                    );
+                  },
                 ),
-                delegate: SliverChildListDelegate([
-                  PopularFundCard(
-                    // onTap: () => Get.to(() => FundDeatailsScreen()),
-                    name: 'SBI Gold Fund',
-                    imgPath: UImages.sbi,
-                  ),
-                  PopularFundCard(
-                    // onTap: () => Get.to(() => FundDeatailsScreen()),
-                    name: 'Parag Parikh Flexi Cap Fund',
-                    imgPath: UImages.sbi,
-                  ),
-                  PopularFundCard(
-                    // onTap: () => Get.to(() => FundDeatailsScreen()),
-                    name: 'Motilal Ostwal Midcap Fund',
-                    imgPath: UImages.motilal,
-                  ),
-                  PopularFundCard(
-                    // onTap: () => Get.to(() => FundDeatailsScreen()),
-                    name: 'Bandhan Small Cap Fund',
-                    imgPath: UImages.motilal,
-                  ),
-                ]),
               ),
             ),
 

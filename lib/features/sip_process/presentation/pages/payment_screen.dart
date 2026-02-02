@@ -18,6 +18,8 @@ class PaymentScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final arg = Get.arguments as Map<String, dynamic>?;
+    final amount = arg!['amount'];
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.grey.shade50,
@@ -139,6 +141,7 @@ class PaymentScreen extends StatelessWidget {
       bottomNavigationBar: SafeArea(
         top: false,
         child: CartBottomBar(
+          amount: amount.toString() ,
           title: 'Amount Payable',
           ontap: () => Get.toNamed(
             AppRoutes.successfullcreategoal,

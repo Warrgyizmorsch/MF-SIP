@@ -32,7 +32,7 @@ class MutualFundController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchMutualFund();
+    // fetchMutualFund();
     schemedeatails();
   }
 
