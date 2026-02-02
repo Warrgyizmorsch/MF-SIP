@@ -50,6 +50,7 @@ class CustomTextField extends StatefulWidget {
   final int maxLines;
 
   final double? height;
+  final double? borderRadius;
 
   const CustomTextField({
     super.key,
@@ -89,6 +90,7 @@ class CustomTextField extends StatefulWidget {
     this.onSubmitted,
     this.height = 30,
     this.textInputAction,
+    this.borderRadius = 14,
   });
 
   @override
@@ -252,15 +254,21 @@ class _CustomTextFieldState extends State<CustomTextField> {
                               )
                             : null,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(
+                            widget.borderRadius ?? 14,
+                          ),
                           borderSide: BorderSide(color: Colors.grey.shade300),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(
+                            widget.borderRadius ?? 14,
+                          ),
                           borderSide: BorderSide(color: widget.borderColor),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(
+                            widget.borderRadius ?? 14,
+                          ),
 
                           borderSide: BorderSide(
                             color: widget.focusedBorderColor,

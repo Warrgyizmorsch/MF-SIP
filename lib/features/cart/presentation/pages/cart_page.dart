@@ -2,23 +2,24 @@ import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
+import 'package:my_sip/common/widget/text_form/text_field_component.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/enums/enums.dart';
 import 'package:my_sip/features/authentication/presentation/widgets/term_policy.dart';
 import 'package:my_sip/features/cart/data/model/cartItem_model.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
 
-class CartPage extends StatelessWidget {
-  CartPage({super.key});
-
-  final controller = Get.find<CartController>();
+class CartPage extends GetView<CartController> {
+  const CartPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -71,8 +72,6 @@ class CartPage extends StatelessWidget {
                         onPressed: () => Navigator.pop(context),
                         child: Text('Back'),
                       ),
-
-                     
                     ],
                   ),
                 );
@@ -80,10 +79,10 @@ class CartPage extends StatelessWidget {
                 // Get.toNamed(AppRoutes.paymentScreen);
               } else if (controller.monthlyAmount.value ==
                   controller.totolAmount) {
-                    
-                Get.toNamed(AppRoutes.paymentScreen, arguments: {
-                  'amount' : controller.totolAmount
-                });
+                Get.toNamed(
+                  AppRoutes.paymentScreen,
+                  arguments: {'amount': controller.totolAmount},
+                );
               } else if (controller.monthlyAmount.value <
                   controller.totolAmount) {
                 log('Inscrease');
@@ -353,9 +352,10 @@ class FundHeader extends StatelessWidget {
 }
 
 class InvestmentInputsRow extends StatelessWidget {
-  const InvestmentInputsRow({super.key, required this.item});
+  InvestmentInputsRow({super.key, required this.item});
 
   final CartItem item;
+  final controller = Get.find<CartController>();
 
   @override
   Widget build(BuildContext context) {
@@ -484,24 +484,55 @@ class InvestmentInputsRow extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    _box(
-                      child: TextField(
-                        keyboardType: TextInputType.number,
-                        controller: TextEditingController(
-                          text: item.amount.value.toString(),
-                        ),
+                    CustomTextField(
+                      onChanged: item.updateAmount,
+                      keyboardType: TextInputType.number,
+                      controller: item.amountController,
+                      validationType: ValidationType.custom,
+                      customValidator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Amount is required';
+                        }
 
-                        decoration: InputDecoration(
-                          // hintText: amount,
-                          border: InputBorder.none,
-                          isCollapsed: true,
-                        ),
-                        onChanged: (value) {
-                          // amount = value;
-                          item.amount.value = int.tryParse(value) ?? 0;
-                        },
-                      ),
+                        final amount = int.tryParse(value);
+                        if (amount == null) {
+                          return 'Enter a valid number';
+                        }
+
+                        if (amount <= 0) {
+                          return 'Amount must be greater than 0';
+                        }
+
+                        if (amount < 500) {
+                          return 'Minimum investment is ₹500';
+                        }
+
+                        return null; // ✅ valid
+                      },
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      height: 44,
+                      borderRadius: 10,
                     ),
+
+                    // _box(
+                    //   child:
+                    //   TextField(
+                    //     keyboardType: TextInputType.number,
+                    //     controller: TextEditingController(
+                    //       text: item.amount.value.toString(),
+                    //     ),
+
+                    //     decoration: InputDecoration(
+                    //       // hintText: amount,
+                    //       border: InputBorder.none,
+                    //       isCollapsed: true,
+                    //     ),
+                    //     onChanged: (value) {
+                    //       // amount = value;
+                    //       item.amount.value = int.tryParse(value) ?? 0;
+                    //     },
+                    //   ),
+                    // ),
                   ],
                 ),
               ),

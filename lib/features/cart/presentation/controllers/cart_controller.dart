@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/features/cart/data/model/cartItem_model.dart';
 
@@ -8,6 +9,7 @@ class CartController extends GetxController {
   final RxList<CartItem> wishlist = <CartItem>[].obs;
 
   final RxInt monthlyAmount = 0.obs;
+  final TextEditingController invAmount=TextEditingController();
 
   void setMonthlyAmount(int value) {
     monthlyAmount.value = value;
