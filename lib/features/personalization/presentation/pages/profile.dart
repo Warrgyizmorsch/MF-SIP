@@ -16,6 +16,7 @@ import 'package:my_sip/features/personalization/presentation/widgets/nominee_lis
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/services/session_manager.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -24,7 +25,7 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // final sz = MediaQuery.of(context).size;
     final controller = Get.find<AuthController>();
-    final user = controller.user.value!;
+    final user = SessionManager.instance.getUserData;
 
     return Scaffold(
       appBar: CustomAppBarNormal(title: 'Profile', backIcon: false),
@@ -42,9 +43,9 @@ class ProfileScreen extends StatelessWidget {
                 /// Profile Header
                 ProfileHeader(
                   onTap: () {},
-                  name: user.name,
+                  name: user?.name,
                   img: UImages.avatar,
-                  subtitle: user.email,
+                  subtitle: user?.email ?? '',
                   icon: Icons.edit,
                 ),
 

@@ -9,6 +9,7 @@ import 'package:my_sip/features/authentication/data/models/auth_model.dart';
 import 'package:my_sip/features/authentication/domain/entitites/auth_entity.dart';
 import 'package:my_sip/features/authentication/domain/usecases/auth_use_cases.dart';
 import 'package:flutter/material.dart';
+import 'package:my_sip/services/session_manager.dart';
 import '../../pages/signup/verify_pan_otp.dart';
 
 class AuthController extends GetxController {
@@ -237,9 +238,9 @@ class AuthController extends GetxController {
 
     result.fold(
       (success) {
-        isOtpVerifyLoading.value = false;
 
-        final userController = Get.find<AuthController>();
+        SessionManager.instance.setSession(jwtAccessToken: success.data?.token, userData: success.data?.userModel);
+        isOtpVerifyLoading.value = false;
 
         user.value = success.data!.userModel.toEntity();
 
@@ -306,6 +307,7 @@ class AuthController extends GetxController {
     user.value = null;
     mobileController.clear();
     otpController.clear();
+    SessionManager.instance.clearSession();
 
     Get.offAllNamed(AppRoutes.login);
   }

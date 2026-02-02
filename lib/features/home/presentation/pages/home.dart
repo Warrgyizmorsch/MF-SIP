@@ -31,6 +31,8 @@ class HomeScreen extends StatelessWidget {
 
   final cartController = Get.find<CartController>();
 
+
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -65,7 +67,7 @@ class HomeScreen extends StatelessWidget {
                   child: CustomProfileAppbar(
                     onProfiletap: () => Get.to(() => ProfileScreen()),
                     backgroundColor: Colors.transparent,
-                    greetingName: authController.user.value!.name,
+                    greetingName: authController.user.value?.name ?? '',
                     //  greetingName: user,
                     role: UHelperFunction.getGreetingMsg(),
                     iconColor: Ucolors.light,

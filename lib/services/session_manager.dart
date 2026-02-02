@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:convert'; // Required for jsonEncode/jsonDecode
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:my_sip/features/authentication/data/models/auth_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:my_sip/core/utils/helper/helpers.dart';
+import 'package:my_sip/features/authentication/domain/entitites/auth_entity.dart';
 
 class SessionManager {
   SessionManager._internal();
@@ -18,43 +21,54 @@ class SessionManager {
   String? jwtAccessToken;
   String? jwtRefreshToken;
 
-  // Changed: Store user data as a raw String instead of a Model object
-  String? _userData;
+  // Store as UserEntity object in memory
+  UserModel? _userData;
 
   final StreamController<String?> _controller = StreamController<String?>.broadcast();
   Stream<String?> get accessTokenStream => _controller.stream;
 
-  // Initialize SharedPreferences for web platform
   Future<void> initialize() async {
     if (kIsWeb) {
       _prefs = await SharedPreferences.getInstance();
-      // Load tokens from SharedPreferences on web
       jwtAccessToken = _prefs?.getString('jwtAccessToken');
       jwtRefreshToken = _prefs?.getString('jwtRefreshToken');
       userId = _prefs?.getString('userId');
 
-      // Load user data string directly
-      _userData = _prefs?.getString('userData');
+      // 1. Read string
+      final userJsonString = _prefs?.getString('userData');
+      // 2. Convert String -> JSON -> UserEntity
+      if (userJsonString != null) {
+        try {
+          // Assuming UserEntity has a fromJson factory or method
+          _userData = UserModel.fromJson(jsonDecode(userJsonString));
+        } catch (e) {
+          createLog("Error parsing user data on web: $e");
+        }
+      }
     } else {
-      // Load tokens from secure storage on mobile
       await getSession();
     }
   }
 
-  /// Sets the user session with access and refresh tokens
   Future<void> setSession({
     required String? jwtAccessToken,
     String? jwtRefreshToken,
     String? userId,
-    String? userData, // Changed: Accepts String instead of UserEntity
+    UserModel? userData,
   }) async {
     this.jwtAccessToken = jwtAccessToken;
     this.jwtRefreshToken = jwtRefreshToken;
     this.userId = userId;
     this._userData = userData;
 
+    // Convert UserEntity -> JSON -> String
+    String? userDataString;
+    if (userData != null) {
+      // Assuming UserEntity has a toJson method
+      userDataString = jsonEncode(userData);
+    }
+
     if (kIsWeb) {
-      // Store in SharedPreferences for web (persists across sessions)
       await _ensurePrefsInitialized();
 
       if (jwtAccessToken != null) {
@@ -75,14 +89,14 @@ class SessionManager {
         await _prefs!.remove('userId');
       }
 
-      // Store user data string
-      if (_userData != null) {
-        await _prefs!.setString('userData', _userData!);
+      if (userDataString != null) {
+        await _prefs!.setString('userData', userDataString);
       } else {
         await _prefs!.remove('userData');
       }
     } else {
-      // Store in secure storage for mobile
+      createLog("Storing in flutter secure storage for mobile");
+
       if (jwtAccessToken != null) {
         await _secureStorage!.write(key: "jwtAccessToken", value: jwtAccessToken);
       } else {
@@ -101,9 +115,8 @@ class SessionManager {
         await _secureStorage!.delete(key: "userId");
       }
 
-      // Store user data string
-      if (_userData != null) {
-        await _secureStorage!.write(key: "userData", value: _userData);
+      if (userDataString != null) {
+        await _secureStorage!.write(key: "userData", value: userDataString);
       } else {
         await _secureStorage!.delete(key: "userData");
       }
@@ -112,23 +125,32 @@ class SessionManager {
     _controller.add(jwtAccessToken);
   }
 
-  /// Retrieves the session tokens from storage
   Future<void> getSession() async {
+    String? userDataString;
+
     if (kIsWeb) {
       await _ensurePrefsInitialized();
       jwtAccessToken = _prefs?.getString('jwtAccessToken');
       jwtRefreshToken = _prefs?.getString('jwtRefreshToken');
       userId = _prefs?.getString('userId');
-      _userData = _prefs?.getString('userData');
+      userDataString = _prefs?.getString('userData');
     } else {
       jwtAccessToken = await _secureStorage?.read(key: 'jwtAccessToken');
       jwtRefreshToken = await _secureStorage?.read(key: 'jwtRefreshToken');
       userId = await _secureStorage?.read(key: 'userId');
-      _userData = await _secureStorage?.read(key: 'userData');
+      userDataString = await _secureStorage?.read(key: 'userData');
+    }
+
+    // Convert String -> UserEntity
+    if (userDataString != null) {
+      try {
+        _userData = UserModel.fromJson(jsonDecode(userDataString));
+      } catch (e) {
+        createLog("Error parsing user data: $e");
+      }
     }
   }
 
-  /// Clears the session tokens from memory and storage
   Future<void> clearSession() async {
     jwtAccessToken = null;
     jwtRefreshToken = null;
@@ -155,8 +177,8 @@ class SessionManager {
     _controller.add(null);
   }
 
-  /// Updates the access token
   Future<void> updateAccessToken(String? token) async {
+    // Pass the existing _userData object
     await setSession(
       jwtAccessToken: token,
       jwtRefreshToken: jwtRefreshToken,
@@ -165,7 +187,6 @@ class SessionManager {
     );
   }
 
-  /// Updates the refresh token
   Future<void> updateRefreshToken(String? token) async {
     jwtRefreshToken = token;
 
@@ -185,25 +206,22 @@ class SessionManager {
     }
   }
 
-  // Ensure SharedPreferences is initialized
   Future<void> _ensurePrefsInitialized() async {
     _prefs ??= await SharedPreferences.getInstance();
   }
 
-  // Getters
   String? get getUserId => userId;
   String? get getAccessToken => jwtAccessToken;
   String? get getRefreshToken => jwtRefreshToken;
 
-  // New getter returning the raw string
-  String? get getUserData => _userData;
+  // Getter now returns the Object, not a String
+  UserModel? get getUserData => _userData;
 
-  /// Checks if the user is authenticated
   bool isAuthenticated() {
+    createLog("Authenticated");
     return jwtAccessToken != null && jwtAccessToken!.isNotEmpty;
   }
 
-  /// Dispose the stream controller
   void dispose() {
     _controller.close();
   }
