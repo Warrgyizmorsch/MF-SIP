@@ -59,7 +59,7 @@ class CartPage extends StatelessWidget {
                 : '/${controller.monthlyAmount.value.toString()}',
             amount: controller.totolAmount.toString(),
             ontap: () {
-              if (controller.monthlyAmount.value != controller.totolAmount) {
+              if (controller.monthlyAmount.value > controller.totolAmount) {
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
@@ -72,19 +72,22 @@ class CartPage extends StatelessWidget {
                         child: Text('Back'),
                       ),
 
-                      TextButton(
-                        onPressed: () => Get.toNamed(AppRoutes.paymentScreen),
-                        child: Text('Purchase'),
-                      ),
+                      // TextButton(
+                      //   onPressed: () => Get.toNamed(AppRoutes.paymentScreen),
+                      //   child: Text('Purchase'),
+                      // ),
                     ],
                   ),
                 );
 
                 // Get.toNamed(AppRoutes.paymentScreen);
+              } else if (controller.monthlyAmount.value ==
+                  controller.totolAmount) {
+                Get.toNamed(AppRoutes.paymentScreen);
+              } else if (controller.monthlyAmount.value <
+                  controller.totolAmount) {
+                log('Inscrease');
               }
-              // else {
-              //   Get.toNamed(AppRoutes.paymentScreen);
-              // }
             },
           ),
         ),
