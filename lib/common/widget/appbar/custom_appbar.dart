@@ -5,6 +5,7 @@ import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
+import 'package:my_sip/services/session_manager.dart';
 
 class CustomProfileAppbar extends StatelessWidget
     implements PreferredSizeWidget {
@@ -38,7 +39,7 @@ class CustomProfileAppbar extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    final user = controller.user.value!;
+    final user = SessionManager.instance.getUserData;
     return AppBar(
       actionsPadding: actionsPadding,
 
@@ -80,7 +81,7 @@ class CustomProfileAppbar extends StatelessWidget
                   //Name
                   Text(
                     // greetingName,
-                    user.name,
+                    user?.name ?? '',
                     style: UTextStyles.heading1.copyWith(
                       fontSize: 14,
                       color: greetingNameColor,

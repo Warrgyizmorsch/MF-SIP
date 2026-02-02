@@ -77,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: CustomProfileAppbar(
                     onProfiletap: () => Get.to(() => ProfileScreen()),
                     backgroundColor: Colors.transparent,
-                    greetingName: authController.user.value!.name,
+                    greetingName: authController.user.value?.name ?? '',
                     //  greetingName: user,
                     role: UHelperFunction.getGreetingMsg(),
                     iconColor: Ucolors.light,

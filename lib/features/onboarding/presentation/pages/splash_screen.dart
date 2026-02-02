@@ -7,6 +7,7 @@ import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/welcome_page.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
+import 'package:my_sip/services/session_manager.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -19,20 +20,30 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    _checkAuthAndNavigate();
+  }
 
-    // Simulate some startup work
-    Timer(const Duration(seconds: 3), () {
-      // Get.toNamed(AppRoutes.home);
+  Future<void> _checkAuthAndNavigate() async {
+    // 1. Load the session data from storage (SecureStorage/SharedPrefs)
+    await SessionManager.instance.initialize();
+
+    // 2. Wait for your animation/timer
+    await Future.delayed(const Duration(seconds: 3));
+
+    if (!mounted) return; // specific check to prevent errors if user closes app
+
+    // 3. Check authentication with correct logic
+    if (SessionManager.instance.isAuthenticated()) {
+      // User is logged in -> Go to Home
+      // Get.offAllNamed removes the Splash from back stack so back button exits app
+      Get.offAllNamed(AppRoutes.navMenuBar);
+    } else {
+      // User is NOT logged in -> Go to Welcome
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => WelcomePageScreen()),
       );
-      // Get.toNamed(AppRoutes.navMenuBar);
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(builder: (context) => WelcomePageScreen()),
-      // );
-    });
+    }
   }
 
   @override
