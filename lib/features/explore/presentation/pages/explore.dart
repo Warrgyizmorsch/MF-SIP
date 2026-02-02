@@ -319,6 +319,7 @@ class MutualFundCard extends StatelessWidget {
                   // backgroundImage:  NetworkImage(entity!.amc!.amcLogoUrl!),
                   child: ClipOval(
                     child: CachedNetworkImage(
+
                       imageUrl: entity.amc?.amcLogoUrl ?? '',
                       fadeInDuration: const Duration(milliseconds: 300),
 

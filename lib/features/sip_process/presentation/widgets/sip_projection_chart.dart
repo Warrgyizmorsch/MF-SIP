@@ -111,6 +111,7 @@
 import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:my_sip/core/utils/constant/text_style.dart';
 
 class SipProjectionChart extends StatelessWidget {
   final List<FlSpot> investedSpots;
@@ -172,7 +173,7 @@ class SipProjectionChart extends StatelessWidget {
 
           // backgroundColor: Colors.blueGrey.shade50,
           gridData: FlGridData(
-            show: true,
+            show: false,
             horizontalInterval: maxYBuffer / 4,
             getDrawingHorizontalLine: (value) =>
                 const FlLine(color: Color(0xffe7e8ec), strokeWidth: 1),
@@ -187,7 +188,7 @@ class SipProjectionChart extends StatelessWidget {
           titlesData: FlTitlesData(
             show: true,
 
-            // ❌ hide top/right
+
             topTitles: const AxisTitles(
               sideTitles: SideTitles(showTitles: false),
             ),
@@ -206,12 +207,8 @@ class SipProjectionChart extends StatelessWidget {
                     // space: 5,
                     meta: meta,
                     child: Text(
-                      '${value.toInt()}Y',
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      '${value.toInt()}',
+                      style: AppTextStyles.bodyMedium(color: Colors.white),
                     ),
                   );
                 },
@@ -221,7 +218,8 @@ class SipProjectionChart extends StatelessWidget {
             // ✅ Y-axis (₹ in Lakhs)
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
-                showTitles: true,
+
+                showTitles: false,
                 interval: maxYBuffer / 4,
                 reservedSize: 48,
                 getTitlesWidget: (value, meta) {
@@ -245,6 +243,7 @@ class SipProjectionChart extends StatelessWidget {
             ),
           ),
 
+
           lineBarsData: [
             // 🔵 Invested
             LineChartBarData(
@@ -257,10 +256,10 @@ class SipProjectionChart extends StatelessWidget {
 
             // 🟢 Value
             LineChartBarData(
-              belowBarData: BarAreaData(
-                color: Colors.greenAccent.shade100.withOpacity(0.4),
-                show: true,
-              ),
+              // belowBarData: BarAreaData(
+              //   // color: Colors.greenAccent.shade100.withOpacity(0.4),
+              //   show: true,
+              // ),
               spots: projectedSpots,
               isCurved: true,
               color: Colors.greenAccent,

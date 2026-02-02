@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:my_sip/common/widget/images/custom_cached_image.dart';
+import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
 import '../../../../config/routes/app_routes.dart';
@@ -18,6 +20,11 @@ class GrowthSchemeScreen extends StatefulWidget {
 }
 
 class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
+
+  final mutualFundController = Get.find<MutualFundController>();
+   late final growthSchemes = mutualFundController.mutualfund;
+
+
   final list = [
     "Motilal Ostwal Small Cap Fund",
     "Bandhan Midcap Fund",
@@ -195,7 +202,7 @@ class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
 
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      itemCount: list.length,
+      itemCount: growthSchemes.length.clamp(0, 4),
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) => _buildSchemeCard(index),
     );
@@ -225,15 +232,11 @@ class _GrowthSchemeScreenState extends State<GrowthSchemeScreen> {
           children: [
             Row(
               children: [
-                const CircleAvatar(
-                  radius: 18,
-                  backgroundColor: Colors.grey,
-                  backgroundImage: AssetImage(UImages.sbi),
-                ),
+                CustomCachedImage(imageUrl: growthSchemes[index].amc?.amcLogoUrl),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    list[index],
+                    growthSchemes[index].baseSchemeName ?? '',
                     style: AppTextStyles.bodyMediumSemiBold(),
                     overflow: TextOverflow.ellipsis,
                   ),

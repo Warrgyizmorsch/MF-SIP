@@ -65,3 +65,10 @@ class UHelperFunction {
     }
   }
 }
+
+
+
+int? _cacheSize(double size, double pixelRatio) {
+  // Multiply by pixel ratio to maintain high quality on retina screens
+  return (size * pixelRatio).toInt();
+}
