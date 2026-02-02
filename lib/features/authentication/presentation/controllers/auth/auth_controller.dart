@@ -237,9 +237,9 @@ class AuthController extends GetxController {
     final result = await _authUseCases.verifyOtpUseCase.call(requestData);
 
     result.fold(
-      (success) {
+      (success) async {
 
-        SessionManager.instance.setSession(jwtAccessToken: success.data?.token, userData: success.data?.userModel);
+       await SessionManager.instance.setSession(jwtAccessToken: success.data?.token, userData: success.data?.userModel);
         isOtpVerifyLoading.value = false;
 
         user.value = success.data!.userModel.toEntity();

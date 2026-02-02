@@ -74,6 +74,24 @@ class UserModel {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'role_id': roleId,
+      'name': name,
+      'email': email,
+      'mobile': mobile,
+      'pan_card': panCard,
+      'email_verified_at': emailVerifiedAt,
+      'phone_verified_at': phoneVerifiedAt,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
+      'kyc_status': kycStatus,
+      'kyc_verified_at': kycVerifiedAt,
+      'status': status,
+    };
+  }
+
 
 }
 

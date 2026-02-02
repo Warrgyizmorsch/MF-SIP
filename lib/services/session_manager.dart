@@ -65,8 +65,7 @@ class SessionManager {
     String? userDataString;
     if (userData != null) {
       // Assuming UserEntity has a toJson method
-      userDataString = jsonEncode(userData);
-    }
+      userDataString = userData != null ? jsonEncode(userData.toJson()) : null;    }
 
     if (kIsWeb) {
       await _ensurePrefsInitialized();
@@ -218,7 +217,6 @@ class SessionManager {
   UserModel? get getUserData => _userData;
 
   bool isAuthenticated() {
-    createLog("Authenticated");
     return jwtAccessToken != null && jwtAccessToken!.isNotEmpty;
   }
 

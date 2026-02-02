@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/welcome_page.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
@@ -24,24 +25,28 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkAuthAndNavigate() async {
-    // 1. Load the session data from storage (SecureStorage/SharedPrefs)
+    // 1. Initialize and WAIT for data to be read from disk
     await SessionManager.instance.initialize();
 
-    // 2. Wait for your animation/timer
+    // 2. Wait for your branding delay
     await Future.delayed(const Duration(seconds: 3));
 
-    if (!mounted) return; // specific check to prevent errors if user closes app
+    if (!mounted) return;
 
-    // 3. Check authentication with correct logic
-    if (SessionManager.instance.isAuthenticated()) {
-      // User is logged in -> Go to Home
-      // Get.offAllNamed removes the Splash from back stack so back button exits app
+    // 3. Use the manager's state directly
+    final bool loggedIn = SessionManager.instance.isAuthenticated();
+
+    createLog("Is User Authenticated: $loggedIn");
+
+    if (loggedIn) {
+      createLog("Navigating to Home");
+      // If using GetX, ensure GetMaterialApp is used in main.dart
       Get.offAllNamed(AppRoutes.navMenuBar);
     } else {
-      // User is NOT logged in -> Go to Welcome
+      createLog("Navigating to Welcome");
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => WelcomePageScreen()),
+        MaterialPageRoute(builder: (context) => const WelcomePageScreen()),
       );
     }
   }
