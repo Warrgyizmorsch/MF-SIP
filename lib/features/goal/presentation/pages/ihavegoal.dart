@@ -14,6 +14,7 @@ import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/cart/data/model/cartItem_model.dart';
@@ -192,8 +193,10 @@ class PopularFund extends StatelessWidget {
           final fund = controller.searchFund[index];
           final id = fund.amc?.id;
           if (id == null) return const SizedBox();
-          final img = fund.amc?.amcLogoUrl ?? '';
+          final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}" ?? '';
+          final img1 = fund.amc?.amcLogoUrl ?? '';
           final name = fund.baseSchemeName ?? 'Unknown Name';
+          log(img);
           // final code =fund.variants[index].schemeCode;
           return Obx(
             () => GestureDetector(
@@ -201,19 +204,17 @@ class PopularFund extends StatelessWidget {
               onTap: () {
                 log('tap to popular fund');
                 final isSelected = goalSipController.isSelectedFund(name);
-                log('call');
                 log(isSelected.toString());
 
                 //toggle selection
                 goalSipController.toggleFund(name);
-                log('call 1');
 
                 !isSelected
                     ? cartController.addItem(
                         CartItem(
                           fundId: id.toString(),
                           fundName: name,
-                          logoUrl: img,
+                          logoUrl: img1,
                         ),
                       )
                     : cartController.removeItemByName(name);

@@ -173,7 +173,7 @@ class SipProjectionChart extends StatelessWidget {
 
           // backgroundColor: Colors.blueGrey.shade50,
           gridData: FlGridData(
-            show: false,
+            show: true,
             horizontalInterval: maxYBuffer / 4,
             getDrawingHorizontalLine: (value) =>
                 const FlLine(color: Color(0xffe7e8ec), strokeWidth: 1),
@@ -187,7 +187,6 @@ class SipProjectionChart extends StatelessWidget {
 
           titlesData: FlTitlesData(
             show: true,
-
 
             topTitles: const AxisTitles(
               sideTitles: SideTitles(showTitles: false),
@@ -208,7 +207,7 @@ class SipProjectionChart extends StatelessWidget {
                     meta: meta,
                     child: Text(
                       '${value.toInt()}',
-                      style: AppTextStyles.bodyMedium(color: Colors.white),
+                      style: AppTextStyles.bodyMedium(color: Colors.grey),
                     ),
                   );
                 },
@@ -218,8 +217,7 @@ class SipProjectionChart extends StatelessWidget {
             // ✅ Y-axis (₹ in Lakhs)
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
-
-                showTitles: false,
+                showTitles: true,
                 interval: maxYBuffer / 4,
                 reservedSize: 48,
                 getTitlesWidget: (value, meta) {
@@ -243,7 +241,6 @@ class SipProjectionChart extends StatelessWidget {
             ),
           ),
 
-
           lineBarsData: [
             // 🔵 Invested
             LineChartBarData(
@@ -256,10 +253,10 @@ class SipProjectionChart extends StatelessWidget {
 
             // 🟢 Value
             LineChartBarData(
-              // belowBarData: BarAreaData(
-              //   // color: Colors.greenAccent.shade100.withOpacity(0.4),
-              //   show: true,
-              // ),
+              belowBarData: BarAreaData(
+                color: Colors.greenAccent.shade100.withOpacity(0.4),
+                show: true,
+              ),
               spots: projectedSpots,
               isCurved: true,
               color: Colors.greenAccent,
