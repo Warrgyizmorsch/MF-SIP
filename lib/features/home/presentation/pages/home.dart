@@ -331,7 +331,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Get.toNamed(AppRoutes.freedomSipScreen);
+                            Get.toNamed(AppRoutes.startSipScreen);
                           },
                           child: FeatureSection(
                             featureName: 'Freedom SIP',

@@ -10,23 +10,10 @@ import '../../../../core/utils/constant/colors.dart';
 import '../../../../core/utils/constant/images.dart';
 import '../../../../core/utils/constant/text.dart';
 import '../../../../core/utils/constant/text_style.dart';
+import '../controllers/sip_process_controller.dart';
 
-class MonthlySipScreen extends StatefulWidget {
+class MonthlySipScreen extends GetView<SipProcessController> {
   const MonthlySipScreen({super.key});
-
-  @override
-  State<MonthlySipScreen> createState() => _MonthlySipScreenState();
-}
-
-class _MonthlySipScreenState extends State<MonthlySipScreen> {
-  double amount = 1000;
-
-  void _updateAmount(double targetAmount) {
-    setState(() {
-      if (targetAmount < 0) return;
-      amount = targetAmount;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +24,7 @@ class _MonthlySipScreenState extends State<MonthlySipScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              // --- Header ---
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 child: Row(
@@ -53,6 +41,7 @@ class _MonthlySipScreenState extends State<MonthlySipScreen> {
               ),
               const SizedBox(height: 10.0),
 
+              // --- White Container ---
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Container(
@@ -67,6 +56,7 @@ class _MonthlySipScreenState extends State<MonthlySipScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // --- Input Section ---
                       Padding(
                         padding: const EdgeInsets.symmetric(
                           vertical: 8.0,
@@ -89,16 +79,21 @@ class _MonthlySipScreenState extends State<MonthlySipScreen> {
                             ),
                             const SizedBox(height: 10),
 
-                            SipAmountSelector(
+                            // Obx needed here: Updates slider/input UI when amount changes
+                            Obx(() => SipAmountSelector(
                               label: "Select Amount(₹)",
-                              amount: amount,
-                              onChanged: _updateAmount,
-                            ),
+                              amount: controller.amount.value,
+                              onChanged: controller.updateAmount,
+                            )),
 
                             const SizedBox(height: 10),
 
+                            // No Obx needed here: The list doesn't change, only the click action
                             AmountChipList(
-                              onSelected: (val) => _updateAmount(val + amount),
+                              onSelected: (val) {
+                                controller.updateAmount(
+                                    val + controller.amount.value);
+                              },
                             ),
                           ],
                         ),
@@ -106,15 +101,14 @@ class _MonthlySipScreenState extends State<MonthlySipScreen> {
 
                       const SizedBox(height: 20),
 
+                      // --- Projection Card Section ---
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Container(
                           width: double.infinity,
                           padding: const EdgeInsets.symmetric(horizontal: 10),
-
                           decoration: BoxDecoration(
                             color: Ucolors.blue,
-
                             borderRadius: BorderRadius.circular(20),
                             gradient: LinearGradient(
                               colors: [Ucolors.blue, Ucolors.primary],
@@ -128,6 +122,7 @@ class _MonthlySipScreenState extends State<MonthlySipScreen> {
                             children: [
                               const SizedBox(height: 15),
 
+                              // --- Inner Dark Card (Values) ---
                               Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 14.0,
@@ -166,7 +161,7 @@ class _MonthlySipScreenState extends State<MonthlySipScreen> {
                                       children: [
                                         Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                          MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
                                               "Projected Value (5y)",
@@ -174,18 +169,21 @@ class _MonthlySipScreenState extends State<MonthlySipScreen> {
                                                 color: Colors.white,
                                               ),
                                             ),
-                                            Text(
-                                              "₹89,682",
-                                              style: AppTextStyles.bodyLarge(
+                                            // Dynamic Projected Value
+                                            Obx(() => Text(
+                                              controller.formatCurrency(controller
+                                                  .totalProjected.value),
+                                              style:
+                                              AppTextStyles.bodyLarge(
                                                 color: Colors.white,
                                               ),
-                                            ),
+                                            )),
                                           ],
                                         ),
                                         const SizedBox(height: 10),
                                         Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                          MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
                                               "Invested Amount",
@@ -193,12 +191,15 @@ class _MonthlySipScreenState extends State<MonthlySipScreen> {
                                                 color: Colors.white,
                                               ),
                                             ),
-                                            Text(
-                                              "₹60,000",
-                                              style: AppTextStyles.bodyLarge(
+                                            // Dynamic Invested Amount
+                                            Obx(() => Text(
+                                              controller.formatCurrency(controller
+                                                  .totalInvested.value),
+                                              style:
+                                              AppTextStyles.bodyLarge(
                                                 color: Colors.white,
                                               ),
-                                            ),
+                                            )),
                                           ],
                                         ),
                                       ],
@@ -209,6 +210,7 @@ class _MonthlySipScreenState extends State<MonthlySipScreen> {
 
                               const SizedBox(height: 20),
 
+                              // --- Text Description ---
                               Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 18.0,
@@ -222,8 +224,8 @@ class _MonthlySipScreenState extends State<MonthlySipScreen> {
                                         color: Colors.white,
                                       ),
                                     ),
-                                    SizedBox(height: 10),
-                                    RichText(
+                                    const SizedBox(height: 10),
+                                    Obx(() => RichText(
                                       text: TextSpan(
                                         text: "Your wealth will grow to",
                                         style: AppTextStyles.bodySmall(
@@ -231,26 +233,33 @@ class _MonthlySipScreenState extends State<MonthlySipScreen> {
                                         ),
                                         children: [
                                           TextSpan(
-                                            text: ' ₹ 4,88,298',
-                                            style: AppTextStyles.bodySmallBold(
-                                              color: const Color(0xffC9EAFB),
+                                            text:
+                                            ' ${controller.formatCurrency(controller.totalProjected.value)}',
+                                            style: AppTextStyles
+                                                .bodySmallBold(
+                                              color:
+                                              const Color(0xffC9EAFB),
                                             ),
                                           ),
                                           TextSpan(
                                             text: ' by ',
                                             style: AppTextStyles.bodySmall(
-                                              color: const Color(0xffC9EAFB),
+                                              color:
+                                              const Color(0xffC9EAFB),
                                             ),
                                           ),
                                           TextSpan(
-                                            text: '2030',
-                                            style: AppTextStyles.bodySmallBold(
-                                              color: const Color(0xffC9EAFB),
+                                            text:
+                                            '${DateTime.now().year + 5}',
+                                            style: AppTextStyles
+                                                .bodySmallBold(
+                                              color:
+                                              const Color(0xffC9EAFB),
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ),
+                                    )),
                                     RichText(
                                       text: TextSpan(
                                         text: "assuming",
@@ -259,7 +268,8 @@ class _MonthlySipScreenState extends State<MonthlySipScreen> {
                                         ),
                                         children: [
                                           TextSpan(
-                                            text: ' 18 % ',
+                                            text:
+                                            ' ${controller.expectedReturnRate.toStringAsFixed(0)}% ',
                                             style: AppTextStyles.bodySmallBold(
                                               color: const Color(0xffC9EAFB),
                                             ),
@@ -277,25 +287,20 @@ class _MonthlySipScreenState extends State<MonthlySipScreen> {
                                 ),
                               ),
 
+                              // --- Chart Section ---
                               Center(
                                 child: SizedBox(
                                   height: 190,
-                                  child: SipProjectionChart(
-                                    investedSpots: const [
-                                      FlSpot(2024, 50000),
-                                      FlSpot(2025, 20000),
-                                      FlSpot(2026, 80000),
-                                      FlSpot(2027, 10000),
-                                      FlSpot(2028, 90000),
-                                    ],
-                                    projectedSpots: const [
-                                      FlSpot(2024, 55000),
-                                      FlSpot(2025, 45000),
-                                      FlSpot(2026, 75000),
-                                      FlSpot(2027, 40000),
-                                      FlSpot(2028, 95000),
-                                    ],
-                                  ),
+                                  // Dynamic Chart Data
+                                  child: Obx(() => SipProjectionChart(
+                                    showLeftNumbers: false,
+                                    investedSpots: controller
+                                        .chartInvestedSpots
+                                        .toList(),
+                                    projectedSpots: controller
+                                        .chartProjectedSpots
+                                        .toList(),
+                                  )),
                                 ),
                               ),
 

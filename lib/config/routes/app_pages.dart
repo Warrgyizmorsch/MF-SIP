@@ -81,6 +81,7 @@ class AppPages {
     GetPage(
       name: AppRoutes.startSipScreen,
       page: () => const MonthlySipScreen(),
+      binding: SipProcessBinding()
     ),
 
     GetPage(

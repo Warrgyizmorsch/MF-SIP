@@ -1,28 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
-
+import 'package:my_sip/services/session_manager.dart';
 import '../../../../common/widget/button/elevated_button.dart';
 import '../../../../core/utils/constant/colors.dart';
 import '../../../../core/utils/constant/images.dart';
 import '../../../../core/utils/constant/text.dart';
 import '../../../../core/utils/constant/text_style.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../controllers/sip_process_controller.dart';
 
-class InvestingApproachScreen extends StatefulWidget {
+class InvestingApproachScreen extends GetView<SipProcessController> {
   const InvestingApproachScreen({super.key});
 
   @override
-  State<InvestingApproachScreen> createState() =>
-      _InvestingApproachScreenState();
-}
-
-class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
-  int _selectedApproach = 0;
-
-  @override
   Widget build(BuildContext context) {
+    final session = SessionManager.instance;
+
     return Scaffold(
       backgroundColor: Ucolors.primary,
       body: SafeArea(
@@ -30,6 +25,7 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              // --- Header ---
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 child: Row(
@@ -45,6 +41,8 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
                 ),
               ),
               const SizedBox(height: 10.0),
+
+              // --- Main Content ---
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Container(
@@ -66,7 +64,7 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
                           children: [
                             const SizedBox(height: 15.0),
                             Text(
-                              "Hi Prateek,",
+                              "Hi ${session.getUserData?.name ?? 'User'},",
                               style: AppTextStyles.bodyLargeBold(),
                             ),
                             Text(
@@ -81,6 +79,7 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
                       ),
                       const SizedBox(height: 5),
 
+                      // --- Blue Profile Box ---
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Container(
@@ -123,26 +122,30 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
                               _buildProfileRow(
                                 UImages.logoAccount,
                                 "Investor Type",
-                                "Experienced Investor",
+                                "Experienced Investor", // Static for now
                               ),
                               const SizedBox(height: 10),
                               _buildProfileRow(
                                 UImages.logoShield,
                                 "Risk Appetite",
-                                "High",
+                                "High", // Static for now
                               ),
                               const SizedBox(height: 10),
-                              _buildProfileRow(
+
+                              // DYNAMIC AMOUNT ROW
+                              Obx(() => _buildProfileRow(
                                 UImages.logoCurrency,
                                 "Monthly SIP",
-                                "₹ 5,000",
-                              ),
+                                controller.formatCurrency(
+                                    controller.amount.value),
+                              )),
                               const SizedBox(height: 10),
                             ],
                           ),
                         ),
                       ),
 
+                      // --- Selection Section ---
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20.0),
                         child: Column(
@@ -154,24 +157,33 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
                             ),
                             const SizedBox(height: 10),
 
-                            _buildSelectionCard(
+                            // Option 0: Best Funds
+                            Obx(() => _buildSelectionCard(
                               index: 0,
+                              isSelected:
+                              controller.selectedApproach.value == 0,
                               iconPath: UImages.logoHighGrowthFunds,
                               topText: "Fund Recommendation",
                               mainText: "Best High Growth Funds",
                               subText:
-                                  "List of funds suggested by mutual fund analysis",
-                            ),
+                              "List of funds suggested by mutual fund analysis",
+                              onTap: () => controller.selectApproach(0),
+                            )),
 
                             const SizedBox(height: 10),
 
-                            _buildSelectionCard(
+                            // Option 1: Readymade Portfolio
+                            Obx(() => _buildSelectionCard(
                               index: 1,
-                              iconPath: UImages.logoHighGrowthFunds,
+                              isSelected:
+                              controller.selectedApproach.value == 1,
+                              iconPath: UImages.logoSuggestedPortfolio,
                               topText: "Readymade Portfolio",
                               mainText: "Suggested Portfolio",
-                              subText: "Model portfolio created by expert team",
-                            ),
+                              subText:
+                              "Model portfolio created by expert team",
+                              onTap: () => controller.selectApproach(1),
+                            )),
 
                             const SizedBox(height: 20),
                           ],
@@ -235,30 +247,25 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
 
   Widget _buildSelectionCard({
     required int index,
+    required bool isSelected,
     required String iconPath,
     required String topText,
     required String mainText,
     required String subText,
+    required VoidCallback onTap,
   }) {
-    final isSelected = _selectedApproach == index;
-
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedApproach = index;
-        });
-      },
+      onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(12.0),
         decoration: BoxDecoration(
           color: isSelected ? null : Colors.white,
-
           gradient: isSelected
               ? const LinearGradient(
-                  colors: [Color(0xFFD7EFFF), Color(0xFFFFFFFF)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                )
+            colors: [Color(0xFFD7EFFF), Color(0xFFFFFFFF)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          )
               : null,
           border: Border.all(
             color: isSelected ? Ucolors.primary : Colors.grey,
@@ -271,7 +278,6 @@ class _InvestingApproachScreenState extends State<InvestingApproachScreen> {
           children: [
             SvgPicture.asset(iconPath),
             const SizedBox(width: 10),
-
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
