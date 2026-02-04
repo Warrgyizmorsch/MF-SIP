@@ -2,44 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/commonslider/sip_slider_with_bg.dart';
-import 'package:my_sip/config/routes/app_routes.dart';
 import '../../../../common/widget/button/elevated_button.dart';
 import '../../../../core/utils/constant/colors.dart';
 import '../../../../core/utils/constant/images.dart';
 import '../../../../core/utils/constant/text.dart';
 import '../../../../core/utils/constant/text_style.dart';
-import '../../../../core/utils/helper/helpers.dart';
+import '../controllers/freedom_sip_controller.dart';
 import '../widgets/sip_amount_selector.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 import 'package:responsive_framework/responsive_framework.dart';
-import 'package:my_sip/common/widget/button/elevated_button.dart';
-import 'package:my_sip/common/widget/commonslider/sip_slider_with_bg.dart';
-import 'package:my_sip/config/routes/app_routes.dart';
-import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/images.dart';
-import 'package:my_sip/core/utils/constant/text.dart';
-import 'package:my_sip/core/utils/constant/text_style.dart';
-import '../widgets/sip_amount_selector.dart';
 
-class SipTenureScreen extends StatefulWidget {
+
+class SipTenureScreen extends GetView<FreedomSipController> {
   const SipTenureScreen({super.key});
-
-  @override
-  State<SipTenureScreen> createState() => _SipTenureScreenState();
-}
-
-class _SipTenureScreenState extends State<SipTenureScreen> {
-  double years = 5;
-  double amount = 1000;
-
-  void _updateAmount(double targetAmount) {
-    setState(() {
-      if (targetAmount < 0) return;
-      amount = targetAmount;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,207 +23,200 @@ class _SipTenureScreenState extends State<SipTenureScreen> {
     return Scaffold(
       backgroundColor: Ucolors.primary,
       body: SafeArea(
-        top: true,
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SvgPicture.asset(UImages.mfLogoLight, height: 20),
-                  const SizedBox(width: 10),
-                  Text(
-                    UText.freedomSipTitle,
-                    style: AppTextStyles.bodyLarge(color: Colors.white),
-                  )
-                ],
-              ),
-            ),
-            const SizedBox(height: 10.0),
-
+            _buildHeader(),
             Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: isDesktop ? 40.0 : 10.0,
-                  vertical: isDesktop ? 20.0 : 8.0,
+                  // Added vertical padding for desktop to prevent touching the edges
+                  vertical: isDesktop ? 20.0 : 0.0,
                 ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch, // Ensures children take full height
                   children: [
                     Expanded(
                       flex: 3,
                       child: Container(
+                        // Set width and height to infinity to fill the Expanded slot
                         width: double.infinity,
-                        margin: isDesktop ? const EdgeInsets.only(right: 20) : EdgeInsets.zero,
+                        height: double.infinity,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(25.0),
                         ),
-                        child: SingleChildScrollView(
+                        child: Obx(() => SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
                           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 25),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                  UText.sipTenureTitle,
-                                  style: AppTextStyles.bodyLargeBold()
+                                UText.sipTenureTitle,
+                                style: AppTextStyles.bodyLargeBold(),
                               ),
                               const SizedBox(height: 5),
                               Text(
-                                  UText.sipTenureDrag,
-                                  style: AppTextStyles.bodySmall(color: Colors.grey)
+                                UText.sipTenureDrag,
+                                style: AppTextStyles.bodySmall(color: Colors.grey),
                               ),
-                              const SizedBox(height: 15),
-
+                              const SizedBox(height: 25),
                               SipSliderWithBg(
                                 title: "Enter Customer Tenure",
-                                value: years,
+                                value: controller.years.value,
                                 min: 1,
                                 max: 30,
                                 suffix: 'Years',
-                                onChanged: (double value) {
-                                  setState(() {
-                                    years = value;
-                                  });
-                                },
+                                onChanged: (double value) => controller.years.value = value,
                                 activeColor: const Color(0xff07315C),
                               ),
-
                               const SizedBox(height: 25),
-
                               SipAmountSelector(
                                 label: "Enter SIP Amount",
-                                amount: amount,
-                                onChanged: _updateAmount,
+                                amount: controller.amount.value,
+                                onChanged: controller.updateAmount,
                               ),
-
                               const SizedBox(height: 25),
-
                               AmountChipList(
                                 onSelected: (double amt) {
-                                  _updateAmount(amount + amt);
+                                  controller.updateAmount(controller.amount.value + amt);
                                 },
                               )
                             ],
                           ),
-                        ),
+                        )),
                       ),
                     ),
-
-                    if (isDesktop)
-                      SizedBox(
-                        width: 350,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(24),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 5),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  UElevatedBUtton(
-                                    onPressed: () {
-                                      Get.toNamed(AppRoutes.growthSchemeScreen);
-                                    },
-                                    child: Center(
-                                      child: Text(
-                                        'Next',
-                                        style: AppTextStyles.bodyMedium(
-                                            color: Colors.white),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  UElevatedBUtton(
-                                    onPressed: () => Navigator.pop(context),
-                                    outlined: true,
-                                    child: Center(
-                                      child: Text(
-                                        'Back',
-                                        style: AppTextStyles.bodyMedium(
-                                            color: Ucolors.primary),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    if (isDesktop) ...[
+                      const SizedBox(width: 20),
+                      _buildSidebarActions(),
+                    ],
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 30),
+            // Bottom spacing for mobile if needed
+            if (!isDesktop) const SizedBox(height: 10),
           ],
         ),
       ),
+      bottomNavigationBar: isDesktop ? null : _buildMobileNav(),
+    );
+  }
 
-      bottomNavigationBar: isDesktop
-          ? null
-          : Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SvgPicture.asset(UImages.mfLogoLight, height: 20),
+          const SizedBox(width: 10),
+          Text(
+            UText.freedomSipTitle,
+            style: AppTextStyles.bodyLarge(color: Colors.white),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSidebarActions() {
+    return SizedBox(
+      width: 350,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: SafeArea(
-          child: Row(
-            children: [
-              Expanded(
-                child: UElevatedBUtton(
-                  onPressed: () => Navigator.pop(context),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                UElevatedBUtton(
+                  onPressed: controller.toGrowthScheme,
+                  child: Center(
+                    child: Text(
+                      'Next',
+                      style: AppTextStyles.bodyMedium(color: Colors.white),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                UElevatedBUtton(
+                  onPressed: controller.goBack,
                   outlined: true,
                   child: Center(
                     child: Text(
                       'Back',
-                      style: AppTextStyles.bodyMedium(
-                          color: Ucolors.primary),
+                      style: AppTextStyles.bodyMedium(color: Ucolors.primary),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: UElevatedBUtton(
-                  onPressed: () {
-                    Get.toNamed(AppRoutes.growthSchemeScreen);
-                  },
-                  child: Center(
-                    child: Text(
-                      'Next',
-                      style: AppTextStyles.bodyMedium(
-                          color: Colors.white),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileNav() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Row(
+          children: [
+            Expanded(
+              child: UElevatedBUtton(
+                onPressed: controller.goBack,
+                outlined: true,
+                child: Center(
+                  child: Text(
+                    'Back',
+                    style: AppTextStyles.bodyMedium(color: Ucolors.primary),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: UElevatedBUtton(
+                onPressed: controller.toGrowthScheme,
+                child: Center(
+                  child: Text(
+                    'Next',
+                    style: AppTextStyles.bodyMedium(color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
-
 
 

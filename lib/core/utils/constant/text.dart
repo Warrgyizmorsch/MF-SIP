@@ -32,6 +32,7 @@ class UText {
   static const String sipTenureTitle = 'Select your SIP Tenure';
   static const String sipTenureDrag = 'Drag the slider to adjust';
   static const String growthSchemeScreenTitle = 'Select your Growth Scheme';
+  static const String growthSchemeScreenTitle2 = 'Select your Target Scheme';
   static const String growthSchemeScreenKnowMore =
       'Investing in fundamentally strong, well - managed \ncompanies wi...';
 }

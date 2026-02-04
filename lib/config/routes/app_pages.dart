@@ -6,6 +6,7 @@ import 'package:my_sip/features/authentication/presentation/pages/login/otp_veri
 import 'package:my_sip/features/authentication/presentation/pages/signup/register_account.dart';
 import 'package:my_sip/features/explore/presentation/bindings/fundhousebinding.dart';
 import 'package:my_sip/features/explore/presentation/pages/filterpage.dart';
+import 'package:my_sip/features/freedom_sip/presentation/bindings/freedom_sip_binding.dart';
 import 'package:my_sip/features/freedom_sip/presentation/pages/freedom_sip_screen.dart';
 import 'package:my_sip/features/freedom_sip/presentation/pages/sip_tenure_screen.dart';
 import 'package:my_sip/features/fund_details/presentation/bindings/fund_detail_binding.dart';
@@ -55,6 +56,7 @@ class AppPages {
     GetPage(
       name: AppRoutes.freedomSipScreen,
       page: () => const FreedomSipScreen(),
+      binding: FreedomSipBinding()
     ),
     GetPage(name: AppRoutes.comparefund, page: () => CompareFundsPage()),
     GetPage(
