@@ -66,7 +66,43 @@ class UHelperFunction {
   }
 }
 
+// Map<String, String> parseFundManagers(String? raw) {
+//   if (raw == null || raw.trim().isEmpty) {
+//     return {'fm1': '', 'fm2': ''};
+//   }
 
+//   final fm1Match = RegExp(r'FM\s*1\s*(.*?)(?=FM\s*2|$)')
+//       .firstMatch(raw);
+
+//   final fm2Match = RegExp(r'FM\s*2\s*(.*)')
+//       .firstMatch(raw);
+
+//   return {
+//     'fm1': fm1Match?.group(1)?.trim() ?? '',
+//     'fm2': fm2Match?.group(1)?.trim() ?? '',
+//   };
+// }
+
+Map<String, String> parseFundManagers(String? raw) {
+  if (raw == null || raw.trim().isEmpty) {
+    return {'fm1': '', 'fm2': ''};
+  }
+
+  // Case 1: No FM labels → treat whole string as FM1
+  if (!raw.contains('FM')) {
+    return {'fm1': raw.trim(), 'fm2': ''};
+  }
+
+  // Case 2: FM labels exist
+  final fm1Match = RegExp(r'FM\s*1\s*(.*?)(?=FM\s*2|$)').firstMatch(raw);
+
+  final fm2Match = RegExp(r'FM\s*2\s*(.*)').firstMatch(raw);
+
+  return {
+    'fm1': fm1Match?.group(1)?.trim() ?? '',
+    'fm2': fm2Match?.group(1)?.trim() ?? '',
+  };
+}
 
 int? _cacheSize(double size, double pixelRatio) {
   // Multiply by pixel ratio to maintain high quality on retina screens

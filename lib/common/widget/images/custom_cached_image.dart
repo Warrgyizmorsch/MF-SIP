@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:my_sip/core/utils/constant/images.dart';
 
 import '../shimmer/shimmer.dart';
 
@@ -34,16 +35,13 @@ class CustomCachedImage extends StatelessWidget {
         memCacheWidth: cacheSize,
 
         fadeInDuration: const Duration(milliseconds: 300),
-        placeholder: (context, url) => UShimmerEffect(
-          width: size,
-          height: size,
-          radius: radius,
-        ),
+        placeholder: (context, url) =>
+            UShimmerEffect(width: size, height: size, radius: radius),
         errorWidget: (context, url, error) => Container(
           width: size,
           height: size,
           color: Colors.grey.shade200,
-          child: const Icon(Icons.image_not_supported, size: 20),
+          child: Image.asset(UImages.imp),
         ),
       ),
     );

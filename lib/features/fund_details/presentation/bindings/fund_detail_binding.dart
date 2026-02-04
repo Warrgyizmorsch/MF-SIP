@@ -12,21 +12,18 @@ import '../../../../core/network/network_api_service.dart';
 class FundDetailBinding extends Bindings {
   @override
   void dependencies() {
-
-
     // 1. Data Source (Lowest Level)
     Get.lazyPut<FundDetailRemoteDataSource>(
-          () => FundDetailRemoteDataSource(Get.find<NetworkServicesApi>()),
+      () => FundDetailRemoteDataSource(Get.find<NetworkServicesApi>()),
     );
 
     // 2. Repository (Depends on Data Source)
     Get.lazyPut<FundDetailRepository>(
-          () => FundDetailRepositoryImpl(Get.find<FundDetailRemoteDataSource>()),
+      () => FundDetailRepositoryImpl(Get.find<FundDetailRemoteDataSource>()),
     );
 
     // 3. Use Cases (Depends on Repository)
     Get.lazyPut(() => GetFundDetailUseCase(Get.find<FundDetailRepository>()));
-
 
     // 4. Wrapper Use Case (Depends on LoginUseCase)
     // Get.lazyPut(
@@ -41,14 +38,18 @@ class FundDetailBinding extends Bindings {
 
     // );
 
-
     // 5. Controller (Highest Level - Depends on Wrapper)
     // Get.lazyPut<AuthController>(
     //   () => AuthController(authUseCases: Get.find<AuthUseCases>()),
     //   fenix: true,
     // );
-    Get.put<FundDetailsController>(
-      FundDetailsController(getFundDetailUseCase: Get.find<GetFundDetailUseCase>()),
+    // Get.put<FundDetailsController>(
+    //   FundDetailsController(
+    //     getFundDetailUseCase: Get.find<GetFundDetailUseCase>(),
+    //   ),
+    // );
+    Get.lazyPut<FundDetailsController>(
+      () => FundDetailsController(getFundDetailUseCase: Get.find()),
     );
   }
 }

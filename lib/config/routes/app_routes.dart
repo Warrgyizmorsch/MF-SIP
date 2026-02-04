@@ -25,4 +25,5 @@ class AppRoutes {
   static const filterpage= '/filterpage';
   static const otpVerificationScreen= '/otpVerificationScreen';
   static const paymentScreen= '/paymentScreen';
+  static const webView= '/webView';
 }

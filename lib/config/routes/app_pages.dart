@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:my_sip/common/widget/webview/webview.dart';
 import 'package:my_sip/core/bindings/bindings.dart';
 import 'package:my_sip/features/authentication/presentation/bindings/auth_binding.dart';
 import 'package:my_sip/features/authentication/presentation/pages/login/login_page.dart';
@@ -36,7 +37,7 @@ import 'app_routes.dart';
 class AppPages {
   static pages() => [
     GetPage(name: AppRoutes.splash, page: () => const SplashScreen()),
-    GetPage(name: AppRoutes.home, page: () =>  HomeScreen(),),
+    GetPage(name: AppRoutes.home, page: () => HomeScreen()),
     GetPage(
       binding: UBinding(),
       name: AppRoutes.navMenuBar,
@@ -69,7 +70,7 @@ class AppPages {
     GetPage(
       name: AppRoutes.funddetails,
       page: () => const FundDetailsScreen(),
-      binding:  FundDetailBinding()
+      binding: FundDetailBinding(),
     ),
     GetPage(name: AppRoutes.watchlist, page: () => WatchlistPage()),
     GetPage(name: AppRoutes.cart, page: () => CartPage()),
@@ -123,5 +124,6 @@ class AppPages {
     ),
 
     GetPage(name: AppRoutes.paymentScreen, page: () => PaymentScreen()),
+    GetPage(name: AppRoutes.webView, page: () => HtmlWebViewPage()),
   ];
 }

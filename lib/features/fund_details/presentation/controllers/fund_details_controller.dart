@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
+import 'package:my_sip/features/fund_details/data/models/fund_performance.dart';
 import 'package:my_sip/features/fund_details/domain/entity/fund_detail_entity.dart';
 import 'package:my_sip/features/fund_details/domain/usecases/get_fund_detail_usecase.dart';
 
-
-class FundDetailsController extends GetxController with GetSingleTickerProviderStateMixin {
+class FundDetailsController extends GetxController
+    with GetSingleTickerProviderStateMixin {
   final GetFundDetailUseCase getFundDetailUseCase;
 
   // Arguments - initialized in constructor
@@ -50,8 +51,6 @@ class FundDetailsController extends GetxController with GetSingleTickerProviderS
     tabKeys = [overViewKey, returnsKey, riskKey, portfolioKey, infoKey];
 
     scrollController.addListener(_onScroll);
-
-
   }
 
   Future<void> getFundDetails({required String scchemeName}) async {
@@ -61,16 +60,16 @@ class FundDetailsController extends GetxController with GetSingleTickerProviderS
       errorMessage.value = '';
 
       final result = await getFundDetailUseCase.getSchemeInfo({
-        'scheme': scchemeName
+        'scheme': scchemeName,
       });
 
       result.fold(
-            (success) {
+        (success) {
           fundDetail.value = success.data;
           isLoading.value = false;
           createLog("Fund details loaded successfully");
         },
-            (error) {
+        (error) {
           hasError.value = true;
           errorMessage.value = error.toString();
           isLoading.value = false;
@@ -124,29 +123,52 @@ class FundDetailsController extends GetxController with GetSingleTickerProviderS
     final context = tabKeys[index].currentContext;
     if (context != null) {
       RenderBox box = context.findRenderObject() as RenderBox;
-      RenderBox scrollBox = scrollController.position.context.storageContext.findRenderObject() as RenderBox;
+      RenderBox scrollBox =
+          scrollController.position.context.storageContext.findRenderObject()
+              as RenderBox;
 
       double targetY = box.localToGlobal(Offset.zero, ancestor: scrollBox).dy;
       double offsetAdjustment = 110.0 + Get.statusBarHeight;
-      double targetScroll = scrollController.offset + targetY - offsetAdjustment;
+      double targetScroll =
+          scrollController.offset + targetY - offsetAdjustment;
 
-      scrollController.animateTo(
-        targetScroll.clamp(0.0, scrollController.position.maxScrollExtent),
-        duration: const Duration(milliseconds: 600),
-        curve: Curves.easeInOutCubic,
-      ).then((_) {
-        Future.delayed(const Duration(milliseconds: 100), () {
-          isTabClicked = false;
-        });
-      });
+      scrollController
+          .animateTo(
+            targetScroll.clamp(0.0, scrollController.position.maxScrollExtent),
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeInOutCubic,
+          )
+          .then((_) {
+            Future.delayed(const Duration(milliseconds: 100), () {
+              isTabClicked = false;
+            });
+          });
     } else {
       isTabClicked = false;
     }
   }
 
+  ///Fund Performance 
+  List<YearlyReturn> get yearlyReturns {
+  final list = fundDetail.value?.schemePerformanceList;
+  if (list == null || list.isEmpty) return [];
+
+  final p = list.first;
+
+  return [
+    YearlyReturn('6M', p.sixMonthReturn ?? 0),
+    YearlyReturn('1Y', p.oneYearReturn ?? 0),
+    YearlyReturn('2Y', p.twoYearReturn ?? 0),
+    YearlyReturn('3Y', p.threeYearReturn ?? 0),
+    YearlyReturn('5Y', p.fiveYearReturn ?? 0),
+    YearlyReturn('10Y', p.tenYearReturn ?? 0),
+    // YearlyReturn('Since\nLaunch', p.inceptionYearReturn ?? 0),
+  ];
+}
+
+
   @override
   void onClose() {
-
     scrollController.dispose();
     tabController.dispose();
     super.onClose();

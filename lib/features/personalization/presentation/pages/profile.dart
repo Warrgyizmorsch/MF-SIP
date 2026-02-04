@@ -6,6 +6,7 @@ import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/subtitle_section.dart';
+import 'package:my_sip/common/widget/webview/webview.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
@@ -205,7 +206,16 @@ class ActivityGeneralSection extends StatelessWidget {
           Listtilecustom(
             title: 'About Us',
             images: UImages.msgques,
-            onTap: () {},
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HtmlWebViewPage(
+                  
+                  title: 'About us',
+                  url: 'https://sip.londonstreetstore.com/about-us',
+                ),
+              ),
+            ),
           ),
           Listtilecustom(
             onTap: () {},
