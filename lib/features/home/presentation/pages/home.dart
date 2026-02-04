@@ -396,11 +396,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                       'Onboarding task',
                                       style: UTextStyles.caption,
                                     ),
-                                    Text(
-                                      'Complete KYC & Profile',
-                                      style: UTextStyles.medium.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: Ucolors.dark,
+                                    GestureDetector(
+                                      onTap: () {
+                                        Get.toNamed(AppRoutes.kycScreen);
+                                      },
+                                      child: Text(
+                                        'Complete KYC & Profile',
+                                        style: UTextStyles.medium.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: Ucolors.dark,
+                                        ),
                                       ),
                                     ),
                                     Text(
