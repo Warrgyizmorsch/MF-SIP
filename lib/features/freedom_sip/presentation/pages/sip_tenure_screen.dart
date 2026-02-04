@@ -12,7 +12,6 @@ import '../widgets/sip_amount_selector.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-
 class SipTenureScreen extends GetView<FreedomSipController> {
   const SipTenureScreen({super.key});
 
@@ -30,16 +29,14 @@ class SipTenureScreen extends GetView<FreedomSipController> {
               child: Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: isDesktop ? 40.0 : 10.0,
-                  // Added vertical padding for desktop to prevent touching the edges
                   vertical: isDesktop ? 20.0 : 0.0,
                 ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch, // Ensures children take full height
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(
                       flex: 3,
                       child: Container(
-                        // Set width and height to infinity to fill the Expanded slot
                         width: double.infinity,
                         height: double.infinity,
                         decoration: BoxDecoration(
@@ -96,7 +93,6 @@ class SipTenureScreen extends GetView<FreedomSipController> {
                 ),
               ),
             ),
-            // Bottom spacing for mobile if needed
             if (!isDesktop) const SizedBox(height: 10),
           ],
         ),
@@ -203,7 +199,7 @@ class SipTenureScreen extends GetView<FreedomSipController> {
             const SizedBox(width: 16),
             Expanded(
               child: UElevatedBUtton(
-                onPressed: controller.toGrowthScheme,
+                onPressed: controller.isSwpFlow.value ? controller.toFreedomSip: controller.toGrowthScheme,
                 child: Center(
                   child: Text(
                     'Next',
@@ -218,5 +214,4 @@ class SipTenureScreen extends GetView<FreedomSipController> {
     );
   }
 }
-
 

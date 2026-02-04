@@ -11,8 +11,7 @@
   <component name="ChangeListManager">
     <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/utils/constant/text.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/utils/constant/text.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/controllers/freedom_sip_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/controllers/freedom_sip_controller.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/accumulationAndDistributionScreen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/accumulationAndDistributionScreen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/freedom_sip_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/freedom_sip_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/growth_scheme_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/freedom_sip/presentation/pages/growth_scheme_screen.dart" afterDir="false" />

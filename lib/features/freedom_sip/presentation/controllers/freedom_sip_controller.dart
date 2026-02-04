@@ -12,29 +12,31 @@ class FreedomSipController extends GetxController {
   var selectedSchemeIndex = (-1).obs;
   var selectedSWPSchemeIndex = (-1).obs;
 
+  // FLOW STATE: Determines if we are currently working on Step 2 (SWP) or Step 1 (SIP)
+  var isSwpFlow = false.obs;
+
   bool get isStep1Completed => selectedSchemeIndex.value != -1;
   bool get isStep2Completed => selectedSWPSchemeIndex.value != -1;
 
   dynamic get selectedScheme {
-    if (isStep1Completed) {
+    if (selectedSchemeIndex.value != -1) {
       return growthSchemes[selectedSchemeIndex.value];
     }
     return null;
   }
 
   dynamic get selectedSWPScheme {
-    if (isStep2Completed) {
+    if (selectedSWPSchemeIndex.value != -1) {
       return growthSchemes[selectedSWPSchemeIndex.value];
     }
     return null;
   }
 
-  // Static data for demo (can be moved to a service later)
+  // Static data
   final riskList = ["Very High Risk", "Very High Risk", "Very High Risk", "Very High Risk"];
   final returnsList = ["29.89%", "29.89%", "29.89%", "29.89%"];
   final ageList = ["27 Year", "27 Year", "27 Year", "27 Year"];
 
-  // Reference to existing MutualFundController
   final mutualFundController = Get.find<MutualFundController>();
   late final growthSchemes = mutualFundController.mutualfund;
 
@@ -42,36 +44,80 @@ class FreedomSipController extends GetxController {
     if (targetAmount >= 0) amount.value = targetAmount;
   }
 
-  void selectScheme(int index) {
-    createLog("Growth scheme selected ${    growthSchemes[index]
-    }");
-    selectedSchemeIndex.value = index;
-  }
+  // --- LOGIC FIXES ---
 
-  void selectSWPScheme(int index) {
-    createLog("SWP scheme selected ${growthSchemes[index]}");
-    selectedSchemeIndex.value = index;
-  }
-
-  void proceedToAccumulation() {
-    if (selectedSchemeIndex.value == -1) {
-      Get.snackbar("Selection Required", "Please select a scheme to proceed",
-          snackPosition: SnackPosition.BOTTOM);
-      return;
+  // 1. Start Step 1 (SIP)
+  void startSipFlow() {
+    if(isStep1Completed){
+      startSwpFlow();
+    } else {
+      isSwpFlow.value = false;
+      Get.toNamed(AppRoutes.sipTenureScreen);
     }
-    // Navigate to analysis
-    Get.toNamed(AppRoutes.accumulationanddistributionscreen);
+
+  }
+
+  // 2. Start Step 2 (SWP) - Only allowed if Step 1 is done
+  void startSwpFlow() {
+    if (!isStep1Completed) return;
+    isSwpFlow.value = true;
+    Get.toNamed(AppRoutes.growthSchemeScreen);
+  }
+
+  // 3. Select Scheme (Logic depends on current flow)
+  void selectScheme(int index) {
+    if (isSwpFlow.value) {
+      createLog("SWP scheme selected ${growthSchemes[index]}");
+      selectedSWPSchemeIndex.value = index; // FIXED: Was updating selectedSchemeIndex
+    } else {
+      createLog("Growth (SIP) scheme selected ${growthSchemes[index]}");
+      selectedSchemeIndex.value = index;
+    }
+  }
+
+  // 4. Handle "Proceed" click on GrowthSchemeScreen
+  void proceedFromSchemeSelection() {
+    if (isSwpFlow.value) {
+      // We are in Step 2, Check if SWP is selected
+      if (selectedSWPSchemeIndex.value == -1) {
+        Get.snackbar("Selection Required", "Please select an SWP scheme", snackPosition: SnackPosition.BOTTOM);
+        return;
+      }
+      // Both steps done, go to final analysis
+      Get.toNamed(AppRoutes.sipTenureScreen);
+    } else {
+      // We are in Step 1, Check if SIP is selected
+      if (selectedSchemeIndex.value == -1) {
+        Get.snackbar("Selection Required", "Please select a SIP scheme", snackPosition: SnackPosition.BOTTOM);
+        return;
+      }
+      // Step 1 done, go back to Dashboard to show progress
+      Get.until((route) => route.settings.name == AppRoutes.freedomSipScreen);    }
   }
 
   // Navigation Logic
   void goBack() => Get.back();
+
   void toSipTenure() {
-    if(isStep1Completed) {
-      Get.toNamed(AppRoutes.growthSchemeScreen);
-      return;
-    }
-    Get.toNamed(AppRoutes.sipTenureScreen);
+    // This is called from sidebar/bottom bar on Dashboard.
+    // Always start SIP flow from here.
+    startSipFlow();
   }
-  void toGrowthScheme() => Get.toNamed(AppRoutes.growthSchemeScreen);
-  void toCheckout() => Get.toNamed(AppRoutes.paymentScreen);
+
+  void toGrowthScheme() {
+    if(isStep1Completed){
+      isSwpFlow.value = true;
+      Get.toNamed(AppRoutes.growthSchemeScreen);
+    } else {
+      // Called from SIP Tenure screen (Step 1 flow)
+      isSwpFlow.value = false;
+      Get.toNamed(AppRoutes.growthSchemeScreen);
+    }
+
+  }
+
+  void toFreedomSip() {
+    // Called from SIP Tenure screen (Step 1 flow)
+    Get.until((route) => route.settings.name == AppRoutes.freedomSipScreen);
+  }
 }

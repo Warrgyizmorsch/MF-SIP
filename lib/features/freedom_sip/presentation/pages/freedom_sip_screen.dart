@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:get/get_state_manager/src/simple/get_view.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text.dart';
@@ -13,6 +15,21 @@ import 'package:responsive_framework/responsive_framework.dart';
 import '../../../../common/widget/button/elevated_button.dart';
 import '../../../../core/utils/constant/images.dart';
 import '../controllers/freedom_sip_controller.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
+import 'package:my_sip/common/widget/images/custom_cached_image.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/utils/constant/appUrl.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/text.dart';
+import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:responsive_framework/responsive_framework.dart';
+
+import '../../../../common/widget/button/elevated_button.dart';
+import '../../../../core/utils/constant/images.dart';
+import '../controllers/freedom_sip_controller.dart';
+
 class FreedomSipScreen extends GetView<FreedomSipController> {
   const FreedomSipScreen({super.key});
 
@@ -24,6 +41,7 @@ class FreedomSipScreen extends GetView<FreedomSipController> {
       backgroundColor: Ucolors.primary,
       body: SafeArea(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             _buildHeader(),
             Expanded(
@@ -33,10 +51,14 @@ class FreedomSipScreen extends GetView<FreedomSipController> {
                   vertical: isDesktop ? 20.0 : 0.0,
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Wrap in Obx to update when controller state changes
+                    // Body Content (Wrapped in Obx)
                     Obx(() => _buildMainContent(isDesktop)),
-                    if (isDesktop) _buildSidebarActions(),
+
+                    // Sidebar for Desktop (Wrapped in Obx to update button text)
+                    if (isDesktop)
+                      Obx(() => _buildSidebarActions()),
                   ],
                 ),
               ),
@@ -44,7 +66,10 @@ class FreedomSipScreen extends GetView<FreedomSipController> {
           ],
         ),
       ),
-      bottomNavigationBar: isDesktop ? null : _buildMobileBottomBar(),
+      // Mobile Bottom Bar (Wrapped in Obx to update button text)
+      bottomNavigationBar: isDesktop
+          ? null
+          : Obx(() => _buildMobileBottomBar()),
     );
   }
 
@@ -67,7 +92,7 @@ class FreedomSipScreen extends GetView<FreedomSipController> {
                 desc: UText.freedomSipStep1desc,
                 btnText: controller.isStep1Completed ? "Completed" : UText.freedomSipStep1button,
                 isCompleted: controller.isStep1Completed,
-                // FIX: Only access .amc if step is completed
+                onPressed: controller.startSipFlow,
                 imgUrl: controller.isStep1Completed
                     ? "${Appurl.baseUrl}${controller.selectedScheme.amc?.amcLogoUrl ?? ''}"
                     : null,
@@ -79,18 +104,21 @@ class FreedomSipScreen extends GetView<FreedomSipController> {
               const SizedBox(height: 15.0),
 
               // Step 2: SWP Card
-              _buildStepCard(
-                title: UText.freedomSipStep2Title,
-                desc: UText.freedomSipStep2desc,
-                btnText: controller.isStep2Completed ? "Completed" : UText.freedomSipStep2button,
-                isCompleted: controller.isStep2Completed,
-                // FIX: Only access .amc if step is completed
-                imgUrl: controller.isStep2Completed
-                    ? "${Appurl.baseUrl}${controller.selectedSWPScheme.amc?.amcLogoUrl ?? ''}"
-                    : null,
-                schemeName: controller.isStep2Completed
-                    ? (controller.selectedSWPScheme.baseSchemeName ?? '')
-                    : null,
+              IgnorePointer(
+                ignoring: !controller.isStep1Completed,
+                child: _buildStepCard(
+                  title: UText.freedomSipStep2Title,
+                  desc: UText.freedomSipStep2desc,
+                  btnText: controller.isStep2Completed ? "Completed" : UText.freedomSipStep2button,
+                  isCompleted: controller.isStep2Completed,
+                  onPressed: controller.startSwpFlow,
+                  imgUrl: controller.isStep2Completed
+                      ? "${Appurl.baseUrl}${controller.selectedSWPScheme.amc?.amcLogoUrl ?? ''}"
+                      : null,
+                  schemeName: controller.isStep2Completed
+                      ? (controller.selectedSWPScheme.baseSchemeName ?? '')
+                      : null,
+                ),
               ),
             ],
           ),
@@ -104,12 +132,12 @@ class FreedomSipScreen extends GetView<FreedomSipController> {
     required String desc,
     required String btnText,
     required bool isCompleted,
+    required VoidCallback onPressed,
     required String? imgUrl,
     required String? schemeName,
   }) {
     return Container(
       width: double.infinity,
-      height: 250,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25.0),
@@ -131,63 +159,75 @@ class FreedomSipScreen extends GetView<FreedomSipController> {
             ),
           ),
           const SizedBox(height: 10),
-          Text(
-            desc,
-            style: AppTextStyles.bodySmall(
-              color:
-              // isCompleted ? Colors.greenAccent :
-              Colors.white,
-              size: 13.0,
-            ),
-          ),
-          SizedBox(height: 10,),
-          // const Spacer(),
+          Text(desc, style: AppTextStyles.bodySmall(color: Colors.white, size: 13.0)),
+          const SizedBox(height: 10),
+
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: isCompleted ? Colors.green : Colors.white,
-                  borderRadius: BorderRadius.circular(5.0),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      btnText,
-                      style: AppTextStyles.bodySmall(color: isCompleted ? Colors.white : Colors.black),
-                    ),
-                    const SizedBox(width: 5),
-                    Icon(
-                      isCompleted ? Icons.check : Icons.arrow_forward,
-                      size: 14,
-                      color: isCompleted ? Colors.white : Colors.black,
-                    ),
-                  ],
+              InkWell(
+                onTap: onPressed,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: isCompleted ? Colors.green : Colors.white,
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        btnText,
+                        style: AppTextStyles.bodySmall(color: isCompleted ? Colors.white : Colors.black),
+                      ),
+                      const SizedBox(width: 5),
+                      Icon(
+                        isCompleted ? Icons.check : Icons.arrow_forward,
+                        size: 14,
+                        color: isCompleted ? Colors.white : Colors.black,
+                      ),
+                    ],
+                  ),
                 ),
               ),
+              const SizedBox(width: 10),
+              if (isCompleted)
+                InkWell(
+                  onTap: onPressed,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.white),
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Text(
+                      "Change",
+                      style: AppTextStyles.bodySmall(color: Colors.white),
+                    ),
+                  ),
+                )
             ],
           ),
 
-
-
-        if(isCompleted)
-        ...[
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: DashedLine(color: Colors.white,),
-          ),
-
-          Row(
-            spacing: 20,
-            children: [
-              CustomCachedImage(imageUrl: imgUrl),
-              Expanded(child: Text( schemeName ?? '',style:  AppTextStyles.bodyMediumBold(color: Colors.white),))
-            ],
-          )
-
-        ]
-
+          if (isCompleted) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: const Divider(color: Colors.white, thickness: 1, height: 20), // Replaced DashedLine for standard Divider
+            ),
+            Row(
+              children: [
+                CustomCachedImage(imageUrl: imgUrl),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    schemeName ?? '',
+                    style: AppTextStyles.bodyMediumBold(color: Colors.white),
+                  ),
+                )
+              ],
+            )
+          ]
         ],
       ),
     );
@@ -199,21 +239,49 @@ class FreedomSipScreen extends GetView<FreedomSipController> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          ActionBox(
-            onPrimary: controller.toSipTenure,
-            onSecondary: controller.goBack,
-            primaryText: 'Select Sip Fund',
-          ),
+          // Added logic to match Mobile Bottom Bar (Show Final Summary or Select Fund)
+          if (controller.isStep1Completed && controller.isStep2Completed)
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)]),
+              child: UElevatedBUtton(
+                onPressed: () => Get.toNamed(AppRoutes.accumulationanddistributionscreen),
+                child: Center(child: Text("See Your Detailed Summary", style: AppTextStyles.bodyMedium(color: Colors.white))),
+              ),
+            )
+          else
+            ActionBox(
+              onPrimary: controller.isStep1Completed ? controller.startSwpFlow : controller.startSipFlow,
+              onSecondary: controller.goBack,
+              primaryText: controller.isStep1Completed ? 'Select SWP Fund' : 'Select SIP Fund',
+            ),
         ],
       ),
     );
   }
 
   Widget _buildMobileBottomBar() {
+    if (controller.isStep1Completed && controller.isStep2Completed) {
+      return Container(
+        decoration: const BoxDecoration(color: Colors.white),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: UElevatedBUtton(
+              onPressed: () => Get.toNamed(AppRoutes.accumulationanddistributionscreen),
+              child: Center(
+                child: Text("See Your Detailed Summary", style: AppTextStyles.bodyMedium(color: Colors.white)),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return MobileBottomNav(
-      onPrimary: controller.toSipTenure,
+      onPrimary: controller.isStep1Completed ? controller.startSwpFlow : controller.startSipFlow,
       onSecondary: controller.goBack,
-      primaryText: controller.isStep1Completed ?'Select SWP Fund' : 'Select SIP Fund',
+      primaryText: controller.isStep1Completed ? 'Select SWP Fund' : 'Select SIP Fund',
     );
   }
 
@@ -225,16 +293,12 @@ class FreedomSipScreen extends GetView<FreedomSipController> {
         children: [
           SvgPicture.asset(UImages.mfLogoLight, height: 20),
           const SizedBox(width: 10),
-          Text(
-            UText.freedomSipTitle,
-            style: AppTextStyles.bodyLarge(color: Colors.white),
-          )
+          Text(UText.freedomSipTitle, style: AppTextStyles.bodyLarge(color: Colors.white)),
         ],
       ),
     );
   }
 }
-
 
 class ActionBox extends StatelessWidget {
   final VoidCallback onPrimary, onSecondary;

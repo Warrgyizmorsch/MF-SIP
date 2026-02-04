@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
-import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
@@ -47,10 +46,13 @@ class GrowthSchemeScreen extends GetView<FreedomSipController> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildTitleSection(),
+                            Obx(() => _buildTitleSection()),
                             const SizedBox(height: 15),
                             Expanded(
-                              child: Obx(() => _buildSchemeList()),
+                              // Dynamically choose list based on flow state
+                              child: Obx(() => controller.isSwpFlow.value
+                                  ? _buildSchemeListSWP()
+                                  : _buildSchemeListSIP()),
                             ),
                           ],
                         ),
@@ -91,7 +93,10 @@ class GrowthSchemeScreen extends GetView<FreedomSipController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-           controller.isStep1Completed ? UText.growthSchemeScreenTitle2 : UText.growthSchemeScreenTitle,
+            // Toggle Title based on flow
+            controller.isSwpFlow.value
+                ? UText.growthSchemeScreenTitle2 // "Select SWP Scheme"
+                : UText.growthSchemeScreenTitle, // "Select SIP Scheme"
             style: AppTextStyles.bodyLargeBold(),
           ),
           const SizedBox(height: 5),
@@ -115,23 +120,17 @@ class GrowthSchemeScreen extends GetView<FreedomSipController> {
     );
   }
 
-  Widget _buildSchemeList() {
-    return controller.isStep1Completed ?
-    ListView.separated(
+  // --- SIP LIST (Step 1) ---
+  Widget _buildSchemeListSIP() {
+    return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       itemCount: controller.growthSchemes.length.clamp(0, 4),
       separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (context, index) => _buildSchemeCard2(index),
-    )
-        :  ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      itemCount: controller.growthSchemes.length.clamp(0, 4),
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (context, index) => _buildSchemeCard(index),
+      itemBuilder: (context, index) => _buildSchemeCardSIP(index),
     );
   }
 
-  Widget _buildSchemeCard(int index) {
+  Widget _buildSchemeCardSIP(int index) {
     return Obx(() {
       final isSelected = controller.selectedSchemeIndex.value == index;
       return GestureDetector(
@@ -165,7 +164,7 @@ class GrowthSchemeScreen extends GetView<FreedomSipController> {
                 ],
               ),
               const SizedBox(height: 10),
-              const Divider(height: 1, color: Color(0xFFE0E0E0)), // Replaced custom Dash with Divider
+              const Divider(height: 1, color: Color(0xFFE0E0E0)),
               const SizedBox(height: 10),
               FittedBox(
                 fit: BoxFit.scaleDown,
@@ -187,9 +186,19 @@ class GrowthSchemeScreen extends GetView<FreedomSipController> {
     });
   }
 
-  Widget _buildSchemeCard2(int index) {
+  // --- SWP LIST (Step 2) ---
+  Widget _buildSchemeListSWP() {
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      itemCount: controller.growthSchemes.length.clamp(0, 4),
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
+      itemBuilder: (context, index) => _buildSchemeCardSWP(index),
+    );
+  }
+
+  Widget _buildSchemeCardSWP(int index) {
     return Obx(() {
-      final isSelected = controller.selectedSchemeIndex.value == index;
+      final isSelected = controller.selectedSWPSchemeIndex.value == index;
       return GestureDetector(
         onTap: () => controller.selectScheme(index),
         child: AnimatedContainer(
@@ -220,52 +229,33 @@ class GrowthSchemeScreen extends GetView<FreedomSipController> {
                   )
                 ],
               ),
-
               const SizedBox(height: 10),
+              // Specific SWP Details
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Fund Age", style:  AppTextStyles.bodyMedium(color: Ucolors.darkgrey),),
-                  Text(controller.growthSchemes[index].riskLevel.toString(), style:  AppTextStyles.bodyMedium(color: Ucolors.darkgrey),),
-
+                  Text("Fund Age", style: AppTextStyles.bodyMedium(color: Ucolors.darkgrey)),
+                  Text(controller.growthSchemes[index].riskLevel.toString(), style: AppTextStyles.bodyMedium(color: Ucolors.darkgrey)),
                 ],
               ),
               const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
                 children: [
-                  Text("Volatility", style:  AppTextStyles.bodyMedium(color: Ucolors.darkgrey),),
-                  Text(controller.growthSchemes[index].riskLevel.toString(), style:  AppTextStyles.bodyMedium(color: Ucolors.darkgrey),),
+                  Text("Volatility", style: AppTextStyles.bodyMedium(color: Ucolors.darkgrey)),
+                  Text(controller.growthSchemes[index].riskLevel.toString(), style: AppTextStyles.bodyMedium(color: Ucolors.darkgrey)),
                 ],
               ),
               const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
                 children: [
-                  Text("Returns (S.I.)", style:  AppTextStyles.bodyMedium(color: Ucolors.darkgrey),),
-                  Text(controller.growthSchemes[index].riskLevel.toString(), style:  AppTextStyles.bodyMedium(color: Ucolors.darkgrey),),
-
+                  Text("Returns (S.I.)", style: AppTextStyles.bodyMedium(color: Ucolors.darkgrey)),
+                  Text(controller.growthSchemes[index].riskLevel.toString(), style: AppTextStyles.bodyMedium(color: Ucolors.darkgrey)),
                 ],
               ),
               const SizedBox(height: 10),
-              Text("For SWP Tenure 5 Years and above", style: AppTextStyles.bodySmall(color: Ucolors.darkgrey),)
-              // const Divider(height: 1, color: Color(0xFFE0E0E0)), // Replaced custom Dash with Divider
-              // const SizedBox(height: 10),
-              // FittedBox(
-              //   fit: BoxFit.scaleDown,
-              //   child: Row(
-              //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //     children: [
-              //       _buildStatItem(Icons.circle, Colors.red, controller.riskList[index]),
-              //       const SizedBox(width: 12),
-              //       _buildReturnItem("SIP Returns: ", controller.returnsList[index]),
-              //       const SizedBox(width: 12),
-              //       _buildStatItem(null, null, "Fund Age: ${controller.ageList[index]}", isAge: true),
-              //     ],
-              //   ),
-              // )
+              Text("For SWP Tenure 5 Years and above", style: AppTextStyles.bodySmall(color: Ucolors.darkgrey)),
             ],
           ),
         ),
@@ -327,7 +317,7 @@ class GrowthSchemeScreen extends GetView<FreedomSipController> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 UElevatedBUtton(
-                  onPressed: controller.proceedToAccumulation,
+                  onPressed: controller.proceedFromSchemeSelection,
                   child: Center(
                     child: Text(
                       'Proceed',
@@ -385,11 +375,7 @@ class GrowthSchemeScreen extends GetView<FreedomSipController> {
             const SizedBox(width: 16),
             Expanded(
               child: UElevatedBUtton(
-                onPressed: () => {
-                  if(controller.isStep1Completed) {
-                    Get.toNamed(AppRoutes.freedomSipScreen)
-                  }
-                },
+                onPressed: controller.proceedFromSchemeSelection,
                 child: Center(
                   child: Text(
                     'Proceed',

@@ -148,7 +148,7 @@ class Accumulationanddistributionscreen extends GetView<FreedomSipController> {
         mainAxisSize: MainAxisSize.min,
         children: [
           UElevatedBUtton(
-            onPressed: controller.toCheckout,
+            // onPressed: controller.toCheckout,
             child: Center(
               child: Text('Checkout',
                   style: AppTextStyles.bodyMedium(color: Colors.white)),
@@ -363,7 +363,7 @@ class Accumulationanddistributionscreen extends GetView<FreedomSipController> {
             const SizedBox(width: 16),
             Expanded(
               child: UElevatedBUtton(
-                onPressed: controller.toCheckout,
+                // onPressed: controller.toCheckout,
                 child: Center(
                   child: Text('Checkout',
                       style: AppTextStyles.bodyMedium(
