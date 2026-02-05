@@ -353,81 +353,84 @@ class _HomeScreenState extends State<HomeScreen> {
                     right: 20,
                     bottom: 0,
                     // top: 0,
-                    child: Container(
-                      height: size.height * 0.13,
-                      // height: 108,
-                      // width: size.width / 2,
-                      // width: 400,
-                      decoration: BoxDecoration(
-                        color: Ucolors.light,
+                    child: GestureDetector(
+                      onTap: () {
+                        Get.toNamed(AppRoutes.kycScreen);
 
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
-                            blurRadius: 5,
-                            offset: const Offset(0, 4),
-                            // spreadRadius: 5,
-                          ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          left: 10.0,
-                          top: 10,
-                          bottom: 10,
-                          right: 15,
-                        ),
-                        child: Column(
-                          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Row(
-                              // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Icon(Icons.person),
-                                SizedBox(width: 5),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      'Onboarding task',
-                                      style: UTextStyles.caption,
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        Get.toNamed(AppRoutes.kycScreen);
-                                      },
-                                      child: Text(
-                                        'Complete KYC & Profile',
-                                        style: UTextStyles.medium.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: Ucolors.dark,
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      'Verify your Identity to start Investing',
-                                      softWrap: true,
+                      },
+                      child: Container(
+                        height: size.height * 0.13,
+                        // height: 108,
+                        // width: size.width / 2,
+                        // width: 400,
+                        decoration: BoxDecoration(
+                          color: Ucolors.light,
 
-                                      maxLines: 1,
-
-                                      overflow: TextOverflow.ellipsis,
-                                      style: UTextStyles.caption.copyWith(
-                                        // fontSize: 10,
-                                      ),
-                                      // textAlign: TextAlign.start,
-                                    ),
-                                  ],
-                                ),
-                                Spacer(),
-                                Icon(Icons.arrow_forward_ios, size: 12),
-                                // SizedBox(width: 10),
-                              ],
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.15),
+                              blurRadius: 5,
+                              offset: const Offset(0, 4),
+                              // spreadRadius: 5,
                             ),
                           ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            left: 10.0,
+                            top: 10,
+                            bottom: 10,
+                            right: 15,
+                          ),
+                          child: Column(
+                            // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Row(
+                                // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Icon(Icons.person),
+                                  SizedBox(width: 5),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+
+
+                                      Text(
+                                        'Onboarding task',
+                                        style: UTextStyles.caption,
+                                      ),
+                        Text(
+                          'Complete KYC & Profile',
+                          style: UTextStyles.medium.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Ucolors.dark,
+                          ),
+                        ),
+                                      Text(
+                                        'Verify your Identity to start Investing',
+                                        softWrap: true,
+
+                                        maxLines: 1,
+
+                                        overflow: TextOverflow.ellipsis,
+                                        style: UTextStyles.caption.copyWith(
+                                          // fontSize: 10,
+                                        ),
+                                        // textAlign: TextAlign.start,
+                                      ),
+                                    ],
+                                  ),
+                                  Spacer(),
+                                  Icon(Icons.arrow_forward_ios, size: 12),
+                                  // SizedBox(width: 10),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

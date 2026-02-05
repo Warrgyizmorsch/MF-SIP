@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/text_style.dart';
 
 import '../../../core/utils/enums/enums.dart';
 
@@ -96,7 +97,6 @@ class CustomTextField extends StatefulWidget {
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
 }
-
 class _CustomTextFieldState extends State<CustomTextField> {
   late bool _obscure;
 
@@ -106,7 +106,13 @@ class _CustomTextFieldState extends State<CustomTextField> {
     _obscure = widget.obscureText;
   }
 
-  String? _validate(String? value) {
+  // --- FIX START: Updated Validator Logic ---
+  String? _validate(String? fieldValue) {
+    // Priority: Use Controller text if available, otherwise use FormField value
+    // This ensures that if the controller is updated externally (like DatePicker),
+    // the validator sees the new value immediately.
+    final value = widget.controller?.text ?? fieldValue;
+
     switch (widget.validationType) {
       case ValidationType.required:
         if (value == null || value.trim().isEmpty) {
@@ -147,31 +153,45 @@ class _CustomTextFieldState extends State<CustomTextField> {
         }
         break;
       case ValidationType.none:
-      // ignore: unreachable_switch_default
       default:
         return null;
     }
     return null;
   }
+  // --- FIX END ---
 
   @override
   Widget build(BuildContext context) {
     return FormField<String>(
       validator: _validate,
+      // Ensure initial value syncs with controller
       initialValue: widget.controller?.text,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       builder: (FormFieldState<String> field) {
+
+        // --- FIX START: Sync Controller with Field State ---
+        // If the controller text differs from the field state (e.g. DatePicker update),
+        // update the field state silently so validation passes.
+        if (widget.controller != null && widget.controller!.text != field.value) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (field.mounted) {
+              field.didChange(widget.controller!.text);
+            }
+          });
+        }
+        // --- FIX END ---
+
         EdgeInsets contentPadding = widget.height != null
             ? EdgeInsets.symmetric(
-                vertical: (widget.height! - widget.textSize) / 2 - 8,
-                horizontal: 12,
-              )
+          vertical: (widget.height! - widget.textSize) / 2 - 8,
+          horizontal: 12,
+        )
             : const EdgeInsets.symmetric(vertical: 12, horizontal: 12);
 
         if (widget.trailing != null || widget.obscureText) {
           contentPadding = contentPadding.copyWith(right: 0);
         }
-        // This is the error text that will be displayed
+
         final String? displayedError = widget.errorText ?? field.errorText;
 
         return Column(
@@ -179,12 +199,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              // decoration: BoxDecoration(
-              //   color: widget.isEnabled ? widget.bgColor : Colors.grey.shade200,
-              //   border: BoxBorder.all(
-              //
-              //   ),
-              //   borderRadius: BorderRadius.circular(14),              ),
               child: Stack(
                 alignment: Alignment.centerRight,
                 children: [
@@ -192,12 +206,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
                     absorbing: !widget.isEnabled,
                     child: TextFormField(
                       maxLength: widget.maxLength,
-
                       focusNode: widget.focusNode,
                       controller: widget.controller,
                       obscureText: _obscure,
-                      keyboardType:
-                          widget.keyboardType ??
+                      keyboardType: widget.keyboardType ??
                           (widget.maxLines > 1
                               ? TextInputType.multiline
                               : TextInputType.text),
@@ -207,24 +219,24 @@ class _CustomTextFieldState extends State<CustomTextField> {
                           ? widget.onSubmitted
                           : null,
                       textInputAction: widget.textInputAction,
-                      style: TextStyle(
-                        color: widget.textColor,
-                        fontSize: widget.textSize,
-                      ),
+                      style: AppTextStyles.bodyMedium(),
                       minLines: widget.minLines,
                       maxLines: widget.obscureText ? 1 : widget.maxLines,
+
+                      // --- FIX: Sync changes back to FormField State ---
                       onChanged: widget.isEnabled
                           ? (value) {
-                              field.didChange(value);
-                              widget.onChanged?.call(value);
-                            }
+                        field.didChange(value);
+                        widget.onChanged?.call(value);
+                      }
                           : null,
+
                       decoration: InputDecoration(
                         counterText: '',
                         isDense: true,
                         contentPadding: contentPadding.copyWith(
                           right: 40,
-                        ), // spacing for trailing
+                        ),
                         labelText: widget.label,
                         labelStyle: TextStyle(
                           color: widget.labelColor,
@@ -237,21 +249,24 @@ class _CustomTextFieldState extends State<CustomTextField> {
                               : Colors.grey,
                           fontSize: widget.hintSize,
                         ),
+
+                        // We hide the default error because we render a custom one below
                         errorText: null,
+                        errorStyle: const TextStyle(height: 0, fontSize: 0),
 
                         prefixIcon: widget.leading != null
                             ? GestureDetector(
-                                onTap: widget.isEnabled
-                                    ? widget.onLeadingTap
-                                    : null,
-                                child: IconTheme(
-                                  data: IconThemeData(
-                                    color: widget.leadingColor,
-                                    size: 10,
-                                  ),
-                                  child: widget.leading!,
-                                ),
-                              )
+                          onTap: widget.isEnabled
+                              ? widget.onLeadingTap
+                              : null,
+                          child: IconTheme(
+                            data: IconThemeData(
+                              color: widget.leadingColor,
+                              size: 10,
+                            ),
+                            child: widget.leading!,
+                          ),
+                        )
                             : null,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
@@ -269,22 +284,29 @@ class _CustomTextFieldState extends State<CustomTextField> {
                           borderRadius: BorderRadius.circular(
                             widget.borderRadius ?? 14,
                           ),
-
                           borderSide: BorderSide(
                             color: widget.focusedBorderColor,
                             width: 2,
                           ),
                         ),
-                        errorBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.red),
+                        // Force the border to turn red if there is an error
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(
+                              widget.borderRadius ?? 14
+                          ),
+                          borderSide: const BorderSide(color: Colors.red),
                         ),
-                        focusedErrorBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.red, width: 1),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(
+                              widget.borderRadius ?? 14
+                          ),
+                          borderSide: const BorderSide(color: Colors.red, width: 1),
                         ),
                         disabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: widget.borderColor.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(
+                            widget.borderRadius ?? 14,
                           ),
+                          borderSide: BorderSide(color: widget.borderColor),
                         ),
                       ),
                     ),
@@ -325,7 +347,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
             ),
             if (displayedError != null)
               Padding(
-                padding: const EdgeInsets.only(left: 12, top: 1),
+                padding: const EdgeInsets.only(left: 12, top: 4),
                 child: Text(
                   displayedError,
                   style: const TextStyle(color: Colors.red, fontSize: 10),
