@@ -1,210 +1,22 @@
-// import 'package:flutter/material.dart';
-// import 'package:gap/gap.dart';
-// import 'package:my_sip/common/style/padding.dart';
-// import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
-// import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
-// import 'package:my_sip/core/utils/constant/colors.dart';
-// import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'dart:developer';
 
-// class CompareFundPage extends StatelessWidget {
-//   CompareFundPage({super.key});
-
-//   List<String> mflist = [
-//     'SBI Bluechip Fund',
-//     'HDFC Top 100 Fund',
-//     'ICICI Prudential Bluechip Fund',
-//     'Axis Bluechip Fund',
-//     'Kotak Bluechip Fund',
-
-//     'Mirae Asset Large Cap Fund',
-//     'Nippon India Large Cap Fund',
-//     'Canara Robeco Bluechip Equity Fund',
-
-//     'Parag Parikh Flexi Cap Fund',
-//     'HDFC Flexi Cap Fund',
-//     'Kotak Flexi Cap Fund',
-//     'PGIM India Flexi Cap Fund',
-
-//     'Axis Midcap Fund',
-//     'Kotak Emerging Equity Fund',
-//     'HDFC Mid-Cap Opportunities Fund',
-//     'Motilal Oswal Midcap Fund',
-
-//     'SBI Small Cap Fund',
-//     'Nippon India Small Cap Fund',
-//     'Axis Small Cap Fund',
-//     'Quant Small Cap Fund',
-
-//     'UTI Nifty 50 Index Fund',
-//     'HDFC Index Fund – Nifty 50',
-//     'ICICI Prudential Nifty Next 50 Index Fund',
-
-//     'SBI Equity Hybrid Fund',
-//     'HDFC Hybrid Equity Fund',
-//     'ICICI Prudential Equity & Debt Fund',
-
-//     'Aditya Birla Sun Life Digital India Fund',
-//     'Tata Digital India Fund',
-//     'ICICI Prudential Technology Fund',
-
-//     'SBI Contra Fund',
-//     'Invesco India Contra Fund',
-//   ];
-
-//   final TextEditingController controller = TextEditingController();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: CustomAppBarNormal(title: 'Compare Funds'),
-//       body: SingleChildScrollView(
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Row(
-//               children: [
-//                 Expanded(
-//                   child: GestureDetector(
-//                     onTap: () {
-//                       showSelectionBottomSheet(
-//                         context: context,
-//                         title: 'Select the Fund',
-//                         items: mflist,
-//                         controller: controller,
-//                       );
-//                     },
-//                     child: headercard(),
-//                   ),
-//                 ),
-//                 Gap(1),
-//                 Expanded(
-//                   child: GestureDetector(
-//                     onTap: () {
-//                       openSearchBottomSheet(context);
-//                       // showSelectionBottomSheet(
-//                       //   context: context,
-//                       //   title: 'Select the Fund',
-//                       //   items: mflist,
-//                       //   controller: controller,
-//                       // );
-//                     },
-//                     child: headercard(),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//             Gap(12),
-//             Padding(
-//               padding: UPadding.screenPadding,
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Text(
-//                     'Compare Fund',
-//                     style: UTextStyles.subtitle1.copyWith(
-//                       color: Ucolors.dark,
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//                   ),
-//                   Text(
-//                     'Details comparison on parameters like NAV | Returns | Returns | Risk | Rating | Analysis',
-//                     style: UTextStyles.medium.copyWith(color: Ucolors.dark),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   void openSearchBottomSheet(BuildContext context) {
-//     showModalBottomSheet(
-//       context: context,
-//       isScrollControlled: true,
-//       backgroundColor: Colors.transparent,
-//       builder: (_) {
-//         return Container(
-//           height: MediaQuery.of(context).size.height * 0.6,
-//           decoration: const BoxDecoration(
-//             color: Colors.white,
-//             borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-//           ),
-//           child: Column(
-//             children: [
-//               Container(
-//                 padding: const EdgeInsets.all(16),
-//                 color: Colors.green,
-//                 child: const Center(
-//                   child: Text(
-//                     "SEARCH MUTUAL FUNDS",
-//                     style: TextStyle(
-//                       color: Colors.white,
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//               Padding(
-//                 padding: const EdgeInsets.all(12),
-//                 child: TextField(
-//                   decoration: InputDecoration(
-//                     hintText: "Search fund",
-//                     prefixIcon: const Icon(Icons.search),
-//                     border: OutlineInputBorder(
-//                       borderRadius: BorderRadius.circular(8),
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         );
-//       },
-//     );
-//   }
-
-//   Widget headercard() {
-//     return Container(
-//       height: 100,
-//       // color: Colors.grey.shade300,
-//       margin: EdgeInsets.symmetric(horizontal: 2),
-
-//       decoration: BoxDecoration(
-//         // color: Colors.grey.shade300,
-//         color: Ucolors.skyblue.withOpacity(0.4),
-//         borderRadius: BorderRadius.circular(10),
-
-//         border: Border.all(color: Ucolors.dark.withOpacity(0.2), width: 1),
-//       ),
-
-//       child: Column(
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         children: [
-//           Icon(Icons.add_circle_outline, color: Ucolors.primary),
-//           Text('Add a Fund'),
-//         ],
-//       ),
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
+import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/features/fund_details/presentation/controllers/fund_details_controller.dart';
 
 import '../../../../fund_details/presentation/pages/fund_deatails.dart';
 
-
-class CompareFundsPage extends StatelessWidget {
+class CompareFundsPage extends GetView<FundDetailsController> {
   CompareFundsPage({super.key});
 
   final List<Map<String, dynamic>> returns = [
     {
       "title": "1Y",
-      "values": ["-", "-"],
+      "values": ['-', "-"],
     },
     {
       "title": "3Y",
@@ -267,6 +79,10 @@ class CompareFundsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final arg = Get.arguments as Map<String, dynamic>?;
+    final name = arg?['name'];
+    final name2 = arg?['name2'];
+    log(arg.toString() + ' No argu');
     return Scaffold(
       // backgroundColor: Colors.grey,
       backgroundColor: Colors.white.withOpacity(0.985),
@@ -281,23 +97,13 @@ class CompareFundsPage extends StatelessWidget {
             // _addFundSection(context),
             Row(
               children: [
-                // Expanded(
-                //   child: GestureDetector(
-                //     onTap: () {
-                //       _openSearchBottomSheet(context);
-                //     },
-                //     child: headercard1(
-                //       'Nippon India Large Cap Fund- Growth Plan- Growth Option',
-                //       UImages.sbi,
-                //       true,
-                //     ),
-                //   ),
-                // ),
                 Expanded(
                   child: Comparecard(
+                    isAdd: name ?? true,
                     title:
+                        name ??
                         'Nippon India Large Cap Fund- Growth Plan- Growth Option',
-                    url: UImages.sbi,
+                    url: controller.imgUrl,
                   ),
                 ),
 
@@ -305,7 +111,7 @@ class CompareFundsPage extends StatelessWidget {
 
                 // Expanded(child: headercard1('Add A fund', ' ', false)),
                 Expanded(
-                  child: Comparecard(title: '', url: '', isAdd: true),
+                  child: Comparecard(title: name2 ?? '', url: ''),
                 ),
               ],
             ),
@@ -517,8 +323,8 @@ class Comparecard extends StatelessWidget {
                         children: [
                           CircleAvatar(
                             maxRadius: 18,
-                            backgroundImage: AssetImage(url),
-                            // child: Image.asset(UImages.sbi),
+                            // backgroundImage: AssetImage(url),
+                            child: CustomCachedImage(imageUrl: url),
                           ),
                           Icon(
                             Icons.compare_arrows_outlined,

@@ -41,7 +41,7 @@ class CustomCachedImage extends StatelessWidget {
           width: size,
           height: size,
           color: Colors.grey.shade200,
-          child: Image.asset(UImages.imp),
+          child:  Icon(Icons.image_not_supported_outlined, color: Colors.black),
         ),
       ),
     );

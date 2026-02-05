@@ -4,7 +4,9 @@ import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:my_sip/features/fund_details/data/datasource/fund_detail_remote_data_source.dart';
 import 'package:my_sip/features/fund_details/data/repositories/fund_detail_repository_impl.dart';
 import 'package:my_sip/features/fund_details/domain/repositories/fund_detail_repository.dart';
+import 'package:my_sip/features/fund_details/domain/usecases/fund_details_usecases.dart';
 import 'package:my_sip/features/fund_details/domain/usecases/get_fund_detail_usecase.dart';
+import 'package:my_sip/features/fund_details/domain/usecases/portfolio_analysis_usecases.dart';
 import 'package:my_sip/features/fund_details/presentation/controllers/fund_details_controller.dart';
 
 import '../../../../core/network/network_api_service.dart';
@@ -23,7 +25,19 @@ class FundDetailBinding extends Bindings {
     );
 
     // 3. Use Cases (Depends on Repository)
+    Get.lazyPut(
+      () => FundDetailsUsecases(
+        fundDetailUseCase: Get.find<GetFundDetailUseCase>(),
+        portfolioAnalysisUsecases: Get.find<PortfolioAnalysisUsecases>(),
+      ),
+      fenix: true,
+    );
+
     Get.lazyPut(() => GetFundDetailUseCase(Get.find<FundDetailRepository>()));
+
+    Get.lazyPut(
+      () => PortfolioAnalysisUsecases(Get.find<FundDetailRepository>()),
+    );
 
     // 4. Wrapper Use Case (Depends on LoginUseCase)
     // Get.lazyPut(
@@ -49,7 +63,8 @@ class FundDetailBinding extends Bindings {
     //   ),
     // );
     Get.lazyPut<FundDetailsController>(
-      () => FundDetailsController(getFundDetailUseCase: Get.find()),
+      () => FundDetailsController(fundDetailsUsecases: Get.find()),
+      fenix: true,
     );
   }
 }

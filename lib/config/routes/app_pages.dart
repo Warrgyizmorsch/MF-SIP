@@ -57,7 +57,11 @@ class AppPages {
       name: AppRoutes.freedomSipScreen,
       page: () => const FreedomSipScreen(),
     ),
-    GetPage(name: AppRoutes.comparefund, page: () => CompareFundsPage()),
+    GetPage(
+      name: AppRoutes.comparefund,
+      page: () => CompareFundsPage(),
+      binding: FundDetailBinding(),
+    ),
     GetPage(
       name: AppRoutes.sipTenureScreen,
       page: () => const SipTenureScreen(),

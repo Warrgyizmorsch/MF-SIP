@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/fund_details/data/models/fund_performance.dart';
+import 'package:my_sip/features/fund_details/data/models/return_model.dart';
 import 'package:my_sip/features/fund_details/domain/entity/fund_detail_entity.dart';
-import 'package:my_sip/features/fund_details/domain/usecases/get_fund_detail_usecase.dart';
+import 'package:my_sip/features/fund_details/domain/entity/portfolio_analysis_entity.dart';
+import 'package:my_sip/features/fund_details/domain/usecases/fund_details_usecases.dart';
 
 class FundDetailsController extends GetxController
     with GetSingleTickerProviderStateMixin {
-  final GetFundDetailUseCase getFundDetailUseCase;
+  // final GetFundDetailUseCase getFundDetailUseCase;
+  final FundDetailsUsecases fundDetailsUsecases;
 
   // Arguments - initialized in constructor
   late String schemeName;
@@ -29,17 +32,44 @@ class FundDetailsController extends GetxController
 
   // State Management
   var isLoading = false.obs;
+  final isPortfolioLoading = false.obs;
   var hasError = false.obs;
   var errorMessage = ''.obs;
   Rx<FundDetailEntity?> fundDetail = Rx<FundDetailEntity?>(null);
+  Rx<SchemeDetailsEntity?> portfolioAnalysis = Rx<SchemeDetailsEntity?>(null);
+
+
+  List<String> get sectorNames =>
+    portfolioAnalysis.value?.sectorNamesString ?? [];
+
+List<double> get sectorValues =>
+    portfolioAnalysis.value?.sectorValuesString
+            ?.map((e) => double.tryParse(e.toString()) ?? 0)
+            .toList() ??
+        [];
+
 
   // Constructor to initialize arguments on each instance
-  FundDetailsController({required this.getFundDetailUseCase}) {
+  FundDetailsController({required this.fundDetailsUsecases}) {
     final args = Get.arguments as Map<String, dynamic>? ?? {};
     schemeName = args['scheme'] ?? 'Fund Details';
     imgUrl = args['imgUrl'] ?? '';
     createLog("gggg$schemeName");
-    getFundDetails(scchemeName: schemeName);
+    // getFundDetails(scchemeName: schemeName);
+    fetchAllData(scheme: schemeName);
+  }
+
+  Future<void> fetchAllData({required String scheme}) async {
+    // Optional: Set global loading state if you want to block the whole UI
+    // isLoading.value = true;
+
+    // Run both requests in parallel
+    await Future.wait([
+      getFundDetails(scchemeName: scheme),
+      getPortfolioAnalysis(scchemeName: scheme),
+    ]);
+
+    // isLoading.value = false;
   }
 
   @override
@@ -59,7 +89,7 @@ class FundDetailsController extends GetxController
       hasError.value = false;
       errorMessage.value = '';
 
-      final result = await getFundDetailUseCase.getSchemeInfo({
+      final result = await fundDetailsUsecases.fundDetailUseCase.getSchemeInfo({
         'scheme': scchemeName,
       });
 
@@ -84,9 +114,55 @@ class FundDetailsController extends GetxController
     }
   }
 
+  ///Portfolio analysis
+  Future<void> getPortfolioAnalysis({required String scchemeName}) async {
+    try {
+      isPortfolioLoading.value = true;
+      hasError.value = false;
+      errorMessage.value = '';
+
+      final result = await fundDetailsUsecases.portfolioAnalysisUsecases
+          .getPortfolioAnlysis({'scheme': scchemeName});
+
+      result.fold(
+        (success) {
+          portfolioAnalysis.value = success.data;
+          isPortfolioLoading.value = false;
+          createLog(
+            "Portfolio loaded successfully --------- ${portfolioAnalysis.value}",
+          );
+        },
+        (error) {
+          hasError.value = true;
+          errorMessage.value = error.toString();
+          isPortfolioLoading.value = false;
+          createLog("Error loading Portfolio details: $error");
+        },
+      );
+    } catch (e) {
+      hasError.value = true;
+      errorMessage.value = e.toString();
+      isPortfolioLoading.value = false;
+      createLog("Exception in Portfolio: $e");
+    }
+  }
+
+  //Loaded new data when click to new fund
+  void loadNewFund(String newScheme) {
+    schemeName = newScheme;
+    imgUrl = '';
+    // getFundDetails(scchemeName: newScheme);
+    // fundDetail.value = null;
+    // portfolioAnalysis.value = null;
+    fetchAllData(scheme: newScheme);
+
+    scrollController.jumpTo(0); // optional: scroll to top
+  }
+
   // Method to retry fetching fund details
   void retryFetchingDetails() {
-    getFundDetails(scchemeName: schemeName);
+    // getFundDetails(scchemeName: schemeName);
+    fetchAllData(scheme: schemeName);
   }
 
   void _onScroll() {
@@ -148,24 +224,92 @@ class FundDetailsController extends GetxController
     }
   }
 
-  ///Fund Performance 
+  ///Fund Performance
   List<YearlyReturn> get yearlyReturns {
-  final list = fundDetail.value?.schemePerformanceList;
-  if (list == null || list.isEmpty) return [];
+    final list = fundDetail.value?.schemePerformanceList;
+    if (list == null || list.isEmpty) return [];
 
-  final p = list.first;
+    final p = list.first;
 
-  return [
-    YearlyReturn('6M', p.sixMonthReturn ?? 0),
-    YearlyReturn('1Y', p.oneYearReturn ?? 0),
-    YearlyReturn('2Y', p.twoYearReturn ?? 0),
-    YearlyReturn('3Y', p.threeYearReturn ?? 0),
-    YearlyReturn('5Y', p.fiveYearReturn ?? 0),
-    YearlyReturn('10Y', p.tenYearReturn ?? 0),
-    // YearlyReturn('Since\nLaunch', p.inceptionYearReturn ?? 0),
-  ];
-}
+    return [
+      YearlyReturn('6M', p.sixMonthReturn ?? 0),
+      YearlyReturn('1Y', p.oneYearReturn ?? 0),
+      YearlyReturn('2Y', p.twoYearReturn ?? 0),
+      YearlyReturn('3Y', p.threeYearReturn ?? 0),
+      YearlyReturn('5Y', p.fiveYearReturn ?? 0),
+      YearlyReturn('10Y', p.tenYearReturn ?? 0),
+      // YearlyReturn('Since\nLaunch', p.inceptionYearReturn ?? 0),
+    ];
+  }
 
+  //Funds Trainlings Returns
+  List<ReturnRow> buildTrailingReturns(FundDetailEntity fund) {
+    final list = fund.schemePerformanceList;
+    if (list.isEmpty) return [];
+    final scheme = list[0];
+    final benchmark = list.length > 1 ? list[1] : null;
+    // final category = fund.schemePerformanceList[2];
+    final category = list.length > 2 ? list[2] : null;
+    double b(double? v) => v ?? 0;
+    double c(double? v) => v ?? 0;
+
+    return [
+      ReturnRow(
+        period: '1M',
+        scheme: scheme.oneMonthReturn,
+        category: c(category?.oneMonthReturn),
+        benchmark: b(benchmark?.oneMonthReturn),
+      ),
+      ReturnRow(
+        period: '3M',
+        scheme: scheme.threeMonthReturn,
+        // category: category.threeMonthReturn,
+        // benchmark: benchmark.threeMonthReturn,
+        category: c(category?.threeMonthReturn),
+        benchmark: b(benchmark?.threeMonthReturn),
+      ),
+      ReturnRow(
+        period: '6M',
+        scheme: scheme.sixMonthReturn,
+        // category: category.sixMonthReturn,
+        // benchmark: benchmark.sixMonthReturn,
+        category: c(category?.sixMonthReturn),
+        benchmark: b(benchmark?.sixMonthReturn),
+      ),
+      ReturnRow(
+        period: '1Y',
+        scheme: scheme.oneYearReturn,
+        // category: category.oneYearReturn,
+        // benchmark: benchmark.oneYearReturn,
+        category: c(category?.oneYearReturn),
+        benchmark: b(benchmark?.oneYearReturn),
+      ),
+      ReturnRow(
+        period: '2Y',
+        scheme: scheme.twoYearReturn,
+        // category: category.twoYearReturn,
+        // benchmark: benchmark.twoYearReturn,
+        category: c(category?.twoYearReturn),
+        benchmark: b(benchmark?.twoYearReturn),
+      ),
+      ReturnRow(
+        period: '3Y',
+        scheme: scheme.threeYearReturn,
+        // category: category.threeYearReturn,
+        // benchmark: benchmark.threeYearReturn,
+        category: c(category?.threeYearReturn),
+        benchmark: b(benchmark?.threeYearReturn),
+      ),
+      ReturnRow(
+        period: '5Y',
+        scheme: scheme.fiveYearReturn,
+        // category: category.fiveYearReturn,
+        // benchmark: benchmark.fiveYearReturn,
+        category: c(category?.fiveYearReturn),
+        benchmark: b(benchmark?.fiveYearReturn),
+      ),
+    ];
+  }
 
   @override
   void onClose() {

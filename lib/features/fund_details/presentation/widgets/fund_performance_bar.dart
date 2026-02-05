@@ -148,6 +148,7 @@ class YearlyReturnsChart extends StatelessWidget {
           Positioned.fill(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
+              // mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(yearlyData.length, (index) {
                 final value = yearlyData[index].value;
                 return Expanded(
@@ -166,7 +167,7 @@ class YearlyReturnsChart extends StatelessWidget {
                       style: const TextStyle(
                         overflow: TextOverflow.ellipsis,
 
-                        fontSize: 10,
+                        fontSize: 8,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF1B7A3A),
                       ),

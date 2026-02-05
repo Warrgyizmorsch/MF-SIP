@@ -12,7 +12,6 @@ import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/common/widget/table/table_header.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
-import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
@@ -23,8 +22,6 @@ import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 import '../../../dashboard/presentation/pages/comparison_screen.dart';
 import '../../../dashboard/presentation/pages/dashboard.dart';
-import '../../data/models/fund_performance.dart';
-import '../../data/models/return_model.dart';
 import '../controllers/fund_details_controller.dart';
 import '../widgets/fund_performance_bar.dart';
 import '../widgets/percentage_indicator.dart';
@@ -210,8 +207,6 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
       sliver: SliverToBoxAdapter(
         child: Obx(() {
           final fund = controller.fundDetail.value;
-          createLog("Fund is $fund");
-          log('$fund');
 
           return Column(
             children: [
@@ -310,32 +305,14 @@ class OverviewScreen extends GetView<FundDetailsController> {
 
   @override
   Widget build(BuildContext context) {
-    final returns = [
-      ReturnRow(period: '1M', scheme: 0.78, category: 0.01, benchmark: -0.13),
-      ReturnRow(period: '3M', scheme: 3.77, category: 4.93, benchmark: 4.29),
-      ReturnRow(period: '6M', scheme: 3.77, category: 2.68, benchmark: 2.02),
-      ReturnRow(period: '1Y', scheme: 7.86, category: 9.93, benchmark: 6.99),
-      ReturnRow(period: '2Y', scheme: 13.91, category: 11.62, benchmark: 11.14),
-      ReturnRow(period: '3Y', scheme: 19.54, category: 14.72, benchmark: 15.23),
-      ReturnRow(period: '5Y', scheme: 20.26, category: 14.86, benchmark: 14.37),
-    ];
-
-    final yearlyData = [
-      YearlyReturn('2019', 6.63),
-      YearlyReturn('2020', 4.89),
-      YearlyReturn('2021', 31.65),
-      YearlyReturn('2022', 9.72),
-      YearlyReturn('2023', 31.44),
-      YearlyReturn('2024', 13.54),
-      YearlyReturn('2025', 7.91),
-      YearlyReturn('2026', 0.69),
-    ];
-
     final height = MediaQuery.of(context).size;
 
     return Obx(() {
       final fund = controller.fundDetail.value;
+
       final managers = parseFundManagers(fund?.schemeManager);
+      final portfolio = controller.portfolioAnalysis.value;
+      // Sector Data (Lists)
 
       final risk = getRiskMeter(fund?.riskometerValue);
 
@@ -350,7 +327,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                   children: [
                     StatItem1(
                       title: 'Nav',
-                      amount: '${fund?.nav.toString()}',
+                      amount: '₹${fund?.nav.toStringAsFixed(2)}',
                       percentage: '',
                     ),
                     StatItem1(
@@ -365,7 +342,8 @@ class OverviewScreen extends GetView<FundDetailsController> {
                     ),
                     StatItem1(
                       title: 'BenchMark (1Y)',
-                      amount: fund?.benchmarkInceptionReturn.toString() ?? '',
+                      amount:
+                          fund?.navChangePercentage.toStringAsFixed(2) ?? '',
                       percentage: '%',
                       amountColor: Ucolors.success,
                     ),
@@ -467,22 +445,28 @@ class OverviewScreen extends GetView<FundDetailsController> {
               showActionButton: false,
             ),
           ),
-          CustomContainer(
-            child: Column(
-              children: [
-                // returnsTableHeader(),
-                TableHeader(
-                  heading1: 'Period',
-                  heading2: 'Scheme',
-                  heading3: 'Category',
-                  heading4: 'Benchmark',
-                ),
-                DashedLine(color: Colors.grey.shade200),
+          Obx(() {
+            final fund = controller.fundDetail.value;
+            if (fund == null) return SizedBox();
 
-                ...returns.map((row) => ReturnsTableRow(data: row)),
-              ],
-            ),
-          ),
+            final returnss = controller.buildTrailingReturns(fund);
+            return CustomContainer(
+              child: Column(
+                children: [
+                  // returnsTableHeader(),
+                  TableHeader(
+                    heading1: 'Period',
+                    heading2: 'Scheme',
+                    heading3: 'Category',
+                    heading4: 'Benchmark',
+                  ),
+                  DashedLine(color: Colors.grey.shade200),
+
+                  ...returnss.map((row) => ReturnsTableRow(data: row)),
+                ],
+              ),
+            );
+          }),
 
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 20, 16, 5),
@@ -620,92 +604,174 @@ class OverviewScreen extends GetView<FundDetailsController> {
           CustomContainer(
             child: Column(
               children: [
-                const SizedBox(height: 10),
-                Text(
-                  'Market Cap',
-                  style: UTextStyles.medium.copyWith(
-                    color: Ucolors.dark,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                Builder(
+                  builder: (context) {
+                    // 1. Get Data
+                    final entity = controller.portfolioAnalysis.value;
 
-                Divider(color: Colors.grey.shade200),
+                    // --- Data Set A: Assets ---
+                    final assetMap = entity?.assetAllocation ?? {};
+                    final assetList =
+                        assetMap.entries.where((e) => e.value > 0).toList()
+                          ..sort((a, b) => b.value.compareTo(a.value));
 
-                Gap(10),
-                Stack(
-                  alignment: AlignmentGeometry.center,
-                  children: [
-                    SizedBox(
-                      height: 200,
-                      width: 200,
-                      child: PieChart(
-                        PieChartData(
-                          centerSpaceColor: Colors.grey.shade200,
-                          sectionsSpace: 0,
+                    // --- Data Set B: Market Cap ---
+                    final mcap = entity?.mcapAllocation;
+                    final mcapList = [
+                      if ((mcap?.marketCapLargecapPercent ?? 0) > 0)
+                        MapEntry('Large Cap', mcap!.marketCapLargecapPercent),
+                      if ((mcap?.marketCapMidcapPercent ?? 0) > 0)
+                        MapEntry('Mid Cap', mcap!.marketCapMidcapPercent),
+                      if ((mcap?.marketCapSmallcapPercent ?? 0) > 0)
+                        MapEntry('Small Cap', mcap!.marketCapSmallcapPercent),
+                    ];
 
-                          centerSpaceRadius: 50,
-                          // centerSpaceRadius: 0,
-                          sections: [
-                            PieChartSectionData(
-                              showTitle: false,
+                    // 2. Loading State
+                    if (controller.isPortfolioLoading.value) {
+                      return const SizedBox(
+                        height: 250,
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
 
-                              value: 70,
-                              color: Colors.indigo.shade900,
+                    // 3. Define the Reusable Chart Widget (Local Function)
+                    Widget buildAllocationTab(
+                      List<MapEntry<String, double>> data,
+                      String centerText,
+                    ) {
+                      if (data.isEmpty) {
+                        return const Center(child: Text("No data available"));
+                      }
+
+                      final List<Color> colors = [
+                        Colors.indigo.shade900,
+                        Colors.blue.shade600,
+                        Colors.greenAccent.shade700,
+                        Colors.orangeAccent,
+                        Colors.purpleAccent,
+                        Colors.redAccent,
+                      ];
+
+                      return SingleChildScrollView(
+                        padding: const EdgeInsets.only(top: 20, bottom: 20),
+                        child: Column(
+                          children: [
+                            // --- PIE CHART ---
+                            Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                SizedBox(
+                                  height: 200,
+                                  width: 200,
+                                  child: PieChart(
+                                    PieChartData(
+                                      centerSpaceColor: Colors.grey.shade200,
+                                      sectionsSpace: 0,
+                                      centerSpaceRadius: 50,
+                                      sections: List.generate(data.length, (
+                                        index,
+                                      ) {
+                                        return PieChartSectionData(
+                                          showTitle: false,
+                                          value: data[index].value,
+                                          color: colors[index % colors.length],
+                                          radius: 40,
+                                        );
+                                      }),
+                                    ),
+                                  ),
+                                ),
+                                // Center Text
+                                Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      centerText,
+                                      style: UTextStyles.medium.copyWith(
+                                        color: Ucolors.dark,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                            PieChartSectionData(
-                              showTitle: false,
-                              value: 10,
-                              color: Colors.deepPurpleAccent,
-                            ),
-                            PieChartSectionData(
-                              showTitle: false,
-
-                              value: 5,
-                              color: Colors.greenAccent,
-                            ),
-                            PieChartSectionData(
-                              showTitle: false,
-
-                              value: 15,
-                              color: Colors.green,
-                            ),
+                            const Gap(20),
+                            // --- LEGEND LIST ---
+                            ...List.generate(data.length, (index) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 8.0),
+                                child: marketCapPercentage(
+                                  data[index].key,
+                                  '${data[index].value.toStringAsFixed(2)}%',
+                                  colors[index % colors.length],
+                                ),
+                              );
+                            }),
                           ],
                         ),
-                      ),
-                    ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 55,
-                          child: Text(
-                            textAlign: TextAlign.center,
-                            'Equity Market Cap',
-                            style: UTextStyles.medium.copyWith(
-                              color: Ucolors.dark,
-                              fontWeight: FontWeight.bold,
+                      );
+                    }
+
+                    // 4. Return the Tabbed UI
+                    return DefaultTabController(
+                      length: 2, // Two Tabs
+                      child: Column(
+                        children: [
+                          const Gap(10),
+                          // --- TAB BAR ---
+                          Container(
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                            child: TabBar(
+                              indicator: BoxDecoration(
+                                color: Ucolors.primary, // Active Color
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              labelColor: Colors.white,
+                              unselectedLabelColor: Colors.grey.shade600,
+                              labelStyle: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                              ),
+                              dividerColor:
+                                  Colors.transparent, // Remove underline
+                              indicatorSize: TabBarIndicatorSize.tab,
+                              tabs: const [
+                                Tab(text: "Asset Allocation"),
+                                Tab(text: "Market Cap"),
+                              ],
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+
+                          const Gap(10),
+                          Divider(color: Colors.grey.shade200),
+
+                          // --- TAB VIEWS ---
+                          SizedBox(
+                            height: 400, // Fixed height for the content area
+                            child: TabBarView(
+                              children: [
+                                // Tab 1: Asset Allocation
+                                buildAllocationTab(assetList, "Assets"),
+
+                                // Tab 2: Market Cap
+                                buildAllocationTab(mcapList, "Market\nCap"),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
-                marketCapPercentage(
-                  'Large Cap',
-                  '70.4%',
-                  Colors.indigo.shade700,
-                ),
-                Gap(5),
-                marketCapPercentage('Equity', '10.4%', Colors.deepPurpleAccent),
-                Gap(5),
-                marketCapPercentage('Mid Cap', '5.4%', Colors.greenAccent),
-                Gap(5),
-                marketCapPercentage('Small Cap', '15.4%', Colors.green),
-                Gap(12),
-                Divider(color: Colors.grey.shade200),
-                Gap(10),
+
+                DashedLine(dashSpace: 0, color: Colors.grey.shade200),
+                Gap(20),
 
                 DefaultTabController(
                   animationDuration: Duration(milliseconds: 200),
@@ -715,133 +781,245 @@ class OverviewScreen extends GetView<FundDetailsController> {
                   child: Column(
                     children: [
                       Container(
-                        // height: 44,
-                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        height: 40,
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-
+                          color: Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(25),
                         ),
-                        child: Tab(
-                          child: TabBar(
-                            // tabAlignment: TabAlignment.fill,
-                            // textScaler: TextScaler.noScaling,
-                            labelStyle: UTextStyles.buttonText.copyWith(
-                              color: Ucolors.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            // isScrollable: true,
-                            dividerColor: Colors.transparent,
-                            labelColor: Colors.blue,
-                            indicatorSize: TabBarIndicatorSize.tab,
-                            // isScrollable: true,
-                            unselectedLabelColor: Colors.grey,
-                            indicator: BoxDecoration(
-                              // color: Colors.white,
-                              color: Ucolors.light,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            tabs: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12.0,
-                                ),
-                                child: Text('Top 5 Sector'),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12.0,
-                                ),
-                                child: Text('Top 5 Stock'),
-                              ),
-                            ],
+                        child: TabBar(
+                          indicator: BoxDecoration(
+                            color: Ucolors.primary, // Active Color
+                            borderRadius: BorderRadius.circular(25),
                           ),
+                          labelColor: Colors.white,
+                          unselectedLabelColor: Colors.grey.shade600,
+                          labelStyle: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                          dividerColor: Colors.transparent, // Remove underline
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          tabs: const [
+                            Tab(text: "Top 5 Sector"),
+                            Tab(text: "Top 5 Stock"),
+                          ],
                         ),
                       ),
+
+                      /// Tab bar for top 5 sector and top 5 stock
                       SizedBox(
-                        height: 250,
+                        height: 450,
                         child: TabBarView(
                           children: [
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Gap(20),
-                                PercentageBar(
-                                  title: 'Financial Services',
-                                  percentage: 42,
-                                  color: Ucolors.primary,
-                                ),
+                            // Top 5 sector
+                            Builder(
+                              builder: (context) {
+                                // 1. Get Data
+                                final entity =
+                                    controller.portfolioAnalysis.value;
+                                final names = entity?.sectorNamesString ?? [];
+                                final values = entity?.sectorValuesString ?? [];
 
-                                PercentageBar(
-                                  title: 'Energy',
-                                  percentage: 80,
-                                  color: Ucolors.primary,
-                                ),
-                                PercentageBar(
-                                  title: 'Technolgy',
-                                  percentage: 42,
-                                  color: Ucolors.primary,
-                                ),
-                                PercentageBar(
-                                  title: 'Consumer Defensive',
-                                  percentage: 42,
-                                  color: Ucolors.primary,
-                                ),
-                              ],
+                                // 2. Loading State
+                                if (controller.isPortfolioLoading.value) {
+                                  return const SizedBox(
+                                    height: 200,
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  );
+                                }
+
+                                // 3. Empty Check
+                                if (entity == null ||
+                                    names.isEmpty ||
+                                    values.isEmpty) {
+                                  return Container(
+                                    height: 200,
+                                    alignment: Alignment.center,
+                                    child: const Text(
+                                      "No Sector Data Available",
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                                  );
+                                }
+
+                                // 4. Combine, Sort, and Limit to Top 5
+                                // Safety: use the smaller length to avoid crashes
+                                int count = names.length < values.length
+                                    ? names.length
+                                    : values.length;
+
+                                // Create a list of pairs (Name, Value)
+                                List<MapEntry<String, double>> combinedList =
+                                    [];
+                                for (int i = 0; i < count; i++) {
+                                  combinedList.add(
+                                    MapEntry(names[i], values[i]),
+                                  );
+                                }
+
+                                // Sort by value (percentage) -> High to Low
+                                combinedList.sort(
+                                  (a, b) => b.value.compareTo(a.value),
+                                );
+
+                                // Take only the Top 5
+                                final top5Items = combinedList.take(5).toList();
+
+                                // 5. Render
+                                return Column(
+                                  children: top5Items.map((entry) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(
+                                        // bottom: 10,
+                                        top: 10,
+                                      ),
+                                      child: PercentageBar(
+                                        title: entry
+                                            .key, // Name (e.g., Financial Services)
+                                        percentage:
+                                            entry.value, // Value (e.g., 30.62)
+                                        color: Colors
+                                            .blue, // Replace with Ucolors.primary
+                                      ),
+                                    );
+                                  }).toList(),
+                                );
+                              },
                             ),
-                            SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  Gap(12),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    // mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        'Stocks Allocation',
-                                        style: UTextStyles.caption,
-                                      ),
-                                      Text(
-                                        '% Holdings',
-                                        style: UTextStyles.caption,
-                                      ),
-                                    ],
-                                  ),
 
-                                  Gap(5),
-                                  StockAllocationItem(
-                                    name: 'HDFC Bank Ltd',
-                                    category: 'Large Cap',
-                                    sector: 'Financial Services',
-                                    percentage: 9.08,
-                                  ),
-                                  StockAllocationItem(
-                                    name: 'Reliance Industries Ltd',
-                                    category: 'Large Cap',
-                                    sector: 'Energy',
-                                    percentage: 6.08,
-                                  ),
-                                  StockAllocationItem(
-                                    name: 'ICICI Bank Ltd',
-                                    category: 'Large Cap',
-                                    sector: 'Financial Services',
-                                    percentage: 5.54,
-                                  ),
-                                  StockAllocationItem(
-                                    name: 'Axis Bank Ltd',
-                                    category: 'Large Cap',
-                                    sector: 'Financial Services',
-                                    percentage: 3.97,
-                                  ),
-                                  StockAllocationItem(
-                                    name: 'State Bank of India',
-                                    category: 'Large Cap',
-                                    sector: 'Financial Services',
-                                    percentage: 3.81,
-                                  ),
-                                ],
-                              ),
+                            /// Top 5 stock
+                            Builder(
+                              builder: (context) {
+                                // 1. Get Data from Lists
+                                final entity =
+                                    controller.portfolioAnalysis.value;
+                                final names =
+                                    entity
+                                        ?.schemePortfolioHoldingsNamesString ??
+                                    [];
+                                final values =
+                                    entity
+                                        ?.schemePortfolioHoldingsValuesString ??
+                                    [];
+
+                                // 2. Loading State
+                                if (controller.isPortfolioLoading.value) {
+                                  return const SizedBox(
+                                    height: 200,
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  );
+                                }
+
+                                // 3. Empty State Check
+                                if (entity == null ||
+                                    names.isEmpty ||
+                                    values.isEmpty) {
+                                  return Container(
+                                    height: 200,
+                                    alignment: Alignment.center,
+                                    child: const Text(
+                                      "No Holdings Data Available",
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                                  );
+                                }
+
+                                // 4. CLEAN, COMBINE & SORT
+                                int count = names.length < values.length
+                                    ? names.length
+                                    : values.length;
+
+                                // Regex 1: Matches Dates like (22/04/2024)
+                                final dateRegex = RegExp(
+                                  r'\s*\(\d{1,2}[/-][\w\d]+[/-]\d{2,4}\)',
+                                );
+
+                                // Regex 2: Matches "Face Value" junk -> Starts with EQ, FV, RS, RE and takes everything after it
+                                // Example: " EQ NEW FV RS. 2/-" becomes empty
+                                final faceValueRegex = RegExp(
+                                  r'\s+(EQ|NEW|FV|RS\.?|RE\.?|Rs\.?|Re\.?)\b.*$',
+                                  caseSensitive: false,
+                                );
+
+                                List<MapEntry<String, double>> holdings = [];
+
+                                for (int i = 0; i < count; i++) {
+                                  String rawName = names[i];
+
+                                  // Apply Cleaning:
+                                  // 1. Remove Dates
+                                  // 2. Remove "EQ/FV/RS" suffix
+                                  // 3. Trim extra spaces
+                                  String cleanName = rawName
+                                      .replaceAll(dateRegex, '')
+                                      .replaceAll(faceValueRegex, '')
+                                      .trim();
+
+                                  // Only add if the name isn't empty (handles cases like just "EQ" which is unlikely)
+                                  if (cleanName.isNotEmpty) {
+                                    holdings.add(
+                                      MapEntry(cleanName, values[i]),
+                                    );
+                                  }
+                                }
+
+                                // Sort High to Low
+                                holdings.sort(
+                                  (a, b) => b.value.compareTo(a.value),
+                                );
+
+                                // Take Top 5
+                                final top5Items = holdings.take(5).toList();
+
+                                // 5. Render
+                                return Column(
+                                  children: [
+                                    const Gap(10),
+                                    const Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Stock Allocation',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w400,
+                                            color: Ucolors.darkgrey,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Holding %',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w400,
+                                            color: Ucolors.darkgrey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const Gap(10),
+
+                                    const DashedLine(
+                                      dashSpace: 0,
+
+                                      color: Ucolors.borderColor,
+                                    ),
+                                    const Gap(10),
+                                    ...top5Items.map((item) {
+                                      return StockAllocationItem(
+                                        name: item.key, // Clean Name
+                                        category: '', // Placeholder
+                                        sector: '', // Placeholder
+                                        percentage: item.value,
+                                      );
+                                    }).toList(),
+                                  ],
+                                );
+                              },
                             ),
                           ],
                         ),
@@ -854,16 +1032,14 @@ class OverviewScreen extends GetView<FundDetailsController> {
           ),
 
           // --- Fund Comparison Section ---
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-            child: const USectionHeading(
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 20, 16, 10),
+            child: USectionHeading(
               title: 'Fund Comparison',
               showActionButton: false,
             ),
           ),
           SizedBox(
-            // height:   MediaQuery.of(context).size.height * 0.3,
-            // height: MediaQuery.of(context).size.height * 0.23,
             height: MediaQuery.of(context).size.height < 700 ? 210 : 195,
 
             child: ListView.builder(
@@ -874,7 +1050,19 @@ class OverviewScreen extends GetView<FundDetailsController> {
               itemBuilder: (context, index) => SizedBox(
                 width: MediaQuery.of(context).size.width * 0.97,
                 child: GestureDetector(
-                  onTap: () => Get.toNamed(AppRoutes.comparefund),
+                  onTap: () {
+                    log('${fund.schemeName}--------------------');
+                    log('tap fund comapare');
+                    Get.toNamed(
+                      AppRoutes.comparefund,
+
+                      arguments: {
+                        'name': fund.schemeName,
+                        'name2':
+                            fund.schemePeerComparisonList[index + 1].schemeName,
+                      },
+                    );
+                  },
                   child: CustomContainer(
                     bottomPadding: 8,
                     topPadding: 15,
@@ -993,12 +1181,16 @@ class OverviewScreen extends GetView<FundDetailsController> {
                         .schemePeerComparisonList[index + 1]
                         .schemeName
                         .toString();
-                    log('tap ${scheme}');
+                    final controller = Get.find<FundDetailsController>();
 
-                    Get.offAndToNamed(
-                      AppRoutes.funddetails,
-                      arguments: {'scheme': scheme, 'imgUrl': Appurl.baseUrl2},
-                    );
+                    controller.loadNewFund(scheme);
+
+                    // Get.offNamed(
+                    //   AppRoutes.funddetails,
+
+                    //   arguments: {'scheme': scheme, 'imgUrl': Appurl.baseUrl2},
+                    // );
+                    debugPrint("Opening ${fund.schemeName}");
                   },
 
                   child: Container(
@@ -1165,50 +1357,54 @@ class OverviewScreen extends GetView<FundDetailsController> {
           ),
 
           ///Investment Details
-          ExpansionTile(
-            shape: Border(),
-            collapsedShape: Border(),
-            // dense: true,
-            title: Text('Invesment Details'),
-            children: [
-              CustomContainer(
-                bottomPadding: 0,
-                child: Column(
-                  children: [
-                    investmentDetailSection(
-                      'Fund Size',
-                      fund?.schemeAssets.toString() ?? '',
-                      Icons.bar_chart,
-                    ),
-                    Divider(height: 0),
-                    investmentDetailSection(
-                      'Min Investement',
-                      '₹ ${fund?.minimumInvestment.toString()}',
-                      Icons.circle,
-                    ),
+          SizedBox(
+            width: double.infinity,
+            child: ExpansionTile(
+              // maintainState: true,
+              shape: Border(),
+              collapsedShape: Border(),
+              // dense: true,
+              title: Text('Invesment Details'),
+              children: [
+                CustomContainer(
+                  bottomPadding: 0,
+                  child: Column(
+                    children: [
+                      investmentDetailSection(
+                        'Fund Size',
+                        '₹${fund?.schemeAssets?.toString()} Cr.' ?? '',
+                        Icons.bar_chart,
+                      ),
+                      Divider(height: 0),
+                      investmentDetailSection(
+                        'Min Investement',
+                        '₹ ${fund?.minimumInvestment.toString()}',
+                        Icons.circle,
+                      ),
 
-                    Divider(height: 0),
-                    investmentDetailSection(
-                      'Turn over',
-                      '23',
-                      Icons.lightbulb_circle_rounded,
-                    ),
-                    Divider(height: 0),
-                    investmentDetailSection(
-                      'Expense Ratio',
-                      fund?.expenseRatioPercentage.toString() ?? '',
-                      Icons.pie_chart,
-                    ),
-                    Divider(height: 0),
-                    investmentDetailSection(
-                      'Exit Load',
-                      fund?.exitLoad.toString() ?? '',
-                      Icons.logout_outlined,
-                    ),
-                  ],
+                      Divider(height: 0),
+                      investmentDetailSection(
+                        'Turn over',
+                        '23',
+                        Icons.lightbulb_circle_rounded,
+                      ),
+                      Divider(height: 0),
+                      investmentDetailSection(
+                        'Expense Ratio',
+                        fund?.expenseRatioPercentage.toString() ?? '',
+                        Icons.pie_chart,
+                      ),
+                      Divider(height: 0),
+                      investmentDetailSection(
+                        'Exit Load',
+                        fund?.exitLoad.toString() ?? '',
+                        Icons.logout_outlined,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
 
           ///Basic Details
@@ -1233,7 +1429,12 @@ class OverviewScreen extends GetView<FundDetailsController> {
                     Divider(height: 0),
                     investmentDetailSection(
                       'Inv. Plan',
-                      fund?.schemeName.split('-')[1].toString() ?? '',
+                      // fund?.schemeName.split('-')[1].toString() ?? '',
+                      fund.schemeName.contains('-') == true
+                          ? fund.schemeName.split('-')[1].trim()
+                          : 'Nil',
+
+                      // fund.schemeName,
                       Icons.lightbulb_circle_rounded,
                     ),
                     Divider(height: 0),
@@ -1327,28 +1528,66 @@ class OverviewScreen extends GetView<FundDetailsController> {
     );
   }
 
-  Widget investmentDetailSection(String title, String value, IconData icon) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
+  // Widget investmentDetailSection(String title, String value, IconData icon) {
+  //   return ListTile(
+  //     contentPadding: EdgeInsets.zero,
 
-      dense: true,
-      isThreeLine: false,
-      title: Row(
+  //     dense: true,
+  //     isThreeLine: false,
+  //     title: Row(
+  //       children: [
+  //         Icon(icon, color: Ucolors.blue),
+  //         Gap(8),
+  //         Text(
+  //           title,
+  //           style: UTextStyles.medium.copyWith(fontWeight: FontWeight.w400),
+  //         ),
+  //       ],
+  //     ),
+  //     trailing: Text(
+  //       value,
+  //       style: UTextStyles.medium.copyWith(
+  //         fontWeight: FontWeight.w600,
+  //         color: Ucolors.dark,
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  Widget investmentDetailSection(String title, String value, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: Ucolors.blue),
-          Gap(8),
-          Text(
-            title,
-            style: UTextStyles.medium.copyWith(fontWeight: FontWeight.w400),
+          const SizedBox(width: 10),
+
+          /// LEFT TITLE
+          Expanded(
+            flex: 2,
+            child: Text(
+              title,
+              style: UTextStyles.medium.copyWith(fontWeight: FontWeight.w400),
+            ),
+          ),
+
+          const SizedBox(width: 12),
+
+          /// RIGHT VALUE (WRAPS)
+          Expanded(
+            flex: 3,
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              softWrap: true,
+              style: UTextStyles.medium.copyWith(
+                fontWeight: FontWeight.w600,
+                color: Ucolors.dark,
+              ),
+            ),
           ),
         ],
-      ),
-      trailing: Text(
-        value,
-        style: UTextStyles.medium.copyWith(
-          fontWeight: FontWeight.w600,
-          color: Ucolors.dark,
-        ),
       ),
     );
   }

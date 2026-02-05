@@ -117,6 +117,8 @@ class FundDetailEntity extends Equatable {
 
 class SchemePerformanceEntity extends Equatable {
   final String schemeName;
+  final double oneMonthReturn;
+  final double threeMonthReturn;
   final double oneYearReturn;
   final double threeYearReturn;
   final double fiveYearReturn;
@@ -132,6 +134,8 @@ class SchemePerformanceEntity extends Equatable {
     required this.tenYearReturn,
     required this.twoYearReturn,
     required this.sixMonthReturn,
+    required this.oneMonthReturn,
+    required this.threeMonthReturn,
   });
 
   @override
@@ -253,12 +257,15 @@ extension SchemePerformanceModelX on SchemePerformanceModel {
   SchemePerformanceEntity toEntity() {
     return SchemePerformanceEntity(
       schemeName: schemeName ?? '',
+
       oneYearReturn: oneYearReturn ?? 0.0,
       threeYearReturn: threeYearReturn ?? 0.0,
       fiveYearReturn: fiveYearReturn ?? 0.0,
       tenYearReturn: tenYearReturn ?? 0.0,
       twoYearReturn: twoYearReturn ?? 0.0,
       sixMonthReturn: sixMonthReturn ?? 0.0,
+      oneMonthReturn: oneMonthReturn ?? 0.0,
+      threeMonthReturn: threeMonthReturn ?? 0.0,
     );
   }
 }
