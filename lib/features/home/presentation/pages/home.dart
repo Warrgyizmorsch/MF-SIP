@@ -717,10 +717,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisCount: 2,
                   ),
                   itemBuilder: (context, index) {
-                    final fund = mutualcontroller.searchFund[index];
+                    final fund = mutualcontroller.mutualfund[index];
                     final id = fund.amc?.id;
                     if (id == null) return const SizedBox();
-                    final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}" ?? '';
+                    final img =
+                        "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}" ?? '';
                     final name = fund.baseSchemeName ?? 'Unknown Name';
                     print(
                       '${mutualcontroller.searchFund.length} mutual fund $name $img',

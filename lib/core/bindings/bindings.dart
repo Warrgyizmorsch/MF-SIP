@@ -5,7 +5,6 @@ import 'package:my_sip/features/explore/data/datasources/mutualfund_remote_ds.da
 import 'package:my_sip/features/explore/data/repositories/mutual_fund_repo_implement.dart';
 import 'package:my_sip/features/explore/domain/repositories/mutual_fund_repository.dart';
 import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_usecases.dart';
-import 'package:my_sip/features/explore/domain/usecases/get_fund_detail_use_case.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
 import 'package:my_sip/features/onboarding/presentation/controller/onboarding_controller.dart';

@@ -1,10 +1,10 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/explore/domain/entities/scheme_info_entity.dart';
 import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_usecases.dart';
-import 'package:my_sip/features/explore/domain/usecases/get_fund_detail_use_case.dart';
 
 class MutualFundController extends GetxController {
   final GetMutualFundListUsecases _getMutualFundListUsecases;
@@ -15,12 +15,18 @@ class MutualFundController extends GetxController {
     // this._getSchemeInfousecase,
   );
 
+  // --- STATE VARIABLES ---
   RxBool isLoading = false.obs;
+  RxBool isMoreLoading = false.obs;
   RxString errorMessage = ''.obs;
 
   final mutualfund = <MutualFundListEntity>[].obs;
 
   final searchFund = <MutualFundListEntity>[].obs;
+
+  // ----- Pagination Variables --------- //
+  int currentPage = 1;
+  bool canLoadMore = true;
 
   final selectedFundCount = 0.obs;
 
@@ -36,37 +42,115 @@ class MutualFundController extends GetxController {
     // schemedeatails();
   }
 
+  // 1. Add a Timer variable for debouncing
+  Timer? _debounce;
+
+  // ... existing onInit ...
+
+  // 2. Create this new function to handle text input
+  void onSearchQueryChanged(String query) {
+    // If a timer is already running (user is still typing), cancel it
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+    // Start a new timer. Wait 500ms before calling the API.
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      searchFundApi(query);
+    });
+  }
+
   // Scheme list for explore page
-  Future<void> fetchMutualFund() async {
-    log("CONTROLLER: Successfully assigned ${mutualfund.length} banks");
+  // Future<void> fetchMutualFund() async {
+  //   log("CONTROLLER: Successfully assigned ${mutualfund.length} banks");
+  //   try {
+  //     isLoading(true);
+  //     errorMessage('');
+  //     final result = await _getMutualFundListUsecases.call({});
+
+  //     result.fold(
+  //       (success) {
+  //         if (success.data != null) {
+  //           mutualfund.assignAll(success.data!.data);
+  //           searchFund.assignAll(success.data!.data);
+
+  //           // filteredFundlist.assignAll(fundlist);
+  //           log("CONTROLLER: Successfully assigned ${mutualfund.length} banks");
+  //         }
+  //       },
+  //       (error) {
+  //         errorMessage.value = error.message ?? "Failed to load banks";
+  //         print("CONTROLLER ERROR: ${errorMessage.value}");
+  //       },
+  //     );
+  //   } catch (e) {
+  //     errorMessage.value = "An unexpected error occurred: $e";
+  //     print("CONTROLLER ERROR: ${errorMessage.value}");
+  //   } finally {
+  //     isLoading(false);
+  //   }
+  // }
+   
+   //////// ---------- Pagination 
+   Future<void> fetchMutualFund({bool isLoadMore = false}) async {
+    // 1. Block invalid calls
+    if (isLoadMore) {
+      // If already loading more OR api said "has_more": false, stop here.
+      if (isMoreLoading.value || !canLoadMore) return;
+    } else {
+      // If pull-to-refresh or initial load
+      isLoading.value = true;
+      currentPage = 1; 
+      canLoadMore = true; // Reset flag
+      errorMessage.value = '';
+    }
+
     try {
-      isLoading(true);
-      errorMessage('');
-      final result = await _getMutualFundListUsecases.call({});
+      if (isLoadMore) isMoreLoading.value = true;
+
+      // 2. Prepare API Params
+      // If loading more, ask for NEXT page (currentPage + 1)
+      final int pageToFetch = isLoadMore ? currentPage + 1 : 1;
+      
+      final result = await _getMutualFundListUsecases.call({
+        'page': pageToFetch, 
+        // 'per_page': 20, // Optional: if you want to enforce size
+      });
 
       result.fold(
         (success) {
-          if (success.data != null) {
-            mutualfund.assignAll(success.data!.data);
-            searchFund.assignAll(success.data!.data);
+          final newData = success.data?.data ?? [];
+          final pagination = success.data?.pagination;
 
-            // filteredFundlist.assignAll(fundlist);
-            log("CONTROLLER: Successfully assigned ${mutualfund.length} banks");
+          if (isLoadMore) {
+            // --- APPEND DATA ---
+            mutualfund.addAll(newData);
+            searchFund.addAll(newData);
+            currentPage++; // Successfully loaded next page, so increment
+          } else {
+            // --- INITIAL LOAD (Replace Data) ---
+            mutualfund.assignAll(newData);
+            searchFund.assignAll(newData);
+          }
+
+          // 3. Update "canLoadMore" based on API response
+          if (pagination != null) {
+            // Your API explicitly tells us true/false
+            canLoadMore = pagination.hasMore ?? false;
+          } else {
+            // Fallback: If list is empty, stop.
+            if (newData.isEmpty) canLoadMore = false;
           }
         },
         (error) {
-          errorMessage.value = error.message ?? "Failed to load banks";
-          print("CONTROLLER ERROR: ${errorMessage.value}");
+          errorMessage.value = error.message ?? "Failed to load funds";
         },
       );
     } catch (e) {
-      errorMessage.value = "An unexpected error occurred: $e";
-      print("CONTROLLER ERROR: ${errorMessage.value}");
+      errorMessage.value = "Error: $e";
     } finally {
-      isLoading(false);
+      isLoading.value = false;
+      isMoreLoading.value = false;
     }
   }
-
   void searchFundFn(String query) {
     final q = query.trim().toLowerCase();
 
@@ -83,7 +167,7 @@ class MutualFundController extends GetxController {
     );
   }
 
-  //Search fund api
+  //Search fund with name -----api call
   Future<void> searchFundApi(String query) async {
     if (query.trim().isEmpty) {
       fetchMutualFund();
@@ -110,6 +194,7 @@ class MutualFundController extends GetxController {
     }
   }
 
+  ///
   Future<void> fetchFundsByAmc(List<int> amcIds) async {
     isLoading(true);
 
@@ -147,28 +232,6 @@ class MutualFundController extends GetxController {
     );
     isLoading(false);
   }
-
-  // //selected found count
-  // Future<void> fetchFundCountByAmc(List<int> amcIds) async {
-  //   if (amcIds.isEmpty) {
-  //     selectedFundCount.value = 0;
-  //     return;
-  //   }
-
-  //   final result = await _getMutualFundListUsecases.call({
-  //     'amc_id': amcIds.join(','),
-  //     // 'only_count': true, // if backend supports this
-  //   });
-
-  //   result.fold(
-  //     (success) {
-  //       selectedFundCount.value = success.data?.pagination?.total ?? 0;
-  //     },
-  //     (_) {
-  //       selectedFundCount.value = 0;
-  //     },
-  //   );
-  // }
 
   ///Fetch fund by filters
   Future<void> fetchFunds(Map<String, dynamic> params) async {

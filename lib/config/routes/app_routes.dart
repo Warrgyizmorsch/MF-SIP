@@ -26,4 +26,5 @@ class AppRoutes {
   static const otpVerificationScreen= '/otpVerificationScreen';
   static const paymentScreen= '/paymentScreen';
   static const kycScreen= '/kycScreen';
+  static const webView= '/webView';
 }

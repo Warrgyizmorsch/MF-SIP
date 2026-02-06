@@ -33,5 +33,6 @@ class Fundhousebinding extends Bindings {
 
     // 5. Finally, register the Controller
     Get.lazyPut(() => FundhouseController(Get.find()));
+    
   }
 }

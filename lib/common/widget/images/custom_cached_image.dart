@@ -34,16 +34,13 @@ class CustomCachedImage extends StatelessWidget {
         memCacheWidth: cacheSize,
 
         fadeInDuration: const Duration(milliseconds: 300),
-        placeholder: (context, url) => UShimmerEffect(
-          width: size,
-          height: size,
-          radius: radius,
-        ),
+        placeholder: (context, url) =>
+            UShimmerEffect(width: size, height: size, radius: radius),
         errorWidget: (context, url, error) => Container(
           width: size,
           height: size,
           color: Colors.grey.shade200,
-          child: const Icon(Icons.image_not_supported, size: 20),
+          child: Icon(Icons.image_not_supported_outlined, color: Colors.black),
         ),
       ),
     );

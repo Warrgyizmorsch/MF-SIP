@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:my_sip/common/widget/webview/webview.dart';
 import 'package:my_sip/core/bindings/bindings.dart';
 import 'package:my_sip/features/authentication/presentation/bindings/auth_binding.dart';
 import 'package:my_sip/features/authentication/presentation/pages/login/login_page.dart';
@@ -58,7 +59,11 @@ class AppPages {
       name: AppRoutes.freedomSipScreen,
       page: () => const FreedomSipScreen(),
     ),
-    GetPage(name: AppRoutes.comparefund, page: () => CompareFundsPage()),
+    GetPage(
+      name: AppRoutes.comparefund,
+      page: () => CompareFundsPage(),
+      binding: FundDetailBinding(),
+    ),
     GetPage(
       name: AppRoutes.sipTenureScreen,
       page: () => const SipTenureScreen(),
@@ -71,7 +76,7 @@ class AppPages {
     GetPage(
       name: AppRoutes.funddetails,
       page: () => const FundDetailsScreen(),
-      binding:  FundDetailBinding()
+      binding: FundDetailBinding(),
     ),
     GetPage(name: AppRoutes.watchlist, page: () => WatchlistPage()),
     GetPage(name: AppRoutes.cart, page: () => CartPage()),
@@ -127,5 +132,6 @@ class AppPages {
 
     GetPage(name: AppRoutes.paymentScreen, page: () => PaymentScreen()),
     GetPage(name: AppRoutes.kycScreen, page: () => KycScreen(), binding: KycBindings()),
+    GetPage(name: AppRoutes.webView, page: () => HtmlWebViewPage()),
   ];
 }

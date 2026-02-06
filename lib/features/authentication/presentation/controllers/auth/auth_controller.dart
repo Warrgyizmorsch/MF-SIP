@@ -1,16 +1,13 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:my_sip/config/routes/app_pages.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
-import 'package:my_sip/features/authentication/data/models/auth_model.dart';
 import 'package:my_sip/features/authentication/domain/entitites/auth_entity.dart';
 import 'package:my_sip/features/authentication/domain/usecases/auth_use_cases.dart';
 import 'package:flutter/material.dart';
 import 'package:my_sip/services/session_manager.dart';
-import '../../pages/signup/verify_pan_otp.dart';
 
 class AuthController extends GetxController {
   final AuthUseCases _authUseCases;

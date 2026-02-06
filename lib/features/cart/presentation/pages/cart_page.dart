@@ -228,7 +228,9 @@ class FundHeader extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 22,
-          backgroundImage: CachedNetworkImageProvider("${Appurl.baseUrl}${item.logoUrl}"),
+          backgroundImage: CachedNetworkImageProvider(
+            "${Appurl.baseUrl}${item.logoUrl}",
+          ),
         ),
         const SizedBox(width: 12),
 

@@ -4,7 +4,10 @@ import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:my_sip/features/fund_details/data/datasource/fund_detail_remote_data_source.dart';
 import 'package:my_sip/features/fund_details/data/repositories/fund_detail_repository_impl.dart';
 import 'package:my_sip/features/fund_details/domain/repositories/fund_detail_repository.dart';
+import 'package:my_sip/features/fund_details/domain/usecases/fund_details_usecases.dart';
 import 'package:my_sip/features/fund_details/domain/usecases/get_fund_detail_usecase.dart';
+import 'package:my_sip/features/fund_details/domain/usecases/portfolio_analysis_usecases.dart';
+import 'package:my_sip/features/fund_details/presentation/controllers/comparefund_controller.dart';
 import 'package:my_sip/features/fund_details/presentation/controllers/fund_details_controller.dart';
 
 import '../../../../core/network/network_api_service.dart';
@@ -12,21 +15,30 @@ import '../../../../core/network/network_api_service.dart';
 class FundDetailBinding extends Bindings {
   @override
   void dependencies() {
-
-
     // 1. Data Source (Lowest Level)
     Get.lazyPut<FundDetailRemoteDataSource>(
-          () => FundDetailRemoteDataSource(Get.find<NetworkServicesApi>()),
+      () => FundDetailRemoteDataSource(Get.find<NetworkServicesApi>()),
     );
 
     // 2. Repository (Depends on Data Source)
     Get.lazyPut<FundDetailRepository>(
-          () => FundDetailRepositoryImpl(Get.find<FundDetailRemoteDataSource>()),
+      () => FundDetailRepositoryImpl(Get.find<FundDetailRemoteDataSource>()),
     );
 
     // 3. Use Cases (Depends on Repository)
+    Get.lazyPut(
+      () => FundDetailsUsecases(
+        fundDetailUseCase: Get.find<GetFundDetailUseCase>(),
+        portfolioAnalysisUsecases: Get.find<PortfolioAnalysisUsecases>(),
+      ),
+      fenix: true,
+    );
+
     Get.lazyPut(() => GetFundDetailUseCase(Get.find<FundDetailRepository>()));
 
+    Get.lazyPut(
+      () => PortfolioAnalysisUsecases(Get.find<FundDetailRepository>()),
+    );
 
     // 4. Wrapper Use Case (Depends on LoginUseCase)
     // Get.lazyPut(
@@ -41,14 +53,22 @@ class FundDetailBinding extends Bindings {
 
     // );
 
-
     // 5. Controller (Highest Level - Depends on Wrapper)
     // Get.lazyPut<AuthController>(
     //   () => AuthController(authUseCases: Get.find<AuthUseCases>()),
     //   fenix: true,
     // );
-    Get.put<FundDetailsController>(
-      FundDetailsController(getFundDetailUseCase: Get.find<GetFundDetailUseCase>()),
+    // Get.put<FundDetailsController>(
+    //   FundDetailsController(
+    //     getFundDetailUseCase: Get.find<GetFundDetailUseCase>(),
+    //   ),
+    // );
+    Get.lazyPut<FundDetailsController>(
+      () => FundDetailsController(fundDetailsUsecases: Get.find()),
+      fenix: true,
     );
+
+
+    Get.lazyPut(() => CompareFundController(fundDetailsUsecases: Get.find()));
   }
 }

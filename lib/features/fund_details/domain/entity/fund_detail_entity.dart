@@ -115,13 +115,16 @@ class FundDetailEntity extends Equatable {
   ];
 }
 
-
 class SchemePerformanceEntity extends Equatable {
   final String schemeName;
+  final double oneMonthReturn;
+  final double threeMonthReturn;
   final double oneYearReturn;
   final double threeYearReturn;
   final double fiveYearReturn;
   final double tenYearReturn;
+  final double twoYearReturn;
+  final double sixMonthReturn;
 
   const SchemePerformanceEntity({
     required this.schemeName,
@@ -129,13 +132,21 @@ class SchemePerformanceEntity extends Equatable {
     required this.threeYearReturn,
     required this.fiveYearReturn,
     required this.tenYearReturn,
+    required this.twoYearReturn,
+    required this.sixMonthReturn,
+    required this.oneMonthReturn,
+    required this.threeMonthReturn,
   });
 
   @override
-  List<Object?> get props =>
-      [schemeName, oneYearReturn, threeYearReturn, fiveYearReturn, tenYearReturn];
+  List<Object?> get props => [
+    schemeName,
+    oneYearReturn,
+    threeYearReturn,
+    fiveYearReturn,
+    tenYearReturn,
+  ];
 }
-
 
 class RiskStatisticsEntity extends Equatable {
   final String schemeCategory;
@@ -143,6 +154,7 @@ class RiskStatisticsEntity extends Equatable {
   final double sharpeRatioCm3Year;
   final double yieldToMaturity;
   final double averageMaturity;
+  final double beteCm1Y;
 
   const RiskStatisticsEntity({
     required this.schemeCategory,
@@ -150,19 +162,24 @@ class RiskStatisticsEntity extends Equatable {
     required this.sharpeRatioCm3Year,
     required this.yieldToMaturity,
     required this.averageMaturity,
+    required this.beteCm1Y,
   });
 
   @override
-  List<Object?> get props =>
-      [schemeCategory, volatilityCm3Year, yieldToMaturity, averageMaturity];
+  List<Object?> get props => [
+    schemeCategory,
+    volatilityCm3Year,
+    yieldToMaturity,
+    averageMaturity,
+  ];
 }
-
 
 class SchemePeerComparisonEntity extends Equatable {
   final String schemeName;
   final String schemeInceptionDateString;
   final double oneYearReturn;
   final double threeYearReturn;
+  final double fiveYearReturn;
   final int ratingValue;
 
   const SchemePeerComparisonEntity({
@@ -171,13 +188,17 @@ class SchemePeerComparisonEntity extends Equatable {
     required this.oneYearReturn,
     required this.threeYearReturn,
     required this.ratingValue,
+    required this.fiveYearReturn,
   });
 
   @override
-  List<Object?> get props =>
-      [schemeName, oneYearReturn, threeYearReturn, ratingValue];
+  List<Object?> get props => [
+    schemeName,
+    oneYearReturn,
+    threeYearReturn,
+    ratingValue,
+  ];
 }
-
 
 extension FundDetailModelX on FundDetailModel {
   FundDetailEntity toEntity() {
@@ -221,33 +242,38 @@ extension FundDetailModelX on FundDetailModel {
       marketCapLargecapPercent: marketCapLargecapPercent ?? 0.0,
       marketCapMidcapPercent: marketCapMidcapPercent ?? 0.0,
       marketCapSmallcapPercent: marketCapSmallcapPercent ?? 0.0,
-      schemePerformanceList:
-      schemePerformanceList.map((e) => e.toEntity()).toList(),
-      riskStatisticsList:
-      riskStatisticsList.map((e) => e.toEntity()).toList(),
-      schemePeerComparisonList:
-      schemePeerComparisonList.map((e) => e.toEntity()).toList(),
+      schemePerformanceList: schemePerformanceList
+          .map((e) => e.toEntity())
+          .toList(),
+      riskStatisticsList: riskStatisticsList.map((e) => e.toEntity()).toList(),
+      schemePeerComparisonList: schemePeerComparisonList
+          .map((e) => e.toEntity())
+          .toList(),
     );
   }
 }
-
 
 extension SchemePerformanceModelX on SchemePerformanceModel {
   SchemePerformanceEntity toEntity() {
     return SchemePerformanceEntity(
       schemeName: schemeName ?? '',
+
       oneYearReturn: oneYearReturn ?? 0.0,
       threeYearReturn: threeYearReturn ?? 0.0,
       fiveYearReturn: fiveYearReturn ?? 0.0,
       tenYearReturn: tenYearReturn ?? 0.0,
+      twoYearReturn: twoYearReturn ?? 0.0,
+      sixMonthReturn: sixMonthReturn ?? 0.0,
+      oneMonthReturn: oneMonthReturn ?? 0.0,
+      threeMonthReturn: threeMonthReturn ?? 0.0,
     );
   }
 }
 
-
 extension RiskStatisticsModelX on RiskStatisticsModel {
   RiskStatisticsEntity toEntity() {
     return RiskStatisticsEntity(
+      beteCm1Y: betaCm1Year ?? 0,
       schemeCategory: schemeCategory ?? '',
       volatilityCm3Year: volatilityCm3Year ?? 0.0,
       sharpeRatioCm3Year: sharpeRatioCm3Year ?? 0.0,
@@ -257,16 +283,15 @@ extension RiskStatisticsModelX on RiskStatisticsModel {
   }
 }
 
-
 extension SchemePeerComparisonModelX on SchemePeerComparisonModel {
   SchemePeerComparisonEntity toEntity() {
     return SchemePeerComparisonEntity(
       schemeName: schemeName ?? '',
-      schemeInceptionDateString:
-      schemeInceptionDateString ?? '',
+      schemeInceptionDateString: schemeInceptionDateString ?? '',
       oneYearReturn: oneYearReturn ?? 0.0,
       threeYearReturn: threeYearReturn ?? 0.0,
       ratingValue: ratingValue ?? 0,
+      fiveYearReturn: fiveYearReturn ?? 0.0,
     );
   }
 }

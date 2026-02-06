@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -13,7 +11,6 @@ import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
-import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/cart/data/model/cartItem_model.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
@@ -21,7 +18,6 @@ import 'package:my_sip/features/explore/presentation/controller/mutual_fund_cont
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
 
 import '../../../dashboard/presentation/pages/dashboard.dart';
-import '../../../fund_details/presentation/pages/fund_deatails.dart';
 
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
@@ -44,6 +40,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   final CartController cartController = Get.find();
 
   late FocusNode _searchFocus;
+  late ScrollController _scrollController;
 
   @override
   void initState() {
@@ -52,6 +49,19 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
     _searchFocus.addListener(() {
       setState(() {});
+    });
+
+    _scrollController = ScrollController();
+
+    _scrollController.addListener(() {
+      // Check if we are at max scroll extent (bottom)
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200) {
+        // Buffer of 200px
+
+        // Trigger Load More
+        controller.fetchMutualFund(isLoadMore: true);
+      }
     });
   }
 
@@ -66,6 +76,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
     return Scaffold(
       // backgroundColor: Ucolors.borderColor,
       body: CustomScrollView(
+        controller: _scrollController,
         slivers: [
           //////----------Appbar---------------///
           SliverAppBar(
@@ -230,8 +241,68 @@ class _ExploreScreenState extends State<ExploreScreen> {
             ),
           ),
 
+          // Obx(() {
+          //   if (controller.isLoading.value) {
+          //     return const SliverFillRemaining(
+          //       hasScrollBody: false,
+          //       child: Center(
+          //         child: CircularProgressIndicator(color: Ucolors.primary),
+          //       ),
+          //     );
+          //   }
+          //   if (controller.mutualfund.isEmpty) {
+          //     return const SliverFillRemaining(
+          //       hasScrollBody: false,
+          //       child: Center(child: Text("No mutual funds found")),
+          //     );
+          //   }
+
+          //   return
+          //   ///  MUTUAL FUND LIST
+          //   SliverList(
+          //     delegate: SliverChildBuilderDelegate((context, index) {
+          //       final fund = controller.searchFund[index];
+          //       // print()
+
+          //       return MutualFundCard(entity: fund);
+          //     }, childCount: controller.searchFund.length),
+          //   );
+          // }),
+          // Obx(() {
+          //   // Initial Loading
+          //   if (controller.isLoading.value) {
+          //     return const SliverFillRemaining(
+          //       child: Center(child: CircularProgressIndicator()),
+          //     );
+          //   }
+
+          //   return SliverList(
+          //     delegate: SliverChildBuilderDelegate(
+          //       (context, index) {
+          //         // If we are at the last item AND loading more, show Spinner
+          //         if (index == controller.searchFund.length) {
+          //           if (controller.isMoreLoading.value) {
+          //             return const Padding(
+          //               padding: EdgeInsets.all(20),
+          //               child: Center(child: CircularProgressIndicator()),
+          //             );
+          //           } else {
+          //             return const SizedBox.shrink(); // Hide if not loading
+          //           }
+          //         }
+
+          //         // Normal Item
+          //         final fund = controller.searchFund[index];
+          //         return MutualFundCard(entity: fund);
+          //       },
+          //       // Add +1 to length for the Loader widget at the bottom
+          //       childCount: controller.searchFund.length + 1,
+          //     ),
+          //   );
+          // }),
           Obx(() {
-            if (controller.isLoading.value) {
+            // Initial Full Screen Loader (First Load Only)
+            if (controller.isLoading.value && controller.searchFund.isEmpty) {
               return const SliverFillRemaining(
                 hasScrollBody: false,
                 child: Center(
@@ -239,24 +310,47 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 ),
               );
             }
-            if (controller.mutualfund.isEmpty) {
+            // Empty State
+            if (controller.searchFund.isEmpty) {
               return const SliverFillRemaining(
                 hasScrollBody: false,
                 child: Center(child: Text("No mutual funds found")),
               );
             }
 
-            return
-            ///  MUTUAL FUND LIST
-            SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final fund = controller.searchFund[index];
-                // print()
-
-                return MutualFundCard(entity: fund);
-              }, childCount: controller.searchFund.length),
+            return SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final fund = controller.searchFund[index];
+                  return MutualFundCard(entity: fund);
+                },
+                // Exact length (No +1 needed here anymore)
+                childCount: controller.searchFund.length,
+              ),
             );
           }),
+          Obx(() {
+            if (controller.isMoreLoading.value) {
+              return const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: Ucolors.primary,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }
+            // Return empty space if not loading
+            return const SliverToBoxAdapter(child: SizedBox.shrink());
+          }),
+          const SliverToBoxAdapter(child: SizedBox(height: 20)),
         ],
       ),
     );
@@ -322,8 +416,8 @@ class MutualFundCard extends StatelessWidget {
                   // backgroundImage:  NetworkImage(entity!.amc!.amcLogoUrl!),
                   child: ClipOval(
                     child: CachedNetworkImage(
-
-                      imageUrl: "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
+                      imageUrl:
+                          "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
                       fadeInDuration: const Duration(milliseconds: 300),
 
                       placeholder: (context, url) =>

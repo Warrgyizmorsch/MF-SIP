@@ -20,8 +20,7 @@ class ReturnsTableRow extends StatelessWidget {
 
   Color _valueColor(double value) {
     if (value < 0) return Colors.red;
-    // return Ucolors.primary;
-    return Colors.black;
+    return Colors.green;
   }
 
   final bool percentage;
@@ -126,7 +125,7 @@ class ReturnsTableRow extends StatelessWidget {
                     fontSize: fontSize,
 
                     // color: _valueColor(data.benchmark),
-                    color: color4 ?? _valueColor(data.category),
+                    color: color4 ?? _valueColor(data.benchmark),
 
                     fontWeight: FontWeight.w400,
                   ),
