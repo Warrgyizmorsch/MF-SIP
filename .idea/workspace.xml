@@ -11,9 +11,7 @@
   <component name="ChangeListManager">
     <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/controller/goal_sip_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/controller/goal_sip_controller.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/pages/ihavegoal.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/pages/ihavegoal.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/widget/sipslidertile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/widget/sipslidertile.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,7 +76,7 @@
     "cidr.known.project.marker": "true",
     "com.google.services.firebase.aqiPopupShown": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "goal",
+    "git-widget-placeholder": "lumpsump-and-sip",
     "io.flutter.project.isFirstOpen": "true",
     "io.flutter.reload.alreadyRun": "true",
     "last_opened_file_path": "/Users/nithikmali/StudioProjects/MF-SIP/lib/features/fund_details/domain/usecases",

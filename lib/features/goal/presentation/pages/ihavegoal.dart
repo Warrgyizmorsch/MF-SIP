@@ -126,6 +126,7 @@ class IhavegoalPage extends GetView<GoalSipController> {
 
               //SIP section
               SIPSection(amount: amount, duration: duration, rate: rate),
+              const Gap(12),
               Obx(() {
 
                 if (!controller.isGoalSaved.value) {
@@ -154,20 +155,22 @@ class IhavegoalPage extends GetView<GoalSipController> {
                 return Column(
                   children: [
                     // Projection Graph
-                    const ProjectionGraph(),
+                    ProjectionGraph(
+                      key: popularFundsKey,
+                    ),
 
                     const Gap(9),
 
                     // Popular Fund Grid
                     USectionHeading(
-                      key: popularFundsKey,
+
                       title: 'Popular Funds',
                       showActionButton: true,
                     ),
 
                     PopularFund(),
 
-                    const Gap(80),
+                    const Gap(5),
                   ],
                 );
               }),
