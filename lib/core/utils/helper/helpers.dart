@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 final priceFormatter = NumberFormat.currency(
@@ -71,4 +72,42 @@ class UHelperFunction {
 int? _cacheSize(double size, double pixelRatio) {
   // Multiply by pixel ratio to maintain high quality on retina screens
   return (size * pixelRatio).toInt();
+}
+
+
+class PanCardFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
+    // 1. Force Uppercase
+    String newText = newValue.text.toUpperCase();
+
+    // 2. Prevent length > 10
+    if (newText.length > 10) return oldValue;
+
+    StringBuffer buffer = StringBuffer();
+
+    for (int i = 0; i < newText.length; i++) {
+      String char = newText[i];
+
+      // 3. Apply PAN Validation Logic based on index
+      if (i < 5) {
+        // Indices 0-4: Must be Letters [A-Z]
+        if (RegExp(r'[A-Z]').hasMatch(char)) buffer.write(char);
+      } else if (i >= 5 && i < 9) {
+        // Indices 5-8: Must be Numbers [0-9]
+        if (RegExp(r'[0-9]').hasMatch(char)) buffer.write(char);
+      } else if (i == 9) {
+        // Index 9: Must be Letter [A-Z]
+        if (RegExp(r'[A-Z]').hasMatch(char)) buffer.write(char);
+      }
+    }
+
+    return TextEditingValue(
+      text: buffer.toString(),
+      selection: TextSelection.collapsed(offset: buffer.length),
+    );
+  }
 }

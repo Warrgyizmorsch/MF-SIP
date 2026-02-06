@@ -14,6 +14,8 @@ import 'package:my_sip/features/goal/presentation/pages/goalsuccess.dart';
 import 'package:my_sip/features/goal/presentation/pages/goalviewcard.dart';
 import 'package:my_sip/features/goal/presentation/pages/ihavegoal.dart';
 import 'package:my_sip/features/home/presentation/pages/home.dart';
+import 'package:my_sip/features/kyc/presentation/binding/kyc_bindings.dart';
+import 'package:my_sip/features/kyc/presentation/pages/kyc_screen.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/splash_screen.dart';
 import 'package:my_sip/features/personalization/presentation/bindings/BankBinding.dart';
 import 'package:my_sip/features/personalization/presentation/pages/add_another_bank.dart';
@@ -124,5 +126,6 @@ class AppPages {
     ),
 
     GetPage(name: AppRoutes.paymentScreen, page: () => PaymentScreen()),
+    GetPage(name: AppRoutes.kycScreen, page: () => KycScreen(), binding: KycBindings()),
   ];
 }
