@@ -1040,7 +1040,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
             ),
           ),
           SizedBox(
-            height: MediaQuery.of(context).size.height < 700 ? 210 : 195,
+            height: MediaQuery.of(context).size.height < 700 ? 280 : 265,
 
             child: ListView.builder(
               // itemCount: 10,
@@ -1052,12 +1052,19 @@ class OverviewScreen extends GetView<FundDetailsController> {
                 child: GestureDetector(
                   onTap: () {
                     log('${fund.schemeName}--------------------');
+                    log('${controller.imgUrl}--------------------');
                     log('tap fund comapare');
                     Get.toNamed(
                       AppRoutes.comparefund,
 
+                      // arguments: {
+                      //   'name': fund.schemeName,
+                      //   'name2':
+                      //       fund.schemePeerComparisonList[index + 1].schemeName,
+                      // },
                       arguments: {
-                        'name': fund.schemeName,
+                        'name': controller.schemeName,
+                        'imgUrl': controller.imgUrl,
                         'name2':
                             fund.schemePeerComparisonList[index + 1].schemeName,
                       },
@@ -1080,7 +1087,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                           children: [
                             // Left dashed line
                             Expanded(
-                              child: DashedLine(color: Colors.blue.shade200),
+                              child: DashedLine(color: Colors.grey.shade300),
                             ),
 
                             // VS circlef
@@ -1097,7 +1104,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                               child: const Text(
                                 'VS',
                                 style: TextStyle(
-                                  color: Colors.blue,
+                                  color: Colors.grey,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -1105,7 +1112,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
 
                             // Right dashed line
                             Expanded(
-                              child: DashedLine(color: Colors.blue.shade200),
+                              child: DashedLine(color: Colors.grey.shade300),
                             ),
                           ],
                         ),
@@ -1121,6 +1128,39 @@ class OverviewScreen extends GetView<FundDetailsController> {
                               .schemeName
                               .toString(),
                         ),
+
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            // horizontal: 60.0,
+                            vertical: 15,
+                          ),
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(
+                                color: Ucolors.primary.withOpacity(0.5),
+                              ),
+                            ),
+                            // onPressed: () => Get.toNamed(AppRoutes.comparefund ),
+                            onPressed: null,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Compare Funds',
+                                  style: UTextStyles.buttonText.copyWith(
+                                    // color: Ucolors.primary.withOpacity(0.5),
+                                    color: Ucolors.primary,
+                                  ),
+                                ),
+                                SizedBox(width: 10),
+                                Icon(
+                                  Icons.arrow_forward,
+                                  color: Ucolors.primary.withOpacity(0.5),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -1129,31 +1169,31 @@ class OverviewScreen extends GetView<FundDetailsController> {
             ),
           ),
 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 60.0, vertical: 15),
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: Ucolors.primary.withOpacity(0.5)),
-              ),
-              onPressed: () => Get.toNamed(AppRoutes.comparefund),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Compare Funds',
-                    style: UTextStyles.buttonText.copyWith(
-                      color: Ucolors.primary.withOpacity(0.5),
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Icon(
-                    Icons.arrow_forward,
-                    color: Ucolors.primary.withOpacity(0.5),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(horizontal: 60.0, vertical: 15),
+          //   child: OutlinedButton(
+          //     style: OutlinedButton.styleFrom(
+          //       side: BorderSide(color: Ucolors.primary.withOpacity(0.5)),
+          //     ),
+          //     onPressed: () => Get.toNamed(AppRoutes.comparefund),
+          //     child: Row(
+          //       mainAxisAlignment: MainAxisAlignment.center,
+          //       children: [
+          //         Text(
+          //           'Compare Funds',
+          //           style: UTextStyles.buttonText.copyWith(
+          //             color: Ucolors.primary.withOpacity(0.5),
+          //           ),
+          //         ),
+          //         SizedBox(width: 10),
+          //         Icon(
+          //           Icons.arrow_forward,
+          //           color: Ucolors.primary.withOpacity(0.5),
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ),
 
           // --- Related Funds Section ---
           Padding(

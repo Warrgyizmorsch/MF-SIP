@@ -8,20 +8,15 @@ import 'package:my_sip/common/widget/text/heading_section.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/common/widget/text/subtitle_section.dart';
 import 'package:my_sip/common/widget/text_form/text_field_component.dart';
-import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/common/widget/top_bottom_style/top_bottom_style.dart';
-import 'package:my_sip/config/routes/app_pages.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
-import 'package:my_sip/features/authentication/presentation/pages/login/otp_verification.dart';
 import 'package:my_sip/features/authentication/presentation/widgets/creat_acc_if_not.dart';
 import 'package:my_sip/features/authentication/presentation/widgets/term_policy.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
-import 'package:pinput/pinput.dart';
 
 import '../../../../../core/utils/enums/enums.dart';
-import '../signup/register_account.dart';
 
 class LoginPage extends GetView<AuthController> {
   const LoginPage({super.key});

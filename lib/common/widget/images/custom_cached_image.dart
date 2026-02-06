@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:my_sip/core/utils/constant/images.dart';
 
 import '../shimmer/shimmer.dart';
 
@@ -41,7 +40,7 @@ class CustomCachedImage extends StatelessWidget {
           width: size,
           height: size,
           color: Colors.grey.shade200,
-          child:  Icon(Icons.image_not_supported_outlined, color: Colors.black),
+          child: Icon(Icons.image_not_supported_outlined, color: Colors.black),
         ),
       ),
     );

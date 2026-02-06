@@ -7,6 +7,7 @@ import 'package:my_sip/features/fund_details/domain/repositories/fund_detail_rep
 import 'package:my_sip/features/fund_details/domain/usecases/fund_details_usecases.dart';
 import 'package:my_sip/features/fund_details/domain/usecases/get_fund_detail_usecase.dart';
 import 'package:my_sip/features/fund_details/domain/usecases/portfolio_analysis_usecases.dart';
+import 'package:my_sip/features/fund_details/presentation/controllers/comparefund_controller.dart';
 import 'package:my_sip/features/fund_details/presentation/controllers/fund_details_controller.dart';
 
 import '../../../../core/network/network_api_service.dart';
@@ -66,5 +67,8 @@ class FundDetailBinding extends Bindings {
       () => FundDetailsController(fundDetailsUsecases: Get.find()),
       fenix: true,
     );
+
+
+    Get.lazyPut(() => CompareFundController(fundDetailsUsecases: Get.find()));
   }
 }

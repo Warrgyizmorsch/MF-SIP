@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/style/padding.dart';
-import 'package:my_sip/common/widget/button/buttom_bar_two_button.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
-import 'package:my_sip/common/widget/otp/otp_field.dart';
 import 'package:my_sip/common/widget/text/heading_section.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/common/widget/text/subtitle_section.dart';
 import 'package:my_sip/common/widget/top_bottom_style/top_bottom_style.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
-import 'package:my_sip/navigation_menu_bar.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/sizes.dart';

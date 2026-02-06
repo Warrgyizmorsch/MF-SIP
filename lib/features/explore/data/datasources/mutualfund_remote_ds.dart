@@ -7,7 +7,6 @@ import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/explore/data/model/mutual_fund_list_model.dart';
-import 'package:my_sip/features/explore/data/model/scheme_info_model.dart';
 
 class MutualfundRemoteDs {
   final NetworkServicesApi _servicesApi;
