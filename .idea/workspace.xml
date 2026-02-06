@@ -11,7 +11,11 @@
   <component name="ChangeListManager">
     <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/core/utils/constant/text_style.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/utils/constant/text_style.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/dashboard/presentation/pages/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/dashboard/presentation/pages/dashboard.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/pages/ihavegoal.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/pages/ihavegoal.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/my_app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/my_app.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

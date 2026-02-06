@@ -940,13 +940,7 @@ class PopularFundCard extends StatelessWidget {
                       name,
                       softWrap: true,
                       maxLines: 2,
-                      style: UTextStyles.small.copyWith(
-                        color: Ucolors.dark,
-                        fontWeight: FontWeight.w500,
-                        overflow: TextOverflow.ellipsis,
-
-                        // fontSize: 12,
-                      ),
+                      style: AppTextStyles.bodyMedium(),
                     ),
                   ),
                 ],

@@ -29,6 +29,7 @@ import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller
 import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/sipslidertile.dart';
 import 'package:my_sip/features/sip_process/presentation/widgets/sip_projection_chart.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 class IhavegoalPage extends GetView<GoalSipController> {
   IhavegoalPage({super.key});
@@ -89,20 +90,21 @@ class IhavegoalPage extends GetView<GoalSipController> {
     final double rate = goalData['rate']!.toDouble();
     final String name = goalData['name']!;
 
-    // controller.setTarget(goalData['amount'].toDouble());
-    // controller.setYears(goalData['duration'].toDouble());
-    // controller.setRate(goalData['rate'].toDouble());
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // RESET the saved state when entering the page so the button appears
       controller.isGoalSaved.value = false;
-
       controller.initFromGoal(
         amount: goalData['amount'].toDouble(),
         years: goalData['duration'].toDouble(),
         rate: goalData['rate'].toDouble(),
       );
-    }
-    );
+    });
+
+    // Responsive values
+    final isMobile = ResponsiveBreakpoints.of(context).isMobile;
+    final isTablet = ResponsiveBreakpoints.of(context).isTablet;
+    final isDesktop = ResponsiveBreakpoints.of(context).isDesktop;
+
+    final contentPadding = isMobile ? 8.0 : (isTablet ? 16.0 : 24.0);
 
     return Scaffold(
       backgroundColor: Color(0xffF3F4F6),
@@ -112,69 +114,75 @@ class IhavegoalPage extends GetView<GoalSipController> {
         actionsPadding: 15,
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              const Gap(12),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: isDesktop ? 1200 : double.infinity,
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(contentPadding),
+              child: Column(
+                children: [
+                  const Gap(12),
 
-              ///Add Cover
-              CoverSection(),
+                  ///Add Cover
+                  CoverSection(),
 
-              ///Goal Name Select
-              GoalNameSelect(goalName: name, controller : controller),
+                  ///Goal Name Select
+                  GoalNameSelect(goalName: name, controller: controller),
 
-              //SIP section
-              SIPSection(amount: amount, duration: duration, rate: rate),
-              const Gap(12),
-              Obx(() {
+                  //SIP section
+                  SIPSection(amount: amount, duration: duration, rate: rate),
+                  const Gap(12),
+                  Obx(() {
+                    if (!controller.isGoalSaved.value) {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isMobile ? 10 : 20,
+                          vertical: 10,
+                        ),
+                        child: UElevatedBUtton(
+                          onPressed: () async {
+                            await controller.saveGoalToDb();
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (popularFundsKey.currentContext != null) {
+                                Scrollable.ensureVisible(
+                                  popularFundsKey.currentContext!,
+                                  duration: const Duration(milliseconds: 800),
+                                  curve: Curves.easeInOutCubic,
+                                  alignment: 0.1,
+                                );
+                              }
+                            });
+                          },
+                          child: Center(
+                            child: Text(
+                              "Save Goal",
+                              style: AppTextStyles.bodyMedium(color: Colors.white),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
 
-                if (!controller.isGoalSaved.value) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    child: UElevatedBUtton(
-                      onPressed: () async {
-                        await controller.saveGoalToDb();
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          if (popularFundsKey.currentContext != null) {
-                            Scrollable.ensureVisible(
-                              popularFundsKey.currentContext!,
-                              duration: const Duration(milliseconds: 800),
-                              curve: Curves.easeInOutCubic,
-                              alignment: 0.1, // Aligns widget 10% from the top
-                            );
-                          }
-                        });
-                      },
-                      child: Center(child: Text("Save Goal", style: AppTextStyles.bodyMedium(color: Colors.white), textAlign: TextAlign.center,)),
-                    ),
-                  );
-                }
-
-                // If goal IS saved, show the Projections and Funds
-                return Column(
-                  children: [
-                    // Projection Graph
-                    ProjectionGraph(
-                      key: popularFundsKey,
-                    ),
-
-                    const Gap(9),
-
-                    // Popular Fund Grid
-                    USectionHeading(
-
-                      title: 'Popular Funds',
-                      showActionButton: true,
-                    ),
-
-                    PopularFund(),
-
-                    const Gap(5),
-                  ],
-                );
-              }),
-            ],
+                    return Column(
+                      children: [
+                        const ProjectionGraph(),
+                        const Gap(9),
+                        USectionHeading(
+                          key: popularFundsKey,
+                          title: 'Popular Funds',
+                          showActionButton: true,
+                        ),
+                        PopularFund(),
+                        const Gap(10),
+                      ],
+                    );
+                  }),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -184,7 +192,8 @@ class IhavegoalPage extends GetView<GoalSipController> {
           top: false,
           child: CartBottomBar(
             ontap: () {
-              cartController.monthlyAmount.value = controller.monthlySip.value.toInt();
+              cartController.monthlyAmount.value =
+                  controller.monthlySip.value.toInt();
               controller.selectedPopularFund.isNotEmpty
                   ? Get.toNamed(AppRoutes.cart)
                   : Get.snackbar("Error", "Please select funds to start SIP");
@@ -195,12 +204,11 @@ class IhavegoalPage extends GetView<GoalSipController> {
             buttonText: 'Start SIP',
           ),
         )
-            : const SizedBox.shrink(), // Hidden until saved
+            : const SizedBox.shrink(),
       ),
     );
   }
 }
-
 
 class PopularFund extends StatelessWidget {
   PopularFund({super.key});
@@ -208,19 +216,27 @@ class PopularFund extends StatelessWidget {
   final MutualFundController controller = Get.find();
   final GoalSipController goalSipController = Get.find();
   final CartController cartController = Get.find();
+
   @override
   Widget build(BuildContext context) {
+    // Responsive grid columns
+    final isMobile = ResponsiveBreakpoints.of(context).isMobile;
+    final isTablet = ResponsiveBreakpoints.of(context).isTablet;
+    final isDesktop = ResponsiveBreakpoints.of(context).isDesktop;
+
+    final crossAxisCount = isMobile ? 2 : (isTablet ? 3 : 4);
+    final gridHeight = isMobile ? 300.0 : (isTablet ? 350.0 : 400.0);
+    final childAspectRatio = isMobile ? 1.55 : (isTablet ? 1.4 : 1.3);
+
     return SizedBox(
-      height: 300,
+      height: gridHeight,
       child: GridView.builder(
-        itemCount: controller.searchFund.length.clamp(0, 4),
-        // scrollDirection: Axis.horizontal,
+        itemCount: controller.searchFund.length.clamp(0, crossAxisCount * 2),
         shrinkWrap: true,
-
+        physics: const NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-
-          childAspectRatio: 1.55,
+          crossAxisCount: crossAxisCount,
+          childAspectRatio: childAspectRatio,
           mainAxisSpacing: 16,
           crossAxisSpacing: 16,
         ),
@@ -232,26 +248,24 @@ class PopularFund extends StatelessWidget {
           final img1 = fund.amc?.amcLogoUrl ?? '';
           final name = fund.baseSchemeName ?? 'Unknown Name';
           log(img);
-          // final code =fund.variants[index].schemeCode;
+
           return Obx(
-            () => GestureDetector(
-              // behavior: HitTestBehavior.opaque,
+                () => GestureDetector(
               onTap: () {
                 log('tap to popular fund');
                 final isSelected = goalSipController.isSelectedFund(name);
                 log(isSelected.toString());
 
-                //toggle selection
                 goalSipController.toggleFund(name);
 
                 !isSelected
                     ? cartController.addItem(
-                        CartItem(
-                          fundId: id.toString(),
-                          fundName: name,
-                          logoUrl: img1,
-                        ),
-                      )
+                  CartItem(
+                    fundId: id.toString(),
+                    fundName: name,
+                    logoUrl: img1,
+                  ),
+                )
                     : cartController.removeItemByName(name);
                 log('call 2');
 
@@ -261,7 +275,6 @@ class PopularFund extends StatelessWidget {
                 borderColor: goalSipController.isSelectedFund(name)
                     ? Ucolors.primary
                     : Ucolors.borderColor,
-
                 isNetwork: true,
                 imgPath: img,
                 name: name,
@@ -270,37 +283,6 @@ class PopularFund extends StatelessWidget {
           );
         },
       ),
-      // GridView.count(
-      //   shrinkWrap: true,
-      //   childAspectRatio: 1.55,
-      //   mainAxisSpacing: 16,
-      //   crossAxisSpacing: 16,
-
-      //   // physics: const NeverScrollableScrollPhysics(),
-      //   crossAxisCount: 2,
-      //   children: [
-      //     PopularFundCard(
-
-      //       onTap: () => Get.toNamed(AppRoutes.funddetails),
-
-      //       name: 'SBI Gold Fund',
-      //       imgPath: UImages.sbi,
-      //     ),
-      //     PopularFundCard(
-      //       onTap: () => Get.toNamed(AppRoutes.funddetails),
-      //       name: 'Parag Parikh Flexi Cap Fund',
-      //       imgPath: UImages.sbi,
-      //     ),
-      //     PopularFundCard(
-      //       name: 'Motilal Ostwal Midcap Fund',
-      //       imgPath: UImages.motilal,
-      //     ),
-      //     PopularFundCard(
-      //       name: 'Bandhan Small Cap Fund',
-      //       imgPath: UImages.motilal,
-      //     ),
-      //   ],
-      // ),
     );
   }
 }
@@ -337,29 +319,11 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
 
   int selectedView = 0;
 
-  // List<FlSpot> investedSpots1(List<ReturnRow> rows) {
-  //   return rows.map((e) {
-  //     return FlSpot(
-  //       double.parse(e.period), // X = Year
-  //       e.scheme, // Y = Invested
-  //     );
-  //   }).toList();
-  // }
-
-  // List<FlSpot> valueSpots1(List<ReturnRow> rows) {
-  //   return rows.map((e) {
-  //     return FlSpot(
-  //       double.parse(e.period), // X = Year
-  //       e.category, // Y = Value
-  //     );
-  //   }).toList();
-  // }
-
   List<FlSpot> investedSpotsFromRows(List<ReturnRow> rows) {
     return rows.map((e) {
       return FlSpot(
-        double.parse(e.period), // Year
-        e.scheme, // Invested
+        double.parse(e.period),
+        e.scheme,
       );
     }).toList();
   }
@@ -367,8 +331,8 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
   List<FlSpot> valueSpotsFromRows(List<ReturnRow> rows) {
     return rows.map((e) {
       return FlSpot(
-        double.parse(e.period), // Year
-        e.category, // Current value
+        double.parse(e.period),
+        e.category,
       );
     }).toList();
   }
@@ -377,8 +341,15 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
   Widget build(BuildContext context) {
     log('build');
     final controller = Get.find<GoalSipController>();
+
+    final isMobile = ResponsiveBreakpoints.of(context).isMobile;
+    final isTablet = ResponsiveBreakpoints.of(context).isTablet;
+
+    final containerPadding = isMobile ? 10.0 : (isTablet ? 15.0 : 20.0);
+    final chartHeight = isMobile ? 200.0 : (isTablet ? 250.0 : 300.0);
+
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      padding: EdgeInsets.all(containerPadding),
       decoration: BoxDecoration(
         color: Ucolors.light,
         borderRadius: BorderRadius.circular(12),
@@ -408,7 +379,6 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
                       isSelected: selectedView == 0,
                       icon: Icons.trending_up,
                     ),
-
                     ProjectionIcon(
                       onTap: () {
                         setState(() {
@@ -423,9 +393,7 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
               ),
             ],
           ),
-
           const Gap(20),
-
           if (selectedView == 0) ...[
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -440,26 +408,23 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
                 ),
               ],
             ),
-
             const Gap(25),
-            // SipGrowthChart(),
-            // SipProjectionChart(
-            //   investedSpots: investedSpots,
-            //   projectedSpots: projectedSpots,
-            // ),
             Obx(() {
               final rows = controller.buildYearlyReport();
 
               if (rows.isEmpty) {
-                return const SizedBox(
-                  height: 200,
+                return SizedBox(
+                  height: chartHeight,
                   child: CircularProgressIndicator(),
                 );
               }
 
-              return SipProjectionChart(
-                investedSpots: investedSpotsFromRows(rows),
-                projectedSpots: valueSpotsFromRows(rows),
+              return SizedBox(
+                height: chartHeight,
+                child: SipProjectionChart(
+                  investedSpots: investedSpotsFromRows(rows),
+                  projectedSpots: valueSpotsFromRows(rows),
+                ),
               );
             }),
           ] else
@@ -482,7 +447,6 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
                     itemBuilder: (context, index) {
                       final row = result[index];
                       return ReturnsTableRow(
-                        // color3: Colors.green.shade600,
                         color4: Colors.green,
                         data: row,
                         percentage: false,
@@ -492,6 +456,7 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
                 ],
               );
             }),
+
         ],
       ),
     );
@@ -514,7 +479,6 @@ class ProjectionIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      // height: 35,
       decoration: BoxDecoration(
         color: isSelected ? Colors.white : Colors.transparent,
         borderRadius: BorderRadius.circular(10),
@@ -522,109 +486,6 @@ class ProjectionIcon extends StatelessWidget {
       child: IconButton(
         onPressed: onTap,
         icon: Icon(icon, color: isSelected ? Ucolors.blue : Colors.grey),
-      ),
-    );
-  }
-}
-
-class SIPSection extends StatelessWidget {
-  const SIPSection({
-    super.key,
-    required this.amount,
-    required this.duration,
-    this.rate = 12,
-  });
-
-  final double amount;
-  final int duration;
-  final double rate;
-  @override
-  Widget build(BuildContext context) {
-    log('build');
-    final controller = Get.find<GoalSipController>();
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: Ucolors.light,
-        boxShadow: [],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SipSliderTile2(
-            prefix: '₹',
-            title: 'I need',
-            value: amount,
-            min: 100,
-            max: 10000000,
-            suffix: '',
-            onChanged: (value) {
-              controller.setTarget(value);
-            },
-          ),
-
-          // SmallHeading(smallheading: 'Frequency', fontWeight: FontWeight.w700),
-          // Gap(10),
-
-          // FrequencySelector(),
-          // Gap(15),
-          SipSliderTile2(
-            title: 'Duration',
-            value: duration.toDouble(),
-            min: 1,
-            max: 30,
-            suffix: 'Yrs',
-            onChanged: (value) {
-              controller.setYears(value);
-            },
-          ),
-
-          Gap(15),
-
-          SipSliderTile2(
-            title: 'Expected Returns',
-            value: rate,
-            min: 1,
-            max: 30,
-            suffix: '%',
-            onChanged: (value) {
-              log('${controller.futureValue} + future value');
-              log('${controller.invested} + Invested');
-              log('${controller.monthlySip} + mothly');
-
-              controller.setRate(value);
-            },
-          ),
-
-          Obx(
-            () => Row(
-              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: AllValue(
-                    title: 'Invested',
-                    value: controller.invested.toDouble(),
-                  ),
-                ),
-                Expanded(
-                  child: AllValue(
-                    title: 'Future Value',
-                    value: controller.targetAmount.toDouble(),
-                  ),
-                ),
-                Expanded(
-                  child: AllValue(
-                    title: 'Total Return',
-                    value: controller.totalReturn.toDouble(),
-                    textColor: Ucolors.success,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -666,6 +527,104 @@ class AllValue extends StatelessWidget {
   }
 }
 
+class SIPSection extends StatelessWidget {
+  const SIPSection({
+    super.key,
+    required this.amount,
+    required this.duration,
+    this.rate = 12,
+  });
+
+  final double amount;
+  final int duration;
+  final double rate;
+
+  @override
+  Widget build(BuildContext context) {
+    log('build');
+    final controller = Get.find<GoalSipController>();
+
+    final isMobile = ResponsiveBreakpoints.of(context).isMobile;
+    final isTablet = ResponsiveBreakpoints.of(context).isTablet;
+
+    final containerPadding = isMobile ? 10.0 : (isTablet ? 15.0 : 20.0);
+
+    return Container(
+      padding: EdgeInsets.all(containerPadding),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Ucolors.light,
+        boxShadow: [],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SipSliderTile2(
+            prefix: '₹',
+            title: 'I need',
+            value: amount,
+            min: 100,
+            max: 10000000,
+            suffix: '',
+            onChanged: (value) {
+              controller.setTarget(value);
+            },
+          ),
+          SipSliderTile2(
+            title: 'Duration',
+            value: duration.toDouble(),
+            min: 1,
+            max: 30,
+            suffix: 'Yrs',
+            onChanged: (value) {
+              controller.setYears(value);
+            },
+          ),
+          Gap(15),
+          SipSliderTile2(
+            title: 'Expected Returns',
+            value: rate,
+            min: 1,
+            max: 30,
+            suffix: '%',
+            onChanged: (value) {
+              log('${controller.futureValue} + future value');
+              log('${controller.invested} + Invested');
+              log('${controller.monthlySip} + mothly');
+              controller.setRate(value);
+            },
+          ),
+          Obx(
+                () => Row(
+              children: [
+                Expanded(
+                  child: AllValue(
+                    title: 'Invested',
+                    value: controller.invested.toDouble(),
+                  ),
+                ),
+                Expanded(
+                  child: AllValue(
+                    title: 'Future Value',
+                    value: controller.targetAmount.toDouble(),
+                  ),
+                ),
+                Expanded(
+                  child: AllValue(
+                    title: 'Total Return',
+                    value: controller.totalReturn.toDouble(),
+                    textColor: Ucolors.success,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class FrequencySelector extends StatefulWidget {
   const FrequencySelector({super.key});
 
@@ -686,7 +645,7 @@ class _FrequencySelectorState extends State<FrequencySelector> {
         children: [
           ...List.generate(
             item.length,
-            (index) => InstallmentContainer(
+                (index) => InstallmentContainer(
               title: item[index],
               isSelected: selectedIndex == index,
               onTap: () {
@@ -717,7 +676,6 @@ class GoalNameSelect extends StatelessWidget {
     'Other',
   ];
 
-  // final TextEditingController goalName = TextEditingController();
   final String goalName;
 
   @override
@@ -726,44 +684,18 @@ class GoalNameSelect extends StatelessWidget {
       children: [
         Row(children: [SmallHeading(smallheading: 'Goal Name')]),
         Gap(5),
-        // InkWell(
-        //   onTap: () {
-        //     FocusScope.of(context).unfocus();
-        //     showSelectionBottomSheet(
-        //       search: false,
-        //       context: context,
-        //       title: 'Select Goal Name',
-        //       items: goal,
-        //       controller: goalName,
-        //       selectedValue: goalName.text,
-        //     );
-        //   },
-        //   child: AbsorbPointer(
-        //     absorbing: true,
-        //     child: UTextFormField(
-        //       controller: goalName,
-        //       backgroundColor: Colors.white,
-        //       hintText: 'e.g. New Car, Buy House, Investment, etc',
-        //       sufixIcon: Icons.arrow_drop_down,
-        //       prefixIcon: null,
-        //     ),w
-        //   ),
-        // ),
         UTextFormField(
           readOnly: true,
           prefixIcon: null,
-
           controller: TextEditingController(text: goalName),
           backgroundColor: Colors.white,
         ),
-        // if (goalName == 'Custom')
-
-          UTextFormField(
-            controller: controller.goalNameTextEditingController,
-            backgroundColor: Colors.white,
-            prefixIcon: null,
-            hintText: 'Enter $goalName Name',
-          ),
+        UTextFormField(
+          controller: controller.goalNameTextEditingController,
+          backgroundColor: Colors.white,
+          prefixIcon: null,
+          hintText: 'Enter $goalName Name',
+        ),
       ],
     );
   }
@@ -779,7 +711,6 @@ class CoverSection extends StatelessWidget {
     return Column(
       children: [
         AddCoverBottomSheet(recentPhoto: recentPhoto),
-
         Gap(5),
         Text('Add Cover', style: UTextStyles.medium),
       ],
@@ -794,10 +725,12 @@ class AddCoverBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = ResponsiveBreakpoints.of(context).isMobile;
+    final containerSize = isMobile ? 100.0 : 120.0;
+
     return GestureDetector(
       onTap: () {
         showModalBottomSheet(
-          // backgroundColor: Color(0xffF3F4F6),
           backgroundColor: Colors.white,
           context: context,
           isScrollControlled: true,
@@ -815,9 +748,7 @@ class AddCoverBottomSheet extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-
                     const Gap(10),
-
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
@@ -828,59 +759,54 @@ class AddCoverBottomSheet extends StatelessWidget {
                         ),
                       ),
                     ),
-
                     const Gap(10),
-
                     Expanded(
                       child: recentPhoto == true
                           ? SingleChildScrollView(
-                              child: Wrap(
-                                children: List.generate(
-                                  4,
-                                  (index) => Container(
-                                    margin: const EdgeInsets.all(10),
-                                    padding: const EdgeInsets.all(15),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: const Color(0xffF3F4F6),
-                                    ),
-                                    child: const Icon(Icons.image),
-                                  ),
-                                ),
+                        child: Wrap(
+                          children: List.generate(
+                            4,
+                                (index) => Container(
+                              margin: const EdgeInsets.all(10),
+                              padding: const EdgeInsets.all(15),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: const Color(0xffF3F4F6),
                               ),
-                            )
+                              child: const Icon(Icons.image),
+                            ),
+                          ),
+                        ),
+                      )
                           : Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const CircleAvatar(
-                                    radius: 30,
-                                    backgroundColor: Color(0xffF3F4F6),
-                                    child: Icon(
-                                      Iconsax.gallery_remove,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  const Gap(15),
-                                  Text(
-                                    'Empty Photo Data',
-                                    style: UTextStyles.medium.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  Text(
-                                    'No recent photos saved',
-                                    style: UTextStyles.caption,
-                                  ),
-                                ],
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const CircleAvatar(
+                              radius: 30,
+                              backgroundColor: Color(0xffF3F4F6),
+                              child: Icon(
+                                Iconsax.gallery_remove,
+                                color: Colors.black,
                               ),
                             ),
+                            const Gap(15),
+                            Text(
+                              'Empty Photo Data',
+                              style: UTextStyles.medium.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            Text(
+                              'No recent photos saved',
+                              style: UTextStyles.caption,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-
                     const Gap(10),
-
-                    /// Buttons stay OUTSIDE Expanded
                     UElevatedBUtton(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -891,9 +817,7 @@ class AddCoverBottomSheet extends StatelessWidget {
                         ],
                       ),
                     ),
-
                     const Gap(12),
-
                     UElevatedBUtton(
                       outlined: true,
                       child: Row(
@@ -913,136 +837,22 @@ class AddCoverBottomSheet extends StatelessWidget {
                         ],
                       ),
                     ),
-
                     const Gap(kBottomNavigationBarHeight - 5),
                   ],
                 ),
-
-                //  Column(
-                //   // crossAxisAlignment: CrossAxisAlignment.start,
-                //   // mainAxisSize: MainAxisSize.max,
-                //   children: [
-                //     Text(
-                //       'Add Cover',
-                //       style: UTextStyles.medium.copyWith(
-                //         color: Ucolors.dark,
-                //         fontWeight: FontWeight.w600,
-                //       ),
-                //     ),
-                //     Align(
-                //       alignment: Alignment.topLeft,
-                //       child: Text(
-                //         'Recent Photos',
-                //         style: UTextStyles.medium.copyWith(
-                //           fontWeight: FontWeight.w600,
-                //           color: Ucolors.dark,
-                //         ),
-                //       ),
-                //     ),
-                //     recentPhoto
-                //         ? Wrap(
-                //             children: [
-                //               ...List.generate(
-                //                 4,
-                //                 (index) => Container(
-                //                   margin: EdgeInsets.symmetric(
-                //                     horizontal: 10,
-                //                     vertical: 10,
-                //                   ),
-                //                   padding: EdgeInsets.all(15),
-                //                   decoration: BoxDecoration(
-                //                     borderRadius: BorderRadius.circular(10),
-                //                     color: Color(0xffF3F4F6),
-                //                   ),
-                //                   child: Icon(Icons.image),
-                //                 ),
-                //               ),
-                //             ],
-                //           )
-                //         : Expanded(
-                //             child: Center(
-                //               child: Column(
-                //                 mainAxisSize: MainAxisSize.min,
-                //                 mainAxisAlignment: MainAxisAlignment.center,
-                //                 children: [
-                //                   const CircleAvatar(
-                //                     radius: 30,
-                //                     backgroundColor: Color(0xffF3F4F6),
-                //                     child: Icon(
-                //                       Iconsax.gallery_remove,
-                //                       color: Colors.black,
-                //                     ),
-                //                   ),
-                //                   const Gap(15),
-                //                   Text(
-                //                     'Empty Photo Data',
-                //                     style: UTextStyles.medium.copyWith(
-                //                       fontWeight: FontWeight.w600,
-                //                       color: Colors.grey,
-                //                     ),
-                //                   ),
-                //                   Text(
-                //                     'No recent photos saved',
-                //                     style: UTextStyles.caption,
-                //                   ),
-                //                 ],
-                //               ),
-                //             ),
-                //           ),
-                //     Spacer(),
-                //     UElevatedBUtton(
-                //       child: Row(
-                //         mainAxisAlignment: MainAxisAlignment.center,
-                //         children: [
-                //           Text(
-                //             'Take a Photo',
-                //             style: UTextStyles.buttonText,
-                //           ),
-                //           const Gap(5),
-                //           const Icon(Iconsax.camera5, color: Ucolors.light),
-                //         ],
-                //       ),
-                //     ),
-                //     const Gap(15),
-                //     UElevatedBUtton(
-                //       outlined: true,
-                //       child: Row(
-                //         mainAxisAlignment: MainAxisAlignment.center,
-                //         children: [
-                //           Text(
-                //             'Upload from Gallery',
-                //             style: UTextStyles.buttonText.copyWith(
-                //               color: Ucolors.dark,
-                //             ),
-                //           ),
-                //           const Gap(5),
-                //           const Icon(
-                //             Iconsax.document_upload,
-                //             color: Ucolors.dark,
-                //           ),
-                //         ],
-                //       ),
-                //     ),
-
-                //     Gap(kBottomNavigationBarHeight),
-
-                //     // Container(height: 200, color: Colors.amber),
-                //   ],
-                // ),
               ),
             );
           },
           showDragHandle: true,
           useSafeArea: true,
           enableDrag: true,
-          // isScrollControlled: true,
         );
       },
       child: Container(
-        height: 100,
-        width: 100,
+        height: containerSize,
+        width: containerSize,
         decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-        child: Icon(Icons.add, color: Colors.black),
+        child: Icon(Icons.add, color: Colors.black, size: containerSize * 0.4),
       ),
     );
   }

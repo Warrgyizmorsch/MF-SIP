@@ -137,7 +137,7 @@ class DashboardScreen extends StatelessWidget {
               onProfiletap: () => Get.to(() => ProfileScreen()),
               backgroundColor: Color(0xffE8F5FF),
               // backgroundColor: Colors.amber,
-              greetingName: 'Nazzu',
+              greetingName: 'Pratik',
               role: 'Developer',
               avatar: AssetImage(UImages.avatar),
               iconColor: Ucolors.blue,
