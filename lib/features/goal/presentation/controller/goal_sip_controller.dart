@@ -62,6 +62,7 @@
 // }
 
 import 'dart:math';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 // class GoalSipController extends GetxController {
@@ -283,6 +284,9 @@ class GoalSipController extends GetxController {
   final futureValue = 0.obs;
   final totalReturn = 0.obs;
 
+
+  final isGoalSaved = false.obs;
+
   // Yearly report
   final yearlyReport = <ReturnRow>[].obs;
 
@@ -290,6 +294,9 @@ class GoalSipController extends GetxController {
   // final selectedPopularFund = <int>{}.obs;
   final selectedPopularFund = <String>{}.obs;
   // RxList<int> selectedPopularFund = <int>[].obs;
+
+
+  final goalNameTextEditingController = TextEditingController();
 
   @override
   void onInit() {
@@ -304,6 +311,23 @@ class GoalSipController extends GetxController {
     setTarget(amount);
     setYears(years);
     setRate(rate);
+  }
+
+  Future<void> saveGoalToDb() async {
+
+    if(goalNameTextEditingController.text.isEmpty){
+      Get.snackbar("Error", "Please enter a goal name");
+      return;
+    }
+    // 1. Simulate DB Loading or API Call
+    // await Future.delayed(const Duration(milliseconds: 600));
+
+    // 2. TODO: Insert your Database/API logic here
+    // Example: DatabaseHelper.insertGoal(targetAmount.value, years.value, ...);
+    print("Goal Saved: Target: ${targetAmount.value}, Years: ${years.value}");
+
+    // 3. Unlock the projections
+    isGoalSaved.value = true;
   }
 
   ///// -------------- Goal Calculation ---------------///

@@ -12,6 +12,7 @@ import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/table/table_header.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
+import 'package:my_sip/common/widget/text_form/text_field_component.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
@@ -72,6 +73,7 @@ class IhavegoalPage extends GetView<GoalSipController> {
   };
 
   final CartController cartController = Get.find<CartController>();
+  final GlobalKey popularFundsKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -91,12 +93,16 @@ class IhavegoalPage extends GetView<GoalSipController> {
     // controller.setYears(goalData['duration'].toDouble());
     // controller.setRate(goalData['rate'].toDouble());
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // RESET the saved state when entering the page so the button appears
+      controller.isGoalSaved.value = false;
+
       controller.initFromGoal(
         amount: goalData['amount'].toDouble(),
         years: goalData['duration'].toDouble(),
         rate: goalData['rate'].toDouble(),
       );
-    });
+    }
+    );
 
     return Scaffold(
       backgroundColor: Color(0xffF3F4F6),
@@ -116,55 +122,82 @@ class IhavegoalPage extends GetView<GoalSipController> {
               CoverSection(),
 
               ///Goal Name Select
-              GoalNameSelect(goalName: name),
+              GoalNameSelect(goalName: name, controller : controller),
 
               //SIP section
               SIPSection(amount: amount, duration: duration, rate: rate),
+              Obx(() {
 
-              const Gap(20),
+                if (!controller.isGoalSaved.value) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    child: UElevatedBUtton(
+                      onPressed: () async {
+                        await controller.saveGoalToDb();
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (popularFundsKey.currentContext != null) {
+                            Scrollable.ensureVisible(
+                              popularFundsKey.currentContext!,
+                              duration: const Duration(milliseconds: 800),
+                              curve: Curves.easeInOutCubic,
+                              alignment: 0.1, // Aligns widget 10% from the top
+                            );
+                          }
+                        });
+                      },
+                      child: Center(child: Text("Save Goal", style: AppTextStyles.bodyMedium(color: Colors.white), textAlign: TextAlign.center,)),
+                    ),
+                  );
+                }
 
-              //Projection Graph
-              ProjectionGraph(),
+                // If goal IS saved, show the Projections and Funds
+                return Column(
+                  children: [
+                    // Projection Graph
+                    const ProjectionGraph(),
 
-              const Gap(9),
+                    const Gap(9),
 
-              //Popular Fund  Grid
-              const USectionHeading(
-                title: 'Popular Funds',
-                showActionButton: true,
-              ),
+                    // Popular Fund Grid
+                    USectionHeading(
+                      key: popularFundsKey,
+                      title: 'Popular Funds',
+                      showActionButton: true,
+                    ),
 
-              PopularFund(),
+                    PopularFund(),
+
+                    const Gap(80),
+                  ],
+                );
+              }),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Obx(
-          () => CartBottomBar(
+      bottomNavigationBar: Obx(
+            () => controller.isGoalSaved.value
+            ? SafeArea(
+          top: false,
+          child: CartBottomBar(
             ontap: () {
-              cartController.monthlyAmount.value = controller.monthlySip.value
-                  .toInt();
+              cartController.monthlyAmount.value = controller.monthlySip.value.toInt();
               controller.selectedPopularFund.isNotEmpty
-                  ? Get.toNamed(
-                      AppRoutes.cart,
-                      // arguments: {
-                      //   'monthlyAmount': controller.monthlySip.value.toStringAsFixed(0),
-                      // },
-                    )
-                  : null;
+                  ? Get.toNamed(AppRoutes.cart)
+                  : Get.snackbar("Error", "Please select funds to start SIP");
             },
             amount: controller.monthlySip.value.toStringAsFixed(0),
             amountColor: Ucolors.blue,
             title: 'Installment Amount',
             buttonText: 'Start SIP',
           ),
-        ),
+        )
+            : const SizedBox.shrink(), // Hidden until saved
       ),
     );
   }
 }
+
 
 class PopularFund extends StatelessWidget {
   PopularFund({super.key});
@@ -172,7 +205,6 @@ class PopularFund extends StatelessWidget {
   final MutualFundController controller = Get.find();
   final GoalSipController goalSipController = Get.find();
   final CartController cartController = Get.find();
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -523,7 +555,7 @@ class SIPSection extends StatelessWidget {
             title: 'I need',
             value: amount,
             min: 100,
-            max: 3000000,
+            max: 10000000,
             suffix: '',
             onChanged: (value) {
               controller.setTarget(value);
@@ -668,7 +700,8 @@ class _FrequencySelectorState extends State<FrequencySelector> {
 }
 
 class GoalNameSelect extends StatelessWidget {
-  GoalNameSelect({super.key, required this.goalName});
+  final GoalSipController controller;
+  GoalNameSelect({super.key, required this.goalName, required this.controller});
 
   final List<String> goal = [
     'Car',
@@ -720,11 +753,13 @@ class GoalNameSelect extends StatelessWidget {
           controller: TextEditingController(text: goalName),
           backgroundColor: Colors.white,
         ),
-        if (goalName == 'Custom')
+        // if (goalName == 'Custom')
+
           UTextFormField(
+            controller: controller.goalNameTextEditingController,
             backgroundColor: Colors.white,
             prefixIcon: null,
-            hintText: 'Enter your Goal',
+            hintText: 'Enter $goalName Name',
           ),
       ],
     );
