@@ -25,29 +25,17 @@ class MyApp extends StatelessWidget {
           getPages: AppPages.pages(),
           initialRoute: AppRoutes.splash,
           builder: (context, widget) {
-            // 1. Initialize ResponsiveBreakpoints FIRST (It must be the parent)
             return ResponsiveBreakpoints.builder(
               child: Builder(
-                // 2. Use a Builder to get a context that is UNDER ResponsiveBreakpoints
                 builder: (innerContext) {
-                  return MaxWidthBox(
-                    maxWidth: 1200,
-                    backgroundColor: const Color(0xffF5F5F5),
-                    child: ResponsiveScaledBox(
-                      // 3. Now ResponsiveValue can find the breakpoints in 'innerContext'
-                      width: ResponsiveValue<double>(
-                        innerContext,
-                        defaultValue: 450,
-                        conditionalValues: [
-                          const Condition.equals(name: MOBILE, value: 450),
-                          const Condition.between(start: 451, end: 800, value: 800),
-                          const Condition.between(start: 801, end: 1920, value: 1200),
-                          const Condition.largerThan(name: DESKTOP, value: 2460),
-                        ],
-                      ).value,
-                      child: widget!,
-                    ),
-                  );
+                  // Just return the widget directly to allow it to fill the screen
+                  return widget!;
+
+                  // OR, if you need a background color for the "scaffold" area:
+                  // return Container(
+                  //   color: const Color(0xffF5F5F5),
+                  //   child: widget!,
+                  // );
                 },
               ),
               breakpoints: [
