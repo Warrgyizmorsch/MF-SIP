@@ -1062,7 +1062,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
             ),
           ),
           SizedBox(
-            height: MediaQuery.of(context).size.height < 700 ? 280 : 265,
+            height: MediaQuery.of(context).size.height < 700 ? 282 : 267,
 
             child: ListView.builder(
               // itemCount: 10,
