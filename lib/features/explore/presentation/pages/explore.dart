@@ -60,7 +60,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
         // Buffer of 200px
 
         // Trigger Load More
-        controller.fetchMutualFund(isLoadMore: true);
+        // controller.fetchMutualFund(isLoadMore: true);
+        controller.fetchData(isLoadMore: true);
       }
     });
   }
@@ -156,9 +157,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         // }
                         if (result != null && result is Map<String, dynamic>) {
                           // await controller.fetchFunds(result);
-                          await Get.find<MutualFundController>().fetchFunds(
-                            result,
-                          );
+                          // await Get.find<MutualFundController>().fetchFunds(
+                          //   result,
+                          // );
+                          controller.applyFilters(result);
                         }
                       },
                     ),
@@ -187,7 +189,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                               hintText: 'Search',
                               onChanged: (value) {
                                 // controller.searchFundFn(value);
-                                controller.searchFundApi(value);
+                                // controller.searchFundApi(value);
+                                controller.onSearchQueryChanged(value);
                               },
                             ),
                           ),
@@ -301,6 +304,15 @@ class _ExploreScreenState extends State<ExploreScreen> {
           //   );
           // }),
           Obx(() {
+            if (controller.isLoading.value) {
+              return const SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(
+                  child: CircularProgressIndicator(color: Ucolors.primary),
+                ),
+              );
+            }
+
             // Initial Full Screen Loader (First Load Only)
             if (controller.isLoading.value && controller.searchFund.isEmpty) {
               return const SliverFillRemaining(

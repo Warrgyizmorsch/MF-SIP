@@ -934,16 +934,20 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                     : values.length;
 
                                 // Regex 1: Matches Dates like (22/04/2024)
+                                // Define Regex Patterns
                                 final dateRegex = RegExp(
-                                  r'\s*\(\d{1,2}[/-][\w\d]+[/-]\d{2,4}\)',
+                                  r'\d{1,2}[/-]\d{1,2}[/-]\d{2,4}',
                                 );
-
-                                // Regex 2: Matches "Face Value" junk -> Starts with EQ, FV, RS, RE and takes everything after it
-                                // Example: " EQ NEW FV RS. 2/-" becomes empty
+                                final percentageRegex = RegExp(
+                                  r'\d+(\.\d+)?\s*%',
+                                ); // Matches "7.44%" or "7.5 %"
                                 final faceValueRegex = RegExp(
                                   r'\s+(EQ|NEW|FV|RS\.?|RE\.?|Rs\.?|Re\.?)\b.*$',
                                   caseSensitive: false,
                                 );
+
+                                // Matches Punctuation to remove: Brackets ( ) and Hyphens -
+                                final punctuationRegex = RegExp(r'[()\[\]\-]');
 
                                 List<MapEntry<String, double>> holdings = [];
 
@@ -955,8 +959,26 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                   // 2. Remove "EQ/FV/RS" suffix
                                   // 3. Trim extra spaces
                                   String cleanName = rawName
-                                      .replaceAll(dateRegex, '')
-                                      .replaceAll(faceValueRegex, '')
+                                      .replaceAll(
+                                        dateRegex,
+                                        '',
+                                      ) // 1. Remove Dates
+                                      .replaceAll(
+                                        percentageRegex,
+                                        '',
+                                      ) // 2. Remove Percentages (ALL occurrences)
+                                      .replaceAll(
+                                        faceValueRegex,
+                                        '',
+                                      ) // 3. Remove Face Value junk
+                                      .replaceAll(
+                                        punctuationRegex,
+                                        ' ',
+                                      ) // 4. Replace Brackets & Hyphens with SPACE
+                                      .replaceAll(
+                                        RegExp(r'\s+'),
+                                        ' ',
+                                      ) // 5. Collapse multiple spaces into one
                                       .trim();
 
                                   // Only add if the name isn't empty (handles cases like just "EQ" which is unlikely)
@@ -1374,24 +1396,41 @@ class OverviewScreen extends GetView<FundDetailsController> {
                   trimExpandedText: 'Show Less',
                   colorClickableText: Ucolors.primary,
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 10),
                 Text(
                   'Fund Manager',
                   style: UTextStyles.large.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+                const SizedBox(height: 5),
 
-                if (managers['fm1']!.isNotEmpty) ...[
-                  fundManager(managers['fm1'] ?? ''),
-                ],
-                if (managers['fm2']!.isNotEmpty) ...[
-                  DashedLine(color: Colors.grey.shade300),
+                if (managers.isNotEmpty)
+                  ...managers.asMap().entries.map((entry) {
+                    int index = entry.key;
+                    String name = entry.value;
 
-                  fundManager(managers['fm2'] ?? ''),
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Show Divider ONLY if it's NOT the first item
+                        if (index > 0)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: DashedLine(
+                              color: Colors.grey.shade300,
+                              dashSpace: 5, // Adjust styling as needed
+                            ),
+                          ),
 
-                  // DashedLine(color: Colors.grey.shade300),
-                ],
+                        // Render the Manager Name Widget
+                        fundManager(name),
+                      ],
+                    );
+                  }).toList()
+                else
+                  // Optional: Handle empty state if needed
+                  const Text("No manager details available"),
               ],
             ),
           ),
@@ -1413,28 +1452,43 @@ class OverviewScreen extends GetView<FundDetailsController> {
                       investmentDetailSection(
                         'Fund Size',
                         '₹${fund?.schemeAssets?.toString()} Cr.' ?? '',
-                        Icons.bar_chart,
+                        Icons.bar_chart_outlined,
                       ),
-                      Divider(height: 0),
+                      // Divider(height: 0),
+                      DashedLine(dashSpace: 0, color: Colors.grey.shade300),
                       investmentDetailSection(
-                        'Min Investement',
+                        'Min. Inv',
                         '₹ ${fund?.minimumInvestment.toString()}',
                         Icons.circle,
                       ),
 
-                      Divider(height: 0),
+                      DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                      investmentDetailSection(
+                        'Min. Sip Inv',
+                        '₹ ${fund?.sipMinimumAmount.toString()}',
+                        Icons.change_circle_outlined,
+                      ),
+
+                      DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                      investmentDetailSection(
+                        'Min. Topup',
+                        '₹ ${fund?.minimumTopup.toString()}',
+                        Icons.curtains_closed_outlined,
+                      ),
+
+                      DashedLine(dashSpace: 0, color: Colors.grey.shade300),
                       investmentDetailSection(
                         'Turn over',
                         '23',
-                        Icons.lightbulb_circle_rounded,
+                        Icons.lightbulb_circle_outlined,
                       ),
-                      Divider(height: 0),
+                      DashedLine(dashSpace: 0, color: Colors.grey.shade300),
                       investmentDetailSection(
                         'Expense Ratio',
                         fund?.expenseRatioPercentage.toString() ?? '',
-                        Icons.pie_chart,
+                        Icons.pie_chart_outline,
                       ),
-                      Divider(height: 0),
+                      DashedLine(dashSpace: 0, color: Colors.grey.shade300),
                       investmentDetailSection(
                         'Exit Load',
                         fund?.exitLoad.toString() ?? '',
@@ -1460,13 +1514,14 @@ class OverviewScreen extends GetView<FundDetailsController> {
                   children: [
                     investmentDetailSection(
                       'Category',
-                      fund?.schemeCategory.split(':')[0].toString() ?? '',
-                      Icons.bar_chart,
+                      // fund?.schemeCategory.split(':')[0].toString() ?? '',
+                      fund?.schemeCategory ?? '',
+                      Icons.category,
                     ),
-                    Divider(height: 0),
-                    investmentDetailSection('KRA', 'KARVY', Icons.circle),
 
-                    Divider(height: 0),
+                    // DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                    // investmentDetailSection('KRA', 'KARVY', Icons.circle),
+                    DashedLine(dashSpace: 0, color: Colors.grey.shade300),
                     investmentDetailSection(
                       'Inv. Plan',
                       // fund?.schemeName.split('-')[1].toString() ?? '',
@@ -1475,19 +1530,27 @@ class OverviewScreen extends GetView<FundDetailsController> {
                           : 'Nil',
 
                       // fund.schemeName,
-                      Icons.lightbulb_circle_rounded,
+                      Icons.travel_explore_rounded,
                     ),
-                    Divider(height: 0),
+                    DashedLine(dashSpace: 0, color: Colors.grey.shade300),
                     investmentDetailSection(
                       'Launched IN',
                       fund?.schemeInceptionDate.toString() ?? '',
-                      Icons.pie_chart,
+                      Icons.calendar_month_sharp,
                     ),
-                    Divider(height: 0),
+                    DashedLine(dashSpace: 0, color: Colors.grey.shade300),
                     investmentDetailSection(
                       'Bench Mark',
-                      fund?.schemeBenchmarkCode.toString() ?? '',
-                      Icons.logout_outlined,
+
+                      fund?.schemeBenchmark.toString() ?? '',
+                      Icons.track_changes,
+                    ),
+                    DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                    investmentDetailSection(
+                      'Fund Type',
+
+                      fund?.schemeStatus.split(' ')[0].toString() ?? '',
+                      Icons.library_books,
                     ),
                   ],
                 ),
@@ -1511,31 +1574,31 @@ class OverviewScreen extends GetView<FundDetailsController> {
                       fund?.schemeCompany.toString() ?? '',
                       Icons.bar_chart_rounded,
                     ),
-                    Divider(height: 0),
-                    investmentDetailSection(
-                      'Email',
-                      'abc.warrgyizmorch@gmail.com',
-                      Icons.mail_outline,
-                    ),
+                    // DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                    // investmentDetailSection(
+                    //   'Email',
+                    //   'abc.warrgyizmorch@gmail.com',
+                    //   Icons.mail_outline,
+                    // ),
 
-                    Divider(height: 0),
-                    investmentDetailSection(
-                      'Office No',
-                      '1876471871',
-                      Icons.home_work_outlined,
-                    ),
-                    Divider(height: 0),
-                    investmentDetailSection(
-                      'Website',
-                      'http://www.google.com',
-                      Iconsax.global,
-                    ),
-                    Divider(height: 0),
-                    investmentDetailSection(
-                      'Address',
-                      '',
-                      Icons.location_on_outlined,
-                    ),
+                    // DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                    // investmentDetailSection(
+                    //   'Office No',
+                    //   '1876471871',
+                    //   Icons.home_work_outlined,
+                    // ),
+                    // DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                    // investmentDetailSection(
+                    //   'Website',
+                    //   'http://www.google.com',
+                    //   Iconsax.global,
+                    // ),
+                    // DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                    // investmentDetailSection(
+                    //   'Address',
+                    //   '',
+                    //   Icons.location_on_outlined,
+                    // ),
                   ],
                 ),
               ),
@@ -1600,7 +1663,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: Ucolors.blue),
+          Icon(icon, color: Colors.blue.shade800, size: 18),
           const SizedBox(width: 10),
 
           /// LEFT TITLE
@@ -1634,6 +1697,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
 
   Widget fundManager(String name) {
     return ListTile(
+      dense: true,
       leading: CircleAvatar(
         radius: 15,
         backgroundColor: Ucolors.skyblue1,

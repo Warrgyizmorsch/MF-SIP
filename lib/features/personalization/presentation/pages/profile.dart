@@ -210,9 +210,8 @@ class ActivityGeneralSection extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) => HtmlWebViewPage(
-                  
                   title: 'About us',
-                  url: 'https://sip.londonstreetstore.com/about-us',
+                  url: 'https://sip.londonstreetstore.com/about-us?mobile=true',
                 ),
               ),
             ),

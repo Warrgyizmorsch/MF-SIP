@@ -356,7 +356,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: GestureDetector(
                       onTap: () {
                         Get.toNamed(AppRoutes.kycScreen);
-
                       },
                       child: Container(
                         height: size.height * 0.13,
@@ -393,23 +392,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Icon(Icons.person),
                                   SizedBox(width: 5),
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-
-
                                       Text(
                                         'Onboarding task',
                                         style: UTextStyles.caption,
                                       ),
-                        Text(
-                          'Complete KYC & Profile',
-                          style: UTextStyles.medium.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Ucolors.dark,
-                          ),
-                        ),
+                                      Text(
+                                        'Complete KYC & Profile',
+                                        style: UTextStyles.medium.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: Ucolors.dark,
+                                        ),
+                                      ),
                                       Text(
                                         'Verify your Identity to start Investing',
                                         softWrap: true,
@@ -717,7 +715,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisCount: 2,
                   ),
                   itemBuilder: (context, index) {
-                    final fund = mutualcontroller.mutualfund[index];
+                    final fund = mutualcontroller.searchFund[index];
                     final id = fund.amc?.id;
                     if (id == null) return const SizedBox();
                     final img =

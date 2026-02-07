@@ -19,7 +19,8 @@ class NavigationBarController extends GetxController {
 
   @override
   void onInit() {
-    mutualFundController.fetchMutualFund();
+    // mutualFundController.fetchMutualFund();
+    mutualFundController.fetchData();
     super.onInit();
   }
 

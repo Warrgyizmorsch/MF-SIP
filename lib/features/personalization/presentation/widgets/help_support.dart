@@ -30,7 +30,9 @@ class HelpSupportScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => HtmlWebViewPage(
-                      url: 'https://sip.londonstreetstore.com/contact-us',
+                      title: 'Contact Us',
+                      url:
+                          'https://sip.londonstreetstore.com/contact-us?mobile=true',
                     ),
                   ),
                 ),
@@ -41,7 +43,9 @@ class HelpSupportScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => HtmlWebViewPage(
-                      url: 'https://sip.londonstreetstore.com/privacy-policy',
+                      title: 'Privacy Policy',
+                      url:
+                          'https://sip.londonstreetstore.com/privacy-policy?mobile=true',
                     ),
                   ),
                 ),
@@ -52,8 +56,9 @@ class HelpSupportScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => HtmlWebViewPage(
+                      title: 'Terms & Conditions',
                       url:
-                          'https://sip.londonstreetstore.com/terms-and-conditions',
+                          'https://sip.londonstreetstore.com/terms-and-conditions?mobile=true',
                     ),
                   ),
                 ),

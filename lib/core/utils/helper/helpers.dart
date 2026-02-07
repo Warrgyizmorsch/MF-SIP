@@ -67,42 +67,40 @@ class UHelperFunction {
   }
 }
 
-// Map<String, String> parseFundManagers(String? raw) {
-//   if (raw == null || raw.trim().isEmpty) {
-//     return {'fm1': '', 'fm2': ''};
-//   }
-
-//   final fm1Match = RegExp(r'FM\s*1\s*(.*?)(?=FM\s*2|$)')
-//       .firstMatch(raw);
-
-//   final fm2Match = RegExp(r'FM\s*2\s*(.*)')
-//       .firstMatch(raw);
-
-//   return {
-//     'fm1': fm1Match?.group(1)?.trim() ?? '',
-//     'fm2': fm2Match?.group(1)?.trim() ?? '',
-//   };
-// }
-
-Map<String, String> parseFundManagers(String? raw) {
+///////////////// -------------- Extract Fund Manager ----------- //////////////////
+List<String> parseFundManagers(String? raw) {
   if (raw == null || raw.trim().isEmpty) {
-    return {'fm1': '', 'fm2': ''};
+    return [];
   }
 
-  // Case 1: No FM labels → treat whole string as FM1
-  if (!raw.contains('FM')) {
-    return {'fm1': raw.trim(), 'fm2': ''};
+  String text = raw;
+
+  // 1. Remove text inside parentheses (e.g., "(dedicated for...)")
+  text = text.replaceAll(RegExp(r'\(.*?\)', dotAll: true), '');
+
+  // 2. Replace "FM" labels (FM 1, FM-2, FM) with a comma to separate them
+  //    This handles cases like "Name FM 1" -> "Name ,"
+  text = text.replaceAll(RegExp(r'FM\s*[-]?\s*\d*', caseSensitive: false), ',');
+
+  // 3. Normalize other separators (&, " and ", newline) to comma
+  text = text.replaceAll(RegExp(r'[&\n]| and ', caseSensitive: false), ',');
+
+  // 4. Split by comma and clean up each item
+  List<String> managers = [];
+
+  for (String part in text.split(',')) {
+    // Remove leading hyphens, dots, or whitespace
+    String clean = part.replaceAll(RegExp(r'^[\s\-\.]+'), '').trim();
+
+    // 5. FILTER: Ignore empty strings and "Not Applicable" placeholders
+    if (clean.isNotEmpty &&
+        !clean.toLowerCase().contains('not applicable') &&
+        clean.toLowerCase() != 'na') {
+      managers.add(clean);
+    }
   }
 
-  // Case 2: FM labels exist
-  final fm1Match = RegExp(r'FM\s*1\s*(.*?)(?=FM\s*2|$)').firstMatch(raw);
-
-  final fm2Match = RegExp(r'FM\s*2\s*(.*)').firstMatch(raw);
-
-  return {
-    'fm1': fm1Match?.group(1)?.trim() ?? '',
-    'fm2': fm2Match?.group(1)?.trim() ?? '',
-  };
+  return managers;
 }
 
 int? _cacheSize(double size, double pixelRatio) {
@@ -110,13 +108,12 @@ int? _cacheSize(double size, double pixelRatio) {
   return (size * pixelRatio).toInt();
 }
 
-
 class PanCardFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue,
-      TextEditingValue newValue,
-      ) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     // 1. Force Uppercase
     String newText = newValue.text.toUpperCase();
 
@@ -146,4 +143,76 @@ class PanCardFormatter extends TextInputFormatter {
       selection: TextSelection.collapsed(offset: buffer.length),
     );
   }
+}
+
+List<String> getCleanedTopHoldings({
+  required List<String>? names,
+  required List<dynamic>? values,
+  int limit = 5,
+}) {
+  if (names == null || values == null || names.isEmpty || values.isEmpty) {
+    return [];
+  }
+
+  int count = names.length < values.length ? names.length : values.length;
+  List<MapEntry<String, double>> holdings = [];
+
+  for (int i = 0; i < count; i++) {
+    // 1. Get raw name
+    String name = names[i];
+
+    // --- AGGRESSIVE CLEANING START ---
+
+    // A. Remove Percentages (e.g., "7.44%" or "8.65 %")
+    name = name.replaceAll(RegExp(r'\d+(\.\d+)?\s*%'), '');
+
+    // B. Remove Dates (Text Format like "03 Nov 2034" or "30 Jan 2027")
+    //    Matches: 1-2 digits, space/dash, 3+ letters, space/dash, 4 digits
+    name = name.replaceAll(
+      RegExp(r'\b\d{1,2}[\s-][a-zA-Z]{3,}[\s-]\d{4}\b', caseSensitive: false),
+      '',
+    );
+
+    // C. Remove Dates (Numeric Format like "25/11/2027")
+    name = name.replaceAll(RegExp(r'\d{1,2}[/-]\d{1,2}[/-]\d{2,4}'), '');
+
+    // D. Remove EVERYTHING inside parentheses (handles "()", "(India)", "(Formerly..)")
+    name = name.replaceAll(RegExp(r'\(.*?\)'), '');
+
+    // E. Remove Face Value Junk (starts with EQ, FV, RS, etc.)
+    name = name.replaceAll(
+      RegExp(
+        r'\s+(EQ|NEW|FV|RS\.?|RE\.?|Rs\.?|Re\.?)\b.*$',
+        caseSensitive: false,
+      ),
+      '',
+    );
+
+    // F. Remove Standalone Years at the end (e.g., "Government of India 2033" -> removes 2033)
+    //    Matches 19xx or 20xx at the end of the string
+    name = name.replaceAll(RegExp(r'\b(19|20)\d{2}\s*$'), '');
+
+    // G. Remove Punctuation & Extra Spaces
+    name = name.replaceAll(RegExp(r'[-–]'), ' '); // Replace hyphens with space
+    name = name.replaceAll(RegExp(r'\s+'), ' '); // Collapse multiple spaces
+    name = name.trim(); // Final Trim
+
+    // --- AGGRESSIVE CLEANING END ---
+
+    // 2. Process Value
+    double val = 0.0;
+    if (values[i] is num) {
+      val = (values[i] as num).toDouble();
+    } else if (values[i] is String) {
+      val = double.tryParse(values[i]) ?? 0.0;
+    }
+
+    if (name.isNotEmpty) {
+      holdings.add(MapEntry(name, val));
+    }
+  }
+
+  // 3. Sort & Return
+  holdings.sort((a, b) => b.value.compareTo(a.value));
+  return holdings.take(limit).map((e) => e.key).toList();
 }

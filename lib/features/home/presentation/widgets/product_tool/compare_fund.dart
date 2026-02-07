@@ -541,10 +541,12 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/fund_details/domain/entity/fund_detail_entity.dart';
@@ -566,6 +568,7 @@ class CompareFundsPage extends GetView<CompareFundController> {
     return Scaffold(
       backgroundColor: Colors.white.withOpacity(0.985),
       appBar: AppBar(
+        centerTitle: true,
         leading: const BackButton(),
         title: const Text("Compare Funds"),
       ),
@@ -693,14 +696,38 @@ class CompareFundsPage extends GetView<CompareFundController> {
     ];
   }
 
+  // List<Map<String, dynamic>> _getManagerData(
+  //   FundDetailEntity? d1,
+  //   FundDetailEntity? d2,
+  // ) {
+  //   return [
+  //     {
+  //       "title": "Manager",
+  //       "values": [d1?.schemeManager ?? "-", d2?.schemeManager ?? "-"],
+  //     },
+  //   ];
+  // }
   List<Map<String, dynamic>> _getManagerData(
     FundDetailEntity? d1,
     FundDetailEntity? d2,
   ) {
+    // Helper to process the raw string: Parse -> Check Empty -> Join
+    String formatManagers(String? raw) {
+      final List<String> names = parseFundManagers(raw);
+
+      if (names.isEmpty) return "-";
+
+      // Join with a newline ("\n") so names appear one below the other
+      return names.join("\n");
+    }
+
     return [
       {
         "title": "Manager",
-        "values": [d1?.schemeManager ?? "-", d2?.schemeManager ?? "-"],
+        "values": [
+          formatManagers(d1?.schemeManager),
+          formatManagers(d2?.schemeManager),
+        ],
       },
     ];
   }
@@ -708,7 +735,8 @@ class CompareFundsPage extends GetView<CompareFundController> {
   // --- SEARCH BOTTOM SHEET ---
   void _openSearchSheet(BuildContext context, int slot) {
     // Clear previous search when opening
-    mutualFundController.searchFundFn('');
+    // mutualFundController.searchFundFn('');
+    mutualFundController.onSearchQueryChanged;
 
     showModalBottomSheet(
       context: context,
@@ -904,7 +932,7 @@ class CompareCard extends StatelessWidget {
                 children: [
                   ClipOval(
                     child: CustomCachedImage(
-                      imageUrl: 
+                      imageUrl:
                           '${Appurl.baseUrl}${fund?.amc?.amcLogoUrl}' ?? '',
                     ),
                   ),
@@ -957,10 +985,19 @@ class FundDetailsTable extends StatelessWidget {
     final rows = [
       row("Risk", (e) => e.riskometerValue),
       row("Rating", (e) => "${e.ratingValue} ★"),
-      row("NAV", (e) => "₹${e.nav}"),
+      row(
+        "NAV",
+        (e) => "₹${e.nav} (${DateFormat('d MMM yyyy').format(DateTime.now())})",
+      ),
       row("Min SIP", (e) => "₹${e.sipMinimumAmount}"),
+      row("Min Inv", (e) => "₹${e.minimumInvestment}"),
+      row("Min Topup", (e) => "₹${e.minimumTopup}"),
       row("Exp Ratio", (e) => "${e.expenseRatioPercentage}%"),
+      row("Nav", (e) => "₹${e.nav}"),
+      row("AUM", (e) => "₹${e.schemeAssets} Cr."),
       row("Launch", (e) => e.schemeInceptionDate),
+      row("Status", (e) => e.schemeStatus),
+      row("Exit load", (e) => e.exitLoad),
     ];
 
     return Column(children: rows.map((r) => _buildRow(r)).toList());
@@ -987,11 +1024,12 @@ class FundDetailsTable extends StatelessWidget {
 
   Widget _cell(String txt) => Expanded(
     child: Container(
-      height: 45,
+      // height: 45,
+      padding: EdgeInsets.symmetric(vertical: 15),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: Colors.grey.shade300),
+          // bottom: BorderSide(color: Colors.grey.shade300),
           right: BorderSide(color: Colors.grey.shade300),
         ),
       ),
@@ -1032,12 +1070,13 @@ class CompareTable extends StatelessWidget {
                   .map(
                     (val) => Expanded(
                       child: Container(
-                        height: 48,
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                        // height: 48,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           border: Border(
                             right: BorderSide(color: Colors.grey.shade300),
-                            bottom: BorderSide(color: Colors.grey.shade300),
+                            // bottom: BorderSide(color: Colors.grey.shade300),
                           ),
                         ),
                         child: Text(val, style: const TextStyle(fontSize: 13)),
@@ -1054,6 +1093,79 @@ class CompareTable extends StatelessWidget {
 }
 
 // Special Table for Holdings (Just showing top 3 names for brevity)
+// class HoldingsCompareTable extends StatelessWidget {
+//   final SchemeDetailsEntity? p1;
+//   final SchemeDetailsEntity? p2;
+
+//   const HoldingsCompareTable({super.key, this.p1, this.p2});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     // Get top 3 holdings
+//     List<String> getTop(SchemeDetailsEntity? p) {
+//       if (p == null || p.schemePortfolioHoldingsNamesString.isEmpty)
+//         return ["-", "-", "-"];
+//       return p.schemePortfolioHoldingsNamesString.take(5).toList();
+//     }
+
+//     final list1 = getTop(p1);
+//     final list2 = getTop(p2);
+
+//     return Column(
+//       children: List.generate(5, (index) {
+//         return Row(
+//           children: [
+//             Expanded(
+//               child: Container(
+//                 padding: const EdgeInsets.symmetric(
+//                   vertical: 15,
+//                   horizontal: 5,
+//                 ),
+//                 // height: 60,
+//                 alignment: Alignment.center,
+//                 decoration: BoxDecoration(
+//                   border: Border(
+//                     right: BorderSide(color: Colors.grey.shade300),
+//                     bottom: BorderSide(color: Colors.grey.shade300),
+//                   ),
+//                 ),
+//                 child: Text(
+//                   list1.length > index ? list1[index] : "-",
+//                   textAlign: TextAlign.center,
+//                   overflow: TextOverflow.ellipsis,
+//                   maxLines: 1,
+//                   style: const TextStyle(fontSize: 11),
+//                 ),
+//               ),
+//             ),
+//             Expanded(
+//               child: Container(
+//                 padding: const EdgeInsets.symmetric(
+//                   vertical: 15,
+//                   horizontal: 5,
+//                 ),
+//                 // height: 60,
+//                 alignment: Alignment.center,
+//                 decoration: BoxDecoration(
+//                   border: Border(
+//                     bottom: BorderSide(color: Colors.grey.shade300),
+//                   ),
+//                 ),
+//                 child: Text(
+//                   list2.length > index ? list2[index] : "-",
+//                   textAlign: TextAlign.center,
+//                   maxLines: 1,
+//                   overflow: TextOverflow.ellipsis,
+//                   style: const TextStyle(fontSize: 11),
+//                 ),
+//               ),
+//             ),
+//           ],
+//         );
+//       }),
+//     );
+//   }
+// }
 class HoldingsCompareTable extends StatelessWidget {
   final SchemeDetailsEntity? p1;
   final SchemeDetailsEntity? p2;
@@ -1062,24 +1174,36 @@ class HoldingsCompareTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get top 3 holdings
-    List<String> getTop(SchemeDetailsEntity? p) {
-      if (p == null || p.schemePortfolioHoldingsNamesString.isEmpty)
-        return ["-", "-", "-"];
-      return p.schemePortfolioHoldingsNamesString.take(3).toList();
-    }
+    // 1. Get Top 5 Cleaned Names for Scheme 1
+    final list1 = getCleanedTopHoldings(
+      names: p1?.schemePortfolioHoldingsNamesString,
+      values: p1?.schemePortfolioHoldingsValuesString,
+      limit: 5,
+    );
 
-    final list1 = getTop(p1);
-    final list2 = getTop(p2);
+    // 2. Get Top 5 Cleaned Names for Scheme 2
+    final list2 = getCleanedTopHoldings(
+      names: p2?.schemePortfolioHoldingsNamesString,
+      values: p2?.schemePortfolioHoldingsValuesString,
+      limit: 5,
+    );
 
     return Column(
-      children: List.generate(3, (index) {
+      // Ensure we always render 5 rows, even if data is missing
+      children: List.generate(5, (index) {
+        // Safe access: if index exceeds list length, show "-"
+        final name1 = index < list1.length ? list1[index] : "-";
+        final name2 = index < list2.length ? list2[index] : "-";
+
         return Row(
           children: [
+            // --- Column 1 (Scheme 1) ---
             Expanded(
               child: Container(
-                padding: const EdgeInsets.all(8),
-                height: 60,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 15,
+                  horizontal: 5,
+                ),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   border: Border(
@@ -1088,16 +1212,22 @@ class HoldingsCompareTable extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  list1.length > index ? list1[index] : "-",
+                  name1,
                   textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                   style: const TextStyle(fontSize: 11),
                 ),
               ),
             ),
+
+            // --- Column 2 (Scheme 2) ---
             Expanded(
               child: Container(
-                padding: const EdgeInsets.all(8),
-                height: 60,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 15,
+                  horizontal: 5,
+                ),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   border: Border(
@@ -1105,8 +1235,10 @@ class HoldingsCompareTable extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  list2.length > index ? list2[index] : "-",
+                  name2,
                   textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontSize: 11),
                 ),
               ),

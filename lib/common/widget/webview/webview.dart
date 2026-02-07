@@ -12,7 +12,7 @@ class HtmlWebViewPage extends StatefulWidget {
 
   const HtmlWebViewPage({
     super.key,
-     this.title ='',
+    this.title = '',
     this.htmlContent,
     this.url,
   }) : assert(
@@ -197,7 +197,7 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
       appBar: AppBar(
         titleSpacing: -10.0,
         backgroundColor: Colors.white,
-        centerTitle: false,
+        centerTitle: true,
         title: Text(
           widget.title,
           textAlign: TextAlign.start,
