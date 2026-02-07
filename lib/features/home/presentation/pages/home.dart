@@ -22,6 +22,7 @@ import 'package:my_sip/features/personalization/presentation/pages/profile.dart'
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 
 import '../widgets/product_tool/sip_calculator.dart';
 import '../widgets/product_tool/swp_calci.dart';
@@ -37,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final cartController = Get.find<CartController>();
 
   final mutualcontroller = Get.find<MutualFundController>();
+  final navigation = Get.find<NavigationBarController>();
 
   @override
   void initState() {
@@ -76,7 +78,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: SafeArea(
                   bottom: false,
                   child: CustomProfileAppbar(
-                    onProfiletap: () => Get.to(() => ProfileScreen()),
+                    // onProfiletap: () => Get.to(() => ProfileScreen()),
+                    // onProfiletap: () => na,
+                    onProfiletap: () => navigation.selectedIndex.value = 4,
                     backgroundColor: Colors.transparent,
                     greetingName: authController.user.value?.name ?? '',
                     //  greetingName: user,

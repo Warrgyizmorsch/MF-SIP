@@ -26,11 +26,11 @@ class WatchlistPage extends StatelessWidget {
         }
 
         return ListView.builder(
-          itemCount: controller.mutualfund.length,
+          itemCount: controller.searchFund.length,
           itemBuilder: (context, index) => MutualFundCard(
             isDelete: true,
             containercolor: Color(0xffFEF0F0),
-            entity: controller.mutualfund[index],
+            entity: controller.searchFund[index],
           ),
         );
       }),
