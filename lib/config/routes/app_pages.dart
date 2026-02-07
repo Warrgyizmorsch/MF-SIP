@@ -19,7 +19,9 @@ import 'package:my_sip/features/kyc/presentation/binding/kyc_bindings.dart';
 import 'package:my_sip/features/kyc/presentation/pages/kyc_screen.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/splash_screen.dart';
 import 'package:my_sip/features/personalization/presentation/bindings/BankBinding.dart';
+import 'package:my_sip/features/personalization/presentation/bindings/personalisation_binding.dart';
 import 'package:my_sip/features/personalization/presentation/pages/add_another_bank.dart';
+import 'package:my_sip/features/personalization/presentation/pages/risk_profile.dart';
 import 'package:my_sip/features/sip_process/presentation/pages/payment_screen.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
 import '../../features/freedom_sip/presentation/pages/accumulationAndDistributionScreen.dart';
@@ -117,6 +119,11 @@ class AppPages {
       name: AppRoutes.addanotherbank,
       page: () => AddAnotherBankPage(),
       binding: Bankbinding(),
+    ),
+    GetPage(
+      name: AppRoutes.riskProfile,
+      page: () => RiskProfile(),
+      binding: PersonalisationBinding(),
     ),
 
     GetPage(

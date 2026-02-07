@@ -27,4 +27,5 @@ class AppRoutes {
   static const paymentScreen= '/paymentScreen';
   static const kycScreen= '/kycScreen';
   static const webView= '/webView';
+  static const riskProfile= '/riskProfile';
 }
