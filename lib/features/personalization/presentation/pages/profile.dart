@@ -300,7 +300,9 @@ class Upgradebanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final sz = MediaQuery.of(context).size;
     return UElevatedBUtton(
-      onPressed: () {},
+      onPressed: () {
+        Get.toNamed(AppRoutes.riskProfile);
+      },
       height: sz.height * 0.08,
       child: ListTile(
         leading: CircleAvatar(
@@ -311,7 +313,7 @@ class Upgradebanner extends StatelessWidget {
         title: SubtitleText(
           fontWeight: FontWeight.w600,
           textcolor: Ucolors.light,
-          subtitle: 'Upgrade Your Plan Now!',
+          subtitle: 'Check Your Risk Profile Now!',
           textAlignCenter: TextAlign.left,
         ),
         subtitle: FittedBox(
