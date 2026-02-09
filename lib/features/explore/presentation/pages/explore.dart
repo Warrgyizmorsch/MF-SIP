@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -395,6 +397,7 @@ class MutualFundCard extends StatelessWidget {
           arguments: {
             'scheme': entity.baseSchemeName,
             'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
+            'scheme_code': entity.schemeCode.toString(),
           },
         );
       },
@@ -484,6 +487,7 @@ class MutualFundCard extends StatelessWidget {
                         offset: const Offset(0, 40),
                         onSelected: (value) {
                           switch (value) {
+                            //Add to cart
                             case PortfolioMenuAction.topUp:
                               controller.addItem(
                                 CartItem(
@@ -507,13 +511,48 @@ class MutualFundCard extends StatelessWidget {
                               // log('top up');
                               break;
 
+                            ///Buy sip
                             case PortfolioMenuAction.modify:
+                              controller.addItem(
+                                CartItem(
+                                  fundId: entity.amc?.id?.toString() ?? '',
+                                  fundName: entity.baseSchemeName ?? '',
+                                  logoUrl: entity.amc?.amcLogoUrl ?? '',
+                                ),
+                              );
+                              Get.toNamed(AppRoutes.cart);
+
                               break;
+
+                            //buy lumsum
                             case PortfolioMenuAction.pause:
+                              controller.addItem(
+                                CartItem(
+                                  fundId: entity.amc?.id?.toString() ?? '',
+                                  fundName: entity.baseSchemeName ?? '',
+                                  logoUrl: entity.amc?.amcLogoUrl ?? '',
+                                ),
+                              );
+                              Get.toNamed(AppRoutes.cart);
+
                               break;
+                            //add to wishlist
                             case PortfolioMenuAction.cancel:
                               break;
+                            //fund detailss
                             case PortfolioMenuAction.redemption:
+                              Get.toNamed(
+                                AppRoutes.funddetails,
+                                arguments: {
+                                  'scheme': entity.baseSchemeName,
+                                  // Fixed string interpolation null check
+                                  'imgUrl':
+                                      "${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}",
+                                },
+                              );
+
+                              // log('object');
+
                               break;
                           }
                         },

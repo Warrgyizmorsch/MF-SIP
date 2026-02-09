@@ -2,14 +2,15 @@ import 'dart:convert';
 
 import 'package:dartz/dartz.dart';
 import 'package:my_sip/features/fund_details/data/models/fund_detail_model.dart';
-import 'package:my_sip/features/fund_details/data/models/portfolio_analysis_model.dart' as pf;
+import 'package:my_sip/features/fund_details/data/models/nav_history_model.dart';
+import 'package:my_sip/features/fund_details/data/models/portfolio_analysis_model.dart'
+    as pf;
 
 import '../../../../core/network/network_api_service.dart';
 import '../../../../core/utils/api/api_error.dart';
 import '../../../../core/utils/api/api_result.dart';
 import '../../../../core/utils/constant/appUrl.dart';
 import '../../../../core/utils/helper/helpers.dart';
-
 
 class FundDetailRemoteDataSource {
   final NetworkServicesApi _servicesApi;
@@ -18,8 +19,8 @@ class FundDetailRemoteDataSource {
 
   //Scheme info
   Future<Either<Result<FundDetailModel>, ApiError>> getSchemeInfo(
-      Map<String, dynamic> data,
-      ) async {
+    Map<String, dynamic> data,
+  ) async {
     try {
       final response = await _servicesApi.postApi(
         '${Appurl.baseUrl2}/getSchemeInfoLatest',
@@ -52,8 +53,8 @@ class FundDetailRemoteDataSource {
 
   //////////-------------Portfolio Analysis --------------//
   Future<Either<Result<pf.SchemeDetailsModel>, ApiError>> getPortfolioAnlysis(
-      Map<String, dynamic> data,
-      ) async {
+    Map<String, dynamic> data,
+  ) async {
     try {
       final response = await _servicesApi.postApi(
         '${Appurl.baseUrl2}/getPortfolioAnalysisNew',
@@ -84,6 +85,26 @@ class FundDetailRemoteDataSource {
     }
   }
 
-
-
+  /// --------- Nav  Histroy ----------////
+  Future<Either<Result<NavHistoryResponseModel>, ApiError>> getNavHistory(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _servicesApi.getApi(
+        '${Appurl.baseUrl}/api/v1/mutual-funds/${data['scheme_code']}/nav-history',
+        queryParameters: {'from': data['from'], 'to': data['to']},
+      );
+      createLog('Nav History remore data source --- $response ');
+      final Map<String, dynamic> json = response is String
+          ? jsonDecode(response)
+          : response;
+      if (json['success'] == 200 || json['success'] == true) {
+        final result = NavHistoryResponseModel.fromJson(json);
+        return Left(Result.success(result));
+      }
+      return Right(ApiError(message: 'nav Histroy info: Success was false'));
+    } catch (e) {
+      return Right(ApiError(message: 'Nav history info failed $e'));
+    }
+  }
 }

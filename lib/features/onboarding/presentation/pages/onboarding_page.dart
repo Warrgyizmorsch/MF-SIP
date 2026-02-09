@@ -1,8 +1,6 @@
-import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/top_bottom_style/top_bottom_style.dart';
 import 'package:my_sip/features/onboarding/presentation/controller/onboarding_controller.dart';
@@ -166,69 +164,7 @@ class OnboardingPage extends StatelessWidget {
                             ),
                           ),
 
-                          // AnimatedTextKit(
-                          //   key: ValueKey(data.title), // 🔥 important
-                          //   isRepeatingAnimation: false,
-                          //   animatedTexts: [
-                          //     TyperAnimatedText(
-                          //       data.title,
-                          //       textAlign: TextAlign.center,
-                          //       speed: const Duration(milliseconds: 40),
-                          //       textStyle: UTextStyles.large.copyWith(
-                          //         fontSize: 28,
-                          //         fontWeight: FontWeight.w900,
-                          //       ),
-                          //     ),
-                          //   ],
-                          // ),
-
-                          // RichText(
-                          //   textAlign: TextAlign.center,
-                          //   text: TextSpan(
-                          //     children: [
-                          //       TextSpan(
-                          //         // text: 'Small Investments \n',
-                          //         text: '${data.title.split('\n').first}\n',
-
-                          //         style: UTextStyles.large.copyWith(
-                          //           fontSize: 28,
-                          //           fontWeight: FontWeight.w900,
-                          //           // fontWeight: FontWeight.bold,
-                          //         ),
-                          //       ),
-                          //       TextSpan(
-                          //         // text: 'Big ',
-                          //         text:
-                          //             '${data.title.split('\n').last.split(' ').first} ',
-
-                          //         style: UTextStyles.large.copyWith(
-                          //           fontSize: 28,
-                          //           fontWeight: FontWeight.w900,
-                          //         ),
-                          //       ),
-                          //       TextSpan(
-                          //         // text: 'Future.',
-                          //         text: data.title.split(' ').last,
-
-                          //         style: UTextStyles.large.copyWith(
-                          //           fontSize: 28,
-                          //           fontWeight: FontWeight.w900,
-
-                          //           color: Ucolors.primary,
-                          //         ),
-                          //       ),
-                          //     ],
-                          //   ),
-                          // ),
-
-                          // Text(
-                          //   'Small Investments. \nBig Future.',
-                          //   maxLines: 2,
-
-                          //   style: UTextStyles.large.copyWith(fontSize: 28),
-                          //   textAlign: TextAlign.center,
-                          // ),
-                          // Gap(15),
+                    
                           AnimatedSwitcher(
                             duration: const Duration(milliseconds: 600),
                             transitionBuilder: (child, animation) {
@@ -248,42 +184,7 @@ class OnboardingPage extends StatelessWidget {
                             ),
                           ),
 
-                          // AnimatedTextKit(
-
-                          //   key: ValueKey(data.subtitle), // 🔥 important
-                          //   isRepeatingAnimation: false,
-
-                          //   animatedTexts: [
-
-                          //     FadeAnimatedText(
-
-                          //       duration: Duration(seconds: 4),
-
-                          //       // duration: Duration(microseconds: 10),
-                          //       // curve: Easing.emphasizedDecelerate,
-                          //       data.subtitle,
-                          //       // speed: const Duration(milli
-                          //       //seconds: 10),
-                          //       textAlign: TextAlign.center,
-
-                          //       textStyle: UTextStyles.medium.copyWith(
-
-                          //         fontSize: 16,
-                          //         height: 1.6,
-
-                          //       ),
-                          //     ),
-                          //   ],
-                          // ),
-                          // Text(
-                          //   maxLines: 2,
-                          //   // UText.onboardingSubtitle1,
-                          //   data.subtitle,
-                          //   // style: UTextStyles.subtitle1,
-                          //   style: UTextStyles.medium.copyWith(height: 1.6),
-                          //   // textAlign: TextAlign.justify
-                          //   textAlign: TextAlign.center,
-                          // ),
+                        
                           SmoothPageIndicator(
                             effect: ExpandingDotsEffect(
                               activeDotColor: Ucolors.blue,
@@ -325,20 +226,7 @@ class OnboardingPage extends StatelessWidget {
                               ),
                             ),
                           ),
-                          // SizedBox(height: Get.height * 0.013),
-                          // Skip Button (hidden on last page)
-                          // if (!isLastPage)
-                          //   TextButton(
-                          //     onPressed: controller.skipPage,
-                          //     child: Text(
-                          //       'Skip',
-                          //       style: TextStyle(
-                          //         color: Ucolors.dark,
-                          //         fontSize: 16,
-                          //         fontWeight: FontWeight.w500,
-                          //       ),
-                          //     ),
-                          //   ),
+                         
                         ],
                       ),
                     ),

@@ -1243,9 +1243,10 @@ class OverviewScreen extends GetView<FundDetailsController> {
                         .schemePeerComparisonList[index + 1]
                         .schemeName
                         .toString();
+                    final schemeCode = fund.schemeAmfiCode;
                     final controller = Get.find<FundDetailsController>();
 
-                    controller.loadNewFund(scheme);
+                    controller.loadNewFund(scheme, schemeCode);
 
                     // Get.offNamed(
                     //   AppRoutes.funddetails,

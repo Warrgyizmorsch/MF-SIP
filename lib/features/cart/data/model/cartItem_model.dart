@@ -37,6 +37,8 @@ class CartItem {
     required this.fundId,
     required this.fundName,
     required this.logoUrl,
+    
+
   }) {
     // ✅ initialize once
     amountController.text = amount.value.toString();

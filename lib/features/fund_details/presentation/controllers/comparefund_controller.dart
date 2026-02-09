@@ -37,6 +37,7 @@ class CompareFundController extends GetxController {
     if (args != null && args['name'] != null) {
       final String passedImgUrl = args['imgUrl'] ?? ''; // Get the URL from args
       final initialFund = MutualFundListEntity(
+        schemeCode: '',
         baseSchemeName: args['name'],
         // Add other fields if passed in args, or leave null
         schemeType: '',
@@ -55,6 +56,7 @@ class CompareFundController extends GetxController {
     // If a second fund was passed (rare, but possible)
     if (args != null && args['name2'] != null) {
       final secondFund = MutualFundListEntity(
+        schemeCode: '',
         baseSchemeName: args['name2'],
         schemeType: '',
         riskLevel: '',

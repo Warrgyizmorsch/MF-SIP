@@ -4,6 +4,7 @@ import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/fund_details/data/models/fund_performance.dart';
 import 'package:my_sip/features/fund_details/data/models/return_model.dart';
 import 'package:my_sip/features/fund_details/domain/entity/fund_detail_entity.dart';
+import 'package:my_sip/features/fund_details/domain/entity/nav_history_entity.dart';
 import 'package:my_sip/features/fund_details/domain/entity/portfolio_analysis_entity.dart';
 import 'package:my_sip/features/fund_details/domain/usecases/fund_details_usecases.dart';
 
@@ -15,6 +16,7 @@ class FundDetailsController extends GetxController
   // Arguments - initialized in constructor
   late String schemeName;
   late String imgUrl;
+  late String schemeCode;
 
   // Controllers
   late TabController tabController;
@@ -33,33 +35,42 @@ class FundDetailsController extends GetxController
   // State Management
   var isLoading = false.obs;
   final isPortfolioLoading = false.obs;
+  final isNavHistoryLoading = false.obs;
   var hasError = false.obs;
   var errorMessage = ''.obs;
   Rx<FundDetailEntity?> fundDetail = Rx<FundDetailEntity?>(null);
   Rx<SchemeDetailsEntity?> portfolioAnalysis = Rx<SchemeDetailsEntity?>(null);
-
+  Rx<NavHistoryResponseEntity?> navHistorydata = Rx<NavHistoryResponseEntity?>(
+    null,
+  );
 
   List<String> get sectorNames =>
-    portfolioAnalysis.value?.sectorNamesString ?? [];
+      portfolioAnalysis.value?.sectorNamesString ?? [];
 
-List<double> get sectorValues =>
-    portfolioAnalysis.value?.sectorValuesString
-            ?.map((e) => double.tryParse(e.toString()) ?? 0)
-            .toList() ??
-        [];
-
+  List<double> get sectorValues =>
+      portfolioAnalysis.value?.sectorValuesString
+          ?.map((e) => double.tryParse(e.toString()) ?? 0)
+          .toList() ??
+      [];
 
   // Constructor to initialize arguments on each instance
   FundDetailsController({required this.fundDetailsUsecases}) {
     final args = Get.arguments as Map<String, dynamic>? ?? {};
     schemeName = args['scheme'] ?? 'Fund Details';
     imgUrl = args['imgUrl'] ?? '';
+
+    schemeCode = args['scheme_code'] ?? '';
+
     createLog("gggg$schemeName");
+    // createLog("gggg$schemeCode");
     // getFundDetails(scchemeName: schemeName);
-    fetchAllData(scheme: schemeName);
+    fetchAllData(scheme: schemeName, id: schemeCode);
   }
 
-  Future<void> fetchAllData({required String scheme}) async {
+  Future<void> fetchAllData({
+    required String scheme,
+    required String id,
+  }) async {
     // Optional: Set global loading state if you want to block the whole UI
     // isLoading.value = true;
 
@@ -67,6 +78,7 @@ List<double> get sectorValues =>
     await Future.wait([
       getFundDetails(scchemeName: scheme),
       getPortfolioAnalysis(scchemeName: scheme),
+      getShcemeNavHistory(scchemeCode: id),
     ]);
 
     // isLoading.value = false;
@@ -147,14 +159,50 @@ List<double> get sectorValues =>
     }
   }
 
+  // Get Scheme nav history
+  Future<void> getShcemeNavHistory({required String scchemeCode}) async {
+    try {
+      isNavHistoryLoading.value = true;
+      hasError.value = false;
+      errorMessage.value = '';
+
+      final result = await fundDetailsUsecases.navHistoryUsecases.call({
+        'from': '2026-01-01',
+        'to': '2026-01-09',
+        'scheme_code': scchemeCode,
+      });
+
+      result.fold(
+        (success) {
+          navHistorydata.value = success.data;
+          isNavHistoryLoading.value = false;
+          createLog(
+            "Nav history loaded successfully --------- ${navHistorydata.value}",
+          );
+        },
+        (error) {
+          hasError.value = true;
+          errorMessage.value = error.toString();
+          isNavHistoryLoading.value = false;
+          createLog("Error loading Navhistory details: $error");
+        },
+      );
+    } catch (e) {
+      hasError.value = true;
+      errorMessage.value = e.toString();
+      isNavHistoryLoading.value = false;
+      createLog("Exception in Portfolio: $e");
+    }
+  }
+
   //Loaded new data when click to new fund
-  void loadNewFund(String newScheme) {
+  void loadNewFund(String newScheme, String schemeCode) {
     schemeName = newScheme;
     imgUrl = '';
     // getFundDetails(scchemeName: newScheme);
     // fundDetail.value = null;
     // portfolioAnalysis.value = null;
-    fetchAllData(scheme: newScheme);
+    fetchAllData(scheme: newScheme, id: schemeCode);
 
     scrollController.jumpTo(0); // optional: scroll to top
   }
@@ -162,7 +210,7 @@ List<double> get sectorValues =>
   // Method to retry fetching fund details
   void retryFetchingDetails() {
     // getFundDetails(scchemeName: schemeName);
-    fetchAllData(scheme: schemeName);
+    fetchAllData(scheme: schemeName, id: schemeCode);
   }
 
   void _onScroll() {

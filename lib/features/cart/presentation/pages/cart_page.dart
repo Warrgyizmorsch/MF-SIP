@@ -57,7 +57,9 @@ class CartPage extends GetView<CartController> {
         child: Obx(
           () => CartBottomBar(
             goalAmount: controller.items.isEmpty
-                ? null
+                ? '/Monthly'
+                : controller.monthlyAmount.value == 0
+                ? '/Monthly'
                 : '/${controller.monthlyAmount.value.toString()}',
             amount: controller.totolAmount.toString(),
             ontap: () {
@@ -148,7 +150,7 @@ class CartBottomBar extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        goalAmount ?? '/Monthly',
+                        goalAmount != null ? goalAmount! : '/Monthly',
                         style: TextStyle(
                           fontSize: goalAmount != null ? 25 : 14,
                         ),

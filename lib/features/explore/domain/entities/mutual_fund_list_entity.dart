@@ -30,6 +30,7 @@ class MutualFundListEntity extends Equatable {
   final String? schemeType;
   final String? riskLevel;
   final String? isin;
+  final String? schemeCode;
   final AmcEntity? amc;
 
   final int? minSipAmount;
@@ -37,6 +38,8 @@ class MutualFundListEntity extends Equatable {
   final List<VariantModelEntity> variants;
 
   const MutualFundListEntity({
+    required this.schemeCode,
+
     required this.baseSchemeName,
     required this.schemeType,
     required this.riskLevel,
@@ -63,6 +66,7 @@ class MutualFundListEntity extends Equatable {
 extension MutualFundListEntityX on MutualFundListModel {
   MutualFundListEntity toEntity() {
     return MutualFundListEntity(
+      schemeCode: schemeCode,
       baseSchemeName: baseSchemeName,
       schemeType: schemeType,
       riskLevel: riskLevel,

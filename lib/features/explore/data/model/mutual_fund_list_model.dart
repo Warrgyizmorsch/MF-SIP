@@ -28,6 +28,7 @@ class MutualFundListModel {
   final String? baseSchemeName;
   final String? schemeType;
   final String? riskLevel;
+  final String? schemeCode;
   final String? isin;
   final AmcModel? amc;
 
@@ -36,6 +37,7 @@ class MutualFundListModel {
   final List<VariantModel> variants;
 
   MutualFundListModel({
+    required this.schemeCode,
     required this.baseSchemeName,
     required this.schemeType,
     required this.isin,
@@ -48,6 +50,7 @@ class MutualFundListModel {
 
   factory MutualFundListModel.fromJson(Map<String, dynamic> json) {
     return MutualFundListModel(
+      schemeCode: json.parse<String>('scheme_code'),
       baseSchemeName: json.parse<String>('fund_name'),
       schemeType: json.parse<String>('scheme_type'),
       isin: json.parse<String>('isin'),
