@@ -24,7 +24,7 @@ class _FilterpageState extends State<Filterpage> {
   int selectedMenuIndex = 0;
 
   final List<String> leftMenu = [
-    'Sort by',
+    // 'Sort by',
     'Categories',
     'Risk',
     'Ratings',
@@ -243,7 +243,12 @@ class CategoriesPanel extends StatelessWidget {
           // Web: Prevents the button from becoming too wide
           // Mobile: Adapts to screen width naturally
           constraints: const BoxConstraints(maxWidth: 400),
-          padding: const EdgeInsets.fromLTRB(16, 8, 8, 8), // Adjusted padding for balance
+          padding: const EdgeInsets.fromLTRB(
+            16,
+            8,
+            8,
+            8,
+          ), // Adjusted padding for balance
           decoration: BoxDecoration(
             color: Colors.white, // Ensure background is visible
             borderRadius: BorderRadius.circular(12),
@@ -251,19 +256,22 @@ class CategoriesPanel extends StatelessWidget {
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            mainAxisSize: MainAxisSize.min, // Important: Wraps content width on Web
+            mainAxisSize:
+                MainAxisSize.min, // Important: Wraps content width on Web
             children: [
               // 1. Use Flexible/Expanded to handle text sizing safely
               Flexible(
-                fit: FlexFit.loose, // Allows text to be its natural size, shrinks if needed
+                fit: FlexFit
+                    .loose, // Allows text to be its natural size, shrinks if needed
                 child: Text(
                   'Index Funds only',
                   style: UTextStyles.medium.copyWith(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
                   ),
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis, // Safe clipping on small mobiles
+                  overflow:
+                      TextOverflow.ellipsis, // Safe clipping on small mobiles
                 ),
               ),
 
@@ -282,12 +290,14 @@ class CategoriesPanel extends StatelessWidget {
                       return const Color(0xFFE0E0E0);
                     }),
                     thumbColor: MaterialStateProperty.all(Colors.white),
-                    trackOutlineColor: MaterialStateProperty.all(Colors.transparent),
+                    trackOutlineColor: MaterialStateProperty.all(
+                      Colors.transparent,
+                    ),
                     trackOutlineWidth: MaterialStateProperty.all(0),
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   child: Obx(
-                        () => Switch(
+                    () => Switch(
                       value: controller.indexFundOnly.value,
                       onChanged: (v) => controller.indexFundOnly.toggle(),
                     ),

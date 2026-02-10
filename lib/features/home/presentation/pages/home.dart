@@ -31,7 +31,12 @@ class WebHoverScale extends StatefulWidget {
   final VoidCallback? onTap;
   final double scale;
 
-  const WebHoverScale({super.key, required this.child, this.onTap, this.scale = 1.05});
+  const WebHoverScale({
+    super.key,
+    required this.child,
+    this.onTap,
+    this.scale = 1.05,
+  });
 
   @override
   State<WebHoverScale> createState() => _WebHoverScaleState();
@@ -108,17 +113,17 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
       body: isDesktop
           ? _WebDashboardLayout(
-        authController: authController,
-        cartController: cartController,
-        mutualController: mutualcontroller,
-        navController: navigation,
-      )
+              authController: authController,
+              cartController: cartController,
+              mutualController: mutualcontroller,
+              navController: navigation,
+            )
           : _MobileLayout(
-        authController: authController,
-        cartController: cartController,
-        mutualController: mutualcontroller,
-        navController: navigation,
-      ),
+              authController: authController,
+              cartController: cartController,
+              mutualController: mutualcontroller,
+              navController: navigation,
+            ),
     );
   }
 }
@@ -163,25 +168,52 @@ class _WebDashboardLayout extends StatelessWidget {
                           children: [
                             _buildHeroBanner(),
                             const Gap(30),
-                            const Text("Quick Actions", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                            const Text(
+                              "Quick Actions",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             const Gap(16),
                             _buildQuickActionsCard(),
                             const Gap(30),
-                            const Text("Explore Categories", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                            const Text(
+                              "Explore Categories",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             const Gap(16),
                             _buildWebCollectionGrid(),
                             const Gap(30),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text("Popular Funds", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                                TextButton(onPressed: () {}, child: const Text("View All")),
+                                const Text(
+                                  "Popular Funds",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () {},
+                                  child: const Text("View All"),
+                                ),
                               ],
                             ),
                             const Gap(10),
                             _buildWebFundGrid(),
                             const Gap(30),
-                            const Text("Learn & Grow", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                            const Text(
+                              "Learn & Grow",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             const Gap(16),
                             _buildWebVideoRow(),
                           ],
@@ -222,17 +254,48 @@ class _WebDashboardLayout extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              IconButton(onPressed: () {}, icon: const Icon(Iconsax.notification), hoverColor: Ucolors.primary.withOpacity(0.1)),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Iconsax.notification),
+                hoverColor: Ucolors.primary.withOpacity(0.1),
+              ),
               const Gap(10),
-              Obx(() => Stack(
-                children: [
-                  IconButton(icon: const Icon(Iconsax.shopping_cart), onPressed: () => Get.toNamed(AppRoutes.cart), hoverColor: Ucolors.primary.withOpacity(0.1)),
-                  if (cartController.itemsCount > 0)
-                    Positioned(right: 5, top: 5, child: Container(padding: const EdgeInsets.all(4), decoration: const BoxDecoration(color: Ucolors.red, shape: BoxShape.circle), child: Text(cartController.itemsCount.toString(), style: const TextStyle(fontSize: 10, color: Colors.white)))),
-                ],
-              )),
+              Obx(
+                () => Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Iconsax.shopping_cart),
+                      onPressed: () => Get.toNamed(AppRoutes.cart),
+                      hoverColor: Ucolors.primary.withOpacity(0.1),
+                    ),
+                    if (cartController.itemsCount > 0)
+                      Positioned(
+                        right: 5,
+                        top: 5,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Ucolors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            cartController.itemsCount.toString(),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
               const Gap(10),
-              CompactIcon(icon: Iconsax.archive_tick, onPressed: () => Get.toNamed(AppRoutes.watchlist), iconColor: Ucolors.dark),
+              CompactIcon(
+                icon: Iconsax.archive_tick,
+                onPressed: () => Get.toNamed(AppRoutes.watchlist),
+                iconColor: Ucolors.dark,
+              ),
             ],
           ),
         ),
@@ -247,9 +310,19 @@ class _WebDashboardLayout extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(30),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [Color(0xFF07315C), Color(0xff0280C0)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF07315C), Color(0xff0280C0)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [BoxShadow(color: Ucolors.primary.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))],
+          boxShadow: [
+            BoxShadow(
+              color: Ucolors.primary.withOpacity(0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -257,17 +330,47 @@ class _WebDashboardLayout extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Welcome Back, ${authController.user.value?.name ?? 'Investor'}!", style: UTextStyles.heading2.copyWith(color: Colors.white)),
+                  Text(
+                    "Welcome Back, ${authController.user.value?.name ?? 'Investor'}!",
+                    style: UTextStyles.heading2.copyWith(color: Colors.white),
+                  ),
                   const Gap(10),
-                  Text("Track your investments and achieve your financial freedom.", style: UTextStyles.medium.copyWith(color: Colors.white70)),
+                  Text(
+                    "Track your investments and achieve your financial freedom.",
+                    style: UTextStyles.medium.copyWith(color: Colors.white70),
+                  ),
                 ],
               ),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white30)),
-              child: Row(children: [const Icon(Icons.verified_user_outlined, color: Colors.white), const Gap(10), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text("KYC Status", style: TextStyle(color: Colors.white70, fontSize: 12)), Text("Pending Action", style: UTextStyles.subtitle1.copyWith(color: Colors.white))])]),
-            )
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white30),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.verified_user_outlined, color: Colors.white),
+                  const Gap(10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "KYC Status",
+                        style: TextStyle(color: Colors.white70, fontSize: 12),
+                      ),
+                      Text(
+                        "Pending Action",
+                        style: UTextStyles.subtitle1.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -277,15 +380,33 @@ class _WebDashboardLayout extends StatelessWidget {
   Widget _buildQuickActionsCard() {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 5))]),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _WebQuickActionItem("Start SIP", UImages.startsip, () => Get.toNamed(AppRoutes.startSipScreen)),
+          _WebQuickActionItem(
+            "Start SIP",
+            UImages.startsip,
+            () => Get.toNamed(AppRoutes.startSipScreen),
+          ),
           const Gap(40),
-          _WebQuickActionItem("Freedom SIP", UImages.freedomsip, () => Get.toNamed(AppRoutes.startSipScreen)),
+          // _WebQuickActionItem("Freedom SIP", UImages.freedomsip, () => Get.toNamed(AppRoutes.startSipScreen)),
           const Gap(40),
-          _WebQuickActionItem("Lumpsum", UImages.glyph, () => Get.toNamed(AppRoutes.startSipScreen)),
+          _WebQuickActionItem(
+            "Lumpsum",
+            UImages.glyph,
+            () => Get.toNamed(AppRoutes.startSipScreen),
+          ),
         ],
       ),
     );
@@ -304,7 +425,12 @@ class _WebDashboardLayout extends StatelessWidget {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 6, childAspectRatio: 1.1, crossAxisSpacing: 12, mainAxisSpacing: 12),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 6,
+        childAspectRatio: 1.1,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+      ),
       itemCount: items.length,
       itemBuilder: (ctx, i) => WebHoverScale(
         scale: 1.1, // Higher scale for small icons
@@ -323,17 +449,32 @@ class _WebDashboardLayout extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: count,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4, childAspectRatio: 1.8, crossAxisSpacing: 16, mainAxisSpacing: 16),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4,
+          childAspectRatio: 1.8,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+        ),
         itemBuilder: (context, index) {
           final fund = funds[index];
           final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
           final name = fund.baseSchemeName ?? 'Unknown Name';
+          final schemeCode = fund.schemeCode.toString();
 
           // Wrap Fund Card with Hover Scale
           return WebHoverScale(
             child: PopularFundCard(
-              isNetwork: true, imgPath: img, name: name,
-              onTap: () => Get.toNamed(AppRoutes.funddetails, arguments: {'scheme': name, 'imgUrl': img}),
+              isNetwork: true,
+              imgPath: img,
+              name: name,
+              onTap: () => Get.toNamed(
+                AppRoutes.funddetails,
+                arguments: {
+                  'scheme': name,
+                  'imgUrl': img,
+                  'scheme_code': schemeCode,
+                },
+              ),
             ),
           );
         },
@@ -344,19 +485,36 @@ class _WebDashboardLayout extends StatelessWidget {
   Widget _buildWebGoalSection() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)]),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Plan Your Goals", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const Text(
+            "Plan Your Goals",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
           const Gap(16),
           _WebGoalTile("Car Goal", Icons.directions_car_filled_rounded, 'car'),
           const Gap(10),
-          _WebGoalTile("Marriage Goal", Icons.favorite_border_outlined, 'marriage'),
+          _WebGoalTile(
+            "Marriage Goal",
+            Icons.favorite_border_outlined,
+            'marriage',
+          ),
           const Gap(10),
           _WebGoalTile("Home Goal", Icons.home_rounded, 'home'),
           const Gap(10),
-          _WebGoalTile("Vacation Goal", Icons.flight_takeoff_rounded, 'vacation'),
+          _WebGoalTile(
+            "Vacation Goal",
+            Icons.flight_takeoff_rounded,
+            'vacation',
+          ),
         ],
       ),
     );
@@ -366,20 +524,45 @@ class _WebDashboardLayout extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)]),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Financial Tools", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const Text(
+            "Financial Tools",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
           const Gap(16),
           // Wrap Tools in HoverTile logic for background change
-          _buildToolItem("SIP Calculator", UImages.sipcalci, () => Get.to(() => const SipCalculatorPage())),
+          _buildToolItem(
+            "SIP Calculator",
+            UImages.sipcalci,
+            () => Get.to(() => const SipCalculatorPage()),
+          ),
           const Gap(8),
-          _buildToolItem("SWP Calculator", UImages.swpcali, () => Get.to(() => const SwpCalciScreen())),
+          _buildToolItem(
+            "SWP Calculator",
+            UImages.swpcali,
+            () => Get.to(() => const SwpCalciScreen()),
+          ),
           const Gap(8),
-          _buildToolItem("Step-Up Calculator", UImages.siptopcalci, () => Get.to(() => const TopUpCalculatorPage())),
+          _buildToolItem(
+            "Step-Up Calculator",
+            UImages.siptopcalci,
+            () => Get.to(() => const TopUpCalculatorPage()),
+          ),
           const Gap(8),
-          _buildToolItem("Compare Fund", UImages.comparefund, () => Get.toNamed(AppRoutes.comparefund)),
+          _buildToolItem(
+            "Compare Fund",
+            UImages.comparefund,
+            () => Get.toNamed(AppRoutes.comparefund),
+          ),
         ],
       ),
     );
@@ -393,14 +576,22 @@ class _WebDashboardLayout extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: isHovered ? Ucolors.primary.withOpacity(0.05) : Colors.transparent,
+          color: isHovered
+              ? Ucolors.primary.withOpacity(0.05)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           children: [
             SizedBox(height: 30, width: 30, child: Image.asset(img)),
             const Gap(15),
-            Text(title, style: TextStyle(color: isHovered ? Ucolors.primary : Colors.grey[700], fontWeight: isHovered ? FontWeight.bold : FontWeight.normal)),
+            Text(
+              title,
+              style: TextStyle(
+                color: isHovered ? Ucolors.primary : Colors.grey[700],
+                fontWeight: isHovered ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
           ],
         ),
       ),
@@ -413,9 +604,21 @@ class _WebDashboardLayout extends StatelessWidget {
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: const [
-          WebHoverScale(child: InlineYouTubePlayer(thumbnailUrl: "https://img.youtube.com/vi/yo5aL4Plbso/maxresdefault.jpg", videoId: "yo5aL4Plbso")),
+          WebHoverScale(
+            child: InlineYouTubePlayer(
+              thumbnailUrl:
+                  "https://img.youtube.com/vi/yo5aL4Plbso/maxresdefault.jpg",
+              videoId: "yo5aL4Plbso",
+            ),
+          ),
           SizedBox(width: 20),
-          WebHoverScale(child: InlineYouTubePlayer(thumbnailUrl: "https://img.youtube.com/vi/t7lUSiddFd4/maxresdefault.jpg", videoId: "t7lUSiddFd4")),
+          WebHoverScale(
+            child: InlineYouTubePlayer(
+              thumbnailUrl:
+                  "https://img.youtube.com/vi/t7lUSiddFd4/maxresdefault.jpg",
+              videoId: "t7lUSiddFd4",
+            ),
+          ),
         ],
       ),
     );
@@ -436,17 +639,31 @@ class _WebQuickActionItem extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            height: 60, width: 60,
+            height: 60,
+            width: 60,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Ucolors.primary,
               borderRadius: BorderRadius.circular(16),
-              boxShadow: [BoxShadow(color: Ucolors.primary.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))],
+              boxShadow: [
+                BoxShadow(
+                  color: Ucolors.primary.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: SvgPicture.asset(icon, width: 28, height: 28),
           ),
           const Gap(10),
-          Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87)),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
         ],
       ),
     );
@@ -463,13 +680,18 @@ class _WebGoalTile extends StatelessWidget {
   Widget build(BuildContext context) {
     // Use WebHoverTile for background highlight effect
     return WebHoverTile(
-      onTap: () => Get.toNamed(AppRoutes.ihavegoal, arguments: {'goalType': type}),
+      onTap: () =>
+          Get.toNamed(AppRoutes.ihavegoal, arguments: {'goalType': type}),
       builder: (isHovered) => AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isHovered ? Ucolors.blue.withOpacity(0.05) : Colors.transparent,
-          border: Border.all(color: isHovered ? Ucolors.blue : Colors.grey.shade200),
+          color: isHovered
+              ? Ucolors.blue.withOpacity(0.05)
+              : Colors.transparent,
+          border: Border.all(
+            color: isHovered ? Ucolors.blue : Colors.grey.shade200,
+          ),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -478,7 +700,11 @@ class _WebGoalTile extends StatelessWidget {
             const Gap(12),
             Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
             const Spacer(),
-            Icon(Icons.arrow_forward_ios, size: 12, color: isHovered ? Ucolors.blue : Colors.grey),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 12,
+              color: isHovered ? Ucolors.blue : Colors.grey,
+            ),
           ],
         ),
       ),
@@ -542,7 +768,7 @@ class _MobileLayout extends StatelessWidget {
                         iconColor: Ucolors.light,
                       ),
                       Obx(
-                            () => Stack(
+                        () => Stack(
                           children: [
                             CompactIcon(
                               icon: Iconsax.shopping_cart,
@@ -604,14 +830,22 @@ class _MobileLayout extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         GestureDetector(
-                            onTap: () => Get.toNamed(AppRoutes.startSipScreen),
-                            child: const FeatureSection(featureName: 'Start SIP', iconPath: UImages.startsip)),
+                          onTap: () => Get.toNamed(AppRoutes.startSipScreen),
+                          child: const FeatureSection(
+                            featureName: 'Start SIP',
+                            iconPath: UImages.startsip,
+                          ),
+                        ),
+                        // GestureDetector(
+                        //     onTap: () => Get.toNamed(AppRoutes.startSipScreen),
+                        //     child: const FeatureSection(featureName: 'Freedom SIP', iconPath: UImages.freedomsip)),
                         GestureDetector(
-                            onTap: () => Get.toNamed(AppRoutes.startSipScreen),
-                            child: const FeatureSection(featureName: 'Freedom SIP', iconPath: UImages.freedomsip)),
-                        GestureDetector(
-                            onTap: () => Get.toNamed(AppRoutes.startSipScreen),
-                            child: const FeatureSection(featureName: 'Lumpsum', iconPath: UImages.glyph)),
+                          onTap: () => Get.toNamed(AppRoutes.startSipScreen),
+                          child: const FeatureSection(
+                            featureName: 'Lumpsum',
+                            iconPath: UImages.glyph,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -629,11 +863,18 @@ class _MobileLayout extends StatelessWidget {
                           color: Ucolors.light,
                           borderRadius: BorderRadius.circular(15),
                           boxShadow: [
-                            BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 5, offset: const Offset(0, 4)),
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.15),
+                              blurRadius: 5,
+                              offset: const Offset(0, 4),
+                            ),
                           ],
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 15,
+                            vertical: 10,
+                          ),
                           child: Row(
                             children: [
                               const Icon(Icons.person, size: 24),
@@ -644,9 +885,28 @@ class _MobileLayout extends StatelessWidget {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text('Onboarding task', style: UTextStyles.caption.copyWith(fontSize: 12)),
-                                    Text('Complete KYC & Profile', style: UTextStyles.medium.copyWith(fontWeight: FontWeight.bold, color: Ucolors.dark, fontSize: 14)),
-                                    Text('Verify your Identity to start Investing', maxLines: 1, overflow: TextOverflow.ellipsis, style: UTextStyles.caption.copyWith(fontSize: 10)),
+                                    Text(
+                                      'Onboarding task',
+                                      style: UTextStyles.caption.copyWith(
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Complete KYC & Profile',
+                                      style: UTextStyles.medium.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Ucolors.dark,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Verify your Identity to start Investing',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: UTextStyles.caption.copyWith(
+                                        fontSize: 10,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -666,7 +926,10 @@ class _MobileLayout extends StatelessWidget {
           const SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.fromLTRB(16, 20, 16, 0),
-              child: SectionHeading(sectionTitle: 'Collection', fontWeight: FontWeight.w500),
+              child: SectionHeading(
+                sectionTitle: 'Collection',
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
           SliverPadding(
@@ -679,12 +942,36 @@ class _MobileLayout extends StatelessWidget {
                 crossAxisSpacing: 12,
               ),
               delegate: SliverChildListDelegate([
-                CollectionItem(title: 'Best SIP Funds', iconImg: UImages.savingbank, onTap: () => Get.to(() => const ExploreScreen())),
-                CollectionItem(title: 'High Returns', iconImg: UImages.highreturn, onTap: () => Get.to(() => const ExploreScreen())),
-                CollectionItem(onTap: () => Get.to(() => const ExploreScreen()), title: 'International Funds', iconImg: UImages.interfund),
-                CollectionItem(onTap: () => Get.to(() => const ExploreScreen()), title: 'Index Funds', iconImg: UImages.indexfund),
-                CollectionItem(onTap: () => Get.to(() => const ExploreScreen()), title: 'Commodities', iconImg: UImages.moneygold),
-                CollectionItem(onTap: () => Get.to(() => const ExploreScreen()), title: 'Equity', iconImg: UImages.equity),
+                CollectionItem(
+                  title: 'Best SIP Funds',
+                  iconImg: UImages.savingbank,
+                  onTap: () => Get.to(() => const ExploreScreen()),
+                ),
+                CollectionItem(
+                  title: 'High Returns',
+                  iconImg: UImages.highreturn,
+                  onTap: () => Get.to(() => const ExploreScreen()),
+                ),
+                CollectionItem(
+                  onTap: () => Get.to(() => const ExploreScreen()),
+                  title: 'International Funds',
+                  iconImg: UImages.interfund,
+                ),
+                CollectionItem(
+                  onTap: () => Get.to(() => const ExploreScreen()),
+                  title: 'Index Funds',
+                  iconImg: UImages.indexfund,
+                ),
+                CollectionItem(
+                  onTap: () => Get.to(() => const ExploreScreen()),
+                  title: 'Commodities',
+                  iconImg: UImages.moneygold,
+                ),
+                CollectionItem(
+                  onTap: () => Get.to(() => const ExploreScreen()),
+                  title: 'Equity',
+                  iconImg: UImages.equity,
+                ),
               ]),
             ),
           ),
@@ -693,7 +980,10 @@ class _MobileLayout extends StatelessWidget {
           const SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.fromLTRB(16, 20, 16, 12),
-              child: USectionHeading(title: 'Create Goal Base SIP', showActionButton: false),
+              child: USectionHeading(
+                title: 'Create Goal Base SIP',
+                showActionButton: false,
+              ),
             ),
           ),
           SliverPadding(
@@ -706,30 +996,91 @@ class _MobileLayout extends StatelessWidget {
                 crossAxisSpacing: 16,
               ),
               delegate: SliverChildListDelegate([
-                GoalBaseSIPCard(onTap: () => Get.toNamed(AppRoutes.ihavegoal, arguments: {'goalType': 'car'}), title: 'Car Goal', iconData: Icons.directions_car_filled_rounded),
-                GoalBaseSIPCard(title: 'Bike Goal', iconData: Icons.pedal_bike_rounded, onTap: () => Get.toNamed(AppRoutes.ihavegoal, arguments: {'goalType': 'bike'})),
-                GoalBaseSIPCard(onTap: () => Get.toNamed(AppRoutes.ihavegoal, arguments: {'goalType': 'marriage'}), title: 'Marriage Goal', iconData: Icons.favorite_border_outlined),
-                GoalBaseSIPCard(onTap: () => Get.toNamed(AppRoutes.ihavegoal, arguments: {'goalType': 'vacation'}), title: 'Vacation Goal', iconData: Icons.flight_takeoff_rounded),
-                GoalBaseSIPCard(onTap: () => Get.toNamed(AppRoutes.ihavegoal, arguments: {'goalType': 'home'}), title: 'Home Goal', iconData: Icons.home_rounded),
+                GoalBaseSIPCard(
+                  onTap: () => Get.toNamed(
+                    AppRoutes.ihavegoal,
+                    arguments: {'goalType': 'car'},
+                  ),
+                  title: 'Car Goal',
+                  iconData: Icons.directions_car_filled_rounded,
+                ),
+                GoalBaseSIPCard(
+                  title: 'Bike Goal',
+                  iconData: Icons.pedal_bike_rounded,
+                  onTap: () => Get.toNamed(
+                    AppRoutes.ihavegoal,
+                    arguments: {'goalType': 'bike'},
+                  ),
+                ),
+                GoalBaseSIPCard(
+                  onTap: () => Get.toNamed(
+                    AppRoutes.ihavegoal,
+                    arguments: {'goalType': 'marriage'},
+                  ),
+                  title: 'Marriage Goal',
+                  iconData: Icons.favorite_border_outlined,
+                ),
+                GoalBaseSIPCard(
+                  onTap: () => Get.toNamed(
+                    AppRoutes.ihavegoal,
+                    arguments: {'goalType': 'vacation'},
+                  ),
+                  title: 'Vacation Goal',
+                  iconData: Icons.flight_takeoff_rounded,
+                ),
+                GoalBaseSIPCard(
+                  onTap: () => Get.toNamed(
+                    AppRoutes.ihavegoal,
+                    arguments: {'goalType': 'home'},
+                  ),
+                  title: 'Home Goal',
+                  iconData: Icons.home_rounded,
+                ),
                 GestureDetector(
                   onTap: () => Get.toNamed(AppRoutes.ihavegoal),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: Ucolors.borderColor, width: 1),
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 2))],
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Row(
                       children: [
                         Container(
                           padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(color: const Color(0xFFEEF5FF), borderRadius: BorderRadius.circular(8)),
-                          child: const Icon(Icons.add, size: 20, color: Ucolors.blue),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEEF5FF),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.add,
+                            size: 20,
+                            color: Ucolors.blue,
+                          ),
                         ),
                         const SizedBox(width: 12),
-                        Expanded(child: Text('Custom Goal', style: UTextStyles.small.copyWith(color: Ucolors.dark, fontWeight: FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                        Expanded(
+                          child: Text(
+                            'Custom Goal',
+                            style: UTextStyles.small.copyWith(
+                              color: Ucolors.dark,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -742,7 +1093,11 @@ class _MobileLayout extends StatelessWidget {
           const SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.fromLTRB(16, 20, 16, 0),
-              child: USectionHeading(title: 'Products & Tool', buttonTitle: 'See all', showActionButton: true),
+              child: USectionHeading(
+                title: 'Products & Tool',
+                buttonTitle: 'See all',
+                showActionButton: true,
+              ),
             ),
           ),
           SliverPadding(
@@ -755,10 +1110,26 @@ class _MobileLayout extends StatelessWidget {
                 crossAxisSpacing: 16,
               ),
               delegate: SliverChildListDelegate([
-                ToolsItem(title: "SIP Calculator", imgUrl: UImages.sipcalci, onTap: () => Get.to(() => const SipCalculatorPage())),
-                ToolsItem(title: "SWP Calculator", imgUrl: UImages.swpcali, onTap: () => Get.to(() => const SwpCalciScreen())),
-                ToolsItem(title: "Step-Up Calculator", imgUrl: UImages.siptopcalci, onTap: () => Get.to(() => const TopUpCalculatorPage())),
-                ToolsItem(title: "Compare Fund", imgUrl: UImages.comparefund, onTap: () => Get.toNamed(AppRoutes.comparefund)),
+                ToolsItem(
+                  title: "SIP Calculator",
+                  imgUrl: UImages.sipcalci,
+                  onTap: () => Get.to(() => const SipCalculatorPage()),
+                ),
+                ToolsItem(
+                  title: "SWP Calculator",
+                  imgUrl: UImages.swpcali,
+                  onTap: () => Get.to(() => const SwpCalciScreen()),
+                ),
+                ToolsItem(
+                  title: "Step-Up Calculator",
+                  imgUrl: UImages.siptopcalci,
+                  onTap: () => Get.to(() => const TopUpCalculatorPage()),
+                ),
+                ToolsItem(
+                  title: "Compare Fund",
+                  imgUrl: UImages.comparefund,
+                  onTap: () => Get.toNamed(AppRoutes.comparefund),
+                ),
               ]),
             ),
           ),
@@ -767,7 +1138,10 @@ class _MobileLayout extends StatelessWidget {
           const SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.fromLTRB(16, 20, 16, 0),
-              child: USectionHeading(title: 'Popular Funds', showActionButton: true),
+              child: USectionHeading(
+                title: 'Popular Funds',
+                showActionButton: true,
+              ),
             ),
           ),
           SliverPadding(
@@ -785,8 +1159,16 @@ class _MobileLayout extends StatelessWidget {
                   final fund = mutualController.searchFund[index];
                   final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
                   final name = fund.baseSchemeName ?? 'Unknown Name';
+                  final schemeCode = fund.schemeCode.toString();
                   return PopularFundCard(
-                    onTap: () => Get.toNamed(AppRoutes.funddetails, arguments: {'scheme': name, 'imgUrl': img}),
+                    onTap: () => Get.toNamed(
+                      AppRoutes.funddetails,
+                      arguments: {
+                        'scheme': name,
+                        'imgUrl': img,
+                        'scheme_code': schemeCode,
+                      },
+                    ),
                     isNetwork: true,
                     imgPath: img,
                     name: name,
@@ -800,7 +1182,11 @@ class _MobileLayout extends StatelessWidget {
           const SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.fromLTRB(16, 20, 16, 0),
-              child: USectionHeading(title: 'Video’s & Blogs', showActionButton: true, buttonTitle: 'See all'),
+              child: USectionHeading(
+                title: 'Video’s & Blogs',
+                showActionButton: true,
+                buttonTitle: 'See all',
+              ),
             ),
           ),
           SliverToBoxAdapter(
@@ -810,10 +1196,18 @@ class _MobileLayout extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: const [
-                  InlineYouTubePlayer(thumbnailUrl: "https://img.youtube.com/vi/yo5aL4Plbso/maxresdefault.jpg", videoId: "yo5aL4Plbso"),
+                  InlineYouTubePlayer(
+                    thumbnailUrl:
+                        "https://img.youtube.com/vi/yo5aL4Plbso/maxresdefault.jpg",
+                    videoId: "yo5aL4Plbso",
+                  ),
                   // YoutubeThumbnail(videoId: 'yo5aL4Plbso'),
                   SizedBox(width: 16),
-                  InlineYouTubePlayer(thumbnailUrl: "https://img.youtube.com/vi/t7lUSiddFd4/maxresdefault.jpg", videoId: "t7lUSiddFd4"),
+                  InlineYouTubePlayer(
+                    thumbnailUrl:
+                        "https://img.youtube.com/vi/t7lUSiddFd4/maxresdefault.jpg",
+                    videoId: "t7lUSiddFd4",
+                  ),
 
                   // YoutubeThumbnail(videoId: 't7lUSiddFd4'),
                   SizedBox(width: 16),
@@ -846,11 +1240,14 @@ class YoutubeThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final thumbnailUrl = 'https://img.youtube.com/vi/$videoId/maxresdefault.jpg';
+    final thumbnailUrl =
+        'https://img.youtube.com/vi/$videoId/maxresdefault.jpg';
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     // On mobile, use percentage width. On desktop, use fixed width.
-    final displayWidth = isDesktop ? width : MediaQuery.of(context).size.width * 0.8;
+    final displayWidth = isDesktop
+        ? width
+        : MediaQuery.of(context).size.width * 0.8;
 
     return GestureDetector(
       onTap: onTap,
@@ -859,20 +1256,57 @@ class YoutubeThumbnail extends StatelessWidget {
         height: height, // Use height parameter
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(borderRadius),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 10, offset: const Offset(0, 4))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.12),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(borderRadius),
           child: Stack(
             fit: StackFit.expand,
             children: [
-              Image.network(thumbnailUrl, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(color: Colors.grey.shade800, child: const Icon(Icons.error, color: Colors.white54))),
-              Container(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.transparent, Colors.black.withOpacity(0.6)], stops: const [0.4, 1.0]))),
+              Image.network(
+                thumbnailUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  color: Colors.grey.shade800,
+                  child: const Icon(Icons.error, color: Colors.white54),
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Colors.transparent, Colors.black.withOpacity(0.6)],
+                    stops: const [0.4, 1.0],
+                  ),
+                ),
+              ),
               Center(
                 child: Container(
-                  width: 64, height: 64,
-                  decoration: BoxDecoration(color: const Color(0xfff44336), shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.red.withOpacity(0.5), blurRadius: 12, spreadRadius: 2)]),
-                  child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 42),
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: const Color(0xfff44336),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.red.withOpacity(0.5),
+                        blurRadius: 12,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.play_arrow_rounded,
+                    color: Colors.white,
+                    size: 42,
+                  ),
                 ),
               ),
             ],
@@ -908,7 +1342,13 @@ class PopularFundCard extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: borderColor),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 3))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         child: Padding(
           padding: const EdgeInsets.all(10),
@@ -922,15 +1362,26 @@ class PopularFundCard extends StatelessWidget {
                   children: [
                     ClipOval(
                       child: Container(
-                        height: 40, width: 40, color: Colors.grey.shade50,
-                        child: isNetwork ? CustomCachedImage(imageUrl: imgPath, size: 40) : Image.asset(imgPath, fit: BoxFit.cover),
+                        height: 40,
+                        width: 40,
+                        color: Colors.grey.shade50,
+                        child: isNetwork
+                            ? CustomCachedImage(imageUrl: imgPath, size: 40)
+                            : Image.asset(imgPath, fit: BoxFit.cover),
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        name, maxLines: 2, overflow: TextOverflow.ellipsis,
-                        style: UTextStyles.medium.copyWith(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 14, height: 1.2),
+                        name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: UTextStyles.medium.copyWith(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                          height: 1.2,
+                        ),
                       ),
                     ),
                   ],
@@ -939,12 +1390,28 @@ class PopularFundCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('3Y', style: UTextStyles.caption.copyWith(fontWeight: FontWeight.w500, color: Colors.grey.shade600)),
+                  Text(
+                    '3Y',
+                    style: UTextStyles.caption.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.arrow_drop_up_rounded, color: Ucolors.success, size: 20),
-                      Text('+31.06%', style: UTextStyles.caption.copyWith(color: Ucolors.success, fontWeight: FontWeight.bold)),
+                      const Icon(
+                        Icons.arrow_drop_up_rounded,
+                        color: Ucolors.success,
+                        size: 20,
+                      ),
+                      Text(
+                        '+31.06%',
+                        style: UTextStyles.caption.copyWith(
+                          color: Ucolors.success,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -958,7 +1425,12 @@ class PopularFundCard extends StatelessWidget {
 }
 
 class GoalBaseSIPCard extends StatelessWidget {
-  const GoalBaseSIPCard({super.key, required this.title, required this.iconData, this.onTap});
+  const GoalBaseSIPCard({
+    super.key,
+    required this.title,
+    required this.iconData,
+    this.onTap,
+  });
   final String title;
   final IconData iconData;
   final VoidCallback? onTap;
@@ -973,16 +1445,44 @@ class GoalBaseSIPCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(12),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Ucolors.borderColor, width: 1),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 2))],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Row(
             children: [
-              Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: const Color(0xFFEEF5FF), borderRadius: BorderRadius.circular(8)), child: Icon(iconData, size: 20, color: Ucolors.blue)),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEEF5FF),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(iconData, size: 20, color: Ucolors.blue),
+              ),
               const SizedBox(width: 12),
-              Expanded(child: Text(title, style: UTextStyles.small.copyWith(color: Ucolors.dark, fontWeight: FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis)),
-              const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey),
+              Expanded(
+                child: Text(
+                  title,
+                  style: UTextStyles.small.copyWith(
+                    color: Ucolors.dark,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 16,
+                color: Colors.grey,
+              ),
             ],
           ),
         ),
@@ -992,7 +1492,12 @@ class GoalBaseSIPCard extends StatelessWidget {
 }
 
 class ToolsItem extends StatelessWidget {
-  const ToolsItem({super.key, required this.title, required this.imgUrl, this.onTap});
+  const ToolsItem({
+    super.key,
+    required this.title,
+    required this.imgUrl,
+    this.onTap,
+  });
   final String title;
   final String imgUrl;
   final VoidCallback? onTap;
@@ -1005,9 +1510,21 @@ class ToolsItem extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: isDesktop ? 35 : 45, width: isDesktop ? 35 : 45, child: Image.asset(imgUrl)),
+          SizedBox(
+            height: isDesktop ? 35 : 45,
+            width: isDesktop ? 35 : 45,
+            child: Image.asset(imgUrl),
+          ),
           const SizedBox(width: 10),
-          Flexible(child: Text(title, style: UTextStyles.small.copyWith(color: Colors.grey[600], fontSize: 14))),
+          Flexible(
+            child: Text(
+              title,
+              style: UTextStyles.small.copyWith(
+                color: Colors.grey[600],
+                fontSize: 14,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -1015,7 +1532,12 @@ class ToolsItem extends StatelessWidget {
 }
 
 class CollectionItem extends StatelessWidget {
-  const CollectionItem({super.key, required this.title, required this.iconImg, this.onTap});
+  const CollectionItem({
+    super.key,
+    required this.title,
+    required this.iconImg,
+    this.onTap,
+  });
   final String title;
   final String iconImg;
   final VoidCallback? onTap;
@@ -1028,9 +1550,22 @@ class CollectionItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: 45, width: 45, child: Image.asset(iconImg, fit: BoxFit.contain)),
+          SizedBox(
+            height: 45,
+            width: 45,
+            child: Image.asset(iconImg, fit: BoxFit.contain),
+          ),
           const SizedBox(height: 8),
-          Text(title, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis, style: UTextStyles.small.copyWith(color: Colors.grey[600], fontSize: 12)),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: UTextStyles.small.copyWith(
+              color: Colors.grey[600],
+              fontSize: 12,
+            ),
+          ),
         ],
       ),
     );
@@ -1038,7 +1573,11 @@ class CollectionItem extends StatelessWidget {
 }
 
 class FeatureSection extends StatelessWidget {
-  const FeatureSection({super.key, required this.featureName, required this.iconPath});
+  const FeatureSection({
+    super.key,
+    required this.featureName,
+    required this.iconPath,
+  });
   final String featureName;
   final String iconPath;
 
@@ -1048,12 +1587,25 @@ class FeatureSection extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          height: 60, width: 60,
-          decoration: BoxDecoration(color: Ucolors.primary, borderRadius: BorderRadius.circular(20)),
-          child: Center(child: SvgPicture.asset(iconPath, width: 24, height: 24)),
+          height: 60,
+          width: 60,
+          decoration: BoxDecoration(
+            color: Ucolors.primary,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Center(
+            child: SvgPicture.asset(iconPath, width: 24, height: 24),
+          ),
         ),
         const SizedBox(height: 5),
-        Text(featureName, style: UTextStyles.medium.copyWith(color: Ucolors.light, fontWeight: FontWeight.w500, fontSize: 14)),
+        Text(
+          featureName,
+          style: UTextStyles.medium.copyWith(
+            color: Ucolors.light,
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+          ),
+        ),
       ],
     );
   }

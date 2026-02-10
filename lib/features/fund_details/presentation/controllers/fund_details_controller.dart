@@ -346,6 +346,14 @@ class FundDetailsController extends GetxController
     double c(double? v) => v ?? 0;
 
     return [
+       ReturnRow(
+        period: '1W',
+        scheme: scheme.oneWeekReturn,
+        category: c(category?.oneWeekReturn),
+        benchmark: b(benchmark?.oneWeekReturn),
+      ),
+      
+
       ReturnRow(
         period: '1M',
         scheme: scheme.oneMonthReturn,

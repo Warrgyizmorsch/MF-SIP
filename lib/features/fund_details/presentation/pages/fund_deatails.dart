@@ -16,6 +16,7 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
+import 'package:my_sip/features/fund_details/presentation/widgets/fund_performance_chart.dart';
 import 'package:my_sip/features/fund_details/presentation/widgets/helper.dart';
 import 'package:readmore/readmore.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
@@ -453,25 +454,124 @@ class OverviewScreen extends GetView<FundDetailsController> {
               showActionButton: false,
             ),
           ),
+          // Obx(() {
+          //   final fund = controller.fundDetail.value;
+          //   if (fund == null) return SizedBox();
+
+          //   final returnss = controller.buildTrailingReturns(fund);
+          //   return CustomContainer(
+          //     child: Column(
+          //       children: [
+          //         // returnsTableHeader(),
+          //         SizedBox(height: 20),
+          //         GroupedPerformanceBarChart(data: returnss),
+          //         SizedBox(height: 20), // <--- Pass your list here
+          //         TableHeader(
+          //           heading1: 'Period',
+          //           heading2: 'Scheme',
+          //           heading3: 'Category',
+          //           heading4: 'Benchmark',
+          //         ),
+          //         DashedLine(color: Colors.grey.shade200),
+
+          //         ...returnss.map((row) => ReturnsTableRow(data: row)),
+          //       ],
+          //     ),
+          //   );
+          // }),
           Obx(() {
             final fund = controller.fundDetail.value;
-            if (fund == null) return SizedBox();
+            if (fund == null) return const SizedBox();
 
             final returnss = controller.buildTrailingReturns(fund);
-            return CustomContainer(
-              child: Column(
-                children: [
-                  // returnsTableHeader(),
-                  TableHeader(
-                    heading1: 'Period',
-                    heading2: 'Scheme',
-                    heading3: 'Category',
-                    heading4: 'Benchmark',
-                  ),
-                  DashedLine(color: Colors.grey.shade200),
 
-                  ...returnss.map((row) => ReturnsTableRow(data: row)),
-                ],
+            return CustomContainer(
+              child: DefaultTabController(
+                length: 2, // 1. Graph, 2. Table
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 15),
+                    // Pill Tab Bar
+                    Container(
+                      height: 35,
+                      // width: 160,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(25),
+                        // border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: TabBar(
+                        indicator: BoxDecoration(
+                          color: Ucolors.primary,
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        labelColor: Colors.white,
+                        unselectedLabelColor: Colors.grey.shade600,
+                        labelStyle: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                        dividerColor: Colors.transparent,
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        padding: EdgeInsets.zero,
+                        labelPadding: EdgeInsets.zero,
+                        tabs: const [
+                          Tab(text: "Table"),
+                          Tab(text: "Graph"),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // --- TAB VIEW CONTENT ---
+                    SizedBox(
+                      height:
+                          400, // Fixed height to accommodate the larger view (Table)
+                      child: TabBarView(
+                        children: [
+                          
+                          // TAB 2: Graph VIEW
+                          SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                TableHeader(
+                                  heading1: 'Period',
+                                  heading2: 'Scheme',
+                                  heading3: 'Category',
+                                  heading4: 'Benchmark',
+                                ),
+                                DashedLine(color: Colors.grey.shade200),
+                                ...returnss.map(
+                                  (row) => ReturnsTableRow(data: row),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // TAB 1: Table VIEW
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                GroupedPerformanceBarChart(data: returnss),
+                                const SizedBox(height: 10),
+                                Text(
+                                  "Returns vs Benchmark vs Category",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           }),
@@ -729,26 +829,55 @@ class OverviewScreen extends GetView<FundDetailsController> {
                         children: [
                           const Gap(10),
                           // --- TAB BAR ---
+                          // Container(
+                          //   height: 35,
+                          //   decoration: BoxDecoration(
+                          //     color: Colors.grey.shade100,
+                          //     borderRadius: BorderRadius.circular(25),
+                          //   ),
+                          //   child: TabBar(
+                          //     indicator: BoxDecoration(
+                          //       color: Ucolors.primary, // Active Color
+                          //       borderRadius: BorderRadius.circular(25),
+                          //     ),
+                          //     labelColor: Colors.white,
+                          //     unselectedLabelColor: Colors.grey.shade600,
+                          //     labelStyle: const TextStyle(
+                          //       fontWeight: FontWeight.w600,
+                          //       fontSize: 13,
+                          //     ),
+                          //     dividerColor:
+                          //         Colors.transparent, // Remove underline
+                          //     indicatorSize: TabBarIndicatorSize.tab,
+                          //     tabs: const [
+                          //       Tab(text: "Asset Allocation"),
+                          //       Tab(text: "Market Cap"),
+                          //     ],
+                          //   ),
+                          // ),
                           Container(
-                            height: 40,
+                            height: 35,
+                            // width: 160,
                             decoration: BoxDecoration(
                               color: Colors.grey.shade100,
                               borderRadius: BorderRadius.circular(25),
+                              // border: Border.all(color: Colors.grey.shade300),
                             ),
                             child: TabBar(
                               indicator: BoxDecoration(
-                                color: Ucolors.primary, // Active Color
+                                color: Ucolors.primary,
                                 borderRadius: BorderRadius.circular(25),
                               ),
                               labelColor: Colors.white,
                               unselectedLabelColor: Colors.grey.shade600,
                               labelStyle: const TextStyle(
                                 fontWeight: FontWeight.w600,
-                                fontSize: 13,
+                                fontSize: 12,
                               ),
-                              dividerColor:
-                                  Colors.transparent, // Remove underline
+                              dividerColor: Colors.transparent,
                               indicatorSize: TabBarIndicatorSize.tab,
+                              padding: EdgeInsets.zero,
+                              labelPadding: EdgeInsets.zero,
                               tabs: const [
                                 Tab(text: "Asset Allocation"),
                                 Tab(text: "Market Cap"),
@@ -788,25 +917,54 @@ class OverviewScreen extends GetView<FundDetailsController> {
 
                   child: Column(
                     children: [
+                      // Container(
+                      //   height: 40,
+                      //   decoration: BoxDecoration(
+                      //     color: Colors.grey.shade100,
+                      //     borderRadius: BorderRadius.circular(25),
+                      //   ),
+                      //   child: TabBar(
+                      //     indicator: BoxDecoration(
+                      //       color: Ucolors.primary, // Active Color
+                      //       borderRadius: BorderRadius.circular(25),
+                      //     ),
+                      //     labelColor: Colors.white,
+                      //     unselectedLabelColor: Colors.grey.shade600,
+                      //     labelStyle: const TextStyle(
+                      //       fontWeight: FontWeight.w600,
+                      //       fontSize: 13,
+                      //     ),
+                      //     dividerColor: Colors.transparent, // Remove underline
+                      //     indicatorSize: TabBarIndicatorSize.tab,
+                      //     tabs: const [
+                      //       Tab(text: "Top 5 Sector"),
+                      //       Tab(text: "Top 5 Stock"),
+                      //     ],
+                      //   ),
+                      // ),
                       Container(
-                        height: 40,
+                        height: 35,
+                        // width: 160,
                         decoration: BoxDecoration(
                           color: Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(25),
+                          // border: Border.all(color: Colors.grey.shade300),
                         ),
                         child: TabBar(
                           indicator: BoxDecoration(
-                            color: Ucolors.primary, // Active Color
+                            color: Ucolors.primary,
                             borderRadius: BorderRadius.circular(25),
                           ),
                           labelColor: Colors.white,
                           unselectedLabelColor: Colors.grey.shade600,
                           labelStyle: const TextStyle(
                             fontWeight: FontWeight.w600,
-                            fontSize: 13,
+                            fontSize: 12,
                           ),
-                          dividerColor: Colors.transparent, // Remove underline
+                          dividerColor: Colors.transparent,
                           indicatorSize: TabBarIndicatorSize.tab,
+                          padding: EdgeInsets.zero,
+                          labelPadding: EdgeInsets.zero,
                           tabs: const [
                             Tab(text: "Top 5 Sector"),
                             Tab(text: "Top 5 Stock"),

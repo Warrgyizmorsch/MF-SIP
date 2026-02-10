@@ -984,7 +984,7 @@ class FundDetailsTable extends StatelessWidget {
 
     final rows = [
       row("Risk", (e) => e.riskometerValue),
-      row("Rating", (e) => "${e.ratingValue} ★"),
+      // row("Rating", (e) => "${e.ratingValue} ★"),
       row(
         "NAV",
         (e) => "₹${e.nav} (${DateFormat('d MMM yyyy').format(DateTime.now())})",

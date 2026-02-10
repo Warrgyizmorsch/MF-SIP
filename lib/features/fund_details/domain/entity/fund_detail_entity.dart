@@ -117,6 +117,7 @@ class FundDetailEntity extends Equatable {
 
 class SchemePerformanceEntity extends Equatable {
   final String schemeName;
+  final double oneWeekReturn;
   final double oneMonthReturn;
   final double threeMonthReturn;
   final double oneYearReturn;
@@ -127,6 +128,7 @@ class SchemePerformanceEntity extends Equatable {
   final double sixMonthReturn;
 
   const SchemePerformanceEntity({
+    required this.oneWeekReturn,
     required this.schemeName,
     required this.oneYearReturn,
     required this.threeYearReturn,
@@ -257,7 +259,7 @@ extension SchemePerformanceModelX on SchemePerformanceModel {
   SchemePerformanceEntity toEntity() {
     return SchemePerformanceEntity(
       schemeName: schemeName ?? '',
-
+        oneWeekReturn: oneWeekReturn ?? 0.0,
       oneYearReturn: oneYearReturn ?? 0.0,
       threeYearReturn: threeYearReturn ?? 0.0,
       fiveYearReturn: fiveYearReturn ?? 0.0,

@@ -710,7 +710,6 @@
 //   }
 // }
 
-
 import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -760,7 +759,9 @@ class _WebHoverRowState extends State<WebHoverRow> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           decoration: BoxDecoration(
-            color: _isHovered ? Ucolors.primary.withOpacity(0.04) : Colors.white,
+            color: _isHovered
+                ? Ucolors.primary.withOpacity(0.04)
+                : Colors.white,
             border: Border(
               bottom: BorderSide(color: Colors.grey.shade200, width: 1),
             ),
@@ -780,7 +781,13 @@ class ExploreScreen extends StatefulWidget {
 }
 
 class _ExploreScreenState extends State<ExploreScreen> {
-  final items = ['Popularity', '1Y Returns', '3Y Returns', '5Y Returns', 'Rating'];
+  final items = [
+    'Popularity',
+    '1Y Returns',
+    '3Y Returns',
+    '5Y Returns',
+    'Rating',
+  ];
   final TextEditingController sort = TextEditingController();
   final MutualFundController controller = Get.find();
   final CartController cartController = Get.find();
@@ -794,7 +801,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
     _searchFocus = FocusNode();
     _scrollController = ScrollController();
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200) {
         controller.fetchData(isLoadMore: true);
       }
     });
@@ -816,17 +824,17 @@ class _ExploreScreenState extends State<ExploreScreen> {
       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
       body: isDesktop
           ? _WebExploreLayout(
-        scrollController: _scrollController,
-        searchFocus: _searchFocus,
-        sortController: sort,
-        sortItems: items,
-      )
+              scrollController: _scrollController,
+              searchFocus: _searchFocus,
+              sortController: sort,
+              sortItems: items,
+            )
           : _MobileExploreLayout(
-        scrollController: _scrollController,
-        searchFocus: _searchFocus,
-        sortController: sort,
-        sortItems: items,
-      ),
+              scrollController: _scrollController,
+              searchFocus: _searchFocus,
+              sortController: sort,
+              sortItems: items,
+            ),
     );
   }
 }
@@ -864,7 +872,10 @@ class _WebExploreLayout extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Text("Explore Funds", style: UTextStyles.heading2.copyWith(fontSize: 20)),
+              Text(
+                "Explore Funds",
+                style: UTextStyles.heading2.copyWith(fontSize: 20),
+              ),
               const Spacer(),
 
               // Search
@@ -874,11 +885,19 @@ class _WebExploreLayout extends StatelessWidget {
                 child: SearchBar(
                   focusNode: searchFocus,
                   elevation: MaterialStateProperty.all(0),
-                  backgroundColor: MaterialStateProperty.all(const Color(0xFFF0F2F5)),
-                  leading: const Icon(Icons.search, size: 20, color: Colors.grey),
+                  backgroundColor: MaterialStateProperty.all(
+                    const Color(0xFFF0F2F5),
+                  ),
+                  leading: const Icon(
+                    Icons.search,
+                    size: 20,
+                    color: Colors.grey,
+                  ),
                   hintText: 'Search funds...',
                   onChanged: (value) => controller.onSearchQueryChanged(value),
-                  padding: MaterialStateProperty.all(const EdgeInsets.symmetric(horizontal: 10)),
+                  padding: MaterialStateProperty.all(
+                    const EdgeInsets.symmetric(horizontal: 10),
+                  ),
                 ),
               ),
               const Gap(16),
@@ -891,35 +910,50 @@ class _WebExploreLayout extends StatelessWidget {
                     controller.applyFilters(result);
                   }
                 },
-                icon:  Icon(Icons.tune, size: 16, color: Ucolors.primary,),
-                label:  Text("Filters", style: UTextStyles.medium,),
+                icon: Icon(Icons.tune, size: 16, color: Ucolors.primary),
+                label: Text("Filters", style: UTextStyles.medium),
                 style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                    side: BorderSide(color: Colors.grey.shade300)
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                  side: BorderSide(color: Colors.grey.shade300),
                 ),
               ),
               const Gap(10),
 
               // Cart
-              Obx(() => Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  IconButton(
-                    onPressed: () => Get.toNamed(AppRoutes.cart),
-                    icon: const Icon(Iconsax.shopping_cart),
-                    hoverColor: Ucolors.primary.withOpacity(0.1),
-                  ),
-                  if (cartController.itemsCount > 0)
-                    Positioned(
-                      right: 5, top: 5,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(color: Ucolors.red, shape: BoxShape.circle),
-                        child: Text(cartController.itemsCount.toString(), style: const TextStyle(fontSize: 10, color: Colors.white)),
-                      ),
+              Obx(
+                () => Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    IconButton(
+                      onPressed: () => Get.toNamed(AppRoutes.cart),
+                      icon: const Icon(Iconsax.shopping_cart),
+                      hoverColor: Ucolors.primary.withOpacity(0.1),
                     ),
-                ],
-              )),
+                    if (cartController.itemsCount > 0)
+                      Positioned(
+                        right: 5,
+                        top: 5,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Ucolors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            cartController.itemsCount.toString(),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -930,7 +964,10 @@ class _WebExploreLayout extends StatelessWidget {
             child: MaxWidthBox(
               maxWidth: 1100, // Constrain width for readability
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 24,
+                  horizontal: 24,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -938,10 +975,15 @@ class _WebExploreLayout extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Obx(() => Text(
-                          "${controller.selectedFundCount.value == 0 ? controller.mutualfund.length : controller.selectedFundCount} funds found",
-                          style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.bold),
-                        )),
+                        Obx(
+                          () => Text(
+                            "${controller.selectedFundCount.value == 0 ? controller.mutualfund.length : controller.selectedFundCount} funds found",
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                         InkWell(
                           onTap: () => showSelectionBottomSheet(
                             selectedValue: sortController.text,
@@ -953,7 +995,10 @@ class _WebExploreLayout extends StatelessWidget {
                           ),
                           child: Row(
                             children: const [
-                              Text("Sort by: Popularity", style: TextStyle(fontWeight: FontWeight.w600)),
+                              Text(
+                                "Sort by: Popularity",
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
                               Icon(Icons.keyboard_arrow_down, size: 16),
                             ],
                           ),
@@ -964,19 +1009,77 @@ class _WebExploreLayout extends StatelessWidget {
 
                     // TABLE HEADER
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFE8EBF1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
                         children: const [
-                          Expanded(flex: 4, child: Text("Fund Name", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-                          Expanded(flex: 2, child: Text("Risk", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-                          Expanded(flex: 1, child: Text("1Y", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-                          Expanded(flex: 1, child: Text("3Y", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-                          Expanded(flex: 1, child: Text("5Y", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-                          Expanded(flex: 2, child: Text("Action", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13), textAlign: TextAlign.right)),
+                          Expanded(
+                            flex: 4,
+                            child: Text(
+                              "Fund Name",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              "Risk",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Text(
+                              "1Y",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Text(
+                              "3Y",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Text(
+                              "5Y",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              "Action",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                              textAlign: TextAlign.right,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -984,8 +1087,11 @@ class _WebExploreLayout extends StatelessWidget {
                     // TABLE LIST
                     Expanded(
                       child: Obx(() {
-                        if (controller.isLoading.value && controller.searchFund.isEmpty) {
-                          return const Center(child: CircularProgressIndicator());
+                        if (controller.isLoading.value &&
+                            controller.searchFund.isEmpty) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
                         }
                         if (controller.searchFund.isEmpty) {
                           return const Center(child: Text("No funds found."));
@@ -993,10 +1099,17 @@ class _WebExploreLayout extends StatelessWidget {
 
                         return ListView.builder(
                           controller: scrollController,
-                          itemCount: controller.searchFund.length + (controller.isMoreLoading.value ? 1 : 0),
+                          itemCount:
+                              controller.searchFund.length +
+                              (controller.isMoreLoading.value ? 1 : 0),
                           itemBuilder: (context, index) {
                             if (index == controller.searchFund.length) {
-                              return const Padding(padding: EdgeInsets.all(20), child: Center(child: CircularProgressIndicator()));
+                              return const Padding(
+                                padding: EdgeInsets.all(20),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
                             }
 
                             final fund = controller.searchFund[index];
@@ -1048,14 +1161,16 @@ class WebFundTableRow extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    width: 36, height: 36,
+                    width: 36,
+                    height: 36,
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade200),
-                        borderRadius: BorderRadius.circular(8)
+                      border: Border.all(color: Colors.grey.shade200),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: CustomCachedImage(
-                      imageUrl: "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
+                      imageUrl:
+                          "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
                       fit: BoxFit.contain,
                     ),
                   ),
@@ -1068,15 +1183,21 @@ class WebFundTableRow extends StatelessWidget {
                           entity.baseSchemeName ?? "Unknown Fund",
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
                         ),
                         Text(
-                            "Equity • Growth",
-                            style: TextStyle(color: Colors.grey.shade500, fontSize: 11)
+                          "Equity • Growth",
+                          style: TextStyle(
+                            color: Colors.grey.shade500,
+                            fontSize: 11,
+                          ),
                         ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -1087,15 +1208,22 @@ class WebFundTableRow extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
-                        color: Ucolors.red.withOpacity(0.08),
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: Ucolors.red.withOpacity(0.2))
+                      color: Ucolors.red.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Ucolors.red.withOpacity(0.2)),
                     ),
                     child: Text(
-                        "Very High",
-                        style: TextStyle(color: Ucolors.red, fontSize: 11, fontWeight: FontWeight.w600)
+                      "Very High",
+                      style: TextStyle(
+                        color: Ucolors.red,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
@@ -1103,9 +1231,36 @@ class WebFundTableRow extends StatelessWidget {
             ),
 
             // 3. RETURNS COLUMNS
-            Expanded(flex: 1, child: Text("15.2%", style: TextStyle(color: Ucolors.success, fontWeight: FontWeight.bold))),
-            Expanded(flex: 1, child: Text("18.5%", style: TextStyle(color: Ucolors.success, fontWeight: FontWeight.bold))),
-            Expanded(flex: 1, child: Text("22.1%", style: TextStyle(color: Ucolors.success, fontWeight: FontWeight.bold))),
+            Expanded(
+              flex: 1,
+              child: Text(
+                "15.2%",
+                style: TextStyle(
+                  color: Ucolors.success,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Text(
+                "18.5%",
+                style: TextStyle(
+                  color: Ucolors.success,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Text(
+                "22.1%",
+                style: TextStyle(
+                  color: Ucolors.success,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
 
             // 4. ACTION BUTTON
             Expanded(
@@ -1128,12 +1283,17 @@ class WebFundTableRow extends StatelessWidget {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: Ucolors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6))
+                        backgroundColor: Ucolors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
                       ),
-                      child: const Text("Invest", style: TextStyle(fontSize: 12)),
+                      child: const Text(
+                        "Invest",
+                        style: TextStyle(fontSize: 12),
+                      ),
                     ),
                   ),
                 ),
@@ -1177,28 +1337,35 @@ class _MobileExploreLayout extends StatelessWidget {
             backgroundColor: Ucolors.light,
             actionsPadding: 15,
             action: [
-              Obx(() => Stack(
-                children: [
-                  CompactIcon(
-                    icon: Iconsax.shopping_cart,
-                    onPressed: () => Get.toNamed(AppRoutes.cart),
-                    iconColor: Ucolors.dark,
-                  ),
-                  if (cartController.itemsCount > 0)
-                    Positioned(
-                      right: 0,
-                      top: -5,
-                      child: Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: const BoxDecoration(color: Ucolors.red, shape: BoxShape.circle),
-                        child: Text(
-                          cartController.itemsCount.toString(),
-                          style: UTextStyles.buttonText.copyWith(fontSize: 10),
+              Obx(
+                () => Stack(
+                  children: [
+                    CompactIcon(
+                      icon: Iconsax.shopping_cart,
+                      onPressed: () => Get.toNamed(AppRoutes.cart),
+                      iconColor: Ucolors.dark,
+                    ),
+                    if (cartController.itemsCount > 0)
+                      Positioned(
+                        right: 0,
+                        top: -5,
+                        child: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: const BoxDecoration(
+                            color: Ucolors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            cartController.itemsCount.toString(),
+                            style: UTextStyles.buttonText.copyWith(
+                              fontSize: 10,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                ],
-              )),
+                  ],
+                ),
+              ),
               CompactIcon(
                 icon: Iconsax.archive_tick,
                 onPressed: () => Get.toNamed(AppRoutes.watchlist),
@@ -1214,7 +1381,10 @@ class _MobileExploreLayout extends StatelessWidget {
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(border: Border.all(color: Ucolors.borderColor), shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Ucolors.borderColor),
+                    shape: BoxShape.circle,
+                  ),
                   child: CompactIcon(
                     icon: Icons.tune,
                     onPressed: () async {
@@ -1240,25 +1410,31 @@ class _MobileExploreLayout extends StatelessWidget {
                           child: SearchBar(
                             onTapOutside: (event) => searchFocus.unfocus(),
                             focusNode: searchFocus,
-                            backgroundColor: MaterialStateProperty.all(Colors.white),
+                            backgroundColor: MaterialStateProperty.all(
+                              Colors.white,
+                            ),
                             leading: const Icon(Icons.search),
                             hintText: 'Search',
-                            onChanged: (value) => controller.onSearchQueryChanged(value),
+                            onChanged: (value) =>
+                                controller.onSearchQueryChanged(value),
                           ),
                         ),
                         const Gap(2),
                         !searchFocus.hasFocus
                             ? InkWell(
-                          onTap: () => showSelectionBottomSheet(
-                            selectedValue: sortController.text,
-                            search: false,
-                            context: context,
-                            title: 'Sort by ${sortController.text}',
-                            items: sortItems,
-                            controller: sortController,
-                          ),
-                          child: const _FilterChip(label: 'Sort by', icon: Icons.filter_list_sharp),
-                        )
+                                onTap: () => showSelectionBottomSheet(
+                                  selectedValue: sortController.text,
+                                  search: false,
+                                  context: context,
+                                  title: 'Sort by ${sortController.text}',
+                                  items: sortItems,
+                                  controller: sortController,
+                                ),
+                                child: const _FilterChip(
+                                  label: 'Sort by',
+                                  icon: Icons.filter_list_sharp,
+                                ),
+                              )
                             : const SizedBox.shrink(),
                       ],
                     ),
@@ -1268,38 +1444,45 @@ class _MobileExploreLayout extends StatelessWidget {
             ),
           ),
         ),
-        Obx(() => SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  controller.selectedFundCount.value == 0
-                      ? '${controller.mutualfund.length} funds'
-                      : '${controller.selectedFundCount}  funds',
-                  style: UTextStyles.small,
-                ),
-                Text('‹› 3 Year Returns', style: UTextStyles.small),
-              ],
+        Obx(
+          () => SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    controller.selectedFundCount.value == 0
+                        ? '${controller.mutualfund.length} funds'
+                        : '${controller.selectedFundCount}  funds',
+                    style: UTextStyles.small,
+                  ),
+                  Text('‹› 3 Year Returns', style: UTextStyles.small),
+                ],
+              ),
             ),
           ),
-        )),
+        ),
         Obx(() {
           if (controller.isLoading.value && controller.searchFund.isEmpty) {
-            return const SliverFillRemaining(hasScrollBody: false, child: Center(child: CircularProgressIndicator(color: Ucolors.primary)));
+            return const SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(
+                child: CircularProgressIndicator(color: Ucolors.primary),
+              ),
+            );
           }
           if (controller.searchFund.isEmpty) {
-            return const SliverFillRemaining(hasScrollBody: false, child: Center(child: Text("No mutual funds found")));
+            return const SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(child: Text("No mutual funds found")),
+            );
           }
           return SliverList(
-            delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                final fund = controller.searchFund[index];
-                return MutualFundCard(entity: fund);
-              },
-              childCount: controller.searchFund.length,
-            ),
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final fund = controller.searchFund[index];
+              return MutualFundCard(entity: fund);
+            }, childCount: controller.searchFund.length),
           );
         }),
         Obx(() {
@@ -1307,7 +1490,16 @@ class _MobileExploreLayout extends StatelessWidget {
             return const SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 24),
-                child: Center(child: SizedBox(height: 24, width: 24, child: CircularProgressIndicator(strokeWidth: 2.5, color: Ucolors.primary))),
+                child: Center(
+                  child: SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Ucolors.primary,
+                    ),
+                  ),
+                ),
               ),
             );
           }
@@ -1334,7 +1526,8 @@ class MutualFundCard extends StatelessWidget {
   final Color? containercolor;
   final MutualFundListEntity entity;
   final CartController controller = Get.find<CartController>();
-  final MutualFundController mutualFundController = Get.find<MutualFundController>();
+  final MutualFundController mutualFundController =
+      Get.find<MutualFundController>();
 
   @override
   Widget build(BuildContext context) {
@@ -1375,7 +1568,8 @@ class MutualFundCard extends StatelessWidget {
                   backgroundColor: Colors.transparent,
                   child: ClipOval(
                     child: CustomCachedImage(
-                      imageUrl: "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
+                      imageUrl:
+                          "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
                     ),
                   ),
                 ),
@@ -1396,11 +1590,13 @@ class MutualFundCard extends StatelessWidget {
                           children: [
                             TextSpan(
                               text: 'Risk:',
-                              style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.normal),
+                              style: Theme.of(context).textTheme.labelSmall!
+                                  .copyWith(fontWeight: FontWeight.normal),
                             ),
                             TextSpan(
                               text: 'Very High',
-                              style: Theme.of(context).textTheme.labelMedium!.copyWith(color: Ucolors.red),
+                              style: Theme.of(context).textTheme.labelMedium!
+                                  .copyWith(color: Ucolors.red),
                             ),
                           ],
                         ),
@@ -1411,85 +1607,91 @@ class MutualFundCard extends StatelessWidget {
 
                 !isDelete
                     ? PopupMenuButton<PortfolioMenuAction>(
-                  color: Ucolors.light,
-                  icon: const Icon(Icons.more_vert, color: Colors.grey),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  offset: const Offset(0, 40),
-                  onSelected: (value) {
-                    switch (value) {
-                      case PortfolioMenuAction.topUp:
-                        controller.addItem(
-                          CartItem(
-                            fundId: entity.amc?.id?.toString() ?? '',
-                            fundName: entity.baseSchemeName ?? '',
-                            logoUrl: entity.amc?.amcLogoUrl ?? '',
-                          ),
-                        );
-                        Get.snackbar(
-                          'Add to cart',
-                          entity.baseSchemeName.toString(),
-                          margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-                          colorText: Ucolors.light,
-                          snackPosition: SnackPosition.BOTTOM,
-                          backgroundColor: Ucolors.primary,
-                        );
-                        break;
+                        color: Ucolors.light,
+                        icon: const Icon(Icons.more_vert, color: Colors.grey),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        offset: const Offset(0, 40),
+                        onSelected: (value) {
+                          switch (value) {
+                            // Add to cart
+                            case PortfolioMenuAction.topUp:
+                              controller.addItem(
+                                CartItem(
+                                  fundId: entity.amc?.id?.toString() ?? '',
+                                  fundName: entity.baseSchemeName ?? '',
+                                  logoUrl: entity.amc?.amcLogoUrl ?? '',
+                                ),
+                              );
+                              Get.snackbar(
+                                'Add to cart',
+                                entity.baseSchemeName.toString(),
+                                margin: const EdgeInsets.symmetric(
+                                  vertical: 15,
+                                  horizontal: 15,
+                                ),
+                                colorText: Ucolors.light,
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Ucolors.primary,
+                              );
+                              break;
 
-                      case PortfolioMenuAction.modify:
-                      case PortfolioMenuAction.pause:
-                        controller.addItem(
-                          CartItem(
-                            fundId: entity.amc?.id?.toString() ?? '',
-                            fundName: entity.baseSchemeName ?? '',
-                            logoUrl: entity.amc?.amcLogoUrl ?? '',
-                          ),
-                        );
-                        Get.toNamed(AppRoutes.cart);
-                        break;
+                            case PortfolioMenuAction.modify:
+                            case PortfolioMenuAction.pause:
+                              controller.addItem(
+                                CartItem(
+                                  fundId: entity.amc?.id?.toString() ?? '',
+                                  fundName: entity.baseSchemeName ?? '',
+                                  logoUrl: entity.amc?.amcLogoUrl ?? '',
+                                ),
+                              );
+                              Get.toNamed(AppRoutes.cart);
+                              break;
 
-                      case PortfolioMenuAction.cancel:
-                        break;
-                      case PortfolioMenuAction.redemption:
-                        Get.toNamed(
-                          AppRoutes.funddetails,
-                          arguments: {
-                            'scheme': entity.baseSchemeName,
-                            'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}",
-                          },
-                        );
-                        break;
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    buildMenuItem(
-                      icon: Iconsax.card_send,
-                      text: 'Add to cart',
-                      value: PortfolioMenuAction.topUp,
-                    ),
-                    buildMenuItem(
-                      icon: Iconsax.edit_2,
-                      text: 'Buy SIP',
-                      value: PortfolioMenuAction.modify,
-                    ),
-                    buildMenuItem(
-                      icon: Iconsax.pause,
-                      text: 'Buy Lumpsum',
-                      value: PortfolioMenuAction.pause,
-                    ),
-                    buildMenuItem(
-                      icon: Iconsax.add,
-                      text: 'Add to watchlist',
-                      value: PortfolioMenuAction.cancel,
-                    ),
-                    buildMenuItem(
-                      icon: Iconsax.receipt,
-                      text: 'Fund Details',
-                      value: PortfolioMenuAction.redemption,
-                    ),
-                  ],
-                )
+                            case PortfolioMenuAction.cancel:
+                              break;
+                            case PortfolioMenuAction.redemption:
+                              Get.toNamed(
+                                AppRoutes.funddetails,
+                                arguments: {
+                                  'scheme': entity.baseSchemeName,
+                                  'imgUrl':
+                                      "${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}",
+                                  'scheme_code': entity.schemeCode.toString(),
+                                },
+                              );
+                              break;
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          buildMenuItem(
+                            icon: Iconsax.card_send,
+                            text: 'Add to cart',
+                            value: PortfolioMenuAction.topUp,
+                          ),
+                          buildMenuItem(
+                            icon: Iconsax.edit_2,
+                            text: 'Buy SIP',
+                            value: PortfolioMenuAction.modify,
+                          ),
+                          buildMenuItem(
+                            icon: Iconsax.pause,
+                            text: 'Buy Lumpsum',
+                            value: PortfolioMenuAction.pause,
+                          ),
+                          buildMenuItem(
+                            icon: Iconsax.add,
+                            text: 'Add to watchlist',
+                            value: PortfolioMenuAction.cancel,
+                          ),
+                          buildMenuItem(
+                            icon: Iconsax.receipt,
+                            text: 'Fund Details',
+                            value: PortfolioMenuAction.redemption,
+                          ),
+                        ],
+                      )
                     : Deleteiconwithcontainer(containercolor: containercolor),
               ],
             ),
@@ -1531,7 +1733,11 @@ class _ReturnItem extends StatelessWidget {
   final String title;
   final String value;
   final bool isNegative;
-  const _ReturnItem({required this.title, required this.value, this.isNegative = false});
+  const _ReturnItem({
+    required this.title,
+    required this.value,
+    this.isNegative = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1566,12 +1772,22 @@ class _FilterChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: isSelected ? Ucolors.textFormEnabled : Colors.grey.shade300),
+          border: Border.all(
+            color: isSelected ? Ucolors.textFormEnabled : Colors.grey.shade300,
+          ),
         ),
         child: Row(
           children: [
-            if (icon != null) ...[Icon(icon, size: 16), const SizedBox(width: 6)],
-            Text(label, style: Theme.of(context).textTheme.labelSmall!.copyWith(fontSize: 10)),
+            if (icon != null) ...[
+              Icon(icon, size: 16),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              label,
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall!.copyWith(fontSize: 10),
+            ),
           ],
         ),
       ),
