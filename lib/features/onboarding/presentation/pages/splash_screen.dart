@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -24,49 +25,91 @@ class _SplashScreenState extends State<SplashScreen> {
     _checkAuthAndNavigate();
   }
 
+  // Future<void> _checkAuthAndNavigate() async {
+  //   // 1. Initialize data (Must happen on both Web and Mobile)
+  //   await SessionManager.instance.initialize();
+  //
+  //   // 2. CONDITIONAL DELAY: Only wait 3 seconds if it is NOT Web
+  //   if (!kIsWeb) {
+  //     await Future.delayed(const Duration(seconds: 3));
+  //   }
+  //
+  //   if (!mounted) return;
+  //
+  //   final bool loggedIn = SessionManager.instance.isAuthenticated();
+  //
+  //   if (loggedIn) {
+  //     Get.offAllNamed(AppRoutes.navMenuBar);
+  //   } else {
+  //     // On Web, this will happen almost instantly
+  //     Navigator.pushReplacement(
+  //       context,
+  //       MaterialPageRoute(builder: (context) => const WelcomePageScreen()),
+  //     );
+  //   }
+  // }
+
   Future<void> _checkAuthAndNavigate() async {
-    // 1. Initialize and WAIT for data to be read from disk
+    // 1. Initialize Session
     await SessionManager.instance.initialize();
 
-    // 2. Wait for your branding delay
-    await Future.delayed(const Duration(seconds: 3));
+    // 2. Only delay on Mobile
+    if (!kIsWeb) {
+      await Future.delayed(const Duration(seconds: 3));
+    }
 
     if (!mounted) return;
 
-    // 3. Use the manager's state directly
     final bool loggedIn = SessionManager.instance.isAuthenticated();
 
-    createLog("Is User Authenticated: $loggedIn");
-
     if (loggedIn) {
-      createLog("Navigating to Home");
-      // If using GetX, ensure GetMaterialApp is used in main.dart
+      // User is logged in -> Go Home
       Get.offAllNamed(AppRoutes.navMenuBar);
     } else {
-      createLog("Navigating to Welcome");
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const WelcomePageScreen()),
-      );
+      // User is NOT logged in
+      if (kIsWeb) {
+        // --- WEB SPECIFIC LOGIC ---
+        // Skip 'WelcomePageScreen' entirely and go to Login
+        Get.offAllNamed(AppRoutes.login);
+      } else {
+        // --- MOBILE LOGIC ---
+        // Show the Welcome/Intro screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const WelcomePageScreen()),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // 3. CLEANER WEB UI:
+    // If on Web, show a simple spinner to prevent the "Mobile Splash" images
+    // from flashing for a split second before the redirect.
+    if (kIsWeb) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(), // Or your custom loader
+        ),
+      );
+    }
+
+    // 4. EXISTING MOBILE UI
     return Scaffold(
       body: Stack(
         children: [
           Align(
             alignment: Alignment.topRight,
             child: Transform.translate(
-              offset: Offset(10, -10),
+              offset: const Offset(10, -10),
               child: Image.asset(UImages.topright),
             ),
           ),
           Align(
             alignment: Alignment.bottomLeft,
             child: Transform.translate(
-              offset: Offset(-10, 10),
+              offset: const Offset(-10, 10),
               child: Image.asset(UImages.buttomleft),
             ),
           ),
@@ -75,7 +118,7 @@ class _SplashScreenState extends State<SplashScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Center(child: Image.asset(UImages.imp, width: 157, height: 133)),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               RichText(
                 text: TextSpan(
                   children: [
@@ -94,8 +137,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   ],
                 ),
               ),
-              SizedBox(height: 20),
-
+              const SizedBox(height: 20),
               LoadingAnimationWidget.hexagonDots(
                 color: Ucolors.primary,
                 size: 50,
