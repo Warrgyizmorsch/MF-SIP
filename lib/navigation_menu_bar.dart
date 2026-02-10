@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
+import 'package:my_sip/services/session_manager.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
@@ -71,6 +72,8 @@ class _DesktopSideNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = SessionManager.instance.getUserData;
+
     final controller = NavigationBarController.instance;
     final width = isDesktop ? 280.0 : 80.0;
 
@@ -173,26 +176,25 @@ class _DesktopSideNav extends StatelessWidget {
                           backgroundImage: AssetImage(UImages.avatar),
                         ),
                         const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Nazzu',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              user?.name ?? 'mhgjh',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: Colors.black
                               ),
-                              Text(
-                                'Developer',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                            // Text(
+                            //   user?.status ?? '',
+                            //   style: TextStyle(
+                            //     fontSize: 12,
+                            //     color: Colors.grey.shade600,
+                            //   ),
+                            // ),
+                          ],
                         ),
                       ],
                     ),

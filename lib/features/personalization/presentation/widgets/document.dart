@@ -24,7 +24,7 @@ class DocumentScreen extends StatelessWidget {
             SizedBox(height: kToolbarHeight - kTextTabBarHeight / 2),
 
             ProfileHeader(
-              iconcolor: Ucolors.primary,
+              // iconcolor: Ucolors.primary,
               name: 'Pratik',
               img: UImages.avatar,
               subtitle: 'Ready to invest since 2025',

@@ -23,7 +23,7 @@ class KycDetailsScreen extends StatelessWidget {
 
             //Profile Header
             ProfileHeader(
-              iconcolor: Colors.blue,
+              // iconcolor: Colors.blue,
               img: UImages.avatar,
               name: 'Pratik',
               subtitle: 'Ready to invest since 2025',

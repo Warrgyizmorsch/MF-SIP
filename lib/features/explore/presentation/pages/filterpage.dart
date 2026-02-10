@@ -239,44 +239,62 @@ class CategoriesPanel extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        /// Index Funds Toggle
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          // Web: Prevents the button from becoming too wide
+          // Mobile: Adapts to screen width naturally
+          constraints: const BoxConstraints(maxWidth: 400),
+          padding: const EdgeInsets.fromLTRB(16, 8, 8, 8), // Adjusted padding for balance
           decoration: BoxDecoration(
+            color: Colors.white, // Ensure background is visible
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.black12),
+            border: Border.all(color: Colors.grey.shade300),
           ),
-          child: FittedBox(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Index Funds only'),
-                SwitchTheme(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisSize: MainAxisSize.min, // Important: Wraps content width on Web
+            children: [
+              // 1. Use Flexible/Expanded to handle text sizing safely
+              Flexible(
+                fit: FlexFit.loose, // Allows text to be its natural size, shrinks if needed
+                child: Text(
+                  'Index Funds only',
+                  style: UTextStyles.medium.copyWith(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis, // Safe clipping on small mobiles
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              // 2. Scaled Switch (Keeps it compact)
+              Transform.scale(
+                scale: 0.8,
+                alignment: Alignment.centerRight,
+                child: SwitchTheme(
                   data: SwitchThemeData(
-                    // splashRadius: 5,
                     trackColor: MaterialStateProperty.resolveWith((states) {
                       if (states.contains(MaterialState.selected)) {
                         return Ucolors.primary;
                       }
-                      return const Color(0xFFF0F0F0);
+                      return const Color(0xFFE0E0E0);
                     }),
                     thumbColor: MaterialStateProperty.all(Colors.white),
-                    trackOutlineColor: MaterialStateProperty.all(
-                      Colors.transparent,
-                    ),
+                    trackOutlineColor: MaterialStateProperty.all(Colors.transparent),
                     trackOutlineWidth: MaterialStateProperty.all(0),
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   child: Obx(
-                    () => Switch(
-                      // splashRadius: 5,
+                        () => Switch(
                       value: controller.indexFundOnly.value,
                       onChanged: (v) => controller.indexFundOnly.toggle(),
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 16),

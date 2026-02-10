@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
@@ -44,13 +45,13 @@ class CustomProfileAppbar extends StatelessWidget
       actionsPadding: actionsPadding,
 
       automaticallyImplyLeading: false,
-      backgroundColor: backgroundColor,
+      backgroundColor: kIsWeb ? Colors.transparent :backgroundColor,
 
       // elevation: 10,
       actions: action,
 
       //Profile Details
-      title: Row(
+      title: kIsWeb ? SizedBox.shrink() : Row(
         children: [
           InkWell(
             onTap: onProfiletap,

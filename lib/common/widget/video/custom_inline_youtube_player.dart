@@ -1,13 +1,11 @@
+import 'package:flutter/foundation.dart'; // For kIsWeb
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart' hide YoutubePlayerController, YoutubePlayer;
 
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:my_sip/common/widget/images/custom_cached_image.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart'; // UPDATED PACKAGE
+// 1. Alias the imports to avoid conflict
+import 'package:youtube_player_flutter/youtube_player_flutter.dart' as mobile;
+import 'package:youtube_player_iframe/youtube_player_iframe.dart' as web;
 
 class InlineYouTubePlayer extends StatefulWidget {
   final String thumbnailUrl;
@@ -25,27 +23,56 @@ class InlineYouTubePlayer extends StatefulWidget {
 
 class _InlineYouTubePlayerState extends State<InlineYouTubePlayer> {
   bool _isPlaying = false;
-  late YoutubePlayerController _controller;
+
+  // 2. Define nullable controllers for both platforms
+  mobile.YoutubePlayerController? _mobileController;
+  web.YoutubePlayerController? _webController;
 
   @override
   void initState() {
     super.initState();
-    // Initialize the controller from youtube_player_iframe
-    _controller = YoutubePlayerController.fromVideoId(
-      videoId: widget.videoId,
-      autoPlay: true, // Auto-play once the user clicks the thumbnail
-      params: const YoutubePlayerParams(
-        showControls: true,
-        showFullscreenButton: true, // Enables native fullscreen
-        mute: false,
-      ),
-    );
+    // We initialize the specific controller only when the user clicks play
+    // or we can pre-initialize if needed. Here we do it on "Play" for performance.
+  }
+
+  void _initializePlayer() {
+    if (kIsWeb) {
+      // --- WEB INITIALIZATION ---
+      _webController = web.YoutubePlayerController.fromVideoId(
+        videoId: widget.videoId,
+        autoPlay: true,
+        params: const web.YoutubePlayerParams(
+          showControls: true,
+          showFullscreenButton: true,
+          mute: false,
+          strictRelatedVideos: true,
+        ),
+      );
+    } else {
+      // --- MOBILE INITIALIZATION ---
+      _mobileController = mobile.YoutubePlayerController(
+        initialVideoId: widget.videoId,
+        flags: const mobile.YoutubePlayerFlags(
+          autoPlay: false,
+          mute: false,
+          disableDragSeek: true,
+          loop: false,
+          isLive: false,
+          forceHD: false,
+          enableCaption: false,
+        ),
+      );
+    }
   }
 
   @override
   void dispose() {
-    // Clean up the controller
-    _controller.close();
+    // 3. Dispose the correct controller
+    if (kIsWeb) {
+      _webController?.close();
+    } else {
+      _mobileController?.dispose();
+    }
     super.dispose();
   }
 
@@ -56,21 +83,20 @@ class _InlineYouTubePlayerState extends State<InlineYouTubePlayer> {
         borderRadius: BorderRadius.circular(10),
         child: AspectRatio(
           aspectRatio: 16 / 9,
-          child: YoutubePlayer(
-            controller: _controller,
-            aspectRatio: 16 / 9,
-          ),
+          child: kIsWeb
+              ? _buildWebPlayer()
+              : _buildMobilePlayer(),
         ),
       );
     }
 
     return InkWell(
       onTap: () {
+        // Initialize logic before rebuilding
+        _initializePlayer();
         setState(() {
           _isPlaying = true;
         });
-        // Ensure playback starts
-        _controller.playVideo();
       },
       child: Stack(
         alignment: Alignment.center,
@@ -82,8 +108,9 @@ class _InlineYouTubePlayerState extends State<InlineYouTubePlayer> {
               aspectRatio: 16 / 9,
               child: CustomCachedImage(
                 imageUrl: widget.thumbnailUrl,
-                // Remove fixed size to let AspectRatio handle it
-                size: double.infinity,
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
               ),
             ),
           ),
@@ -95,6 +122,30 @@ class _InlineYouTubePlayerState extends State<InlineYouTubePlayer> {
           ),
         ],
       ),
+    );
+  }
+
+  // --- WEB PLAYER WIDGET ---
+  Widget _buildWebPlayer() {
+    return web.YoutubePlayer(
+      controller: _webController!,
+      aspectRatio: 16 / 9,
+    );
+  }
+
+  // --- MOBILE PLAYER WIDGET ---
+  Widget _buildMobilePlayer() {
+    return mobile.YoutubePlayer(
+      controller: _mobileController!,
+      showVideoProgressIndicator: true,
+      progressIndicatorColor: Colors.red,
+      progressColors: const mobile.ProgressBarColors(
+        playedColor: Colors.red,
+        handleColor: Colors.redAccent,
+      ),
+      onReady: () {
+        // Optional: Do something when player is ready
+      },
     );
   }
 }

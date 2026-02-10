@@ -48,8 +48,8 @@ class PersonalDetailsScreen extends GetView<AuthController> {
               //Profile Header
               ProfileHeader(
                 onTap: () {},
-                left: 0,
-                bottom: 0,
+                // left: 0,
+                // bottom: 0,
                 img: UImages.avatar,
                 subtitle: 'Change Photo',
                 icon: Iconsax.export,

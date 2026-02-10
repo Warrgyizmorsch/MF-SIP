@@ -9,19 +9,21 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_02_26,_6_04 pm_[Changes]/shelved.patch" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
+    <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="add web updates">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/common/widget/appbar/custom_appbar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/widget/appbar/custom_appbar.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/common/widget/images/custom_cached_image.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/widget/images/custom_cached_image.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/utils/constant/images.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/utils/constant/images.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/presentation/pages/login/login_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/presentation/pages/login/login_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/authentication/presentation/pages/login/otp_verification.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/presentation/pages/login/otp_verification.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/common/widget/video/custom_inline_youtube_player.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/widget/video/custom_inline_youtube_player.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/features/explore/presentation/pages/explore.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/explore/presentation/pages/explore.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/fund_details/presentation/pages/fund_deatails.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/fund_details/presentation/pages/fund_deatails.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/explore/presentation/pages/filterpage.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/explore/presentation/pages/filterpage.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/presentation/pages/profile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/pages/profile.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/presentation/widgets/document.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/widgets/document.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/presentation/widgets/kyc_details.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/widgets/kyc_details.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/presentation/widgets/nominee_details.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/widgets/nominee_details.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/presentation/widgets/personal_details.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/widgets/personal_details.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/navigation_menu_bar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/navigation_menu_bar.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,25 +77,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Flutter.main.dart.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;imam-branch&quot;,
-    &quot;io.flutter.project.isFirstOpen&quot;: &quot;true&quot;,
-    &quot;io.flutter.reload.alreadyRun&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/nithikmali/StudioProjects/MF-SIP/assets/logo&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;AndroidSdkUpdater&quot;,
-    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Flutter.main.dart.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "com.google.services.firebase.aqiPopupShown": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "web-updates",
+    "io.flutter.project.isFirstOpen": "true",
+    "io.flutter.reload.alreadyRun": "true",
+    "last_opened_file_path": "/Users/nithikmali/StudioProjects/MF-SIP/assets/logo",
+    "settings.editor.selected.configurable": "AndroidSdkUpdater",
+    "show.migrate.to.gradle.popup": "false"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/assets/logo" />
@@ -118,6 +120,15 @@
       <option name="presentableId" value="Default" />
       <updated>1767623341860</updated>
     </task>
+    <task id="LOCAL-00001" summary="add web updates">
+      <option name="closed" value="true" />
+      <created>1770697287899</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1770697287900</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -148,5 +159,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="add web updates" />
+    <option name="LAST_COMMIT_MESSAGE" value="add web updates" />
   </component>
 </project>
