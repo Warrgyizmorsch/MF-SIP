@@ -17,6 +17,7 @@ class FundDetailsController extends GetxController
   late String schemeName;
   late String imgUrl;
   late String schemeCode;
+  final selectedPeriod = '1Y'.obs;
 
   // Controllers
   late TabController tabController;
@@ -160,15 +161,58 @@ class FundDetailsController extends GetxController
   }
 
   // Get Scheme nav history
-  Future<void> getShcemeNavHistory({required String scchemeCode}) async {
+  Future<void> getShcemeNavHistory({
+    required String scchemeCode,
+    String period = '1Y',
+  }) async {
     try {
+      selectedPeriod.value = period;
       isNavHistoryLoading.value = true;
       hasError.value = false;
       errorMessage.value = '';
 
+      final now = DateTime.now();
+      DateTime fromDate;
+
+      switch (period) {
+        case '1W': // <--- ADD THIS CASE
+          fromDate = now.subtract(const Duration(days: 7));
+          break;
+        case '1M':
+          fromDate = now.subtract(const Duration(days: 30));
+          break;
+        case '3M':
+          fromDate = now.subtract(const Duration(days: 90));
+          break;
+        case '6M':
+          fromDate = now.subtract(const Duration(days: 180));
+          break;
+        case '1Y':
+          fromDate = now.subtract(const Duration(days: 365));
+          break;
+        case '2Y':
+          fromDate = now.subtract(const Duration(days: 730));
+          break;
+        case '3Y':
+          fromDate = now.subtract(const Duration(days: 1095));
+          break;
+        case '5Y':
+          fromDate = now.subtract(const Duration(days: 1825));
+          break;
+        case '10Y': // Optional: Handle All time if needed
+          fromDate = DateTime(1970);
+          break;
+        default:
+          fromDate = now.subtract(const Duration(days: 365));
+      }
+
+      // Format dates to YYYY-MM-DD
+      String formatDate(DateTime date) =>
+          "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+
       final result = await fundDetailsUsecases.navHistoryUsecases.call({
-        'from': '2026-01-01',
-        'to': '2026-01-09',
+        'from': formatDate(fromDate),
+        'to': formatDate(now),
         'scheme_code': scchemeCode,
       });
 

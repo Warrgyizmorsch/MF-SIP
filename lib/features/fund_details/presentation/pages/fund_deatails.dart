@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -9,6 +8,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
+import 'package:my_sip/common/widget/shimmer/shimmer.dart';
 import 'package:my_sip/common/widget/table/table_header.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
@@ -214,9 +214,7 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                 children: [
                   // Using your helper logic or CustomCachedImage helper provided earlier
                   ClipOval(
-                    child: CustomCachedImage(
-                      imageUrl: controller.imgUrl,
-                    ),
+                    child: CustomCachedImage(imageUrl: controller.imgUrl),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -337,9 +335,31 @@ class OverviewScreen extends GetView<FundDetailsController> {
                     ),
                   ],
                 ),
-                SchemeLineChart(),
-                Gap(12),
-                PeriodSelector(),
+                // SchemeLineChart(),
+                // Inside your screen/view
+                Obx(() {
+                  final navEntity = controller.navHistorydata.value;
+
+                  if (controller.isNavHistoryLoading.value) {
+                    return UShimmerEffect(
+                      radius: 0,
+                      width: double.infinity,
+                      height: 220,
+                    );
+                  }
+
+                  // Check if data is loaded
+                  if (navEntity == null || navEntity.data.isEmpty) {
+                    return SizedBox(
+                      height: 220,
+                      child: Center(child: Text('No Data Available')),
+                    );
+                  }
+
+                  return SchemeLineChart(navData: navEntity.data);
+                }),
+                const Gap(12),
+                const PeriodSelector(),
               ],
             ),
           ),

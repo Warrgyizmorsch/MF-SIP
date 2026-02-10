@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart' hide YoutubePlayerController, YoutubePlayer;
+import 'package:youtube_player_flutter/youtube_player_flutter.dart'
+    hide YoutubePlayerController, YoutubePlayer;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -56,10 +57,7 @@ class _InlineYouTubePlayerState extends State<InlineYouTubePlayer> {
         borderRadius: BorderRadius.circular(10),
         child: AspectRatio(
           aspectRatio: 16 / 9,
-          child: YoutubePlayer(
-            controller: _controller,
-            aspectRatio: 16 / 9,
-          ),
+          child: YoutubePlayer(controller: _controller, aspectRatio: 16 / 9),
         ),
       );
     }
@@ -81,18 +79,18 @@ class _InlineYouTubePlayerState extends State<InlineYouTubePlayer> {
             child: AspectRatio(
               aspectRatio: 16 / 9,
               child: CustomCachedImage(
+                size: 400,
+
                 imageUrl: widget.thumbnailUrl,
+
                 // Remove fixed size to let AspectRatio handle it
-                size: double.infinity,
+                // size: double.infinity,
               ),
             ),
           ),
 
           // Play Button Overlay
-          SvgPicture.asset(
-            'assets/logo/ic_play_youtube.svg',
-            height: 50,
-          ),
+          SvgPicture.asset('assets/logo/ic_play_youtube.svg', height: 50),
         ],
       ),
     );
