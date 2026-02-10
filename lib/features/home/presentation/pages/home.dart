@@ -7,9 +7,11 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
+import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/common/widget/shimmer/shimmer.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
+import 'package:my_sip/common/widget/video/custom_inline_youtube_player.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
@@ -18,17 +20,17 @@ import 'package:my_sip/features/cart/presentation/controllers/cart_controller.da
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_calculator.dart';
-import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
+import 'package:responsive_framework/responsive_framework.dart'; // Import Responsive Framework
 
 import '../widgets/product_tool/sip_calculator.dart';
 import '../widgets/product_tool/swp_calci.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({super.key});
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -36,13 +38,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final cartController = Get.find<CartController>();
-
   final mutualcontroller = Get.find<MutualFundController>();
   final navigation = Get.find<NavigationBarController>();
 
   @override
   void initState() {
-    // mutualcontroller.fetchMutualFund();
     super.initState();
   }
 
@@ -50,8 +50,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final authController = Get.find<AuthController>();
+
+    // Check Breakpoints
+    final bool isDesktop = ResponsiveBreakpoints.of(context).isDesktop;
+    final bool isTablet = ResponsiveBreakpoints.of(context).isTablet;
+
+    // Define Grid Counts based on screen size
+    final int collectionGridCount = isDesktop ? 6 : (isTablet ? 4 : 3);
+    final int goalGridCount = isDesktop ? 4 : (isTablet ? 3 : 2);
+    final int toolsGridCount = isDesktop ? 4 : (isTablet ? 3 : 2);
+    final int popularGridCount = isDesktop ? 5 : (isTablet ? 3 : 2);
     return Scaffold(
-      // backgroundColor: Color(0xffF5F5F7),
       backgroundColor: Colors.white,
       body: SafeArea(
         top: false,
@@ -62,12 +71,10 @@ class _HomeScreenState extends State<HomeScreen> {
               pinned: true,
               snap: false,
               automaticallyImplyLeading: false,
-
               backgroundColor: Colors.transparent,
-              // expandedHeight: 200,
+              expandedHeight: isDesktop ? 100 : kToolbarHeight, // Taller on desktop if needed
               flexibleSpace: Container(
-                // height: 260,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment(-0.8, -0.7),
                     end: Alignment(0.8, 0.7),
@@ -77,239 +84,78 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 child: SafeArea(
                   bottom: false,
-                  child: CustomProfileAppbar(
-                    // onProfiletap: () => Get.to(() => ProfileScreen()),
-                    // onProfiletap: () => na,
-                    onProfiletap: () => navigation.selectedIndex.value = 4,
-                    backgroundColor: Colors.transparent,
-                    greetingName: authController.user.value?.name ?? '',
-                    //  greetingName: user,
-                    role: UHelperFunction.getGreetingMsg(),
-                    iconColor: Ucolors.light,
-                    roleColor: Ucolors.borderColor,
-                    greetingNameColor: Ucolors.light,
-                    avatar: AssetImage(UImages.avatar),
-                    action: [
-                      CompactIcon(
-                        icon: Iconsax.notification,
-                        onPressed: () => Get.toNamed(AppRoutes.notification),
+                  child: Center( // Center content on desktop for better look
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1200),
+                      child: CustomProfileAppbar(
+                        onProfiletap: () => navigation.selectedIndex.value = 4,
+                        backgroundColor: Colors.transparent,
+                        greetingName: authController.user.value?.name ?? '',
+                        role: UHelperFunction.getGreetingMsg(),
                         iconColor: Ucolors.light,
-                      ),
-                      // CompactIcon(
-                      //   icon: Iconsax.shopping_cart,
-                      //   onPressed: () => Get.toNamed(AppRoutes.cart),
-                      //   iconColor: Ucolors.light,
-                      // ),
-                      Obx(
-                        () => Stack(
-                          children: [
-                            CompactIcon(
-                              icon: Iconsax.shopping_cart,
-                              onPressed: () => Get.toNamed(AppRoutes.cart),
-                              iconColor: Ucolors.light,
-                            ),
-                            if (cartController.itemsCount > 0)
-                              Positioned(
-                                right: 0,
-                                top: -5,
-
-                                // bottom: 0,
-                                child: Container(
-                                  padding: EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    color: Ucolors.red,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Text(
-                                    cartController.itemsCount.toString(),
-
-                                    style: UTextStyles.buttonText.copyWith(
-                                      fontSize: 10,
+                        roleColor: Ucolors.borderColor,
+                        greetingNameColor: Ucolors.light,
+                        avatar: AssetImage(UImages.avatar),
+                        action: [
+                          CompactIcon(
+                            icon: Iconsax.notification,
+                            onPressed: () => Get.toNamed(AppRoutes.notification),
+                            iconColor: Ucolors.light,
+                          ),
+                          Obx(
+                                () => Stack(
+                              children: [
+                                CompactIcon(
+                                  icon: Iconsax.shopping_cart,
+                                  onPressed: () => Get.toNamed(AppRoutes.cart),
+                                  iconColor: Ucolors.light,
+                                ),
+                                if (cartController.itemsCount > 0)
+                                  Positioned(
+                                    right: 0,
+                                    top: -5,
+                                    child: Container(
+                                      padding: EdgeInsets.all(5),
+                                      decoration: BoxDecoration(
+                                        color: Ucolors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Text(
+                                        cartController.itemsCount.toString(),
+                                        style: UTextStyles.buttonText.copyWith(
+                                          fontSize: 10,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
-                          ],
-                        ),
+                              ],
+                            ),
+                          ),
+                          CompactIcon(
+                            icon: Iconsax.archive_tick,
+                            onPressed: () => Get.toNamed(AppRoutes.watchlist),
+                            iconColor: Ucolors.light,
+                          ),
+                        ],
+                        actionsPadding: EdgeInsets.only(right: 16),
                       ),
-                      CompactIcon(
-                        icon: Iconsax.archive_tick,
-                        onPressed: () => Get.toNamed(AppRoutes.watchlist),
-                        iconColor: Ucolors.light,
-                      ),
-                    ],
-                    actionsPadding: EdgeInsets.only(right: 16),
+                    ),
                   ),
                 ),
               ),
             ),
 
-            // SliverToBoxAdapter(
-            //   child: Column(
-            //     children: [
-            //       // 1. Gradient header with quick action buttons
-            //       Container(
-            //         height: 180,
-            //         // 180, // fixed reasonable height – adjust once, works everywhere
-            //         decoration: const BoxDecoration(
-            //           gradient: LinearGradient(
-            //             begin: Alignment(-0.8, -1.0),
-            //             end: Alignment(0.1, 1.0),
-            //             stops: [0.0, 0.9784],
-            //             colors: [Color(0xFF07315C), Color(0xFF0280C0)],
-            //           ),
-            //         ),
-            //         child: SafeArea(
-            //           bottom: false,
-            //           child: Padding(
-            //             padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-            //             child: Column(
-            //               children: [
-            //                 // Greeting row (if needed – optional)
-            //                 // Row(...)
-            //                 // const Spacer(),
-
-            //                 // Three feature buttons
-            //                 Row(
-            //                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            //                   children: [
-            //                     FeatureSection(
-            //                       featureName: 'Start SIP',
-            //                       iconPath: UImages.startsip,
-            //                     ),
-            //                     FeatureSection(
-            //                       featureName: 'Freedom SIP',
-            //                       iconPath: UImages.freedomsip,
-            //                     ),
-            //                     FeatureSection(
-            //                       featureName: 'Lumpsum',
-            //                       iconPath: UImages.glyph,
-            //                     ),
-            //                   ],
-            //                 ),
-
-            //                 const SizedBox(height: 20),
-            //               ],
-            //             ),
-            //           ),
-            //         ),
-            //       ),
-
-            //       // 2. KYC progress card – negative offset for natural overlap
-            //       Padding(
-            //         padding: const EdgeInsets.symmetric(horizontal: 24),
-            //         child: Transform.translate(
-            //           offset: const Offset(
-            //             0,
-            //             -40,
-            //           ), // ← controls overlap amount (tune 40–60)
-            //           child: Material(
-            //             elevation: 4, // subtle shadow
-            //             borderRadius: BorderRadius.circular(12),
-            //             color: Ucolors.light,
-            //             child: Padding(
-            //               padding: const EdgeInsets.all(16),
-            //               child: Column(
-            //                 crossAxisAlignment: CrossAxisAlignment.start,
-            //                 children: [
-            //                   // Title + arrow
-            //                   Row(
-            //                     mainAxisAlignment:
-            //                         MainAxisAlignment.spaceBetween,
-            //                     children: [
-            //                       const Text(
-            //                         'Complete Your KYC',
-            //                         style: TextStyle(
-            //                           fontSize: 16,
-            //                           fontWeight: FontWeight.w600,
-            //                           color: Ucolors.dark,
-            //                         ),
-            //                       ),
-            //                       IconButton(
-            //                         icon: const Icon(
-            //                           Icons.arrow_forward_ios_rounded,
-            //                           size: 18,
-            //                           color: Ucolors.primary,
-            //                         ),
-            //                         onPressed: () {
-            //                           // Navigate to KYC flow
-            //                         },
-            //                       ),
-            //                     ],
-            //                   ),
-
-            //                   const SizedBox(height: 16),
-
-            //                   // Stepper
-            //                   SingleChildScrollView(
-            //                     scrollDirection: Axis.horizontal,
-            //                     child: EasyStepper(
-            //                       activeStep: 2, // Step 3 active
-            //                       stepRadius: 10,
-            //                       // lineLength: 40,
-            //                       // lineThickness: 2,
-            //                       finishedStepBackgroundColor: Colors.lightBlue,
-            //                       activeStepIconColor: Colors.lightBlue,
-            //                       finishedStepIconColor: Colors.white,
-            //                       // defaultStepIconColor: Colors.grey,
-            //                       activeStepBorderColor: Colors.lightBlue,
-            //                       steps: const [
-            //                         EasyStep(
-            //                           icon: Icon(
-            //                             Icons.check_circle,
-            //                             color: Colors.white,
-            //                           ),
-            //                         ),
-            //                         EasyStep(
-            //                           icon: Icon(
-            //                             Icons.check_circle,
-            //                             color: Colors.white,
-            //                           ),
-            //                         ),
-            //                         EasyStep(
-            //                           icon: Icon(
-            //                             Icons.circle,
-            //                             color: Colors.lightBlue,
-            //                             size: 12,
-            //                           ),
-            //                         ),
-            //                         EasyStep(
-            //                           icon: Icon(
-            //                             Icons.circle_outlined,
-            //                             color: Colors.grey,
-            //                           ),
-            //                         ),
-            //                         EasyStep(
-            //                           icon: Icon(
-            //                             Icons.circle_outlined,
-            //                             color: Colors.grey,
-            //                           ),
-            //                         ),
-            //                       ],
-            //                     ),
-            //                   ),
-            //                 ],
-            //               ),
-            //             ),
-            //           ),
-            //         ),
-            //       ),
-
-            //       // const SizedBox(height: 24), // space before next section
-            //     ],
-            //   ),
-            // ),
-
             //Header Section --KYC and ,start sip , freedom sip , lumpsum
             SliverToBoxAdapter(
               child: Stack(
+                alignment: Alignment.topCenter,
                 children: [
                   SizedBox(
-                    height: size.height * 0.3,
-                    // child: Container(color),
+                    // Increase height on desktop to accommodate larger icons
+                    height: isDesktop ? size.height * 0.4 : size.height * 0.3,
                   ),
                   Container(
-                    height: size.height * 0.21,
+                    height: isDesktop ? size.height * 0.28 : size.height * 0.21,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment(-0.8, -1.0),
@@ -321,132 +167,111 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Get.toNamed(AppRoutes.startSipScreen);
-                          },
-                          child: FeatureSection(
-                            featureName: 'Start SIP',
-                            iconPath: UImages.startsip,
-                          ),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 800),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Get.toNamed(AppRoutes.startSipScreen);
+                              },
+                              child: FeatureSection(
+                                featureName: 'Start SIP',
+                                iconPath: UImages.startsip,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Get.toNamed(AppRoutes.startSipScreen);
+                              },
+                              child: FeatureSection(
+                                featureName: 'Freedom SIP',
+                                iconPath: UImages.freedomsip,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => Get.toNamed(AppRoutes.startSipScreen),
+                              child: FeatureSection(
+                                featureName: 'Lumpsum',
+                                iconPath: UImages.glyph,
+                              ),
+                            ),
+                          ],
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            Get.toNamed(AppRoutes.startSipScreen);
-                          },
-                          child: FeatureSection(
-                            featureName: 'Freedom SIP',
-                            iconPath: UImages.freedomsip,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () => Get.toNamed(AppRoutes.startSipScreen),
-                          child: FeatureSection(
-                            featureName: 'Lumpsum',
-                            iconPath: UImages.glyph,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                   Positioned(
                     left: 20,
                     right: 20,
                     bottom: 0,
-                    // top: 0,
-                    child: GestureDetector(
-                      onTap: () {
-                        Get.toNamed(AppRoutes.kycScreen);
-                      },
-                      child: Container(
-                        height: size.height * 0.13,
-                        // height: 108,
-                        // width: size.width / 2,
-                        // width: 400,
-                        decoration: BoxDecoration(
-                          color: Ucolors.light,
-
-                          borderRadius: BorderRadius.circular(15),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.15),
-                              blurRadius: 5,
-                              offset: const Offset(0, 4),
-                              // spreadRadius: 5,
-                            ),
-                          ],
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                            maxWidth: isDesktop ? 600 : double.infinity
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                            left: 10.0,
-                            top: 10,
-                            bottom: 10,
-                            right: 15,
-                          ),
-                          child: Column(
-                            // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Row(
-                                // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        child: GestureDetector(
+                          onTap: () {
+                            Get.toNamed(AppRoutes.kycScreen);
+                          },
+                          child: Container(
+                            height: isDesktop ? 140 : size.height * 0.13,
+                            decoration: BoxDecoration(
+                              color: Ucolors.light,
+                              borderRadius: BorderRadius.circular(15),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.15),
+                                  blurRadius: 5,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                              child: Row( // Changed Column to Row for better stability
                                 children: [
-                                  Icon(Icons.person),
-                                  SizedBox(width: 5),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        'Onboarding task',
-                                        style: UTextStyles.caption,
-                                      ),
-                                      Text(
-                                        'Complete KYC & Profile',
-                                        style: UTextStyles.medium.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: Ucolors.dark,
+                                  Icon(Icons.person, size: isDesktop ? 30 : 24),
+                                  SizedBox(width: 15),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Onboarding task',
+                                          style: UTextStyles.caption.copyWith(
+                                              fontSize: isDesktop ? 14 : 12
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        'Verify your Identity to start Investing',
-                                        softWrap: true,
-
-                                        maxLines: 1,
-
-                                        overflow: TextOverflow.ellipsis,
-                                        style: UTextStyles.caption.copyWith(
-                                          // fontSize: 10,
+                                        Text(
+                                          'Complete KYC & Profile',
+                                          style: UTextStyles.medium.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              color: Ucolors.dark,
+                                              fontSize: isDesktop ? 18 : 14
+                                          ),
                                         ),
-                                        // textAlign: TextAlign.start,
-                                      ),
-                                    ],
+                                        Text(
+                                          'Verify your Identity to start Investing',
+                                          softWrap: true,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: UTextStyles.caption.copyWith(
+                                              fontSize: isDesktop ? 14 : 10
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  Spacer(),
-                                  Icon(Icons.arrow_forward_ios, size: 12),
-                                  // SizedBox(width: 10),
+                                  Icon(Icons.arrow_forward_ios, size: isDesktop ? 16 : 12),
                                 ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: Container(
-                      height: size.height * 0.025,
-                      width: size.width / 2.3,
-                      decoration: BoxDecoration(
-                        color: Ucolors.primary,
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(25),
                         ),
                       ),
                     ),
@@ -458,7 +283,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ///-------------Collection Part ---------------///
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+                padding: isDesktop ? EdgeInsets.all(10) : const EdgeInsets.fromLTRB(16, 20, 16, 0),
                 child: const SectionHeading(
                   sectionTitle: 'Collection',
                   fontWeight: FontWeight.w500,
@@ -468,11 +293,10 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  childAspectRatio: 1.1,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: collectionGridCount,
+                  childAspectRatio: isDesktop ? 1.3 : 1.1, // Adjusted aspect ratio for desktop
                   mainAxisSpacing: 0,
-
                   crossAxisSpacing: 12,
                 ),
                 delegate: SliverChildListDelegate([
@@ -488,25 +312,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   CollectionItem(
                     onTap: () => Get.to(() => ExploreScreen()),
-
                     title: 'International Funds',
                     iconImg: UImages.interfund,
                   ),
                   CollectionItem(
                     onTap: () => Get.to(() => ExploreScreen()),
-
                     title: 'Index Funds',
                     iconImg: UImages.indexfund,
                   ),
                   CollectionItem(
                     onTap: () => Get.to(() => ExploreScreen()),
-
                     title: 'Commodities',
                     iconImg: UImages.moneygold,
                   ),
                   CollectionItem(
                     onTap: () => Get.to(() => ExploreScreen()),
-
                     title: 'Equity',
                     iconImg: UImages.equity,
                   ),
@@ -528,10 +348,9 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // 2 columns — most popular choice
-                  childAspectRatio:
-                      2.8, // tune this: 1.3–1.55 usually looks best
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: goalGridCount,
+                  childAspectRatio: isDesktop ? 3.5 : 2.8,
                   mainAxisSpacing: 16,
                   crossAxisSpacing: 16,
                 ),
@@ -541,7 +360,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       AppRoutes.ihavegoal,
                       arguments: {'goalType': 'car'},
                     ),
-
                     title: 'Car Goal',
                     iconData: Icons.directions_car_filled_rounded,
                   ),
@@ -558,7 +376,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       AppRoutes.ihavegoal,
                       arguments: {'goalType': 'marriage'},
                     ),
-
                     title: 'Marriage Goal',
                     iconData: Icons.favorite_border_outlined,
                   ),
@@ -567,7 +384,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       AppRoutes.ihavegoal,
                       arguments: {'goalType': 'vacation'},
                     ),
-
                     title: 'Vacation Goal',
                     iconData: Icons.flight_takeoff_rounded,
                   ),
@@ -576,18 +392,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       AppRoutes.ihavegoal,
                       arguments: {'goalType': 'home'},
                     ),
-
                     title: 'Home Goal',
                     iconData: Icons.home_rounded,
                   ),
-                  // GoalBaseSIPCard(
-                  //   title: 'Education Goal',
-                  //   iconData: Icons.school_rounded,
-                  // ),
                   GestureDetector(
                     onTap: () => Get.toNamed(
                       AppRoutes.ihavegoal,
-                      // arguments: {'goalType': 'bike'},
                     ),
                     child: Container(
                       padding: EdgeInsets.symmetric(
@@ -611,7 +421,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       child: Row(
                         children: [
-                          // Icon container
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
@@ -624,10 +433,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: Ucolors.blue,
                             ),
                           ),
-
                           const SizedBox(width: 12),
-
-                          // Title
                           Expanded(
                             child: Text(
                               'Custom Goal',
@@ -639,8 +445,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-
-                          // Trailing arrow
                         ],
                       ),
                     ),
@@ -652,8 +456,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ///-------------Products & Tool Part ---------------///
             SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: USectionHeading(
+                padding: isDesktop ? EdgeInsets.all(10) : const EdgeInsets.fromLTRB(16, 20, 16, 0),                child: USectionHeading(
                   title: 'Products & Tool',
                   buttonTitle: 'See all',
                   showActionButton: true,
@@ -664,9 +467,9 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 3.2, // tune: 2.8–3.5
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: toolsGridCount,
+                  childAspectRatio: isDesktop ? 3.5 : 3.2,
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 16,
                 ),
@@ -676,7 +479,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     imgUrl: UImages.sipcalci,
                     onTap: () => Get.to(() => SipCalculatorPage()),
                   ),
-                  // ToolsItem(title: "STP Calculator", imgUrl: UImages.stpcalci),
                   ToolsItem(
                     title: "SWP Calculator",
                     imgUrl: UImages.swpcali,
@@ -699,7 +501,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ///-------------Popular Funds Part ---------------///
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+                padding: isDesktop ? EdgeInsets.all(10) : const EdgeInsets.fromLTRB(16, 20, 16, 0),
                 child: const USectionHeading(
                   title: 'Popular Funds',
                   showActionButton: true,
@@ -710,35 +512,39 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverPadding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               sliver: Obx(
-                () => SliverGrid.builder(
-                  itemCount: mutualcontroller.searchFund.length.clamp(0, 4),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    childAspectRatio: 1.55,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    crossAxisCount: 2,
-                  ),
-                  itemBuilder: (context, index) {
-                    final fund = mutualcontroller.searchFund[index];
-                    final id = fund.amc?.id;
-                    if (id == null) return const SizedBox();
-                    final img =
-                        "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}" ?? '';
-                    final name = fund.baseSchemeName ?? 'Unknown Name';
-                    print(
-                      '${mutualcontroller.searchFund.length} mutual fund $name $img',
-                    );
-                    return PopularFundCard(
-                      onTap: () => Get.toNamed(
-                        AppRoutes.funddetails,
-                        arguments: {'scheme': name, 'imgUrl': img},
+                      () {
+                    // LOGIC CHANGE: Limit to 4 on Mobile, 8 on Desktop/Tablet
+                    final int maxItems = (isDesktop || isTablet) ? 8 : 4;
+
+                    return SliverGrid.builder(
+                      itemCount: mutualcontroller.searchFund.length.clamp(0, maxItems),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        // Use the popularGridCount you defined earlier (e.g. 5 for desktop, 2 for mobile)
+                        crossAxisCount: popularGridCount,
+                        // Adjust aspect ratio: Wide for Desktop (2.5), Tall for Mobile (1.55)
+                        childAspectRatio: isDesktop ? 2.0 : 1.55,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
                       ),
-                      isNetwork: true,
-                      imgPath: img,
-                      name: name,
+                      itemBuilder: (context, index) {
+                        final fund = mutualcontroller.searchFund[index];
+                        final id = fund.amc?.id;
+                        if (id == null) return const SizedBox();
+                        final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}" ?? '';
+                        final name = fund.baseSchemeName ?? 'Unknown Name';
+
+                        return PopularFundCard(
+                          onTap: () => Get.toNamed(
+                            AppRoutes.funddetails,
+                            arguments: {'scheme': name, 'imgUrl': img},
+                          ),
+                          isNetwork: true,
+                          imgPath: img,
+                          name: name,
+                        );
+                      },
                     );
-                  },
-                ),
+                  }
               ),
             ),
 
@@ -755,18 +561,20 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SliverToBoxAdapter(
               child: SizedBox(
-                height: size.height * 0.25,
-                // width: size.height * 0.9,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  children: [
-                    YoutubeThumbnail(videoId: 'yo5aL4Plbso'),
-                    const SizedBox(width: 16),
-
-                    YoutubeThumbnail(videoId: 't7lUSiddFd4'),
-                    const SizedBox(width: 16),
-                  ],
+                height: isDesktop ? 300 : size.height * 0.25,
+                child: Center( // Center the list on desktop
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    shrinkWrap: isDesktop, // Shrink wrap on desktop to center
+                    children: [
+                      InlineYouTubePlayer(thumbnailUrl: 'https://img.youtube.com/vi/yo5aL4Plbso/maxresdefault.jpg', videoId: "yo5aL4Plbso"),
+                      // YoutubeThumbnail(videoId: 'yo5aL4Plbso'),
+                      const SizedBox(width: 16),
+                      InlineYouTubePlayer(thumbnailUrl: 'https://img.youtube.com/vi/t7lUSiddFd4/maxresdefault.jpg', videoId: "t7lUSiddFd4"),
+                      const SizedBox(width: 16),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -797,16 +605,19 @@ class YoutubeThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final thumbnailUrl =
-        'https://img.youtube.com/vi/$videoId/maxresdefault.jpg';
-
+    final thumbnailUrl = 'https://img.youtube.com/vi/$videoId/maxresdefault.jpg';
     final size = MediaQuery.of(context).size;
+    final isDesktop = ResponsiveBreakpoints.of(context).isDesktop;
+
+    // Fixed width on desktop, percentage on mobile
+    final displayWidth = isDesktop ? 400.0 : size.width * 0.8;
+    final displayHeight = isDesktop ? 225.0 : height;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: size.width * 0.8,
-        height: height,
+        width: displayWidth,
+        height: displayHeight,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(borderRadius),
           boxShadow: [
@@ -831,7 +642,6 @@ class YoutubeThumbnail extends StatelessWidget {
                   child: const Icon(Icons.error, color: Colors.white54),
                 ),
               ),
-
               // Semi-transparent overlay
               Container(
                 decoration: BoxDecoration(
@@ -843,11 +653,10 @@ class YoutubeThumbnail extends StatelessWidget {
                   ),
                 ),
               ),
-
               Center(
                 child: Container(
-                  width: 64,
-                  height: 64,
+                  width: isDesktop ? 80 : 64,
+                  height: isDesktop ? 80 : 64,
                   decoration: BoxDecoration(
                     color: const Color(0xfff44336), // YouTube red
                     shape: BoxShape.circle,
@@ -859,10 +668,10 @@ class YoutubeThumbnail extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.play_arrow_rounded,
                     color: Colors.white,
-                    size: 42,
+                    size: isDesktop ? 50 : 42,
                   ),
                 ),
               ),
@@ -889,11 +698,13 @@ class PopularFundCard extends StatelessWidget {
   final VoidCallback? onTap;
   final bool isNetwork;
   final Color borderColor;
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        // Removed Align: Allow the container to fill the Grid Cell dimensions
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
@@ -909,64 +720,72 @@ class PopularFundCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: Column(
-            // crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Logo
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ClipOval(
-                    child: CircleAvatar(
-                      // radius: 15,
-                      // backgroundImage: isNetwork
-                      //     ? CachedNetworkImageProvider(imgPath)
-                      //     //  NetworkImage(imgPath)
-                      //     : AssetImage(imgPath),
-                      child: isNetwork
-                          ? CachedNetworkImage(
-                              imageUrl: imgPath,
-                              placeholder: (context, url) => UShimmerEffect(
-                                width: 40,
-                                height: 40,
-                                radius: 20,
-                              ),
-                              errorWidget: (context, url, error) =>
-                                  Icon(Icons.image_not_supported),
-                            )
-                          : Image.asset(imgPath),
+              // 1. TOP SECTION (Expanded)
+              // This takes up all available vertical space above the stats row.
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start, // Align items to top
+                  children: [
+                    // Image (Fixed Size)
+                    ClipOval(
+                      child: Container(
+                        height: 40,
+                        width: 40,
+                        color: Colors.grey.shade50,
+                        child: isNetwork
+                            ? CustomCachedImage(imageUrl: imgPath, size: 40)
+                            : Image.asset(imgPath, fit: BoxFit.cover),
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      name,
-                      softWrap: true,
-                      maxLines: 2,
-                      style: AppTextStyles.bodyMedium(),
+                    const SizedBox(width: 10),
+
+                    // Name (Flexible/Expanded Width)
+                    // Prevents horizontal overflow
+                    Expanded(
+                      child: Text(
+                        name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: UTextStyles.medium.copyWith(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                          height: 1.2, // Better line spacing
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              // Spacer(),
-              Expanded(child: SizedBox()),
+
+              // 2. BOTTOM SECTION (Fixed Height)
+              // Stays pinned to the bottom because of the Expanded widget above.
               Row(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     '3Y',
                     style: UTextStyles.caption.copyWith(
                       fontWeight: FontWeight.w500,
+                      color: Colors.grey.shade600,
                     ),
                   ),
-                  Spacer(),
                   Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.arrow_drop_up, color: Ucolors.success),
+                      const Icon(
+                        Icons.arrow_drop_up_rounded,
+                        color: Ucolors.success,
+                        size: 20,
+                      ),
                       Text(
                         '+31.06%',
                         style: UTextStyles.caption.copyWith(
                           color: Ucolors.success,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
@@ -980,7 +799,6 @@ class PopularFundCard extends StatelessWidget {
     );
   }
 }
-
 class GoalBaseSIPCard extends StatelessWidget {
   const GoalBaseSIPCard({
     super.key,
@@ -1025,9 +843,7 @@ class GoalBaseSIPCard extends StatelessWidget {
                 ),
                 child: Icon(iconData, size: 20, color: Ucolors.blue),
               ),
-
               const SizedBox(width: 12),
-
               // Title
               Expanded(
                 child: Text(
@@ -1040,7 +856,6 @@ class GoalBaseSIPCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-
               // Trailing arrow
               const Icon(
                 Icons.arrow_forward_ios_rounded,
@@ -1069,25 +884,26 @@ class ToolsItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log('tap');
+    final bool isDesktop = ResponsiveBreakpoints.of(context).isDesktop;
+
     return GestureDetector(
       onTap: onTap,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: 45, width: 45, child: Image.asset(imgUrl)),
+          // Scale image slightly on desktop
+          SizedBox(
+              height: isDesktop ? 55 : 45,
+              width: isDesktop ? 55 : 45,
+              child: Image.asset(imgUrl)
+          ),
           SizedBox(width: 5),
           Flexible(
             child: Text(
               title,
               style: UTextStyles.small.copyWith(
-                // color: Ucolors.hometxtblue,
-                // color: Colors.grey[600],
-                // color: Colors.black.withOpacity(0.7),
                 color: Colors.grey[600],
-
-                // fontSize: 14,
-                // fontWeight: FontWeight.w500,
+                fontSize: isDesktop ? 16 : 14, // Scale font
               ),
             ),
           ),
@@ -1112,18 +928,23 @@ class CollectionItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final isDesktop = ResponsiveBreakpoints.of(context).isDesktop;
+
     return GestureDetector(
       onTap: onTap,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Image.asset(iconImg),
-
-          const SizedBox(height: 4),
+          // Dynamic Image Size
           SizedBox(
-            width: size.width * 0.27,
-            // width: 100,
+              height: isDesktop ? 60 : 45,
+              width: isDesktop ? 60 : 45,
+              child: Image.asset(iconImg, fit: BoxFit.contain)
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: isDesktop ? 140 : size.width * 0.27,
             child: Text(
               textAlign: TextAlign.center,
               maxLines: 2,
@@ -1131,9 +952,9 @@ class CollectionItem extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               title,
               style: UTextStyles.small.copyWith(
-                // color: Ucolors.hometxtblue,
                 color: Colors.grey[600],
                 overflow: TextOverflow.ellipsis,
+                fontSize: isDesktop ? 14 : 12, // Scale text
               ),
             ),
           ),
@@ -1155,29 +976,35 @@ class FeatureSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = ResponsiveBreakpoints.of(context).isDesktop;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          height: 60,
-          width: 60,
-          // padding: EdgeInsets.all(15),
+          height: isDesktop ? 80 : 60, // Larger container on desktop
+          width: isDesktop ? 80 : 60,
           decoration: BoxDecoration(
             color: Ucolors.primary,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(isDesktop ? 25 : 20),
           ),
           child: Center(
             child: SvgPicture.asset(
               iconPath,
+              // Scale SVG
+              width: isDesktop ? 35 : 24,
+              height: isDesktop ? 35 : 24,
               alignment: AlignmentGeometry.center,
             ),
           ),
         ),
+        SizedBox(height: isDesktop ? 10 : 5),
         Text(
           featureName,
           style: UTextStyles.medium.copyWith(
             color: Ucolors.light,
             fontWeight: FontWeight.w500,
+            fontSize: isDesktop ? 16 : 14, // Scale font
           ),
         ),
       ],

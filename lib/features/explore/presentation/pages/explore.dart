@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
+import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/common/widget/shimmer/shimmer.dart';
 import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
@@ -430,15 +431,10 @@ class MutualFundCard extends StatelessWidget {
                   // backgroundImage: AssetImage(UImages.sbi),
                   // backgroundImage:  NetworkImage(entity!.amc!.amcLogoUrl!),
                   child: ClipOval(
-                    child: CachedNetworkImage(
+                    child: CustomCachedImage(
                       imageUrl:
                           "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
-                      fadeInDuration: const Duration(milliseconds: 300),
-
-                      placeholder: (context, url) =>
-                          UShimmerEffect(width: 40, height: 40, radius: 20),
-                      errorWidget: (context, url, error) =>
-                          Icon(Icons.image_not_supported),
+         
                     ),
                   ),
                 ),

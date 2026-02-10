@@ -214,20 +214,8 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                 children: [
                   // Using your helper logic or CustomCachedImage helper provided earlier
                   ClipOval(
-                    child: CachedNetworkImage(
+                    child: CustomCachedImage(
                       imageUrl: controller.imgUrl,
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
-                      errorWidget: (context, url, error) => Container(
-                        width: 40,
-                        height: 40,
-                        color: Colors.grey[300],
-                        child: Icon(
-                          Icons.image_not_supported,
-                          color: Colors.grey[600],
-                        ),
-                      ),
                     ),
                   ),
                   const SizedBox(width: 10),

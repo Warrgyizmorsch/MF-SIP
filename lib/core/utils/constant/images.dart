@@ -99,4 +99,5 @@ class UImages {
   static const String gpat = "assets/icon/gpay.png";
   static const String amazon = "assets/icon/amazon.png";
   static const String appLogo = "assets/logo/app_logo.svg";
+  static const String messageLogo = "assets/icon/logo_message.svg";
 }
