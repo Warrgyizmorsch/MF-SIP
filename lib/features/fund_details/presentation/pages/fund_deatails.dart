@@ -18,7 +18,6 @@ import '../../../../config/routes/app_routes.dart';
 import '../../../../core/utils/constant/colors.dart';
 import '../../../../core/utils/constant/images.dart';
 import '../../../../core/utils/constant/text_style.dart';
-import '../../../../core/utils/helper/helpers.dart';
 import '../../../dashboard/presentation/pages/comparison_screen.dart';
 import '../../../dashboard/presentation/pages/dashboard.dart';
 import '../controllers/fund_details_controller.dart';
@@ -81,12 +80,12 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
             const SizedBox(
               width: 60,
               height: 60,
-              child: CircularProgressIndicator(strokeWidth: 3),
+              child: CircularProgressIndicator(strokeWidth: 3, color: Ucolors.primary,),
             ),
             const Gap(20),
             Text(
               'Loading fund details...',
-              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 16, color: Ucolors.primary),
             ),
           ],
         ),

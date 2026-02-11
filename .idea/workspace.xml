@@ -10,9 +10,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="add web updates">
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/dashboard/presentation/pages/comparison_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/dashboard/presentation/pages/comparison_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/dashboard/presentation/pages/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/dashboard/presentation/pages/dashboard.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/dashboard/presentation/widgets/comparison_chart.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/dashboard/presentation/widgets/comparison_chart.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/features/fund_details/presentation/pages/fund_deatails.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/fund_details/presentation/pages/fund_deatails.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/controller/goal_sip_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/controller/goal_sip_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/pages/ihavegoal.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/pages/ihavegoal.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/sip_calculator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/sip_calculator.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/swp_calci.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/swp_calci.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/top_up_calculator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/top_up_calculator.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/widget/piechart_with_value.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/widgets/product_tool/widget/piechart_with_value.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

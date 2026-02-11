@@ -189,6 +189,7 @@ import 'package:get/get.dart';
 
 import 'dart:math';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 // class GoalSipController extends GetxController {
 //   // Inputs
@@ -273,6 +274,8 @@ import 'package:get/get.dart';
 import 'package:my_sip/features/fund_details/data/models/return_model.dart';
 
 class GoalSipController extends GetxController {
+
+  final coverImage = Rxn<XFile>();
   // Inputs
   final targetAmount = 0.0.obs;
   final years = 1.0.obs;

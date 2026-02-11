@@ -158,6 +158,7 @@ class _WebDashboardLayout extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,21 +228,17 @@ class _WebDashboardLayout extends StatelessWidget {
                           ),
                         ],
                       ),
-                      ...[
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: const Text(
-                            "Learn & Grow",
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-
-                            ),
-                          ),
+                      const Text(
+                        "Learn & Grow",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const Gap(16),
-                        _buildWebVideoRow(),
-                      ]
+                        textAlign: TextAlign.start,
+                      ),
+                      const Gap(16),
+
+                      _buildWebVideoRow()
                     ],
                   ),
                 ),
@@ -249,6 +246,7 @@ class _WebDashboardLayout extends StatelessWidget {
             ),
           ),
         ),
+
 
       ],
     );
@@ -404,7 +402,7 @@ class _WebDashboardLayout extends StatelessWidget {
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           _WebQuickActionItem(
             "Start SIP",

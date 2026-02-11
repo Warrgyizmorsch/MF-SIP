@@ -83,7 +83,7 @@ class ComparisonScreen extends StatelessWidget {
             //Fund chart
             // Image.asset(UImages.comparison),
             // FundComparisonChartWidget(),
-            FundComparisonChartWidget1(),
+            FundComparisonChartWidget(),
             // SizedBox(height: 20),
             SizedBox(height: Get.height * 0.02),
 

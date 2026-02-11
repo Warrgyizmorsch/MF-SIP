@@ -8,6 +8,7 @@ import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/InvestValue.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/sipslidertile.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/piechart_with_value.dart';
+import 'package:responsive_framework/responsive_framework.dart'; // Import Responsive
 
 import '../../../../fund_details/data/models/return_model.dart';
 import '../../../../fund_details/presentation/pages/fund_deatails.dart';
@@ -32,6 +33,9 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Detect Desktop
+    final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+
     final result = simulateStepUpSip(
       baseMonthly: baseAmount,
       stepUpType: stepUpType,
@@ -56,339 +60,284 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
     ];
 
     return Scaffold(
-      backgroundColor: Colors.white.withOpacity(0.96),
+      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white.withOpacity(0.96),
       appBar: CustomAppBarNormal(title: 'SIP Top-Up Calculator'),
-      body: Padding(
-        padding: UPadding.screenPadding.copyWith(top: 20, bottom: 20),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              SipSliderTile2(
-                title: 'I want to invest (per month)',
-                // value: 10000,
-                value: baseAmount,
-                // min: 10000,
-                min: 500,
-                max: 100000,
-                suffix: null,
-                prefix: '₹',
-
-                onChanged: (value) {
-                  setState(() {
-                    baseAmount = value;
-                  });
-                },
-              ),
-              SipSliderTile2(
-                title: 'Increase SIP every year',
-                // value: 500,
-                value: stepUpValue,
-                min: 500,
-                max: 20000,
-                // suffix: '₹',
-                suffix: null,
-                prefix: '₹',
-                onChanged: (value) {
-                  setState(() {
-                    stepUpValue = value;
-                  });
-                },
-              ),
-              SipSliderTile2(
-                title: 'Over a period of',
-                // value: 1,
-                value: years.toDouble(),
-                min: 1,
-                max: 30,
-                suffix: 'Years',
-                onChanged: (value) {
-                  setState(() {
-                    years = value.toInt();
-                  });
-                },
-              ),
-              SipSliderTile2(
-                // prefix: 'da',
-                title: 'Expected rate of return %',
-                value: returnRate,
-                min: 1,
-                max: 20,
-                suffix: '%',
-                onChanged: (value) {
-                  setState(() {
-                    returnRate = value;
-                  });
-                },
-              ),
-
-              Row(
-                children: [
-                  Text('Normal vs Step-up Summary', style: UTextStyles.large),
-                ],
-              ),
-              Gap(12),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 6,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Ucolors.borderside),
-                ),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: SizedBox(
-                    width: 400,
-                    child: Column(
-                      // mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TableHeader(
-                          width: 100,
-                          heading1: 'Metric',
-                          heading2: 'Invested',
-                          heading3: 'Future',
-                          heading4: 'Profit',
-                        ),
-                        DashedLine(color: Colors.grey.shade300, dashSpace: 0),
-                        ...summaryRows.map(
-                          (e) => ReturnsTableRow(
-                            width: 100,
-                            // fontSize: 10,
-                            color4: Colors.green.shade600,
-                            data: e,
-                            percentage: false,
-                            // fontSize: 10,
-                          ),
-                        ),
-                      ],
-                    ),
+      body: SingleChildScrollView(
+        padding: isDesktop
+            ? const EdgeInsets.symmetric(vertical: 30, horizontal: 24)
+            : UPadding.screenPadding.copyWith(top: 20, bottom: 20),
+        child: Column(
+          children: [
+            if (isDesktop)
+              Center(
+                child: MaxWidthBox(
+                  maxWidth: 1200,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(flex: 4, child: _buildInputs(isDesktop)),
+                      const Gap(30),
+                      Expanded(flex: 6, child: _buildResults(isDesktop, result, summaryRows)),
+                    ],
                   ),
                 ),
+              )
+            else
+              Column(
+                children: [
+                  _buildInputs(isDesktop),
+                  const Gap(20),
+                  _buildResults(isDesktop, result, summaryRows),
+                ],
               ),
+          ],
+        ),
+      ),
+    );
+  }
 
-              Gap(20),
+  // =========================================================
+  // 🔹 INPUT SECTION
+  // =========================================================
+  Widget _buildInputs(bool isDesktop) {
+    return Container(
+      padding: EdgeInsets.all(isDesktop ? 24 : 0),
+      decoration: isDesktop ? _webCardDecoration() : null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (isDesktop) ...[
+            const Text("Input Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Gap(20),
+          ],
+          SipSliderTile2(
+            title: 'I want to invest (per month)',
+            value: baseAmount,
+            min: 500,
+            max: 100000,
+            suffix: null,
+            prefix: '₹',
+            onChanged: (value) => setState(() => baseAmount = value),
+          ),
+          SipSliderTile2(
+            title: 'Increase SIP every year',
+            value: stepUpValue,
+            min: 500,
+            max: 20000,
+            suffix: null,
+            prefix: '₹',
+            onChanged: (value) => setState(() => stepUpValue = value),
+          ),
+          SipSliderTile2(
+            title: 'Over a period of',
+            value: years.toDouble(),
+            min: 1,
+            max: 30,
+            suffix: 'Years',
+            onChanged: (value) => setState(() => years = value.toInt()),
+          ),
+          SipSliderTile2(
+            title: 'Expected rate of return',
+            value: returnRate,
+            min: 1,
+            max: 20,
+            suffix: '%',
+            onChanged: (value) => setState(() => returnRate = value),
+          ),
+        ],
+      ),
+    );
+  }
 
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Ucolors.light,
-                  borderRadius: BorderRadius.circular(20),
-
-                  border: Border.all(color: Ucolors.borderside),
-                ),
-                child: DefaultTabController(
-                  length: 2,
-
+  // =========================================================
+  // 🔹 RESULTS SECTION (Summary + Tabs)
+  // =========================================================
+  Widget _buildResults(bool isDesktop, StepUpSipResult result, List<ReturnRow> summaryRows) {
+    return Column(
+      children: [
+        // 1. SUMMARY TABLE CARD
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Ucolors.borderside),
+            boxShadow: isDesktop
+                ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))]
+                : [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 6, offset: const Offset(0, 4))],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Normal vs Step-up Summary', style: UTextStyles.large.copyWith(fontWeight: FontWeight.bold)),
+              const Gap(15),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: isDesktop ? 600 : 400,
                   child: Column(
                     children: [
-                      Tab(
-                        child: TabBar(
-                          indicatorSize: TabBarIndicatorSize.tab,
-
-                          unselectedLabelColor: Colors.grey,
-                          dividerColor: Colors.transparent,
-                          labelColor: Ucolors.primary,
-                          indicatorColor: Colors.transparent,
-                          labelPadding: EdgeInsets.symmetric(vertical: 5),
-                          indicator: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-
-                            color: Ucolors.primary.withOpacity(0.1),
-                          ),
-                          tabs: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8.0,
-                              ),
-                              child: Text(
-                                'Visual Rep.',
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8.0,
-                              ),
-                              child: Text(
-                                'Report',
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ),
-                          ],
-                        ),
+                      TableHeader(
+                        width: 100,
+                        heading1: 'Metric',
+                        heading2: 'Invested',
+                        heading3: 'Future',
+                        heading4: 'Profit',
                       ),
-                      SizedBox(
-                        height: 400,
-                        child: TabBarView(
-                          children: [
-                            //Visual representation
-                            Column(
-                              // mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                // Gap(12),
-                                PieChartWithValue(
-                                  title1: 'Step-up Invested',
-                                  title2: 'Step-up Profit',
-                                  list: [
-                                    InvestValue(
-                                      inrFomat: false,
-                                      color: Colors.black87,
-
-                                      title: 'Step-up Invested',
-                                      value: formatIndianNumber(
-                                        result.stepUp.invested,
-                                      ),
-
-                                      // value: result.stepUp.invested
-                                      //     .toStringAsFixed(0),
-                                      // color: Ucolors.pri,
-                                    ),
-                                    InvestValue(
-                                      color: Colors.black87,
-
-                                      title: 'Step-up Future Value',
-                                      inrFomat: false,
-                                      value: formatIndianNumber(
-                                        result.stepUp.value,
-                                      ),
-                                      // value: result.stepUp.value
-                                      //     .toStringAsFixed(
-                                      //       0,
-                                      //     ), // color: Ucolors.dark,
-                                    ),
-                                    InvestValue(
-                                      color: Colors.black87,
-
-                                      title: 'Step-up Profit',
-                                      inrFomat: false,
-                                      value: formatIndianNumber(
-                                        result.stepUp.profit,
-                                      ),
-                                      // value: '184777777',
-                                      // value: result.stepUp.profit
-                                      //     .toStringAsFixed(0),
-                                      // color: Ucolors.success,
-                                    ),
-                                  ],
-                                  piechartvalue1: result.stepUp.invested,
-                                  piechartvalue2: result.stepUp.profit,
-                                  piechartcolor1: Ucolors.primary,
-                                  piechartcolor2: Ucolors.primary.withOpacity(
-                                    0.1,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            //Report table
-                            SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: SizedBox(
-                                width: 500,
-                                child: Column(
-                                  children: [
-                                    TableHeader(
-                                      heading1: 'Years',
-                                      heading2: 'Invested',
-                                      heading3: 'Normal',
-                                      heading4: 'Step-up',
-                                      heading5: 'Extra',
-                                    ),
-                                    DashedLine(
-                                      color: Ucolors.borderColor,
-                                      dashSpace: 0,
-                                    ),
-
-                                    SizedBox(
-                                      height: 350,
-                                      child: ListView.builder(
-                                        // itemCount: returns.length,
-
-                                        // itemBuilder: (context, index) {
-                                        //   final row = returns[index];
-                                        //   return ReturnsTableRow(
-                                        //     // color3: Colors.green.shade600,
-                                        //     color5: Ucolors.success,
-                                        //     data: row,
-                                        //     percentage: false,
-                                        //   );
-                                        // },
-                                        itemCount: result.detailRows.length,
-                                        itemBuilder: (_, i) {
-                                          final r = result.detailRows[i];
-                                          return ReturnsTableRow(
-                                            percentage: false,
-                                            color5: Ucolors.success,
-                                            data: ReturnRow(
-                                              period: r.year.toString(),
-                                              scheme: r.stepInvested,
-                                              category: r.normalValue,
-                                              benchmark: r.stepValue,
-                                              extra: r.extraGain,
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
+                      DashedLine(color: Colors.grey.shade300, dashSpace: 0),
+                      ...summaryRows.map(
+                            (e) => ReturnsTableRow(
+                          width: 100,
+                          color4: Colors.green.shade600,
+                          data: e,
+                          percentage: false,
                         ),
                       ),
                     ],
                   ),
-                  //  Column(
-                  //   children: [
-                  //     PieChartWithValue(
-                  //       title1: 'Withdrawn',
-                  //       title2: 'Remaining',
-                  //       list: [
-                  //         Text(
-                  //           'You can withdraw ₹500 per month for 5 years at 10.5% expected return.',
-                  //           textAlign: TextAlign.center,
-                  //           style: UTextStyles.caption,
-                  //         ),
-                  //         Gap(10),
-                  //         InvestValue(
-                  //           title: 'Total Withdrawn',
-                  //           value: '184777777',
-                  //           color: Ucolors.red,
-                  //         ),
-                  //         InvestValue(
-                  //           title: 'Remaining Value',
-                  //           value: '184777777',
-                  //           color: Ucolors.dark,
-                  //         ),
-                  //         InvestValue(
-                  //           title: 'Total Profit',
-                  //           value: '184777777',
-                  //           color: Ucolors.success,
-                  //         ),
-                  //       ],
-                  //       piechartvalue1: 30,
-                  //       piechartvalue2: 70,
-                  //       piechartcolor1: Ucolors.darkgrey,
-                  //       piechartcolor2: Ucolors.success,
-                  //     ),
-                  //   ],
-                  // ),
                 ),
               ),
             ],
           ),
         ),
-      ),
+
+        const Gap(24),
+
+        // 2. DETAILED TABS CARD
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 25),
+          decoration: BoxDecoration(
+            color: Ucolors.light,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Ucolors.borderside),
+            boxShadow: isDesktop ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)] : null,
+          ),
+          child: DefaultTabController(
+            length: 2,
+            child: Column(
+              children: [
+                // Tabs
+                Container(
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: TabBar(
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    unselectedLabelColor: Colors.grey,
+                    dividerColor: Colors.transparent,
+                    labelColor: Ucolors.primary,
+                    indicator: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white,
+                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)]
+                    ),
+                    tabs: const [
+                      Tab(text: 'Visual Rep.'),
+                      Tab(text: 'Report'),
+                    ],
+                  ),
+                ),
+
+                const Gap(20),
+
+                // Tab Views
+                SizedBox(
+                  height: 400,
+                  child: TabBarView(
+                    children: [
+                      // A. Visual Rep
+                      SingleChildScrollView(
+                        child: PieChartWithValue(
+                          title1: 'Step-up Invested',
+                          title2: 'Step-up Profit',
+                          list: [
+                            InvestValue(
+                              inrFomat: false,
+                              color: Colors.black87,
+                              title: 'Step-up Invested',
+                              value: formatIndianNumber(result.stepUp.invested),
+                            ),
+                            InvestValue(
+                              color: Colors.black87,
+                              title: 'Step-up Future Value',
+                              inrFomat: false,
+                              value: formatIndianNumber(result.stepUp.value),
+                            ),
+                            InvestValue(
+                              color: Colors.black87,
+                              title: 'Step-up Profit',
+                              inrFomat: false,
+                              value: formatIndianNumber(result.stepUp.profit),
+                            ),
+                          ],
+                          piechartvalue1: result.stepUp.invested,
+                          piechartvalue2: result.stepUp.profit,
+                          piechartcolor1: Ucolors.primary,
+                          piechartcolor2: Ucolors.primary.withOpacity(0.1),
+                        ),
+                      ),
+
+                      // B. Report Table
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: SizedBox(
+                          width: isDesktop ? 800 : 400,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              TableHeader(
+                                heading1: 'Years',
+                                heading2: 'Invested',
+                                heading3: 'Normal',
+                                heading4: 'Step-up',
+                                heading5: 'Extra',
+                              ),
+                              DashedLine(color: Ucolors.borderColor, dashSpace: 0),
+                              SizedBox(
+                                height: 350,
+                                child: ListView.builder(
+                                  itemCount: result.detailRows.length,
+                                  itemBuilder: (_, i) {
+                                    final r = result.detailRows[i];
+                                    return ReturnsTableRow(
+                                      percentage: false,
+                                      color5: Ucolors.success,
+                                      data: ReturnRow(
+                                        period: r.year.toString(),
+                                        scheme: r.stepInvested,
+                                        category: r.normalValue,
+                                        benchmark: r.stepValue,
+                                        extra: r.extraGain,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  BoxDecoration _webCardDecoration() {
+    return BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+      ],
+      border: Border.all(color: Colors.grey.shade200),
     );
   }
 }
