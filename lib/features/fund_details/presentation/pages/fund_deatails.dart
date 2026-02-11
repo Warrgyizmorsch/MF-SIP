@@ -31,40 +31,7 @@ import '../widgets/risk_indicator_ball.dart';
 import '../widgets/schemeLineChart.dart';
 import '../widgets/stock_allocation_items.dart';
 import '../widgets/timeselecter.dart';
-import 'dart:developer';
 
-import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
-import 'package:get/get.dart';
-import 'package:iconsax/iconsax.dart';
-import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
-import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
-import 'package:my_sip/common/widget/images/custom_cached_image.dart';
-import 'package:my_sip/common/widget/shimmer/shimmer.dart';
-import 'package:my_sip/common/widget/table/table_header.dart';
-import 'package:my_sip/common/widget/text/view_all.dart';
-import 'package:my_sip/config/routes/app_routes.dart';
-import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/images.dart';
-import 'package:my_sip/core/utils/constant/text_style.dart';
-import 'package:my_sip/core/utils/helper/helpers.dart';
-import 'package:my_sip/features/fund_details/presentation/widgets/fund_performance_chart.dart';
-import 'package:my_sip/features/fund_details/presentation/widgets/helper.dart';
-import 'package:readmore/readmore.dart';
-import 'package:responsive_framework/responsive_framework.dart';
-import 'package:syncfusion_flutter_gauges/gauges.dart';
-
-import '../../../dashboard/presentation/pages/comparison_screen.dart';
-import '../../../dashboard/presentation/pages/dashboard.dart';
-import '../controllers/fund_details_controller.dart';
-import '../widgets/fund_performance_bar.dart';
-import '../widgets/percentage_indicator.dart';
-import '../widgets/return.dart';
-import '../widgets/risk_indicator_ball.dart';
-import '../widgets/schemeLineChart.dart';
-import '../widgets/stock_allocation_items.dart';
-import '../widgets/timeselecter.dart';
 
 class FundDetailsScreen extends GetView<FundDetailsController> {
   const FundDetailsScreen({super.key});
@@ -295,7 +262,7 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
               const Gap(16),
               Expanded(
                 child: Text(
-                  fund?.schemeName ?? "Fund Details",
+                 "Fund Details",
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
@@ -328,9 +295,7 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                 constraints: const BoxConstraints(maxWidth: 1600),
                 child: Column(
                   children: [
-                    // Fund Header Card
-                    _DesktopFundHeader(fund: fund, controller: controller),
-                    const Gap(32),
+
 
                     // Performance Section (Full Width)
 
@@ -346,12 +311,14 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                           flex: 6,
                           child: Column(
                             children: [
+                              // Fund Header Card
+                              _DesktopFundHeader(fund: fund, controller: controller),
+                              const Gap(24),
                               _DesktopPerformanceSection(controller: controller),
                               const Gap(24),
                               _DesktopOverviewCard(fund: fund),
                               const Gap(24),
-                              _DesktopQuickLookCard(fund: fund),
-                              const Gap(24),
+
                               // const Gap(24),
 
                             ],
@@ -363,11 +330,14 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                           flex: 4,
                           child: Column(
                             children: [
-                              const Gap(50),
+                              _DesktopQuickLookCard(fund: fund),
+                              const Gap(24),
+                              // const Gap(50),
                               _DesktopActionCard(fund: fund),
-                              const Gap(50),
+                              const Gap(24),
 
                               _DesktopAllocationCard(controller: controller),
+                              const Gap(24),
                             ],
                           ),
                         ),
@@ -437,9 +407,8 @@ class _DesktopFundHeader extends StatelessWidget {
               children: [
                 Text(
                   fund?.schemeName ?? '',
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
+                  style: AppTextStyles.bodyLargeBold(
+                    color: Colors.black
                   ),
                 ),
                 const Gap(12),
@@ -693,7 +662,7 @@ class _DesktopOverviewCard extends StatelessWidget {
         crossAxisCount: 2,
         childAspectRatio: 7,
         crossAxisSpacing: 10,
-        mainAxisSpacing: 5,
+        mainAxisSpacing: 25,
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
