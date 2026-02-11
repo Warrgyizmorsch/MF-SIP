@@ -552,7 +552,7 @@ import 'package:my_sip/features/explore/presentation/controller/mutual_fund_cont
 import 'package:my_sip/features/fund_details/domain/entity/fund_detail_entity.dart';
 import 'package:my_sip/features/fund_details/domain/entity/portfolio_analysis_entity.dart';
 import 'package:my_sip/features/fund_details/presentation/controllers/comparefund_controller.dart';
-import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
+import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart' hide parseFundManagers;
 
 // Import the new controller
 

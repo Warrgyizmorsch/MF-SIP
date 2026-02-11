@@ -1,134 +1,224 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-
-// class SchemeLineChart extends StatelessWidget {
-//   const SchemeLineChart({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final List<FlSpot> schemeSpots = [
-//       FlSpot(0, 10),
-//       FlSpot(1, 9.5),
-//       FlSpot(2, 10.2),
-//       FlSpot(3, 9.8),
-//       FlSpot(4, 10.6),
-//       FlSpot(5, 10.4),
-//       FlSpot(6, 11.0),
-//       FlSpot(7, 10.8),
-//       FlSpot(8, 11.3),
-//       FlSpot(9, 11.8),
-//     ];
-//     return SizedBox(
-//       height: 220,
-//       child: LineChart(
-//         LineChartData(
-//           minX: 0,
-//           maxX: schemeSpots.length - 1,
-//           gridData: FlGridData(show: false),
-//           borderData: FlBorderData(show: false),
-//           titlesData: FlTitlesData(
-//             leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-//             rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-//             topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-//             bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-//           ),
-//           lineTouchData: LineTouchData(
-//             enabled: true,
-//             handleBuiltInTouches: true,
-//           ),
-//           lineBarsData: [
-//             LineChartBarData(
-//               spots: schemeSpots,
-//               isCurved: true,
-//               color: const Color(0xFF1E5DB9), // BLUE LINE
-//               barWidth: 2.5,
-//               dotData: FlDotData(show: false),
-//               belowBarData: BarAreaData(show: false),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-import 'dart:math'; // Required for min/max calculations
-// Import your entity file
+import 'dart:math';
 import 'package:my_sip/features/fund_details/domain/entity/nav_history_entity.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
-class SchemeLineChart extends StatelessWidget {
+class SchemeLineChart extends StatefulWidget {
   final List<NavEntryEntity> navData;
 
   const SchemeLineChart({super.key, required this.navData});
 
   @override
+  State<SchemeLineChart> createState() => _SchemeLineChartState();
+}
+
+class _SchemeLineChartState extends State<SchemeLineChart> {
+  int? touchedSpotIndex;
+
+  @override
   Widget build(BuildContext context) {
-    // 1. Handle Empty State
-    if (navData.isEmpty) {
-      return const SizedBox(
-        height: 220,
-        child: Center(child: Text("No data available")),
+    final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+
+    if (widget.navData.isEmpty) {
+      return SizedBox(
+        height: isDesktop ? 280 : 220,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.show_chart, size: 48, color: Colors.grey.shade300),
+              const SizedBox(height: 12),
+              Text(
+                "No data available",
+                style: TextStyle(
+                  color: Colors.grey.shade500,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
       );
     }
 
-    // 2. Map Entity to FlSpot
-    // We use the index (0, 1, 2...) as the X value for equidistant points.
-    List<FlSpot> schemeSpots = navData.asMap().entries.map((entry) {
+    List<FlSpot> schemeSpots = widget.navData.asMap().entries.map((entry) {
       int index = entry.key;
       double value = entry.value.nav ?? 0.0;
       return FlSpot(index.toDouble(), value);
     }).toList();
 
-    // 3. Calculate Min/Max for dynamic Y-axis scaling
-    // This ensures the line takes up the full height of the chart
     double minY = schemeSpots.map((e) => e.y).reduce(min);
     double maxY = schemeSpots.map((e) => e.y).reduce(max);
-    double buffer = (maxY - minY) * 0.1; // Add 10% breathing room
+    double buffer = (maxY - minY) * 0.1;
 
-    return SizedBox(
-      height: 220,
+    return Container(
+      height: isDesktop ? 280 : 220,
+      padding: isDesktop ? const EdgeInsets.all(20) : const EdgeInsets.all(12),
+      decoration: isDesktop
+          ? BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      )
+          : null,
       child: LineChart(
         LineChartData(
-          // Dynamic X and Y ranges
           minX: 0,
           maxX: (schemeSpots.length - 1).toDouble(),
           minY: minY - buffer,
           maxY: maxY + buffer,
-
-          gridData: FlGridData(show: false),
+          gridData: FlGridData(
+            show: isDesktop,
+            drawVerticalLine: false,
+            horizontalInterval: (maxY - minY) / 5,
+            getDrawingHorizontalLine: (value) => FlLine(
+              color: Colors.grey.shade100,
+              strokeWidth: 1,
+            ),
+          ),
           borderData: FlBorderData(show: false),
           titlesData: FlTitlesData(
-            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: isDesktop,
+                reservedSize: 50,
+                getTitlesWidget: (value, meta) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Text(
+                      '₹${value.toStringAsFixed(0)}',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
             rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
             topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: isDesktop,
+                interval: schemeSpots.length > 10
+                    ? (schemeSpots.length / 5).ceilToDouble()
+                    : 1,
+                getTitlesWidget: (value, meta) {
+                  final index = value.toInt();
+                  if (index >= 0 && index < widget.navData.length) {
+                    final date = widget.navData[index].navDate ?? "";
+                    final parts = date.split('-');
+                    if (parts.length == 3) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          '${parts[2]}/${parts[1]}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      );
+                    }
+                  }
+                  return const SizedBox();
+                },
+              ),
+            ),
           ),
           lineTouchData: LineTouchData(
             enabled: true,
             handleBuiltInTouches: true,
+            touchSpotThreshold: 20,
+            getTouchedSpotIndicator:
+                (LineChartBarData barData, List<int> spotIndexes) {
+              return spotIndexes.map((index) {
+                return TouchedSpotIndicatorData(
+                  FlLine(
+                    color: const Color(0xFF1E5DB9).withOpacity(0.5),
+                    strokeWidth: isDesktop ? 2 : 1.5,
+                    dashArray: [5, 5],
+                  ),
+                  FlDotData(
+                    show: true,
+                    getDotPainter: (spot, percent, barData, index) {
+                      return FlDotCirclePainter(
+                        radius: isDesktop ? 6 : 5,
+                        color: Colors.white,
+                        strokeWidth: isDesktop ? 3 : 2,
+                        strokeColor: const Color(0xFF1E5DB9),
+                      );
+                    },
+                  ),
+                );
+              }).toList();
+            },
             touchTooltipData: LineTouchTooltipData(
-              // Optional: Customize tooltip to show Date and Value
+              getTooltipColor: (_) => Colors.grey.shade900,
+              tooltipPadding: EdgeInsets.symmetric(
+                horizontal: isDesktop ? 12 : 10,
+                vertical: isDesktop ? 10 : 8,
+              ),
+              tooltipMargin: isDesktop ? 12 : 8,
+              tooltipBorderRadius: BorderRadius.circular(8),
               getTooltipItems: (touchedSpots) {
                 return touchedSpots.map((spot) {
-                  final date = navData[spot.x.toInt()].navDate ?? "";
+                  final date = widget.navData[spot.x.toInt()].navDate ?? "";
                   return LineTooltipItem(
-                    "$date\n${spot.y.toStringAsFixed(2)}",
-                    const TextStyle(color: Colors.white),
+                    '$date\n₹${spot.y.toStringAsFixed(2)}',
+                    TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: isDesktop ? 13 : 12,
+                    ),
                   );
                 }).toList();
               },
             ),
+            touchCallback: (FlTouchEvent event, LineTouchResponse? response) {
+              setState(() {
+                if (response?.lineBarSpots != null &&
+                    response!.lineBarSpots!.isNotEmpty) {
+                  touchedSpotIndex = response.lineBarSpots!.first.spotIndex;
+                } else {
+                  touchedSpotIndex = null;
+                }
+              });
+            },
           ),
           lineBarsData: [
             LineChartBarData(
               spots: schemeSpots,
               isCurved: true,
-              color: const Color(0xFF1E5DB9), // BLUE LINE
-              barWidth: 2.5,
-              dotData: FlDotData(show: false),
+              curveSmoothness: 0.35,
+              gradient: const LinearGradient(
+                colors: [Color(0xFF1E5DB9), Color(0xFF3B82F6)],
+              ),
+              barWidth: isDesktop ? 3 : 2.5,
+              dotData: FlDotData(
+                show: isDesktop && schemeSpots.length <= 20,
+                getDotPainter: (spot, percent, barData, index) {
+                  return FlDotCirclePainter(
+                    radius: 3,
+                    color: Colors.white,
+                    strokeWidth: 2,
+                    strokeColor: const Color(0xFF1E5DB9),
+                  );
+                },
+              ),
               belowBarData: BarAreaData(
-                show: true, // Optional: nice gradient fill below line
-                color: const Color(0xFF1E5DB9).withValues(alpha: 0.1),
+                show: true,
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFF1E5DB9).withOpacity(0.15),
+                    const Color(0xFF1E5DB9).withOpacity(0.05),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
               ),
             ),
           ],
@@ -137,9 +227,3 @@ class SchemeLineChart extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-

@@ -1,8 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 class GroupedPerformanceBarChart extends StatefulWidget {
-  final List<dynamic> data; // Accepts List<ReturnRow>
+  final List<dynamic> data;
 
   const GroupedPerformanceBarChart({super.key, required this.data});
 
@@ -13,140 +14,223 @@ class GroupedPerformanceBarChart extends StatefulWidget {
 
 class _GroupedPerformanceBarChartState
     extends State<GroupedPerformanceBarChart> {
-  // Config for bar width and spacing
-  final double width = 7;
   late int touchedIndex = -1;
 
   @override
   Widget build(BuildContext context) {
     if (widget.data.isEmpty) return const SizedBox();
 
-    return AspectRatio(
-      aspectRatio: 1.5,
-      child: Container(
-        margin: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: BarChart(
-          BarChartData(
-            alignment: BarChartAlignment.spaceAround,
-            titlesData: FlTitlesData(
-              show: true,
-              // Bottom Titles (Time Periods: 1M, 3M, etc.)
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  getTitlesWidget: (value, meta) {
-                    final index = value.toInt();
-                    if (index >= 0 && index < widget.data.length) {
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text(
-                          widget.data[index].period,
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 10,
-                          ),
-                        ),
-                      );
-                    }
-                    return const Text('');
-                  },
+    final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+    final width = isDesktop ? 16.0 : 8.0; // Increased width slightly for desktop
+
+    return Container(
+      margin: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(isDesktop ? 16 : 12),
+        border: isDesktop ? Border.all(color: Colors.grey.shade200) : null,
+        boxShadow: isDesktop
+            ? [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          )
+        ]
+            : [],
+      ),
+      padding: isDesktop ? const EdgeInsets.all(24) : const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min, // Important for Column
+        children: [
+          if (isDesktop) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Performance Comparison',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey.shade900,
+                  ),
                 ),
-              ),
-              // Left Titles (Y-Axis Percentages)
-              leftTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 30,
-                  getTitlesWidget: (value, meta) {
-                    if (value == 0) return const SizedBox(); // Hide 0
-                    return Text(
-                      '${value.toInt()}%',
-                      style: TextStyle(
-                        color: Colors.grey.shade400,
-                        fontSize: 10,
-                      ),
-                    );
-                  },
-                ),
-              ),
-              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              rightTitles: AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
+                _buildLegend(isDesktop: true, width: width),
+              ],
             ),
-            gridData: FlGridData(
-              show: true,
-              drawVerticalLine: false,
-              horizontalInterval: 5, // Grid line every 5%
-              getDrawingHorizontalLine: (value) =>
-                  FlLine(color: Colors.grey.shade100, strokeWidth: 1),
-            ),
-            borderData: FlBorderData(show: false),
-            // Tooltip Configuration
-            barTouchData: BarTouchData(
-              touchTooltipData: BarTouchTooltipData(
-                getTooltipColor: (_) => Colors.blueGrey.shade900,
-                getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                  String label = '';
-                  if (rodIndex == 0) label = 'Fund';
-                  if (rodIndex == 1) label = 'B\'mark';
-                  if (rodIndex == 2) label = 'Cat';
-                  return BarTooltipItem(
-                    '$label\n',
-                    const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
+            const SizedBox(height: 24),
+          ],
+
+          // ---------------------------------------------------------
+          // 👇 FIX: Use SizedBox with fixed height instead of AspectRatio
+          // ---------------------------------------------------------
+          SizedBox(
+            height: isDesktop ? 300 : 250, // Fixed height prevents overflow on wide screens
+            child: BarChart(
+              BarChartData(
+                alignment: BarChartAlignment.spaceAround,
+                titlesData: FlTitlesData(
+                  show: true,
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        final index = value.toInt();
+                        if (index >= 0 && index < widget.data.length) {
+                          return Padding(
+                            padding: EdgeInsets.only(top: isDesktop ? 12 : 8),
+                            child: FittedBox(
+                              child: Text(
+                                widget.data[index].period,
+                                style: TextStyle(
+                                  color: Colors.grey.shade700,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: isDesktop ? 12 : 10,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                        return const Text('');
+                      },
                     ),
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: '${rod.toY}%',
-                        style: const TextStyle(
-                          color: Colors.yellowAccent,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                  ),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: isDesktop ? 40 : 30,
+                      getTitlesWidget: (value, meta) {
+                        if (value == 0) return const SizedBox();
+                        return Text(
+                          '${value.toInt()}%',
+                          style: TextStyle(
+                            color: Colors.grey.shade500,
+                            fontSize: isDesktop ? 12 : 10,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                ),
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  horizontalInterval: 5,
+                  getDrawingHorizontalLine: (value) => FlLine(
+                    color: Colors.grey.shade100,
+                    strokeWidth: 1,
+                  ),
+                ),
+                borderData: FlBorderData(show: false),
+                barTouchData: BarTouchData(
+                  enabled: true,
+                  touchTooltipData: BarTouchTooltipData(
+                    getTooltipColor: (_) => Colors.grey.shade900,
+                    tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    tooltipMargin: 8,
+                    getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                      String label = '';
+                      if (rodIndex == 0) label = 'Fund';
+                      if (rodIndex == 1) label = 'Benchmark';
+                      if (rodIndex == 2) label = 'Category';
+                      return BarTooltipItem(
+                        '$label\n',
+                        const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
                         ),
-                      ),
-                    ],
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: '${rod.toY.toStringAsFixed(2)}%',
+                            style: const TextStyle(
+                              color: Colors.yellowAccent,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                  touchCallback: (FlTouchEvent event, barTouchResponse) {
+                    setState(() {
+                      if (!event.isInterestedForInteractions ||
+                          barTouchResponse == null ||
+                          barTouchResponse.spot == null) {
+                        touchedIndex = -1;
+                        return;
+                      }
+                      touchedIndex = barTouchResponse.spot!.touchedBarGroupIndex;
+                    });
+                  },
+                ),
+                barGroups: widget.data.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final row = entry.value;
+                  return generateGroup(
+                    index,
+                    row.scheme,
+                    row.benchmark,
+                    row.category,
+                    width,
+                    isDesktop,
                   );
-                },
+                }).toList(),
+                maxY: _getMaxY() + 5, // Added buffer for top labels
               ),
-              touchCallback: (FlTouchEvent event, barTouchResponse) {
-                setState(() {
-                  if (!event.isInterestedForInteractions ||
-                      barTouchResponse == null ||
-                      barTouchResponse.spot == null) {
-                    touchedIndex = -1;
-                    return;
-                  }
-                  touchedIndex = barTouchResponse.spot!.touchedBarGroupIndex;
-                });
-              },
             ),
-            barGroups: widget.data.asMap().entries.map((entry) {
-              final index = entry.key;
-              final row = entry.value;
-              return generateGroup(
-                index,
-                row.scheme, // Fund
-                row.benchmark, // Benchmark
-                row.category, // Category
-              );
-            }).toList(),
-            // Maximum Y value (add a buffer so top bars aren't cut off)
-            maxY: _getMaxY() + 1,
           ),
-        ),
+          if (!isDesktop) ...[
+            const SizedBox(height: 16),
+            _buildLegend(isDesktop: false, width: width),
+          ],
+        ],
       ),
     );
   }
 
-  // Helper to calculate max Y value for scaling
+  Widget _buildLegend({required bool isDesktop, required double width}) {
+    return Wrap(
+      spacing: isDesktop ? 24 : 16,
+      runSpacing: 8,
+      children: [
+        _legendItem('Fund', const Color(0xFF22C55E), width),
+        _legendItem('Benchmark', Colors.grey.shade400, width),
+        _legendItem('Category', const Color(0xFF60A5FA), width),
+      ],
+    );
+  }
+
+  Widget _legendItem(String label, Color color, double width) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey.shade700,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
   double _getMaxY() {
     double maxVal = 0;
     for (var item in widget.data) {
@@ -158,35 +242,38 @@ class _GroupedPerformanceBarChartState
   }
 
   BarChartGroupData generateGroup(
-    int x,
-    double fund,
-    double benchmark,
-    double category,
-  ) {
+      int x,
+      double fund,
+      double benchmark,
+      double category,
+      double width,
+      bool isDesktop,
+      ) {
     return BarChartGroupData(
       x: x,
       groupVertically: false,
       barRods: [
-        // 1. Fund Bar (Green - Main)
         BarChartRodData(
           toY: fund,
-          color: Colors.green, // Your Brand Green
+          gradient: const LinearGradient(
+            colors: [Color(0xFF22C55E), Color(0xFF16A34A)],
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+          ),
           width: width,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(isDesktop ? 4 : 2)),
         ),
-        // 2. Benchmark Bar (Grey)
         BarChartRodData(
           toY: benchmark,
           color: Colors.grey.shade400,
           width: width,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(isDesktop ? 4 : 2)),
         ),
-        // 3. Category Bar (Light Blue)
         BarChartRodData(
           toY: category,
-          color: Colors.lightBlue.shade200,
+          color: const Color(0xFF60A5FA),
           width: width,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(isDesktop ? 4 : 2)),
         ),
       ],
     );

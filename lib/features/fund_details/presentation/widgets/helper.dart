@@ -29,13 +29,13 @@ RiskMeterConfig getRiskMeter(String? risk) {
     case 'moderate high':
       return RiskMeterConfig(
         needleValue: 70,
-        color: Colors.orange, // dark yellow
+        color: Colors.orange,
         label: 'Moderate High',
       );
     case 'moderately high':
       return RiskMeterConfig(
         needleValue: 70,
-        color: Colors.orange, // dark yellow
+        color: Colors.orange,
         label: 'Moderate High',
       );
 
