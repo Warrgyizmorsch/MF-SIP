@@ -211,8 +211,8 @@ class FundDetailsController extends GetxController
           "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
 
       final result = await fundDetailsUsecases.navHistoryUsecases.call({
-        'from': formatDate(fromDate),
-        'to': formatDate(now),
+        'startDate': formatDate(fromDate),
+        'endDate': formatDate(now),
         'scheme_code': scchemeCode,
       });
 

@@ -9,6 +9,7 @@ import 'package:my_sip/common/widget/text/subtitle_section.dart';
 import 'package:my_sip/common/widget/webview/webview.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
+import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/document.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/help_support.dart';
@@ -69,7 +70,7 @@ class _MobileProfileLayout extends StatelessWidget {
               const SizedBox(height: 20),
               const Upgradebanner(),
               const SizedBox(height: 20),
-              const ActivityGeneralSectionMobile(),
+               ActivityGeneralSectionMobile(),
               const SizedBox(height: 20),
               const LogoutButton(),
               const Gap(15),
@@ -289,8 +290,9 @@ class FooterSection extends StatelessWidget {
 
 // Renamed to avoid confusion with the web grid logic
 class ActivityGeneralSectionMobile extends StatelessWidget {
-  const ActivityGeneralSectionMobile({super.key});
-
+   ActivityGeneralSectionMobile({super.key});
+  
+  final PersonalisationController controller = Get.find();
   @override
   Widget build(BuildContext context) {
     return Card(

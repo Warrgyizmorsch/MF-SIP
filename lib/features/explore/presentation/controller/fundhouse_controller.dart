@@ -1,14 +1,20 @@
 import 'dart:developer';
 
 import 'package:get/get.dart';
+import 'package:my_sip/features/explore/domain/entities/categories_filter_entity.dart';
 import 'package:my_sip/features/explore/domain/entities/fund_house_entity.dart';
+import 'package:my_sip/features/explore/domain/usecases/get_categories_filter_usecases.dart';
 import 'package:my_sip/features/explore/domain/usecases/get_fundhouse_usecase.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 
 class FundhouseController extends GetxController {
   final GetFundhouseUsecase _getFundhouseUsecase;
+  final GetCategoriesFilterUsecases getCategoriesFilterUsecases;
 
-  FundhouseController(this._getFundhouseUsecase);
+  FundhouseController(
+    this._getFundhouseUsecase,
+    this.getCategoriesFilterUsecases,
+  );
 
   final MutualFundController mutualFundController = Get.find();
 
@@ -42,6 +48,7 @@ class FundhouseController extends GetxController {
   RxString errorMessage = ''.obs;
   final fundlist = <FundHouseItemEntity>[].obs;
   final filteredFundlist = <FundHouseItemEntity>[].obs;
+  final categoryList = <FundCategoryEntity>[].obs;
   RxString searchQuery = ''.obs;
 
   //Fund house amcName
@@ -51,7 +58,7 @@ class FundhouseController extends GetxController {
   Map<String, dynamic> buildParam() {
     final params = <String, dynamic>{};
 
-    params['sort_by'] = sortBy.value;
+    // params['sort_by'] = sortBy.value;
 
     if (selectedSchemeTyep.isNotEmpty) {
       params['scheme_type'] = selectedSchemeTyep.join(',');
@@ -70,10 +77,25 @@ class FundhouseController extends GetxController {
     }
 
     if (indexFundOnly.value) {
-      params['index_only'] = true;
+      // params['index_only'] = true;
+      params['search'] = 'index';
     }
 
     return params;
+  }
+
+  // Toggle Index Fund Only
+  void toggleIndexFund(bool value) {
+    indexFundOnly.value = value;
+
+    // Optional: If 'Index Fund' should clear other filters, un-comment below
+    // if (value) {
+    //   selectedSchemeTyep.clear();
+    //   selectedAmcIds.clear();
+    //   selectedRisk.clear();
+    // }
+
+    fetchCount(); // Refreshes the "View All" count
   }
 
   // ---------- COUNT API ----------
@@ -90,6 +112,7 @@ class FundhouseController extends GetxController {
   void onInit() {
     super.onInit();
     fetchFundHouse();
+    fetchCategoryList();
   }
 
   //fetch fund house
@@ -111,6 +134,37 @@ class FundhouseController extends GetxController {
         },
         (error) {
           errorMessage.value = error.message ?? "Failed to load banks";
+          print("CONTROLLER ERROR: ${errorMessage.value}");
+        },
+      );
+    } catch (e) {
+      errorMessage.value = "An unexpected error occurred: $e";
+      print("CONTROLLER ERROR: ${errorMessage.value}");
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  // fetch category list
+  Future<void> fetchCategoryList() async {
+    log("CONTROLLER: Successfully assigned ${categoryList.length} category");
+
+    try {
+      isLoading(true);
+      errorMessage('');
+      final result = await getCategoriesFilterUsecases.call({});
+
+      result.fold(
+        (success) {
+          if (success.data != null) {
+            categoryList.assignAll([success.data!]);
+            log(
+              "CONTROLLER: Successfully assigned ${categoryList.length} category",
+            );
+          }
+        },
+        (error) {
+          errorMessage.value = error.message ?? "Failed to load category";
           print("CONTROLLER ERROR: ${errorMessage.value}");
         },
       );
@@ -186,5 +240,62 @@ class FundhouseController extends GetxController {
     selectedRating.value == rating
         ? selectedRating.value = null
         : selectedRating.value = rating;
+  }
+
+
+
+
+
+
+
+  // Inside FundhouseController
+
+  // 1. Toggle the Main Category (e.g., "Equity")
+  void toggleCategoryGroup(String groupName, List<String> groupItems, bool? isSelected) {
+    if (isSelected == true) {
+      // Logic: If selecting the Group, remove all individual sub-items 
+      // (because "Equity" covers them all) and add just "Equity"
+      selectedSchemeTyep.removeAll(groupItems);
+      selectedSchemeTyep.add(groupName); 
+    } else {
+      // Logic: If unselecting Group, just remove "Equity"
+      selectedSchemeTyep.remove(groupName);
+    }
+    fetchCount();
+  }
+
+  // 2. Toggle a Sub Category (e.g., "Equity: Large Cap")
+  void toggleSubCategory(String subItem, String groupName, List<String> allGroupItems) {
+    
+    // Scenario A: The GROUP "Equity" is currently selected.
+    if (selectedSchemeTyep.contains(groupName)) {
+      // If user clicks a sub-item while Group is active, we assume they want 
+      // to *deselect* this specific item.
+      // So we remove the Group (since it's no longer "ALL"), 
+      // and add every OTHER item in the group.
+      selectedSchemeTyep.remove(groupName);
+      selectedSchemeTyep.addAll(allGroupItems);
+      selectedSchemeTyep.remove(subItem); // Remove the one we clicked
+    } 
+    // Scenario B: Normal selection/deselection
+    else {
+      if (selectedSchemeTyep.contains(subItem)) {
+        selectedSchemeTyep.remove(subItem);
+      } else {
+        selectedSchemeTyep.add(subItem);
+      }
+    }
+    
+    // Optional: If all items are now selected individually, convert them back to the Group?
+    // Use this if you want auto-grouping:
+    /*
+    final isAllSelected = allGroupItems.every((item) => selectedSchemeTyep.contains(item));
+    if (isAllSelected) {
+      selectedSchemeTyep.removeAll(allGroupItems);
+      selectedSchemeTyep.add(groupName);
+    }
+    */
+    
+    fetchCount();
   }
 }

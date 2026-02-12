@@ -91,14 +91,14 @@ class FundDetailRemoteDataSource {
   ) async {
     try {
       final response = await _servicesApi.getApi(
-        '${Appurl.baseUrl}/api/v1/mutual-funds/${data['scheme_code']}/nav-history',
-        queryParameters: {'from': data['from'], 'to': data['to']},
+        '${Appurl.navUrl}/${data['scheme_code']}',
+        queryParameters: {'startDate': data['startDate'], 'endDate': data['endDate']},
       );
       createLog('Nav History remore data source --- $response ');
       final Map<String, dynamic> json = response is String
           ? jsonDecode(response)
           : response;
-      if (json['success'] == 200 || json['success'] == true) {
+      if (json['status'] == 'SUCCESS' || json['status'] == true)  {
         final result = NavHistoryResponseModel.fromJson(json);
         return Left(Result.success(result));
       }

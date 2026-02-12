@@ -9,6 +9,7 @@ import 'package:my_sip/features/explore/presentation/controller/mutual_fund_cont
 import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
 import 'package:my_sip/features/onboarding/presentation/controller/onboarding_controller.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/questions/question_controller.dart';
+import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 
 import '../../features/authentication/data/datasources/auth_remote_data_source.dart';
 import '../../features/authentication/data/repositories/auth_repository_impl.dart';
@@ -103,14 +104,13 @@ class UBinding extends Bindings {
     // Get.lazyPut(() => GetSchemeInfousecase(Get.find()), fenix: true);
 
     // 5. Finally, register the Controller
-    Get.lazyPut(
-      () => MutualFundController(Get.find()),
-      fenix: true,
-    );
+    Get.lazyPut(() => MutualFundController(Get.find()), fenix: true);
 
     Get.put<CartController>(CartController(), permanent: true);
 
     // Goal controller
     Get.lazyPut(() => GoalSipController(), fenix: true);
+
+    Get.lazyPut(() => PersonalisationController());
   }
 }

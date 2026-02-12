@@ -6,7 +6,6 @@ import '../../domain/entity/risk_entity.dart';
 import 'dart:async';
 
 class PersonalisationController extends GetxController {
-
   // UI State
   final PageController pageController = PageController();
 
@@ -21,12 +20,21 @@ class PersonalisationController extends GetxController {
   final List<RiskQuestion> riskQuestions = [
     RiskQuestion(
       id: 1,
-      question: "Your Income (Only from Salary, Profession or business and not from investments) is :",
+      question:
+          "Your Income (Only from Salary, Profession or business and not from investments) is :",
       options: [
         RiskOption(id: 'a', text: "Much more than household expense."),
         RiskOption(id: 'b', text: "Almost equal to household expenses."),
-        RiskOption(id: 'c', text: "Less than household expenses that you have to borrow or depend on your investments."),
-        RiskOption(id: 'd', text: "There is no income in form of salary or professional income and you are entirely dependent on income from investments."),
+        RiskOption(
+          id: 'c',
+          text:
+              "Less than household expenses that you have to borrow or depend on your investments.",
+        ),
+        RiskOption(
+          id: 'd',
+          text:
+              "There is no income in form of salary or professional income and you are entirely dependent on income from investments.",
+        ),
       ],
     ),
     RiskQuestion(
@@ -41,7 +49,8 @@ class PersonalisationController extends GetxController {
     ),
     RiskQuestion(
       id: 3,
-      question: "Number of people (other than yourself) dependent on your income?",
+      question:
+          "Number of people (other than yourself) dependent on your income?",
       options: [
         RiskOption(id: 'a', text: "None"),
         RiskOption(id: 'b', text: "1 or 2"),
@@ -51,7 +60,8 @@ class PersonalisationController extends GetxController {
     ),
     RiskQuestion(
       id: 4,
-      question: "Approximately when would you need the money being invested right now?",
+      question:
+          "Approximately when would you need the money being invested right now?",
       options: [
         RiskOption(id: 'a', text: "Within 3 years."),
         RiskOption(id: 'b', text: "Between 3 and 5 years."),
@@ -63,10 +73,25 @@ class PersonalisationController extends GetxController {
       id: 5,
       question: "What has been your experience with investments?",
       options: [
-        RiskOption(id: 'a', text: "I have been very comfortable with my investments and I know all that I need to know."),
-        RiskOption(id: 'b', text: "I have been investing for a long time but I do not understand much."),
-        RiskOption(id: 'c', text: "I only rely on my advisor and do not ask any questions."),
-        RiskOption(id: 'd', text: "I only invest in bank deposits and Govt. guaranteed investment schemes."),
+        RiskOption(
+          id: 'a',
+          text:
+              "I have been very comfortable with my investments and I know all that I need to know.",
+        ),
+        RiskOption(
+          id: 'b',
+          text:
+              "I have been investing for a long time but I do not understand much.",
+        ),
+        RiskOption(
+          id: 'c',
+          text: "I only rely on my advisor and do not ask any questions.",
+        ),
+        RiskOption(
+          id: 'd',
+          text:
+              "I only invest in bank deposits and Govt. guaranteed investment schemes.",
+        ),
       ],
     ),
     RiskQuestion(
@@ -83,9 +108,21 @@ class PersonalisationController extends GetxController {
       id: 7,
       question: "You have three investment options to choose from:",
       options: [
-        RiskOption(id: 'a', text: "Where the value of your investment may go up and down significantly on a monthly basis. However, there is a possibility to be able to improve your living standard."),
-        RiskOption(id: 'b', text: "The value of investment may go up and down but not as much as option A. You may barely be able to maintain your lifestyle with such an investment approach"),
-        RiskOption(id: 'c', text: "The value of your portfolio will see a slow and steady increase, but your ability to maintain your living standards will be seriously hampered"),
+        RiskOption(
+          id: 'a',
+          text:
+              "Where the value of your investment may go up and down significantly on a monthly basis. However, there is a possibility to be able to improve your living standard.",
+        ),
+        RiskOption(
+          id: 'b',
+          text:
+              "The value of investment may go up and down but not as much as option A. You may barely be able to maintain your lifestyle with such an investment approach",
+        ),
+        RiskOption(
+          id: 'c',
+          text:
+              "The value of your portfolio will see a slow and steady increase, but your ability to maintain your living standards will be seriously hampered",
+        ),
       ],
     ),
   ];
@@ -95,7 +132,6 @@ class PersonalisationController extends GetxController {
     pageController.dispose();
     super.onClose();
   }
-
 
   void selectOption(int questionId, String optionId) {
     selectedAnswers[questionId] = optionId;
@@ -153,11 +189,11 @@ class PersonalisationController extends GetxController {
   void submitRiskProfile() {
     Get.back();
     Get.snackbar(
-        "Assessment Complete",
-        "Your risk profile has been generated successfully.",
-        backgroundColor: Colors.green.shade50,
-        colorText: Colors.green.shade800,
-        icon: Icon(Icons.check_circle, color: Colors.green.shade800)
+      "Assessment Complete",
+      "Your risk profile has been generated successfully.",
+      backgroundColor: Colors.green.shade50,
+      colorText: Colors.green.shade800,
+      icon: Icon(Icons.check_circle, color: Colors.green.shade800),
     );
   }
 }

@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:my_sip/features/fund_details/data/models/nav_history_model.dart';
 
 class NavHistoryResponseEntity extends Equatable {
-  final bool? success;
+  final bool? status;
   final int? schemeCode;
   final String? from;
   final String? to;
@@ -10,7 +10,7 @@ class NavHistoryResponseEntity extends Equatable {
   final List<NavEntryEntity> data;
 
   const NavHistoryResponseEntity({
-    required this.success,
+    required this.status,
     required this.schemeCode,
     required this.from,
     required this.to,
@@ -19,7 +19,7 @@ class NavHistoryResponseEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [success, schemeCode, from, to, count, data];
+  List<Object?> get props => [status, schemeCode, from, to, count, data];
 }
 
 class NavEntryEntity extends Equatable {
@@ -41,7 +41,7 @@ extension NavEntryEntityX on NavEntry {
 extension NavHistoryResponseEntityX on NavHistoryResponseModel {
   NavHistoryResponseEntity toEntity() {
     return NavHistoryResponseEntity(
-      success: success,
+      status: status,
       schemeCode: schemeCode,
       from: from,
       to: to,

@@ -1464,7 +1464,7 @@ class _MobileExploreLayout extends StatelessWidget {
           ),
         ),
         Obx(() {
-          if (controller.isLoading.value && controller.searchFund.isEmpty) {
+          if (controller.isLoading.value || controller.searchFund.isEmpty) {
             return const SliverFillRemaining(
               hasScrollBody: false,
               child: Center(
