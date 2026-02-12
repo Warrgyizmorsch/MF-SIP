@@ -192,7 +192,8 @@ class _WebDashboardLayout extends StatelessWidget {
                                 _buildWebCollectionGrid(),
                                 const Gap(30),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     const Text(
                                       "Popular Funds",
@@ -210,7 +211,6 @@ class _WebDashboardLayout extends StatelessWidget {
                                 const Gap(10),
                                 _buildWebFundGrid(),
                                 const Gap(30),
-
                               ],
                             ),
                           ),
@@ -238,7 +238,7 @@ class _WebDashboardLayout extends StatelessWidget {
                       ),
                       const Gap(16),
 
-                      _buildWebVideoRow()
+                      _buildWebVideoRow(),
                     ],
                   ),
                 ),
@@ -246,8 +246,6 @@ class _WebDashboardLayout extends StatelessWidget {
             ),
           ),
         ),
-
-
       ],
     );
   }
@@ -979,7 +977,7 @@ class _MobileLayout extends StatelessWidget {
                 ),
                 CollectionItem(
                   onTap: () => Get.to(() => const ExploreScreen()),
-                  title: 'Equity',
+                  title: 'NFO',
                   iconImg: UImages.equity,
                 ),
               ]),
