@@ -7,6 +7,9 @@ import 'package:my_sip/features/kyc/domain/usecases/get_all_banks_use_case.dart'
 import 'package:my_sip/features/kyc/domain/usecases/kyc_use_cases.dart';
 import 'package:my_sip/features/kyc/presentation/controllers/kyc_controller.dart';
 
+import '../../domain/usecases/execute_poi_step1_use_case.dart';
+import '../../domain/usecases/execute_poi_step2_use_case.dart';
+
 class KycBindings extends Bindings{
   @override
   void dependencies() {
@@ -14,7 +17,9 @@ class KycBindings extends Bindings{
     Get.lazyPut(() => KycRemoteDataSource(Get.find<NetworkServicesApi>()));
     Get.lazyPut(() => KycRepositoryImpl(Get.find<KycRemoteDataSource>()));
     Get.lazyPut(() => GetAllBanksUseCases(Get.find<KycRepositoryImpl>()));
-    Get.lazyPut(() => KycUseCases(getAllBanksUseCases: Get.find<GetAllBanksUseCases>()));
+    Get.lazyPut(() => ExecutePoiStep1UseCase(kycRepository: Get.find<KycRepositoryImpl>()));
+    Get.lazyPut(() => ExecutePoiStep2UseCase(Get.find<KycRepositoryImpl>()));
+    Get.lazyPut(() => KycUseCases(getAllBanksUseCases: Get.find<GetAllBanksUseCases>(), executePoiStep1UseCase: Get.find<ExecutePoiStep1UseCase>(), executePoiStep2UseCase: Get.find<ExecutePoiStep2UseCase>()), );
     Get.lazyPut(() => KycController(Get.find<KycUseCases>()));
   }
 }

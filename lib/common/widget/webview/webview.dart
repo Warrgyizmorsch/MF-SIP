@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
@@ -9,12 +11,14 @@ class HtmlWebViewPage extends StatefulWidget {
   final String title;
   final String? htmlContent;
   final String? url;
+  final String? successUrlTrigger;
 
   const HtmlWebViewPage({
     super.key,
     this.title = '',
     this.htmlContent,
     this.url,
+    this.successUrlTrigger = "signzy",
   }) : assert(
          htmlContent != null || url != null,
          'Either htmlContent or url must be provided',
@@ -32,26 +36,69 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
   void initState() {
     super.initState();
 
+
+
+
+
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
-        NavigationDelegate(
-          onPageStarted: (url) {
-            setState(() {
-              _isLoading = true;
-            });
-          },
-          onPageFinished: (url) {
-            setState(() {
-              _isLoading = false;
-            });
-          },
-          onWebResourceError: (error) {
-            setState(() {
-              _isLoading = false;
-            });
-          },
-        ),
+          NavigationDelegate(
+    onPageStarted: (url) {
+    setState(() => _isLoading = true);
+    },
+    onPageFinished: (url) {
+    setState(() => _isLoading = false);
+    },
+            onNavigationRequest: (NavigationRequest request) async {
+              final url = request.url;
+
+              // 1. INCORRECT (Causes immediate close):
+              // if (url.contains("digilocker-auth-complete")) { ... }
+              // ^ This finds the text inside the query parameter of the first URL!
+
+              // 2. CORRECT FIX:
+              // Only close if the ACTUAL PAGE is the Signzy redirect page.
+              // The starting URL starts with "api.digitallocker.gov.in", so this will be false initially.
+              if (url.startsWith("https://digilocker-preproduction.signzy.tech/success")) {
+                if (mounted) {
+                // final result = await  showDialog(context: context, builder: (context){
+                //     return AlertDialog(
+                //       title: Text("Verification Complete"),
+                //       actions: [
+                //         TextButton(onPressed: (){
+                //           Get.back(result: true);
+                //         }, child: Text("OK"))
+                //       ],
+                //
+                //     );
+                //   });
+                //
+                // if(result == true){
+                //   Get.back(result: true);
+                // }
+                Get.back(result: true);
+                }
+                return NavigationDecision.prevent;
+              }
+
+              // Optional: Handle user clicking "Cancel" or "Deny" inside DigiLocker
+              if (url.contains("access_denied") || url.contains("error")) {
+                if (mounted) {
+                  Get.back(result: false);
+                }
+                return NavigationDecision.prevent;
+              }
+
+              return NavigationDecision.navigate;
+            },
+            onWebResourceError: (error) {
+              setState(() {
+                _isLoading = false;
+              });
+            },
+          )
+
       );
 
     if (widget.url != null && widget.url!.isNotEmpty) {

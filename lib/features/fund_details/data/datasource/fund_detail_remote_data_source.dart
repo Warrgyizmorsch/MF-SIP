@@ -93,6 +93,8 @@ class FundDetailRemoteDataSource {
       final response = await _servicesApi.getApi(
         '${Appurl.navUrl}/${data['scheme_code']}',
         queryParameters: {'startDate': data['startDate'], 'endDate': data['endDate']},
+        isPublic: true
+
       );
       createLog('Nav History remore data source --- $response ');
       final Map<String, dynamic> json = response is String

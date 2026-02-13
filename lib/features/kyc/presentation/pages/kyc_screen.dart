@@ -78,10 +78,24 @@ class KycScreen extends GetView<KycController> {
                   offset: const Offset(0, -4))
             ],
           ),
-          child: Obx(
-                () => UElevatedBUtton(
-              onPressed: controller.isLoading.value ? null : controller.onNextTap,
-              child: controller.isLoading.value
+          child: Obx(() {
+            // 1. Check ALL loading states (General + DigiLocker specific)
+            final bool isBusy = controller.isLoading.value ||
+                controller.isExecutingPOIStep1.value ||
+                controller.isExecutingPOIStep2.value;
+
+            // 2. Determine Button Text
+            String buttonText = "Continue";
+            if (controller.currentStep.value == 0) {
+              buttonText = "Verify Identity"; // Specific text for DigiLocker step
+            } else if (controller.currentStep.value == 6) {
+              buttonText = "Finish KYC";
+            }
+
+            return UElevatedBUtton(
+              // Disable button if busy
+              onPressed: isBusy ? null : controller.onNextTap,
+              child: isBusy
                   ? const Center(
                 child: SizedBox(
                   height: 20,
@@ -94,7 +108,7 @@ class KycScreen extends GetView<KycController> {
               )
                   : Center(
                 child: Text(
-                  controller.currentStep.value == 6 ? "Finish KYC" : "Continue",
+                  buttonText,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -102,8 +116,8 @@ class KycScreen extends GetView<KycController> {
                   ),
                 ),
               ),
-            ),
-          ),
+            );
+          }),
         ),
       ),
       // STACK FOR BACKGROUND ANIMATION
