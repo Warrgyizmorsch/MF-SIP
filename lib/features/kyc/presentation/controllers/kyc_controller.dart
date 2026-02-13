@@ -20,7 +20,7 @@ class KycController extends GetxController {
   final selectedTaxStatus = "Individual".obs;
 
   // --- Gender Data ---
-  final genderList = ["Male", "Female", "Other"];
+  final genderList = ["MALE", "FEMALE", "OTHER"];
   final selectedGender = "Male".obs;
 
   // --- Bank Data ---

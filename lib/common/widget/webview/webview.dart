@@ -5,6 +5,7 @@ import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class HtmlWebViewPage extends StatefulWidget {
@@ -31,6 +32,8 @@ class HtmlWebViewPage extends StatefulWidget {
 class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
   late final WebViewController _controller;
   bool _isLoading = true; // Loader state
+   bool result = false;
+
 
   @override
   void initState() {
@@ -50,39 +53,29 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
     onPageFinished: (url) {
     setState(() => _isLoading = false);
     },
-            onNavigationRequest: (NavigationRequest request) async {
+            onNavigationRequest: (NavigationRequest request) {
               final url = request.url;
 
-              // 1. INCORRECT (Causes immediate close):
-              // if (url.contains("digilocker-auth-complete")) { ... }
-              // ^ This finds the text inside the query parameter of the first URL!
+              // 1. DEFINED SUCCESS URL (The base part)
+              // We only care if the actual loaded page is this one.
+              final successBaseUrl = "https://digilocker-preproduction.signzy.tech/digilocker-auth-complete";
+              // 2. CHECK: Does the current navigation START with the success URL?
+              // This fails for the initial "api.digitallocker.gov.in" URL (Correct!)
+              // This passes ONLY when the flow redirects to "signzy.tech/..." (Correct!)
+              if (url.startsWith(successBaseUrl)) {
+                setState(() => _isLoading = true);
 
-              // 2. CORRECT FIX:
-              // Only close if the ACTUAL PAGE is the Signzy redirect page.
-              // The starting URL starts with "api.digitallocker.gov.in", so this will be false initially.
-              if (url.startsWith("https://digilocker-preproduction.signzy.tech/success")) {
-                if (mounted) {
-                // final result = await  showDialog(context: context, builder: (context){
-                //     return AlertDialog(
-                //       title: Text("Verification Complete"),
-                //       actions: [
-                //         TextButton(onPressed: (){
-                //           Get.back(result: true);
-                //         }, child: Text("OK"))
-                //       ],
-                //
-                //     );
-                //   });
-                //
-                // if(result == true){
+                // // Success! The user has been redirected.
+                // if (mounted) {
                 //   Get.back(result: true);
                 // }
-                Get.back(result: true);
-                }
-                return NavigationDecision.prevent;
+                setState(() => result = true);
+                createLog("Success caled ${result}");
+
+                // return NavigationDecision.prevent; // Stop loading the JSON/Success page
               }
 
-              // Optional: Handle user clicking "Cancel" or "Deny" inside DigiLocker
+              // 3. Optional: Check for failures (denied, cancelled)
               if (url.contains("access_denied") || url.contains("error")) {
                 if (mounted) {
                   Get.back(result: false);
@@ -90,6 +83,7 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
                 return NavigationDecision.prevent;
               }
 
+              // Allow normal navigation (clicking buttons, logging in)
               return NavigationDecision.navigate;
             },
             onWebResourceError: (error) {
@@ -242,6 +236,12 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        leading: IconButton(onPressed: () {
+          createLog("Success Result ${result}");
+
+          Get.back(result: result);
+
+        }, icon: Icon(Icons.arrow_back_ios)),
         titleSpacing: -10.0,
         backgroundColor: Colors.white,
         centerTitle: true,
