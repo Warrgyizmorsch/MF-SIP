@@ -782,7 +782,7 @@ class _MobileLayout extends StatelessWidget {
                               icon: Iconsax.shopping_cart,
                               onPressed: () {
                                 Get.toNamed(AppRoutes.cart);
-                                cartController.fetchCart();
+                                // cartController.fetchCart();
                               },
                               iconColor: Ucolors.light,
                             ),

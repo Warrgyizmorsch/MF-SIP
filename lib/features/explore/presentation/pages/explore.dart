@@ -1360,15 +1360,16 @@ class _MobileExploreLayout extends StatelessWidget {
             backgroundColor: Ucolors.light,
             actionsPadding: 15,
             action: [
-              Obx(
-                () => Stack(
+              Obx(() {
+                final count = cartController.itemsCount;
+                return Stack(
                   children: [
                     CompactIcon(
                       icon: Iconsax.shopping_cart,
                       onPressed: () => Get.toNamed(AppRoutes.cart),
                       iconColor: Ucolors.dark,
                     ),
-                    if (cartController.itemsCount > 0)
+                    if (count > 0)
                       Positioned(
                         right: 0,
                         top: -5,
@@ -1379,7 +1380,7 @@ class _MobileExploreLayout extends StatelessWidget {
                             shape: BoxShape.circle,
                           ),
                           child: Text(
-                            cartController.itemsCount.toString(),
+                            count.toString(),
                             style: UTextStyles.buttonText.copyWith(
                               fontSize: 10,
                             ),
@@ -1387,8 +1388,8 @@ class _MobileExploreLayout extends StatelessWidget {
                         ),
                       ),
                   ],
-                ),
-              ),
+                );
+              }),
               CompactIcon(
                 icon: Iconsax.archive_tick,
                 onPressed: () => Get.toNamed(AppRoutes.watchlist),
@@ -1636,12 +1637,14 @@ class MutualFundCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         offset: const Offset(0, 40),
-                        onSelected: (value) {
+                        onSelected: (value) async {
                           switch (value) {
                             // Add to cart
                             case FundMenuAction.addToCart:
-                              controller.addToCart(entity.schemeCode ?? '');
-                              controller.fetchCart();
+                              await controller.addToCart(
+                                entity.schemeCode ?? '',
+                              );
+                              await controller.fetchCart();
 
                               // controller.addItem(
                               //   CartItem(

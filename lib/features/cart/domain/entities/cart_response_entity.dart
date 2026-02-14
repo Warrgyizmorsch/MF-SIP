@@ -14,6 +14,20 @@ class CartResponseEntity extends Equatable {
     required this.items,
   });
 
+  CartResponseEntity copyWith({
+    bool? status,
+    String? message,
+    CartDataEntity? cart,
+    List<CartItemEntity>? items,
+  }) {
+    return CartResponseEntity(
+      status: status ?? this.status,
+      message: message ?? this.message,
+      cart: cart ?? this.cart,
+      items: items ?? this.items,
+    );
+  }
+
   @override
   List<Object?> get props => [status, message, cart, items];
 }
@@ -98,6 +112,45 @@ class CartItemEntity extends Equatable {
     this.minSipAmount,
     this.minLumpsum,
   });
+  
+  // Add this copyWith method
+  CartItemEntity copyWith({
+    int? id,
+    int? cartId,
+    String? transType,
+    int? schemeCode,
+    int? amount,
+    String? frequency,
+    String? topUpAmount,
+    int? sipDay,
+    int? tenureMonths,
+    String? startDate,
+    String? endDate,
+    String? createdAt,
+    String? updatedAt,
+    String? schemeName,
+    String? minSipAmount,
+    String? minLumpsum,
+  }) {
+    return CartItemEntity(
+      id: id ?? this.id,
+      cartId: cartId ?? this.cartId,
+      transType: transType ?? this.transType,
+      schemeCode: schemeCode ?? this.schemeCode,
+      amount: amount ?? this.amount,
+      frequency: frequency ?? this.frequency,
+      topUpAmount: topUpAmount ?? this.topUpAmount,
+      sipDay: sipDay ?? this.sipDay,
+      tenureMonths: tenureMonths ?? this.tenureMonths,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      schemeName: schemeName ?? this.schemeName,
+      minSipAmount: minSipAmount ?? this.minSipAmount,
+      minLumpsum: minLumpsum ?? this.minLumpsum,
+    );
+  }
 
   @override
   List<Object?> get props => [

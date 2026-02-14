@@ -16,26 +16,17 @@ class CartController extends GetxController {
     fetchCart();
   }
 
-  // Fix: Calculate total from the API response items
-  int get totalAmount {
-    if (cartResponseEntity.value == null) return 0;
-    return cartResponseEntity.value!.items.fold(
-      0,
-      (sum, item) => sum + (item.amount ?? 0),
-    );
-  }
+  int get totalAmount => cartResponseEntity.value?.cart?.totalAmount ?? 0;
 
-  // Fix: Count from API response
   int get itemsCount => cartResponseEntity.value?.items.length ?? 0;
 
-  // ----------------------------------------------  //
+  final RxBool isSyncing = false.obs; // Tracks background API calls
 
   final CartUsecases cartUsecases;
 
   final RxList<CartItem> items = <CartItem>[].obs;
   final RxList<CartItem> wishlist = <CartItem>[].obs;
 
-  // CartResponseEntity? cartResponseEntity  ;
   final Rxn<CartResponseEntity> cartResponseEntity = Rxn<CartResponseEntity>();
 
   final RxInt monthlyAmount = 0.obs;
@@ -76,16 +67,37 @@ class CartController extends GetxController {
   // Add to cart
   Future<void> addToCart(String schemeCode) async {
     log(SessionManager.instance.getUserData!.id.toString());
-    cartUsecases.addToCartUsecases.call({
-      "user_id": SessionManager.instance.getUserData!.id,
-      "scheme_code": schemeCode,
-      "trans_type": "sip",
-      "amount": 500,
-      "sip_day": 2,
-    });
+    try {
+      await cartUsecases.addToCartUsecases.call({
+        "user_id": SessionManager.instance.getUserData!.id,
+        "scheme_code": schemeCode,
+        "trans_type": "sip",
+        "amount": 500,
+        "sip_day": 2,
+      });
+    } catch (e) {
+      log("Add to Cart Error: $e");
+    }
   }
 
-  //fetch cart details
+  // Fetch Cart (Truth from server)
+  Future<void> fetchCart() async {
+    try {
+      isLoading(true);
+      final result = await cartUsecases.getCartListUsecases.call({
+        "user_id": SessionManager.instance.getUserData!.id,
+      });
+
+      result.fold(
+        (success) => cartResponseEntity.value = success.data,
+        (error) => errorMessage.value = error.message,
+      );
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  /* //fetch cart details
   Future<void> fetchCart() async {
     // log("CONTROLLER: Successfully assigned ${cartItemList.length} cart");
 
@@ -118,32 +130,33 @@ class CartController extends GetxController {
       isLoading(false);
     }
   }
+*/
 
-  // Update cart Items
-  Future<void> updateCartItem({
-    required int itemId,
-    String? transType,
-    int? sipDay,
-    int? amount,
-    String? frequency,
-    int? topUpAmount,
-  }) async {
-    final result = await cartUsecases.updateCartUsecases.call({
-      "item_id": itemId,
-      if (transType != null) "trans_type": transType,
-      if (sipDay != null) "sip_day": sipDay,
-      if (amount != null) "amount": amount,
-      if (frequency != null) "frequency": frequency,
-      if (topUpAmount != null) "top_up_amount": topUpAmount,
-    });
+  // // Update cart Items
+  // Future<void> updateCartItem({
+  //   required int itemId,
+  //   String? transType,
+  //   int? sipDay,
+  //   int? amount,
+  //   String? frequency,
+  //   int? topUpAmount,
+  // }) async {
+  //   final result = await cartUsecases.updateCartUsecases.call({
+  //     "item_id": itemId,
+  //     if (transType != null) "trans_type": transType,
+  //     if (sipDay != null) "sip_day": sipDay,
+  //     if (amount != null) "amount": amount,
+  //     if (frequency != null) "frequency": frequency,
+  //     if (topUpAmount != null) "top_up_amount": topUpAmount,
+  //   });
 
-    result.fold(
-      (success) async => await fetchCart(),
-      (failure) => Get.snackbar("Update Failed", failure.message),
-    );
-  }
+  //   result.fold(
+  //     (success) async => await fetchCart(),
+  //     (failure) => Get.snackbar("Update Failed", failure.message),
+  //   );
+  // }
 
-  // Delete cart items
+  /* // Delete cart items
   Future<void> deleteCartItem(int itemId, String schemeName) async {
     try {
       isLoading(true);
@@ -179,5 +192,159 @@ class CartController extends GetxController {
       isLoading(false);
       log("Delete Error: $e");
     }
+  }
+
+*/
+
+  /*
+  Future<void> updateCartItem({
+    required int itemId,
+    String? transType,
+    int? sipDay,
+    int? amount,
+    String? frequency,
+    int? topUpAmount,
+  }) async {
+    // --- STEP 1: INSTANT LOCAL UPDATE (Optimistic) ---
+    if (cartResponseEntity.value != null) {
+      // Create a local copy of the items to modify
+      final updatedItems = cartResponseEntity.value!.items.map((item) {
+        if (item.id == itemId) {
+          // Return a new copy of the item with the updated field immediately
+          return item.copyWith(
+            transType: transType ?? item.transType,
+            sipDay: sipDay ?? item.sipDay,
+            amount: amount ?? item.amount,
+            frequency: frequency ?? item.frequency,
+            topUpAmount: topUpAmount.toString() ?? item.topUpAmount,
+          );
+        }
+        return item;
+      }).toList();
+
+      // Update the Rx variable instantly. This makes the UI change IMMEDIATELY.
+      cartResponseEntity.value = cartResponseEntity.value!.copyWith(items: updatedItems);
+      cartResponseEntity.refresh(); // Force GetX to notify all listeners
+    }
+
+    // --- STEP 2: BACKGROUND API CALL ---
+    final result = await cartUsecases.updateCartUsecases.call({
+      "item_id": itemId,
+      if (transType != null) "trans_type": transType,
+      if (sipDay != null) "sip_day": sipDay,
+      if (amount != null) "amount": amount,
+      if (frequency != null) "frequency": frequency,
+      if (topUpAmount != null) "top_up_amount": topUpAmount,
+    });
+
+    result.fold(
+      (failure) {
+        // Revert or show error if the background sync failed
+        Get.snackbar("Sync Error", "Failed to save changes to server.");
+        fetchCart(); // Re-fetch to get the "truth" from server
+      },
+      (success) {
+        // Just refresh the totals/summary from server quietly
+        fetchCart(); 
+      },
+    );
+  }
+*/
+
+  // --- REFACTORED UPDATE (Optimistic UI) ---
+  Future<void> updateCartItem({
+    required int itemId,
+    String? transType,
+    int? sipDay,
+    int? amount,
+    String? frequency,
+    int? topUpAmount,
+  }) async {
+    // 1. Save original state in case we need to revert on failure
+    final originalState = cartResponseEntity.value;
+
+    // 2. Perform Optimistic Update: Update local UI state immediately
+    if (cartResponseEntity.value != null) {
+      final updatedItems = cartResponseEntity.value!.items.map((item) {
+        if (item.id == itemId) {
+          // You should ensure your CartItemEntity has a copyWith method
+          return item.copyWith(
+            transType: transType ?? item.transType,
+            sipDay: sipDay ?? item.sipDay,
+            amount: amount ?? item.amount,
+            frequency: frequency ?? item.frequency,
+            topUpAmount: topUpAmount.toString() ?? item.topUpAmount,
+          );
+        }
+        return item;
+      }).toList();
+
+      cartResponseEntity.value = cartResponseEntity.value!.copyWith(
+        items: updatedItems,
+      );
+      cartResponseEntity.refresh(); // Triggers immediate UI rebuild
+    }
+
+    // 3. Call API in the background
+    final result = await cartUsecases.updateCartUsecases.call({
+      "item_id": itemId,
+      if (transType != null) "trans_type": transType,
+      if (sipDay != null) "sip_day": sipDay,
+      if (amount != null) "amount": amount,
+      if (frequency != null) "frequency": frequency,
+      if (topUpAmount != null) "top_up_amount": topUpAmount,
+    });
+
+    result.fold(
+      (success) async {
+        // Silently refresh from server to ensure totals (summary) are correct
+        await fetchCart();
+      },
+      (failure) {
+        // 4. Rollback: If API fails, revert to the original state
+        cartResponseEntity.value = originalState;
+        Get.snackbar("Sync Error", "Failed to save changes. Reverting...");
+      },
+    );
+  }
+
+  // / --- REFACTORED DELETE (Optimistic UI) ---
+  Future<void> deleteCartItem(int itemId, String schemeName) async {
+    final originalState = cartResponseEntity.value;
+
+    // 1. Optimistic Update: Remove item from local list immediately
+    if (cartResponseEntity.value != null) {
+      final updatedItems = cartResponseEntity.value!.items
+          .where((item) => item.id != itemId)
+          .toList();
+
+      cartResponseEntity.value = cartResponseEntity.value!.copyWith(
+        items: updatedItems,
+      );
+      cartResponseEntity.refresh();
+    }
+
+    // 2. Background API Call
+    final result = await cartUsecases.deleteCartItemUsecases.call({
+      "item_id": itemId,
+    });
+
+    result.fold(
+      (success) async {
+        Get.snackbar(
+          "Removed",
+          schemeName,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Ucolors.red,
+          colorText: Colors.white,
+        );
+        await fetchCart(); // Refresh summary/totals
+      },
+      (failure) {
+        // Rollback on failure
+        cartResponseEntity.value = originalState;
+        Get.snackbar("Error", "Could not remove item. Reverting...");
+      },
+    );
   }
 }

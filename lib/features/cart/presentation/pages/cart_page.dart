@@ -390,9 +390,16 @@ class InvestmentInputsRow extends StatelessWidget {
       // with GetX so it rebuilds when fetchCart() is called in the controller.
       final cartResponse = controller.cartResponseEntity.value;
 
+      final _ = controller.cartResponseEntity.value;
+
       // Extract local variables from the current state of the entity
       final currentType = itemEntity.transType?.toLowerCase() ?? 'sip';
-      final currentAmount = itemEntity.amount?.toString() ?? '0';
+      // final currentAmount = itemEntity.amount?.toString() ?? '0';
+      final currentAmount =
+          double.tryParse(
+            itemEntity.amount?.toString() ?? '0',
+          )?.toInt().toString() ??
+          '0';
 
       return Column(
         children: [
@@ -418,11 +425,20 @@ class InvestmentInputsRow extends StatelessWidget {
                       DropdownMenuItem(value: 'stepup', child: Text('Step Up')),
                     ],
                     onChanged: (value) {
+                      // if (value != null && value != currentType) {
+                      //   controller.updateCartItem(
+                      //     itemId: itemEntity.id!,
+                      //     transType: value,
+                      //     // Defaults based on type: adjust as needed for your business logic
+                      //     amount: value == 'lumpsum' ? 5000 : 500,
+                      //   );
+                      // }
+                      // if (value != null)
                       if (value != null && value != currentType) {
+                        // This will trigger the optimistic update in the controller
                         controller.updateCartItem(
                           itemId: itemEntity.id!,
                           transType: value,
-                          // Defaults based on type: adjust as needed for your business logic
                           amount: value == 'lumpsum' ? 5000 : 500,
                         );
                       }
@@ -644,6 +660,11 @@ class InvestmentInputsRow extends StatelessWidget {
   }
 
   Widget _buildStepUpSection() {
+    final stepUpAmt =
+        double.tryParse(
+          itemEntity.topUpAmount?.toString() ?? '0',
+        )?.toInt().toString() ??
+        '0';
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -682,12 +703,13 @@ class InvestmentInputsRow extends StatelessWidget {
               TextField(
                 controller: TextEditingController(
                   // text: itemEntity.topUpAmount.toString(),
-                  text: itemEntity.topUpAmount != null
-                      ? (double.tryParse(
-                              itemEntity.topUpAmount.toString(),
-                            )?.toInt().toString() ??
-                            '0')
-                      : '0',
+                  // text: itemEntity.topUpAmount != null
+                  //     ? (double.tryParse(
+                  //             itemEntity.topUpAmount.toString(),
+                  //           )?.toInt().toString() ??
+                  //           '0')
+                  //     : '0',
+                  text: stepUpAmt,
                 ),
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
