@@ -236,17 +236,42 @@ class KycScreen extends GetView<KycController> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade200), boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 4))]),
               child: Column(
+                spacing: 10,
                 children: [
-                  CustomTextField(validationType: ValidationType.required, height: 60, label: "Full Name (As Per Pan)", hint: ""),
-                  const SizedBox(height: 20),
-                  _buildPicker(context, "Occupation", controller.occupationList, controller.occupationTextEditingController),
-                  const SizedBox(height: 20),
+                  CustomTextField(validationType: ValidationType.required, height: 60, label: "Full Name (As Per Pan)", hint: "", controller: controller.nameTextEditingController,),
+                  CustomTextField(validationType: ValidationType.required, height: 60, label: "Father Name", hint: "", controller: controller.fatherNameTextEditingController,),
+                  CustomTextField(validationType: ValidationType.required, height: 60, label: "Mother Name", hint: "", controller: controller.motherNameTextEditingController,),
+
+                  Obx(() => Column(
+                    children: [
+                      _buildPicker(
+                        context,
+                        "Occupation",
+                        controller.occupationList,
+                        controller.occupationTextEditingController,
+                        // Update the observable when user selects an item
+                        onChanged: (val) => controller.selectedOccupation.value = val,
+                      ),
+
+                      // Check the observable variable for immediate UI update
+                      if (controller.selectedOccupation.value == "Other")
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10.0), // Add spacing
+                          child: CustomTextField(
+                            validationType: ValidationType.required,
+                            height: 60,
+                            label: "Specify Occupation", // Changed label to avoid confusion
+                            hint: "Enter Your Occupation",
+                            controller: controller.occupationOtherTextEditingController,
+                          ),
+                        ),
+                    ],
+                  )),
                   _buildPicker(context, "Wealth Source", controller.wealthSourceList, controller.wealthSourceTextEditingController),
-                  const SizedBox(height: 20),
+
                   _buildPicker(context, "Income Slab", controller.incomeSlabList, controller.incomeSlabTextEditingController),
-                  const SizedBox(height: 20),
+
                   CustomTextField(validationType: ValidationType.required, height: 60, label: "Address", maxLines: 2, controller: controller.addressTextEditingController, textInputAction: TextInputAction.done),
-                  const SizedBox(height: 20),
                   CustomTextField(height: 60, label: "PIN Code", maxLines: 2, controller: controller.pinCodeTextEditingController, textInputAction: TextInputAction.done, validationType: ValidationType.required, inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(6)]),
                 ],
               ),
@@ -313,7 +338,7 @@ class KycScreen extends GetView<KycController> {
                 children: [
                   SelectionPickerWidget(title: "SELECT DOCUMENT TYPE", options: controller.nomineeDocumentSelectionList, selectedValue: controller.selectedNomineeDocument),
                   const SizedBox(height: 24),
-                  Obx(() => CustomTextField(validationType: ValidationType.required, height: 60, label: "Nominee ${controller.selectedNomineeDocument}", hint: "Ex: ABCDE1234F", keyboardType: controller.panKeyboardType.value, inputFormatters: [PanCardFormatter()], controller: controller.nomineeSelectedDocumentTextEditingController)),
+                  Obx(() => CustomTextField(validationType: ValidationType.required, height: 60, label: "Nominee ${controller.selectedNomineeDocument}", hint: "Ex: ABCDE1234F", keyboardType: controller.panKeyboardType.value,   inputFormatters:  controller.selectedNomineeDocument.value == "Pan" ? [ PanCardFormatter()] : null, controller: controller.nomineeSelectedDocumentTextEditingController)),
                   const SizedBox(height: 20),
                   CustomTextField(validationType: ValidationType.required, label: "Nominee Address", hint: "Enter Full Address", height: 60, maxLines: 2, textInputAction: TextInputAction.done, controller: controller.nomineeAddressTextEditingController),
                   const SizedBox(height: 20),
@@ -418,9 +443,20 @@ class KycScreen extends GetView<KycController> {
   }
 
   // --- HELPERS ---
-  Widget _buildPicker(BuildContext context, String title, List<String> items, TextEditingController controller) {
+  Widget _buildPicker(BuildContext context, String title, List<String> items, TextEditingController controller, {Function(String)? onChanged}) {
     return GestureDetector(
-      onTap: () => showSelectionBottomSheet(context: context, title: title, items: items, controller: controller),
+      onTap: () async {
+        await showSelectionBottomSheet(
+            context: context,
+            title: title,
+            items: items,
+            controller: controller
+        );
+        // After bottom sheet closes, trigger the callback with the new value
+        if (onChanged != null) {
+          onChanged(controller.text);
+        }
+      },
       child: CustomTextField(validationType: ValidationType.required, height: 60, controller: controller, enabled: false, label: title, trailing: const Padding(padding: EdgeInsets.all(8.0), child: Icon(Icons.keyboard_arrow_down, color: Colors.grey))),
     );
   }

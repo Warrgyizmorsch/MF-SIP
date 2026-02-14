@@ -118,4 +118,82 @@ class KycRemoteDataSource {
       );
     }
   }
+
+
+
+  Future<Either<Result<ExecutePOIStep2Model>, ApiError>> executePOA(
+      Map<String, dynamic> data,
+      ) async {
+    try {
+      final resp = await _apiService.postApi(
+          "${Appurl.kycUrl}/api/onboardings/execute",
+          data: data,
+          headers: {
+            'Content-Type':'application/json',
+            'Authorization':'rmcHJx4i6DCu5BCEXMCxEiaHJIO9nmV4hlqUqFbuotpJlC6Pq1iTSlcBiyiAlsqJ'
+          }
+
+      );
+
+      createLog(
+        "[Kyc Remote Data Source] ExecutePOA Response: $resp",
+      );
+
+      if (resp != null &&
+          resp['result'] != null) {
+
+        final result = ExecutePOIStep2Model.fromJson(resp);
+        return Left(Result.success(result));
+      } else {
+        return Right(
+          ApiError(
+            message: 'ExecutePOA Failed: Invalid response structure',
+          ),
+        );
+      }
+    } catch (e) {
+      return Right(
+        ApiError(
+          message: 'ExecutePOA Failed with Exception $e',
+        ),
+      );
+    }
+  }
+  Future<Either<Result<String>, ApiError>> updateForm(
+      Map<String, dynamic> data,
+      ) async {
+    try {
+      final resp = await _apiService.postApi(
+          "${Appurl.kycUrl}/api/onboardings/updateForm",
+          data: data,
+          headers: {
+            'Content-Type':'application/json',
+            'Authorization':'rmcHJx4i6DCu5BCEXMCxEiaHJIO9nmV4hlqUqFbuotpJlC6Pq1iTSlcBiyiAlsqJ'
+          }
+      );
+
+      createLog(
+        "[Kyc Remote Data Source] updateForm Response: $resp",
+      );
+
+      if (resp != null &&
+          resp['object'] != null) {
+
+        final result = resp['object'];
+        return Left(Result.success(result));
+      } else {
+        return Right(
+          ApiError(
+            message: 'updateForm Failed: Invalid response structure',
+          ),
+        );
+      }
+    } catch (e) {
+      return Right(
+        ApiError(
+          message: 'updateForm Failed with Exception $e',
+        ),
+      );
+    }
+  }
 }

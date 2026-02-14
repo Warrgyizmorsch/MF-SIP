@@ -10,10 +10,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="add web updates">
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/common/widget/webview/webview.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/widget/webview/webview.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/kyc/data/datasource/kyc_remote_data_source.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/kyc/data/datasource/kyc_remote_data_source.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/kyc/data/repository/kyc_repository_impl.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/kyc/data/repository/kyc_repository_impl.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/kyc/domain/repository/kyc_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/kyc/domain/repository/kyc_repository.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/kyc/domain/usecases/kyc_use_cases.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/kyc/domain/usecases/kyc_use_cases.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/kyc/presentation/binding/kyc_bindings.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/kyc/presentation/binding/kyc_bindings.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/features/kyc/presentation/controllers/kyc_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/kyc/presentation/controllers/kyc_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/navigation_menu_bar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/navigation_menu_bar.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/kyc/presentation/pages/kyc_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/kyc/presentation/pages/kyc_screen.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

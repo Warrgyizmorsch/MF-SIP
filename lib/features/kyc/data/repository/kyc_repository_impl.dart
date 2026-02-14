@@ -68,14 +68,56 @@ class KycRepositoryImpl extends KycRepository{
               final result = success.data?.toEntity();
               return Left(Result.success(result));
             } else {
-              return Right(ApiError(message: 'ExecutePOIStep1 Failed'));
+              return Right(ApiError(message: 'ExecutePOIStep2 Failed'));
             }
           },
               (error){
-            return Right(ApiError(message: 'ExecutePOIStep1 Failed $error'));
+            return Right(ApiError(message: 'ExecutePOIStep2 Failed $error'));
           });
     } catch(e){
-      return Right(ApiError(message: 'ExecutePOIStep1 Failed $e'));
+      return Right(ApiError(message: 'ExecutePOIStep2 Failed $e'));
+    }
+  }
+
+  @override
+  Future<Either<Result<String>, ApiError>> updateForm(Map<String, dynamic> data) async {
+    try{
+      final result = await _remoteDataSource.updateForm(data);
+      return  result.fold(
+              (success){
+            if(success.isSuccess){
+              final result = success.data;
+              return Left(Result.success(result));
+            } else {
+              return Right(ApiError(message: 'updateForm Failed'));
+            }
+          },
+              (error){
+            return Right(ApiError(message: 'updateForm Failed $error'));
+          });
+    } catch(e){
+      return Right(ApiError(message: 'updateForm Failed $e'));
+    }
+  }
+
+  @override
+  Future<Either<Result<ExecutePOIStep2Entity>, ApiError>> executePOA(Map<String, dynamic> data) async {
+    try{
+      final result = await _remoteDataSource.executePOA(data);
+      return  result.fold(
+              (success){
+            if(success.isSuccess){
+              final result = success.data?.toEntity();
+              return Left(Result.success(result));
+            } else {
+              return Right(ApiError(message: 'executePOA Failed'));
+            }
+          },
+              (error){
+            return Right(ApiError(message: 'executePOA Failed $error'));
+          });
+    } catch(e){
+      return Right(ApiError(message: 'executePOA Failed $e'));
     }
   }
 }

@@ -10,5 +10,7 @@ abstract class KycRepository {
   Future<Either<Result<BankResponseListEntity>,ApiError>>getAllBanks(Map<String,dynamic> data);
   Future<Either<Result<ExecutePOIStep1Entity>,ApiError>>executePOIStep1(Map<String,dynamic> data);
   Future<Either<Result<ExecutePOIStep2Entity>,ApiError>>executePOIStep2(Map<String,dynamic> data);
+  Future<Either<Result<ExecutePOIStep2Entity>,ApiError>>executePOA(Map<String,dynamic> data);
+  Future<Either<Result<String>, ApiError>> updateForm(Map<String, dynamic> data,);
 
 }
