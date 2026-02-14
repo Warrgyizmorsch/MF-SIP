@@ -47,9 +47,14 @@ class NetworkServicesApi implements BaseApiServices {
   Future<dynamic> getApi(
     String url, {
     Map<String, dynamic>? queryParameters,
+    dynamic data,
   }) async {
     try {
-      final response = await _dio.get(url, queryParameters: queryParameters);
+      final response = await _dio.get(
+        url,
+        queryParameters: queryParameters,
+        data: data,
+      );
       return _handleResponse(response);
     } on DioException catch (e) {
       throw _handleDioError(e);

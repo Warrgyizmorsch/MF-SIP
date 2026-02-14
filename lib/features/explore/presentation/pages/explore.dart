@@ -710,9 +710,6 @@
 //   }
 // }
 
-import 'dart:developer';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -732,7 +729,33 @@ import 'package:my_sip/features/explore/presentation/controller/mutual_fund_cont
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart'; // Ensure this import exists for Deleteiconwithcontainer
 import 'package:responsive_framework/responsive_framework.dart';
 
-import '../../../dashboard/presentation/pages/dashboard.dart';
+enum FundMenuAction {
+  addToCart,
+  buySIP,
+  buyLumpsum,
+  addToWatchlist,
+  fundDetails,
+}
+
+PopupMenuItem<FundMenuAction> buildFundMenuItem({
+  required IconData icon,
+  required String text,
+  required FundMenuAction value,
+}) {
+  return PopupMenuItem<FundMenuAction>(
+    value: value,
+    child: Row(
+      children: [
+        Icon(icon, size: 20, color: Colors.black87),
+        const SizedBox(width: 12),
+        Text(
+          text,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        ),
+      ],
+    ),
+  );
+}
 
 // --- ANIMATION WRAPPER FOR WEB ROWS ---
 class WebHoverRow extends StatefulWidget {
@@ -1606,7 +1629,7 @@ class MutualFundCard extends StatelessWidget {
                 ),
 
                 !isDelete
-                    ? PopupMenuButton<PortfolioMenuAction>(
+                    ? PopupMenuButton<FundMenuAction>(
                         color: Ucolors.light,
                         icon: const Icon(Icons.more_vert, color: Colors.grey),
                         shape: RoundedRectangleBorder(
@@ -1616,14 +1639,17 @@ class MutualFundCard extends StatelessWidget {
                         onSelected: (value) {
                           switch (value) {
                             // Add to cart
-                            case PortfolioMenuAction.topUp:
-                              controller.addItem(
-                                CartItem(
-                                  fundId: entity.amc?.id?.toString() ?? '',
-                                  fundName: entity.baseSchemeName ?? '',
-                                  logoUrl: entity.amc?.amcLogoUrl ?? '',
-                                ),
-                              );
+                            case FundMenuAction.addToCart:
+                              controller.addToCart(entity.schemeCode ?? '');
+                              controller.fetchCart();
+
+                              // controller.addItem(
+                              //   CartItem(
+                              //     fundId: entity.amc?.id?.toString() ?? '',
+                              //     fundName: entity.baseSchemeName ?? '',
+                              //     logoUrl: entity.amc?.amcLogoUrl ?? '',
+                              //   ),
+                              // );
                               Get.snackbar(
                                 'Add to cart',
                                 entity.baseSchemeName.toString(),
@@ -1637,8 +1663,8 @@ class MutualFundCard extends StatelessWidget {
                               );
                               break;
 
-                            case PortfolioMenuAction.modify:
-                            case PortfolioMenuAction.pause:
+                            case FundMenuAction.buySIP:
+                            case FundMenuAction.buyLumpsum:
                               controller.addItem(
                                 CartItem(
                                   fundId: entity.amc?.id?.toString() ?? '',
@@ -1649,9 +1675,9 @@ class MutualFundCard extends StatelessWidget {
                               Get.toNamed(AppRoutes.cart);
                               break;
 
-                            case PortfolioMenuAction.cancel:
+                            case FundMenuAction.addToWatchlist:
                               break;
-                            case PortfolioMenuAction.redemption:
+                            case FundMenuAction.fundDetails:
                               Get.toNamed(
                                 AppRoutes.funddetails,
                                 arguments: {
@@ -1665,30 +1691,30 @@ class MutualFundCard extends StatelessWidget {
                           }
                         },
                         itemBuilder: (context) => [
-                          buildMenuItem(
+                          buildFundMenuItem(
                             icon: Iconsax.card_send,
                             text: 'Add to cart',
-                            value: PortfolioMenuAction.topUp,
+                            value: FundMenuAction.addToCart,
                           ),
-                          buildMenuItem(
+                          buildFundMenuItem(
                             icon: Iconsax.edit_2,
                             text: 'Buy SIP',
-                            value: PortfolioMenuAction.modify,
+                            value: FundMenuAction.buySIP,
                           ),
-                          buildMenuItem(
-                            icon: Iconsax.pause,
+                          buildFundMenuItem(
+                            icon: Iconsax.pause, // Or Iconsax.convert_card
                             text: 'Buy Lumpsum',
-                            value: PortfolioMenuAction.pause,
+                            value: FundMenuAction.buyLumpsum,
                           ),
-                          buildMenuItem(
+                          buildFundMenuItem(
                             icon: Iconsax.add,
                             text: 'Add to watchlist',
-                            value: PortfolioMenuAction.cancel,
+                            value: FundMenuAction.addToWatchlist,
                           ),
-                          buildMenuItem(
+                          buildFundMenuItem(
                             icon: Iconsax.receipt,
                             text: 'Fund Details',
-                            value: PortfolioMenuAction.redemption,
+                            value: FundMenuAction.fundDetails,
                           ),
                         ],
                       )

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/services/session_manager.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -17,11 +18,13 @@ class NavigationBarController extends GetxController {
   static NavigationBarController get instance => Get.find();
   final RxInt selectedIndex = 0.obs;
   final mutualFundController = Get.find<MutualFundController>();
+  final cartController = Get.find<CartController>();
 
   @override
   void onInit() {
     // mutualFundController.fetchMutualFund();
     mutualFundController.fetchData();
+    cartController.fetchCart();
     super.onInit();
   }
 

@@ -16,11 +16,11 @@ import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-import '../../../fund_details/presentation/pages/fund_deatails.dart';
 import '../controllers/dashboard_controller.dart';
 import '../widgets/comparison_chart.dart';
 
 enum PortfolioMenuAction { topUp, modify, pause, cancel, redemption }
+
 
 /// --- PopMenuItem
 PopupMenuItem<PortfolioMenuAction> buildMenuItem({

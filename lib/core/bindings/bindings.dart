@@ -1,5 +1,13 @@
 import 'package:get/get.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
+import 'package:my_sip/features/cart/data/datasources/cart_remote_ds.dart';
+import 'package:my_sip/features/cart/data/repositories/cart_repo_imp.dart';
+import 'package:my_sip/features/cart/domain/repositories/cart_repo.dart';
+import 'package:my_sip/features/cart/domain/usecases/add_to_cart_usecases.dart';
+import 'package:my_sip/features/cart/domain/usecases/cart_usecases.dart';
+import 'package:my_sip/features/cart/domain/usecases/delete_cart_item_usecases.dart';
+import 'package:my_sip/features/cart/domain/usecases/get_cart_list_usecases.dart';
+import 'package:my_sip/features/cart/domain/usecases/update_cart_usecases.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/data/datasources/mutualfund_remote_ds.dart';
 import 'package:my_sip/features/explore/data/repositories/mutual_fund_repo_implement.dart';
@@ -106,7 +114,32 @@ class UBinding extends Bindings {
     // 5. Finally, register the Controller
     Get.lazyPut(() => MutualFundController(Get.find()), fenix: true);
 
-    Get.put<CartController>(CartController(), permanent: true);
+    /////cart bindings
+
+    Get.lazyPut<CartRemoteDs>(
+      () => CartRemoteDs(Get.find<NetworkServicesApi>()),
+    );
+
+    Get.lazyPut<CartRepo>(() => CartRepoImp(Get.find<CartRemoteDs>()));
+
+    Get.lazyPut(() => GetCartListUsecases(Get.find<CartRepo>()));
+    Get.lazyPut(() => UpdateCartUsecases(Get.find<CartRepo>()));
+
+    Get.lazyPut(() => AddToCartUsecases(Get.find<CartRepo>()));
+    Get.lazyPut(() => DeleteCartItemUsecases(Get.find<CartRepo>()));
+
+    Get.lazyPut(
+      () => CartUsecases(
+        Get.find<AddToCartUsecases>(),
+        Get.find<GetCartListUsecases>(),
+        Get.find<UpdateCartUsecases>(),
+        Get.find<DeleteCartItemUsecases>(),
+      ),
+    );
+
+    // --------------//
+
+    Get.put<CartController>(CartController(Get.find()), permanent: true);
 
     // Goal controller
     Get.lazyPut(() => GoalSipController(), fenix: true);

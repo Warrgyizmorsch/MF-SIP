@@ -780,7 +780,10 @@ class _MobileLayout extends StatelessWidget {
                           children: [
                             CompactIcon(
                               icon: Iconsax.shopping_cart,
-                              onPressed: () => Get.toNamed(AppRoutes.cart),
+                              onPressed: () {
+                                Get.toNamed(AppRoutes.cart);
+                                cartController.fetchCart();
+                              },
                               iconColor: Ucolors.light,
                             ),
                             if (cartController.itemsCount > 0)

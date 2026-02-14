@@ -1,20 +1,19 @@
 import 'dart:developer';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
+import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/common/widget/text_form/text_field_component.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
-import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/core/utils/enums/enums.dart';
 import 'package:my_sip/features/authentication/presentation/widgets/term_policy.dart';
-import 'package:my_sip/features/cart/data/model/cartItem_model.dart';
+import 'package:my_sip/features/cart/domain/entities/cart_response_entity.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
@@ -36,15 +35,28 @@ class CartPage extends GetView<CartController> {
     return Scaffold(
       appBar: CustomAppBarNormal(title: 'Cart'),
       body: Obx(() {
-        if (controller.itemsCount == 0) {
+        final items = controller.cartResponseEntity.value?.items ?? [];
+        if ((controller.cartResponseEntity.value?.items.length ?? 0) < 1) {
           return Center(child: Text('Add scheme to cart'));
         }
 
+        // return ListView.builder(
+        //   padding: EdgeInsets.symmetric(vertical: 8),
+        //   itemBuilder: (context, index) =>
+        //       CartItemCard(item: controller.items[index], index: index),
+        //   itemCount: controller.itemsCount,
+        // );
+        if (controller.cartResponseEntity?.value?.items.isEmpty ?? true) {
+          return SizedBox.shrink();
+        }
         return ListView.builder(
           padding: EdgeInsets.symmetric(vertical: 8),
-          itemBuilder: (context, index) =>
-              CartItemCard(item: controller.items[index], index: index),
-          itemCount: controller.itemsCount,
+          itemBuilder: (context, index) => CartItemCard(
+            index: index,
+            // itemEntity: controller.cartResponseEntity.value!.items[index],
+            itemEntity: items[index],
+          ),
+          itemCount: controller.cartResponseEntity.value?.items.length,
         );
       }),
       persistentFooterDecoration: BoxDecoration(),
@@ -61,9 +73,13 @@ class CartPage extends GetView<CartController> {
                 : controller.monthlyAmount.value == 0
                 ? '/Monthly'
                 : '/${controller.monthlyAmount.value.toString()}',
-            amount: controller.totolAmount.toString(),
+            // amount: controller.totolAmount.toString(),
+            amount:
+                controller.cartResponseEntity.value?.cart?.totalAmount
+                    .toString() ??
+                '0',
             ontap: () {
-              if (controller.monthlyAmount.value > controller.totolAmount) {
+              if (controller.monthlyAmount.value > controller.totolAmount1) {
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
@@ -81,13 +97,13 @@ class CartPage extends GetView<CartController> {
 
                 // Get.toNamed(AppRoutes.paymentScreen);
               } else if (controller.monthlyAmount.value ==
-                  controller.totolAmount) {
+                  controller.totolAmount1) {
                 Get.toNamed(
                   AppRoutes.paymentScreen,
-                  arguments: {'amount': controller.totolAmount},
+                  arguments: {'amount': controller.totolAmount1},
                 );
               } else if (controller.monthlyAmount.value <
-                  controller.totolAmount) {
+                  controller.totolAmount1) {
                 log('Inscrease');
               }
             },
@@ -145,14 +161,14 @@ class CartBottomBar extends StatelessWidget {
                       Text(
                         amount ?? '₹ 5,000',
                         style: TextStyle(
-                          fontSize: 25,
+                          fontSize: 22,
                           color: amountColor ?? Ucolors.success,
                         ),
                       ),
                       Text(
                         goalAmount != null ? goalAmount! : '/Monthly',
                         style: TextStyle(
-                          fontSize: goalAmount != null ? 25 : 14,
+                          fontSize: goalAmount != null ? 14 : 14,
                         ),
                       ),
                     ],
@@ -181,10 +197,14 @@ class CartBottomBar extends StatelessWidget {
 }
 
 class CartItemCard extends StatelessWidget {
-  const CartItemCard({super.key, required this.item, required this.index});
+  const CartItemCard({
+    super.key,
+    required this.index,
+    required this.itemEntity,
+  });
 
-  final CartItem item;
   final int index;
+  final CartItemEntity itemEntity;
 
   @override
   Widget build(BuildContext context) {
@@ -205,11 +225,11 @@ class CartItemCard extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          FundHeader(item: item, index: index),
+          FundHeader(index: index, itemEntity: itemEntity),
           SizedBox(height: 12),
           DashedLine(color: Color(0xffACACAC)),
           SizedBox(height: 12),
-          InvestmentInputsRow(item: item),
+          InvestmentInputsRow(itemEntity: itemEntity),
         ],
       ),
     );
@@ -217,9 +237,9 @@ class CartItemCard extends StatelessWidget {
 }
 
 class FundHeader extends StatelessWidget {
-  FundHeader({super.key, required this.item, required this.index});
-  final CartItem item;
+  FundHeader({super.key, required this.index, required this.itemEntity});
   final int index;
+  final CartItemEntity itemEntity;
 
   final CartController controller = Get.find<CartController>();
 
@@ -228,12 +248,7 @@ class FundHeader extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CircleAvatar(
-          radius: 22,
-          backgroundImage: CachedNetworkImageProvider(
-            "${Appurl.baseUrl}${item.logoUrl}",
-          ),
-        ),
+        ClipOval(child: CustomCachedImage(imageUrl: 'imageUrl', radius: 22)),
         const SizedBox(width: 12),
 
         Expanded(
@@ -241,7 +256,7 @@ class FundHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                item.fundName,
+                itemEntity.schemeName ?? '',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
               SizedBox(height: 4),
@@ -325,19 +340,25 @@ class FundHeader extends StatelessWidget {
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
-                      Get.snackbar(
-                        margin: EdgeInsets.symmetric(
-                          vertical: 15,
-                          horizontal: 15,
-                        ),
-                        colorText: Ucolors.light,
-                        'Remove from cart',
-                        item.fundName.toString(),
-                        snackPosition: SnackPosition.BOTTOM,
-                        backgroundColor: Ucolors.red,
-                      );
+                      // Get.snackbar(
+                      //   margin: EdgeInsets.symmetric(
+                      //     vertical: 15,
+                      //     horizontal: 15,
+                      //   ),
+                      //   colorText: Ucolors.light,
+                      //   'Remove from cart',
+                      //   // item.fundName.toString(),
+                      //   itemEntity.schemeName ?? '',
 
-                      controller.removeItem(index);
+                      //   snackPosition: SnackPosition.BOTTOM,
+                      //   backgroundColor: Ucolors.red,
+                      // );
+
+                      // controller.removeItem(index);
+                      controller.deleteCartItem(
+                        itemEntity.id ?? 0,
+                        itemEntity.schemeName ?? "",
+                      );
                     },
                     child: Text(
                       'Yes',
@@ -357,126 +378,94 @@ class FundHeader extends StatelessWidget {
 }
 
 class InvestmentInputsRow extends StatelessWidget {
-  InvestmentInputsRow({super.key, required this.item});
+  InvestmentInputsRow({super.key, required this.itemEntity});
 
-  final CartItem item;
+  final CartItemEntity itemEntity;
   final controller = Get.find<CartController>();
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => Column(
+    return Obx(() {
+      // FIX: Accessing the controller variable here registers this Obx
+      // with GetX so it rebuilds when fetchCart() is called in the controller.
+      final cartResponse = controller.cartResponseEntity.value;
+
+      // Extract local variables from the current state of the entity
+      final currentType = itemEntity.transType?.toLowerCase() ?? 'sip';
+      final currentAmount = itemEntity.amount?.toString() ?? '0';
+
+      return Column(
         children: [
           Row(
             children: [
-              /// Investment Type
+              /// 1. Investment Type Dropdown
               Expanded(
                 flex: 3,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Inv. Type',
-                      style: UTextStyles.small.copyWith(
-                        color: Color(0xff5B5B5B),
+                child: _buildColumn(
+                  'Inv. Type',
+                  DropdownButton<String>(
+                    dropdownColor: Colors.white,
+                    isDense: true,
+                    value: currentType,
+                    isExpanded: true,
+                    underline: const SizedBox(),
+                    items: const [
+                      DropdownMenuItem(value: 'sip', child: Text('SIP')),
+                      DropdownMenuItem(
+                        value: 'lumpsum',
+                        child: Text('Lumpsum'),
                       ),
-                    ),
-                    const SizedBox(height: 6),
-                    _box(
-                      child: DropdownButton<String>(
-                        dropdownColor: Colors.white,
-
-                        isDense: true,
-
-                        value: item.invType.value,
-                        isExpanded: true,
-                        underline: const SizedBox(),
-                        items: const [
-                          DropdownMenuItem(value: 'SIP', child: Text('SIP')),
-                          DropdownMenuItem(
-                            value: 'lumpsum',
-                            child: Text('Lumpsum'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'stepup',
-                            child: Text('Step Up'),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          // setState(() => invType = value!);
-                          item.invType.value = value!;
-                          // item.amount.value = value == 'lumpsum'
-                          //     ? 25000
-                          //     : value == 'SIP '
-                          //     ? 12330
-                          //     : 10000;
-                          if (value == 'lumpsum') {
-                            item.amount.value = 25000;
-                          } else if (value == 'SIP') {
-                            item.amount.value = 12330;
-                          } else if (value == 'stepup') {
-                            item.amount.value = 100000;
-                            item.stepupFrequency.value = '6m'; // ✅ IMPORTANT
-                          }
-                        },
-                      ),
-                    ),
-                  ],
+                      DropdownMenuItem(value: 'stepup', child: Text('Step Up')),
+                    ],
+                    onChanged: (value) {
+                      if (value != null && value != currentType) {
+                        controller.updateCartItem(
+                          itemId: itemEntity.id!,
+                          transType: value,
+                          // Defaults based on type: adjust as needed for your business logic
+                          amount: value == 'lumpsum' ? 5000 : 500,
+                        );
+                      }
+                    },
+                  ),
                 ),
               ),
 
               const SizedBox(width: 12),
 
-              // invType != 'lumpsum'
-              //     ?
-              item.invType.value != 'lumpsum'
-                  ?
-                    /// SIP Date
-                    Expanded(
-                      flex: 2,
-                      // flex: ,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'SIP Date',
-                            style: UTextStyles.small.copyWith(
-                              color: Color(0xff5B5B5B),
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          _box(
-                            child: DropdownButton<String>(
-                              menuMaxHeight: 300,
-                              dropdownColor: Colors.white,
-
-                              isDense: true,
-                              value: item.sipDate.value.toString(),
-                              isExpanded: true,
-                              underline: const SizedBox(),
-                              items: List.generate(
-                                28,
-                                (i) => DropdownMenuItem(
-                                  value: '${i + 1}',
-                                  child: Text('${i + 1}'),
-                                ),
-                              ),
-                              onChanged: (value) {
-                                // item.invType.value = value!;
-                                item.sipDate.value = int.parse(value!);
-
-                                // setState(() => sipDate = value!);
-                              },
-                            ),
-                          ),
-                        ],
+              /// 2. SIP Date Dropdown (Visible for SIP/StepUp)
+              if (currentType != 'lumpsum')
+                Expanded(
+                  flex: 2,
+                  child: _buildColumn(
+                    'SIP Date',
+                    DropdownButton<String>(
+                      menuMaxHeight: 300,
+                      dropdownColor: Colors.white,
+                      isDense: true,
+                      value: (itemEntity.sipDay ?? 1).toString(),
+                      isExpanded: true,
+                      underline: const SizedBox(),
+                      items: List.generate(
+                        28,
+                        (i) => DropdownMenuItem(
+                          value: '${i + 1}',
+                          child: Text('${i + 1}'),
+                        ),
                       ),
-                    )
-                  : SizedBox.shrink(),
+                      onChanged: (val) {
+                        if (val != null) {
+                          controller.updateCartItem(
+                            itemId: itemEntity.id!,
+                            sipDay: int.parse(val),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ),
 
               const SizedBox(width: 12),
-
-              /// Amount
               Expanded(
                 flex: 3,
                 child: Column(
@@ -490,34 +479,63 @@ class InvestmentInputsRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     CustomTextField(
-                      onChanged: item.updateAmount,
+                      height: 55,
+
+                      // IMPORTANT: ValueKey forces text refresh when new data returns from server
+                      key: ValueKey('amt_${itemEntity.id}_$currentAmount'),
+                      // hint: '500',
                       keyboardType: TextInputType.number,
-                      controller: item.amountController,
+                      controller: TextEditingController(text: currentAmount),
                       validationType: ValidationType.custom,
                       customValidator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Amount is required';
+                          return 'Required';
                         }
-
                         final amount = int.tryParse(value);
-                        if (amount == null) {
-                          return 'Enter a valid number';
-                        }
+                        if (amount == null || amount < 500) return 'Min ₹500';
+                        return null;
+                      },
 
-                        if (amount <= 0) {
-                          return 'Amount must be greater than 0';
+                      onSubmitted: (value) {
+                        final newAmt = int.tryParse(value);
+                        if (newAmt != null && newAmt >= 500) {
+                          controller.updateCartItem(
+                            itemId: itemEntity.id!,
+                            amount: newAmt,
+                          );
                         }
-
-                        if (amount < 500) {
-                          return 'Minimum investment is ₹500';
-                        }
-
-                        return null; // ✅ valid
                       },
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      height: 44,
-                      borderRadius: 10,
                     ),
+                    // CustomTextField(
+                    //   // onChanged: item.updateAmount,
+                    //   keyboardType: TextInputType.number,
+                    //   // controller: item.amountController,
+                    //   validationType: ValidationType.custom,
+                    //   customValidator: (value) {
+                    //     if (value == null || value.trim().isEmpty) {
+                    //       return 'Amount is required';
+                    //     }
+
+                    //     final amount = int.tryParse(value);
+                    //     if (amount == null) {
+                    //       return 'Enter a valid number';
+                    //     }
+
+                    //     if (amount <= 0) {
+                    //       return 'Amount must be greater than 0';
+                    //     }
+
+                    //     if (amount < 500) {
+                    //       return 'Minimum investment is ₹500';
+                    //     }
+
+                    //     return null; // ✅ valid
+                    //   },
+                    //   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    //   height: 44,
+                    //   borderRadius: 10,
+                    // ),
 
                     // _box(
                     //   child:
@@ -541,113 +559,477 @@ class InvestmentInputsRow extends StatelessWidget {
                   ],
                 ),
               ),
+
+              /// 3. Amount Field
+              // Expanded(
+              //   flex: 3,
+              //   child:
+              //   _buildColumn(
+
+              //     'Inv Amount',
+              //     CustomTextField(
+              //       borderColor: Colors.transparent,
+              //       focusedBorderColor: Colors.transparent,
+              //       height: 44,
+
+              //       // IMPORTANT: ValueKey forces text refresh when new data returns from server
+              //       key: ValueKey('amt_${itemEntity.id}_$currentAmount'),
+              //       // hint: '500',
+              //       keyboardType: TextInputType.number,
+              //       controller: TextEditingController(text: currentAmount),
+              //       validationType: ValidationType.custom,
+              //       customValidator: (value) {
+              //         if (value == null || value.trim().isEmpty)
+              //           return 'Required';
+              //         final amount = int.tryParse(value);
+              //         if (amount == null || amount < 500) return 'Min ₹500';
+              //         return null;
+              //       },
+
+              //       onSubmitted: (value) {
+              //         final newAmt = int.tryParse(value);
+              //         if (newAmt != null && newAmt >= 500) {
+              //           controller.updateCartItem(
+              //             itemId: itemEntity.id!,
+              //             amount: newAmt,
+              //           );
+              //         }
+              //       },
+              //       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              //     ),
+              //   ),
+              // ),
             ],
           ),
-          const Gap(15),
 
-          item.invType.value == 'stepup'
-              ? Container(
-                  // height: 50,
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                  decoration: BoxDecoration(
-                    color: Color(0xffEAF5FF),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Step up Frequency',
-                              style: TextStyle(fontSize: 10),
-                            ),
-                            const Gap(5),
-                            _box(
-                              child: DropdownButton<String>(
-                                // style: TextStyle(color: Ucolors.dark),
-                                isExpanded: true,
-                                isDense: true,
-                                underline: SizedBox(),
-                                value: item.stepupFrequency.value,
-                                items: [
-                                  DropdownMenuItem(
-                                    value: '6m',
-                                    child: Text('6 month'),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: '1y',
-                                    child: Text('1 Year'),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: '2y',
-                                    child: Text('2 Year '),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: '5y',
-                                    child: Text('5 Year'),
-                                  ),
-                                ],
-                                onChanged: (value) {
-                                  item.stepupFrequency.value = value!;
-
-                                  // setState(() {});
-                                  // stepup = value.toString();
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      Gap(20),
-
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Step Up Amount',
-                              style: TextStyle(fontSize: 10),
-                            ),
-                            Gap(5),
-                            _box(
-                              child: TextField(
-                                onChanged: (value) {},
-                                keyboardType: TextInputType.number,
-                                decoration: InputDecoration(
-                                  isCollapsed: true,
-                                  isDense: true,
-                                  border: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : SizedBox.shrink(),
+          /// 4. Step Up Section (Visible for StepUp)
+          if (currentType == 'stepup') ...[
+            const Gap(15),
+            _buildStepUpSection(),
+          ],
         ],
-      ),
+      );
+    });
+  }
+
+  Widget _buildColumn(String label, Widget child) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: UTextStyles.small.copyWith(
+            color: const Color(0xff5B5B5B),
+            fontSize: 11,
+          ),
+        ),
+        const SizedBox(height: 6),
+        _box(child: child),
+      ],
     );
   }
 
   Widget _box({required Widget child}) {
     return Container(
-      height: 38,
+      height: 44,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       alignment: Alignment.centerLeft,
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(11),
+        color: Colors.white,
       ),
       child: child,
     );
   }
+
+  Widget _buildStepUpSection() {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: const Color(0xffEAF5FF),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildColumn(
+              'Step up Frequency',
+              DropdownButton<String>(
+                value: itemEntity.frequency ?? '6m',
+                isExpanded: true,
+                isDense: true,
+                underline: const SizedBox(),
+                items: const [
+                  DropdownMenuItem(value: '6m', child: Text('6 month')),
+                  DropdownMenuItem(value: '1y', child: Text('1 Year')),
+                ],
+                onChanged: (val) {
+                  if (val != null) {
+                    controller.updateCartItem(
+                      itemId: itemEntity.id!,
+                      frequency: val,
+                    );
+                  }
+                },
+              ),
+            ),
+          ),
+          const Gap(20),
+          Expanded(
+            child: _buildColumn(
+              'Step Up Amount',
+              TextField(
+                controller: TextEditingController(
+                  // text: itemEntity.topUpAmount.toString(),
+                  text: itemEntity.topUpAmount != null
+                      ? (double.tryParse(
+                              itemEntity.topUpAmount.toString(),
+                            )?.toInt().toString() ??
+                            '0')
+                      : '0',
+                ),
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  isDense: true,
+                ),
+                onSubmitted: (val) {
+                  final stepAmt = int.tryParse(val);
+                  if (stepAmt != null) {
+                    controller.updateCartItem(
+                      itemId: itemEntity.id!,
+                      topUpAmount: stepAmt,
+                    );
+                  }
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
+/*
+// class InvestmentInputsRow extends StatelessWidget {
+//   InvestmentInputsRow({super.key, required this.itemEntity});
+
+//   final CartItemEntity itemEntity;
+
+//   final controller = Get.find<CartController>();
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Obx(() {
+//       final currentType = itemEntity.transType?.toLowerCase() ?? 'sip';
+//       return Column(
+//         children: [
+//           Row(
+//             children: [
+//               /// Investment Type
+//               Expanded(
+//                 flex: 3,
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Text(
+//                       'Inv. Type',
+//                       style: UTextStyles.small.copyWith(
+//                         color: Color(0xff5B5B5B),
+//                       ),
+//                     ),
+//                     const SizedBox(height: 6),
+//                     _box(
+//                       child: DropdownButton<String>(
+//                         dropdownColor: Colors.white,
+
+//                         isDense: true,
+
+//                         value: itemEntity.transType?.toLowerCase(),
+
+//                         isExpanded: true,
+//                         underline: const SizedBox(),
+//                         items: const [
+//                           DropdownMenuItem(value: 'sip', child: Text('SIP')),
+//                           DropdownMenuItem(
+//                             value: 'lumpsum',
+//                             child: Text('Lumpsum'),
+//                           ),
+//                           DropdownMenuItem(
+//                             value: 'stepup',
+//                             child: Text('Step Up'),
+//                           ),
+//                         ],
+//                         onChanged: (value) {
+//                           // ite.invType.value = value!;
+//                           // itemEntity.transType = value!;
+
+//                           // if (value == 'lumpsum') {
+//                           //   // item.amount.value = 25000;
+//                           //   // itemEntity.amount = 1000;
+//                           // } else if (value == 'sip') {
+//                           //   // item.amount.value = 12330;
+//                           // } else if (value == 'stepup') {
+//                           //   // item.amount.value = 100000;
+//                           //   // item.stepupFrequency.value = '6m'; // ✅ IMPORTANT
+//                           // }
+
+//                           if (value != null) {
+//                             controller.updateCartItem(
+//                               itemId: itemEntity.id!,
+//                               transType: value,
+//                               // Reset amount if switching to lumpsum if required
+//                               amount: value == 'lumpsum' ? 5000 : 500,
+//                             );
+//                           }
+//                         },
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+
+//               const SizedBox(width: 12),
+
+//               // invType != 'lumpsum'
+//               //     ?
+//               // itemEntity.transType != 'lumpsum'
+//               //     ?
+//               if (currentType != 'lumpsum')
+//                 /// SIP Date
+//                 Expanded(
+//                   flex: 2,
+//                   // flex: ,
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       Text(
+//                         'SIP Date',
+//                         style: UTextStyles.small.copyWith(
+//                           color: Color(0xff5B5B5B),
+//                         ),
+//                       ),
+//                       const SizedBox(height: 6),
+//                       _box(
+//                         child: DropdownButton<String>(
+//                           menuMaxHeight: 300,
+//                           dropdownColor: Colors.white,
+
+//                           isDense: true,
+//                           // value: item.sipDate.value.toString(),
+//                           // value: itemEntity.sipDay.toString(),
+//                           // value:
+//                           //     (itemEntity.sipDay != null &&
+//                           //         itemEntity.sipDay! >= 1 &&
+//                           //         itemEntity.sipDay! <= 28)
+//                           //     ? itemEntity.sipDay.toString()
+//                           //     : '1',
+//                           value: (itemEntity.sipDay ?? 1).toString(),
+//                           isExpanded: true,
+//                           underline: const SizedBox(),
+//                           items: List.generate(
+//                             28,
+//                             (i) => DropdownMenuItem(
+//                               value: '${i + 1}',
+//                               child: Text('${i + 1}'),
+//                             ),
+//                           ),
+//                           onChanged: (value) {
+//                             // item.invType.value = value!;
+//                             // item.sipDate.value = int.parse(value!);
+
+//                             // setState(() => sipDate = value!);
+//                           },
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+
+//               const SizedBox(width: 12),
+
+//               /// Amount
+//               Expanded(
+//                 flex: 3,
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Text(
+//                       'Inv Amount',
+//                       style: UTextStyles.small.copyWith(
+//                         color: Color(0xff5B5B5B),
+//                       ),
+//                     ),
+//                     const SizedBox(height: 6),
+//                     CustomTextField(
+//                       hint: itemEntity.amount?.toString() ?? '500',
+//                       // onChanged: item.updateAmount,
+//                       keyboardType: TextInputType.number,
+//                       controller: TextEditingController(
+//                         text: itemEntity.amount.toString(),
+//                       ),
+//                       validationType: ValidationType.custom,
+//                       customValidator: (value) {
+//                         if (value == null || value.trim().isEmpty) {
+//                           return 'Amount is required';
+//                         }
+
+//                         final amount = int.tryParse(value);
+//                         if (amount == null) {
+//                           return 'Enter a valid number';
+//                         }
+
+//                         if (amount <= 0) {
+//                           return 'Amount must be greater than 0';
+//                         }
+
+//                         if (amount < 500) {
+//                           return 'Minimum investment is ₹500';
+//                         }
+
+//                         return null; // ✅ valid
+//                         // if (value == null || value.trim().isEmpty)
+//                         //   return 'Required';
+//                         // final amount = int.tryParse(value);
+//                         // if (amount == null || amount < 500) return 'Min ₹500';
+//                         // return null;
+//                       },
+//                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+//                       height: 44,
+//                       borderRadius: 10,
+//                     ),
+
+//                     // _box(
+//                     //   child:
+//                     //   TextField(
+//                     //     keyboardType: TextInputType.number,
+//                     //     controller: TextEditingController(
+//                     //       text: item.amount.value.toString(),
+//                     //     ),
+
+//                     //     decoration: InputDecoration(
+//                     //       // hintText: amount,
+//                     //       border: InputBorder.none,
+//                     //       isCollapsed: true,
+//                     //     ),
+//                     //     onChanged: (value) {
+//                     //       // amount = value;
+//                     //       item.amount.value = int.tryParse(value) ?? 0;
+//                     //     },
+//                     //   ),
+//                     // ),
+//                   ],
+//                 ),
+//               ),
+//             ],
+//           ),
+//           const Gap(15),
+//           // if (itemEntity.transType?.toLowerCase() == 'stepup')
+//           if (currentType == 'stepup')
+//             Container(
+//               // height: 50,
+//               padding: EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+//               decoration: BoxDecoration(
+//                 color: Color(0xffEAF5FF),
+//                 borderRadius: BorderRadius.circular(14),
+//               ),
+//               child: Row(
+//                 children: [
+//                   Expanded(
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         Text(
+//                           'Step up Frequency',
+//                           style: TextStyle(fontSize: 10),
+//                         ),
+//                         const Gap(5),
+//                         _box(
+//                           child: DropdownButton<String>(
+//                             // style: TextStyle(color: Ucolors.dark),
+//                             isExpanded: true,
+//                             isDense: true,
+//                             underline: SizedBox(),
+//                             // value: item.stepupFrequency.value,
+//                             // value: itemEntity.frequency,
+//                             value: itemEntity.frequency ?? '6m',
+//                             items: [
+//                               DropdownMenuItem(
+//                                 value: '6m',
+//                                 child: Text('6 month'),
+//                               ),
+//                               DropdownMenuItem(
+//                                 value: '1y',
+//                                 child: Text('1 Year'),
+//                               ),
+//                               DropdownMenuItem(
+//                                 value: '2y',
+//                                 child: Text('2 Year '),
+//                               ),
+//                               DropdownMenuItem(
+//                                 value: '5y',
+//                                 child: Text('5 Year'),
+//                               ),
+//                             ],
+//                             onChanged: (value) {
+//                               // item.stepupFrequency.value = value!;
+//                               itemEntity.frequency;
+
+//                               // setState(() {});
+//                               // stepup = value.toString();
+//                             },
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+
+//                   Gap(20),
+
+//                   Expanded(
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         Text('Step Up Amount', style: TextStyle(fontSize: 10)),
+//                         Gap(5),
+//                         _box(
+//                           child: TextField(
+//                             onChanged: (value) {},
+//                             keyboardType: TextInputType.number,
+//                             decoration: InputDecoration(
+//                               isCollapsed: true,
+//                               isDense: true,
+//                               border: InputBorder.none,
+//                             ),
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//         ],
+//       );
+//     });
+//   }
+
+//   Widget _box({required Widget child}) {
+//     return Container(
+//       height: 38,
+//       padding: const EdgeInsets.symmetric(horizontal: 10),
+//       alignment: Alignment.centerLeft,
+//       decoration: BoxDecoration(
+//         border: Border.all(color: Colors.grey.shade300),
+//         borderRadius: BorderRadius.circular(11),
+//       ),
+//       child: child,
+//     );
+//   }
+// }
+*/
 
 class InputBox extends StatelessWidget {
   final String label;
