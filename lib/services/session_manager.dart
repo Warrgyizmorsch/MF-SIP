@@ -4,6 +4,8 @@ import 'dart:convert'; // Required for jsonEncode/jsonDecode
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:my_sip/features/authentication/data/models/auth_model.dart';
+import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
+import 'package:my_sip/features/personalization/domain/entity/risk_result_entity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/authentication/domain/entitites/auth_entity.dart';
@@ -14,17 +16,21 @@ class SessionManager {
   static final SessionManager _instance = SessionManager._internal();
   static SessionManager get instance => _instance;
 
-  final FlutterSecureStorage? _secureStorage = kIsWeb ? null : const FlutterSecureStorage();
+  final FlutterSecureStorage? _secureStorage = kIsWeb
+      ? null
+      : const FlutterSecureStorage();
   SharedPreferences? _prefs;
 
   String? userId;
   String? jwtAccessToken;
   String? jwtRefreshToken;
+  RiskResultModel? _riskScore;
 
   // Store as UserEntity object in memory
   UserModel? _userData;
 
-  final StreamController<String?> _controller = StreamController<String?>.broadcast();
+  final StreamController<String?> _controller =
+      StreamController<String?>.broadcast();
   Stream<String?> get accessTokenStream => _controller.stream;
 
   Future<void> initialize() async {
@@ -33,6 +39,17 @@ class SessionManager {
       jwtAccessToken = _prefs?.getString('jwtAccessToken');
       jwtRefreshToken = _prefs?.getString('jwtRefreshToken');
       userId = _prefs?.getString('userId');
+    final   riskScoreString = _prefs?.getString('riskScore');
+
+    if(riskScoreString != null ){
+        try {
+          // Assuming UserEntity has a fromJson factory or method
+          _riskScore = RiskResultModel.fromJson(jsonDecode(riskScoreString));
+        } catch (e) {
+          createLog("Error parsing user data on web: $e");
+        }
+      }
+    
 
       // 1. Read string
       final userJsonString = _prefs?.getString('userData');
@@ -50,10 +67,50 @@ class SessionManager {
     }
   }
 
+  Future<bool> saveRiskScore(RiskResultModel? riskScore) async {
+    this._riskScore = riskScore;
+
+    // Convert UserEntity -> JSON -> String
+    String? riskDataString;
+    if (riskScore != null) {
+      // Assuming UserEntity has a toJson method
+      riskDataString = riskScore != null ? jsonEncode(riskScore.toJson()) : null;
+    }
+    if (kIsWeb) {
+            await _ensurePrefsInitialized();
+
+    //    if (userData != null) {
+    //   // Assuming UserEntity has a toJson method
+    //   userDataString = userData != null ? jsonEncode(userData.toJson()) : null;
+    // }
+
+
+      if (riskDataString != null) {
+        await _prefs!.setString('riskScore', riskDataString);
+        return true;
+      } else {
+        await _prefs!.remove('riskScore');
+                return false;
+
+      }
+    } else {
+      if (riskDataString != null) {
+        await _secureStorage!.write(key: "riskScore", value: riskDataString);
+                return true;
+
+      } else {
+        await _secureStorage!.delete(key: "riskScore");
+                return false;
+
+      }
+    }
+  }
+
   Future<void> setSession({
     required String? jwtAccessToken,
     String? jwtRefreshToken,
     String? userId,
+
     UserModel? userData,
   }) async {
     this.jwtAccessToken = jwtAccessToken;
@@ -65,7 +122,8 @@ class SessionManager {
     String? userDataString;
     if (userData != null) {
       // Assuming UserEntity has a toJson method
-      userDataString = userData != null ? jsonEncode(userData.toJson()) : null;    }
+      userDataString = userData != null ? jsonEncode(userData.toJson()) : null;
+    }
 
     if (kIsWeb) {
       await _ensurePrefsInitialized();
@@ -97,13 +155,19 @@ class SessionManager {
       createLog("Storing in flutter secure storage for mobile");
 
       if (jwtAccessToken != null) {
-        await _secureStorage!.write(key: "jwtAccessToken", value: jwtAccessToken);
+        await _secureStorage!.write(
+          key: "jwtAccessToken",
+          value: jwtAccessToken,
+        );
       } else {
         await _secureStorage!.delete(key: "jwtAccessToken");
       }
 
       if (jwtRefreshToken != null) {
-        await _secureStorage!.write(key: "jwtRefreshToken", value: jwtRefreshToken);
+        await _secureStorage!.write(
+          key: "jwtRefreshToken",
+          value: jwtRefreshToken,
+        );
       } else {
         await _secureStorage!.delete(key: "jwtRefreshToken");
       }
@@ -155,6 +219,7 @@ class SessionManager {
     jwtRefreshToken = null;
     userId = null;
     _userData = null;
+    _riskScore = null;
 
     if (kIsWeb) {
       await _ensurePrefsInitialized();
@@ -162,7 +227,8 @@ class SessionManager {
         _prefs!.remove('jwtAccessToken'),
         _prefs!.remove('jwtRefreshToken'),
         _prefs!.remove('userId'),
-        _prefs!.remove('userData'),
+        _prefs!.remove('riskScore'),
+
       ]);
     } else {
       await Future.wait([
@@ -170,6 +236,8 @@ class SessionManager {
         _secureStorage!.delete(key: 'jwtRefreshToken'),
         _secureStorage!.delete(key: 'userId'),
         _secureStorage!.delete(key: 'userData'),
+        _secureStorage!.delete(key: 'riskScore'),
+
       ]);
     }
 
@@ -215,6 +283,8 @@ class SessionManager {
 
   // Getter now returns the Object, not a String
   UserModel? get getUserData => _userData;
+
+  RiskResultModel? get getRiskScore => _riskScore;
 
   bool isAuthenticated() {
     return jwtAccessToken != null && jwtAccessToken!.isNotEmpty;

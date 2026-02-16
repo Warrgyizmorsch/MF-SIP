@@ -4,6 +4,8 @@ import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/features/personalization/data/model/bank_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_question_model.dart';
+import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
+import 'package:my_sip/features/personalization/data/model/risk_submit_rq.dart';
 
 import '../../../../core/network/network_api_service.dart';
 import '../../../../core/utils/helper/helpers.dart';
@@ -66,6 +68,37 @@ class PersonalisationRemoteDataSource {
     } catch (e) {
       return Right(
         ApiError(message: 'Risk Questions Failed with Exception $e'),
+      );
+    }
+  }
+
+  // Submit risk
+  Future<Either<Result<RiskResultModel>, ApiError>> submitRiskAssesment(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/risk-questions/submit",
+        data: data
+
+        
+      );
+
+      createLog(
+        "[Risk Result Remote Data Source] RiskQuestion Response: $resp",
+      );
+
+      if (resp['status'] == true) {
+        final result = RiskResultModel.fromJson(resp);
+        return Left(Result.success(result));
+      } else {
+        return Right(
+          ApiError(message: 'Risk Result Failed: Success was false'),
+        );
+      }
+    } catch (e) {
+      return Right(
+        ApiError(message: 'Risk Result Failed with Exception $e'),
       );
     }
   }
