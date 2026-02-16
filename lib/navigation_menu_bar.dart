@@ -49,7 +49,7 @@ class NavigationMenuBar extends StatelessWidget {
     return Scaffold(
       body: Row(
         children: [
-          if (isDesktop || isTablet)
+          if (isDesktop)
             _DesktopSideNav(isDesktop: isDesktop, isTablet: isTablet),
 
           Expanded(
@@ -60,7 +60,7 @@ class NavigationMenuBar extends StatelessWidget {
         ],
       ),
 
-      bottomNavigationBar: (isDesktop || isTablet)
+      bottomNavigationBar: (isDesktop)
           ? null
           : const _MobileBottomNavBar(),
     );

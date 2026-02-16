@@ -1,8 +1,14 @@
 
 
+import 'dart:typed_data';
+
 import 'package:dartz/dartz.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
+import 'package:my_sip/features/kyc/domain/entity/bank_verification_entity.dart';
+import 'package:my_sip/features/kyc/domain/entity/execute_poi_step2_entity.dart';
+import 'package:my_sip/features/kyc/domain/entity/file_upload_entity.dart';
+import 'package:my_sip/features/kyc/domain/entity/poi_step_1_entity.dart';
 import 'package:my_sip/features/kyc/domain/repository/kyc_repository.dart';
 import 'package:my_sip/features/personalization/domain/entity/bank_entity.dart';
 
@@ -32,6 +38,153 @@ class KycRepositoryImpl extends KycRepository{
           });
     } catch(e){
       return Right(ApiError(message: 'Get Bank Failed $e'));
+    }
+  }
+
+  @override
+  Future<Either<Result<ExecutePOIStep1Entity>, ApiError>> executePOIStep1(Map<String, dynamic> data) async {
+    try{
+      final result = await _remoteDataSource.executePOIStep1(data);
+      return  result.fold(
+              (success){
+            if(success.isSuccess){
+              final result = success.data?.toEntity();
+              return Left(Result.success(result));
+            } else {
+              return Right(ApiError(message: 'ExecutePOIStep1 Failed'));
+            }
+          },
+              (error){
+            return Right(ApiError(message: 'ExecutePOIStep1 Failed $error'));
+          });
+    } catch(e){
+      return Right(ApiError(message: 'ExecutePOIStep1 Failed $e'));
+    }
+  }
+
+  @override
+  Future<Either<Result<ExecutePOIStep2Entity>, ApiError>> executePOIStep2(Map<String, dynamic> data) async {
+    try{
+      final result = await _remoteDataSource.executePOIStep2(data);
+      return  result.fold(
+              (success){
+            if(success.isSuccess){
+              final result = success.data?.toEntity();
+              return Left(Result.success(result));
+            } else {
+              return Right(ApiError(message: 'ExecutePOIStep2 Failed'));
+            }
+          },
+              (error){
+            return Right(ApiError(message: 'ExecutePOIStep2 Failed $error'));
+          });
+    } catch(e){
+      return Right(ApiError(message: 'ExecutePOIStep2 Failed $e'));
+    }
+  }
+
+  @override
+  Future<Either<Result<String>, ApiError>> updateForm(Map<String, dynamic> data) async {
+    try{
+      final result = await _remoteDataSource.updateForm(data);
+      return  result.fold(
+              (success){
+            if(success.isSuccess){
+              final result = success.data;
+              return Left(Result.success(result));
+            } else {
+              return Right(ApiError(message: 'updateForm Failed'));
+            }
+          },
+              (error){
+            return Right(ApiError(message: 'updateForm Failed $error'));
+          });
+    } catch(e){
+      return Right(ApiError(message: 'updateForm Failed $e'));
+    }
+  }
+
+  @override
+  Future<Either<Result<ExecutePOIStep2Entity>, ApiError>> executePOA(Map<String, dynamic> data) async {
+    try{
+      final result = await _remoteDataSource.executePOA(data);
+      return  result.fold(
+              (success){
+            if(success.isSuccess){
+              final result = success.data?.toEntity();
+              return Left(Result.success(result));
+            } else {
+              return Right(ApiError(message: 'executePOA Failed'));
+            }
+          },
+              (error){
+            return Right(ApiError(message: 'executePOA Failed $error'));
+          });
+    } catch(e){
+      return Right(ApiError(message: 'executePOA Failed $e'));
+    }
+  }
+
+  @override
+  Future<Either<Result<BankVerificationEntity>, ApiError>> executePennyDrop(Map<String, dynamic> data) async {
+    try{
+      final result = await _remoteDataSource.executePennyDrop(data);
+      return  result.fold(
+              (success){
+            if(success.isSuccess){
+              final result = success.data?.toEntity();
+              return Left(Result.success(result));
+            } else {
+              return Right(ApiError(message: 'executePennyDrop Failed'));
+            }
+          },
+              (error){
+            return Right(ApiError(message: 'executePennyDrop Failed $error'));
+          });
+    } catch(e){
+      return Right(ApiError(message: 'executePennyDrop Failed $e'));
+    }
+  }
+
+  @override
+  Future<Either<Result<FileEntity>, ApiError>> uploadToSignZy(Map<String, String> data, List<Uint8List> files, List<String> fileNames) async {
+    try{
+      final result = await _remoteDataSource.uploadToSignZy(data, files,fileNames);
+      return  result.fold(
+              (success){
+            if(success.isSuccess){
+              final result = success.data?.toEntity();
+              return Left(Result.success(result));
+            } else {
+              return Right(ApiError(message: 'uploadToSignZy Failed'));
+            }
+          },
+              (error){
+            return Right(ApiError(message: 'uploadToSignZy Failed $error'));
+          });
+    } catch(e){
+      return Right(ApiError(message: 'uploadToSignZy Failed $e'));
+    }
+  }
+
+  @override
+  Future<Either<Result<Uint8List?>, ApiError>> getCaptcha(Map<String, dynamic> data) async {
+    try{
+      final result = await _remoteDataSource.getCaptcha(data);
+      return  result.fold(
+              (success){
+            if(success.isSuccess){
+              final result = success.data;
+              return Left(Result.success(result));
+            } else {
+              return Right(ApiError(message: 'getCaptcha Failed'));
+            }
+          },
+              (error){
+            return Right(ApiError(message: 'getCaptcha Failed $error'));
+          });
+    } catch(e){
+      return Right(ApiError(message: 'getCaptcha Failed $e'));
     }
   }
 }

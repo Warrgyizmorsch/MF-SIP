@@ -1,8 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
+import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
 import 'package:my_sip/common/widget/text_form/text_field_component.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
@@ -78,10 +80,24 @@ class KycScreen extends GetView<KycController> {
                   offset: const Offset(0, -4))
             ],
           ),
-          child: Obx(
-                () => UElevatedBUtton(
-              onPressed: controller.isLoading.value ? null : controller.onNextTap,
-              child: controller.isLoading.value
+          child: Obx(() {
+            // 1. Check ALL loading states (General + DigiLocker specific)
+            final bool isBusy = controller.isLoading.value ||
+                controller.isExecutingPOIStep1.value ||
+                controller.isExecutingPOIStep2.value;
+
+            // 2. Determine Button Text
+            String buttonText = "Continue";
+            if (controller.currentStep.value == 0) {
+              buttonText = "Verify Identity"; // Specific text for DigiLocker step
+            } else if (controller.currentStep.value == 6) {
+              buttonText = "Finish KYC";
+            }
+
+            return UElevatedBUtton(
+              // Disable button if busy
+              onPressed: isBusy ? null : controller.onNextTap,
+              child: isBusy
                   ? const Center(
                 child: SizedBox(
                   height: 20,
@@ -94,7 +110,7 @@ class KycScreen extends GetView<KycController> {
               )
                   : Center(
                 child: Text(
-                  controller.currentStep.value == 6 ? "Finish KYC" : "Continue",
+                  buttonText,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -102,8 +118,8 @@ class KycScreen extends GetView<KycController> {
                   ),
                 ),
               ),
-            ),
-          ),
+            );
+          }),
         ),
       ),
       // STACK FOR BACKGROUND ANIMATION
@@ -131,35 +147,132 @@ class KycScreen extends GetView<KycController> {
     );
   }
 
-  // --- PAGES (Paste your existing _buildPage methods here unchanged) ---
+  // --- PAGES ---
+
   Widget _buildPage1(KycController controller) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+
+
+    return SingleChildScrollView( // Added to prevent overflow when keyboard opens
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20),
       child: Form(
         key: controller.step1FormKey,
         child: Column(
           children: [
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
             SvgPicture.asset(UImages.appLogo, height: 50),
             const SizedBox(height: 30),
             Text("Verify Your Identity", style: AppTextStyles.h3()),
             const SizedBox(height: 8),
-            Text("PAN verification is mandatory for investments as per SEBI regulations.", textAlign: TextAlign.center, style: AppTextStyles.bodyMediumW500(color: Ucolors.darkgrey)),
+            Text(
+              "PAN verification is mandatory for investments as per SEBI regulations.",
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyMediumW500(color: Ucolors.darkgrey),
+            ),
             const SizedBox(height: 30),
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade200), boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 4))]),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.grey.shade200),
+                boxShadow: [
+                  BoxShadow(color: Colors.grey.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 4))
+                ],
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SelectionPickerWidget(title: "TAX STATUS", options: controller.taxStatusList, selectedValue: controller.selectedTaxStatus),
+                  SelectionPickerWidget(
+                    title: "TAX STATUS",
+                    options: controller.taxStatusList,
+                    selectedValue: controller.selectedTaxStatus,
+                  ),
                   const SizedBox(height: 24),
-                  Obx(() => CustomTextField(validationType: ValidationType.required, label: "PAN Number", height: 70, controller: controller.panTextEditingController, hint: "Ex: ABCDE1234F", keyboardType: controller.panKeyboardType.value, inputFormatters: [PanCardFormatter()], leading: const Icon(Icons.credit_card, size: 20, color: Colors.grey))),
+                  // PAN Field (Wrapped in Obx ONLY if controller.panKeyboardType is an observable)
+                  Obx(() => CustomTextField(
+                    validationType: ValidationType.required,
+                    label: "PAN Number",
+                    height: 70,
+                    controller: controller.panTextEditingController,
+                    hint: "Ex: ABCDE1234F",
+                    keyboardType: controller.panKeyboardType.value,
+                    inputFormatters: [PanCardFormatter()],
+                    leading: const Icon(Icons.credit_card, size: 20, color: Colors.grey),
+                  )),
+
+                  const SizedBox(height: 24),
+
+                  // --- CAPTCHA SECTION START ---
+                  Text("Security Check", style: AppTextStyles.bodySmall(color: Ucolors.darkgrey)),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      // Captcha Image Box
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: Obx(() {
+                            if (controller.isLoadingCaptcha.value) {
+                              return const Center(child: SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2)));
+                            }
+                            if (controller.captchaImage.value != null) {
+                              return ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.memory(
+                                  controller.captchaImage.value!,
+                                  fit: BoxFit.contain, // Ensures image fits within box
+                                  gaplessPlayback: true, // Prevents flickering on refresh
+                                ),
+                              );
+                            }
+                            return const Center(child: Text("Tap refresh", style: TextStyle(fontSize: 10, color: Colors.grey)));
+                          }),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      // Refresh Button
+                      InkWell(
+                        onTap: () => controller.getCaptcha(),
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          height: 50,
+                          width: 50,
+                          decoration: BoxDecoration(
+                            color: Ucolors.blue.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(Icons.refresh, color: Ucolors.blue),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16), // Add spacing between image and text field
+
+                  // Captcha Text Field (Removed Obx as it's likely not needed here unless properties change dynamically)
+                  CustomTextField(
+                    validationType: ValidationType.required,
+                    label: "Captcha Text",
+                    height: 70,
+                    controller: controller.captchaTextEditingController,
+                    hint: "Enter code",
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(6), // Usually captchas are 4-6 chars
+                    ],
+                    leading: const Icon(Icons.security, size: 20, color: Colors.grey),
+                  ),
+                  // --- CAPTCHA SECTION END ---
                 ],
               ),
             ),
             const SizedBox(height: 24),
             _buildSecurityFooter(),
+            const SizedBox(height: 30), // Bottom padding
           ],
         ),
       ),
@@ -222,17 +335,42 @@ class KycScreen extends GetView<KycController> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade200), boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 4))]),
               child: Column(
+                spacing: 10,
                 children: [
-                  CustomTextField(validationType: ValidationType.required, height: 60, label: "Full Name (As Per Pan)", hint: ""),
-                  const SizedBox(height: 20),
-                  _buildPicker(context, "Occupation", controller.occupationList, controller.occupationTextEditingController),
-                  const SizedBox(height: 20),
+                  CustomTextField(validationType: ValidationType.required, height: 60, label: "Full Name (As Per Pan)", hint: "", controller: controller.nameTextEditingController,),
+                  CustomTextField(validationType: ValidationType.required, height: 60, label: "Father Name", hint: "", controller: controller.fatherNameTextEditingController,),
+                  CustomTextField(validationType: ValidationType.required, height: 60, label: "Mother Name", hint: "", controller: controller.motherNameTextEditingController,),
+
+                  Obx(() => Column(
+                    children: [
+                      _buildPicker(
+                        context,
+                        "Occupation",
+                        controller.occupationList,
+                        controller.occupationTextEditingController,
+                        // Update the observable when user selects an item
+                        onChanged: (val) => controller.selectedOccupation.value = val,
+                      ),
+
+                      // Check the observable variable for immediate UI update
+                      if (controller.selectedOccupation.value == "Other")
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10.0), // Add spacing
+                          child: CustomTextField(
+                            validationType: ValidationType.required,
+                            height: 60,
+                            label: "Specify Occupation", // Changed label to avoid confusion
+                            hint: "Enter Your Occupation",
+                            controller: controller.occupationOtherTextEditingController,
+                          ),
+                        ),
+                    ],
+                  )),
                   _buildPicker(context, "Wealth Source", controller.wealthSourceList, controller.wealthSourceTextEditingController),
-                  const SizedBox(height: 20),
+
                   _buildPicker(context, "Income Slab", controller.incomeSlabList, controller.incomeSlabTextEditingController),
-                  const SizedBox(height: 20),
+
                   CustomTextField(validationType: ValidationType.required, height: 60, label: "Address", maxLines: 2, controller: controller.addressTextEditingController, textInputAction: TextInputAction.done),
-                  const SizedBox(height: 20),
                   CustomTextField(height: 60, label: "PIN Code", maxLines: 2, controller: controller.pinCodeTextEditingController, textInputAction: TextInputAction.done, validationType: ValidationType.required, inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(6)]),
                 ],
               ),
@@ -299,7 +437,7 @@ class KycScreen extends GetView<KycController> {
                 children: [
                   SelectionPickerWidget(title: "SELECT DOCUMENT TYPE", options: controller.nomineeDocumentSelectionList, selectedValue: controller.selectedNomineeDocument),
                   const SizedBox(height: 24),
-                  Obx(() => CustomTextField(validationType: ValidationType.required, height: 60, label: "Nominee ${controller.selectedNomineeDocument}", hint: "Ex: ABCDE1234F", keyboardType: controller.panKeyboardType.value, inputFormatters: [PanCardFormatter()], controller: controller.nomineeSelectedDocumentTextEditingController)),
+                  Obx(() => CustomTextField(validationType: ValidationType.required, height: 60, label: "Nominee ${controller.selectedNomineeDocument}", hint: "Ex: ABCDE1234F", keyboardType: controller.panKeyboardType.value,   inputFormatters:  controller.selectedNomineeDocument.value == "Pan" ? [ PanCardFormatter()] : null, controller: controller.nomineeSelectedDocumentTextEditingController)),
                   const SizedBox(height: 20),
                   CustomTextField(validationType: ValidationType.required, label: "Nominee Address", hint: "Enter Full Address", height: 60, maxLines: 2, textInputAction: TextInputAction.done, controller: controller.nomineeAddressTextEditingController),
                   const SizedBox(height: 20),
@@ -387,14 +525,130 @@ class KycScreen extends GetView<KycController> {
           const SizedBox(height: 30),
           Text("Upload Documents", style: AppTextStyles.h3()),
           const SizedBox(height: 40),
+
+          // --- UPLOAD AREA START ---
           Material(
             color: Colors.transparent,
-            child: InkWell(
-              onTap: () { print("Upload clicked"); },
-              borderRadius: BorderRadius.circular(20),
-              child: Container(width: double.infinity, height: 200, decoration: BoxDecoration(color: Ucolors.blue.withOpacity(0.05), borderRadius: BorderRadius.circular(20), border: Border.all(color: Ucolors.blue.withOpacity(0.4), width: 1.5)), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Ucolors.blue.withOpacity(0.1), blurRadius: 10, spreadRadius: 2)]), child: Icon(Icons.cloud_upload_outlined, size: 40, color: Ucolors.blue)), const SizedBox(height: 16), Text("Upload Bank Signature", style: AppTextStyles.bodyMediumW500(color: Ucolors.blue)), const SizedBox(height: 8), Text("Supports: JPG, PNG (Max 5MB)", style: TextStyle(color: Colors.grey.shade600, fontSize: 12))])),
-            ),
+            child: Obx(() {
+              // 1. LOADING STATE
+              if (controller.isUploadingSignature.value) {
+                return Container(
+                  width: double.infinity,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    color: Ucolors.blue.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Ucolors.blue.withOpacity(0.4), width: 1.5),
+                  ),
+                  child: const Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              // 2. SUCCESS STATE (Show Image)
+              if (controller.signatureUploadSuccess.value &&
+                  controller.signatureUploadResponse.value != null) {
+                return InkWell(
+                  // Optional: Allow re-upload on tap
+                  onTap: () => controller.pickAndUploadSignature(),
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    width: double.infinity,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.green, width: 2),
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+
+                        CustomCachedImage(imageUrl: controller.signatureUploadResponse.value!.directURL),
+                        // Display Image from URL
+                        // ClipRRect(
+                        //   borderRadius: BorderRadius.circular(18),
+                        //   child: Image.network(
+                        //     // REPLACE 'directUrl' with your actual model property
+                        //     controller.signatureUploadResponse.value!.directURL,
+                        //     width: double.infinity,
+                        //     height: double.infinity,
+                        //     fit: BoxFit.cover,
+                        //     loadingBuilder: (ctx, child, loadingProgress) {
+                        //       if (loadingProgress == null) return child;
+                        //       return const Center(child: CupertinoActivityIndicator());
+                        //     },
+                        //     errorBuilder: (context, error, stackTrace) =>
+                        //     const Icon(Icons.broken_image, color: Colors.grey, size: 50),
+                        //   ),
+                        // ),
+                        // Success Overlay
+                        Container(
+                          color: Colors.black.withOpacity(0.3),
+                          child: const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.check_circle, color: Colors.green, size: 50),
+                                SizedBox(height: 8),
+                                Text(
+                                    "Signature Verified",
+                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+                                ),
+                                Text(
+                                    "(Tap to change)",
+                                    style: TextStyle(color: Colors.white70, fontSize: 10)
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              // 3. DEFAULT STATE (Upload Button)
+              return InkWell(
+                onTap: () => controller.pickAndUploadSignature(),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  width: double.infinity,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    color: Ucolors.blue.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Ucolors.blue.withOpacity(0.4), width: 1.5),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(color: Ucolors.blue.withOpacity(0.1), blurRadius: 10, spreadRadius: 2)
+                          ],
+                        ),
+                        child: const Icon(Icons.cloud_upload_outlined, size: 40, color: Ucolors.blue),
+                      ),
+                      const SizedBox(height: 16),
+                      Text("Upload Bank Signature", style: AppTextStyles.bodyMediumW500(color: Ucolors.blue)),
+                      const SizedBox(height: 8),
+                      Text(
+                          "Supports: JPG, PNG (Max 5MB)",
+                          style: TextStyle(color: Colors.grey.shade600, fontSize: 12)
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
           ),
+          // --- UPLOAD AREA END ---
+
           const SizedBox(height: 100),
           _buildSecurityFooter(),
           const SizedBox(height: 30),
@@ -404,9 +658,20 @@ class KycScreen extends GetView<KycController> {
   }
 
   // --- HELPERS ---
-  Widget _buildPicker(BuildContext context, String title, List<String> items, TextEditingController controller) {
+  Widget _buildPicker(BuildContext context, String title, List<String> items, TextEditingController controller, {Function(String)? onChanged}) {
     return GestureDetector(
-      onTap: () => showSelectionBottomSheet(context: context, title: title, items: items, controller: controller),
+      onTap: () async {
+        await showSelectionBottomSheet(
+            context: context,
+            title: title,
+            items: items,
+            controller: controller
+        );
+        // After bottom sheet closes, trigger the callback with the new value
+        if (onChanged != null) {
+          onChanged(controller.text);
+        }
+      },
       child: CustomTextField(validationType: ValidationType.required, height: 60, controller: controller, enabled: false, label: title, trailing: const Padding(padding: EdgeInsets.all(8.0), child: Icon(Icons.keyboard_arrow_down, color: Colors.grey))),
     );
   }
