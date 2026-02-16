@@ -289,7 +289,7 @@ class KycController extends GetxController {
     try {
       // 1. Pick Image (Requires image_picker package)
       final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      final XFile? image = await picker.pickImage(source: ImageSource.camera);
 
       if (image != null) {
         // 2. Convert to Bytes
