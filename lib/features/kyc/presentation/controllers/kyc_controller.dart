@@ -1,13 +1,25 @@
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:my_sip/features/kyc/domain/entity/file_upload_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/poi_step_1_entity.dart';
 import 'package:my_sip/features/kyc/domain/usecases/kyc_use_cases.dart';
 import 'package:my_sip/services/session_manager.dart';
 import '../../../../common/widget/webview/webview.dart';
 import '../../../personalization/domain/entity/bank_entity.dart';
+import '../../domain/entity/bank_verification_entity.dart';
 import '../../domain/entity/execute_poi_step2_entity.dart';
 
 class KycController extends GetxController {
+
+  @override
+  void onInit() {
+    super.onInit();
+    // TODO: implement onInit
+    getCaptcha();
+  }
   final KycUseCases kycUseCases;
 
   // --- Controllers ---
@@ -37,6 +49,9 @@ class KycController extends GetxController {
   final accountNoController = TextEditingController();
   final ifscController = TextEditingController();
 
+  final isVerifyingBank = false.obs;
+  final verifiedBankName = Rxn<BankVerificationEntity>();
+
   // --- Execute POI step 1 ---
   final isExecutingPOIStep1 = false.obs;
   final executePOIStep1Data = Rxn<ExecutePOIStep1Entity>();
@@ -45,7 +60,16 @@ class KycController extends GetxController {
   final isExecutingPOIStep2 = false.obs;
   final executePOIStep2Data = Rxn<ExecutePOIStep2Entity>();
 
+// --- SIGNATURE UPLOAD STATE ---
+  final signatureImage = Rxn<Uint8List>(); // Store image bytes
+  final isUploadingSignature = false.obs;
+  final signatureUploadSuccess = false.obs; // To track if upload is done
+  final signatureUploadResponse = Rxn<FileEntity>();
 
+// --- CAPTCHA STATE ---
+  final captchaImage = Rxn<Uint8List>();
+  final isLoadingCaptcha = false.obs;
+  final TextEditingController captchaTextEditingController = TextEditingController();
 
 
   final occupationList = ["Business", "Service", "Retired Professional", "Professional", "Other"];
@@ -90,7 +114,10 @@ class KycController extends GetxController {
   final panKeyboardType = TextInputType.name.obs;
 
 
+
   KycController(this.kycUseCases);
+
+
 
 // ===========================================================================
   // CENTRAL NAVIGATION LOGIC
@@ -147,14 +174,40 @@ class KycController extends GetxController {
           Get.snackbar("Error", "Please select a bank");
           return;
         }
+
+        // 1. Validate Form
         if (step5FormKey.currentState!.validate()) {
-          _goToNextPage();
+
+          // 2. Execute Penny Drop Verification
+          final bool isVerified = await executePennydrop();
+
+          // 3. Navigate only if verification passed
+          if (isVerified) {
+            // Optional: Add a small delay for UX so user sees the success snackbar
+            await Future.delayed(const Duration(seconds: 1));
+            _goToNextPage();
+          }
         }
         break;
+      // case 5:
+      // // --- STEP 5: BANK DETAILS ---
+      //   if (selectedBank.value == null) {
+      //     Get.snackbar("Error", "Please select a bank");
+      //     return;
+      //   }
+      //   if (step5FormKey.currentState!.validate()) {
+      //     _goToNextPage();
+      //   }
+      //   break;
 
       case 6:
       // --- STEP 6: FINISH / SUBMIT ---
-      // Add your final submission logic here
+        if (!signatureUploadSuccess.value) {
+          Get.snackbar("Alert", "Please upload your signature first.");
+          return;
+        }
+        // Final Success logic
+        // Get.offAllNamed("/dashboard"); // or show success dialog
         break;
 
       default:
@@ -232,46 +285,97 @@ class KycController extends GetxController {
     }
   }
 
+  Future<void> pickAndUploadSignature() async {
+    try {
+      // 1. Pick Image (Requires image_picker package)
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
+      if (image != null) {
+        // 2. Convert to Bytes
+        final Uint8List imageBytes = await image.readAsBytes();
+        signatureImage.value = imageBytes; // Update UI immediately
 
-  // Future<void> _handlePersonalDetailsSubmission() async {
-  //   try {
-  //     isLoading.value = true;
-  //
-  //     final requestData = {
-  //       "merchantId": "698eb1747a225b001538fe7e",
-  //       "save": "formData",
-  //       "type": 'addressProof',
-  //       "data": {
-  //         "type": "aadhaarDigiLocker",
-  //         "name": nameTextEditingController.text ?? executePOIStep2Data.value?.result.output.name,
-  //         "uid": executePOIStep2Data.value?.result.output.uid,
-  //         "dob": executePOIStep2Data.value?.result.output.dob,
-  //         "gender": executePOIStep2Data.value?.result.output.gender,
-  //         "address": executePOIStep2Data.value?.result.output.address,
-  //         "pincode": executePOIStep2Data.value?.result.output.splitAddress.pincode,
-  //         "city": executePOIStep2Data.value?.result.output.splitAddress.city,
-  //         "state": executePOIStep2Data.value?.result.output.splitAddress.state,
-  //         "district": executePOIStep2Data.value?.result.output.splitAddress.district
-  //       }
-  //     };
-  //
-  //     // Send the Address Data as "addressProof"
-  //     // This saves whatever is currently in your address text controllers
-  //     final bool poaSaved = await updateForm(data: requestData);
-  //
-  //     isLoading.value = false;
-  //
-  //     if (poaSaved) {
-  //       _goToNextPage(); // Move to Additional Info
-  //     }
-  //   } catch (e) {
-  //     isLoading.value = false;
-  //     Get.snackbar("Error", "Unexpected error: $e");
-  //   }
-  // }
+        // 3. Prepare Data for API
+        isUploadingSignature.value = true;
 
+        final fields = {
+          "merchantId": "698eb1747a225b001538fe7e",
+          "type": "signature", // Tagging this as signature
+          "fileType": "jpg" // or png, dynamic based on extension
+        };
 
+        final files = [imageBytes];
+        final fileNames = ["signature.jpg"]; // or use image.name
+
+        // 4. Call API (Replace with your actual UseCase call)
+        // Assuming your UseCase signature matches: call({fields, files, fileNames})
+        final result = await kycUseCases.uploadToSignzyUseCase.call(
+          fields,
+           files,
+       fileNames
+        );
+
+        result.fold(
+                (success) async {
+              isUploadingSignature.value = false;
+              signatureUploadSuccess.value = true;
+              signatureUploadResponse.value = success.data;
+              Get.snackbar("Success", "Signature Uploaded Successfully");
+
+              // 5. CRITICAL: Lock the Bank Details now that Signature is present
+              await _submitFinalBankDetails();
+            },
+                (error) {
+              isUploadingSignature.value = false;
+              Get.snackbar("Error", "Upload Failed: ${error.message}");
+            }
+        );
+      }
+    } catch (e) {
+      isUploadingSignature.value = false;
+      Get.snackbar("Error", "Failed to pick signature: $e");
+    }
+  }
+
+  Future<void> _submitFinalBankDetails() async {
+    try {
+      isLoading.value = true;
+
+      final requestData = {
+        "merchantId": "698eb1747a225b001538fe7e",
+        "service": "nonRoc",
+        "type": "bankaccountverifications",
+        "task": "verifyAmount",
+        "data": {
+          "images": [],
+          "toVerifyData": {},
+          "searchParam": {
+            "amount": "1",
+            "signzyId": verifiedBankName.value?.signzyReferenceId
+          }
+        }
+      };
+
+      final result = await kycUseCases.updateFormUseCase.call(requestData);
+
+      isLoading.value = false;
+
+      result.fold(
+              (success) {
+            Get.snackbar("Success", "Bank Details Verified & Locked!");
+            // Move to Success Screen or Finish Flow
+            // _goToNextPage();
+          },
+              (error) {
+            Get.snackbar("Error", "Final Bank Lock Failed: ${error.message}");
+          }
+      );
+    } catch (e) {
+      isLoading.value = false;
+      Get.snackbar("Error", "Unexpected Error: $e");
+    }
+  }
   Future<void> _handleAdditionalInfoSubmission() async {
     try {
       isLoading.value = true;
@@ -346,22 +450,7 @@ class KycController extends GetxController {
             // ====================================================
             // 1. NOMINEE DETAILS (Your Current Focus)
             // ====================================================
-            // "nomineeName": nomineeNameTextEditingController.text,
             "nomineeRelationShip": nomineeRelationTextEditingController.text.toUpperCase(), // FATHER, SPOUSE, etc.
-            // "nomineeDob": nomineeDateOfBirthTextEditingController.text,
-
-            // Address & ID (Step 4)
-            // "nomineeAddress": nomineeAddressTextEditingController.text,
-            // "nomineePincode": nomineePinCodeTextEditingController.text,
-            // "nomineeIdentificationType": selectedNomineeDocument.value.toUpperCase(),
-            // "nomineeIdentificationNumber": nomineeSelectedDocumentTextEditingController.text,
-
-            // --- NEW: MISSING NOMINEE FIELDS ---
-            // "nomineeAllocationPercentage": "100", // Standard for single nominee
-            // "nomineeMinorFlag": isMinor ? "Y" : "N",
-            // "guardianName": isMinor ? "Guardian Name Here" : "", // Add controller if needed
-            // "guardianRelation": isMinor ? "FATHER" : "",         // Add controller if needed
-
             // ====================================================
             // 2. APPLICANT DETAILS (MANDATORY RE-SEND)
             // ====================================================
@@ -436,12 +525,6 @@ class KycController extends GetxController {
   }
   Future<bool> _submitFatcaData() async {
     try {
-      // Logic: "residentForTaxInIndia" usually means "Is your tax residency ONLY in India?"
-      // OR "Are you a tax resident of a country other than India?"
-      // CHECK YOUR DOCS: Your snippet said "whether a 'resident outside of India'".
-      // If that is the definition:
-      // Resident Indian -> "NO" (I am NOT a resident outside India)
-      // NRI -> "YES"
 
       final isResident = selectedTaxStatus.value.contains("Resident");
       final taxResidentOutsideIndia = isResident ? "NO" : "YES";
@@ -492,7 +575,103 @@ class KycController extends GetxController {
     }
   }
 
+  Future<bool> getCaptcha() async {
+    try {
+      isLoadingCaptcha.value = true;
 
+      final requestData = {
+        "username": "Hinger_icici_preprod",
+        "password": "3uQ01VPPZfyNwCAq"
+      };
+
+      // Call the UseCase (which now returns Uint8List?)
+      final result = await kycUseCases.getCaptchaUseCase.call(requestData);
+
+      return result.fold(
+              (success) {
+            if (success.data != null) {
+              // Update the observable with the image bytes
+              captchaImage.value = success.data;
+              return true;
+            }
+            return false;
+          },
+              (error) {
+            Get.snackbar("Error", "Captcha Failed: ${error.message}");
+            return false;
+          }
+      );
+    } catch (e) {
+      Get.snackbar("Error", "Captcha Error: $e");
+      return false;
+    } finally {
+      isLoadingCaptcha.value = false;
+    }
+  }
+
+  Future<bool> executePennydrop() async {
+    try {
+      // 1. Start Loading
+      isVerifyingBank.value = true;
+      isLoading.value = true; // Block global navigation too
+
+      final requestData = {
+        "merchantId": "698eb1747a225b001538fe7e",
+        "inputData": {
+          "service": "nonRoc",
+          "type": "bankaccountverifications",
+          "task": "bankTransfer",
+          "data": {
+            "searchParam": {
+              "beneficiaryAccount": accountNoController.text,
+              "beneficiaryIFSC": ifscController.text,
+              // Optional: Send name for fuzzy matching if your API supports it
+              // "beneficiaryName": nameTextEditingController.text,
+              // "beneficiaryMobile" : SessionManager.instance.getUserData?.mobile
+            }
+          }
+        }
+      };
+
+      // 2. Call the UseCase (Assuming you have updated it to use the generic executePoiStep1UseCase)
+      // Note: If you created a dedicated 'executePennyDropUseCase' as discussed, use that instead.
+      // Here I am reusing 'executePoiStep1UseCase' as it fits the generic 'execute' pattern.
+      final result = await kycUseCases.executePennyDropUseCase.call(requestData);
+
+      return result.fold(
+            (success) {
+          // 3. Handle Success
+          if (success.data != null && success.data != null) {
+            final output = success.data;
+
+            // // Extract Name (adjust key based on actual API response)
+            // final bankName = output['beneficiaryName'] ??
+            //     output['data']?['beneficiaryName'] ??
+            //     "Verified Account";
+
+            verifiedBankName.value = output;
+            Get.snackbar("Success", "Bank Account Verified: ${verifiedBankName.value?.auditTrail?.value}");
+            return true;
+          } else {
+            Get.snackbar("Error", "Bank verification failed: No data returned");
+            return false;
+          }
+        },
+            (error) {
+          // 4. Handle Failure
+          Get.snackbar("Error", "Pennydrop Failed: ${error.message}");
+          return false;
+        },
+      );
+    } catch (e) {
+      Get.snackbar("Error", "Pennydrop Exception: $e");
+      return false;
+    } finally {
+      // 5. Stop Loading (Critical!)
+      isVerifyingBank.value = false;
+      isLoading.value = false;
+    }
+  }
 
   // ===========================================================================
   // NAVIGATION HELPERS

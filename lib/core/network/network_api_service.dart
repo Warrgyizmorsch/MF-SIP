@@ -46,28 +46,35 @@ class NetworkServicesApi implements BaseApiServices {
   @override
   Future<dynamic> getApi(
       String url, {
+        dynamic data,
         Map<String, dynamic>? queryParameters,
         Map<String, String>? headers,
-        bool isPublic = false, // Added: Option to mark request as public
+        bool isPublic = false,
+        ResponseType? responseType, // <--- NEW PARAMETER
       }) async {
     try {
       final response = await _dio.get(
         url,
         queryParameters: queryParameters,
+        data: data, // Note: GET requests usually don't have body data, but if your API needs it, this is fine.
         options: Options(
           headers: headers,
-          // Pass the public flag to interceptors
+          responseType: responseType, // <--- PASS IT HERE
           extra: {'isPublic': isPublic},
-          // On Web Public GETs: Avoid 'application/json' to prevent preflight if possible
           contentType: (kIsWeb && isPublic) ? Headers.jsonContentType : null,
         ),
       );
+
+      // If we requested bytes, return the data directly (don't run it through JSON parsers)
+      if (responseType == ResponseType.bytes) {
+        return response.data;
+      }
+
       return _handleResponse(response);
     } on DioException catch (e) {
       throw _handleDioError(e);
     }
   }
-
   @override
   Future<dynamic> postApi(
       String url, {
@@ -190,33 +197,43 @@ class NetworkServicesApi implements BaseApiServices {
   // ---------------------------------------------------------------------------
 
   @override
-  Future<dynamic> postMultipart(
-      String url,
-      Map<String, String> fields,
-      List<Uint8List> files,
-      List<String> fileNames, {
-        Map<String, String>? headers,
-      }) async {
+  Future<dynamic> postMultipart({
+    required String url,
+    required Map<String, dynamic> fields,
+    required List<Uint8List> files,
+    required List<String> fileNames,
+    Map<String, String>? headers,
+    String? fileFieldName,
+    String? contentType,
+  }) async {
+    final actualFileField = fileFieldName ?? 'attachments';
+    final actualContentType = contentType ?? 'multipart/form-data';
+
+    assert(files.length == fileNames.length,
+    'files and fileNames length must match');
+
     try {
       final formData = FormData();
 
-      // Add text fields
       fields.forEach((key, value) {
         formData.fields.add(MapEntry(key, value));
       });
 
-      // Add files
       for (int i = 0; i < files.length; i++) {
-        final mime = lookupMimeType(fileNames[i]) ?? "application/octet-stream";
+        final mime =
+            lookupMimeType(fileNames[i]) ?? 'application/octet-stream';
         final mimeType = mime.split('/');
 
         formData.files.add(
           MapEntry(
-            'attachments',
+            actualFileField,
             MultipartFile.fromBytes(
               files[i],
               filename: fileNames[i],
-              contentType: DioMediaType(mimeType[0], mimeType[1]),
+              contentType: DioMediaType(
+                mimeType[0],
+                mimeType.length > 1 ? mimeType[1] : 'octet-stream',
+              ),
             ),
           ),
         );
@@ -226,7 +243,7 @@ class NetworkServicesApi implements BaseApiServices {
         url,
         data: formData,
         options: Options(
-          contentType: 'multipart/form-data',
+          contentType: actualContentType,
           headers: headers,
         ),
       );
@@ -236,6 +253,8 @@ class NetworkServicesApi implements BaseApiServices {
       throw _handleDioError(e);
     }
   }
+
+
 
   // ---------------------------------------------------------------------------
   // S3 UPLOAD (DIRECT PUT)
