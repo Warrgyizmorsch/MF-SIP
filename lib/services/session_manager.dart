@@ -3,6 +3,8 @@ import 'dart:convert'; // Required for jsonEncode/jsonDecode
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_disposable.dart';
 import 'package:my_sip/features/authentication/data/models/auth_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:my_sip/features/personalization/domain/entity/risk_result_entity.dart';
@@ -10,27 +12,28 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/authentication/domain/entitites/auth_entity.dart';
 
-class SessionManager {
+class SessionManager extends GetxService {
   SessionManager._internal();
 
   static final SessionManager _instance = SessionManager._internal();
   static SessionManager get instance => _instance;
 
-  final FlutterSecureStorage? _secureStorage = kIsWeb
-      ? null
-      : const FlutterSecureStorage();
+  final FlutterSecureStorage? _secureStorage =
+  kIsWeb ? null : const FlutterSecureStorage();
   SharedPreferences? _prefs;
 
   String? userId;
   String? jwtAccessToken;
   String? jwtRefreshToken;
-  RiskResultModel? _riskScore;
+
+  // --- REPLACED: _riskScore is now backed by an Rx Variable ---
+  final Rxn<RiskResultModel> riskScoreObs = Rxn<RiskResultModel>();
 
   // Store as UserEntity object in memory
   UserModel? _userData;
 
   final StreamController<String?> _controller =
-      StreamController<String?>.broadcast();
+  StreamController<String?>.broadcast();
   Stream<String?> get accessTokenStream => _controller.stream;
 
   Future<void> initialize() async {
@@ -39,27 +42,28 @@ class SessionManager {
       jwtAccessToken = _prefs?.getString('jwtAccessToken');
       jwtRefreshToken = _prefs?.getString('jwtRefreshToken');
       userId = _prefs?.getString('userId');
-    final   riskScoreString = _prefs?.getString('riskScore');
 
-    if(riskScoreString != null ){
+      final riskScoreString = _prefs?.getString('riskScore');
+
+      if (riskScoreString != null) {
         try {
-          // Assuming UserEntity has a fromJson factory or method
-          _riskScore = RiskResultModel.fromJson(jsonDecode(riskScoreString));
+          final loadedScore =
+          RiskResultModel.fromJson(jsonDecode(riskScoreString));
+          // Update Observable
+          riskScoreObs.value = loadedScore;
         } catch (e) {
-          createLog("Error parsing user data on web: $e");
+          debugPrint("Error parsing risk score on web: $e");
         }
       }
-    
 
       // 1. Read string
       final userJsonString = _prefs?.getString('userData');
       // 2. Convert String -> JSON -> UserEntity
       if (userJsonString != null) {
         try {
-          // Assuming UserEntity has a fromJson factory or method
           _userData = UserModel.fromJson(jsonDecode(userJsonString));
         } catch (e) {
-          createLog("Error parsing user data on web: $e");
+          debugPrint("Error parsing user data on web: $e");
         }
       }
     } else {
@@ -68,40 +72,32 @@ class SessionManager {
   }
 
   Future<bool> saveRiskScore(RiskResultModel? riskScore) async {
-    this._riskScore = riskScore;
+    // Update the Observable immediately to trigger UI updates
+    riskScoreObs.value = riskScore;
 
     // Convert UserEntity -> JSON -> String
     String? riskDataString;
     if (riskScore != null) {
-      // Assuming UserEntity has a toJson method
-      riskDataString = riskScore != null ? jsonEncode(riskScore.toJson()) : null;
+      riskDataString = jsonEncode(riskScore.toJson());
     }
+
     if (kIsWeb) {
-            await _ensurePrefsInitialized();
-
-    //    if (userData != null) {
-    //   // Assuming UserEntity has a toJson method
-    //   userDataString = userData != null ? jsonEncode(userData.toJson()) : null;
-    // }
-
-
+      await _ensurePrefsInitialized();
       if (riskDataString != null) {
         await _prefs!.setString('riskScore', riskDataString);
         return true;
       } else {
         await _prefs!.remove('riskScore');
-                return false;
-
+        return false;
       }
     } else {
+      // Mobile (Secure Storage)
       if (riskDataString != null) {
         await _secureStorage!.write(key: "riskScore", value: riskDataString);
-                return true;
-
+        return true;
       } else {
         await _secureStorage!.delete(key: "riskScore");
-                return false;
-
+        return false;
       }
     }
   }
@@ -110,7 +106,6 @@ class SessionManager {
     required String? jwtAccessToken,
     String? jwtRefreshToken,
     String? userId,
-
     UserModel? userData,
   }) async {
     this.jwtAccessToken = jwtAccessToken;
@@ -121,8 +116,7 @@ class SessionManager {
     // Convert UserEntity -> JSON -> String
     String? userDataString;
     if (userData != null) {
-      // Assuming UserEntity has a toJson method
-      userDataString = userData != null ? jsonEncode(userData.toJson()) : null;
+      userDataString = jsonEncode(userData.toJson());
     }
 
     if (kIsWeb) {
@@ -152,7 +146,7 @@ class SessionManager {
         await _prefs!.remove('userData');
       }
     } else {
-      createLog("Storing in flutter secure storage for mobile");
+      debugPrint("Storing in flutter secure storage for mobile");
 
       if (jwtAccessToken != null) {
         await _secureStorage!.write(
@@ -190,6 +184,7 @@ class SessionManager {
 
   Future<void> getSession() async {
     String? userDataString;
+    String? riskScoreString;
 
     if (kIsWeb) {
       await _ensurePrefsInitialized();
@@ -197,11 +192,13 @@ class SessionManager {
       jwtRefreshToken = _prefs?.getString('jwtRefreshToken');
       userId = _prefs?.getString('userId');
       userDataString = _prefs?.getString('userData');
+      riskScoreString = _prefs?.getString('riskScore');
     } else {
       jwtAccessToken = await _secureStorage?.read(key: 'jwtAccessToken');
       jwtRefreshToken = await _secureStorage?.read(key: 'jwtRefreshToken');
       userId = await _secureStorage?.read(key: 'userId');
       userDataString = await _secureStorage?.read(key: 'userData');
+      riskScoreString = await _secureStorage?.read(key: 'riskScore');
     }
 
     // Convert String -> UserEntity
@@ -209,7 +206,18 @@ class SessionManager {
       try {
         _userData = UserModel.fromJson(jsonDecode(userDataString));
       } catch (e) {
-        createLog("Error parsing user data: $e");
+        debugPrint("Error parsing user data: $e");
+      }
+    }
+
+    // Convert String -> RiskResultModel
+    if (riskScoreString != null) {
+      try {
+        final loadedScore =
+        RiskResultModel.fromJson(jsonDecode(riskScoreString));
+        riskScoreObs.value = loadedScore;
+      } catch (e) {
+        debugPrint("Error parsing risk score: $e");
       }
     }
   }
@@ -219,7 +227,9 @@ class SessionManager {
     jwtRefreshToken = null;
     userId = null;
     _userData = null;
-    _riskScore = null;
+
+    // Clear Observable
+    riskScoreObs.value = null;
 
     if (kIsWeb) {
       await _ensurePrefsInitialized();
@@ -227,8 +237,8 @@ class SessionManager {
         _prefs!.remove('jwtAccessToken'),
         _prefs!.remove('jwtRefreshToken'),
         _prefs!.remove('userId'),
+        _prefs!.remove('userData'), // Added missing removal
         _prefs!.remove('riskScore'),
-
       ]);
     } else {
       await Future.wait([
@@ -237,7 +247,6 @@ class SessionManager {
         _secureStorage!.delete(key: 'userId'),
         _secureStorage!.delete(key: 'userData'),
         _secureStorage!.delete(key: 'riskScore'),
-
       ]);
     }
 
@@ -245,7 +254,6 @@ class SessionManager {
   }
 
   Future<void> updateAccessToken(String? token) async {
-    // Pass the existing _userData object
     await setSession(
       jwtAccessToken: token,
       jwtRefreshToken: jwtRefreshToken,
@@ -281,16 +289,18 @@ class SessionManager {
   String? get getAccessToken => jwtAccessToken;
   String? get getRefreshToken => jwtRefreshToken;
 
-  // Getter now returns the Object, not a String
   UserModel? get getUserData => _userData;
 
-  RiskResultModel? get getRiskScore => _riskScore;
+  // Getter now returns the value of the Observable
+  RiskResultModel? get getRiskScore => riskScoreObs.value;
 
   bool isAuthenticated() {
     return jwtAccessToken != null && jwtAccessToken!.isNotEmpty;
   }
 
-  void dispose() {
+  // No need to manually dispose streams in a singleton service usually,
+  // but if you do:
+  void disposeStream() {
     _controller.close();
   }
 }

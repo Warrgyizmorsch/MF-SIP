@@ -11,7 +11,8 @@
   <component name="ChangeListManager">
     <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="add web updates">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/kyc/presentation/controllers/kyc_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/kyc/presentation/controllers/kyc_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/presentation/pages/profile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/pages/profile.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/services/session_manager.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/session_manager.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

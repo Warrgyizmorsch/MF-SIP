@@ -483,7 +483,6 @@ class Listtilecustom extends StatelessWidget {
     );
   }
 }
-
 class Upgradebanner extends StatelessWidget {
   const Upgradebanner({super.key});
 
@@ -493,71 +492,72 @@ class Upgradebanner extends StatelessWidget {
     final sz = MediaQuery.of(context).size;
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
-    // Assuming getRiskScore returns the RiskResultModel instance
-    // or you parse it from session storage here.
-    final riskData = session.getRiskScore;
+    // WRAP IN OBX FOR REAL-TIME UPDATES
+    return Obx(() {
+      // Accessing the reactive getter triggers the listener
+      final riskData = session.getRiskScore;
 
-    return riskData == null
-        ? UElevatedBUtton(
-            onPressed: () => Get.toNamed(AppRoutes.riskProfile),
-            height: isDesktop ? 80 : sz.height * 0.08,
-            child: Center(
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Colors.amber,
-                  backgroundImage: AssetImage(UImages.crown),
-                ),
-                title: SubtitleText(
-                  fontWeight: FontWeight.w600,
-                  textcolor: Ucolors.light,
-                  subtitle: 'Check Your Risk Profile Now!',
-                  textAlignCenter: TextAlign.left,
-                ),
-                trailing: const Icon(
-                  Icons.arrow_forward_ios,
-                  color: Ucolors.light,
-                ),
+      return riskData == null
+          ? UElevatedBUtton(
+        onPressed: () => Get.toNamed(AppRoutes.riskProfile),
+        height: isDesktop ? 80 : sz.height * 0.08,
+        child: Center(
+          child: ListTile(
+            leading: const CircleAvatar(
+              backgroundColor: Colors.amber,
+              backgroundImage: AssetImage(UImages.crown),
+            ),
+            title: SubtitleText(
+              fontWeight: FontWeight.w600,
+              textcolor: Ucolors.light,
+              subtitle: 'Check Your Risk Profile Now!',
+              textAlignCenter: TextAlign.left,
+            ),
+            trailing: const Icon(
+              Icons.arrow_forward_ios,
+              color: Ucolors.light,
+            ),
+          ),
+        ),
+      )
+          : UElevatedBUtton(
+        // Allow users to re-take the test/refresh if they wish
+        onPressed: () => Get.toNamed(AppRoutes.riskProfile),
+        height: isDesktop ? 80 : sz.height * 0.08,
+        color: Ucolors.blue, // 'Completed' state color
+        child: Center(
+          child: ListTile(
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: Colors.white24,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.verified_user, color: Colors.white),
+            ),
+            title: SubtitleText(
+              fontWeight: FontWeight.w400,
+              textcolor: Ucolors.light.withOpacity(0.8),
+              subtitle: 'Your Risk Profile',
+              textAlignCenter: TextAlign.left,
+            ),
+            subtitle: Text(
+              "${riskData.profileName} (${riskData.totalScore}/150)",
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
               ),
             ),
-          )
-        : UElevatedBUtton(
-            // Allow users to re-take the test if they wish
-            onPressed: () => Get.toNamed(AppRoutes.riskProfile),
-            height: isDesktop ? 80 : sz.height * 0.08,
-            color:
-                Ucolors.blue, // Optional: Different color for 'Completed' state
-            child: Center(
-              child: ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Colors.white24,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.verified_user, color: Colors.white),
-                ),
-                title: SubtitleText(
-                  fontWeight: FontWeight.w400,
-                  textcolor: Ucolors.light.withOpacity(0.8),
-                  subtitle: 'Your Risk Profile',
-                  textAlignCenter: TextAlign.left,
-                ),
-                subtitle: Text(
-                  "${riskData.profileName} (${riskData.totalScore}/150)",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-                trailing: const Icon(
-                  Icons.refresh,
-                  color: Ucolors.light,
-                  size: 20,
-                ),
-              ),
+            trailing: const Icon(
+              Icons.refresh,
+              color: Ucolors.light,
+              size: 20,
             ),
-          );
+          ),
+        ),
+      );
+    });
   }
 }
 
