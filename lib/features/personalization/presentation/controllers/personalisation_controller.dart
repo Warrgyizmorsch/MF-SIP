@@ -2,8 +2,12 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
+import 'package:my_sip/features/personalization/data/model/risk_submit_rq.dart';
 import 'package:my_sip/features/personalization/domain/entity/risk_question_entity.dart';
+import 'package:my_sip/features/personalization/domain/entity/risk_result_entity.dart';
 import 'package:my_sip/features/personalization/domain/usecases/personalisation_use_cases.dart';
+import 'package:my_sip/services/session_manager.dart';
 
 import '../../domain/entity/risk_entity.dart';
 
@@ -258,6 +262,7 @@ class PersonalisationController extends GetxController {
   final selectedAnswers = <int, int>{}.obs; // Key: QuestionID, Value: OptionID
   final currentQuestionIndex = 0.obs;
   final analysisText = "Analyzing your profile...".obs;
+  final riskResult = Rxn<RiskResultModel>();
 
   // --- UI Controllers ---
   final PageController pageController = PageController();
@@ -338,7 +343,45 @@ class PersonalisationController extends GetxController {
     // Navigate to results (Total score logic can be added here)
     // Get.offNamed('/risk-result');
     log(selectedAnswers.toString());
+    await submitAssessment();
     Get.back();
+    isAnalyzing.value = false;
+    currentQuestionIndex.value = 0;
+    selectedAnswers.clear();
+  }
+
+  Future<void> submitAssessment() async {
+    isAnalyzing(true);
+
+    // Convert Map<int, int> selectedAnswers to List<Map<String, int>>
+    final answersList = selectedAnswers.entries
+        .map((e) => {"question_id": e.key, "option_id": e.value})
+        .toList();
+
+    final request = RiskSubmitRequest(
+      userId: SessionManager.instance.getUserData?.id ?? 0,
+      // Replace with your actual logged-in user ID
+      answers: answersList,
+    ).toJson();
+
+    // Call your submit usecase
+    final result = await _useCases.riskSubmitUsecases.call(request);
+
+    result.fold(
+      (entity) async {
+       final data = await SessionManager.instance.saveRiskScore(entity.data);
+       if(data== true){
+        riskResult.value = entity.data;
+        
+       }
+        // Small delay to let the 'Analyzing' animation finish naturally
+
+      },
+      (failure) {
+        isAnalyzing(false);
+        Get.snackbar("Error", "Submission failed. Please try again.");
+      },
+    );
   }
 
   @override
