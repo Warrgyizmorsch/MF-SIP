@@ -2193,7 +2193,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                 GroupedPerformanceBarChart(data: returnss),
                                 const SizedBox(height: 10),
                                 Text(
-                                  "Returns vs Benchmark vs Category",
+                                  "Returns vs Benchmark",
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey.shade500,

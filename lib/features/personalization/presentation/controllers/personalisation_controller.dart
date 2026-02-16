@@ -347,7 +347,7 @@ class PersonalisationController extends GetxController {
     Get.back();
     isAnalyzing.value = false;
     currentQuestionIndex.value = 0;
-    selectedAnswers.clear();
+    // selectedAnswers.clear();
   }
 
   Future<void> submitAssessment() async {
@@ -369,13 +369,11 @@ class PersonalisationController extends GetxController {
 
     result.fold(
       (entity) async {
-       final data = await SessionManager.instance.saveRiskScore(entity.data);
-       if(data== true){
-        riskResult.value = entity.data;
-        
-       }
+        final data = await SessionManager.instance.saveRiskScore(entity.data);
+        if (data == true) {
+          riskResult.value = entity.data;
+        }
         // Small delay to let the 'Analyzing' animation finish naturally
-
       },
       (failure) {
         isAnalyzing(false);

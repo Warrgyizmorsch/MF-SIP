@@ -9,8 +9,6 @@ import 'package:my_sip/features/authentication/data/models/auth_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:my_sip/features/personalization/domain/entity/risk_result_entity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:my_sip/core/utils/helper/helpers.dart';
-import 'package:my_sip/features/authentication/domain/entitites/auth_entity.dart';
 
 class SessionManager extends GetxService {
   SessionManager._internal();
