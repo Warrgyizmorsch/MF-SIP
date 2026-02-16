@@ -1,20 +1,25 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class HtmlWebViewPage extends StatefulWidget {
   final String title;
   final String? htmlContent;
   final String? url;
+  final String? successUrlTrigger;
 
   const HtmlWebViewPage({
     super.key,
     this.title = '',
     this.htmlContent,
     this.url,
+    this.successUrlTrigger = "signzy",
   }) : assert(
          htmlContent != null || url != null,
          'Either htmlContent or url must be provided',
@@ -27,31 +32,67 @@ class HtmlWebViewPage extends StatefulWidget {
 class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
   late final WebViewController _controller;
   bool _isLoading = true; // Loader state
+   bool result = false;
+
 
   @override
   void initState() {
     super.initState();
 
+
+
+
+
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
-        NavigationDelegate(
-          onPageStarted: (url) {
-            setState(() {
-              _isLoading = true;
-            });
-          },
-          onPageFinished: (url) {
-            setState(() {
-              _isLoading = false;
-            });
-          },
-          onWebResourceError: (error) {
-            setState(() {
-              _isLoading = false;
-            });
-          },
-        ),
+          NavigationDelegate(
+    onPageStarted: (url) {
+    setState(() => _isLoading = true);
+    },
+    onPageFinished: (url) {
+    setState(() => _isLoading = false);
+    },
+            onNavigationRequest: (NavigationRequest request) {
+              final url = request.url;
+
+              // 1. DEFINED SUCCESS URL (The base part)
+              // We only care if the actual loaded page is this one.
+              final successBaseUrl = "https://digilocker-preproduction.signzy.tech/digilocker-auth-complete";
+              // 2. CHECK: Does the current navigation START with the success URL?
+              // This fails for the initial "api.digitallocker.gov.in" URL (Correct!)
+              // This passes ONLY when the flow redirects to "signzy.tech/..." (Correct!)
+              if (url.startsWith(successBaseUrl)) {
+                setState(() => _isLoading = true);
+
+                // // Success! The user has been redirected.
+                // if (mounted) {
+                //   Get.back(result: true);
+                // }
+                setState(() => result = true);
+                createLog("Success caled ${result}");
+
+                // return NavigationDecision.prevent; // Stop loading the JSON/Success page
+              }
+
+              // 3. Optional: Check for failures (denied, cancelled)
+              if (url.contains("access_denied") || url.contains("error")) {
+                if (mounted) {
+                  Get.back(result: false);
+                }
+                return NavigationDecision.prevent;
+              }
+
+              // Allow normal navigation (clicking buttons, logging in)
+              return NavigationDecision.navigate;
+            },
+            onWebResourceError: (error) {
+              setState(() {
+                _isLoading = false;
+              });
+            },
+          )
+
       );
 
     if (widget.url != null && widget.url!.isNotEmpty) {
@@ -195,6 +236,12 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        leading: IconButton(onPressed: () {
+          createLog("Success Result ${result}");
+
+          Get.back(result: result);
+
+        }, icon: Icon(Icons.arrow_back_ios)),
         titleSpacing: -10.0,
         backgroundColor: Colors.white,
         centerTitle: true,
