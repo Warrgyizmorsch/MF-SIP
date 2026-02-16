@@ -3,6 +3,7 @@ import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/features/personalization/data/model/bank_model.dart';
+import 'package:my_sip/features/personalization/data/model/risk_question_model.dart';
 
 import '../../../../core/network/network_api_service.dart';
 import '../../../../core/utils/helper/helpers.dart';
@@ -40,28 +41,32 @@ class PersonalisationRemoteDataSource {
     }
   }
 
-  // Future<Either<Result<BankListResponseModel>, ApiError>> getBank(
-  //   Map<String, dynamic> data,
-  // ) async {
-  //   try {
-  //     final resp = await _apiService.postFormData(
-  //       "${Appurl.baseUrl}/api/v1/banks",
-  //       data,
-  //     );
-  //     createLog(
-  //       "[Personalisation Remote Data Source] BankListResponseModel Response: ${resp.body}",
-  //     );
-  //     if (resp.statusCode == 200) {
-  //       final result = BankListResponseModel.fromJson(resp.body);
+  // Risk Questions  Questions
 
-  //       return Left(Result.success(result));
-  //     } else {
-  //       return Right(ApiError(message: 'BankListResponseModel Failed'));
-  //     }
-  //   } catch (e) {
-  //     return Right(
-  //       ApiError(message: 'BankListResponseModel Failed with Exception $e'),
-  //     );
-  //   }
-  // }
+  Future<Either<Result<RiskQuestionModel>, ApiError>> getQuestions(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final resp = await _apiService.getApi(
+        "${Appurl.baseUrl}/api/v1/risk-questions",
+      );
+
+      createLog(
+        "[Risk Questions Remote Data Source] RiskQuestion Response: $resp",
+      );
+
+      if (resp['status'] == true) {
+        final result = RiskQuestionModel.fromJson(resp);
+        return Left(Result.success(result));
+      } else {
+        return Right(
+          ApiError(message: 'Risk Questions Failed: Success was false'),
+        );
+      }
+    } catch (e) {
+      return Right(
+        ApiError(message: 'Risk Questions Failed with Exception $e'),
+      );
+    }
+  }
 }

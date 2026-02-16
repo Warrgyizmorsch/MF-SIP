@@ -955,7 +955,7 @@ class _WebExploreLayout extends StatelessWidget {
                       icon: const Icon(Iconsax.shopping_cart),
                       hoverColor: Ucolors.primary.withOpacity(0.1),
                     ),
-                    if (cartController.itemsCount > 0)
+                    if (cartController.itemsCount1 > 0)
                       Positioned(
                         right: 5,
                         top: 5,
@@ -966,7 +966,7 @@ class _WebExploreLayout extends StatelessWidget {
                             shape: BoxShape.circle,
                           ),
                           child: Text(
-                            cartController.itemsCount.toString(),
+                            cartController.itemsCount1.toString(),
                             style: const TextStyle(
                               fontSize: 10,
                               color: Colors.white,
@@ -1361,7 +1361,7 @@ class _MobileExploreLayout extends StatelessWidget {
             actionsPadding: 15,
             action: [
               Obx(() {
-                final count = cartController.itemsCount;
+                final count = cartController.itemsCount1;
                 return Stack(
                   children: [
                     CompactIcon(
@@ -1643,8 +1643,9 @@ class MutualFundCard extends StatelessWidget {
                             case FundMenuAction.addToCart:
                               await controller.addToCart(
                                 entity.schemeCode ?? '',
+                                entity.baseSchemeName ?? '',
                               );
-                              await controller.fetchCart();
+                              // await controller.fetchCart();
 
                               // controller.addItem(
                               //   CartItem(
@@ -1653,17 +1654,17 @@ class MutualFundCard extends StatelessWidget {
                               //     logoUrl: entity.amc?.amcLogoUrl ?? '',
                               //   ),
                               // );
-                              Get.snackbar(
-                                'Add to cart',
-                                entity.baseSchemeName.toString(),
-                                margin: const EdgeInsets.symmetric(
-                                  vertical: 15,
-                                  horizontal: 15,
-                                ),
-                                colorText: Ucolors.light,
-                                snackPosition: SnackPosition.BOTTOM,
-                                backgroundColor: Ucolors.primary,
-                              );
+                              // Get.snackbar(
+                              //   'Add to cart',
+                              //   entity.baseSchemeName.toString(),
+                              //   margin: const EdgeInsets.symmetric(
+                              //     vertical: 15,
+                              //     horizontal: 15,
+                              //   ),
+                              //   colorText: Ucolors.light,
+                              //   snackPosition: SnackPosition.BOTTOM,
+                              //   backgroundColor: Ucolors.primary,
+                              // );
                               break;
 
                             case FundMenuAction.buySIP:

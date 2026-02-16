@@ -144,6 +144,6 @@ class UBinding extends Bindings {
     // Goal controller
     Get.lazyPut(() => GoalSipController(), fenix: true);
 
-    Get.lazyPut(() => PersonalisationController());
+    // Get.lazyPut(() => PersonalisationController(Get.find()));
   }
 }

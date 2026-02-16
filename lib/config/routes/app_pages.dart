@@ -41,9 +41,9 @@ import 'app_routes.dart';
 class AppPages {
   static pages() => [
     GetPage(name: AppRoutes.splash, page: () => const SplashScreen()),
-    GetPage(name: AppRoutes.home, page: () =>  HomeScreen(),),
+    GetPage(name: AppRoutes.home, page: () => HomeScreen()),
     GetPage(
-      binding: UBinding(),
+      bindings: [UBinding(), PersonalisationBinding(), Bankbinding()],
       name: AppRoutes.navMenuBar,
       page: () => const NavigationMenuBar(),
     ),
@@ -90,7 +90,7 @@ class AppPages {
     GetPage(
       name: AppRoutes.startSipScreen,
       page: () => const MonthlySipScreen(),
-      binding: SipProcessBinding()
+      binding: SipProcessBinding(),
     ),
 
     GetPage(
@@ -138,7 +138,11 @@ class AppPages {
     ),
 
     GetPage(name: AppRoutes.paymentScreen, page: () => PaymentScreen()),
-    GetPage(name: AppRoutes.kycScreen, page: () => KycScreen(), binding: KycBindings()),
+    GetPage(
+      name: AppRoutes.kycScreen,
+      page: () => KycScreen(),
+      binding: KycBindings(),
+    ),
     GetPage(name: AppRoutes.webView, page: () => HtmlWebViewPage()),
   ];
 }

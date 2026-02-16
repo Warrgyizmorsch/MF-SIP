@@ -16,7 +16,17 @@ class CartController extends GetxController {
     fetchCart();
   }
 
-  int get totalAmount => cartResponseEntity.value?.cart?.totalAmount ?? 0;
+  // int get totalAmount => cartResponseEntity.value?.cart?.totalAmount ?? 0;
+
+  // Getters
+  int get totalAmount {
+    if (cartResponseEntity.value == null) return 0;
+    // Calculate total locally for instant UI updates
+    return cartResponseEntity.value!.items.fold(
+      0,
+      (sum, item) => sum + (item.amount ?? 0),
+    );
+  }
 
   int get itemsCount => cartResponseEntity.value?.items.length ?? 0;
 
@@ -59,15 +69,43 @@ class CartController extends GetxController {
     items.removeWhere((e) => e.fundName == name);
   }
 
+  /// ---------------- Cart -----------  /////
+  final RxInt optimisticBadgeCount = 0.obs;
+
+  @override
+  int get itemsCount1 {
+    int serverCount = cartResponseEntity.value?.items.length ?? 0;
+    return serverCount + optimisticBadgeCount.value;
+  }
+
   // int get itemsCount => items.length;
 
   /// 🔥 TOTAL AMOUNT (auto reactive)
   int get totolAmount1 => items.fold(0, (sum, item) => sum + item.amount.value);
 
-  // Add to cart
+  /*// Add to cart
   Future<void> addToCart(String schemeCode) async {
     log(SessionManager.instance.getUserData!.id.toString());
+
+    // 1. DUPLICATE CHECK: Verify if fund already exists in local state
+    bool alreadyInCart =
+        cartResponseEntity.value?.items.any(
+          (item) => item.schemeCode.toString() == schemeCode,
+        ) ??
+        false;
+
+    if (alreadyInCart) {
+      showCustomToast(
+        title: "Already in Cart",
+        message: 'schemeName',
+        backgroundColor: Colors.orange.shade700,
+        icon: Icons.info_outline,
+      );
+      return; // Stop execution here
+    }
+
     try {
+      optimisticBadgeCount.value++;
       await cartUsecases.addToCartUsecases.call({
         "user_id": SessionManager.instance.getUserData!.id,
         "scheme_code": schemeCode,
@@ -77,6 +115,83 @@ class CartController extends GetxController {
       });
     } catch (e) {
       log("Add to Cart Error: $e");
+    }
+  }
+   */
+  // Add to cart with duplicate check and custom toast
+  Future<void> addToCart(String schemeCode, String schemeName) async {
+    // 1. DUPLICATE CHECK: Verify if fund already exists in local state
+    bool alreadyInCart =
+        cartResponseEntity.value?.items.any(
+          (item) => item.schemeCode.toString() == schemeCode,
+        ) ??
+        false;
+
+    if (alreadyInCart) {
+      showCustomToast(
+        title: "Already in Cart",
+        message: schemeName,
+        backgroundColor: Colors.orange.shade700,
+        icon: Icons.info_outline,
+      );
+      return; // Stop execution here
+    }
+
+    try {
+      // 2. OPTIMISTIC UPDATE: Increment badge count immediately
+      optimisticBadgeCount.value++;
+      showCustomToast(
+        title: "Added to Cart",
+        message: schemeName,
+        backgroundColor: Ucolors.primary,
+        icon: Icons.check_circle_outline,
+      );
+
+      final result = await cartUsecases.addToCartUsecases.call({
+        "user_id": SessionManager.instance.getUserData!.id,
+        "scheme_code": schemeCode,
+        "trans_type": "sip",
+        "amount": 500,
+        "sip_day": 2,
+      });
+
+      result.fold(
+        (success) async {
+          // 3. REFRESH: Get actual data from server
+          await fetchCart();
+
+          // Reset optimistic count once data is synced
+          optimisticBadgeCount.value = 0;
+        },
+        (failure) {
+          _rollbackOptimisticCount();
+          // Check if the backend also reports a duplicate (Safety Check)
+          if (failure.message.toString().contains("already in your cart")) {
+            showCustomToast(
+              title: "Already in Cart",
+              message: schemeName,
+              backgroundColor: Colors.orange.shade700,
+              icon: Icons.info_outline,
+            );
+          } else {
+            showCustomToast(
+              title: "Error",
+              message: failure.message.toString(),
+              backgroundColor: Colors.red.shade700,
+              icon: Icons.error_outline,
+            );
+          }
+        },
+      );
+    } catch (e) {
+      _rollbackOptimisticCount();
+      log("Add to Cart Exception: $e");
+    }
+  }
+
+  void _rollbackOptimisticCount() {
+    if (optimisticBadgeCount.value > 0) {
+      optimisticBadgeCount.value--;
     }
   }
 
@@ -324,6 +439,13 @@ class CartController extends GetxController {
       cartResponseEntity.refresh();
     }
 
+    showCustomToast(
+      title: 'Removed',
+      message: schemeName,
+      backgroundColor: Colors.red,
+      icon: Icons.delete,
+    );
+
     // 2. Background API Call
     final result = await cartUsecases.deleteCartItemUsecases.call({
       "item_id": itemId,
@@ -331,13 +453,14 @@ class CartController extends GetxController {
 
     result.fold(
       (success) async {
-        Get.snackbar(
-          "Removed",
-          schemeName,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Ucolors.red,
-          colorText: Colors.white,
-        );
+        // Get.snackbar(
+        //   "Removed",
+        //   schemeName,
+        //   snackPosition: SnackPosition.BOTTOM,
+        //   backgroundColor: Ucolors.red,
+        //   colorText: Colors.white,
+        // );
+
         await fetchCart(); // Refresh summary/totals
       },
       (failure) {
@@ -347,4 +470,36 @@ class CartController extends GetxController {
       },
     );
   }
+
+  //////  -------------------------  ///////////////////
+}
+
+void showCustomToast({
+  required String title,
+  required String message,
+  required Color backgroundColor,
+  required IconData icon,
+}) {
+  Get.rawSnackbar(
+    titleText: Text(
+      title,
+      style: const TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+        fontSize: 14,
+      ),
+    ),
+    messageText: Text(
+      message,
+      style: const TextStyle(color: Colors.white, fontSize: 12),
+    ),
+    icon: Icon(icon, color: Colors.white, size: 28),
+    backgroundColor: backgroundColor.withOpacity(0.9),
+    borderRadius: 15,
+    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 80),
+    snackPosition: SnackPosition.BOTTOM,
+    duration: const Duration(seconds: 2),
+    isDismissible: true,
+    forwardAnimationCurve: Curves.easeOutBack, // Modern pop effect
+  );
 }

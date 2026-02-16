@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 import 'package:get/get_instance/src/bindings_interface.dart';
+import 'package:my_sip/features/personalization/domain/usecases/get_riskQuestion_use_cases.dart';
+import 'package:my_sip/features/personalization/domain/usecases/personalisation_use_cases.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 
 import '../../../../core/network/network_api_service.dart';
@@ -21,10 +23,17 @@ class PersonalisationBinding extends Bindings {
           () => PersonalisationRepositoryImpl(Get.find()),
     );
 
+    /// --
+    Get.lazyPut(() => GetRiskquestionUseCases(Get.find()));
+
+    Get.lazyPut(() => PersonalisationUseCases(Get.find(), Get.find()));
+
+    
+
     // 4. Register the Use Case
     // Get.lazyPut(() => GetBankUseCases(Get.find()));
 
     // 5. Finally, register the Controller
-    Get.lazyPut(() => PersonalisationController());
+    Get.lazyPut(() => PersonalisationController(Get.find<PersonalisationUseCases>()));
   }
 }

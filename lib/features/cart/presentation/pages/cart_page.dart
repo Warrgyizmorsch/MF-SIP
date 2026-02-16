@@ -66,20 +66,20 @@ class CartPage extends GetView<CartController> {
 
       bottomNavigationBar: SafeArea(
         top: false,
-        child: Obx(
-          () => CartBottomBar(
+        child: Obx(() {
+          final displayAmount = controller.totalAmount.toString();
+          return CartBottomBar(
             goalAmount: controller.items.isEmpty
                 ? '/Monthly'
                 : controller.monthlyAmount.value == 0
                 ? '/Monthly'
                 : '/${controller.monthlyAmount.value.toString()}',
             // amount: controller.totolAmount.toString(),
-            amount:
-                controller.cartResponseEntity.value?.cart?.totalAmount
-                    .toString() ??
-                '0',
+            amount: displayAmount,
+
             ontap: () {
-              if (controller.monthlyAmount.value > controller.totolAmount1) {
+              final totalPayable = controller.totalAmount;
+              if (controller.monthlyAmount.value > totalPayable) {
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
@@ -107,8 +107,8 @@ class CartPage extends GetView<CartController> {
                 log('Inscrease');
               }
             },
-          ),
-        ),
+          );
+        }),
       ),
     );
   }
