@@ -462,8 +462,8 @@ class Listtilecustom extends StatelessWidget {
   final String? images;
   final VoidCallback onTap;
   final bool isLock;
-  final PersonalisationController controller =
-      Get.find<PersonalisationController>();
+  // final PersonalisationController controller =
+  //     Get.find<PersonalisationController>();
 
   @override
   Widget build(BuildContext context) {

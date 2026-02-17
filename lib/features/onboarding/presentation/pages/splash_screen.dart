@@ -51,7 +51,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _checkAuthAndNavigate() async {
     // 1. Initialize Session
-    await SessionManager.instance.initialize();
+    // await SessionManager.instance.initialize();
 
     // 2. Only delay on Mobile
     if (!kIsWeb) {

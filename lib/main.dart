@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:my_sip/my_app.dart';
+import 'package:my_sip/services/session_manager.dart';
 
 import 'core/utils/helper/helpers.dart';
 
 Future<void> main() async {
+
+  await SessionManager.instance.initialize();
+
   try {
 
     // await SessionManager.instance.getSession();

@@ -185,8 +185,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                       Material(
                         color: Colors.transparent,
                         child: Container(
-                          // color: Colors.white,
-                          color: Colors.transparent,
+                          color: Colors.white,
+                          // color: Colors.transparent,
                           child: Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
