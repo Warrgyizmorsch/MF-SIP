@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_disposable.dart';
 import 'package:my_sip/features/authentication/data/models/auth_model.dart';
+import 'package:my_sip/features/kyc/data/model/token_data_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,6 +27,9 @@ class SessionManager extends GetxService {
 
   // --- REPLACED: _riskScore is now backed by an Rx Variable ---
   final Rxn<RiskResultModel> riskScoreObs = Rxn<RiskResultModel>();
+
+  final Rxn<TokenDataModel> todenDataModel = Rxn<TokenDataModel>();
+
 
   // app lock
   final RxBool isAppLockEnabled = false.obs;

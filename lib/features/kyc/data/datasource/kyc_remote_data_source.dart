@@ -326,7 +326,7 @@ class KycRemoteDataSource {
   Future<Either<Result<TokenDataModel>, ApiError>> getData() async {
           try {
             final resp = await _apiService.getApi(
-                "${Appurl.kycUrl}/api/v1/signzy/access-token",
+                "${Appurl.baseUrl}/api/v1/signzy/access-token",
                 // data: data,
                 // headers: {
                 //   'Content-Type':'application/json',

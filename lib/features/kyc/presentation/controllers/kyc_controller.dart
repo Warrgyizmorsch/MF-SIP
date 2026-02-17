@@ -19,6 +19,7 @@ class KycController extends GetxController {
   void onInit() {
     super.onInit();
     // TODO: implement onInit
+    getTokenData();
     getCaptcha();
   }
   final KycUseCases kycUseCases;
@@ -600,12 +601,12 @@ class KycController extends GetxController {
             return false;
           },
               (error) {
-            Get.snackbar("Error", "Captcha Failed: ${error.message}");
+            Get.snackbar("Error", "getTokenData Failed: ${error.message}");
             return false;
           }
       );
     } catch (e) {
-      Get.snackbar("Error", "Captcha Error: $e");
+      Get.snackbar("Error", "getTokenData Error: $e");
       return false;
     } finally {
       isLoadingTokenData.value = false;
