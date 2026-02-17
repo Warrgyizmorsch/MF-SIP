@@ -7,7 +7,6 @@ import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_disposable.dart';
 import 'package:my_sip/features/authentication/data/models/auth_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
-import 'package:my_sip/features/personalization/domain/entity/risk_result_entity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SessionManager extends GetxService {
@@ -16,8 +15,9 @@ class SessionManager extends GetxService {
   static final SessionManager _instance = SessionManager._internal();
   static SessionManager get instance => _instance;
 
-  final FlutterSecureStorage? _secureStorage =
-  kIsWeb ? null : const FlutterSecureStorage();
+  final FlutterSecureStorage? _secureStorage = kIsWeb
+      ? null
+      : const FlutterSecureStorage();
   SharedPreferences? _prefs;
 
   String? userId;
@@ -27,11 +27,14 @@ class SessionManager extends GetxService {
   // --- REPLACED: _riskScore is now backed by an Rx Variable ---
   final Rxn<RiskResultModel> riskScoreObs = Rxn<RiskResultModel>();
 
+  // app lock
+  final RxBool isAppLockEnabled = false.obs;
+
   // Store as UserEntity object in memory
   UserModel? _userData;
 
   final StreamController<String?> _controller =
-  StreamController<String?>.broadcast();
+      StreamController<String?>.broadcast();
   Stream<String?> get accessTokenStream => _controller.stream;
 
   Future<void> initialize() async {
@@ -45,8 +48,9 @@ class SessionManager extends GetxService {
 
       if (riskScoreString != null) {
         try {
-          final loadedScore =
-          RiskResultModel.fromJson(jsonDecode(riskScoreString));
+          final loadedScore = RiskResultModel.fromJson(
+            jsonDecode(riskScoreString),
+          );
           // Update Observable
           riskScoreObs.value = loadedScore;
         } catch (e) {
@@ -64,8 +68,30 @@ class SessionManager extends GetxService {
           debugPrint("Error parsing user data on web: $e");
         }
       }
+
+      // App Lock
+      String? appLockVal;
+      if (kIsWeb) {
+        appLockVal = _prefs?.getString('isAppLockEnabled');
+      } else {
+        appLockVal = await _secureStorage?.read(key: 'isAppLockEnabled');
+      }
+      isAppLockEnabled.value = appLockVal == 'true';
     } else {
       await getSession();
+    }
+  }
+
+  // Method for app lock
+  Future<void> toggleAppLock(bool value) async {
+    isAppLockEnabled.value = value;
+    final valString = value.toString();
+
+    if (kIsWeb) {
+      await _ensurePrefsInitialized();
+      await _prefs!.setString('isAppLockEnabled', valString);
+    } else {
+      await _secureStorage!.write(key: 'isAppLockEnabled', value: valString);
     }
   }
 
@@ -211,8 +237,9 @@ class SessionManager extends GetxService {
     // Convert String -> RiskResultModel
     if (riskScoreString != null) {
       try {
-        final loadedScore =
-        RiskResultModel.fromJson(jsonDecode(riskScoreString));
+        final loadedScore = RiskResultModel.fromJson(
+          jsonDecode(riskScoreString),
+        );
         riskScoreObs.value = loadedScore;
       } catch (e) {
         debugPrint("Error parsing risk score: $e");
