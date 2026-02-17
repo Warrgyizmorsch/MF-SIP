@@ -4,6 +4,7 @@ import 'package:my_sip/features/kyc/domain/usecases/execute_poa_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/execute_poi_step1_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/get_all_banks_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/get_captcha_use_case.dart';
+import 'package:my_sip/features/kyc/domain/usecases/get_token_data_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/update_form_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/upload_to_signZy_use_case.dart';
 
@@ -18,7 +19,8 @@ class KycUseCases {
   final ExecutePennyDropUseCase executePennyDropUseCase;
   final UploadToSignzyUseCase uploadToSignzyUseCase;
   final GetCaptchaUseCase getCaptchaUseCase;
+  final GetTokenDataUseCase getTokenDataUseCase;
 
 
-  KycUseCases({required this.getAllBanksUseCases, required this.executePoiStep1UseCase, required this.executePoiStep2UseCase, required this.updateFormUseCase, required this.executePoaUseCase, required this.executePennyDropUseCase, required this.uploadToSignzyUseCase, required this.getCaptchaUseCase});
+  KycUseCases({required this.getAllBanksUseCases, required this.executePoiStep1UseCase, required this.executePoiStep2UseCase, required this.updateFormUseCase, required this.executePoaUseCase, required this.executePennyDropUseCase, required this.uploadToSignzyUseCase, required this.getCaptchaUseCase, required this.getTokenDataUseCase});
 }

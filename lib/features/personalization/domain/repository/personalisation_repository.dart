@@ -11,5 +11,6 @@ abstract class PersonalisationRepository {
   Future<Either<Result<BankResponseListEntity>,ApiError>>getBanks(Map<String,dynamic> data);
   Future<Either<Result<RiskQuestionEntity>,ApiError>>getRiskQuestions(Map<String,dynamic> data);
   Future<Either<Result<RiskResultModel>,ApiError>> riskSubmitResult(Map<String,dynamic> data);
+  Future<Either<Result<String>, ApiError>> addNominee(Map<String, dynamic> data,);
 
 }

@@ -12,6 +12,7 @@ import 'package:my_sip/features/personalization/data/model/bank_model.dart';
 import '../../../../core/network/network_api_service.dart';
 import '../../../../core/utils/helper/helpers.dart';
 import '../model/poi_step_2_model.dart';
+import '../model/token_data_model.dart';
 
 class KycRemoteDataSource {
   final NetworkServicesApi _apiService;
@@ -317,6 +318,41 @@ class KycRemoteDataSource {
       return Right(
         ApiError(
           message: 'uploadToSignZy Failed with Exception $e',
+        ),
+      );
+    }
+  }
+
+  Future<Either<Result<TokenDataModel>, ApiError>> getData() async {
+          try {
+            final resp = await _apiService.getApi(
+                "${Appurl.kycUrl}/api/v1/signzy/access-token",
+                // data: data,
+                // headers: {
+                //   'Content-Type':'application/json',
+                //   'Authorization':'rmcHJx4i6DCu5BCEXMCxEiaHJIO9nmV4hlqUqFbuotpJlC6Pq1iTSlcBiyiAlsqJ'
+                // }
+            );
+
+            createLog(
+              "[Kyc Remote Data Source] getTokenData Response: $resp",
+            );
+
+            if (resp != null && resp['success'] == true) {
+
+              final result = TokenDataModel.fromJson(resp);
+              return Left(Result.success(result));
+            } else {
+              return Right(
+                ApiError(
+                  message: 'getTokenData Failed: Invalid response structure',
+                ),
+              );
+            }
+    } catch (e) {
+      return Right(
+        ApiError(
+          message: 'getTokenData Failed with Exception $e',
         ),
       );
     }

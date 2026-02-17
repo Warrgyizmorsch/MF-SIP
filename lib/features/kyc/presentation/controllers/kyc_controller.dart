@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:my_sip/features/kyc/data/model/token_data_model.dart';
 import 'package:my_sip/features/kyc/domain/entity/file_upload_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/poi_step_1_entity.dart';
 import 'package:my_sip/features/kyc/domain/usecases/kyc_use_cases.dart';
@@ -70,6 +71,11 @@ class KycController extends GetxController {
   final captchaImage = Rxn<Uint8List>();
   final isLoadingCaptcha = false.obs;
   final TextEditingController captchaTextEditingController = TextEditingController();
+
+// --- Token Data ---
+  final isLoadingTokenData = false.obs;
+  final tokenData = Rxn<TokenDataModel>();
+
 
 
   final occupationList = ["Business", "Service", "Retired Professional", "Professional", "Other"];
@@ -289,7 +295,7 @@ class KycController extends GetxController {
     try {
       // 1. Pick Image (Requires image_picker package)
       final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(source: ImageSource.camera);
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
       if (image != null) {
         // 2. Convert to Bytes
@@ -575,6 +581,37 @@ class KycController extends GetxController {
     }
   }
 
+  Future<bool> getTokenData() async {
+    try {
+      isLoadingTokenData.value = true;
+
+
+      // Call the UseCase (which now returns Uint8List?)
+      final result = await kycUseCases.getTokenDataUseCase.call();
+
+      return result.fold(
+              (success) {
+            if (success.data != null) {
+              // Update the observable with the image bytes
+              tokenData.value = success.data;
+
+              return true;
+            }
+            return false;
+          },
+              (error) {
+            Get.snackbar("Error", "Captcha Failed: ${error.message}");
+            return false;
+          }
+      );
+    } catch (e) {
+      Get.snackbar("Error", "Captcha Error: $e");
+      return false;
+    } finally {
+      isLoadingTokenData.value = false;
+    }
+  }
+
   Future<bool> getCaptcha() async {
     try {
       isLoadingCaptcha.value = true;
@@ -625,9 +662,6 @@ class KycController extends GetxController {
             "searchParam": {
               "beneficiaryAccount": accountNoController.text,
               "beneficiaryIFSC": ifscController.text,
-              // Optional: Send name for fuzzy matching if your API supports it
-              // "beneficiaryName": nameTextEditingController.text,
-              // "beneficiaryMobile" : SessionManager.instance.getUserData?.mobile
             }
           }
         }

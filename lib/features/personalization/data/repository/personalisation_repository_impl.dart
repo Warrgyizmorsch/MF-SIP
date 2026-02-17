@@ -79,4 +79,25 @@ class PersonalisationRepositoryImpl extends PersonalisationRepository{
       return Right(ApiError(message: 'Risk Result Failed $e'));
     }
   }
+
+  @override
+  Future<Either<Result<String>, ApiError>> addNominee(Map<String, dynamic> data) async {
+    try{
+      final result = await _remoteDataSource.addNominee(data);
+      return  result.fold(
+              (success){
+            if(success.isSuccess){
+              final result = success.data;
+              return Left(Result.success(result));
+            } else {
+              return Right(ApiError(message: 'addNominee Failed'));
+            }
+          },
+              (error){
+            return Right(ApiError(message: 'addNominee Failed $error'));
+          });
+    } catch(e){
+      return Right(ApiError(message: 'addNominee Failed $e'));
+    }
+  }
 }

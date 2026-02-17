@@ -10,11 +10,11 @@ import 'package:my_sip/features/cart/domain/usecases/cart_usecases.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 class CartController extends GetxController {
-  @override
-  void onInit() {
-    super.onInit();
-    fetchCart();
-  }
+  // @override
+  // void onInit() {
+  //   super.onInit();
+  //   fetchCart();
+  // }
 
   // int get totalAmount => cartResponseEntity.value?.cart?.totalAmount ?? 0;
 

@@ -8,6 +8,7 @@ import 'package:my_sip/features/personalization/domain/entity/bank_entity.dart';
 
 import '../../../../core/utils/api/api_error.dart';
 import '../../../../core/utils/api/api_result.dart';
+import '../../data/model/token_data_model.dart';
 import '../entity/execute_poi_step2_entity.dart';
 
 abstract class KycRepository {
@@ -19,4 +20,5 @@ abstract class KycRepository {
   Future<Either<Result<String>, ApiError>> updateForm(Map<String, dynamic> data,);
   Future<Either<Result<Uint8List?>, ApiError>> getCaptcha(Map<String, dynamic> data,);
   Future<Either<Result<FileEntity>, ApiError>> uploadToSignZy(Map<String, String> data, List<Uint8List> files, List<String> fileNames,);
+  Future<Either<Result<TokenDataModel>, ApiError>> getData();
 }

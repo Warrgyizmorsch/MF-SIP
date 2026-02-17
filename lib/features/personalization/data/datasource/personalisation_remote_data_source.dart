@@ -72,6 +72,8 @@ class PersonalisationRemoteDataSource {
     }
   }
 
+
+
   // Submit risk
   Future<Either<Result<RiskResultModel>, ApiError>> submitRiskAssesment(
     Map<String, dynamic> data,
@@ -99,6 +101,36 @@ class PersonalisationRemoteDataSource {
     } catch (e) {
       return Right(
         ApiError(message: 'Risk Result Failed with Exception $e'),
+      );
+    }
+  }
+
+
+  // Add Nominee
+  Future<Either<Result<String>, ApiError>> addNominee(
+      Map<String, dynamic> data,
+      ) async {
+    try {
+      final resp = await _apiService.postApi(
+          "${Appurl.baseUrl}/api/v1/nominees",
+          data: data
+      );
+
+      createLog(
+        "[Personalisation Remote Data Source] addNominee Response: $resp",
+      );
+
+      if (resp['status'] == true) {
+        // final result = RiskResultModel.fromJson(resp);
+        return Left(Result.success(resp['message']));
+      } else {
+        return Right(
+          ApiError(message: 'addNominee Failed'),
+        );
+      }
+    } catch (e) {
+      return Right(
+        ApiError(message: 'addNominee Failed with Exception $e'),
       );
     }
   }

@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
+import 'package:my_sip/features/kyc/data/model/token_data_model.dart';
 import 'package:my_sip/features/kyc/domain/entity/bank_verification_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/execute_poi_step2_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/file_upload_entity.dart';
@@ -185,6 +186,27 @@ class KycRepositoryImpl extends KycRepository{
           });
     } catch(e){
       return Right(ApiError(message: 'getCaptcha Failed $e'));
+    }
+  }
+
+  @override
+  Future<Either<Result<TokenDataModel>, ApiError>> getData() async {
+    try{
+      final result = await _remoteDataSource.getData();
+      return  result.fold(
+              (success){
+            if(success.isSuccess){
+              final result = success.data;
+              return Left(Result.success(result));
+            } else {
+              return Right(ApiError(message: 'getData Failed'));
+            }
+          },
+              (error){
+            return Right(ApiError(message: 'getData Failed $error'));
+          });
+    } catch(e){
+      return Right(ApiError(message: 'getData Failed $e'));
     }
   }
 }
