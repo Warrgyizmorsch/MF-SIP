@@ -263,6 +263,7 @@ class PersonalisationController extends GetxController {
   final currentQuestionIndex = 0.obs;
   final analysisText = "Analyzing your profile...".obs;
   final riskResult = Rxn<RiskResultModel>();
+  final applock = false.obs;
 
   // --- UI Controllers ---
   final PageController pageController = PageController();

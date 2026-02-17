@@ -123,7 +123,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 text: TextSpan(
                   children: [
                     TextSpan(
-                      text: 'MY SIP by ',
+                      text: 'MF SIP by ',
                       style: TextStyle(
                         color: Ucolors.blue,
                         fontWeight: FontWeight.bold,

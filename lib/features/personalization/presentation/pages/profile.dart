@@ -35,7 +35,7 @@ class ProfileScreen extends StatelessWidget {
           : null, // Professional Web Grey
       appBar: CustomAppBarNormal(
         title: 'Profile',
-        backIcon: !isDesktop,
+        backIcon: !isDesktop ? false : !isDesktop,
         backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : null,
       ),
       body: isDesktop
@@ -416,6 +416,7 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
             ],
           ),
           Listtilecustom(
+            isLock: true,
             title: 'Applock',
             images: UImages.setting,
             onTap: () {},
@@ -450,15 +451,19 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
 }
 
 class Listtilecustom extends StatelessWidget {
-  const Listtilecustom({
+  Listtilecustom({
     super.key,
     required this.title,
     this.images,
     required this.onTap,
+    this.isLock = false,
   });
   final String title;
   final String? images;
   final VoidCallback onTap;
+  final bool isLock;
+  final PersonalisationController controller =
+      Get.find<PersonalisationController>();
 
   @override
   Widget build(BuildContext context) {
@@ -475,14 +480,27 @@ class Listtilecustom extends StatelessWidget {
           fontWeight: FontWeight.w500,
         ),
       ),
-      trailing: const Icon(
-        Icons.arrow_forward_ios,
-        color: Ucolors.darkgrey,
-        size: 14,
-      ),
+      trailing: !isLock
+          ? const Icon(
+              Icons.arrow_forward_ios,
+              color: Ucolors.darkgrey,
+              size: 14,
+            )
+          : Obx(
+              () => Switch(
+                activeColor: Colors.blue,
+                // value: controller.applock.value,
+                value: SessionManager.instance.isAppLockEnabled.value,
+                onChanged: (bool value) {
+                  // controller.applock.toggle();
+                  SessionManager.instance.toggleAppLock(value);
+                },
+              ),
+            ),
     );
   }
 }
+
 class Upgradebanner extends StatelessWidget {
   const Upgradebanner({super.key});
 
@@ -499,64 +517,64 @@ class Upgradebanner extends StatelessWidget {
 
       return riskData == null
           ? UElevatedBUtton(
-        onPressed: () => Get.toNamed(AppRoutes.riskProfile),
-        height: isDesktop ? 80 : sz.height * 0.08,
-        child: Center(
-          child: ListTile(
-            leading: const CircleAvatar(
-              backgroundColor: Colors.amber,
-              backgroundImage: AssetImage(UImages.crown),
-            ),
-            title: SubtitleText(
-              fontWeight: FontWeight.w600,
-              textcolor: Ucolors.light,
-              subtitle: 'Check Your Risk Profile Now!',
-              textAlignCenter: TextAlign.left,
-            ),
-            trailing: const Icon(
-              Icons.arrow_forward_ios,
-              color: Ucolors.light,
-            ),
-          ),
-        ),
-      )
+              onPressed: () => Get.toNamed(AppRoutes.riskProfile),
+              height: isDesktop ? 80 : sz.height * 0.08,
+              child: Center(
+                child: ListTile(
+                  leading: const CircleAvatar(
+                    backgroundColor: Colors.amber,
+                    backgroundImage: AssetImage(UImages.crown),
+                  ),
+                  title: SubtitleText(
+                    fontWeight: FontWeight.w600,
+                    textcolor: Ucolors.light,
+                    subtitle: 'Check Your Risk Profile Now!',
+                    textAlignCenter: TextAlign.left,
+                  ),
+                  trailing: const Icon(
+                    Icons.arrow_forward_ios,
+                    color: Ucolors.light,
+                  ),
+                ),
+              ),
+            )
           : UElevatedBUtton(
-        // Allow users to re-take the test/refresh if they wish
-        onPressed: () => Get.toNamed(AppRoutes.riskProfile),
-        height: isDesktop ? 80 : sz.height * 0.08,
-        color: Ucolors.blue, // 'Completed' state color
-        child: Center(
-          child: ListTile(
-            leading: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: const BoxDecoration(
-                color: Colors.white24,
-                shape: BoxShape.circle,
+              // Allow users to re-take the test/refresh if they wish
+              onPressed: () => Get.toNamed(AppRoutes.riskProfile),
+              height: isDesktop ? 80 : sz.height * 0.08,
+              color: Ucolors.blue, // 'Completed' state color
+              child: Center(
+                child: ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: Colors.white24,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.verified_user, color: Colors.white),
+                  ),
+                  title: SubtitleText(
+                    fontWeight: FontWeight.w400,
+                    textcolor: Ucolors.light.withOpacity(0.8),
+                    subtitle: 'Your Risk Profile',
+                    textAlignCenter: TextAlign.left,
+                  ),
+                  subtitle: Text(
+                    "${riskData.profileName} (${riskData.totalScore}/150)",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  trailing: const Icon(
+                    Icons.refresh,
+                    color: Ucolors.light,
+                    size: 20,
+                  ),
+                ),
               ),
-              child: const Icon(Icons.verified_user, color: Colors.white),
-            ),
-            title: SubtitleText(
-              fontWeight: FontWeight.w400,
-              textcolor: Ucolors.light.withOpacity(0.8),
-              subtitle: 'Your Risk Profile',
-              textAlignCenter: TextAlign.left,
-            ),
-            subtitle: Text(
-              "${riskData.profileName} (${riskData.totalScore}/150)",
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-            trailing: const Icon(
-              Icons.refresh,
-              color: Ucolors.light,
-              size: 20,
-            ),
-          ),
-        ),
-      );
+            );
     });
   }
 }
