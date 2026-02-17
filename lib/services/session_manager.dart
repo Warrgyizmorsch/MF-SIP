@@ -15,6 +15,7 @@ class SessionManager extends GetxService {
 
   static final SessionManager _instance = SessionManager._internal();
   static SessionManager get instance => _instance;
+  TokenDataModel? get getTokenData => tokenDataModel.value;
 
   final FlutterSecureStorage? _secureStorage = kIsWeb
       ? null
@@ -25,10 +26,9 @@ class SessionManager extends GetxService {
   String? jwtAccessToken;
   String? jwtRefreshToken;
 
-  // --- REPLACED: _riskScore is now backed by an Rx Variable ---
   final Rxn<RiskResultModel> riskScoreObs = Rxn<RiskResultModel>();
 
-  final Rxn<TokenDataModel> todenDataModel = Rxn<TokenDataModel>();
+  final Rxn<TokenDataModel> tokenDataModel = Rxn<TokenDataModel>();
 
 
   // app lock
@@ -47,6 +47,20 @@ class SessionManager extends GetxService {
       jwtAccessToken = _prefs?.getString('jwtAccessToken');
       jwtRefreshToken = _prefs?.getString('jwtRefreshToken');
       userId = _prefs?.getString('userId');
+
+
+      final tokenDataString = _prefs?.getString('tokenData');
+      if (tokenDataString != null) {
+        try {
+          final loadedData = TokenDataModel.fromJson(
+            jsonDecode(tokenDataString),
+          );
+          // Update Observable
+          tokenDataModel.value = loadedData;
+        } catch (e) {
+          debugPrint("Error parsing tokenData on web: $e");
+        }
+      }
 
       final riskScoreString = _prefs?.getString('riskScore');
 
@@ -130,6 +144,38 @@ class SessionManager extends GetxService {
     }
   }
 
+
+  Future<bool> saveTokenData(TokenDataModel? data) async {
+    // 1. Update the Observable immediately
+    tokenDataModel.value = data;
+
+    // 2. Convert to String
+    String? dataString;
+    if (data != null) {
+      dataString = jsonEncode(data.toJson());
+    }
+
+    // 3. Persist to Storage
+    if (kIsWeb) {
+      await _ensurePrefsInitialized();
+      if (dataString != null) {
+        await _prefs!.setString('tokenData', dataString);
+        return true;
+      } else {
+        await _prefs!.remove('tokenData');
+        return false;
+      }
+    } else {
+      // Mobile (Secure Storage)
+      if (dataString != null) {
+        await _secureStorage!.write(key: "tokenData", value: dataString);
+        return true;
+      } else {
+        await _secureStorage!.delete(key: "tokenData");
+        return false;
+      }
+    }
+  }
   Future<void> setSession({
     required String? jwtAccessToken,
     String? jwtRefreshToken,
@@ -213,6 +259,7 @@ class SessionManager extends GetxService {
   Future<void> getSession() async {
     String? userDataString;
     String? riskScoreString;
+    String? tokenDataString;
 
     if (kIsWeb) {
       await _ensurePrefsInitialized();
@@ -221,14 +268,25 @@ class SessionManager extends GetxService {
       userId = _prefs?.getString('userId');
       userDataString = _prefs?.getString('userData');
       riskScoreString = _prefs?.getString('riskScore');
+      tokenDataString = _prefs?.getString('tokenData');
     } else {
+      String? appLockVal = await _secureStorage?.read(key: 'isAppLockEnabled');
+      if (appLockVal != null) isAppLockEnabled.value = appLockVal == 'true';
       jwtAccessToken = await _secureStorage?.read(key: 'jwtAccessToken');
       jwtRefreshToken = await _secureStorage?.read(key: 'jwtRefreshToken');
       userId = await _secureStorage?.read(key: 'userId');
       userDataString = await _secureStorage?.read(key: 'userData');
       riskScoreString = await _secureStorage?.read(key: 'riskScore');
+      tokenDataString = await _secureStorage?.read(key: 'tokenData');
     }
 
+    if(tokenDataString != null){
+      try {
+        tokenDataModel.value = TokenDataModel.fromJson(jsonDecode(tokenDataString));
+      } catch (e) {
+        debugPrint("Error parsing TokenDataModel: $e");
+      }
+    }
     // Convert String -> UserEntity
     if (userDataString != null) {
       try {
@@ -260,6 +318,8 @@ class SessionManager extends GetxService {
     // Clear Observable
     riskScoreObs.value = null;
 
+    tokenDataModel.value = null;
+
     if (kIsWeb) {
       await _ensurePrefsInitialized();
       await Future.wait([
@@ -268,6 +328,7 @@ class SessionManager extends GetxService {
         _prefs!.remove('userId'),
         _prefs!.remove('userData'), // Added missing removal
         _prefs!.remove('riskScore'),
+        _prefs!.remove('tokenData'),
       ]);
     } else {
       await Future.wait([
@@ -276,6 +337,7 @@ class SessionManager extends GetxService {
         _secureStorage!.delete(key: 'userId'),
         _secureStorage!.delete(key: 'userData'),
         _secureStorage!.delete(key: 'riskScore'),
+        _secureStorage!.delete(key: 'tokenData'),
       ]);
     }
 

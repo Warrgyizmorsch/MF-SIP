@@ -18,9 +18,27 @@ class KycController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // TODO: implement onInit
-    getTokenData();
-    getCaptcha();
+    _initializeApp();
+  }
+
+  /// Wrapper to ensure sequential execution
+  Future<void> _initializeApp() async {
+    // 1. (Optional) Block the UI while initializing
+    isLoading.value = true;
+
+    // 2. Await Token Data FIRST
+    final bool tokenSuccess = await getTokenData();
+
+    // 3. Only proceed if token data was successfully fetched
+    if (tokenSuccess) {
+      // Now it is safe to call other APIs that might need the token
+      await getCaptcha();
+    } else {
+      Get.snackbar("Error While Initiating KYC Process", "Please try Later....");
+    }
+
+    // 4. Unblock UI
+    isLoading.value = false;
   }
   final KycUseCases kycUseCases;
 
@@ -81,7 +99,7 @@ class KycController extends GetxController {
 
   final occupationList = ["Business", "Service", "Retired Professional", "Professional", "Other"];
   final selectedOccupation = "".obs;
-  final wealthSourceList = ["Salary", "Business Income", "Gift", "Ancestral Property" "Rental Income", "Prize money", "Royalty","Other"];
+  final wealthSourceList = ["Salary", "Business Income", "Gift", "Ancestral Property", "Rental Income", "Prize money", "Royalty","Other"];
   final incomeSlabList = ["Below 1 Lakh", "1 Lacs - 5 Lacs", "5 Lacs - 10 Lacs" ,"10 Lacs - 25 Lacs", "25 Lacs - 1 Cr.", "Above 1 Cr."];
   final nomineeRelationList = ['Father',  'Spouse',];
   final nomineeDocumentSelectionList = ["Pan", "Aadhaar", "Driving License", "Passport"];
@@ -585,17 +603,14 @@ class KycController extends GetxController {
   Future<bool> getTokenData() async {
     try {
       isLoadingTokenData.value = true;
-
-
       // Call the UseCase (which now returns Uint8List?)
       final result = await kycUseCases.getTokenDataUseCase.call();
-
       return result.fold(
-              (success) {
+              (success) async {
             if (success.data != null) {
               // Update the observable with the image bytes
               tokenData.value = success.data;
-
+             await SessionManager.instance.saveTokenData(tokenData.value);
               return true;
             }
             return false;

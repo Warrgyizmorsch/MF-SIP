@@ -19,6 +19,16 @@ class TokenDataModel {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'success': success,
+      'message': message,
+      'id': id,
+      'userId': userId,
+      'credentials': credentials.toJson(),
+    };
+  }
+
 }
 
 class TokenCredentialModel {
@@ -35,5 +45,12 @@ class TokenCredentialModel {
       username: json.parse<String>('username') ?? '',
       password: json.parse<String>('password') ?? '',
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'username': username,
+      'password': password,
+    };
   }
 }

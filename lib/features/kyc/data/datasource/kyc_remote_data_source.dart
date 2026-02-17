@@ -9,6 +9,7 @@ import 'package:my_sip/features/kyc/data/model/bank_verification_model.dart';
 import 'package:my_sip/features/kyc/data/model/file_upload_model.dart';
 import 'package:my_sip/features/kyc/data/model/poi_step_1_model.dart';
 import 'package:my_sip/features/personalization/data/model/bank_model.dart';
+import 'package:my_sip/services/session_manager.dart';
 import '../../../../core/network/network_api_service.dart';
 import '../../../../core/utils/helper/helpers.dart';
 import '../model/poi_step_2_model.dart';
@@ -16,8 +17,9 @@ import '../model/token_data_model.dart';
 
 class KycRemoteDataSource {
   final NetworkServicesApi _apiService;
+  final SessionManager sessionManager;
 
-  KycRemoteDataSource(this._apiService);
+  KycRemoteDataSource(this._apiService, this.sessionManager);
 
   Future<Either<Result<BankListResponseModel>, ApiError>> getAllBanks(
       Map<String, dynamic> data,
@@ -56,7 +58,7 @@ class KycRemoteDataSource {
         data: data,
        headers:    {
             'Content-Type':'application/json',
-            'Authorization':'rmcHJx4i6DCu5BCEXMCxEiaHJIO9nmV4hlqUqFbuotpJlC6Pq1iTSlcBiyiAlsqJ'
+            'Authorization': sessionManager.getTokenData?.id ?? ''
           }
       );
 
@@ -95,7 +97,7 @@ class KycRemoteDataSource {
         data: data,
         headers: {
           'Content-Type':'application/json',
-          'Authorization':'rmcHJx4i6DCu5BCEXMCxEiaHJIO9nmV4hlqUqFbuotpJlC6Pq1iTSlcBiyiAlsqJ'
+          'Authorization': sessionManager.getTokenData?.id ?? ''
         }
 
       );
@@ -136,7 +138,7 @@ class KycRemoteDataSource {
           data: data,
           headers: {
             'Content-Type':'application/json',
-            'Authorization':'rmcHJx4i6DCu5BCEXMCxEiaHJIO9nmV4hlqUqFbuotpJlC6Pq1iTSlcBiyiAlsqJ'
+            'Authorization': sessionManager.getTokenData?.id ?? ''
           }
 
       );
@@ -174,7 +176,7 @@ class KycRemoteDataSource {
           data: data,
           headers: {
             'Content-Type':'application/json',
-            'Authorization':'rmcHJx4i6DCu5BCEXMCxEiaHJIO9nmV4hlqUqFbuotpJlC6Pq1iTSlcBiyiAlsqJ'
+            'Authorization': sessionManager.getTokenData?.id ?? ''
           }
       );
 
@@ -212,7 +214,7 @@ class KycRemoteDataSource {
           data: data,
           headers: {
             'Content-Type':'application/json',
-            'Authorization':'rmcHJx4i6DCu5BCEXMCxEiaHJIO9nmV4hlqUqFbuotpJlC6Pq1iTSlcBiyiAlsqJ'
+            'Authorization': sessionManager.getTokenData?.id ?? ''
           }
       );
 
@@ -295,8 +297,7 @@ class KycRemoteDataSource {
         files: files,
         fileNames: fileNames,
         headers: {
-          'Authorization':
-          'rmcHJx4i6DCu5BCEXMCxEiaHJIO9nmV4hlqUqFbuotpJlC6Pq1iTSlcBiyiAlsqJ',
+          'Authorization': sessionManager.getTokenData?.id ?? ''
         },
       );
 
@@ -357,6 +358,4 @@ class KycRemoteDataSource {
       );
     }
   }
-
-
 }

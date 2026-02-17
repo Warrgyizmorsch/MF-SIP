@@ -13,13 +13,19 @@ import 'package:my_sip/features/kyc/domain/usecases/update_form_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/upload_to_signZy_use_case.dart';
 import 'package:my_sip/features/kyc/presentation/controllers/kyc_controller.dart';
 
+import '../../../../services/session_manager.dart';
 import '../../domain/usecases/execute_poi_step1_use_case.dart';
 import '../../domain/usecases/execute_poi_step2_use_case.dart';
 
 class KycBindings extends Bindings{
   @override
-  void dependencies() {
-    Get.lazyPut(() => KycRemoteDataSource(Get.find<NetworkServicesApi>()));
+  Future<void> dependencies() async {
+    Get.put(SessionManager.instance);
+    await Get.putAsync<SessionManager>(() async {
+      final session = SessionManager.instance;
+      await session.initialize();
+      return session;
+    });
     Get.lazyPut(() => KycRepositoryImpl(Get.find<KycRemoteDataSource>()));
     Get.lazyPut(() => GetAllBanksUseCases(Get.find<KycRepositoryImpl>()));
     Get.lazyPut(() => ExecutePoiStep1UseCase(kycRepository: Get.find<KycRepositoryImpl>()));

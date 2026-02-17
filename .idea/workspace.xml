@@ -10,10 +10,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="add web updates">
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/features/kyc/data/datasource/kyc_remote_data_source.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/kyc/data/datasource/kyc_remote_data_source.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/kyc/data/model/token_data_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/kyc/data/model/token_data_model.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/kyc/presentation/binding/kyc_bindings.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/kyc/presentation/binding/kyc_bindings.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/features/kyc/presentation/controllers/kyc_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/kyc/presentation/controllers/kyc_controller.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/services/session_manager.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/session_manager.dart" afterDir="false" />
     </list>
