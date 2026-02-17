@@ -93,8 +93,10 @@ class CartItemEntity extends Equatable {
   final String? schemeName;
   final String? minSipAmount;
   final String? minLumpsum;
+  final String? amcLogo;
 
   const CartItemEntity({
+    this.amcLogo,
     this.id,
     this.cartId,
     this.transType,
@@ -112,7 +114,7 @@ class CartItemEntity extends Equatable {
     this.minSipAmount,
     this.minLumpsum,
   });
-  
+
   // Add this copyWith method
   CartItemEntity copyWith({
     int? id,
@@ -170,6 +172,7 @@ class CartItemEntity extends Equatable {
     schemeName,
     minSipAmount,
     minLumpsum,
+    amcLogo,
   ];
 }
 
@@ -224,6 +227,7 @@ extension CartItemModelX on CartItemModel {
       schemeName: schemeName,
       minSipAmount: minSipAmount,
       minLumpsum: minLumpsum,
+      amcLogo: amcLogo,
     );
   }
 }

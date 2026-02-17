@@ -462,8 +462,8 @@ class Listtilecustom extends StatelessWidget {
   final String? images;
   final VoidCallback onTap;
   final bool isLock;
-  final PersonalisationController controller =
-      Get.find<PersonalisationController>();
+  // final PersonalisationController controller =
+  //     Get.find<PersonalisationController>();
 
   @override
   Widget build(BuildContext context) {
@@ -491,9 +491,9 @@ class Listtilecustom extends StatelessWidget {
                 activeColor: Colors.blue,
                 // value: controller.applock.value,
                 value: SessionManager.instance.isAppLockEnabled.value,
-                onChanged: (bool value) {
+                onChanged: (bool value) async {
                   // controller.applock.toggle();
-                  SessionManager.instance.toggleAppLock(value);
+                  await SessionManager.instance.toggleAppLock(value);
                 },
               ),
             ),

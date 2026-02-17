@@ -826,6 +826,7 @@ class RiskPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<String> risks = [
       'Low',
+      "Low to Moderate",
       'Moderately Low',
       'Moderate',
       'Moderately High',

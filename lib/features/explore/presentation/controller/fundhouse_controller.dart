@@ -69,7 +69,7 @@ class FundhouseController extends GetxController {
     }
 
     if (selectedRisk.isNotEmpty) {
-      params['risk'] = selectedRisk.join(',');
+      params['risk_level'] = selectedRisk.join(',');
     }
 
     if (selectedRating.value != null) {
@@ -227,6 +227,7 @@ class FundhouseController extends GetxController {
     selectedRisk.contains(key)
         ? selectedRisk.remove(key)
         : selectedRisk.add(key);
+    fetchCount();
   }
 
   //rating toggle
@@ -242,21 +243,19 @@ class FundhouseController extends GetxController {
         : selectedRating.value = rating;
   }
 
-
-
-
-
-
-
   // Inside FundhouseController
 
   // 1. Toggle the Main Category (e.g., "Equity")
-  void toggleCategoryGroup(String groupName, List<String> groupItems, bool? isSelected) {
+  void toggleCategoryGroup(
+    String groupName,
+    List<String> groupItems,
+    bool? isSelected,
+  ) {
     if (isSelected == true) {
-      // Logic: If selecting the Group, remove all individual sub-items 
+      // Logic: If selecting the Group, remove all individual sub-items
       // (because "Equity" covers them all) and add just "Equity"
       selectedSchemeTyep.removeAll(groupItems);
-      selectedSchemeTyep.add(groupName); 
+      selectedSchemeTyep.add(groupName);
     } else {
       // Logic: If unselecting Group, just remove "Equity"
       selectedSchemeTyep.remove(groupName);
@@ -265,27 +264,23 @@ class FundhouseController extends GetxController {
   }
 
   // 2. Toggle a Sub Category (e.g., "Equity: Large Cap")
-  void toggleSubCategory(String subItem, String groupName, List<String> allGroupItems) {
-    
-    // Scenario A: The GROUP "Equity" is currently selected.
+  void toggleSubCategory(
+    String subItem,
+    String groupName,
+    List<String> allGroupItems,
+  ) {
     if (selectedSchemeTyep.contains(groupName)) {
-      // If user clicks a sub-item while Group is active, we assume they want 
-      // to *deselect* this specific item.
-      // So we remove the Group (since it's no longer "ALL"), 
-      // and add every OTHER item in the group.
       selectedSchemeTyep.remove(groupName);
       selectedSchemeTyep.addAll(allGroupItems);
       selectedSchemeTyep.remove(subItem); // Remove the one we clicked
-    } 
-    // Scenario B: Normal selection/deselection
-    else {
+    } else {
       if (selectedSchemeTyep.contains(subItem)) {
         selectedSchemeTyep.remove(subItem);
       } else {
         selectedSchemeTyep.add(subItem);
       }
     }
-    
+
     // Optional: If all items are now selected individually, convert them back to the Group?
     // Use this if you want auto-grouping:
     /*
@@ -295,7 +290,7 @@ class FundhouseController extends GetxController {
       selectedSchemeTyep.add(groupName);
     }
     */
-    
+
     fetchCount();
   }
 }

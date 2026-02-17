@@ -26,6 +26,7 @@ class SessionManager extends GetxService {
   String? jwtAccessToken;
   String? jwtRefreshToken;
 
+  // --- REPLACED: _riskScore is now backed by an Rx Variable ---
   final Rxn<RiskResultModel> riskScoreObs = Rxn<RiskResultModel>();
 
   final Rxn<TokenDataModel> tokenDataModel = Rxn<TokenDataModel>();
@@ -259,6 +260,7 @@ class SessionManager extends GetxService {
   Future<void> getSession() async {
     String? userDataString;
     String? riskScoreString;
+    String? appLockString;
     String? tokenDataString;
 
     if (kIsWeb) {
@@ -269,6 +271,7 @@ class SessionManager extends GetxService {
       userDataString = _prefs?.getString('userData');
       riskScoreString = _prefs?.getString('riskScore');
       tokenDataString = _prefs?.getString('tokenData');
+      appLockString = _prefs?.getString('isAppLockEnabled'); // 2. Read for Web
     } else {
       String? appLockVal = await _secureStorage?.read(key: 'isAppLockEnabled');
       if (appLockVal != null) isAppLockEnabled.value = appLockVal == 'true';
@@ -277,7 +280,12 @@ class SessionManager extends GetxService {
       userId = await _secureStorage?.read(key: 'userId');
       userDataString = await _secureStorage?.read(key: 'userData');
       riskScoreString = await _secureStorage?.read(key: 'riskScore');
+      appLockString = await _secureStorage?.read(key: 'isAppLockEnabled'); // 3. Read for Mobile
       tokenDataString = await _secureStorage?.read(key: 'tokenData');
+    }
+// 4. Update the Observable
+    if (appLockString != null) {
+      isAppLockEnabled.value = appLockString == 'true';
     }
 
     if(tokenDataString != null){
