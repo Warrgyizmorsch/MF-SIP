@@ -94,6 +94,8 @@ class CartItemModel {
   final String? schemeName;
   final String? minSipAmount;
   final String? minLumpsum;
+  final String? amcLogo;
+
 
   CartItemModel({
     this.id,
@@ -112,6 +114,7 @@ class CartItemModel {
     this.schemeName,
     this.minSipAmount,
     this.minLumpsum,
+    this.amcLogo
   });
 
   factory CartItemModel.fromJson(Map<String, dynamic> json) {
@@ -132,6 +135,7 @@ class CartItemModel {
       schemeName: json.parse<String>('scheme_name'),
       minSipAmount: json.parse<String>('min_sip_amount'),
       minLumpsum: json.parse<String>('min_lumpsum'),
+      amcLogo: json.parse<String>('amc_logo')
     );
   }
 }

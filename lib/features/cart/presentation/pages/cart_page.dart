@@ -9,6 +9,7 @@ import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/common/widget/text_form/text_field_component.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/core/utils/enums/enums.dart';
@@ -227,7 +228,7 @@ class CartItemCard extends StatelessWidget {
         children: [
           FundHeader(index: index, itemEntity: itemEntity),
           SizedBox(height: 12),
-          DashedLine(color: Color(0xffACACAC)),
+          DashedLine(color: Color(0xffACACAC), dashSpace: 3.5),
           SizedBox(height: 12),
           InvestmentInputsRow(itemEntity: itemEntity),
         ],
@@ -245,10 +246,16 @@ class FundHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    log('${Appurl.baseUrl}${itemEntity.amcLogo}');
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ClipOval(child: CustomCachedImage(imageUrl: 'imageUrl', radius: 22)),
+        ClipOval(
+          child: CustomCachedImage(
+            imageUrl: '${Appurl.baseUrl}${itemEntity.amcLogo}',
+            radius: 22,
+          ),
+        ),
         const SizedBox(width: 12),
 
         Expanded(
@@ -260,39 +267,39 @@ class FundHeader extends StatelessWidget {
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
               SizedBox(height: 4),
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '● ',
-                      style: TextStyle(color: Ucolors.red, fontSize: 10),
-                    ),
-                    TextSpan(
-                      text: 'Very High Risk ',
-                      style: UTextStyles.small.copyWith(
-                        fontSize: 10,
+              // RichText(
+              //   text: TextSpan(
+              //     children: [
+              //       TextSpan(
+              //         text: '● ',
+              //         style: TextStyle(color: Ucolors.red, fontSize: 10),
+              //       ),
+              //       TextSpan(
+              //         text: 'Very High Risk ',
+              //         style: UTextStyles.small.copyWith(
+              //           fontSize: 10,
 
-                        color: Color(0xff5B5B5B),
-                      ),
-                    ),
-                    const TextSpan(text: '  '),
-                    TextSpan(
-                      text: 'SIP Returns (3Y):',
-                      style: UTextStyles.small.copyWith(
-                        fontSize: 10,
-                        color: Color(0xff5B5B5B),
-                      ),
-                    ),
-                    TextSpan(
-                      text: '29.89%',
-                      style: UTextStyles.small.copyWith(
-                        color: Ucolors.success,
-                        fontSize: 10,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              //           color: Color(0xff5B5B5B),
+              //         ),
+              //       ),
+              //       const TextSpan(text: '  '),
+              //       TextSpan(
+              //         text: 'SIP Returns (3Y):',
+              //         style: UTextStyles.small.copyWith(
+              //           fontSize: 10,
+              //           color: Color(0xff5B5B5B),
+              //         ),
+              //       ),
+              //       TextSpan(
+              //         text: '29.89%',
+              //         style: UTextStyles.small.copyWith(
+              //           color: Ucolors.success,
+              //           fontSize: 10,
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
               // Row(
               //   // mainAxisSize: MainAxisSize.min,
               //   children: [
@@ -440,6 +447,7 @@ class InvestmentInputsRow extends StatelessWidget {
                           itemId: itemEntity.id!,
                           transType: value,
                           amount: value == 'lumpsum' ? 5000 : 500,
+                          // amount: itemEntity.amount,
                         );
                       }
                     },
@@ -501,13 +509,18 @@ class InvestmentInputsRow extends StatelessWidget {
                       key: ValueKey('amt_${itemEntity.id}_$currentAmount'),
                       // hint: '500',
                       keyboardType: TextInputType.number,
-                      controller: TextEditingController(text: currentAmount),
+                      controller: TextEditingController(
+                        text: currentAmount == '1'
+                            ? itemEntity.minSipAmount
+                            : currentAmount,
+                      ),
                       validationType: ValidationType.custom,
                       customValidator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return 'Required';
                         }
                         final amount = int.tryParse(value);
+
                         if (amount == null || amount < 500) return 'Min ₹500';
                         return null;
                       },

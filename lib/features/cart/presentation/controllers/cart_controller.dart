@@ -151,7 +151,7 @@ class CartController extends GetxController {
         "user_id": SessionManager.instance.getUserData!.id,
         "scheme_code": schemeCode,
         "trans_type": "sip",
-        "amount": 500,
+        "amount": 1,
         "sip_day": 2,
       });
 

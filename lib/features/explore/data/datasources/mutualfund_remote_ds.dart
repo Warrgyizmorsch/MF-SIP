@@ -19,7 +19,7 @@ class MutualfundRemoteDs {
     Map<String, dynamic> data,
   ) async {
     try {
-      final resp = await _servicesApi.getApi(
+      final resp = await _servicesApi.postApi(
         "${Appurl.baseUrl}/api/v1/mutual-funds",
         queryParameters: data,
       );
@@ -39,10 +39,8 @@ class MutualfundRemoteDs {
     }
   }
 
-
-
-  /// categories of filter 
-   Future<Either<Result<FundCategoryModel>, ApiError>> getMfCategories(
+  /// categories of filter
+  Future<Either<Result<FundCategoryModel>, ApiError>> getMfCategories(
     Map<String, dynamic> data,
   ) async {
     try {
@@ -68,13 +66,12 @@ class MutualfundRemoteDs {
         final result = FundCategoryModel.fromJson(json);
         return Left(Result.success(result));
       } else {
-        return Right(ApiError(message: 'fund categories info: Success was false'));
+        return Right(
+          ApiError(message: 'fund categories info: Success was false'),
+        );
       }
     } catch (e) {
       return Right(ApiError(message: 'fund categories info failed $e'));
     }
   }
-  
-
-
 }
