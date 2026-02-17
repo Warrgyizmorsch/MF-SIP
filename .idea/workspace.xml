@@ -10,19 +10,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="add web updates">
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/cart/presentation/controllers/cart_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/cart/presentation/controllers/cart_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/kyc/data/datasource/kyc_remote_data_source.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/kyc/data/datasource/kyc_remote_data_source.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/kyc/data/repository/kyc_repository_impl.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/kyc/data/repository/kyc_repository_impl.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/kyc/domain/repository/kyc_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/kyc/domain/repository/kyc_repository.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/kyc/domain/usecases/kyc_use_cases.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/kyc/domain/usecases/kyc_use_cases.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/kyc/presentation/binding/kyc_bindings.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/kyc/presentation/binding/kyc_bindings.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/kyc/presentation/controllers/kyc_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/kyc/presentation/controllers/kyc_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/personalization/data/datasource/personalisation_remote_data_source.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/data/datasource/personalisation_remote_data_source.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/personalization/data/repository/personalisation_repository_impl.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/data/repository/personalisation_repository_impl.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/personalization/domain/repository/personalisation_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/domain/repository/personalisation_repository.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/personalization/domain/usecases/personalisation_use_cases.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/domain/usecases/personalisation_use_cases.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/personalization/presentation/bindings/personalisation_binding.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/bindings/personalisation_binding.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/presentation/pages/profile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/pages/profile.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/services/session_manager.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/session_manager.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,7 +48,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="imam-branch" />
+        <entry key="$PROJECT_DIR$" value="kyc-new" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -87,7 +80,7 @@
     "cidr.known.project.marker": "true",
     "com.google.services.firebase.aqiPopupShown": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "kyc-new",
+    "git-widget-placeholder": "imam-branch",
     "io.flutter.project.isFirstOpen": "true",
     "io.flutter.reload.alreadyRun": "true",
     "last_opened_file_path": "/Users/nithikmali/StudioProjects/MF-SIP/assets/logo",

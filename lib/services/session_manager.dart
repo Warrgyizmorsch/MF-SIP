@@ -87,12 +87,12 @@ class SessionManager extends GetxService {
     isAppLockEnabled.value = value;
     final valString = value.toString();
 
-    if (kIsWeb) {
-      await _ensurePrefsInitialized();
-      await _prefs!.setString('isAppLockEnabled', valString);
-    } else {
+    // if (kIsWeb) {
+    //   await _ensurePrefsInitialized();
+    //   await _prefs!.setString('isAppLockEnabled', valString);
+    // } else {
       await _secureStorage!.write(key: 'isAppLockEnabled', value: valString);
-    }
+    // }
   }
 
   Future<bool> saveRiskScore(RiskResultModel? riskScore) async {
@@ -209,7 +209,7 @@ class SessionManager extends GetxService {
   Future<void> getSession() async {
     String? userDataString;
     String? riskScoreString;
-
+    String? appLockString;
     if (kIsWeb) {
       await _ensurePrefsInitialized();
       jwtAccessToken = _prefs?.getString('jwtAccessToken');
@@ -217,14 +217,19 @@ class SessionManager extends GetxService {
       userId = _prefs?.getString('userId');
       userDataString = _prefs?.getString('userData');
       riskScoreString = _prefs?.getString('riskScore');
+      appLockString = _prefs?.getString('isAppLockEnabled'); // 2. Read for Web
     } else {
       jwtAccessToken = await _secureStorage?.read(key: 'jwtAccessToken');
       jwtRefreshToken = await _secureStorage?.read(key: 'jwtRefreshToken');
       userId = await _secureStorage?.read(key: 'userId');
       userDataString = await _secureStorage?.read(key: 'userData');
       riskScoreString = await _secureStorage?.read(key: 'riskScore');
+      appLockString = await _secureStorage?.read(key: 'isAppLockEnabled'); // 3. Read for Mobile
     }
-
+// 4. Update the Observable
+    if (appLockString != null) {
+      isAppLockEnabled.value = appLockString == 'true';
+    }
     // Convert String -> UserEntity
     if (userDataString != null) {
       try {
