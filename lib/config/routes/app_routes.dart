@@ -28,4 +28,10 @@ class AppRoutes {
   static const kycScreen= '/kycScreen';
   static const webView= '/webView';
   static const riskProfile= '/riskProfile';
+  static const nomineeList= '/nomineeListScreen';
+  static const nomineeDetail= '/nomineeDetailScreen';
+  static const goalScreen= '/goalScreen';
+  static const explorePage= '/explorePage';
+  static const dashBoardPage= '/dashBoardPage';
+  static const profilePage= '/profilePage';
 }

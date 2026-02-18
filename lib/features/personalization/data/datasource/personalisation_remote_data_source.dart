@@ -3,6 +3,7 @@ import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/features/personalization/data/model/bank_model.dart';
+import 'package:my_sip/features/personalization/data/model/nominee_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_question_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_submit_rq.dart';
@@ -134,4 +135,62 @@ class PersonalisationRemoteDataSource {
       );
     }
   }
+
+
+  // Get Nominee
+  Future<Either<Result<NomineeResponseModel>, ApiError>> getNominee(
+      Map<String, dynamic> data,
+      ) async {
+    try {
+      final resp = await _apiService.postApi(
+          "${Appurl.baseUrl}/api/v1/nominees/get-by-customer",
+          data: data
+      );
+
+      createLog(
+        "[Personalisation Remote Data Source] getNominee Response: $resp",
+      );
+
+      if (resp['status'] == true) {
+        final result = NomineeResponseModel.fromJson(resp);
+        return Left(Result.success(result));
+      } else {
+        return Right(
+          ApiError(message: 'getNominee Failed'),
+        );
+      }
+    } catch (e) {
+      return Right(
+        ApiError(message: 'getNominee Failed with Exception $e'),
+      );
+    }
+  }
+
+  // Delete Nominee
+  Future<Either<Result<String>, ApiError>> deleteNominee(Map<String, dynamic> data,) async {
+    try {
+      final resp = await _apiService.postApi(
+          "${Appurl.baseUrl}/api/v1/nominees/delete",
+          data: data
+      );
+
+      createLog(
+        "[Personalisation Remote Data Source] deleteNominee Response: $resp",
+      );
+
+      if (resp['status'] == true) {
+        // final result = NomineeResponseModel.fromJson(resp);
+        return Left(Result.success(resp['message']));
+      } else {
+        return Right(
+          ApiError(message: 'deleteNominee Failed'),
+        );
+      }
+    } catch (e) {
+      return Right(
+        ApiError(message: 'deleteNominee Failed with Exception $e'),
+      );
+    }
+  }
+
 }

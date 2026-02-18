@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_submit_rq.dart';
+import 'package:my_sip/features/personalization/domain/entity/nominee_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/risk_question_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/risk_result_entity.dart';
 import 'package:my_sip/features/personalization/domain/usecases/personalisation_use_cases.dart';
@@ -265,9 +266,44 @@ class PersonalisationController extends GetxController {
   final riskResult = Rxn<RiskResultModel>();
   final applock = false.obs;
 
+
   // --- UI Controllers ---
   final PageController pageController = PageController();
 
+  final session = SessionManager.instance;
+
+  final isDeleteLoading = <int, bool>{}.obs;
+  final addNomineeLoading = false.obs;
+  final isNomineeLoading = false.obs;
+  final isNomineeMinor = false.obs;
+  final GlobalKey<FormState> nomineeFormKey = GlobalKey<FormState>();
+  final nomineeList = Rxn<NomineeResponseEntity>();
+  final nomineeDocumentSelectionList = ["Pan", "Aadhaar", "Driving License", "Passport"];
+  final nomineeRelationSelectionList = ['Aunt', 'Brother-In-Law', 'Brother', 'Daughter', 'Daughter-In-Law', 'Father', 'Father-In-Law', 'Grand Daughter', 'Grand Father', 'Grand Mother', 'Mother', 'Mother-In-Law', 'Son', 'Spouse', 'Testing',];
+
+
+  final nomineeNameTextEditingController = TextEditingController();
+  final nomineeDobTextEditingController = TextEditingController();
+  final nomineeEmailTextEditingController = TextEditingController();
+  final nomineePhoneTextEditingController = TextEditingController();
+  final nomineeDocumentTypeTextEditingController = TextEditingController();
+  final nomineeDocumentNumberTextEditingController = TextEditingController();
+  final nomineeRelationTextEditingController = TextEditingController();
+  final nomineeAllocationPercentTextEditingController = TextEditingController();
+  final nomineeMinorsGuardianTextEditingController = TextEditingController();
+  final nomineeAddressTextEditingController = TextEditingController();
+
+
+  double get currentTotalAllocation {
+    if (nomineeList.value == null || nomineeList.value!.nominees.isEmpty) {
+      return 0.0;
+    }
+    // Sum up all existing nominees' allocation
+    return nomineeList.value!.nominees
+        .fold(0.0, (sum, item) => sum + item.allocationPercent);
+  }
+
+  double get remainingAllocation => 100.0 - currentTotalAllocation;
   @override
   void onInit() {
     super.onInit();
@@ -381,6 +417,169 @@ class PersonalisationController extends GetxController {
         Get.snackbar("Error", "Submission failed. Please try again.");
       },
     );
+  }
+
+
+  // Get Nominee
+
+  Future<void> getNominee() async {
+    isNomineeLoading.value = true;
+    try {
+      final userId = session.getUserData?.id;
+
+      if (userId == null) {
+        Get.snackbar("Error", "User session invalid");
+        isNomineeLoading.value = false;
+        return;
+      }
+
+      final requestData = {"customer_id": userId};
+
+      // Call the UseCase
+      final result = await _useCases.getNomineeUseCase.call(requestData);
+
+      result.fold(
+            (success) {
+          // Success: Update the observable with the Entity
+          nomineeList.value = success.data;
+        },
+            (failure) {
+          // Failure: Show error
+          nomineeList.value = null;
+          Get.snackbar("Error Fetching Nominees", failure.message);
+        },
+      );
+    } catch (e) {
+      log("Nominee Error: $e");
+      Get.snackbar("Error", "Something went wrong");
+    } finally {
+      isNomineeLoading.value = false;
+    }
+  }
+
+  // Add Nominee
+
+  Future<void> addNominee() async {
+    if (nomineeFormKey.currentState?.validate() != true) {
+      Get.snackbar("Required", "Please fill all the fields");
+      return;
+    }
+
+    // Additional validation for Guardian
+    if (isNomineeMinor.value && nomineeMinorsGuardianTextEditingController.text.isEmpty) {
+      Get.snackbar("Required", "Guardian Name is required for minors");
+      return;
+    }
+
+    addNomineeLoading.value = true;
+    try {
+      final userId = session.getUserData?.id;
+      if (userId == null) {
+        Get.snackbar("Error", "User session invalid");
+        return;
+      }
+
+      final requestData = {
+        "customer_id": userId,
+        "name": nomineeNameTextEditingController.text,
+        "relation": nomineeRelationTextEditingController.text,
+        "dob": nomineeDobTextEditingController.text,
+        "allocation_percent": nomineeAllocationPercentTextEditingController.text,
+        // Send 1 if minor, 0 if not
+        "is_minor": isNomineeMinor.value ? 1 : 0,
+        "guardian_name": nomineeMinorsGuardianTextEditingController.text,
+        "email": nomineeEmailTextEditingController.text,
+        "phone_number": nomineePhoneTextEditingController.text,
+        "document_type": nomineeDocumentTypeTextEditingController.text,
+        "document_number": nomineeDocumentNumberTextEditingController.text,
+        "address": nomineeAddressTextEditingController.text,
+      };
+
+      final result = await _useCases.addNomineeUseCase.call(requestData);
+
+      result.fold(
+            (success) {
+          getNominee();
+          _clearNomineeFields();
+
+          Get.back();
+          Get.snackbar("Success", "Nominee added successfully");
+
+              // Get.back();
+        },
+            (failure) {
+          Get.snackbar("Error Adding Nominee", failure.message);
+        },
+      );
+    } catch (e) {
+      log("Nominee Error: $e");
+      Get.snackbar("Error", "Something went wrong");
+    } finally {
+      addNomineeLoading.value = false;
+    }
+  }
+
+
+  // Delete Nominee
+
+  Future<void> deleteNominee(NomineeEntity nominee) async {
+    // 1. Set loading for this specific ID
+    isDeleteLoading[nominee.id] = true;
+
+    try {
+      final requestData = {'id': nominee.id};
+
+      final result = await _useCases.deleteNomineeUseCase.call(requestData);
+
+      result.fold(
+            (success) {
+          // 2. Refresh list on success
+          getNominee();
+          Get.snackbar("Success", "Nominee deleted successfully");
+        },
+            (failure) {
+          Get.snackbar("Error Deleting Nominee", failure.message);
+        },
+      );
+    } catch (e) {
+      log("Nominee Error: $e");
+      Get.snackbar("Error", "Something went wrong");
+    } finally {
+      // 3. Clear loading state
+      isDeleteLoading[nominee.id] = false;
+    }
+  }
+
+  void _clearNomineeFields() {
+    nomineeNameTextEditingController.clear();
+    nomineeDobTextEditingController.clear();
+    nomineeEmailTextEditingController.clear();
+    nomineePhoneTextEditingController.clear();
+    nomineeDocumentTypeTextEditingController.clear();
+    nomineeDocumentNumberTextEditingController.clear();
+    nomineeRelationTextEditingController.clear();
+    nomineeAllocationPercentTextEditingController.clear();
+    nomineeMinorsGuardianTextEditingController.clear();
+    nomineeAddressTextEditingController.clear();
+    nomineeMinorsGuardianTextEditingController.clear();
+    isNomineeMinor.value = false;
+  }
+
+  void updateMinorStatus(DateTime dob) {
+    final now = DateTime.now();
+    int age = now.year - dob.year;
+
+    // Adjust age if birthday hasn't happened yet this year
+    if (now.month < dob.month || (now.month == dob.month && now.day < dob.day)) {
+      age--;
+    }
+
+    isNomineeMinor.value = age < 18;
+
+    // Clear guardian field if not minor
+    if (!isNomineeMinor.value) {
+      nomineeMinorsGuardianTextEditingController.clear();
+    }
   }
 
   @override

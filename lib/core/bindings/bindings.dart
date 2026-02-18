@@ -141,8 +141,8 @@ class UBinding extends Bindings {
 
     Get.put<CartController>(CartController(Get.find()), permanent: true);
 
-    // Goal controller
-    Get.lazyPut(() => GoalSipController(), fenix: true);
+    // // Goal controller
+    // Get.lazyPut(() => GoalSipController(goalUseCases: Get.find<>()), fenix: true);
 
     // Get.lazyPut(() => PersonalisationController(Get.find()));
   }

@@ -3,6 +3,7 @@ import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:my_sip/features/personalization/domain/entity/bank_entity.dart';
+import 'package:my_sip/features/personalization/domain/entity/nominee_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/risk_question_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/risk_result_entity.dart';
 import 'package:my_sip/features/personalization/domain/repository/personalisation_repository.dart';
@@ -98,6 +99,48 @@ class PersonalisationRepositoryImpl extends PersonalisationRepository{
           });
     } catch(e){
       return Right(ApiError(message: 'addNominee Failed $e'));
+    }
+  }
+
+  @override
+  Future<Either<Result<NomineeResponseEntity>, ApiError>> getNominee(Map<String, dynamic> data) async {
+    try{
+      final result = await _remoteDataSource.getNominee(data);
+      return  result.fold(
+              (success){
+            if(success.isSuccess){
+              final result = success.data?.toEntity();
+              return Left(Result.success(result));
+            } else {
+              return Right(ApiError(message: 'getNominee Failed'));
+            }
+          },
+              (error){
+            return Right(ApiError(message: 'getNominee Failed $error'));
+          });
+    } catch(e){
+      return Right(ApiError(message: 'getNominee Failed $e'));
+    }
+  }
+
+  @override
+  Future<Either<Result<String>, ApiError>> deleteNominee(Map<String, dynamic> data) async {
+    try{
+      final result = await _remoteDataSource.deleteNominee(data);
+      return  result.fold(
+              (success){
+            if(success.isSuccess){
+              final result = success.data;
+              return Left(Result.success(result));
+            } else {
+              return Right(ApiError(message: 'deleteNominee Failed'));
+            }
+          },
+              (error){
+            return Right(ApiError(message: 'deleteNominee Failed $error'));
+          });
+    } catch(e){
+      return Right(ApiError(message: 'deleteNominee Failed $e'));
     }
   }
 }

@@ -271,20 +271,14 @@ class AuthController extends GetxController {
     await sendOtp();
   }
 
-  Future<void> register(
-    String name,
-    String email,
-    String mobile,
-    String pan,
-    String password,
-  ) async {
+  Future<void> register(String name, String email, String mobile, String pan, String password,) async {
     isRegisterLoading.value = true;
     final requestData = {
       "name": name,
       "email": email,
       "mobile": mobile,
       "pan_card": pan,
-      "password": password,
+      // "password": password,
     };
 
     final result = await _authUseCases.registerUseCase.call(requestData);

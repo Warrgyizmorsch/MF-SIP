@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:my_sip/features/personalization/domain/entity/bank_entity.dart';
+import 'package:my_sip/features/personalization/domain/entity/nominee_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/risk_question_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/risk_result_entity.dart';
 
@@ -12,5 +13,7 @@ abstract class PersonalisationRepository {
   Future<Either<Result<RiskQuestionEntity>,ApiError>>getRiskQuestions(Map<String,dynamic> data);
   Future<Either<Result<RiskResultModel>,ApiError>> riskSubmitResult(Map<String,dynamic> data);
   Future<Either<Result<String>, ApiError>> addNominee(Map<String, dynamic> data,);
+  Future<Either<Result<NomineeResponseEntity>, ApiError>> getNominee(Map<String, dynamic> data,);
+  Future<Either<Result<String>, ApiError>> deleteNominee(Map<String, dynamic> data,) ;
 
 }

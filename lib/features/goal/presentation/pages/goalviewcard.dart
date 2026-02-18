@@ -88,12 +88,10 @@ class CircularUploadIndicator extends StatelessWidget {
                 CircularPercentIndicator(
                   radius: size.width <= 320 ? 60 : 80,
                   lineWidth: 15,
-
                   percent: 0.77, // 75%
                   startAngle: 220,
                   circularStrokeCap: CircularStrokeCap.round,
                   backgroundColor: Colors.transparent,
-
                   progressColor: Colors.grey.shade200,
                 ),
                 CircularPercentIndicator(
@@ -107,14 +105,11 @@ class CircularUploadIndicator extends StatelessWidget {
                   ),
                   // radius: 80,
                   radius: size.width <= 350 ? 60 : 80,
-
                   lineWidth: 15,
-
                   percent: 0.1, // 75%
                   startAngle: 220,
                   circularStrokeCap: CircularStrokeCap.round,
                   backgroundColor: Colors.transparent,
-
                   progressColor: Ucolors.blue,
                 ),
                 if (!percentage) ...[

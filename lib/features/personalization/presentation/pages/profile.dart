@@ -216,7 +216,7 @@ class _WebProfileDashboard extends StatelessWidget {
       _GridItem(
         'Nominee Details',
         UImages.verify,
-        () => Get.to(() => const NomineeListScreen()),
+        () => Get.toNamed(AppRoutes.nomineeList),
       ),
       _GridItem(
         'Documents',
@@ -397,7 +397,7 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
             images: UImages.arrow,
           ),
           Listtilecustom(
-            onTap: () => Get.to(() => const NomineeListScreen()),
+            onTap: () => Get.toNamed(AppRoutes.nomineeList),
             title: 'Nominee Details',
             images: UImages.verify,
           ),

@@ -1,40 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:responsive_framework/responsive_framework.dart';
+
+// --- YOUR IMPORTS ---
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/services/session_manager.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
 import 'package:my_sip/features/goal/presentation/pages/goal.dart';
 import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
-
+import 'config/routes/app_pages.dart';
 import 'core/utils/constant/images.dart';
 
 class NavigationBarController extends GetxController {
   static NavigationBarController get instance => Get.find();
   final RxInt selectedIndex = 0.obs;
-  final mutualFundController = Get.find<MutualFundController>();
-  final cartController = Get.find<CartController>();
 
-  @override
-  void onInit() {
-    // mutualFundController.fetchMutualFund();
-    mutualFundController.fetchData();
-    cartController.fetchCart();
-    super.onInit();
+  void changePage(int index) {
+    if (selectedIndex.value == index) return;
+    selectedIndex.value = index;
+
+    // Use id: 1 to navigate inside the nested area
+    switch (index) {
+      case 0: Get.toNamed(AppRoutes.home, id: 1); break;
+      case 1: Get.toNamed(AppRoutes.explorePage, id: 1); break;
+      case 2: Get.toNamed(AppRoutes.dashBoardPage, id: 1); break;
+      case 3: Get.toNamed(AppRoutes.goalScreen, id: 1); break;
+      case 4: Get.toNamed(AppRoutes.profilePage, id: 1); break; // or AppRoutes.profile
+    }
   }
-
-  final List<Widget> screens = [
-    HomeScreen(),
-    ExploreScreen(),
-    DashboardScreen(),
-    GoalScreen(),
-    ProfileScreen(),
-  ];
 }
 
 class NavigationMenuBar extends StatelessWidget {
@@ -42,7 +41,9 @@ class NavigationMenuBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Ensure the controller is loaded
     final controller = Get.put(NavigationBarController());
+
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
     final isTablet = ResponsiveBreakpoints.of(context).equals(TABLET);
 
@@ -53,16 +54,36 @@ class NavigationMenuBar extends StatelessWidget {
             _DesktopSideNav(isDesktop: isDesktop, isTablet: isTablet),
 
           Expanded(
-            child: Obx(
-              () => controller.screens[controller.selectedIndex.value],
+            child: Navigator(
+              key: Get.nestedKey(1), // Ensure this matches controller.changePage logic
+              initialRoute: AppRoutes.home,
+              onGenerateRoute: (settings) {
+                // Look up the route in your existing AppPages
+                try {
+                  final getPage = AppPages.pages().firstWhere(
+                        (p) => p.name == settings.name,
+                  );
+
+                  return GetPageRoute(
+                    page: getPage.page,
+                    binding: getPage.binding,
+                    bindings: getPage.bindings,
+                    settings: settings,
+                    transition: Transition.fadeIn, // Optional: smoother tab switch
+                  );
+                } catch (e) {
+                  // Fallback if route not found in AppPages
+                  return GetPageRoute(
+                      page: () => HomeScreen(),
+                      settings: settings
+                  );
+                }
+              },
             ),
           ),
         ],
       ),
-
-      bottomNavigationBar: (isDesktop)
-          ? null
-          : const _MobileBottomNavBar(),
+      bottomNavigationBar: (isDesktop) ? null : const _MobileBottomNavBar(),
     );
   }
 }
@@ -76,7 +97,6 @@ class _DesktopSideNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = SessionManager.instance.getUserData;
-
     final controller = NavigationBarController.instance;
     final width = isDesktop ? 280.0 : 80.0;
 
@@ -103,46 +123,30 @@ class _DesktopSideNav extends StatelessWidget {
                 vertical: 24,
                 horizontal: isDesktop ? 24 : 16,
               ),
-              child: isDesktop
-                  ? Row(
-                      children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            gradient: Ucolors.backgroundGradient,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(
-                            Icons.trending_up,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          'My SIP',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Ucolors.dark,
-                          ),
-                        ),
-                      ],
-                    )
-                  : Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        gradient: Ucolors.backgroundGradient,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(
-                        Icons.trending_up,
-                        color: Colors.white,
-                        size: 24,
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      gradient: Ucolors.backgroundGradient,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.trending_up, color: Colors.white, size: 24),
+                  ),
+                  if (isDesktop) ...[
+                    const SizedBox(width: 12),
+                    Text(
+                      'My SIP',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Ucolors.dark,
                       ),
                     ),
+                  ]
+                ],
+              ),
             ),
 
             const SizedBox(height: 20),
@@ -158,7 +162,7 @@ class _DesktopSideNav extends StatelessWidget {
                       item: _navItems[index],
                       isSelected: isSelected,
                       isDesktop: isDesktop,
-                      onTap: () => controller.selectedIndex.value = index,
+                      onTap: () => controller.changePage(index), // UPDATED
                     );
                   });
                 },
@@ -179,25 +183,21 @@ class _DesktopSideNav extends StatelessWidget {
                           backgroundImage: AssetImage(UImages.avatar),
                         ),
                         const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              user?.name ?? 'mhgjh',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                                color: Colors.black
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                user?.name ?? 'Guest User',
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                    color: Colors.black
+                                ),
                               ),
-                            ),
-                            // Text(
-                            //   user?.status ?? '',
-                            //   style: TextStyle(
-                            //     fontSize: 12,
-                            //     color: Colors.grey.shade600,
-                            //   ),
-                            // ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -307,7 +307,7 @@ class _MobileBottomNavBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: List.generate(
             _navItems.length,
-            (index) => _MobileNavItem(index: index),
+                (index) => _MobileNavItem(index: index),
           ),
         ),
       ),
@@ -329,7 +329,8 @@ class _MobileNavItem extends StatelessWidget {
 
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => controller.selectedIndex.value = index,
+        // UPDATED: Use changePage to trigger Get.toNamed
+        onTap: () => controller.changePage(index),
         child: SizedBox(
           child: Column(
             mainAxisSize: MainAxisSize.min,

@@ -30,6 +30,7 @@ import 'package:my_sip/features/fund_details/presentation/widgets/return.dart';
 import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/sipslidertile.dart';
 import 'package:my_sip/features/sip_process/presentation/widgets/sip_projection_chart.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../../services/image_picker_service.dart';
@@ -112,7 +113,6 @@ class IhavegoalPage extends GetView<GoalSipController> {
   }
 }
 
-// ... [WebLayout and MobileLayout classes remain same structure, just updating CoverSection usage] ...
 
 class _WebLayout extends StatelessWidget {
   final String name;
@@ -535,8 +535,6 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
   }
 }
 
-
-
 class ProjectionIcon extends StatelessWidget {
   const ProjectionIcon({super.key, required this.onTap, required this.isSelected, required this.icon});
   final VoidCallback onTap;
@@ -621,9 +619,6 @@ class GoalNameSelect extends StatelessWidget {
     );
   }
 }
-
-
-
 
 class CoverSection extends StatelessWidget {
   final GoalSipController controller;
@@ -756,3 +751,4 @@ class _PickerSheet extends StatelessWidget {
     );
   }
 }
+

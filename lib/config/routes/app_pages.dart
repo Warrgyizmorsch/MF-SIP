@@ -5,11 +5,15 @@ import 'package:my_sip/features/authentication/presentation/bindings/auth_bindin
 import 'package:my_sip/features/authentication/presentation/pages/login/login_page.dart';
 import 'package:my_sip/features/authentication/presentation/pages/login/otp_verification.dart';
 import 'package:my_sip/features/authentication/presentation/pages/signup/register_account.dart';
+import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
 import 'package:my_sip/features/explore/presentation/bindings/fundhousebinding.dart';
+import 'package:my_sip/features/explore/presentation/pages/explore.dart';
 import 'package:my_sip/features/explore/presentation/pages/filterpage.dart';
 import 'package:my_sip/features/freedom_sip/presentation/pages/freedom_sip_screen.dart';
 import 'package:my_sip/features/freedom_sip/presentation/pages/sip_tenure_screen.dart';
 import 'package:my_sip/features/fund_details/presentation/bindings/fund_detail_binding.dart';
+import 'package:my_sip/features/goal/presentation/bindings/goal_binding.dart';
+import 'package:my_sip/features/goal/presentation/pages/goal.dart';
 import 'package:my_sip/features/goal/presentation/pages/goaldetails.dart';
 import 'package:my_sip/features/goal/presentation/pages/goalsuccess.dart';
 import 'package:my_sip/features/goal/presentation/pages/goalviewcard.dart';
@@ -21,7 +25,9 @@ import 'package:my_sip/features/onboarding/presentation/pages/splash_screen.dart
 import 'package:my_sip/features/personalization/presentation/bindings/BankBinding.dart';
 import 'package:my_sip/features/personalization/presentation/bindings/personalisation_binding.dart';
 import 'package:my_sip/features/personalization/presentation/pages/add_another_bank.dart';
+import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:my_sip/features/personalization/presentation/pages/risk_profile.dart';
+import 'package:my_sip/features/personalization/presentation/widgets/nominee_list.dart';
 import 'package:my_sip/features/sip_process/presentation/pages/payment_screen.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
 import '../../features/freedom_sip/presentation/pages/accumulationAndDistributionScreen.dart';
@@ -31,6 +37,7 @@ import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/home/presentation/pages/notification_page.dart';
 import '../../features/home/presentation/pages/watchlist_page.dart';
 import '../../features/home/presentation/widgets/product_tool/compare_fund.dart';
+import '../../features/personalization/presentation/widgets/nominee_details.dart';
 import '../../features/personalization/presentation/widgets/personal_details.dart';
 import '../../features/sip_process/presentation/bindings/sip_process_binding.dart';
 import '../../features/sip_process/presentation/pages/investing_approach_screen.dart';
@@ -107,7 +114,8 @@ class AppPages {
       name: AppRoutes.personaldetails,
       page: () => PersonalDetailsScreen(),
     ),
-    GetPage(name: AppRoutes.ihavegoal, page: () => IhavegoalPage()),
+    GetPage(name: AppRoutes.ihavegoal, page: () => IhavegoalPage(), binding: GoalBinding()),
+    GetPage(name: AppRoutes.goalScreen, page: () => GoalScreen(), binding: GoalBinding()),
     GetPage(
       name: AppRoutes.successfullcreategoal,
       page: () => GoalsuccessPage(),
@@ -138,11 +146,16 @@ class AppPages {
     ),
 
     GetPage(name: AppRoutes.paymentScreen, page: () => PaymentScreen()),
+    GetPage(name: AppRoutes.explorePage, page: () => ExploreScreen()),
+    GetPage(name: AppRoutes.dashBoardPage, page: () => DashboardScreen()),
+    GetPage(name: AppRoutes.profilePage, page: () => ProfileScreen()),
     GetPage(
       name: AppRoutes.kycScreen,
       page: () => KycScreen(),
       binding: KycBindings(),
     ),
     GetPage(name: AppRoutes.webView, page: () => HtmlWebViewPage()),
+    GetPage(name: AppRoutes.nomineeList, page: () => NomineeListScreen(), binding: PersonalisationBinding()),
+    GetPage(name: AppRoutes.nomineeDetail, page: () => NomineeDetailsScreen(), binding: PersonalisationBinding()),
   ];
 }
