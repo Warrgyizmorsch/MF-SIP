@@ -55,6 +55,7 @@ class CartDataEntity extends Equatable {
 
   @override
   List<Object?> get props => [
+    
     cartId,
     userId,
     status,
@@ -94,8 +95,10 @@ class CartItemEntity extends Equatable {
   final String? minSipAmount;
   final String? minLumpsum;
   final String? amcLogo;
+  final String? minTopupAmount;
 
   const CartItemEntity({
+    this.minTopupAmount,
     this.amcLogo,
     this.id,
     this.cartId,
@@ -133,6 +136,7 @@ class CartItemEntity extends Equatable {
     String? schemeName,
     String? minSipAmount,
     String? minLumpsum,
+    String? minTopupAmount,
   }) {
     return CartItemEntity(
       id: id ?? this.id,
@@ -151,11 +155,15 @@ class CartItemEntity extends Equatable {
       schemeName: schemeName ?? this.schemeName,
       minSipAmount: minSipAmount ?? this.minSipAmount,
       minLumpsum: minLumpsum ?? this.minLumpsum,
+      amcLogo: amcLogo ?? this.amcLogo,
+      minTopupAmount: minTopupAmount ?? this.minTopupAmount,
     );
   }
 
   @override
   List<Object?> get props => [
+    
+    minTopupAmount,
     id,
     cartId,
     transType,
@@ -228,6 +236,7 @@ extension CartItemModelX on CartItemModel {
       minSipAmount: minSipAmount,
       minLumpsum: minLumpsum,
       amcLogo: amcLogo,
+      minTopupAmount: minTopupAmount,
     );
   }
 }

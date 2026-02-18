@@ -119,7 +119,7 @@ class CartController extends GetxController {
   }
    */
   // Add to cart with duplicate check and custom toast
-  Future<void> addToCart(String schemeCode, String schemeName) async {
+  Future<void> addToCart(String schemeCode, String schemeName , int minSipAmount) async {
     // 1. DUPLICATE CHECK: Verify if fund already exists in local state
     bool alreadyInCart =
         cartResponseEntity.value?.items.any(
@@ -151,7 +151,7 @@ class CartController extends GetxController {
         "user_id": SessionManager.instance.getUserData!.id,
         "scheme_code": schemeCode,
         "trans_type": "sip",
-        "amount": 1,
+        "amount": minSipAmount,
         "sip_day": 2,
       });
 
