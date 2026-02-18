@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -40,6 +39,7 @@ class KycController extends GetxController {
     // 4. Unblock UI
     isLoading.value = false;
   }
+
   final KycUseCases kycUseCases;
 
   // --- Controllers ---
@@ -80,18 +80,18 @@ class KycController extends GetxController {
   final isExecutingPOIStep2 = false.obs;
   final executePOIStep2Data = Rxn<ExecutePOIStep2Entity>();
 
-// --- SIGNATURE UPLOAD STATE ---
+  // --- SIGNATURE UPLOAD STATE ---
   final signatureImage = Rxn<Uint8List>(); // Store image bytes
   final isUploadingSignature = false.obs;
   final signatureUploadSuccess = false.obs; // To track if upload is done
   final signatureUploadResponse = Rxn<FileEntity>();
 
-// --- CAPTCHA STATE ---
+  // --- CAPTCHA STATE ---
   final captchaImage = Rxn<Uint8List>();
   final isLoadingCaptcha = false.obs;
   final TextEditingController captchaTextEditingController = TextEditingController();
 
-// --- Token Data ---
+  // --- Token Data ---
   final isLoadingTokenData = false.obs;
   final tokenData = Rxn<TokenDataModel>();
 
@@ -144,7 +144,7 @@ class KycController extends GetxController {
 
 
 
-// ===========================================================================
+  // ===========================================================================
   // CENTRAL NAVIGATION LOGIC
   // Call this from your BottomNavigationBar button: controller.onNextTap
   // ===========================================================================

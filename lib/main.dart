@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:my_sip/my_app.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 import 'core/utils/helper/helpers.dart';
 
 Future<void> main() async {
-
   // await SessionManager.instance.initialize();
-
   try {
-
     WidgetsFlutterBinding.ensureInitialized();
-    await SessionManager.instance.initialize();
+    // Initialize SessionManager globally
+    await Get.putAsync<SessionManager>(() async {
+      final session = SessionManager.instance;
+      await session.initialize();
+      return session;
+    });
     runApp(const MyApp());
   } catch (e, stackTrace) {
     createLog("Error in main initialization: $e");

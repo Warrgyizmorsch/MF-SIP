@@ -17,16 +17,20 @@ import '../../../../services/session_manager.dart';
 import '../../domain/usecases/execute_poi_step1_use_case.dart';
 import '../../domain/usecases/execute_poi_step2_use_case.dart';
 
-class KycBindings extends Bindings{
+class KycBindings extends Bindings {
   @override
-  Future<void> dependencies() async {
-    Get.put(SessionManager.instance);
-    await Get.putAsync<SessionManager>(() async {
-      final session = SessionManager.instance;
-      await session.initialize();
-      return session;
-    });
+  void dependencies() {
+    // 1. Data Source (Missing in your code)
+    // Note: Assuming you have NetworkServicesApi registered. If not, put it here too.
+    Get.lazyPut(() => KycRemoteDataSource(
+      Get.find<NetworkServicesApi>(),
+      Get.find<SessionManager>(), // Finds the instance created in main.dart
+    ));
+
+    // 2. Repository
     Get.lazyPut(() => KycRepositoryImpl(Get.find<KycRemoteDataSource>()));
+
+    // 3. Use Cases
     Get.lazyPut(() => GetAllBanksUseCases(Get.find<KycRepositoryImpl>()));
     Get.lazyPut(() => ExecutePoiStep1UseCase(kycRepository: Get.find<KycRepositoryImpl>()));
     Get.lazyPut(() => ExecutePoiStep2UseCase(Get.find<KycRepositoryImpl>()));
@@ -36,7 +40,21 @@ class KycBindings extends Bindings{
     Get.lazyPut(() => UploadToSignzyUseCase(kycRepository: Get.find<KycRepositoryImpl>()));
     Get.lazyPut(() => GetCaptchaUseCase(kycRepository: Get.find<KycRepositoryImpl>()));
     Get.lazyPut(() => GetTokenDataUseCase(kycRepository: Get.find<KycRepositoryImpl>()));
-    Get.lazyPut(() => KycUseCases(getAllBanksUseCases: Get.find<GetAllBanksUseCases>(), executePoiStep1UseCase: Get.find<ExecutePoiStep1UseCase>(), executePoiStep2UseCase: Get.find<ExecutePoiStep2UseCase>(), updateFormUseCase: Get.find<UpdateFormUseCase>(), executePoaUseCase: Get.find<ExecutePoaUseCase>(), executePennyDropUseCase: Get.find<ExecutePennyDropUseCase>(), uploadToSignzyUseCase: Get.find<UploadToSignzyUseCase>(), getCaptchaUseCase: Get.find<GetCaptchaUseCase>(), getTokenDataUseCase: Get.find<GetTokenDataUseCase>()), );
+
+    // 4. Main UseCase Wrapper
+    Get.lazyPut(() => KycUseCases(
+      getAllBanksUseCases: Get.find<GetAllBanksUseCases>(),
+      executePoiStep1UseCase: Get.find<ExecutePoiStep1UseCase>(),
+      executePoiStep2UseCase: Get.find<ExecutePoiStep2UseCase>(),
+      updateFormUseCase: Get.find<UpdateFormUseCase>(),
+      executePoaUseCase: Get.find<ExecutePoaUseCase>(),
+      executePennyDropUseCase: Get.find<ExecutePennyDropUseCase>(),
+      uploadToSignzyUseCase: Get.find<UploadToSignzyUseCase>(),
+      getCaptchaUseCase: Get.find<GetCaptchaUseCase>(),
+      getTokenDataUseCase: Get.find<GetTokenDataUseCase>(),
+    ));
+
+    // 5. Controller
     Get.lazyPut(() => KycController(Get.find<KycUseCases>()));
   }
 }

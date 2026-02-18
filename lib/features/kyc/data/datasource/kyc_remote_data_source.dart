@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
