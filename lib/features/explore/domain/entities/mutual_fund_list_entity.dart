@@ -32,12 +32,14 @@ class MutualFundListEntity extends Equatable {
   final String? isin;
   final String? schemeCode;
   final AmcEntity? amc;
+  final ReturnsEntity? returnsEntity;
 
   final int? minSipAmount;
   final int? minLumpsum;
   final List<VariantModelEntity> variants;
 
   const MutualFundListEntity({
+    required this.returnsEntity,
     required this.schemeCode,
 
     required this.baseSchemeName,
@@ -52,6 +54,7 @@ class MutualFundListEntity extends Equatable {
 
   @override
   List<Object?> get props => [
+    returnsEntity,
     baseSchemeName,
     schemeType,
     riskLevel,
@@ -66,6 +69,7 @@ class MutualFundListEntity extends Equatable {
 extension MutualFundListEntityX on MutualFundListModel {
   MutualFundListEntity toEntity() {
     return MutualFundListEntity(
+      returnsEntity: returns?.toEntity(),
       schemeCode: schemeCode,
       baseSchemeName: baseSchemeName,
       schemeType: schemeType,
@@ -127,6 +131,45 @@ extension VariantModelEntityX on VariantModel {
       planType: planType,
       nav: nav,
       navDate: navDate,
+    );
+  }
+}
+
+class ReturnsEntity extends Equatable {
+  final String? oneWeek;
+  final String? oneMonth;
+  final String? oneYear;
+  final String? threeYear;
+  final String? fiveYear;
+  final String? tenYear;
+  const ReturnsEntity({
+    this.oneWeek,
+    this.oneMonth,
+    this.oneYear,
+    this.threeYear,
+    this.fiveYear,
+    this.tenYear,
+  });
+  @override
+  List<Object?> get props => [
+    oneWeek,
+    oneMonth,
+    oneYear,
+    threeYear,
+    fiveYear,
+    tenYear,
+  ];
+}
+
+extension RetunrsModelEntityx on ReturnsModel {
+  ReturnsEntity toEntity() {
+    return ReturnsEntity(
+      oneWeek: oneWeek,
+      oneMonth: oneMonth,
+      oneYear: oneWeek,
+      threeYear: threeYear,
+      fiveYear: fiveYear,
+      tenYear: tenYear,
     );
   }
 }

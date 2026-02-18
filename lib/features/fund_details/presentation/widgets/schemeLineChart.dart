@@ -31,10 +31,7 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
               const SizedBox(height: 12),
               Text(
                 "No data available",
-                style: TextStyle(
-                  color: Colors.grey.shade500,
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
               ),
             ],
           ),
@@ -57,10 +54,10 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
       padding: isDesktop ? const EdgeInsets.all(20) : const EdgeInsets.all(12),
       decoration: isDesktop
           ? BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
-      )
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey.shade200),
+            )
           : null,
       child: LineChart(
         LineChartData(
@@ -71,11 +68,9 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
           gridData: FlGridData(
             show: isDesktop,
             drawVerticalLine: false,
-            horizontalInterval: (maxY - minY) / 5,
-            getDrawingHorizontalLine: (value) => FlLine(
-              color: Colors.grey.shade100,
-              strokeWidth: 1,
-            ),
+            horizontalInterval: ((maxY - minY) <= 0) ? null : (maxY - minY) / 5,
+            getDrawingHorizontalLine: (value) =>
+                FlLine(color: Colors.grey.shade100, strokeWidth: 1),
           ),
           borderData: FlBorderData(show: false),
           titlesData: FlTitlesData(
@@ -135,27 +130,27 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
             touchSpotThreshold: 20,
             getTouchedSpotIndicator:
                 (LineChartBarData barData, List<int> spotIndexes) {
-              return spotIndexes.map((index) {
-                return TouchedSpotIndicatorData(
-                  FlLine(
-                    color: const Color(0xFF1E5DB9).withOpacity(0.5),
-                    strokeWidth: isDesktop ? 2 : 1.5,
-                    dashArray: [5, 5],
-                  ),
-                  FlDotData(
-                    show: true,
-                    getDotPainter: (spot, percent, barData, index) {
-                      return FlDotCirclePainter(
-                        radius: isDesktop ? 6 : 5,
-                        color: Colors.white,
-                        strokeWidth: isDesktop ? 3 : 2,
-                        strokeColor: const Color(0xFF1E5DB9),
-                      );
-                    },
-                  ),
-                );
-              }).toList();
-            },
+                  return spotIndexes.map((index) {
+                    return TouchedSpotIndicatorData(
+                      FlLine(
+                        color: const Color(0xFF1E5DB9).withOpacity(0.5),
+                        strokeWidth: isDesktop ? 2 : 1.5,
+                        dashArray: [5, 5],
+                      ),
+                      FlDotData(
+                        show: true,
+                        getDotPainter: (spot, percent, barData, index) {
+                          return FlDotCirclePainter(
+                            radius: isDesktop ? 6 : 5,
+                            color: Colors.white,
+                            strokeWidth: isDesktop ? 3 : 2,
+                            strokeColor: const Color(0xFF1E5DB9),
+                          );
+                        },
+                      ),
+                    );
+                  }).toList();
+                },
             touchTooltipData: LineTouchTooltipData(
               getTooltipColor: (_) => Colors.grey.shade900,
               tooltipPadding: EdgeInsets.symmetric(

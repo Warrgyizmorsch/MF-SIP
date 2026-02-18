@@ -1146,12 +1146,13 @@ class _MobileLayout extends StatelessWidget {
           ),
 
           // Popular Funds
-          const SliverToBoxAdapter(
+          SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.fromLTRB(16, 20, 16, 0),
               child: USectionHeading(
                 title: 'Popular Funds',
                 showActionButton: true,
+                onPressed: () => navController.selectedIndex.value = 1,
               ),
             ),
           ),
@@ -1170,6 +1171,7 @@ class _MobileLayout extends StatelessWidget {
                   final fund = mutualController.searchFund[index];
                   final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
                   final name = fund.baseSchemeName ?? 'Unknown Name';
+                  final threeyear = fund.returnsEntity?.threeYear ?? '';
                   final schemeCode = fund.schemeCode.toString();
                   return PopularFundCard(
                     onTap: () => Get.toNamed(
@@ -1183,6 +1185,7 @@ class _MobileLayout extends StatelessWidget {
                     isNetwork: true,
                     imgPath: img,
                     name: name,
+                    threeYear: threeyear,
                   );
                 },
               );
@@ -1336,6 +1339,7 @@ class PopularFundCard extends StatelessWidget {
     this.onTap,
     this.isNetwork = false,
     this.borderColor = Ucolors.borderColor,
+    this.threeYear,
   });
 
   final String imgPath;
@@ -1343,6 +1347,7 @@ class PopularFundCard extends StatelessWidget {
   final VoidCallback? onTap;
   final bool isNetwork;
   final Color borderColor;
+  final String? threeYear;
 
   @override
   Widget build(BuildContext context) {
@@ -1417,7 +1422,7 @@ class PopularFundCard extends StatelessWidget {
                         size: 20,
                       ),
                       Text(
-                        '+31.06%',
+                        '${threeYear}%',
                         style: UTextStyles.caption.copyWith(
                           color: Ucolors.success,
                           fontWeight: FontWeight.bold,

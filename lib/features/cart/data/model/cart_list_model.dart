@@ -95,9 +95,11 @@ class CartItemModel {
   final String? minSipAmount;
   final String? minLumpsum;
   final String? amcLogo;
+  final String? minTopupAmount;
 
 
   CartItemModel({
+    this.minTopupAmount,
     this.id,
     this.cartId,
     this.transType,
@@ -135,7 +137,8 @@ class CartItemModel {
       schemeName: json.parse<String>('scheme_name'),
       minSipAmount: json.parse<String>('min_sip_amount'),
       minLumpsum: json.parse<String>('min_lumpsum'),
-      amcLogo: json.parse<String>('amc_logo')
+      amcLogo: json.parse<String>('amc_logo'),
+      minTopupAmount: json.parse<String>('minimum_topup')
     );
   }
 }

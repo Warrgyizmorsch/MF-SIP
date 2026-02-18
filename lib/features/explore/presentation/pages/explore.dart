@@ -722,10 +722,13 @@ import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/cart/data/model/cartItem_model.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
+import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
+import 'package:my_sip/features/fund_details/presentation/widgets/helper.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart'; // Ensure this import exists for Deleteiconwithcontainer
 import 'package:responsive_framework/responsive_framework.dart';
 
@@ -1403,20 +1406,50 @@ class _MobileExploreLayout extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
             child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Ucolors.borderColor),
-                    shape: BoxShape.circle,
-                  ),
-                  child: CompactIcon(
-                    icon: Icons.tune,
-                    onPressed: () async {
-                      final result = await Get.toNamed(AppRoutes.filterpage);
-                      if (result != null && result is Map<String, dynamic>) {
-                        controller.applyFilters(result);
-                      }
-                    },
+                // Container(
+                //   padding: const EdgeInsets.all(8),
+                //   decoration: BoxDecoration(
+                //     border: Border.all(color: Ucolors.borderColor),
+                //     shape: BoxShape.circle,
+                //   ),
+                //   child: CompactIcon(
+                //     icon: Icons.tune,
+                //     onPressed: () async {
+                //       final result = await Get.toNamed(AppRoutes.filterpage);
+                //       if (result != null && result is Map<String, dynamic>) {
+                //         controller.applyFilters(result);
+                //       }
+                //     },
+                //   ),
+                // ),
+                Obx(
+                  () => Badge(
+                    isLabelVisible:
+                        Get.find<FundhouseController>().isFilterActive,
+                    backgroundColor: Colors.redAccent,
+                    alignment: const Alignment(
+                      0.6,
+                      -0.6,
+                    ), // Adjusts dot position
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Ucolors.borderColor),
+                        shape: BoxShape.circle,
+                      ),
+                      child: CompactIcon(
+                        icon: Icons.tune,
+                        onPressed: () async {
+                          final result = await Get.toNamed(
+                            AppRoutes.filterpage,
+                          );
+                          if (result != null &&
+                              result is Map<String, dynamic>) {
+                            controller.applyFilters(result);
+                          }
+                        },
+                      ),
+                    ),
                   ),
                 ),
                 Container(
@@ -1613,14 +1646,18 @@ class MutualFundCard extends StatelessWidget {
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text: 'Risk:',
+                              text: 'Risk: ',
+                              // text: entity.riskLevel,
                               style: Theme.of(context).textTheme.labelSmall!
                                   .copyWith(fontWeight: FontWeight.normal),
                             ),
                             TextSpan(
-                              text: 'Very High',
+                              text: entity.riskLevel,
                               style: Theme.of(context).textTheme.labelMedium!
-                                  .copyWith(color: Ucolors.red),
+                                  .copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: getRiskMeter(entity.riskLevel).color,
+                                  ),
                             ),
                           ],
                         ),
@@ -1644,8 +1681,9 @@ class MutualFundCard extends StatelessWidget {
                               await controller.addToCart(
                                 entity.schemeCode ?? '',
                                 entity.baseSchemeName ?? '',
+                                entity.minSipAmount ?? 0,
                               );
-                              // await controller.fetchCart();
+                              await controller.fetchCart();
 
                               // controller.addItem(
                               //   CartItem(
@@ -1742,11 +1780,36 @@ class MutualFundCard extends StatelessWidget {
             /// Returns Row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: const [
-                _ReturnItem(title: '1W', value: '-0.15%', isNegative: true),
-                _ReturnItem(title: '1Y', value: '5.20%'),
-                _ReturnItem(title: '3Y', value: '18.42%'),
-                _ReturnItem(title: '5Y', value: '20.89%'),
+              children: [
+                _ReturnItem(
+                  isNegative: parseIntSafe(entity.returnsEntity?.oneMonth) < 0
+                      ? true
+                      : false,
+                  title: '1M',
+                  value: '${entity.returnsEntity?.oneMonth}%',
+                  // isNegative: true,
+                ),
+                _ReturnItem(
+                  isNegative: parseIntSafe(entity.returnsEntity?.oneYear) < 0
+                      ? true
+                      : false,
+                  title: '1Y',
+                  value: '${entity.returnsEntity?.oneYear}%',
+                ),
+                _ReturnItem(
+                  isNegative: parseIntSafe(entity.returnsEntity?.threeYear) < 0
+                      ? true
+                      : false,
+                  title: '3Y',
+                  value: '${entity.returnsEntity?.threeYear}%',
+                ),
+                _ReturnItem(
+                  isNegative: parseIntSafe(entity.returnsEntity?.fiveYear) < 0
+                      ? true
+                      : false,
+                  title: '5Y',
+                  value: '${entity.returnsEntity?.fiveYear}%',
+                ),
               ],
             ),
           ],

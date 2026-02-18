@@ -216,3 +216,14 @@ List<String> getCleanedTopHoldings({
   holdings.sort((a, b) => b.value.compareTo(a.value));
   return holdings.take(limit).map((e) => e.key).toList();
 }
+
+///// Parse String to Int
+double parseIntSafe(String? value, {double defaultValue = 0}) {
+  if (value == null || value.trim().isEmpty) {
+    return defaultValue;
+  }
+
+  final cleanValue = value.replaceAll(',', '').trim();
+
+  return double.tryParse(cleanValue) ?? defaultValue;
+}

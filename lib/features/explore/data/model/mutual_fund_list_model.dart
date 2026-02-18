@@ -31,12 +31,14 @@ class MutualFundListModel {
   final String? schemeCode;
   final String? isin;
   final AmcModel? amc;
+  final ReturnsModel? returns;
 
   final int? minSipAmount;
   final int? minLumpsum;
   final List<VariantModel> variants;
 
   MutualFundListModel({
+    this.returns,
     required this.schemeCode,
     required this.baseSchemeName,
     required this.schemeType,
@@ -58,9 +60,38 @@ class MutualFundListModel {
       minLumpsum: json.parse<int>('min_lumpsum'),
       riskLevel: json.parse<String>('risk_level'),
       amc: json.parseNested('amc', (e) => AmcModel.fromJson(e)),
+      returns: json.parseNested('returns', (e) => ReturnsModel.fromJson(e)),
 
       variants:
           json.parseListOf('variants', (e) => VariantModel.fromJson(e)) ?? [],
+    );
+  }
+}
+
+class ReturnsModel {
+  final String? oneWeek;
+  final String? oneMonth;
+  final String? oneYear;
+  final String? threeYear;
+  final String? fiveYear;
+  final String? tenYear;
+  ReturnsModel({
+    this.oneWeek,
+    this.oneMonth,
+    this.oneYear,
+    this.threeYear,
+    this.fiveYear,
+    this.tenYear,
+  });
+
+  factory ReturnsModel.fromJson(Map<String, dynamic> json) {
+    return ReturnsModel(
+      oneWeek: json.parse<String>('1w'),
+      oneMonth: json.parse<String>('1m'),
+      oneYear: json.parse<String>('1y'),
+      threeYear: json.parse<String>('3y'),
+      fiveYear: json.parse<String>('5y'),
+      tenYear: json.parse<String>('10y'),
     );
   }
 }

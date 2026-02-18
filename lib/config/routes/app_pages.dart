@@ -43,7 +43,12 @@ class AppPages {
     GetPage(name: AppRoutes.splash, page: () => const SplashScreen()),
     GetPage(name: AppRoutes.home, page: () => HomeScreen()),
     GetPage(
-      bindings: [UBinding(), PersonalisationBinding(), Bankbinding()],
+      bindings: [
+        UBinding(),
+        PersonalisationBinding(),
+        Bankbinding(),
+        Fundhousebinding(),
+      ],
       name: AppRoutes.navMenuBar,
       page: () => const NavigationMenuBar(),
     ),
@@ -129,7 +134,7 @@ class AppPages {
     GetPage(
       name: AppRoutes.filterpage,
       page: () => Filterpage(),
-      binding: Fundhousebinding(),
+      // binding: Fundhousebinding(),
     ),
     GetPage(
       name: AppRoutes.otpVerificationScreen,

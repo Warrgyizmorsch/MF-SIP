@@ -390,6 +390,12 @@ class InvestmentInputsRow extends StatelessWidget {
   final CartItemEntity itemEntity;
   final controller = Get.find<CartController>();
 
+  /// Helper to convert API strings like "1000.00" to int 1000
+  int _parseAmount(String? value, {int defaultVal = 500}) {
+    if (value == null || value.isEmpty) return defaultVal;
+    return double.tryParse(value)?.toInt() ?? defaultVal;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -401,12 +407,22 @@ class InvestmentInputsRow extends StatelessWidget {
 
       // Extract local variables from the current state of the entity
       final currentType = itemEntity.transType?.toLowerCase() ?? 'sip';
-      // final currentAmount = itemEntity.amount?.toString() ?? '0';
+
+      // Calculate Limits based on Type
+      final int minSip = _parseAmount(itemEntity.minSipAmount);
+      final int minLumpsum = _parseAmount(itemEntity.minLumpsum);
+      // final int minStepup = _parseAmount(itemEntity.minSipAmount);
+
+      final int currentMinLimit = (currentType == 'lumpsum')
+          ? minLumpsum
+          : minSip;
+
+      // --- 3. DISPLAY AMOUNT LOGIC ---
+      // If amount is 0 or invalid, force it to show the current minimum
       final currentAmount =
-          double.tryParse(
-            itemEntity.amount?.toString() ?? '0',
-          )?.toInt().toString() ??
-          '0';
+          (itemEntity.amount != null && itemEntity.amount! > 0)
+          ? itemEntity.amount.toString()
+          : currentMinLimit.toString();
 
       return Column(
         children: [
@@ -431,23 +447,29 @@ class InvestmentInputsRow extends StatelessWidget {
                       ),
                       DropdownMenuItem(value: 'stepup', child: Text('Step Up')),
                     ],
-                    onChanged: (value) {
-                      // if (value != null && value != currentType) {
-                      //   controller.updateCartItem(
-                      //     itemId: itemEntity.id!,
-                      //     transType: value,
-                      //     // Defaults based on type: adjust as needed for your business logic
-                      //     amount: value == 'lumpsum' ? 5000 : 500,
-                      //   );
-                      // }
-                      // if (value != null)
-                      if (value != null && value != currentType) {
-                        // This will trigger the optimistic update in the controller
+                    onChanged: (val) {
+                      if (val != null && val != currentType) {
+                        // LOGIC: When Type changes, auto-switch Amount to new Minimum
+                        int newDefaultAmount = minSip;
+                        if (val == 'lumpsum') {
+                          newDefaultAmount = minLumpsum;
+                        }
+
+                        int? newTopUp;
+                        String? newFrequency; // Add this variable
+                        if (val == 'stepup') {
+                          // When switching to Step Up, init the Top-up field to 1000
+                          newTopUp = _parseAmount(itemEntity.minTopupAmount);
+                          newFrequency = '1';
+                        }
+
                         controller.updateCartItem(
                           itemId: itemEntity.id!,
-                          transType: value,
-                          amount: value == 'lumpsum' ? 5000 : 500,
-                          // amount: itemEntity.amount,
+                          transType: val,
+                          amount: newDefaultAmount,
+                          // ✅ Updates UI & API instantly
+                          topUpAmount: newTopUp,
+                          frequency: newFrequency, // ✅ Pass frequency here
                         );
                       }
                     },
@@ -510,9 +532,10 @@ class InvestmentInputsRow extends StatelessWidget {
                       // hint: '500',
                       keyboardType: TextInputType.number,
                       controller: TextEditingController(
-                        text: currentAmount == '1'
-                            ? itemEntity.minSipAmount
-                            : currentAmount,
+                        text: currentAmount,
+                        // text: currentAmount == '1'
+                        //     ? itemEntity.minSipAmount
+                        //     : currentAmount,
                       ),
                       validationType: ValidationType.custom,
                       customValidator: (value) {
@@ -521,13 +544,16 @@ class InvestmentInputsRow extends StatelessWidget {
                         }
                         final amount = int.tryParse(value);
 
-                        if (amount == null || amount < 500) return 'Min ₹500';
+                        // Check against the dynamic limit (SIP vs Lumpsum)
+                        if (amount == null || amount < currentMinLimit) {
+                          return 'Min ₹$currentMinLimit'; // Shows red text automatically
+                        }
                         return null;
                       },
 
                       onSubmitted: (value) {
                         final newAmt = int.tryParse(value);
-                        if (newAmt != null && newAmt >= 500) {
+                        if (newAmt != null && newAmt >= currentMinLimit) {
                           controller.updateCartItem(
                             itemId: itemEntity.id!,
                             amount: newAmt,
@@ -678,6 +704,24 @@ class InvestmentInputsRow extends StatelessWidget {
           itemEntity.topUpAmount?.toString() ?? '0',
         )?.toInt().toString() ??
         '0';
+
+    final int minTopUp = _parseAmount(
+      itemEntity.minTopupAmount,
+      defaultVal: 500,
+    );
+
+    // final String currentTopUp = _parseAmount(
+    //   itemEntity.topUpAmount,
+    //   defaultVal: 0, // If null, show 0 or min topup
+    // ).toString();
+
+    final String currentTopUp =
+        (itemEntity.topUpAmount != null &&
+            itemEntity.topUpAmount != '0' &&
+            itemEntity.topUpAmount != '')
+        ? _parseAmount(itemEntity.topUpAmount).toString()
+        : minTopUp.toString();
+
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -690,21 +734,23 @@ class InvestmentInputsRow extends StatelessWidget {
             child: _buildColumn(
               'Step up Frequency',
               DropdownButton<String>(
-                value: itemEntity.frequency ?? '6m',
+                value: itemEntity.frequency ?? '1',
                 isExpanded: true,
                 isDense: true,
                 underline: const SizedBox(),
                 items: const [
-                  DropdownMenuItem(value: '6m', child: Text('6 month')),
-                  DropdownMenuItem(value: '1y', child: Text('1 Year')),
+                  DropdownMenuItem(value: '1', child: Text('Monthly')),
+                  DropdownMenuItem(value: '3', child: Text('Quarterly')),
+                  DropdownMenuItem(value: '6', child: Text('6 Months')),
+                  DropdownMenuItem(value: '12', child: Text('Yearly')),
                 ],
                 onChanged: (val) {
-                  if (val != null) {
-                    controller.updateCartItem(
-                      itemId: itemEntity.id!,
-                      frequency: val,
-                    );
-                  }
+                  // if (val != null) {
+                  controller.updateCartItem(
+                    itemId: itemEntity.id!,
+                    frequency: val,
+                  );
+                  // }
                 },
               ),
             ),
@@ -714,27 +760,40 @@ class InvestmentInputsRow extends StatelessWidget {
             child: _buildColumn(
               'Step Up Amount',
               TextField(
-                controller: TextEditingController(
-                  // text: itemEntity.topUpAmount.toString(),
-                  // text: itemEntity.topUpAmount != null
-                  //     ? (double.tryParse(
-                  //             itemEntity.topUpAmount.toString(),
-                  //           )?.toInt().toString() ??
-                  //           '0')
-                  //     : '0',
-                  text: stepUpAmt,
-                ),
+                key: ValueKey('topup_${itemEntity.id}_$currentTopUp'),
+                // controller: TextEditingController(
+
+                //   text: stepUpAmt,
+                // ),
+                // controller: TextEditingController(
+                //   text: currentTopUp == '0'
+                //       ? minTopUp.toString()
+                //       : currentTopUp,
+                // ),
+                controller: TextEditingController(text: currentTopUp),
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
                   border: InputBorder.none,
                   isDense: true,
                 ),
+
                 onSubmitted: (val) {
-                  final stepAmt = int.tryParse(val);
-                  if (stepAmt != null) {
+                  // final stepAmt = int.tryParse(val);
+                  // if (stepAmt != null) {
+                  //   controller.updateCartItem(
+                  //     itemId: itemEntity.id!,
+                  //     topUpAmount: stepAmt,
+                  //   );
+                  // }
+                  final amt = int.tryParse(val);
+
+                  // TOPUP VALIDATION
+                  if (amt != null
+                  // && amt >= minTopUp
+                  ) {
                     controller.updateCartItem(
                       itemId: itemEntity.id!,
-                      topUpAmount: stepAmt,
+                      topUpAmount: amt,
                     );
                   }
                 },
