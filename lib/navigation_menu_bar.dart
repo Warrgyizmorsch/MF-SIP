@@ -4,15 +4,8 @@ import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-// --- YOUR IMPORTS ---
-import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
-import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/services/session_manager.dart';
-import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
-import 'package:my_sip/features/explore/presentation/pages/explore.dart';
-import 'package:my_sip/features/goal/presentation/pages/goal.dart';
 import 'package:my_sip/features/home/presentation/pages/home.dart';
-import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'config/routes/app_pages.dart';
 import 'core/utils/constant/images.dart';
@@ -27,11 +20,21 @@ class NavigationBarController extends GetxController {
 
     // Use id: 1 to navigate inside the nested area
     switch (index) {
-      case 0: Get.toNamed(AppRoutes.home, id: 1); break;
-      case 1: Get.toNamed(AppRoutes.explorePage, id: 1); break;
-      case 2: Get.toNamed(AppRoutes.dashBoardPage, id: 1); break;
-      case 3: Get.toNamed(AppRoutes.goalScreen, id: 1); break;
-      case 4: Get.toNamed(AppRoutes.profilePage, id: 1); break; // or AppRoutes.profile
+      case 0:
+        Get.toNamed(AppRoutes.home, id: 1);
+        break;
+      case 1:
+        Get.toNamed(AppRoutes.explorePage, id: 1);
+        break;
+      case 2:
+        Get.toNamed(AppRoutes.dashBoardPage, id: 1);
+        break;
+      case 3:
+        Get.toNamed(AppRoutes.goalScreen, id: 1);
+        break;
+      case 4:
+        Get.toNamed(AppRoutes.profilePage, id: 1);
+        break; // or AppRoutes.profile
     }
   }
 }
@@ -55,13 +58,15 @@ class NavigationMenuBar extends StatelessWidget {
 
           Expanded(
             child: Navigator(
-              key: Get.nestedKey(1), // Ensure this matches controller.changePage logic
+              key: Get.nestedKey(
+                1,
+              ), // Ensure this matches controller.changePage logic
               initialRoute: AppRoutes.home,
               onGenerateRoute: (settings) {
                 // Look up the route in your existing AppPages
                 try {
                   final getPage = AppPages.pages().firstWhere(
-                        (p) => p.name == settings.name,
+                    (p) => p.name == settings.name,
                   );
 
                   return GetPageRoute(
@@ -69,13 +74,14 @@ class NavigationMenuBar extends StatelessWidget {
                     binding: getPage.binding,
                     bindings: getPage.bindings,
                     settings: settings,
-                    transition: Transition.fadeIn, // Optional: smoother tab switch
+                    transition:
+                        Transition.fadeIn, // Optional: smoother tab switch
                   );
                 } catch (e) {
                   // Fallback if route not found in AppPages
                   return GetPageRoute(
-                      page: () => HomeScreen(),
-                      settings: settings
+                    page: () => HomeScreen(),
+                    settings: settings,
                   );
                 }
               },
@@ -132,7 +138,11 @@ class _DesktopSideNav extends StatelessWidget {
                       gradient: Ucolors.backgroundGradient,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.trending_up, color: Colors.white, size: 24),
+                    child: const Icon(
+                      Icons.trending_up,
+                      color: Colors.white,
+                      size: 24,
+                    ),
                   ),
                   if (isDesktop) ...[
                     const SizedBox(width: 12),
@@ -144,7 +154,7 @@ class _DesktopSideNav extends StatelessWidget {
                         color: Ucolors.dark,
                       ),
                     ),
-                  ]
+                  ],
                 ],
               ),
             ),
@@ -191,9 +201,9 @@ class _DesktopSideNav extends StatelessWidget {
                                 user?.name ?? 'Guest User',
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                    color: Colors.black
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  color: Colors.black,
                                 ),
                               ),
                             ],
@@ -307,7 +317,7 @@ class _MobileBottomNavBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: List.generate(
             _navItems.length,
-                (index) => _MobileNavItem(index: index),
+            (index) => _MobileNavItem(index: index),
           ),
         ),
       ),

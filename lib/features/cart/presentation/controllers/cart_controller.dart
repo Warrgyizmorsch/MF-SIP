@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/cart/data/model/cartItem_model.dart';
@@ -10,11 +9,31 @@ import 'package:my_sip/features/cart/domain/usecases/cart_usecases.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 class CartController extends GetxController {
-  // @override
-  // void onInit() {
-  //   super.onInit();
-  //   fetchCart();
-  // }
+  @override
+  void onInit() {
+    super.onInit();
+    // Capture the argument if it exists
+    // if (Get.arguments != null && Get.arguments['goal_id'] != null) {
+    //   filterGoalId.value = Get.arguments['goal_id'];
+    // }
+    // Try to capture from Get.arguments
+    // if (Get.arguments != null) {
+    //   if (Get.arguments is Map) {
+    //     filterGoalId.value = Get.arguments['goal_id'];
+    //   } else if (Get.arguments is int) {
+    //     filterGoalId.value = Get.arguments;
+    //   }
+    // }
+
+    // // Fallback: If arguments are null, check Get.parameters (for web/named routes)
+    // if (filterGoalId.value == null && Get.parameters['goal_id'] != null) {
+    //   filterGoalId.value = int.tryParse(Get.parameters['goal_id']!);
+    // }
+    _loadArgs();
+
+    log("Captured Filter ID: ${filterGoalId.value}");
+    fetchCart();
+  }
 
   // int get totalAmount => cartResponseEntity.value?.cart?.totalAmount ?? 0;
 
@@ -41,6 +60,89 @@ class CartController extends GetxController {
 
   final RxInt monthlyAmount = 0.obs;
   final TextEditingController invAmount = TextEditingController();
+
+  // Inside CartController
+  final filterGoalId = RxnInt();
+
+  // This is what the UI above is now listening to
+  // This is the data source for your Cart Page ListView
+  // Use this specific getter for your ListView
+
+  void _loadArgs() {
+    // Check if we have arguments and specifically look for goal_id
+    if (Get.arguments != null && Get.arguments is Map) {
+      filterGoalId.value = Get.arguments['goal_id'];
+    } else {
+      filterGoalId.value = null; // Explicitly clear if no argument is passed
+    }
+  }
+
+  // List<CartItemEntity> get displayedItems {
+  //   final allItems = cartResponseEntity.value?.items ?? [];
+
+  //   if (filterGoalId.value != null) {
+  //     return allItems
+  //         .where((item) => item.goalId == filterGoalId.value)
+  //         .toList();
+  //   }
+
+  //   return allItems.where((item) => item.goalId == null).toList();
+  // }
+  // Inside CartController
+  int get generalItemsCount {
+    // Filter the list to find only items where goalId is null
+    return cartResponseEntity.value?.items
+            .where((item) => item.goalId == null)
+            .length ??
+        0;
+  }
+
+  // Inside CartController
+  List<CartItemEntity> get displayedItems {
+    final allItems = cartResponseEntity.value?.items ?? [];
+
+    if (filterGoalId.value != null) {
+      // Show only specific goal items
+      return allItems
+          .where((item) => item.goalId == filterGoalId.value)
+          .toList();
+    }
+
+    // Show only general items (matches the badge count logic)
+    return allItems.where((item) => item.goalId == null).toList();
+  }
+
+  // List<CartItemEntity> get displayedItems {
+  //   // Accessing .value makes this getter reactive
+  //   final allItems = cartResponseEntity.value?.items ?? [];
+  //   final targetId = filterGoalId.value;
+
+  //   if (targetId != null) {
+  //     log("Filtering for Goal ID: $targetId");
+  //     return allItems.where((item) {
+  //       log("Checking Item: ${item.schemeName} | Item GoalID: ${item.goalId}");
+  //       return item.goalId == targetId;
+  //     }).toList();
+  //   }
+
+  //   log("No filter applied, showing all ${allItems.length} items");
+  //   return allItems;
+  // }
+
+  // // Use this list to drive your UI
+  // List<CartItemEntity> get goalSpecificItems {
+  //   final allItems = cartResponseEntity.value?.items ?? [];
+
+  //   if (filterGoalId.value != null) {
+  //     // ONLY show items that match the current goal ID
+  //     // This effectively hides "previous" or "main cart" items
+  //     return allItems
+  //         .where((item) => item.goalId == filterGoalId.value)
+  //         .toList();
+  //   }
+
+  //   return allItems; // Show all if no goal is active
+  // }
 
   CartController(this.cartUsecases);
 
@@ -119,7 +221,12 @@ class CartController extends GetxController {
   }
    */
   // Add to cart with duplicate check and custom toast
-  Future<void> addToCart(String schemeCode, String schemeName , int minSipAmount) async {
+  Future<void> addToCart(
+    String schemeCode,
+    String schemeName,
+    int minSipAmount,
+    int? goalId,
+  ) async {
     // 1. DUPLICATE CHECK: Verify if fund already exists in local state
     bool alreadyInCart =
         cartResponseEntity.value?.items.any(
@@ -140,6 +247,20 @@ class CartController extends GetxController {
     try {
       // 2. OPTIMISTIC UPDATE: Increment badge count immediately
       optimisticBadgeCount.value++;
+
+      final Map<String, dynamic> requestData = {
+        "user_id": SessionManager.instance.getUserData!.id,
+        "scheme_code": schemeCode,
+        "trans_type": "sip",
+        "amount": minSipAmount,
+        "sip_day": 2,
+      };
+
+      // If goalId is provided, add it to the payload
+      if (goalId != null) {
+        requestData["goal_id"] = goalId;
+      }
+
       showCustomToast(
         title: "Added to Cart",
         message: schemeName,
@@ -147,13 +268,14 @@ class CartController extends GetxController {
         icon: Icons.check_circle_outline,
       );
 
-      final result = await cartUsecases.addToCartUsecases.call({
-        "user_id": SessionManager.instance.getUserData!.id,
-        "scheme_code": schemeCode,
-        "trans_type": "sip",
-        "amount": minSipAmount,
-        "sip_day": 2,
-      });
+      // final result = await cartUsecases.addToCartUsecases.call({
+      //   "user_id": SessionManager.instance.getUserData!.id,
+      //   "scheme_code": schemeCode,
+      //   "trans_type": "sip",
+      //   "amount": minSipAmount,
+      //   "sip_day": 2,
+      // });
+      final result = await cartUsecases.addToCartUsecases.call(requestData);
 
       result.fold(
         (success) async {
@@ -472,6 +594,13 @@ class CartController extends GetxController {
   }
 
   //////  -------------------------  ///////////////////
+  @override
+  void onClose() {
+    filterGoalId.value = null;
+    items.clear();
+
+    super.onClose();
+  }
 }
 
 void showCustomToast({

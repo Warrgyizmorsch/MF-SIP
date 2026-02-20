@@ -338,6 +338,8 @@ class FundhouseController extends GetxController {
   // TOTAL COUNT
   final selectedFundCount = 0.obs;
 
+  final customGlobalSearch = RxnString();
+  final bestSipValue = RxnInt();
   // -----------------------------------------//
 
   RxBool isLoading = false.obs;
@@ -373,11 +375,38 @@ class FundhouseController extends GetxController {
     }
 
     if (indexFundOnly.value) {
-      // params['index_only'] = true;
       params['search'] = 'index';
+    } else if (customGlobalSearch.value != null) {
+      params['search'] =
+          customGlobalSearch.value; // <-- This handles 'international'
+    }
+
+    if (bestSipValue.value != null) {
+      params['best_sip'] = bestSipValue.value;
     }
 
     return params;
+  }
+
+  // 2. Add this function to apply the search from the Home Screen
+  void applyCustomSearch(String query) {
+    _clearOtherFilters(); // Clear previous filters so they don't conflict
+    customGlobalSearch.value = query;
+
+    // Refresh the count
+    fetchCount();
+
+    // IMPORTANT: Tell the MutualFundController to re-fetch the Explore page list
+    // Replace 'fetchFunds' with your actual function name for loading the explore list
+    Get.find<MutualFundController>().applyFilters(buildParam());
+  }
+
+  void applyBestSipFilter(int value) {
+    _clearOtherFilters(); // Clear everything else
+    bestSipValue.value = value; // Set it to 1
+
+    fetchCount();
+    Get.find<MutualFundController>().applyFilters(buildParam());
   }
 
   // Toggle Index Fund Only
@@ -626,17 +655,16 @@ class FundhouseController extends GetxController {
   //   fetchCount();
   // }
 
-
   // --- Check if any filter is active ---
   bool get isFilterActive {
     return selectedSchemeType.value != null ||
-           selectedAmcId.value != null ||
-           selectedRisk.value != null ||
-           selectedRating.value != null ||
-           indexFundOnly.value == true;
+        selectedAmcId.value != null ||
+        selectedRisk.value != null ||
+        selectedRating.value != null ||
+        customGlobalSearch.value != null ||
+        bestSipValue.value != null ||
+        indexFundOnly.value == true;
   }
-
-
 
   void _clearOtherFilters() {
     selectedSchemeType.value = null;
@@ -644,6 +672,8 @@ class FundhouseController extends GetxController {
     selectedRisk.value = null;
     selectedRating.value = null;
     indexFundOnly.value = false;
+    customGlobalSearch.value = null;
+    bestSipValue.value = null; // <-- Reset to null
   }
 
   void clearAllFilters() {

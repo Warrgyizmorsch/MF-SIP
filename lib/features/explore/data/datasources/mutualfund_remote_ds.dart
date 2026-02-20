@@ -21,6 +21,7 @@ class MutualfundRemoteDs {
     try {
       final resp = await _servicesApi.postApi(
         "${Appurl.baseUrl}/api/v1/mutual-funds",
+        
         queryParameters: data,
       );
 

@@ -14,10 +14,8 @@ import 'package:my_sip/features/explore/data/repositories/mutual_fund_repo_imple
 import 'package:my_sip/features/explore/domain/repositories/mutual_fund_repository.dart';
 import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_usecases.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
-import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
 import 'package:my_sip/features/onboarding/presentation/controller/onboarding_controller.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/questions/question_controller.dart';
-import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 
 import '../../features/authentication/data/datasources/auth_remote_data_source.dart';
 import '../../features/authentication/data/repositories/auth_repository_impl.dart';
@@ -139,7 +137,12 @@ class UBinding extends Bindings {
 
     // --------------//
 
-    Get.put<CartController>(CartController(Get.find()), permanent: true);
+    // Get.put<CartController>(CartController(Get.find()), permanent: true);
+    // To this:
+    Get.lazyPut<CartController>(
+      () => CartController(Get.find()),
+      fenix: true, // This allows it to be recreated after being disposed
+    );
 
     // // Goal controller
     // Get.lazyPut(() => GoalSipController(goalUseCases: Get.find<>()), fenix: true);

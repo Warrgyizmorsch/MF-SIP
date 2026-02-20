@@ -44,8 +44,18 @@ class IhavegoalPage extends GetView<GoalSipController> {
     'car': {'amount': 1000000, 'duration': 5, 'rate': 12, 'name': 'Car'},
     'bike': {'amount': 150000, 'duration': 3, 'rate': 12, 'name': 'Bike'},
     'home': {'amount': 3000000, 'duration': 10, 'rate': 12, 'name': 'Home'},
-    'marriage': {'amount': 500000, 'duration': 5, 'rate': 12, 'name': 'Marriage'},
-    'vacation': {'amount': 100000, 'duration': 2, 'rate': 12, 'name': 'Vacation'},
+    'marriage': {
+      'amount': 500000,
+      'duration': 5,
+      'rate': 12,
+      'name': 'Marriage',
+    },
+    'vacation': {
+      'amount': 100000,
+      'duration': 2,
+      'rate': 12,
+      'name': 'Vacation',
+    },
     'custom': {'amount': 100000, 'duration': 2, 'rate': 12, 'name': 'Custom'},
   };
 
@@ -71,7 +81,9 @@ class IhavegoalPage extends GetView<GoalSipController> {
     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Scaffold(
-      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : const Color(0xffF3F4F6),
+      backgroundColor: isDesktop
+          ? const Color(0xFFF5F7FA)
+          : const Color(0xffF3F4F6),
       appBar: CustomAppBarNormal(
         title: 'Create $name Goal',
         action: [CompactIcon(icon: Iconsax.info_circle, onPressed: () {})],
@@ -79,40 +91,57 @@ class IhavegoalPage extends GetView<GoalSipController> {
       ),
       body: isDesktop
           ? _WebLayout(
-        name: name,
-        goalData: goalData,
-        controller: controller,
-        popularFundsKey: popularFundsKey,
-      )
+              name: name,
+              goalData: goalData,
+              controller: controller,
+              popularFundsKey: popularFundsKey,
+            )
           : _MobileLayout(
-        name: name,
-        goalData: goalData,
-        controller: controller,
-        popularFundsKey: popularFundsKey,
-      ),
+              name: name,
+              goalData: goalData,
+              controller: controller,
+              popularFundsKey: popularFundsKey,
+            ),
       bottomNavigationBar: Obx(
-            () => controller.isGoalSaved.value
+        () => controller.isGoalSaved.value
             ? SafeArea(
-          top: false,
-          child: CartBottomBar(
-            ontap: () {
-              cartController.monthlyAmount.value = controller.monthlySip.value.toInt();
-              controller.selectedPopularFund.isNotEmpty
-                  ? Get.toNamed(AppRoutes.cart)
-                  : Get.snackbar("Error", "Please select funds to start SIP");
-            },
-            amount: controller.monthlySip.value.toStringAsFixed(0),
-            amountColor: Ucolors.blue,
-            title: 'Installment Amount',
-            buttonText: 'Start SIP',
-          ),
-        )
+                top: false,
+                child: CartBottomBar(
+                  ontap: () {
+                    log(controller.savedDatabaseId.value.toString());
+                    final cartCont = Get.find<CartController>();
+                    cartCont.filterGoalId.value =
+                        controller.savedDatabaseId.value;
+                    cartController.monthlyAmount.value = controller
+                        .monthlySip
+                        .value
+                        .toInt();
+
+                    controller.selectedPopularFund.isNotEmpty
+                        ? Get.toNamed(
+                            AppRoutes.cart,
+                            arguments: {
+                              'goal_id': controller
+                                  .savedDatabaseId
+                                  .value, // Pass the ID (e.g., 50)
+                            },
+                          )
+                        : Get.snackbar(
+                            "Error",
+                            "Please select funds to start SIP",
+                          );
+                  },
+                  amount: controller.monthlySip.value.toStringAsFixed(0),
+                  amountColor: Ucolors.blue,
+                  title: 'Installment Amount',
+                  buttonText: 'Start SIP',
+                ),
+              )
             : const SizedBox.shrink(),
       ),
     );
   }
 }
-
 
 class _WebLayout extends StatelessWidget {
   final String name;
@@ -150,13 +179,19 @@ class _WebLayout extends StatelessWidget {
                           color: Colors.black.withOpacity(0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
-                        )
+                        ),
                       ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text("Goal Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        const Text(
+                          "Goal Details",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const Gap(24),
 
                         // ✅ UPDATED: Passing Controller to Cover Section
@@ -178,12 +213,20 @@ class _WebLayout extends StatelessWidget {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Ucolors.primary,
                               foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                             onPressed: () async {
                               await controller.saveGoalToDb();
                             },
-                            child: const Text("Save Goal & Calculate", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            child: const Text(
+                              "Save Goal & Calculate",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -207,13 +250,23 @@ class _WebLayout extends StatelessWidget {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
-                              BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
                             ],
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: const [
-                              Text("SIP Projection", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                              Text(
+                                "SIP Projection",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               Gap(20),
                               ProjectionGraph(),
                             ],
@@ -226,13 +279,23 @@ class _WebLayout extends StatelessWidget {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
-                              BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
                             ],
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text("Recommended Funds", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                              const Text(
+                                "Recommended Funds",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               const Gap(16),
                               PopularFund(),
                             ],
@@ -258,7 +321,10 @@ class _WebLayout extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.5),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade300, style: BorderStyle.solid),
+        border: Border.all(
+          color: Colors.grey.shade300,
+          style: BorderStyle.solid,
+        ),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -309,7 +375,10 @@ class _MobileLayout extends StatelessWidget {
             Obx(() {
               if (!controller.isGoalSaved.value) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 10,
+                  ),
                   child: UElevatedBUtton(
                     onPressed: () async {
                       await controller.saveGoalToDb();
@@ -393,19 +462,129 @@ class PopularFund extends StatelessWidget {
         final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
         final img1 = fund.amc?.amcLogoUrl ?? '';
         final name = fund.baseSchemeName ?? 'Unknown Name';
+        final returns = fund.returnsEntity?.threeYear ?? "";
 
         return Obx(
-              () => GestureDetector(
+          () => GestureDetector(
             onTap: () {
               final isSelected = goalSipController.isSelectedFund(name);
-              goalSipController.toggleFund(name);
+              final schemeCodeStr = fund.schemeCode.toString();
+              final int? currentGoalId =
+                  goalSipController.savedDatabaseId.value;
 
-              !isSelected
-                  ? cartController.addItem(
-                CartItem(fundId: id.toString(), fundName: name, logoUrl: img1),
-              )
-                  : cartController.removeItemByName(name);
+              if (!isSelected) {
+                // Check if goal is saved first
+
+                goalSipController.toggleFund(name);
+
+                cartController.addToCart(
+                  fund.schemeCode ?? '',
+                  fund.baseSchemeName ?? '',
+                  fund.minSipAmount ?? 0,
+                  currentGoalId,
+                );
+              } else {
+                // REMOVE LOGIC
+                final cartItem = cartController.cartResponseEntity.value?.items
+                    .firstWhereOrNull(
+                      (item) => item.schemeCode.toString() == schemeCodeStr,
+                    );
+
+                if (cartItem != null && cartItem.id != null) {
+                  cartController.deleteCartItem(cartItem.id!, name);
+                  goalSipController.toggleFund(name);
+                }
+              }
             },
+            // onTap: () {
+            //   final isSelected = goalSipController.isSelectedFund(name);
+            //   final schemeCodeStr = fund.schemeCode.toString();
+
+            //   if (!isSelected) {
+            //     // ADD TO CART
+            //     goalSipController.toggleFund(name);
+            //     cartController.addToCart(
+            //       fund.schemeCode ?? '',
+            //       fund.baseSchemeName ?? '',
+            //       fund.minSipAmount ?? 0,
+            //       1
+            //     );
+            //   } else {
+            //     // REMOVE FROM CART
+            //     // 1. Find the item in the cart that matches this scheme code
+            //     final cartItem = cartController.cartResponseEntity.value?.items
+            //         .firstWhereOrNull(
+            //           (item) => item.schemeCode.toString() == schemeCodeStr,
+            //         );
+
+            //     if (cartItem != null && cartItem.id != null) {
+            //       // 2. Use the actual cart item ID to delete
+            //       cartController.deleteCartItem(cartItem.id!, name);
+            //       // 3. Untoggle the UI state
+            //       goalSipController.toggleFund(name);
+            //     } else {
+            //       // Fallback: If not found in cart list, just untoggle UI
+            //       goalSipController.toggleFund(name);
+            //       log(
+            //         "Item not found in cart response, couldn't delete from server.",
+            //       );
+            //     }
+            //   }
+            // },
+            // onTap: () async {
+            //   final isSelected = goalSipController.isSelectedFund(name);
+            //   goalSipController.toggleFund(name);
+
+            //   // !isSelected
+            //   //     ?
+            //   //       //  cartController.addItem(
+            //   //       //     CartItem(
+            //   //       //       fundId: id.toString(),
+            //   //       //       fundName: name,
+            //   //       //       logoUrl: img1,
+            //   //       //     ),
+            //   //       //   )
+            //   //       await cartController.addToCart(
+            //   //         fund.schemeCode ?? '',
+            //   //         fund.baseSchemeName ?? '',
+            //   //         fund.minSipAmount ?? 0,
+            //   //         1
+            //   //       )
+            //   //     :
+            //   //       // cartController.removeItemByName(name);
+            //   //       await cartController.deleteCartItem(
+            //   //         cartController
+            //   //                 .cartResponseEntity
+            //   //                 .value
+            //   //                 ?.items[index]
+            //   //                 .id ??
+            //   //             0,
+            //   //         fund.baseSchemeName ?? '',
+            //   //       );
+            //   if (!isSelected) {
+            //     cartController.addItem(
+            //       CartItem(
+            //         fundId: id.toString(),
+            //         fundName: name,
+            //         logoUrl: img1,
+            //       ),
+            //     );
+            //     // PASS THE GOAL ID HERE
+            //     cartController.addToCart(
+            //       fund.schemeCode ?? '',
+            //       fund.baseSchemeName ?? '',
+            //       fund.minSipAmount ?? 0,
+            //       1, // Use the dynamic ID from your saved goal if available
+            //     );
+            //   } else {
+            //     // cartController.deleteCartItem(
+            //     //   // fund.amc?.id ?? 0,
+            //     //   cartController.cartResponseEntity.value.items.indexWhere(fund.schemeCode.toString())
+            //     //   fund.baseSchemeName ?? '',
+            //     // );
+            //     cartController.removeItemByName(name);
+            //   }
+            // },
             child: PopularFundCard(
               borderColor: goalSipController.isSelectedFund(name)
                   ? Ucolors.primary
@@ -413,6 +592,7 @@ class PopularFund extends StatelessWidget {
               isNetwork: true,
               imgPath: img,
               name: name,
+              threeYear: returns,
             ),
           ),
         );
@@ -447,16 +627,21 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
     return Container(
       // On mobile, the container has decoration. On Web, the parent card has decoration.
       padding: isDesktop ? EdgeInsets.zero : const EdgeInsets.all(15),
-      decoration: isDesktop ? null : BoxDecoration(
-        color: Ucolors.light,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: isDesktop
+          ? null
+          : BoxDecoration(
+              color: Ucolors.light,
+              borderRadius: BorderRadius.circular(12),
+            ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Projection', style: UTextStyles.medium.copyWith(fontWeight: FontWeight.w700)),
+              Text(
+                'Projection',
+                style: UTextStyles.medium.copyWith(fontWeight: FontWeight.w700),
+              ),
               Container(
                 decoration: BoxDecoration(
                   color: const Color(0xffF3F4F6),
@@ -484,14 +669,28 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('● Invest', style: UTextStyles.small.copyWith(color: const Color(0xff868686))),
-                Text('● Value', style: UTextStyles.small.copyWith(color: const Color(0xff213C73))),
+                Text(
+                  '● Invest',
+                  style: UTextStyles.small.copyWith(
+                    color: const Color(0xff868686),
+                  ),
+                ),
+                Text(
+                  '● Value',
+                  style: UTextStyles.small.copyWith(
+                    color: const Color(0xff213C73),
+                  ),
+                ),
               ],
             ),
             const Gap(25),
             Obx(() {
               final rows = controller.buildYearlyReport();
-              if (rows.isEmpty) return const SizedBox(height: 250, child: CircularProgressIndicator());
+              if (rows.isEmpty)
+                return const SizedBox(
+                  height: 250,
+                  child: CircularProgressIndicator(),
+                );
 
               return SizedBox(
                 height: 250,
@@ -536,7 +735,12 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
 }
 
 class ProjectionIcon extends StatelessWidget {
-  const ProjectionIcon({super.key, required this.onTap, required this.isSelected, required this.icon});
+  const ProjectionIcon({
+    super.key,
+    required this.onTap,
+    required this.isSelected,
+    required this.icon,
+  });
   final VoidCallback onTap;
   final bool isSelected;
   final IconData icon;
@@ -544,14 +748,25 @@ class ProjectionIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      decoration: BoxDecoration(color: isSelected ? Colors.white : Colors.transparent, borderRadius: BorderRadius.circular(10)),
-      child: IconButton(onPressed: onTap, icon: Icon(icon, color: isSelected ? Ucolors.blue : Colors.grey)),
+      decoration: BoxDecoration(
+        color: isSelected ? Colors.white : Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: IconButton(
+        onPressed: onTap,
+        icon: Icon(icon, color: isSelected ? Ucolors.blue : Colors.grey),
+      ),
     );
   }
 }
 
 class AllValue extends StatelessWidget {
-  const AllValue({super.key, required this.title, required this.value, this.textColor});
+  const AllValue({
+    super.key,
+    required this.title,
+    required this.value,
+    this.textColor,
+  });
   final String title;
   final double value;
   final Color? textColor;
@@ -561,9 +776,18 @@ class AllValue extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
       child: Column(
         children: [
-          Text(title, style: UTextStyles.medium.copyWith(fontWeight: FontWeight.w600)),
+          Text(
+            title,
+            style: UTextStyles.medium.copyWith(fontWeight: FontWeight.w600),
+          ),
           const Gap(5),
-          Text('₹${value.toDouble().toStringAsFixed(0)}', style: TextStyle(color: textColor ?? Ucolors.dark, fontWeight: FontWeight.w500)),
+          Text(
+            '₹${value.toDouble().toStringAsFixed(0)}',
+            style: TextStyle(
+              color: textColor ?? Ucolors.dark,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
@@ -571,7 +795,12 @@ class AllValue extends StatelessWidget {
 }
 
 class SIPSection extends StatelessWidget {
-  const SIPSection({super.key, required this.amount, required this.duration, this.rate = 12});
+  const SIPSection({
+    super.key,
+    required this.amount,
+    required this.duration,
+    this.rate = 12,
+  });
   final double amount;
   final int duration;
   final double rate;
@@ -581,21 +810,64 @@ class SIPSection extends StatelessWidget {
     final controller = Get.find<GoalSipController>();
     return Container(
       padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: Ucolors.light),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Ucolors.light,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SipSliderTile2(prefix: '₹', title: 'I need', value: amount, min: 100, max: 10000000, suffix: '', onChanged: (value) => controller.setTarget(value)),
-          SipSliderTile2(title: 'Duration', value: duration.toDouble(), min: 1, max: 30, suffix: 'Yrs', onChanged: (value) => controller.setYears(value)),
+          SipSliderTile2(
+            prefix: '₹',
+            title: 'I need',
+            value: amount,
+            min: 100,
+            max: 10000000,
+            suffix: '',
+            onChanged: (value) => controller.setTarget(value),
+          ),
+          SipSliderTile2(
+            title: 'Duration',
+            value: duration.toDouble(),
+            min: 1,
+            max: 30,
+            suffix: 'Yrs',
+            onChanged: (value) => controller.setYears(value),
+          ),
           const Gap(15),
-          SipSliderTile2(title: 'Expected Returns', value: rate, min: 1, max: 30, suffix: '%', onChanged: (value) => controller.setRate(value)),
-          Obx(() => Row(
-            children: [
-              Expanded(child: AllValue(title: 'Invested', value: controller.invested.toDouble())),
-              Expanded(child: AllValue(title: 'Future Value', value: controller.targetAmount.toDouble())),
-              Expanded(child: AllValue(title: 'Total Return', value: controller.totalReturn.toDouble(), textColor: Ucolors.success)),
-            ],
-          )),
+          SipSliderTile2(
+            title: 'Expected Returns',
+            value: rate,
+            min: 1,
+            max: 30,
+            suffix: '%',
+            onChanged: (value) => controller.setRate(value),
+          ),
+          Obx(
+            () => Row(
+              children: [
+                Expanded(
+                  child: AllValue(
+                    title: 'Invested',
+                    value: controller.invested.toDouble(),
+                  ),
+                ),
+                Expanded(
+                  child: AllValue(
+                    title: 'Future Value',
+                    value: controller.targetAmount.toDouble(),
+                  ),
+                ),
+                Expanded(
+                  child: AllValue(
+                    title: 'Total Return',
+                    value: controller.totalReturn.toDouble(),
+                    textColor: Ucolors.success,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -605,7 +877,11 @@ class SIPSection extends StatelessWidget {
 class GoalNameSelect extends StatelessWidget {
   final GoalSipController controller;
   final String goalName;
-  const GoalNameSelect({super.key, required this.goalName, required this.controller});
+  const GoalNameSelect({
+    super.key,
+    required this.goalName,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -613,8 +889,18 @@ class GoalNameSelect extends StatelessWidget {
       children: [
         Row(children: [SmallHeading(smallheading: 'Goal Name')]),
         const Gap(5),
-        UTextFormField(readOnly: true, prefixIcon: null, controller: TextEditingController(text: goalName), backgroundColor: Colors.white),
-        UTextFormField(controller: controller.goalNameTextEditingController, backgroundColor: Colors.white, prefixIcon: null, hintText: 'Enter $goalName Name'),
+        UTextFormField(
+          readOnly: true,
+          prefixIcon: null,
+          controller: TextEditingController(text: goalName),
+          backgroundColor: Colors.white,
+        ),
+        UTextFormField(
+          controller: controller.goalNameTextEditingController,
+          backgroundColor: Colors.white,
+          prefixIcon: null,
+          hintText: 'Enter $goalName Name',
+        ),
       ],
     );
   }
@@ -636,14 +922,24 @@ class CoverSection extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: kIsWeb
-                    ? Image.network(controller.coverImage.value!.path, height: 120, width: 120, fit: BoxFit.cover)
-                    : Image.file(File(controller.coverImage.value!.path), height: 120, width: 120, fit: BoxFit.cover),
+                    ? Image.network(
+                        controller.coverImage.value!.path,
+                        height: 120,
+                        width: 120,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.file(
+                        File(controller.coverImage.value!.path),
+                        height: 120,
+                        width: 120,
+                        fit: BoxFit.cover,
+                      ),
               ),
             );
           }
           return AddCoverBottomSheet(
-              recentPhoto: false,
-              onTap: () => _showPicker(context)
+            recentPhoto: false,
+            onTap: () => _showPicker(context),
           );
         }),
         const Gap(5),
@@ -666,7 +962,11 @@ class AddCoverBottomSheet extends StatelessWidget {
   final bool recentPhoto;
   final VoidCallback onTap;
 
-  const AddCoverBottomSheet({super.key, required this.recentPhoto, required this.onTap});
+  const AddCoverBottomSheet({
+    super.key,
+    required this.recentPhoto,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -678,7 +978,10 @@ class AddCoverBottomSheet extends StatelessWidget {
       child: Container(
         height: containerSize,
         width: containerSize,
-        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+        ),
         child: Icon(Icons.add, color: Colors.black, size: containerSize * 0.4),
       ),
     );
@@ -707,30 +1010,37 @@ class _PickerSheet extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            Text("Select Image Source", style: UTextStyles.medium.copyWith(fontWeight: FontWeight.bold)),
+            Text(
+              "Select Image Source",
+              style: UTextStyles.medium.copyWith(fontWeight: FontWeight.bold),
+            ),
             const Gap(24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 _buildOption(
-                    icon: Iconsax.camera,
-                    label: "Camera",
-                    onTap: () => _pick(context, ImageSource.camera)
+                  icon: Iconsax.camera,
+                  label: "Camera",
+                  onTap: () => _pick(context, ImageSource.camera),
                 ),
                 _buildOption(
-                    icon: Iconsax.gallery,
-                    label: "Gallery",
-                    onTap: () => _pick(context, ImageSource.gallery)
+                  icon: Iconsax.gallery,
+                  label: "Gallery",
+                  onTap: () => _pick(context, ImageSource.gallery),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildOption({required IconData icon, required String label, required VoidCallback onTap}) {
+  Widget _buildOption({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -751,4 +1061,3 @@ class _PickerSheet extends StatelessWidget {
     );
   }
 }
-

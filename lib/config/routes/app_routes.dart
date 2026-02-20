@@ -1,5 +1,6 @@
 class AppRoutes {
   static const home = '/home';
+  static const String mainMenu = '/main-menu'; 
   static const navMenuBar = '/navMenuBar';
   static const splash = '/';
   static const login = '/login';

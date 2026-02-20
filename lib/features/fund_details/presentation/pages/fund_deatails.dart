@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:my_sip/common/widget/animated/empty_filled.dart';
 import 'package:readmore/readmore.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
@@ -2601,8 +2602,8 @@ class OverviewScreen extends GetView<FundDetailsController> {
                           padding: EdgeInsets.zero,
                           labelPadding: EdgeInsets.zero,
                           tabs: const [
-                            Tab(text: "Top 5 Sector"),
-                            Tab(text: "Top 5 Stock"),
+                            Tab(text: "Top 10 Sector"),
+                            Tab(text: "Top 10 Stock"),
                           ],
                         ),
                       ),
@@ -2632,18 +2633,92 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                 }
 
                                 // 3. Empty Check
+                                // if (entity == null ||
+                                //     names.isEmpty ||
+                                //     values.isEmpty) {
+                                //   return Container(
+                                //     height: 200,
+                                //     alignment: Alignment.center,
+                                //     child: const Text(
+                                //       "No Sector Data Available",
+                                //       style: TextStyle(color: Colors.grey),
+                                //     ),
+                                //   );
+                                // }
+
+                                // 3. Empty State Check
                                 if (entity == null ||
                                     names.isEmpty ||
                                     values.isEmpty) {
-                                  return Container(
-                                    height: 200,
-                                    alignment: Alignment.center,
-                                    child: const Text(
-                                      "No Sector Data Available",
-                                      style: TextStyle(color: Colors.grey),
-                                    ),
-                                  );
+                                  return AnimatedEmptyState(
+                                    title: 'No Sector Data',
+                                    message:
+                                        'The AMC hasnt disclosed the holdings for this fund, or it may not be applicable to this scheme',
+                                  ); // <-- So much cleaner!
                                 }
+                                // 3. Empty State Check
+                                // if (entity == null ||
+                                //     names.isEmpty ||
+                                //     values.isEmpty) {
+                                //   return Container(
+                                //     height:
+                                //         300, // Give it enough height to look intentional
+                                //     width: double.infinity,
+                                //     padding: const EdgeInsets.symmetric(
+                                //       horizontal: 24,
+                                //       vertical: 32,
+                                //     ),
+                                //     child: Column(
+                                //       mainAxisAlignment:
+                                //           MainAxisAlignment.center,
+                                //       children: [
+                                //         // 1. Soft Icon Background
+                                //         Container(
+                                //           padding: const EdgeInsets.all(20),
+                                //           decoration: BoxDecoration(
+                                //             color: Ucolors.darkgrey.withOpacity(
+                                //               0.05,
+                                //             ), // Very subtle grey circle
+                                //             shape: BoxShape.circle,
+                                //           ),
+                                //           child: Icon(
+                                //             Iconsax
+                                //                 .chart_fail, // Or Iconsax.document_text, Iconsax.box_remove
+                                //             size: 48,
+                                //             color: Ucolors.darkgrey.withOpacity(
+                                //               0.5,
+                                //             ),
+                                //           ),
+                                //         ),
+                                //         const SizedBox(height: 20),
+
+                                //         // 2. Friendly Heading
+                                //         const Text(
+                                //           "No Portfolio Data",
+                                //           style: TextStyle(
+                                //             fontSize: 16,
+                                //             fontWeight: FontWeight.w600,
+                                //             color: Colors.black87,
+                                //           ),
+                                //         ),
+                                //         const SizedBox(height: 8),
+
+                                //         // 3. Reassuring Subtitle
+                                //         const Text(
+                                //           "The AMC hasn't disclosed the holdings for this fund, or it may not be applicable to this scheme category.",
+                                //           textAlign: TextAlign.center,
+                                //           style: TextStyle(
+                                //             fontSize: 13,
+                                //             fontWeight: FontWeight.w400,
+                                //             color: Colors.grey,
+                                //             height:
+                                //                 1.4, // Makes multi-line text easier to read
+                                //           ),
+                                //         ),
+                                //       ],
+                                //     ),
+                                //   );
+                                // }
 
                                 // 4. Combine, Sort, and Limit to Top 5
                                 // Safety: use the smaller length to avoid crashes
@@ -2666,11 +2741,13 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                 );
 
                                 // Take only the Top 5
-                                final top5Items = combinedList.take(5).toList();
+                                final top10Items = combinedList
+                                    .take(10)
+                                    .toList();
 
                                 // 5. Render
                                 return Column(
-                                  children: top5Items.map((entry) {
+                                  children: top10Items.map((entry) {
                                     return Padding(
                                       padding: const EdgeInsets.only(
                                         // bottom: 10,
@@ -2716,17 +2793,26 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                 }
 
                                 // 3. Empty State Check
+                                // if (entity == null ||
+                                //     names.isEmpty ||
+                                //     values.isEmpty) {
+                                //   return Container(
+                                //     height: 200,
+                                //     alignment: Alignment.center,
+                                //     child: const Text(
+                                //       "No Holdings Data Available",
+                                //       style: TextStyle(color: Colors.grey),
+                                //     ),
+                                //   );
+                                // }
                                 if (entity == null ||
                                     names.isEmpty ||
                                     values.isEmpty) {
-                                  return Container(
-                                    height: 200,
-                                    alignment: Alignment.center,
-                                    child: const Text(
-                                      "No Holdings Data Available",
-                                      style: TextStyle(color: Colors.grey),
-                                    ),
-                                  );
+                                  return AnimatedEmptyState(
+                                    title: 'No Sector Data',
+                                    message:
+                                        'The AMC hasnt disclosed the holdings for this fund, or it may not be applicable to this scheme',
+                                  ); // <-- So much cleaner!
                                 }
 
                                 // 4. CLEAN, COMBINE & SORT
@@ -2796,51 +2882,68 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                 );
 
                                 // Take Top 5
-                                final top5Items = holdings.take(5).toList();
+                                final top10Items = holdings.take(10).toList();
 
                                 // 5. Render
-                                return Column(
-                                  children: [
-                                    const Gap(10),
-                                    const Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          'Stock Allocation',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w400,
-                                            color: Ucolors.darkgrey,
+                                return SingleChildScrollView(
+                                  physics: BouncingScrollPhysics(),
+                                  child: Column(
+                                    children: [
+                                      const Gap(10),
+                                      const Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Stock Allocation',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w400,
+                                              color: Ucolors.darkgrey,
+                                            ),
                                           ),
-                                        ),
-                                        Text(
-                                          'Holding %',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w400,
-                                            color: Ucolors.darkgrey,
+                                          Text(
+                                            'Holding %',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w400,
+                                              color: Ucolors.darkgrey,
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    const Gap(10),
+                                        ],
+                                      ),
+                                      const Gap(10),
 
-                                    const DashedLine(
-                                      dashSpace: 0,
+                                      const DashedLine(
+                                        dashSpace: 0,
 
-                                      color: Ucolors.borderColor,
-                                    ),
-                                    const Gap(10),
-                                    ...top5Items.map((item) {
-                                      return StockAllocationItem(
-                                        name: item.key, // Clean Name
-                                        category: '', // Placeholder
-                                        sector: '', // Placeholder
-                                        percentage: item.value,
-                                      );
-                                    }).toList(),
-                                  ],
+                                        color: Ucolors.borderColor,
+                                      ),
+                                      const Gap(10),
+                                      ...top10Items.map((item) {
+                                        return
+                                        // StockAllocationItem(
+                                        //   name: item.key, // Clean Name
+                                        //   category: '', // Placeholder
+                                        //   sector: '', // Placeholder
+                                        //   percentage: item.value,
+                                        // );
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            bottom: 10,
+                                          ),
+                                          child: PercentageBar(
+                                            title: item
+                                                .key, // Name (e.g., Financial Services)
+                                            percentage: item
+                                                .value, // Value (e.g., 30.62)
+                                            color: Colors
+                                                .blue, // Replace with Ucolors.primary
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ],
+                                  ),
                                 );
                               },
                             ),

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:my_sip/common/widget/animated/empty_filled.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
@@ -35,31 +37,91 @@ class CartPage extends GetView<CartController> {
     // final amount = args['totalAmount'] ?? '';
     return Scaffold(
       appBar: CustomAppBarNormal(title: 'Cart'),
-      body: Obx(() {
-        final items = controller.cartResponseEntity.value?.items ?? [];
-        if ((controller.cartResponseEntity.value?.items.length ?? 0) < 1) {
-          return Center(child: Text('Add scheme to cart'));
-        }
+      body:
+          //  Obx(() {
+          //   final items = controller.cartResponseEntity.value?.items ?? [];
+          //   if ((controller.cartResponseEntity.value?.items.length ?? 0) < 1) {
+          //     return Center(child: Text('Add scheme to cart'));
+          //   }
+          //   // return ListView.builder(
+          //   //   padding: EdgeInsets.symmetric(vertical: 8),
+          //   //   itemBuilder: (context, index) =>
+          //   //       CartItemCard(item: controller.items[index], index: index),
+          //   //   itemCount: controller.itemsCount,
+          //   // );
+          //   if (controller.cartResponseEntity?.value?.items.isEmpty ?? true) {
+          //     return SizedBox.shrink();
+          //   }
+          //   return ListView.builder(
+          //     padding: EdgeInsets.symmetric(vertical: 8),
+          //     itemBuilder: (context, index) => CartItemCard(
+          //       index: index,
+          //       // itemEntity: controller.cartResponseEntity.value!.items[index],
+          //       itemEntity: items[index],
+          //     ),
+          //     itemCount: controller.cartResponseEntity.value?.items.length,
+          //   );
+          // }),
+          Obx(() {
+            // Use the filtered list from the controller
+            final items = controller.displayedItems;
 
-        // return ListView.builder(
-        //   padding: EdgeInsets.symmetric(vertical: 8),
-        //   itemBuilder: (context, index) =>
-        //       CartItemCard(item: controller.items[index], index: index),
-        //   itemCount: controller.itemsCount,
-        // );
-        if (controller.cartResponseEntity?.value?.items.isEmpty ?? true) {
-          return SizedBox.shrink();
-        }
-        return ListView.builder(
-          padding: EdgeInsets.symmetric(vertical: 8),
-          itemBuilder: (context, index) => CartItemCard(
-            index: index,
-            // itemEntity: controller.cartResponseEntity.value!.items[index],
-            itemEntity: items[index],
-          ),
-          itemCount: controller.cartResponseEntity.value?.items.length,
-        );
-      }),
+            // if (items.isEmpty) {
+            //   return Center(
+            //     child: Text(
+            //       "No funds for Goal ID: ${controller.filterGoalId.value}",
+            //     ),
+            //   );
+            if (items.isEmpty) {
+              return controller.filterGoalId.value != null
+                  ? Center(
+                      child: Text(
+                        controller.filterGoalId.value != null
+                            ? "No funds for this goal"
+                            : "No general funds in cart",
+                      ),
+                    )
+                  : Center(
+                      child: AnimatedEmptyState(
+                        title: "Your Cart is Empty",
+                        message:
+                            "Looks like you haven't added any funds yet. Go explore!",
+                        icon: Iconsax.shopping_cart,
+                      ),
+                    );
+
+              // return Center(
+              //   child: Column(
+              //     mainAxisAlignment: MainAxisAlignment.center,
+              //     children: [
+              //       Icon(
+              //         Icons.shopping_cart_outlined,
+              //         size: 64,
+              //         color: Colors.grey,
+              //       ),
+              //       SizedBox(height: 16),
+              //       Text(
+              //         controller.filterGoalId.value != null
+              //             ? 'No funds added for this specific goal'
+              //             : 'Add funds to cart',
+              //         style: TextStyle(color: Colors.grey.shade600),
+              //       ),
+              //     ],
+              //   ),
+              // );
+            }
+
+            return ListView.builder(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                return CartItemCard(
+                  index: index,
+                  itemEntity: items[index], // Binding to the filtered list
+                );
+              },
+            );
+          }),
       persistentFooterDecoration: BoxDecoration(),
       persistentFooterButtons: [
         TermAndPolicy(term: 'By Proceeding I accept the '),
@@ -70,12 +132,11 @@ class CartPage extends GetView<CartController> {
         child: Obx(() {
           final displayAmount = controller.totalAmount.toString();
           return CartBottomBar(
-            goalAmount: controller.items.isEmpty
-                ? '/Monthly'
-                : controller.monthlyAmount.value == 0
-                ? '/Monthly'
-                : '/${controller.monthlyAmount.value.toString()}',
-            // amount: controller.totolAmount.toString(),
+            // goalAmount: controller.items.isEmpty
+            //     ? '/Monthly'
+            //     : controller.monthlyAmount.value == 0
+            //     ? '/Monthly'
+            //     : '/${controller.monthlyAmount.value.toString()}',
             amount: displayAmount,
 
             ontap: () {
@@ -391,7 +452,7 @@ class InvestmentInputsRow extends StatelessWidget {
   final controller = Get.find<CartController>();
 
   /// Helper to convert API strings like "1000.00" to int 1000
-  int _parseAmount(String? value, {int defaultVal = 500}) {
+  int _parseAmount(String? value, {int defaultVal = 0}) {
     if (value == null || value.isEmpty) return defaultVal;
     return double.tryParse(value)?.toInt() ?? defaultVal;
   }

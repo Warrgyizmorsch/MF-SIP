@@ -1021,12 +1021,17 @@ class _FilterpageState extends State<Filterpage> {
         title: 'Filters',
         actionsPadding: 15,
         action: [
-          InkWell(
-            onTap: () => controller.clearAllFilters(),
-            child: Text(
-              'Clear all',
-              style: UTextStyles.caption.copyWith(
-                decoration: TextDecoration.underline,
+          Obx(
+            () => InkWell(
+              onTap: () => controller.clearAllFilters(),
+              child: Text(
+                'Clear all',
+                style: UTextStyles.caption.copyWith(
+                  color: controller.isFilterActive
+                      ? Ucolors.primary
+                      : Colors.grey,
+                  decoration: TextDecoration.underline,
+                ),
               ),
             ),
           ),

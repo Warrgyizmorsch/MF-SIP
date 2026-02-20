@@ -97,6 +97,16 @@ class CartItemModel {
   final String? amcLogo;
   final String? minTopupAmount;
 
+  //
+  // Added Goal Specific Fields
+  final int? goalId;
+  final String? goalName;
+  final String? goalTargetAmount;
+  final String? goalMonthlyInvestment;
+  final String? goalTenure;
+  final String? expectedReturnRate;
+  final String? goalStatus;
+  final String? goalCover;
 
   CartItemModel({
     this.minTopupAmount,
@@ -116,7 +126,17 @@ class CartItemModel {
     this.schemeName,
     this.minSipAmount,
     this.minLumpsum,
-    this.amcLogo
+    this.amcLogo,
+
+    //this.goalName,
+    this.goalId,
+    this.goalTargetAmount,
+    this.goalMonthlyInvestment,
+    this.goalTenure,
+    this.expectedReturnRate,
+    this.goalStatus,
+    this.goalCover,
+    this.goalName,
   });
 
   factory CartItemModel.fromJson(Map<String, dynamic> json) {
@@ -138,7 +158,21 @@ class CartItemModel {
       minSipAmount: json.parse<String>('min_sip_amount'),
       minLumpsum: json.parse<String>('min_lumpsum'),
       amcLogo: json.parse<String>('amc_logo'),
-      minTopupAmount: json.parse<String>('minimum_topup')
+      minTopupAmount: json.parse<String>('minimum_topup'),
+      //
+      // Added Goal Mappings
+      // goalId: json.parse<int>('goal_id'), // Added mapping
+      // Inside CartItemModel.fromJson
+      goalId: json['goal_id'] != null
+          ? int.tryParse(json['goal_id'].toString())
+          : null,
+      goalName: json.parse<String>('goal_name'),
+      goalTargetAmount: json.parse<String>('goal_target_amount'),
+      goalMonthlyInvestment: json.parse<String>('goal_monthly_investment'),
+      goalTenure: json.parse<String>('goal_tenure'),
+      expectedReturnRate: json.parse<String>('expected_return_rate'),
+      goalStatus: json.parse<String>('goal_status'),
+      goalCover: json.parse<String>('goal_cover'),
     );
   }
 }

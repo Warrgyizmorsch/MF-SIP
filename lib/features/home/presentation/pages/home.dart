@@ -14,6 +14,7 @@ import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_calculator.dart';
@@ -273,7 +274,13 @@ class _WebDashboardLayout extends StatelessWidget {
                   children: [
                     IconButton(
                       icon: const Icon(Iconsax.shopping_cart),
-                      onPressed: () => Get.toNamed(AppRoutes.cart),
+                      onPressed: () {
+                        Get.find<CartController>().filterGoalId.value = null;
+                        Get.toNamed(
+                          AppRoutes.cart,
+                          // arguments: {'goal_id': null},
+                        );
+                      },
                       hoverColor: Ucolors.primary.withOpacity(0.1),
                     ),
                     if (cartController.itemsCount > 0)
@@ -761,7 +768,8 @@ class _MobileLayout extends StatelessWidget {
                 bottom: false,
                 child: Center(
                   child: CustomProfileAppbar(
-                    onProfiletap: () => navController.selectedIndex.value = 4,
+                    // onProfiletap: () => navController.selectedIndex.value = 4,
+                    onProfiletap: () => navController.changePage(4),
                     backgroundColor: Colors.transparent,
                     greetingName: authController.user.value?.name ?? '',
                     role: UHelperFunction.getGreetingMsg(),
@@ -781,12 +789,14 @@ class _MobileLayout extends StatelessWidget {
                             CompactIcon(
                               icon: Iconsax.shopping_cart,
                               onPressed: () {
+                                Get.find<CartController>().filterGoalId.value =
+                                    null;
                                 Get.toNamed(AppRoutes.cart);
                                 // cartController.fetchCart();
                               },
                               iconColor: Ucolors.light,
                             ),
-                            if (cartController.itemsCount > 0)
+                            if (cartController.generalItemsCount > 0)
                               Positioned(
                                 right: 0,
                                 top: -5,
@@ -797,7 +807,7 @@ class _MobileLayout extends StatelessWidget {
                                     shape: BoxShape.circle,
                                   ),
                                   child: Text(
-                                    cartController.itemsCount.toString(),
+                                    cartController.generalItemsCount.toString(),
                                     style: UTextStyles.buttonText.copyWith(
                                       fontSize: 10,
                                     ),
@@ -807,6 +817,44 @@ class _MobileLayout extends StatelessWidget {
                           ],
                         ),
                       ),
+                      // Obx(
+                      //   () => Stack(
+                      //     children: [
+                      //       IconButton(
+                      //         color: Ucolors.light,
+                      //         icon: const Icon(Iconsax.shopping_cart),
+                      //         onPressed: () {
+                      //           // Reset filter to ensure regular cart items are shown
+                      //           Get.find<CartController>().filterGoalId.value =
+                      //               null;
+                      //           Get.toNamed(AppRoutes.cart);
+                      //         },
+                      //         hoverColor: Ucolors.primary.withOpacity(0.1),
+                      //       ),
+                      //       // Use the new getter here
+                      //       if (cartController.generalItemsCount > 0)
+                      //         Positioned(
+                      //           right: 5,
+                      //           top: 5,
+                      //           child: Container(
+                      //             padding: const EdgeInsets.all(4),
+                      //             decoration: const BoxDecoration(
+                      //               color: Ucolors.red,
+                      //               shape: BoxShape.circle,
+                      //             ),
+                      //             child: Text(
+                      //               // Display the count of goal_id: null items
+                      //               cartController.generalItemsCount.toString(),
+                      //               style: const TextStyle(
+                      //                 fontSize: 10,
+                      //                 color: Colors.white,
+                      //               ),
+                      //             ),
+                      //           ),
+                      //         ),
+                      //     ],
+                      //   ),
+                      // ),
                       CompactIcon(
                         icon: Iconsax.archive_tick,
                         onPressed: () => Get.toNamed(AppRoutes.watchlist),
@@ -956,30 +1004,49 @@ class _MobileLayout extends StatelessWidget {
                 CollectionItem(
                   title: 'Best SIP Funds',
                   iconImg: UImages.savingbank,
-                  onTap: () => Get.to(() => const ExploreScreen()),
+                  // onTap: () => Get.to(() => const ExploreScreen()),
+                  // onTap: () => navController.changePage(1),
+                  onTap: () {
+                    navController.changePage(1);
+                    Get.find<FundhouseController>().applyBestSipFilter(1);
+                  },
                 ),
                 CollectionItem(
                   title: 'High Returns',
                   iconImg: UImages.highreturn,
-                  onTap: () => Get.to(() => const ExploreScreen()),
+                  // onTap: () => Get.to(() => const ExploreScreen()),
+                  onTap: () => navController.changePage(1),
                 ),
                 CollectionItem(
-                  onTap: () => Get.to(() => const ExploreScreen()),
+                  // onTap: () => Get.to(() => const ExploreScreen()),
+                  onTap: () {
+                    navController.changePage(1);
+                    Get.find<FundhouseController>().applyCustomSearch(
+                      'international',
+                    );
+                  },
                   title: 'International Funds',
                   iconImg: UImages.interfund,
                 ),
                 CollectionItem(
-                  onTap: () => Get.to(() => const ExploreScreen()),
+                  // onTap: () => Get.to(() => const ExploreScreen()),
+                  onTap: () {
+                    navController.changePage(1);
+                    Get.find<FundhouseController>().applyCustomSearch('index');
+                  },
+
                   title: 'Index Funds',
                   iconImg: UImages.indexfund,
                 ),
                 CollectionItem(
-                  onTap: () => Get.to(() => const ExploreScreen()),
+                  // onTap: () => Get.to(() => const ExploreScreen()),
+                  onTap: () => navController.changePage(1),
                   title: 'Commodities',
                   iconImg: UImages.moneygold,
                 ),
                 CollectionItem(
-                  onTap: () => Get.to(() => const ExploreScreen()),
+                  // onTap: () => Get.to(() => const ExploreScreen()),
+                  onTap: () => navController.changePage(1),
                   title: 'NFO',
                   iconImg: UImages.equity,
                 ),

@@ -1359,20 +1359,54 @@ class _MobileExploreLayout extends StatelessWidget {
           automaticallyImplyLeading: false,
           pinned: true,
           flexibleSpace: CustomAppBarNormal(
+            backIcon: false,
             title: 'All Mutual Funds',
             backgroundColor: Ucolors.light,
             actionsPadding: 15,
             action: [
-              Obx(() {
-                final count = cartController.itemsCount1;
-                return Stack(
+              // Obx(() {
+              //   final count = cartController.itemsCount1;
+              //   return Stack(
+              //     children: [
+              //       CompactIcon(
+              //         icon: Iconsax.shopping_cart,
+              //         onPressed: () => Get.toNamed(AppRoutes.cart),
+              //         iconColor: Ucolors.dark,
+              //       ),
+              //       if (count > 0)
+              //         Positioned(
+              //           right: 0,
+              //           top: -5,
+              //           child: Container(
+              //             padding: const EdgeInsets.all(5),
+              //             decoration: const BoxDecoration(
+              //               color: Ucolors.red,
+              //               shape: BoxShape.circle,
+              //             ),
+              //             child: Text(
+              //               count.toString(),
+              //               style: UTextStyles.buttonText.copyWith(
+              //                 fontSize: 10,
+              //               ),
+              //             ),
+              //           ),
+              //         ),
+              //     ],
+              //   );
+              // }),
+              Obx(
+                () => Stack(
                   children: [
                     CompactIcon(
                       icon: Iconsax.shopping_cart,
-                      onPressed: () => Get.toNamed(AppRoutes.cart),
+                      onPressed: () {
+                        Get.find<CartController>().filterGoalId.value = null;
+                        Get.toNamed(AppRoutes.cart);
+                        // cartController.fetchCart();
+                      },
                       iconColor: Ucolors.dark,
                     ),
-                    if (count > 0)
+                    if (cartController.generalItemsCount > 0)
                       Positioned(
                         right: 0,
                         top: -5,
@@ -1383,7 +1417,7 @@ class _MobileExploreLayout extends StatelessWidget {
                             shape: BoxShape.circle,
                           ),
                           child: Text(
-                            count.toString(),
+                            cartController.generalItemsCount.toString(),
                             style: UTextStyles.buttonText.copyWith(
                               fontSize: 10,
                             ),
@@ -1391,8 +1425,8 @@ class _MobileExploreLayout extends StatelessWidget {
                         ),
                       ),
                   ],
-                );
-              }),
+                ),
+              ),
               CompactIcon(
                 icon: Iconsax.archive_tick,
                 onPressed: () => Get.toNamed(AppRoutes.watchlist),
@@ -1477,22 +1511,22 @@ class _MobileExploreLayout extends StatelessWidget {
                           ),
                         ),
                         const Gap(2),
-                        !searchFocus.hasFocus
-                            ? InkWell(
-                                onTap: () => showSelectionBottomSheet(
-                                  selectedValue: sortController.text,
-                                  search: false,
-                                  context: context,
-                                  title: 'Sort by ${sortController.text}',
-                                  items: sortItems,
-                                  controller: sortController,
-                                ),
-                                child: const _FilterChip(
-                                  label: 'Sort by',
-                                  icon: Icons.filter_list_sharp,
-                                ),
-                              )
-                            : const SizedBox.shrink(),
+                        // !searchFocus.hasFocus
+                        //     ? InkWell(
+                        //         onTap: () => showSelectionBottomSheet(
+                        //           selectedValue: sortController.text,
+                        //           search: false,
+                        //           context: context,
+                        //           title: 'Sort by ${sortController.text}',
+                        //           items: sortItems,
+                        //           controller: sortController,
+                        //         ),
+                        //         child: const _FilterChip(
+                        //           label: 'Sort by',
+                        //           icon: Icons.filter_list_sharp,
+                        //         ),
+                        //       )
+                        //     : const SizedBox.shrink(),
                       ],
                     ),
                   ),
@@ -1682,6 +1716,7 @@ class MutualFundCard extends StatelessWidget {
                                 entity.schemeCode ?? '',
                                 entity.baseSchemeName ?? '',
                                 entity.minSipAmount ?? 0,
+                                null,
                               );
                               await controller.fetchCart();
 

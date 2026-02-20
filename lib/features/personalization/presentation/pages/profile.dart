@@ -352,7 +352,7 @@ class FooterSection extends StatelessWidget {
           'AMFI registered mutual fund distributor',
           style: UTextStyles.small,
         ),
-        Text('AMFI ARN NO: 123456', style: UTextStyles.small),
+        Text('AMFI ARN NO: 104807', style: UTextStyles.small),
       ],
     );
   }

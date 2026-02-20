@@ -39,7 +39,7 @@ class GoalScreen extends GetView<GoalSipController> {
       backgroundColor: Ucolors.light,
       appBar: CustomAppBarNormal(
         backgroundColor: Ucolors.light,
-        title: 'Goal',
+        title: 'Goals',
         backIcon: false,
         actionsPadding: 10,
         action: [CompactIcon(icon: Iconsax.info_circle, onPressed: () {})],
@@ -89,7 +89,10 @@ class GoalScreen extends GetView<GoalSipController> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Create Your First Goal', style: UTextStyles.buttonText),
+                      Text(
+                        'Create Your First Goal',
+                        style: UTextStyles.buttonText,
+                      ),
                       const SizedBox(width: 10),
                       const Icon(Icons.add, color: Ucolors.light),
                     ],
@@ -111,7 +114,9 @@ class GoalScreen extends GetView<GoalSipController> {
                 // Subtitle count
                 Text(
                   '${goals.length} Active Goal${goals.length == 1 ? '' : 's'}',
-                  style: UTextStyles.small_heading.copyWith(color: Ucolors.darkgrey),
+                  style: UTextStyles.small_heading.copyWith(
+                    color: Ucolors.darkgrey,
+                  ),
                 ),
                 const SizedBox(height: 16),
 
@@ -120,19 +125,26 @@ class GoalScreen extends GetView<GoalSipController> {
                   child: GridView.builder(
                     physics: const AlwaysScrollableScrollPhysics(),
                     itemCount: goals.length,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
-                      childAspectRatio: 0.88,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
+                          childAspectRatio: 0.88,
+                        ),
                     itemBuilder: (context, index) {
                       final goal = goals[index];
 
                       final double target =
-                          double.tryParse( goal.goalType?.targetAmount.toString() ?? '0') ?? 0.0;
+                          double.tryParse(
+                            goal.goalType?.targetAmount.toString() ?? '0',
+                          ) ??
+                          0.0;
                       final double invested =
-                          double.tryParse(goal.goalType?.investedAmount.toString() ?? '0') ?? 0.0;
+                          double.tryParse(
+                            goal.goalType?.investedAmount.toString() ?? '0',
+                          ) ??
+                          0.0;
                       final String name = goal.goalName ?? 'Goal ${index + 1}';
 
                       return CircularUploadIndicator(
@@ -153,7 +165,8 @@ class GoalScreen extends GetView<GoalSipController> {
       // FAB only visible when goals exist
       floatingActionButton: Obx(() {
         final hasGoals = (controller.goalResponse.value?.data ?? []).isNotEmpty;
-        if (!hasGoals || controller.isLoadingGoals.value) return const SizedBox.shrink();
+        if (!hasGoals || controller.isLoadingGoals.value)
+          return const SizedBox.shrink();
         return FloatingActionButton(
           onPressed: () => Get.toNamed(AppRoutes.ihavegoal),
           backgroundColor: Ucolors.primary,
@@ -163,6 +176,7 @@ class GoalScreen extends GetView<GoalSipController> {
     );
   }
 }
+
 class CircularUploadIndicator extends StatelessWidget {
   final String goalName;
   final double targetAmount;
@@ -204,7 +218,7 @@ class CircularUploadIndicator extends StatelessWidget {
               color: Colors.black.withOpacity(0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
-            )
+            ),
           ],
         ),
         child: Column(
@@ -215,7 +229,9 @@ class CircularUploadIndicator extends StatelessWidget {
               children: [
                 // Background Circle (Track)
                 CircularPercentIndicator(
-                  radius: size.width <= 320 ? 60 : 70, // Slightly adjusted radius
+                  radius: size.width <= 320
+                      ? 60
+                      : 70, // Slightly adjusted radius
                   lineWidth: 12,
                   percent: 1.0, // Full circle for background
                   startAngle: 0,
@@ -253,11 +269,16 @@ class CircularUploadIndicator extends StatelessWidget {
                   right: 0,
                   bottom: 0,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black12, blurRadius: 4),
+                      ],
                     ),
                     child: Text(
                       percentString,
@@ -285,9 +306,12 @@ class CircularUploadIndicator extends StatelessWidget {
               child: Text(
                 // Simple currency formatting
                 '₹ ${targetAmount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
-                style: UTextStyles.medium.copyWith(color: Colors.grey.shade600, fontSize: 14),
+                style: UTextStyles.medium.copyWith(
+                  color: Colors.grey.shade600,
+                  fontSize: 14,
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),

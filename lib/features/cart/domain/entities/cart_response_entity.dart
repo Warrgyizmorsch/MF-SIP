@@ -55,7 +55,6 @@ class CartDataEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    
     cartId,
     userId,
     status,
@@ -97,6 +96,16 @@ class CartItemEntity extends Equatable {
   final String? amcLogo;
   final String? minTopupAmount;
 
+  //
+  final int? goalId;
+  final String? goalName;
+  final String? goalTargetAmount;
+  final String? goalMonthlyInvestment;
+  final String? goalTenure;
+  final String? expectedReturnRate;
+  final String? goalStatus;
+  final String? goalCover;
+
   const CartItemEntity({
     this.minTopupAmount,
     this.amcLogo,
@@ -116,6 +125,15 @@ class CartItemEntity extends Equatable {
     this.schemeName,
     this.minSipAmount,
     this.minLumpsum,
+    //
+    this.goalId,
+    this.goalTargetAmount,
+    this.goalMonthlyInvestment,
+    this.goalTenure,
+    this.expectedReturnRate,
+    this.goalStatus,
+    this.goalCover,
+    this.goalName,
   });
 
   // Add this copyWith method
@@ -162,7 +180,15 @@ class CartItemEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    
+    goalId,
+    goalTargetAmount,
+    goalMonthlyInvestment,
+    goalTenure,
+    expectedReturnRate,
+    goalStatus,
+    goalCover,
+    goalName,
+
     minTopupAmount,
     id,
     cartId,
@@ -219,6 +245,14 @@ extension TransactionSummaryModelX on TransactionSummaryModel {
 extension CartItemModelX on CartItemModel {
   CartItemEntity toEntity() {
     return CartItemEntity(
+      goalId: goalId,
+      expectedReturnRate: expectedReturnRate,
+      goalCover: goalCover,
+      goalMonthlyInvestment: goalMonthlyInvestment,
+      goalName: goalName,
+      goalStatus: goalStatus,
+      goalTargetAmount: goalTargetAmount,
+      goalTenure: goalTenure,
       id: id,
       cartId: cartId,
       transType: transType,

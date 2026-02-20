@@ -21,7 +21,6 @@ import '../widgets/comparison_chart.dart';
 
 enum PortfolioMenuAction { topUp, modify, pause, cancel, redemption }
 
-
 /// --- PopMenuItem
 PopupMenuItem<PortfolioMenuAction> buildMenuItem({
   required IconData icon,
@@ -117,9 +116,6 @@ class BottomWaveClipper extends CustomClipper<Path> {
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
 
-
-
-
 // --- 1. MAIN SCREEN WRAPPER ---
 class DashboardScreen extends StatelessWidget {
   DashboardScreen({super.key});
@@ -173,7 +169,10 @@ class _WebDashboardLayout extends StatelessWidget {
                       // --- TITLE ---
                       const Text(
                         "Portfolio Overview",
-                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const Gap(24),
 
@@ -229,23 +228,36 @@ class _WebDashboardLayout extends StatelessWidget {
                                 Container(
                                   height: 350,
                                   decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(20),
-                                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)]
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.05),
+                                        blurRadius: 10,
+                                      ),
+                                    ],
                                   ),
                                   // Reuse your existing chart widget
-                                  child: const FundComparisonChartWidget(
-
-                                  ),
+                                  child: const FundComparisonChartWidget(),
                                 ),
                                 const Gap(30),
 
                                 // Portfolio List Header
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text("Your Assets", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                                    TextButton(onPressed: (){}, child: const Text("View All"))
+                                    const Text(
+                                      "Your Assets",
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {},
+                                      child: const Text("View All"),
+                                    ),
                                   ],
                                 ),
                                 const Gap(10),
@@ -255,9 +267,10 @@ class _WebDashboardLayout extends StatelessWidget {
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemCount: 4,
-                                  separatorBuilder: (_,__) => const Gap(10),
-                                  itemBuilder: (ctx, index) => _WebPortfolioRow(),
-                                )
+                                  separatorBuilder: (_, __) => const Gap(10),
+                                  itemBuilder: (ctx, index) =>
+                                      _WebPortfolioRow(),
+                                ),
                               ],
                             ),
                           ),
@@ -273,23 +286,48 @@ class _WebDashboardLayout extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.all(20),
                                   decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(20),
-                                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)]
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.05),
+                                        blurRadius: 10,
+                                      ),
+                                    ],
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      const Text("Quick Actions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                      const Text(
+                                        "Quick Actions",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
                                       const Gap(20),
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
-                                          _WebActionButton(label: "Top Up", icon: Iconsax.add_circle, color: Ucolors.primary),
-                                          _WebActionButton(label: "Withdraw", icon: Iconsax.minus_cirlce, color: Colors.orange),
-                                          _WebActionButton(label: "SIP", icon: Iconsax.timer_1, color: Colors.purple),
+                                          _WebActionButton(
+                                            label: "Top Up",
+                                            icon: Iconsax.add_circle,
+                                            color: Ucolors.primary,
+                                          ),
+                                          _WebActionButton(
+                                            label: "Withdraw",
+                                            icon: Iconsax.minus_cirlce,
+                                            color: Colors.orange,
+                                          ),
+                                          _WebActionButton(
+                                            label: "SIP",
+                                            icon: Iconsax.timer_1,
+                                            color: Colors.purple,
+                                          ),
                                         ],
-                                      )
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -299,21 +337,38 @@ class _WebDashboardLayout extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.all(20),
                                   decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(20),
-                                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)]
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.05),
+                                        blurRadius: 10,
+                                      ),
+                                    ],
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      const Text("Recent Transactions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                      const Text(
+                                        "Recent Transactions",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
                                       const Gap(15),
                                       ListView.separated(
                                         shrinkWrap: true,
-                                        physics: const NeverScrollableScrollPhysics(),
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
                                         itemCount: 5,
-                                        separatorBuilder: (_,__) => const Divider(height: 20),
-                                        itemBuilder: (ctx, index) => const TransactionCard(isWebCompact: true),
+                                        separatorBuilder: (_, __) =>
+                                            const Divider(height: 20),
+                                        itemBuilder: (ctx, index) =>
+                                            const TransactionCard(
+                                              isWebCompact: true,
+                                            ),
                                       ),
                                     ],
                                   ),
@@ -345,28 +400,50 @@ class _WebDashboardLayout extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text("My SIP Dashboard", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Ucolors.primary)),
+              Text(
+                "My SIP Dashboard",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Ucolors.primary,
+                ),
+              ),
               const Spacer(),
               // Icons
-              IconButton(onPressed: () {}, icon: const Icon(Iconsax.notification)),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Iconsax.notification),
+              ),
               const Gap(10),
-              Obx(() => Stack(
-                children: [
-                  IconButton(
-                    icon: const Icon(Iconsax.shopping_cart),
-                    onPressed: () => Get.toNamed(AppRoutes.cart),
-                  ),
-                  if (cartController.itemsCount > 0)
-                    Positioned(
-                      right: 5, top: 5,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(color: Ucolors.red, shape: BoxShape.circle),
-                        child: Text(cartController.itemsCount.toString(), style: const TextStyle(fontSize: 10, color: Colors.white)),
-                      ),
+              Obx(
+                () => Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Iconsax.shopping_cart),
+                      onPressed: () => Get.toNamed(AppRoutes.cart),
                     ),
-                ],
-              )),
+                    if (cartController.itemsCount > 0)
+                      Positioned(
+                        right: 5,
+                        top: 5,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Ucolors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            cartController.itemsCount.toString(),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
               const Gap(10),
               const CircleAvatar(backgroundImage: AssetImage(UImages.avatar)),
             ],
@@ -422,10 +499,14 @@ class _WebStatCardState extends State<_WebStatCard> {
               color: widget.color.withOpacity(isHovered ? 0.2 : 0.05),
               blurRadius: 20,
               offset: const Offset(0, 10),
-            )
+            ),
           ],
           gradient: widget.isPrimary
-              ? const LinearGradient(colors: [Color(0xFF07315C), Color(0xff0280C0)], begin: Alignment.topLeft, end: Alignment.bottomRight)
+              ? const LinearGradient(
+                  colors: [Color(0xFF07315C), Color(0xff0280C0)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
               : null,
         ),
         child: Column(
@@ -437,33 +518,48 @@ class _WebStatCardState extends State<_WebStatCard> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: widget.isPrimary ? Colors.white.withOpacity(0.2) : widget.color.withOpacity(0.1),
+                    color: widget.isPrimary
+                        ? Colors.white.withOpacity(0.2)
+                        : widget.color.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(widget.icon, color: widget.isPrimary ? Colors.white : widget.color, size: 24),
+                  child: Icon(
+                    widget.icon,
+                    color: widget.isPrimary ? Colors.white : widget.color,
+                    size: 24,
+                  ),
                 ),
                 if (widget.trend != null)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
-                      color: widget.isProfit ? Colors.green.withOpacity(0.2) : Colors.white.withOpacity(0.2),
+                      color: widget.isProfit
+                          ? Colors.green.withOpacity(0.2)
+                          : Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                            widget.isProfit ? Icons.arrow_upward : Icons.trending_up,
-                            size: 14,
-                            color: widget.isPrimary ? Colors.white : Colors.green
+                          widget.isProfit
+                              ? Icons.arrow_upward
+                              : Icons.trending_up,
+                          size: 14,
+                          color: widget.isPrimary ? Colors.white : Colors.green,
                         ),
                         const Gap(4),
                         Text(
                           widget.trend!,
                           style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: widget.isPrimary ? Colors.white : Colors.green
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: widget.isPrimary
+                                ? Colors.white
+                                : Colors.green,
                           ),
                         ),
                       ],
@@ -475,17 +571,17 @@ class _WebStatCardState extends State<_WebStatCard> {
             Text(
               widget.value,
               style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: widget.isPrimary ? Colors.white : Colors.black87
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: widget.isPrimary ? Colors.white : Colors.black87,
               ),
             ),
             const Gap(4),
             Text(
               widget.title,
               style: TextStyle(
-                  fontSize: 14,
-                  color: widget.isPrimary ? Colors.white70 : Colors.grey
+                fontSize: 14,
+                color: widget.isPrimary ? Colors.white70 : Colors.grey,
               ),
             ),
           ],
@@ -500,7 +596,11 @@ class _WebActionButton extends StatelessWidget {
   final IconData icon;
   final Color color;
 
-  const _WebActionButton({required this.label, required this.icon, required this.color});
+  const _WebActionButton({
+    required this.label,
+    required this.icon,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -515,7 +615,10 @@ class _WebActionButton extends StatelessWidget {
           child: Icon(icon, color: color),
         ),
         const Gap(8),
-        Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        ),
       ],
     );
   }
@@ -534,7 +637,8 @@ class _WebPortfolioRow extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            height: 40, width: 40,
+            height: 40,
+            width: 40,
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -548,16 +652,32 @@ class _WebPortfolioRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Nippon India Large Cap Fund", style: TextStyle(fontWeight: FontWeight.bold)),
-                Text("Equity • Growth", style: TextStyle(fontSize: 12, color: Colors.grey.shade500)),
+                const Text(
+                  "Nippon India Large Cap Fund",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  "Equity • Growth",
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                ),
               ],
             ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const Text("₹5,430", style: TextStyle(fontWeight: FontWeight.bold)),
-              Text("+8.55%", style: TextStyle(fontSize: 12, color: Colors.green.shade600, fontWeight: FontWeight.bold)),
+              const Text(
+                "₹5,430",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                "+8.55%",
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.green.shade600,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ],
@@ -565,7 +685,6 @@ class _WebPortfolioRow extends StatelessWidget {
     );
   }
 }
-
 
 // ==========================================
 // 📱 MOBILE DASHBOARD LAYOUT (Preserved)
@@ -599,15 +718,48 @@ class _MobileDashboardLayout extends StatelessWidget {
                 onPressed: () => Get.toNamed(AppRoutes.notification),
                 iconColor: Ucolors.dark,
               ),
+              // Obx(
+              //       () => Stack(
+              //     children: [
+              //       CompactIcon(
+              //         icon: Iconsax.shopping_cart,
+              //         onPressed: () => Get.toNamed(AppRoutes.cart),
+              //         iconColor: Ucolors.dark,
+              //       ),
+              //       if (cartController.itemsCount > 0)
+              //         Positioned(
+              //           right: 0,
+              //           top: -5,
+              //           child: Container(
+              //             padding: const EdgeInsets.all(5),
+              //             decoration: const BoxDecoration(
+              //               color: Ucolors.red,
+              //               shape: BoxShape.circle,
+              //             ),
+              //             child: Text(
+              //               cartController.itemsCount.toString(),
+              //               style: UTextStyles.buttonText.copyWith(
+              //                 fontSize: 10,
+              //               ),
+              //             ),
+              //           ),
+              //         ),
+              //     ],
+              //   ),
+              // ),
               Obx(
-                    () => Stack(
+                () => Stack(
                   children: [
                     CompactIcon(
                       icon: Iconsax.shopping_cart,
-                      onPressed: () => Get.toNamed(AppRoutes.cart),
+                      onPressed: () {
+                        Get.find<CartController>().filterGoalId.value = null;
+                        Get.toNamed(AppRoutes.cart);
+                        // cartController.fetchCart();
+                      },
                       iconColor: Ucolors.dark,
                     ),
-                    if (cartController.itemsCount > 0)
+                    if (cartController.generalItemsCount > 0)
                       Positioned(
                         right: 0,
                         top: -5,
@@ -618,7 +770,7 @@ class _MobileDashboardLayout extends StatelessWidget {
                             shape: BoxShape.circle,
                           ),
                           child: Text(
-                            cartController.itemsCount.toString(),
+                            cartController.generalItemsCount.toString(),
                             style: UTextStyles.buttonText.copyWith(
                               fontSize: 10,
                             ),
@@ -846,22 +998,20 @@ class TransactionCard extends StatelessWidget {
       margin: isWebCompact
           ? EdgeInsets.zero
           : const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-      padding: isWebCompact
-          ? EdgeInsets.zero
-          : const EdgeInsets.all(16),
+      padding: isWebCompact ? EdgeInsets.zero : const EdgeInsets.all(16),
       decoration: isWebCompact
           ? null
           : BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -870,11 +1020,15 @@ class TransactionCard extends StatelessWidget {
             children: [
               Text(
                 'January 10, 2024',
-                style: Theme.of(context).textTheme.titleLarge!.copyWith(fontSize: 14),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge!.copyWith(fontSize: 14),
               ),
               Text(
                 '₹1000',
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Ucolors.success),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall!.copyWith(color: Ucolors.success),
               ),
             ],
           ),
@@ -887,7 +1041,9 @@ class TransactionCard extends StatelessWidget {
                   'Funding from salary',
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: UTextStyles.small.copyWith(color: const Color(0xff9A9A9A)),
+                  style: UTextStyles.small.copyWith(
+                    color: const Color(0xff9A9A9A),
+                  ),
                 ),
               ),
               Flexible(
@@ -895,7 +1051,9 @@ class TransactionCard extends StatelessWidget {
                   'Savings from Local Bank 1',
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: UTextStyles.small.copyWith(color: const Color(0xff9A9A9A)),
+                  style: UTextStyles.small.copyWith(
+                    color: const Color(0xff9A9A9A),
+                  ),
                 ),
               ),
             ],
@@ -1017,57 +1175,57 @@ class PortfolioCard extends StatelessWidget {
                 // const Icon(Icons.more_vert, color: Colors.grey),
                 iconButton
                     ? PopupMenuButton<PortfolioMenuAction>(
-                  color: Ucolors.light,
-                  icon: const Icon(Icons.more_vert, color: Colors.grey),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  // elevation: 6,
-                  offset: const Offset(0, 40),
-                  onSelected: (value) {
-                    switch (value) {
-                      case PortfolioMenuAction.topUp:
-                        log('top up');
-                        break;
+                        color: Ucolors.light,
+                        icon: const Icon(Icons.more_vert, color: Colors.grey),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        // elevation: 6,
+                        offset: const Offset(0, 40),
+                        onSelected: (value) {
+                          switch (value) {
+                            case PortfolioMenuAction.topUp:
+                              log('top up');
+                              break;
 
-                      case PortfolioMenuAction.modify:
-                        break;
-                      case PortfolioMenuAction.pause:
-                        break;
-                      case PortfolioMenuAction.cancel:
-                        break;
-                      case PortfolioMenuAction.redemption:
-                        break;
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    buildMenuItem(
-                      icon: Iconsax.card_send,
-                      text: 'Top Up',
-                      value: PortfolioMenuAction.topUp,
-                    ),
-                    buildMenuItem(
-                      icon: Iconsax.edit_2,
-                      text: 'Modify',
-                      value: PortfolioMenuAction.modify,
-                    ),
-                    buildMenuItem(
-                      icon: Iconsax.pause,
-                      text: 'Pause',
-                      value: PortfolioMenuAction.pause,
-                    ),
-                    buildMenuItem(
-                      icon: Iconsax.trash,
-                      text: 'Cancel',
-                      value: PortfolioMenuAction.cancel,
-                    ),
-                    buildMenuItem(
-                      icon: Iconsax.receipt,
-                      text: 'Redemption',
-                      value: PortfolioMenuAction.redemption,
-                    ),
-                  ],
-                )
+                            case PortfolioMenuAction.modify:
+                              break;
+                            case PortfolioMenuAction.pause:
+                              break;
+                            case PortfolioMenuAction.cancel:
+                              break;
+                            case PortfolioMenuAction.redemption:
+                              break;
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          buildMenuItem(
+                            icon: Iconsax.card_send,
+                            text: 'Top Up',
+                            value: PortfolioMenuAction.topUp,
+                          ),
+                          buildMenuItem(
+                            icon: Iconsax.edit_2,
+                            text: 'Modify',
+                            value: PortfolioMenuAction.modify,
+                          ),
+                          buildMenuItem(
+                            icon: Iconsax.pause,
+                            text: 'Pause',
+                            value: PortfolioMenuAction.pause,
+                          ),
+                          buildMenuItem(
+                            icon: Iconsax.trash,
+                            text: 'Cancel',
+                            value: PortfolioMenuAction.cancel,
+                          ),
+                          buildMenuItem(
+                            icon: Iconsax.receipt,
+                            text: 'Redemption',
+                            value: PortfolioMenuAction.redemption,
+                          ),
+                        ],
+                      )
                     : SizedBox(),
               ],
             ),
@@ -1181,4 +1339,3 @@ class SummaryItem extends StatelessWidget {
     );
   }
 }
-
