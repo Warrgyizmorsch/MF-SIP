@@ -1341,10 +1341,12 @@ class RiskPanel extends StatelessWidget {
     final List<String> risks = [
       'Low',
       "Low to Moderate",
-      'Moderately Low',
+      // 'Moderately Low',
       'Moderate',
+      'Moderatley Risk',
       'Moderately High',
       'High',
+      'High Risk',
       'Very High',
     ];
 
@@ -1352,7 +1354,8 @@ class RiskPanel extends StatelessWidget {
       () => ListView(
         padding: const EdgeInsets.only(left: 16),
         children: risks.map((risk) {
-          final key = risk.toLowerCase().replaceAll(' ', '_');
+          // final key = risk.toLowerCase().replaceAll(' ', '_');
+          final key = risk.toLowerCase();
 
           return RadioListTile<String>(
             dense: true,

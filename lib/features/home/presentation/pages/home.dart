@@ -1004,49 +1004,75 @@ class _MobileLayout extends StatelessWidget {
                 CollectionItem(
                   title: 'Best SIP Funds',
                   iconImg: UImages.savingbank,
-                  // onTap: () => Get.to(() => const ExploreScreen()),
-                  // onTap: () => navController.changePage(1),
+
                   onTap: () {
-                    navController.changePage(1);
-                    Get.find<FundhouseController>().applyBestSipFilter(1);
+                    // // navController.changePage(1);
+                    // Get.find<NavigationBarController>().changePage(1);
+                    // Get.find<FundhouseController>().applyBestSipFilter(1);
+                    final nav = Get.find<NavigationBarController>();
+                    final funds = Get.find<FundhouseController>();
+                    nav.navigateToExploreWithFilter(() {
+                      funds.applyBestSipFilter(1);
+                    });
                   },
                 ),
                 CollectionItem(
                   title: 'High Returns',
                   iconImg: UImages.highreturn,
-                  // onTap: () => Get.to(() => const ExploreScreen()),
-                  onTap: () => navController.changePage(1),
+                  onTap: () {
+                    // navController.changePage(1);
+                    // Get.find<FundhouseController>().applyHighReturnFilter();
+                    final nav = Get.find<NavigationBarController>();
+                    final funds = Get.find<FundhouseController>();
+                    nav.navigateToExploreWithFilter(() {
+                      funds.applyHighReturnFilter();
+                    });
+                  },
                 ),
                 CollectionItem(
-                  // onTap: () => Get.to(() => const ExploreScreen()),
                   onTap: () {
-                    navController.changePage(1);
-                    Get.find<FundhouseController>().applyCustomSearch(
-                      'international',
-                    );
+                    // navController.changePage(1);
+                    // Get.find<FundhouseController>().applyCustomSearch(
+                    //   'international',
+                    // );
+                    final nav = Get.find<NavigationBarController>();
+                    final funds = Get.find<FundhouseController>();
+                    nav.navigateToExploreWithFilter(() {
+                      funds.applyCustomSearch('international');
+                    });
                   },
                   title: 'International Funds',
                   iconImg: UImages.interfund,
                 ),
                 CollectionItem(
-                  // onTap: () => Get.to(() => const ExploreScreen()),
                   onTap: () {
-                    navController.changePage(1);
-                    Get.find<FundhouseController>().applyCustomSearch('index');
+                    // navController.changePage(1);
+                    // Get.find<FundhouseController>().applyCustomSearch('index');
+                    final nav = Get.find<NavigationBarController>();
+                    final funds = Get.find<FundhouseController>();
+                    nav.navigateToExploreWithFilter(() {
+                      funds.applyCustomSearch('index');
+                    });
                   },
 
                   title: 'Index Funds',
                   iconImg: UImages.indexfund,
                 ),
                 CollectionItem(
-                  // onTap: () => Get.to(() => const ExploreScreen()),
-                  onTap: () => navController.changePage(1),
+                  onTap: () {
+                    // navController.changePage(1);
+                    // Get.find<FundhouseController>().applyCommodityFilter();
+                    final nav = Get.find<NavigationBarController>();
+                    final funds = Get.find<FundhouseController>();
+                    nav.navigateToExploreWithFilter(() {
+                      funds.applyCommodityFilter();
+                    });
+                  },
                   title: 'Commodities',
                   iconImg: UImages.moneygold,
                 ),
                 CollectionItem(
-                  // onTap: () => Get.to(() => const ExploreScreen()),
-                  onTap: () => navController.changePage(1),
+                  onTap: () => Get.toNamed(AppRoutes.nfolist),
                   title: 'NFO',
                   iconImg: UImages.equity,
                 ),

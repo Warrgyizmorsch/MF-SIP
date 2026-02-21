@@ -21,6 +21,9 @@ import 'package:my_sip/features/goal/presentation/pages/ihavegoal.dart';
 import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/kyc/presentation/binding/kyc_bindings.dart';
 import 'package:my_sip/features/kyc/presentation/pages/kyc_screen.dart';
+import 'package:my_sip/features/nfo/presentation/bindings/nfo_list_binding.dart';
+import 'package:my_sip/features/nfo/presentation/page/nfo_details_page.dart';
+import 'package:my_sip/features/nfo/presentation/page/nfo_list_page.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/splash_screen.dart';
 import 'package:my_sip/features/personalization/presentation/bindings/BankBinding.dart';
 import 'package:my_sip/features/personalization/presentation/bindings/personalisation_binding.dart';
@@ -119,8 +122,16 @@ class AppPages {
       name: AppRoutes.personaldetails,
       page: () => PersonalDetailsScreen(),
     ),
-    GetPage(name: AppRoutes.ihavegoal, page: () => IhavegoalPage(), binding: GoalBinding()),
-    GetPage(name: AppRoutes.goalScreen, page: () => GoalScreen(), binding: GoalBinding()),
+    GetPage(
+      name: AppRoutes.ihavegoal,
+      page: () => IhavegoalPage(),
+      binding: GoalBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.goalScreen,
+      page: () => GoalScreen(),
+      binding: GoalBinding(),
+    ),
     GetPage(
       name: AppRoutes.successfullcreategoal,
       page: () => GoalsuccessPage(),
@@ -160,7 +171,38 @@ class AppPages {
       binding: KycBindings(),
     ),
     GetPage(name: AppRoutes.webView, page: () => HtmlWebViewPage()),
-    GetPage(name: AppRoutes.nomineeList, page: () => NomineeListScreen(), binding: PersonalisationBinding()),
-    GetPage(name: AppRoutes.nomineeDetail, page: () => NomineeDetailsScreen(), binding: PersonalisationBinding()),
+    GetPage(
+      name: AppRoutes.nomineeList,
+      page: () => NomineeListScreen(),
+      binding: PersonalisationBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.nomineeDetail,
+      page: () => NomineeDetailsScreen(),
+      binding: PersonalisationBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.nfolist,
+      page: () => NfoListPage(),
+      binding: NfoListBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.nfodetailsPage,
+      page: () =>
+          // Implementation example
+          NfoDetailsPage(),
+      // NfoDetailScreen(
+      //   nfoData: myApiData,
+      //   // title: 'Axis Fixed Maturity Plan Series 129',
+      //   // subtitle: '(108 Days) Regular Plan Growth',
+      //   // riskText: 'Average Risk',
+      //   // navText: 'NAV: ₹10',
+      //   // closingText: 'Closes in 1 Day',
+      //   // launchDate: '18 Feb 2026',
+      //   // endDate: '23 Feb 2026',
+      // ),
+      //  NfoDetailsPage(),
+      // binding: NfoListBinding(),
+    ),
   ];
 }

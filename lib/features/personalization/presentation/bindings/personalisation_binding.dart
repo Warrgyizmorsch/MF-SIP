@@ -30,6 +30,7 @@ class PersonalisationBinding extends Bindings {
     /// --
     Get.lazyPut(() => GetRiskquestionUseCases(Get.find()));
     Get.lazyPut(() => RiskSubmitUsecases(Get.find()));
+    
     Get.lazyPut(() => AddNomineeUseCase(personalisationRepository: Get.find<PersonalisationRepository>()));
     Get.lazyPut(() => GetNomineeUseCase(personalisationRepository: Get.find<PersonalisationRepository>()));
     Get.lazyPut(() => DeleteNomineeUseCase(personalisationRepository: Get.find<PersonalisationRepository>()));

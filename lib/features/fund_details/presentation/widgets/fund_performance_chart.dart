@@ -104,8 +104,8 @@ class _GroupedPerformanceBarChartState
                   ),
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
-                      interval: 1,
-                      showTitles: true,
+                      // interval: 1,
+                      showTitles: false,
                       reservedSize: isDesktop ? 40 : 30,
                       getTitlesWidget: (value, meta) {
                         if (value == 0) return const SizedBox();

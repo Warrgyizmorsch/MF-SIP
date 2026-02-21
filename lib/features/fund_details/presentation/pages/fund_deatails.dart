@@ -2383,8 +2383,17 @@ class OverviewScreen extends GetView<FundDetailsController> {
                       List<MapEntry<String, double>> data,
                       String centerText,
                     ) {
+                      // if (data.isEmpty) {
+                      //   return const Center(child: Text("No data available"));
+                      // }
                       if (data.isEmpty) {
-                        return const Center(child: Text("No data available"));
+                        return AnimatedEmptyState(
+                          icon: Iconsax.ghost,
+
+                          title: 'No Market Cap Data',
+                          message:
+                              'The AMC hasnt disclosed the Market Cap for this fund, or it may not be applicable to this scheme',
+                        ); // <-- So much cleaner!
                       }
 
                       final List<Color> colors = [

@@ -16,6 +16,7 @@ class MutualFundRepoImplement extends MutualFundRepository {
   ////////////// Get Fund house
   Future<Either<Result<MutualFundListResponseEntity>, ApiError>>
   getMutualFundList(Map<String, dynamic> data) async {
+    
     try {
       final result = await _mutualfundRemoteDs.getFundHouse(data);
       return result.fold(

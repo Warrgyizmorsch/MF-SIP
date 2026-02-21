@@ -298,6 +298,7 @@
 import 'dart:developer';
 
 import 'package:get/get.dart';
+import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/explore/domain/entities/categories_filter_entity.dart';
 import 'package:my_sip/features/explore/domain/entities/fund_house_entity.dart';
 import 'package:my_sip/features/explore/domain/usecases/get_categories_filter_usecases.dart';
@@ -340,6 +341,8 @@ class FundhouseController extends GetxController {
 
   final customGlobalSearch = RxnString();
   final bestSipValue = RxnInt();
+  final commodityFilter = false.obs;
+  final highReturnFilter = false.obs;
   // -----------------------------------------//
 
   RxBool isLoading = false.obs;
@@ -377,36 +380,60 @@ class FundhouseController extends GetxController {
     if (indexFundOnly.value) {
       params['search'] = 'index';
     } else if (customGlobalSearch.value != null) {
-      params['search'] =
-          customGlobalSearch.value; // <-- This handles 'international'
+      params['search'] = customGlobalSearch.value;
     }
 
     if (bestSipValue.value != null) {
       params['best_sip'] = bestSipValue.value;
     }
 
+    if (commodityFilter.value) {
+      params['asset_class'] = 'commodity';
+    }
+
     return params;
   }
 
-  // 2. Add this function to apply the search from the Home Screen
   void applyCustomSearch(String query) {
-    _clearOtherFilters(); // Clear previous filters so they don't conflict
+    _clearOtherFilters();
     customGlobalSearch.value = query;
 
-    // Refresh the count
     fetchCount();
 
-    // IMPORTANT: Tell the MutualFundController to re-fetch the Explore page list
-    // Replace 'fetchFunds' with your actual function name for loading the explore list
     Get.find<MutualFundController>().applyFilters(buildParam());
   }
 
   void applyBestSipFilter(int value) {
-    _clearOtherFilters(); // Clear everything else
-    bestSipValue.value = value; // Set it to 1
+    _clearOtherFilters();
+    bestSipValue.value = value;
 
     fetchCount();
     Get.find<MutualFundController>().applyFilters(buildParam());
+  }
+
+  void applyCommodityFilter() {
+    _clearOtherFilters();
+
+    commodityFilter.value = true;
+    final params = buildParam();
+    createLog("Applying Commodity Filter with params: $params");
+
+    fetchCount();
+    Get.find<MutualFundController>().applyFilters(params);
+  }
+
+  void applyHighReturnFilter() {
+    _clearOtherFilters();
+    highReturnFilter.value = true;
+
+    final params = buildParam();
+    params['sort_order'] = 'desc';
+    params['return_year'] = 1;
+
+    fetchCount();
+
+    // Send to MutualFundController to update the actual list
+    Get.find<MutualFundController>().applyFilters(params);
   }
 
   // Toggle Index Fund Only
@@ -568,7 +595,8 @@ class FundhouseController extends GetxController {
   // }
   // risk toggle
   void toggleRisk(String risk) {
-    final key = risk.toLowerCase().replaceAll(' ', '_');
+    // final key = risk.toLowerCase().replaceAll(' ', '_');
+    final key = risk.toLowerCase();
 
     bool isCurrentlySelected = selectedRisk.value == key;
 
@@ -663,6 +691,8 @@ class FundhouseController extends GetxController {
         selectedRating.value != null ||
         customGlobalSearch.value != null ||
         bestSipValue.value != null ||
+        commodityFilter.value != false ||
+        highReturnFilter.value != false ||
         indexFundOnly.value == true;
   }
 
@@ -673,7 +703,9 @@ class FundhouseController extends GetxController {
     selectedRating.value = null;
     indexFundOnly.value = false;
     customGlobalSearch.value = null;
-    bestSipValue.value = null; // <-- Reset to null
+    bestSipValue.value = null;
+    commodityFilter.value = false;
+    highReturnFilter.value = false;
   }
 
   void clearAllFilters() {

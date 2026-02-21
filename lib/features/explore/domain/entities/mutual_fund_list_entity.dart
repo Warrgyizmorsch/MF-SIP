@@ -166,7 +166,7 @@ extension RetunrsModelEntityx on ReturnsModel {
     return ReturnsEntity(
       oneWeek: oneWeek,
       oneMonth: oneMonth,
-      oneYear: oneWeek,
+      oneYear: oneYear,
       threeYear: threeYear,
       fiveYear: fiveYear,
       tenYear: tenYear,

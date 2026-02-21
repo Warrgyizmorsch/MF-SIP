@@ -227,3 +227,36 @@ double parseIntSafe(String? value, {double defaultValue = 0}) {
 
   return double.tryParse(cleanValue) ?? defaultValue;
 }
+
+String getRemainingDays(String? closeDateStr) {
+  if (closeDateStr == null || closeDateStr.isEmpty) return "N/A";
+
+  try {
+    // Parse the date (Format: YYYY-MM-DD)
+    final DateTime closeDate = DateTime.parse(closeDateStr);
+    final DateTime now = DateTime.now();
+
+    // Normalize dates to midnight to compare full days accurately
+    final DateTime today = DateTime(now.year, now.month, now.day);
+    final DateTime expiry = DateTime(
+      closeDate.year,
+      closeDate.month,
+      closeDate.day,
+    );
+
+    final int difference = expiry.difference(today).inDays;
+
+    if (difference < 0) {
+      return "CLOSED";
+    } else if (difference == 0) {
+      return "ENDS TODAY";
+    } else if (difference == 1) {
+      return "ENDS TOMORROW";
+    } else {
+      return "ENDS IN $difference DAYS";
+    }
+  } catch (e) {
+    createLog("Error parsing NFO date: $e");
+    return "N/A";
+  }
+}
