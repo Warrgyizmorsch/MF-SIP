@@ -1456,15 +1456,57 @@ class _MobileExploreLayout extends StatelessWidget {
                 //     },
                 //   ),
                 // ),
-                Obx(
-                  () => Badge(
-                    isLabelVisible:
-                        Get.find<FundhouseController>().isFilterActive,
-                    backgroundColor: Colors.redAccent,
+                // Obx(
+                //   () => Badge(
+                //     isLabelVisible:
+                //         Get.find<FundhouseController>().isFilterActive,
+                //     backgroundColor: Colors.redAccent,
+                //     alignment: const Alignment(
+                //       0.6,
+                //       -0.6,
+                //     ), // Adjusts dot position
+                //     child: Container(
+                //       padding: const EdgeInsets.all(8),
+                //       decoration: BoxDecoration(
+                //         border: Border.all(color: Ucolors.borderColor),
+                //         shape: BoxShape.circle,
+                //       ),
+                //       child: CompactIcon(
+                //         icon: Icons.tune,
+                //         onPressed: () async {
+                //           final result = await Get.toNamed(
+                //             AppRoutes.filterpage,
+                //           );
+                //           if (result != null &&
+                //               result is Map<String, dynamic>) {
+                //             controller.applyFilters(result);
+                //           }
+                //         },
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                Obx(() {
+                  final fundController = Get.find<FundhouseController>();
+                  final int filterCount = fundController.activeFilterCount;
+
+                  return Badge(
+                    // Only show the badge if count > 0
+                    isLabelVisible: filterCount > 0,
+                    backgroundColor: Ucolors.primary, // Or Colors.redAccent
+                    label: Text(
+                      '$filterCount',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
                     alignment: const Alignment(
-                      0.6,
-                      -0.6,
-                    ), // Adjusts dot position
+                      0.7,
+                      -0.7,
+                    ), // Adjusts position for text
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
@@ -1484,8 +1526,8 @@ class _MobileExploreLayout extends StatelessWidget {
                         },
                       ),
                     ),
-                  ),
-                ),
+                  );
+                }),
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 5),
                   height: 30,
@@ -1511,22 +1553,22 @@ class _MobileExploreLayout extends StatelessWidget {
                           ),
                         ),
                         const Gap(2),
-                        // !searchFocus.hasFocus
-                        //     ? InkWell(
-                        //         onTap: () => showSelectionBottomSheet(
-                        //           selectedValue: sortController.text,
-                        //           search: false,
-                        //           context: context,
-                        //           title: 'Sort by ${sortController.text}',
-                        //           items: sortItems,
-                        //           controller: sortController,
-                        //         ),
-                        //         child: const _FilterChip(
-                        //           label: 'Sort by',
-                        //           icon: Icons.filter_list_sharp,
-                        //         ),
-                        //       )
-                        //     : const SizedBox.shrink(),
+                        !searchFocus.hasFocus
+                            ? InkWell(
+                                onTap: () => showSelectionBottomSheet(
+                                  selectedValue: sortController.text,
+                                  search: false,
+                                  context: context,
+                                  title: 'Sort by ${sortController.text}',
+                                  items: sortItems,
+                                  controller: sortController,
+                                ),
+                                child: const _FilterChip(
+                                  label: 'Sort by',
+                                  icon: Icons.filter_list_sharp,
+                                ),
+                              )
+                            : const SizedBox.shrink(),
                       ],
                     ),
                   ),

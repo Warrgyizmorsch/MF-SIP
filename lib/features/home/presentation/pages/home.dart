@@ -1199,11 +1199,12 @@ class _MobileLayout extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(16, 20, 16, 0),
               child: USectionHeading(
                 title: 'Products & Tool',
-                buttonTitle: 'See all',
-                showActionButton: true,
+                // buttonTitle: 'See all',
+                showActionButton: false,
               ),
             ),
           ),
+          SliverToBoxAdapter(child: SizedBox(height: 5)),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             sliver: SliverGrid(
@@ -1245,7 +1246,9 @@ class _MobileLayout extends StatelessWidget {
               child: USectionHeading(
                 title: 'Popular Funds',
                 showActionButton: true,
-                onPressed: () => navController.selectedIndex.value = 1,
+                // onPressed: () => navController.selectedIndex.value = 1,
+                onPressed: () =>
+                    navController.navigateToExploreWithFilter(null),
               ),
             ),
           ),

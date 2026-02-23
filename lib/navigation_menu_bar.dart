@@ -39,12 +39,14 @@ class NavigationBarController extends GetxController {
   }
 
   // Inside NavigationBarController
-  void navigateToExploreWithFilter(VoidCallback filterLogic) {
+  void navigateToExploreWithFilter(VoidCallback? filterLogic) {
     // 1. Update the UI state for the Nav Bar
     changePage(1);
 
     // 2. Execute the specific filter logic
-    filterLogic();
+    if (filterLogic != null) {
+      filterLogic();
+    }
   }
 }
 
