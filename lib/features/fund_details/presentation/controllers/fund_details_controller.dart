@@ -18,6 +18,9 @@ class FundDetailsController extends GetxController
   late String imgUrl;
   late String schemeCode;
   final selectedPeriod = '1Y'.obs;
+  late String email;
+  late String contact;
+  late String address;
 
   // Controllers
   late TabController tabController;
@@ -58,9 +61,12 @@ class FundDetailsController extends GetxController
   FundDetailsController({required this.fundDetailsUsecases}) {
     final args = Get.arguments as Map<String, dynamic>? ?? {};
     schemeName = args['scheme'] ?? 'Fund Details';
-    imgUrl = args['imgUrl'] ?? '';
+    imgUrl = args['imgUrl'] ?? '--';
 
     schemeCode = args['scheme_code'] ?? '';
+    email = args['email'] ?? '--';
+    contact = args['contact'] ?? '--';
+    address = args['address'] ?? '--';
 
     createLog("gggg$schemeName");
     // createLog("gggg$schemeCode");
@@ -346,13 +352,12 @@ class FundDetailsController extends GetxController
     double c(double? v) => v ?? 0;
 
     return [
-       ReturnRow(
+      ReturnRow(
         period: '1W',
         scheme: scheme.oneWeekReturn,
         category: c(category?.oneWeekReturn),
         benchmark: b(benchmark?.oneWeekReturn),
       ),
-      
 
       ReturnRow(
         period: '1M',

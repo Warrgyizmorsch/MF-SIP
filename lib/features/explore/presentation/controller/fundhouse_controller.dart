@@ -778,27 +778,62 @@ class FundhouseController extends GetxController {
   }
 
   //----- Build Param (Converts Lists to Comma Separated Strings) -----//
-  Map<String, dynamic> buildParam() {
-    final params = <String, dynamic>{};
+  // Map<String, dynamic> buildParam() {
+  //   final params = <String, dynamic>{};
 
-    if (selectedSchemeTypes.isNotEmpty)
-      params['scheme_category'] = selectedSchemeTypes.join(',');
-    if (selectedAmcIds.isNotEmpty) params['amc_id'] = selectedAmcIds.join(',');
-    if (selectedRisks.isNotEmpty)
-      params['risk_level'] = selectedRisks.join(',');
-    if (selectedRating.value != null) params['rating'] = selectedRating.value;
+  //   if (selectedSchemeTypes.isNotEmpty)
+  //     params['scheme_category'] = selectedSchemeTypes.join(',');
+  //   if (selectedAmcIds.isNotEmpty) params['amc_id'] = selectedAmcIds.join(',');
+  //   if (selectedRisks.isNotEmpty)
+  //     params['risk_level'] = selectedRisks.join(',');
+  //   if (selectedRating.value != null) params['rating'] = selectedRating.value;
 
-    if (indexFundOnly.value) {
-      params['search'] = 'index';
-    } else if (customGlobalSearch.value != null) {
-      params['search'] = customGlobalSearch.value;
-    }
+  //   if (indexFundOnly.value) {
+  //     params['search'] = 'index';
+  //   } else if (customGlobalSearch.value != null) {
+  //     params['search'] = customGlobalSearch.value;
+  //   }
 
-    if (bestSipValue.value != null) params['best_sip'] = bestSipValue.value;
-    if (commodityFilter.value) params['asset_class'] = 'commodity';
+  //   if (bestSipValue.value != null) params['best_sip'] = bestSipValue.value;
+  //   if (commodityFilter.value) params['asset_class'] = 'commodity';
 
-    return params;
+  //   //sorting
+  //   final mutualController = Get.find<MutualFundController>();
+  //   params['sort_order'] = 'desc';
+  //   params['return_year'] = mutualController.selectedReturnYear.value;
+
+  //   return params;
+  // }
+
+  // Inside FundhouseController
+Map<String, dynamic> buildParam() {
+  final params = <String, dynamic>{};
+
+  if (selectedSchemeTypes.isNotEmpty) params['scheme_category'] = selectedSchemeTypes.join(',');
+  if (selectedAmcIds.isNotEmpty) params['amc_id'] = selectedAmcIds.join(',');
+  if (selectedRisks.isNotEmpty) params['risk_level'] = selectedRisks.join(',');
+  if (selectedRating.value != null) params['rating'] = selectedRating.value;
+
+  if (indexFundOnly.value) {
+    params['search'] = 'index';
+  } else if (customGlobalSearch.value != null) {
+    params['search'] = customGlobalSearch.value;
   }
+
+  if (bestSipValue.value != null) params['best_sip'] = bestSipValue.value;
+  if (commodityFilter.value) params['asset_class'] = 'commodity';
+
+  // FIX: Access MutualFundController to check the current sort label
+  final mutualController = Get.find<MutualFundController>();
+  
+  // Only add sorting parameters if the user has explicitly selected a year sort
+  if (mutualController.currentSortLabel.value != "Popularity") {
+    params['sort_order'] = 'desc';
+    params['return_year'] = mutualController.selectedReturnYear.value;
+  }
+
+  return params;
+}
 
   // ---------- Multi-Select Toggle Methods ----------
 

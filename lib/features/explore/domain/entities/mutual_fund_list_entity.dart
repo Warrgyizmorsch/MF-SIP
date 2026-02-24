@@ -87,20 +87,33 @@ class AmcEntity extends Equatable {
   final int? id;
   final String? amcName;
   final String? amcLogoUrl;
+  final String? email;
+  final String? contact;
+  final String? address;
 
   const AmcEntity({
     required this.id,
     required this.amcName,
     required this.amcLogoUrl,
+    this.email,
+    this.contact,
+    this.address,
   });
 
   @override
-  List<Object?> get props => [id, amcName, amcLogoUrl];
+  List<Object?> get props => [id, amcName, amcLogoUrl, email, contact, address];
 }
 
 extension AmcEntityX on AmcModel {
   AmcEntity toEntity() {
-    return AmcEntity(id: id, amcName: amcName, amcLogoUrl: amcLogoUrl);
+    return AmcEntity(
+      id: id,
+      amcName: amcName,
+      amcLogoUrl: amcLogoUrl,
+      email: email,
+      contact: contact,
+      address: address,
+    );
   }
 }
 

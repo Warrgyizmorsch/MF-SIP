@@ -230,7 +230,8 @@ class CartController extends GetxController {
     // 1. DUPLICATE CHECK: Verify if fund already exists in local state
     bool alreadyInCart =
         cartResponseEntity.value?.items.any(
-          (item) => item.schemeCode.toString() == schemeCode,
+          (item) =>
+              item.schemeCode.toString() == schemeCode && item.goalId == goalId,
         ) ??
         false;
 

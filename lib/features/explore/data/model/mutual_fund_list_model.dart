@@ -100,14 +100,27 @@ class AmcModel {
   final int? id;
   final String? amcName;
   final String? amcLogoUrl;
+  final String? email;
+  final String? contact;
+  final String? address;
 
-  AmcModel({required this.id, required this.amcName, required this.amcLogoUrl});
+  AmcModel({
+    required this.id,
+    required this.amcName,
+    required this.amcLogoUrl,
+    this.email,
+    this.contact,
+    this.address,
+  });
 
   factory AmcModel.fromJson(Map<String, dynamic> json) {
     return AmcModel(
       id: json.parse<int>('id'),
       amcName: json.parse<String>('name'),
       amcLogoUrl: json.parse<String>('logo_url'),
+      email: json.parse<String>('email'),
+      contact: json.parse<String>('contact'),
+      address: json.parse<String>('address'),
     );
   }
 }

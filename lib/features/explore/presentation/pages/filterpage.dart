@@ -1748,69 +1748,77 @@ class CategoriesPanel extends StatelessWidget {
         (item) => controller.selectedSchemeTypes.contains(item),
       );
 
-      return ExpansionTile(
-        tilePadding: EdgeInsets.zero,
-        childrenPadding: const EdgeInsets.only(left: 10),
-        visualDensity: VisualDensity.compact,
-        shape: const Border(),
-        title: Row(
-          children: [
-            Checkbox(
-              activeColor: Ucolors.primary,
-              visualDensity: VisualDensity.compact,
-              value: allSelected,
-              onChanged: (val) {
-                controller.toggleCategoryGroup(groupName, subItems);
-              },
-            ),
-            const SizedBox(width: 8),
-            Text(
-              groupName,
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-            ),
-          ],
-        ),
-        children: subItems.map((fullItemString) {
-          String displayName = fullItemString.split(':').last.trim();
-          if (displayName.contains('-')) {
-            displayName = displayName
-                .substring(displayName.indexOf('-') + 1)
-                .trim();
-          }
-          final isSelected = controller.selectedSchemeTypes.contains(
-            fullItemString,
-          );
-          return Column(
-            children: [
-              CheckboxListTile(
-                contentPadding: const EdgeInsets.only(left: 10, right: 12),
-                dense: true,
-                controlAffinity: ListTileControlAffinity.leading,
-                activeColor: Ucolors.primary,
-                title: Text(
-                  displayName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isSelected ? Colors.blue : null,
+      return Column(
+        children: [
+          ExpansionTile(
+            tilePadding: EdgeInsets.zero,
+            childrenPadding: const EdgeInsets.only(left: 10),
+            visualDensity: VisualDensity.compact,
+            shape: const Border(),
+            title: Row(
+              children: [
+                Checkbox(
+                  activeColor: Ucolors.primary,
+                  visualDensity: VisualDensity.compact,
+                  value: allSelected,
+                  onChanged: (val) {
+                    controller.toggleCategoryGroup(groupName, subItems);
+                  },
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  groupName,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
                   ),
                 ),
-                // value: controller.selectedSchemeTypes.contains(fullItemString),
-                value: isSelected,
-                onChanged: (val) {
-                  controller.toggleSubCategory(fullItemString);
-                },
-              ),
-              const Divider(
-                height: 1,
-                thickness: 0.5,
-                indent: 48,
-                color: Colors.grey,
-              ),
-            ],
-          );
-        }).toList(),
+              ],
+            ),
+            children: subItems.map((fullItemString) {
+              String displayName = fullItemString.split(':').last.trim();
+              if (displayName.contains('-')) {
+                displayName = displayName
+                    .substring(displayName.indexOf('-') + 1)
+                    .trim();
+              }
+              final isSelected = controller.selectedSchemeTypes.contains(
+                fullItemString,
+              );
+              return Column(
+                children: [
+                  CheckboxListTile(
+                    contentPadding: const EdgeInsets.only(left: 10, right: 12),
+                    dense: true,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    activeColor: Ucolors.primary,
+                    title: Text(
+                      displayName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isSelected ? Colors.blue : null,
+                      ),
+                    ),
+                    // value: controller.selectedSchemeTypes.contains(fullItemString),
+                    value: isSelected,
+                    onChanged: (val) {
+                      controller.toggleSubCategory(fullItemString);
+                    },
+                  ),
+                  const Divider(
+                    height: 1,
+                    thickness: 0.5,
+                    indent: 48,
+                    color: Colors.grey,
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+          DashedLine(color: Colors.grey.shade200, dashSpace: 0),
+        ],
       );
     });
   }

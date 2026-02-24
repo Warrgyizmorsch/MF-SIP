@@ -449,7 +449,7 @@ class _WebDashboardLayout extends StatelessWidget {
       itemCount: items.length,
       itemBuilder: (ctx, i) => WebHoverScale(
         scale: 1.1, // Higher scale for small icons
-        onTap: () => Get.to(() => const ExploreScreen()),
+        onTap: () => Get.to(() =>  ExploreScreen()),
         child: CollectionItem(title: items[i]['t']!, iconImg: items[i]['i']!),
       ),
     );

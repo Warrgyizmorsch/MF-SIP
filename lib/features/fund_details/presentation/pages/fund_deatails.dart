@@ -2755,23 +2755,25 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                     .toList();
 
                                 // 5. Render
-                                return Column(
-                                  children: top10Items.map((entry) {
-                                    return Padding(
-                                      padding: const EdgeInsets.only(
-                                        // bottom: 10,
-                                        top: 10,
-                                      ),
-                                      child: PercentageBar(
-                                        title: entry
-                                            .key, // Name (e.g., Financial Services)
-                                        percentage:
-                                            entry.value, // Value (e.g., 30.62)
-                                        color: Colors
-                                            .blue, // Replace with Ucolors.primary
-                                      ),
-                                    );
-                                  }).toList(),
+                                return SingleChildScrollView(
+                                  child: Column(
+                                    children: top10Items.map((entry) {
+                                      return Padding(
+                                        padding: const EdgeInsets.only(
+                                          // bottom: 10,
+                                          top: 10,
+                                        ),
+                                        child: PercentageBar(
+                                          title: entry
+                                              .key, // Name (e.g., Financial Services)
+                                          percentage: entry
+                                              .value, // Value (e.g., 30.62)
+                                          color: Colors
+                                              .blue, // Replace with Ucolors.primary
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
                                 );
                               },
                             ),
@@ -3477,7 +3479,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
             shape: Border(),
             collapsedShape: Border(),
             // dense: true,
-            title: Text('AMC Inforamtion'),
+            title: Text('AMC Information'),
             children: [
               CustomContainer(
                 bottomPadding: 0,
@@ -3488,31 +3490,34 @@ class OverviewScreen extends GetView<FundDetailsController> {
                       fund?.schemeCompany.toString() ?? '',
                       Icons.bar_chart_rounded,
                     ),
-                    // DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                    // investmentDetailSection(
-                    //   'Email',
-                    //   'abc.warrgyizmorch@gmail.com',
-                    //   Icons.mail_outline,
-                    // ),
+                    DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                    investmentDetailSection(
+                      'Email',
+                      // 'abc.warrgyizmorch@gmail.com',
+                      controller.email,
+                      Icons.mail_outline,
+                    ),
 
-                    // DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                    // investmentDetailSection(
-                    //   'Office No',
-                    //   '1876471871',
-                    //   Icons.home_work_outlined,
-                    // ),
+                    DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                    investmentDetailSection(
+                      'Office No',
+                      // '1876471871',
+                      controller.contact,
+                      Icons.home_work_outlined,
+                    ),
                     // DashedLine(dashSpace: 0, color: Colors.grey.shade300),
                     // investmentDetailSection(
                     //   'Website',
                     //   'http://www.google.com',
                     //   Iconsax.global,
                     // ),
-                    // DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                    // investmentDetailSection(
-                    //   'Address',
-                    //   '',
-                    //   Icons.location_on_outlined,
-                    // ),
+                    DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                    investmentDetailSection(
+                      'Address',
+                      // '',
+                      controller.address,
+                      Icons.location_on_outlined,
+                    ),
                   ],
                 ),
               ),
@@ -3601,6 +3606,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
               style: UTextStyles.medium.copyWith(
                 fontWeight: FontWeight.w600,
                 color: Ucolors.dark,
+                fontSize: 12,
               ),
             ),
           ),

@@ -1,12 +1,10 @@
-
-
-
 import 'dart:async';
 import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_usecases.dart';
+import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 
 class MutualFundController extends GetxController {
   final GetMutualFundListUsecases _getMutualFundListUsecases;
@@ -16,20 +14,23 @@ class MutualFundController extends GetxController {
   // =========================================================
   //  1. OBSERVABLE STATE (For UI)
   // =========================================================
-  RxBool isLoading = false.obs;       // Full screen loader (Initial/Search/Filter)
-  RxBool isMoreLoading = false.obs;   // Bottom loader (Pagination)
+  RxBool isLoading = false.obs; // Full screen loader (Initial/Search/Filter)
+  RxBool isMoreLoading = false.obs; // Bottom loader (Pagination)
   RxString errorMessage = ''.obs;
+  final selectedReturnYear = 3.obs;
 
   // The SINGLE master list used by the UI (ExploreScreen)
   final searchFund = <MutualFundListEntity>[].obs;
   final mutualfund = <MutualFundListEntity>[].obs;
-  
+
   // Total count for the header (e.g., "450 funds found")
   final selectedFundCount = 0.obs;
 
-  // =========================================================
   //  2. LOGIC MEMORY (Internal State)
-  // =========================================================
+  final currentSortLabel = "Popularity".obs;
+
+  final hasSearchFocus = false.obs;
+
   int currentPage = 1;
   bool canLoadMore = true;
   Timer? _debounce;
@@ -41,13 +42,14 @@ class MutualFundController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Initial Load: Page 1, No Search, No Filters
-    fetchData(); 
+    fetchData();
   }
 
-  // =========================================================
+  void setSearchFocus(bool focus) {
+    hasSearchFocus.value = focus;
+  }
+
   //  3. USER ACTIONS (Call these from UI)
-  // =========================================================
 
   /// ACTION A: User types in Search Bar
   /// Usage: onChanged: (val) => controller.onSearchQueryChanged(val)
@@ -62,9 +64,111 @@ class MutualFundController extends GetxController {
 
   /// ACTION B: User applies Filters from Filter Page
   /// Usage: controller.applyFilters(resultMap)
+  // void applyFilters(Map<String, dynamic> newFilters) {
+
+  //   if (newFilters.containsKey('return_year')) {
+  //     selectedReturnYear.value = newFilters['return_year'];
+  //   }
+  //   _currentFilters = newFilters; // Save filters
+  //   _resetAndFetch(); // Start over from Page 1
+  // }
+  // void applyFilters(Map<String, dynamic> newFilters) {
+  //   // 1. Update UI state if return_year is changed
+  //   if (newFilters.containsKey('return_year')) {
+  //     selectedReturnYear.value = newFilters['return_year'];
+  //     // Sync the Sort Chip label based on the year
+  //     currentSortLabel.value = "${newFilters['return_year']}Y Returns";
+
+  //   }
+
+  //   // 2. MERGE: This is the key. Use addAll so it doesn't delete existing AMC/Category filters
+  //   _currentFilters.addAll(newFilters);
+
+  //   _resetAndFetch();
+  // }
   void applyFilters(Map<String, dynamic> newFilters) {
-    _currentFilters = newFilters; // Save filters
-    _resetAndFetch(); // Start over from Page 1
+    // Update internal memory with cumulative filters
+    _currentFilters.addAll(newFilters);
+
+    // ONLY update labels if return_year is explicitly passed in the newFilters map
+    if (newFilters.containsKey('return_year')) {
+      selectedReturnYear.value = newFilters['return_year'];
+      currentSortLabel.value = "${newFilters['return_year']}Y Returns";
+    }
+    // If no sorting is in newFilters, we leave currentSortLabel as "Popularity"
+
+    _resetAndFetch();
+  }
+
+  String get returnYearLabel => "${selectedReturnYear.value} Year Returns";
+
+  void cycleReturnYear() {
+    int nextYear;
+    switch (selectedReturnYear.value) {
+      case 1:
+        nextYear = 3;
+        break;
+      case 3:
+        nextYear = 5;
+        break;
+      case 5:
+        nextYear = 1;
+        break;
+      default:
+        nextYear = 3;
+    }
+
+    // Apply as a filter which triggers the API
+    applyFilters({'sort_order': 'desc', 'return_year': nextYear});
+  }
+
+  void cycleGlobalSort() {
+    switch (currentSortLabel.value) {
+      case "Popularity":
+        currentSortLabel.value = "1Y Returns";
+        applyFilters({'sort_order': 'desc', 'return_year': 1});
+        break;
+      case "1Y Returns":
+        currentSortLabel.value = "3Y Returns";
+        applyFilters({'sort_order': 'desc', 'return_year': 3});
+        break;
+      case "3Y Returns":
+        currentSortLabel.value = "5Y Returns";
+        applyFilters({'sort_order': 'desc', 'return_year': 5});
+        break;
+      case "5Y Returns":
+      default:
+        currentSortLabel.value = "Popularity";
+        _currentFilters.remove('sort_order');
+        _currentFilters.remove('return_year');
+        resetToDefault(); // Clears all parameters for a clean base URL
+        break;
+    }
+  }
+
+  // void resetToDefault() {
+  //   _currentSearchQuery = "";
+  //   _currentFilters
+  //       .clear(); // Wipes the filter map for {{baseURL}}/api/v1/mutual-funds
+  //   selectedReturnYear.value = 3;
+
+  //   // Synchronize with FundhouseController to uncheck all checkboxes
+  //   if (Get.isRegistered<FundhouseController>()) {
+  //     Get.find<FundhouseController>().clearAllFilters();
+  //   }
+  //   _resetAndFetch();
+  // }
+  void resetToDefault() {
+    _currentSearchQuery = "";
+    _currentFilters
+        .clear(); // Clears all params for {{baseURL}}/api/v1/mutual-funds
+    selectedReturnYear.value = 3;
+    currentSortLabel.value = "Popularity"; // Explicitly return to default state
+
+    if (Get.isRegistered<FundhouseController>()) {
+      Get.find<FundhouseController>().clearAllFilters(); // Sync checkboxes
+    }
+    _resetAndFetch();
   }
 
   /// ACTION C: User scrolls to bottom
@@ -131,8 +235,10 @@ class MutualFundController extends GetxController {
           } else {
             canLoadMore = newData.isNotEmpty;
           }
-          
-          log("Fetched Page: $currentPage | Search: $_currentSearchQuery | Items: ${newData.length}");
+
+          log(
+            "Fetched Page: $currentPage | Search: $_currentSearchQuery | Items: ${newData.length}",
+          );
         },
         (error) {
           errorMessage.value = error.message ?? "Failed to load data";
