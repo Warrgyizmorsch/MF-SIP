@@ -97,6 +97,7 @@ class CustomTextField extends StatefulWidget {
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
 }
+
 class _CustomTextFieldState extends State<CustomTextField> {
   late bool _obscure;
 
@@ -127,7 +128,12 @@ class _CustomTextFieldState extends State<CustomTextField> {
         }
         break;
       case ValidationType.phone:
-        final phoneRegex = RegExp(r'^[6-9]\d{9}$');
+        // final phoneRegex = RegExp(r'^[6-9]\d{9}$');
+        final phoneRegex = RegExp(r'^\d{10}$');
+        // if (value == null || !phoneRegex.hasMatch(value.trim())) {
+        //   return widget.validationMessage ??
+        //       "Enter a valid 10 digit phone number";
+        // }
         if (value == null || !phoneRegex.hasMatch(value.trim())) {
           return widget.validationMessage ??
               "Enter a valid 10 digit phone number";
@@ -168,11 +174,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
       initialValue: widget.controller?.text,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       builder: (FormFieldState<String> field) {
-
         // --- FIX START: Sync Controller with Field State ---
         // If the controller text differs from the field state (e.g. DatePicker update),
         // update the field state silently so validation passes.
-        if (widget.controller != null && widget.controller!.text != field.value) {
+        if (widget.controller != null &&
+            widget.controller!.text != field.value) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (field.mounted) {
               field.didChange(widget.controller!.text);
@@ -183,9 +189,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
         EdgeInsets contentPadding = widget.height != null
             ? EdgeInsets.symmetric(
-          vertical: (widget.height! - widget.textSize) / 2 - 8,
-          horizontal: 12,
-        )
+                vertical: (widget.height! - widget.textSize) / 2 - 8,
+                horizontal: 12,
+              )
             : const EdgeInsets.symmetric(vertical: 12, horizontal: 12);
 
         if (widget.trailing != null || widget.obscureText) {
@@ -209,7 +215,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
                       focusNode: widget.focusNode,
                       controller: widget.controller,
                       obscureText: _obscure,
-                      keyboardType: widget.keyboardType ??
+                      keyboardType:
+                          widget.keyboardType ??
                           (widget.maxLines > 1
                               ? TextInputType.multiline
                               : TextInputType.text),
@@ -226,17 +233,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
                       // --- FIX: Sync changes back to FormField State ---
                       onChanged: widget.isEnabled
                           ? (value) {
-                        field.didChange(value);
-                        widget.onChanged?.call(value);
-                      }
+                              field.didChange(value);
+                              widget.onChanged?.call(value);
+                            }
                           : null,
 
                       decoration: InputDecoration(
                         counterText: '',
                         isDense: true,
-                        contentPadding: contentPadding.copyWith(
-                          right: 40,
-                        ),
+                        contentPadding: contentPadding.copyWith(right: 40),
                         labelText: widget.label,
                         labelStyle: TextStyle(
                           color: widget.labelColor,
@@ -256,17 +261,17 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
                         prefixIcon: widget.leading != null
                             ? GestureDetector(
-                          onTap: widget.isEnabled
-                              ? widget.onLeadingTap
-                              : null,
-                          child: IconTheme(
-                            data: IconThemeData(
-                              color: widget.leadingColor,
-                              size: 10,
-                            ),
-                            child: widget.leading!,
-                          ),
-                        )
+                                onTap: widget.isEnabled
+                                    ? widget.onLeadingTap
+                                    : null,
+                                child: IconTheme(
+                                  data: IconThemeData(
+                                    color: widget.leadingColor,
+                                    size: 10,
+                                  ),
+                                  child: widget.leading!,
+                                ),
+                              )
                             : null,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
@@ -292,15 +297,18 @@ class _CustomTextFieldState extends State<CustomTextField> {
                         // Force the border to turn red if there is an error
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
-                              widget.borderRadius ?? 14
+                            widget.borderRadius ?? 14,
                           ),
                           borderSide: const BorderSide(color: Colors.red),
                         ),
                         focusedErrorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
-                              widget.borderRadius ?? 14
+                            widget.borderRadius ?? 14,
                           ),
-                          borderSide: const BorderSide(color: Colors.red, width: 1),
+                          borderSide: const BorderSide(
+                            color: Colors.red,
+                            width: 1,
+                          ),
                         ),
                         disabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(

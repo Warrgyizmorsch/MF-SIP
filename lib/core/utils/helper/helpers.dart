@@ -145,6 +145,80 @@ class PanCardFormatter extends TextInputFormatter {
   }
 }
 
+// Aadhaar: Exactly 12 digits, often grouped in 4s (0000 0000 0000)
+class AadhaarFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    String digits = newValue.text.replaceAll(RegExp(r'\D'), '');
+    if (digits.length > 12) return oldValue;
+
+    // Optional: Add spaces every 4 digits for better readability
+    final buffer = StringBuffer();
+    for (int i = 0; i < digits.length; i++) {
+      buffer.write(digits[i]);
+      if ((i + 1) % 4 == 0 && (i + 1) != 12 && i != digits.length - 1) {
+        buffer.write(' ');
+      }
+    }
+
+    return TextEditingValue(
+      text: buffer.toString(),
+      selection: TextSelection.collapsed(offset: buffer.length),
+    );
+  }
+}
+
+// Passport: 1 Letter followed by 7 Digits (Indian Standard)
+class PassportFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    String text = newValue.text.toUpperCase();
+    if (text.length > 8) return oldValue;
+
+    StringBuffer buffer = StringBuffer();
+    for (int i = 0; i < text.length; i++) {
+      if (i == 0) {
+        if (RegExp(r'[A-Z]').hasMatch(text[i])) buffer.write(text[i]);
+      } else {
+        if (RegExp(r'[0-9]').hasMatch(text[i])) buffer.write(text[i]);
+      }
+    }
+    return TextEditingValue(
+      text: buffer.toString(),
+      selection: TextSelection.collapsed(offset: buffer.length),
+    );
+  }
+}
+
+class DrivingLicenseFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    String text = newValue.text.toUpperCase();
+    String cleanText = text.replaceAll(RegExp(r'[^A-Z0-9]'), '');
+    
+    if (cleanText.length > 15) return oldValue;
+
+    StringBuffer buffer = StringBuffer();
+    for (int i = 0; i < cleanText.length; i++) {
+      if (i < 2) {
+        // First two must be letters (State Code)
+        if (RegExp(r'[A-Z]').hasMatch(cleanText[i])) buffer.write(cleanText[i]);
+      } else {
+        // Remaining 13 must be digits
+        if (RegExp(r'[0-9]').hasMatch(cleanText[i])) buffer.write(cleanText[i]);
+      }
+      
+      // Auto-insert hyphen for UX
+      if (i == 1 && cleanText.length > 2) buffer.write('-');
+    }
+
+    return TextEditingValue(
+      text: buffer.toString(),
+      selection: TextSelection.collapsed(offset: buffer.length),
+    );
+  }
+}
+
 List<String> getCleanedTopHoldings({
   required List<String>? names,
   required List<dynamic>? values,
@@ -258,5 +332,60 @@ String getRemainingDays(String? closeDateStr) {
   } catch (e) {
     createLog("Error parsing NFO date: $e");
     return "N/A";
+  }
+}
+
+
+
+class DocumentFormatterFactory {
+  static List<TextInputFormatter> getFormatters(String type) {
+    switch (type) {
+      case "Pan":
+        return [PanCardFormatter()];
+      case "Aadhaar":
+        return [AadhaarFormatter()];
+      case "Passport":
+        return [PassportFormatter()];
+      case "Driving License":
+        return [DrivingLicenseFormatter()];
+      default:
+        return [LengthLimitingTextInputFormatter(20)];
+    }
+  }
+
+  static TextInputType getKeyboardType(String type) {
+    if (type == "Aadhaar") return TextInputType.number;
+    return TextInputType.text;
+  }
+
+  static String getHint(String type) {
+    switch (type) {
+      case "Pan": return "ABCDE1234F";
+      case "Aadhaar": return "0000 0000 0000";
+      case "Passport": return "A1234567";
+      case "Driving License": return "DL-1320230000000";
+      default: return "Enter document number";
+    }
+  }
+
+  static String? validate(String type, String? value) {
+    if (value == null || value.isEmpty) return "Document number is required";
+    
+    final cleanValue = value.replaceAll(' ', '').replaceAll('-', '');
+
+    switch (type) {
+      case "Pan":
+        return RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$').hasMatch(cleanValue) 
+            ? null : "Invalid PAN format";
+      case "Aadhaar":
+        return cleanValue.length == 12 ? null : "Aadhaar must be 12 digits";
+      case "Passport":
+        return RegExp(r'^[A-Z]{1}[0-9]{7}$').hasMatch(cleanValue) 
+            ? null : "Invalid Passport format";
+      case "Driving License":
+        return cleanValue.length == 15 ? null : "DL must be 15 characters";
+      default:
+        return null;
+    }
   }
 }

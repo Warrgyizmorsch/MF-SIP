@@ -59,6 +59,7 @@ class AppPages {
         PersonalisationBinding(),
         Bankbinding(),
         Fundhousebinding(),
+        WishlistBinding(),
       ],
       name: AppRoutes.navMenuBar,
       page: () => const NavigationMenuBar(),
