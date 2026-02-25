@@ -260,7 +260,7 @@ class CartController extends GetxController {
       // If goalId is provided, add it to the payload
       if (goalId != null) {
         requestData["goal_id"] = goalId;
-      }
+      } 
 
       showCustomToast(
         title: "Added to Cart",

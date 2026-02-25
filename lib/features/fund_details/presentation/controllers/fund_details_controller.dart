@@ -166,6 +166,8 @@ class FundDetailsController extends GetxController
     }
   }
 
+  final navHistoryHasError = false.obs; // Use a specific error variable for the chart
+
   // Get Scheme nav history
   Future<void> getShcemeNavHistory({
     required String scchemeCode,
@@ -176,6 +178,7 @@ class FundDetailsController extends GetxController
       isNavHistoryLoading.value = true;
       hasError.value = false;
       errorMessage.value = '';
+      navHistoryHasError.value = false; // Reset local error
 
       final now = DateTime.now();
       DateTime fromDate;
@@ -231,14 +234,18 @@ class FundDetailsController extends GetxController
           );
         },
         (error) {
+          navHistorydata.value = null;
           hasError.value = true;
           errorMessage.value = error.toString();
           isNavHistoryLoading.value = false;
+          navHistoryHasError.value = true; // Reset local error
           createLog("Error loading Navhistory details: $error");
         },
       );
     } catch (e) {
       hasError.value = true;
+      navHistoryHasError.value = true; // Reset local error
+      navHistorydata.value = null;
       errorMessage.value = e.toString();
       isNavHistoryLoading.value = false;
       createLog("Exception in Portfolio: $e");

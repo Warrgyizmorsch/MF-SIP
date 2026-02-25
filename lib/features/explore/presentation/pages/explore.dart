@@ -731,6 +731,7 @@ import 'package:my_sip/features/explore/presentation/controller/fundhouse_contro
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/fund_details/presentation/widgets/helper.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart'; // Ensure this import exists for Deleteiconwithcontainer
+import 'package:my_sip/features/wishlist/presentation/controller/wishlist_controller.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 enum FundMenuAction {
@@ -1360,465 +1361,474 @@ class _MobileExploreLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     final MutualFundController controller = Get.find();
     final CartController cartController = Get.find();
-    return CustomScrollView(
-      controller: scrollController,
-      slivers: [
-        SliverAppBar(
-          automaticallyImplyLeading: false,
-          pinned: true,
-          flexibleSpace: CustomAppBarNormal(
-            backIcon: false,
-            title: 'All Mutual Funds',
-            backgroundColor: Ucolors.light,
-            actionsPadding: 15,
-            action: [
-              // Obx(() {
-              //   final count = cartController.itemsCount1;
-              //   return Stack(
-              //     children: [
-              //       CompactIcon(
-              //         icon: Iconsax.shopping_cart,
-              //         onPressed: () => Get.toNamed(AppRoutes.cart),
-              //         iconColor: Ucolors.dark,
-              //       ),
-              //       if (count > 0)
-              //         Positioned(
-              //           right: 0,
-              //           top: -5,
-              //           child: Container(
-              //             padding: const EdgeInsets.all(5),
-              //             decoration: const BoxDecoration(
-              //               color: Ucolors.red,
-              //               shape: BoxShape.circle,
-              //             ),
-              //             child: Text(
-              //               count.toString(),
-              //               style: UTextStyles.buttonText.copyWith(
-              //                 fontSize: 10,
-              //               ),
-              //             ),
-              //           ),
-              //         ),
-              //     ],
-              //   );
-              // }),'
-              Obx(
-                () => Stack(
-                  children: [
-                    CompactIcon(
-                      icon: Iconsax.shopping_cart,
-                      onPressed: () {
-                        Get.find<CartController>().filterGoalId.value = null;
-                        Get.toNamed(AppRoutes.cart);
-                        // cartController.fetchCart();
-                      },
-                      iconColor: Ucolors.dark,
-                    ),
-                    if (cartController.generalItemsCount > 0)
-                      Positioned(
-                        right: 0,
-                        top: -5,
-                        child: Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: const BoxDecoration(
-                            color: Ucolors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            cartController.generalItemsCount.toString(),
-                            style: UTextStyles.buttonText.copyWith(
-                              fontSize: 10,
+    return RefreshIndicator(
+      onRefresh: () => controller.handleRefresh(),
+      color: Ucolors.primary, // Use your app's primary theme color
+      backgroundColor: Colors.white,
+      displacement: CircularProgressIndicator.strokeAlignCenter,
+
+      // displacement: 100,
+      child: CustomScrollView(
+        controller: scrollController,
+        slivers: [
+          SliverAppBar(
+            automaticallyImplyLeading: false,
+            pinned: true,
+            flexibleSpace: CustomAppBarNormal(
+              backIcon: false,
+              title: 'All Mutual Funds',
+              backgroundColor: Ucolors.light,
+              actionsPadding: 15,
+              action: [
+                // Obx(() {
+                //   final count = cartController.itemsCount1;
+                //   return Stack(
+                //     children: [
+                //       CompactIcon(
+                //         icon: Iconsax.shopping_cart,
+                //         onPressed: () => Get.toNamed(AppRoutes.cart),
+                //         iconColor: Ucolors.dark,
+                //       ),
+                //       if (count > 0)
+                //         Positioned(
+                //           right: 0,
+                //           top: -5,
+                //           child: Container(
+                //             padding: const EdgeInsets.all(5),
+                //             decoration: const BoxDecoration(
+                //               color: Ucolors.red,
+                //               shape: BoxShape.circle,
+                //             ),
+                //             child: Text(
+                //               count.toString(),
+                //               style: UTextStyles.buttonText.copyWith(
+                //                 fontSize: 10,
+                //               ),
+                //             ),
+                //           ),
+                //         ),
+                //     ],
+                //   );
+                // }),'
+                Obx(
+                  () => Stack(
+                    children: [
+                      CompactIcon(
+                        icon: Iconsax.shopping_cart,
+                        onPressed: () {
+                          Get.find<CartController>().filterGoalId.value = null;
+                          Get.toNamed(AppRoutes.cart);
+                          // cartController.fetchCart();
+                        },
+                        iconColor: Ucolors.dark,
+                      ),
+                      if (cartController.generalItemsCount > 0)
+                        Positioned(
+                          right: 0,
+                          top: -5,
+                          child: Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: const BoxDecoration(
+                              color: Ucolors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              cartController.generalItemsCount.toString(),
+                              style: UTextStyles.buttonText.copyWith(
+                                fontSize: 10,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                  ],
-                ),
-              ),
-              CompactIcon(
-                icon: Iconsax.archive_tick,
-                onPressed: () => Get.toNamed(AppRoutes.watchlist),
-                iconColor: Ucolors.dark,
-              ),
-            ],
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-            child: Row(
-              children: [
-                // Container(
-                //   padding: const EdgeInsets.all(8),
-                //   decoration: BoxDecoration(
-                //     border: Border.all(color: Ucolors.borderColor),
-                //     shape: BoxShape.circle,
-                //   ),
-                //   child: CompactIcon(
-                //     icon: Icons.tune,
-                //     onPressed: () async {
-                //       final result = await Get.toNamed(AppRoutes.filterpage);
-                //       if (result != null && result is Map<String, dynamic>) {
-                //         controller.applyFilters(result);
-                //       }
-                //     },
-                //   ),
-                // ),
-                // Obx(
-                //   () => Badge(
-                //     isLabelVisible:
-                //         Get.find<FundhouseController>().isFilterActive,
-                //     backgroundColor: Colors.redAccent,
-                //     alignment: const Alignment(
-                //       0.6,
-                //       -0.6,
-                //     ), // Adjusts dot position
-                //     child: Container(
-                //       padding: const EdgeInsets.all(8),
-                //       decoration: BoxDecoration(
-                //         border: Border.all(color: Ucolors.borderColor),
-                //         shape: BoxShape.circle,
-                //       ),
-                //       child: CompactIcon(
-                //         icon: Icons.tune,
-                //         onPressed: () async {
-                //           final result = await Get.toNamed(
-                //             AppRoutes.filterpage,
-                //           );
-                //           if (result != null &&
-                //               result is Map<String, dynamic>) {
-                //             controller.applyFilters(result);
-                //           }
-                //         },
-                //       ),
-                //     ),
-                //   ),
-                // ),
-                Obx(() {
-                  final fundController = Get.find<FundhouseController>();
-                  final int filterCount = fundController.activeFilterCount;
-
-                  return Badge(
-                    // Only show the badge if count > 0
-                    isLabelVisible: filterCount > 0,
-                    backgroundColor: Ucolors.primary, // Or Colors.redAccent
-                    label: Text(
-                      '$filterCount',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    alignment: const Alignment(
-                      0.7,
-                      -0.7,
-                    ), // Adjusts position for text
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Ucolors.borderColor),
-                        shape: BoxShape.circle,
-                      ),
-                      child: CompactIcon(
-                        icon: Icons.tune,
-                        onPressed: () async {
-                          final result = await Get.toNamed(
-                            AppRoutes.filterpage,
-                          );
-                          if (result != null &&
-                              result is Map<String, dynamic>) {
-                            controller.applyFilters(result);
-                          }
-                        },
-                      ),
-                    ),
-                  );
-                }),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 5),
-                  height: 30,
-                  width: 1,
-                  color: Ucolors.borderside,
-                ),
-                // Expanded(
-                //   child: SizedBox(
-                //     height: 40,
-                //     child: Row(
-                //       children: [
-                //         Expanded(
-                //           child: SearchBar(
-                //             onTapOutside: (event) => searchFocus.unfocus(),
-                //             focusNode: searchFocus,
-                //             backgroundColor: MaterialStateProperty.all(
-                //               Colors.white,
-                //             ),
-                //             leading: const Icon(Icons.search),
-                //             hintText: 'Search',
-                //             onChanged: (value) =>
-                //                 controller.onSearchQueryChanged(value),
-                //           ),
-                //         ),
-                //         const Gap(2),
-                //         // !searchFocus.hasFocus
-                //         //     ? InkWell(
-                //         //         onTap: () => showSelectionBottomSheet(
-                //         //           selectedValue: sortController.text,
-                //         //           search: false,
-                //         //           context: context,
-                //         //           title: 'Sort by ${sortController.text}',
-                //         //           items: sortItems,
-                //         //           controller: sortController,
-                //         //         ),
-                //         //         child: const _FilterChip(
-                //         //           label: 'Sort by',
-                //         //           icon: Icons.filter_list_sharp,
-                //         //         ),
-                //         //       )
-                //         //     : const SizedBox.shrink(),
-                //         Obx(
-                //           () => InkWell(
-                //             onTap: () => controller.cycleGlobalSort(),
-                //             child: _FilterChip(
-                //               label: controller.currentSortLabel.value,
-                //               icon: Icons.sort,
-                //               // Visually highlight if a sort is active (not Popularity)
-                //               isSelected:
-                //                   controller.currentSortLabel.value !=
-                //                   "Popularity",
-                //             ),
-                //           ),
-                //         ),
-                //       ],
-                //     ),
-                //   ),
-                // ),
-                Expanded(
-                  child: SizedBox(
-                    height: 40,
-                    child: Obx(() {
-                      final bool isSearching = controller.hasSearchFocus.value;
-
-                      return Row(
-                        children: [
-                          // This Expanded child will take up all available space
-                          Expanded(
-                            child: SearchBar(
-                              onTap: () => controller.setSearchFocus(true),
-                              onTapOutside: (event) {
-                                searchFocus.unfocus();
-                                controller.setSearchFocus(false);
-                              },
-                              focusNode: searchFocus,
-                              backgroundColor: MaterialStateProperty.all(
-                                Colors.white,
-                              ),
-                              leading: const Icon(Icons.search),
-                              hintText: 'Search',
-                              onChanged: (value) =>
-                                  controller.onSearchQueryChanged(value),
-                              elevation: MaterialStateProperty.all(0),
-                              side: MaterialStateProperty.all(
-                                BorderSide(color: Colors.grey.shade300),
-                              ),
-                            ),
-                          ),
-
-                          // The Sort Chip and its Gap only exist when NOT searching
-                          if (!isSearching) ...[
-                            const Gap(8),
-                            InkWell(
-                              onTap: () => controller.cycleGlobalSort(),
-                              child: _FilterChip(
-                                label: controller.currentSortLabel.value,
-                                icon: Icons.sort,
-                                isSelected:
-                                    controller.currentSortLabel.value !=
-                                    "Popularity",
-                              ),
-                            ),
-                          ],
-                        ],
-                      );
-                    }),
+                    ],
                   ),
+                ),
+                CompactIcon(
+                  icon: Iconsax.archive_tick,
+                  onPressed: () => Get.toNamed(AppRoutes.watchlist),
+                  iconColor: Ucolors.dark,
                 ),
               ],
             ),
           ),
-        ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+              child: Row(
+                children: [
+                  // Container(
+                  //   padding: const EdgeInsets.all(8),
+                  //   decoration: BoxDecoration(
+                  //     border: Border.all(color: Ucolors.borderColor),
+                  //     shape: BoxShape.circle,
+                  //   ),
+                  //   child: CompactIcon(
+                  //     icon: Icons.tune,
+                  //     onPressed: () async {
+                  //       final result = await Get.toNamed(AppRoutes.filterpage);
+                  //       if (result != null && result is Map<String, dynamic>) {
+                  //         controller.applyFilters(result);
+                  //       }
+                  //     },
+                  //   ),
+                  // ),
+                  // Obx(
+                  //   () => Badge(
+                  //     isLabelVisible:
+                  //         Get.find<FundhouseController>().isFilterActive,
+                  //     backgroundColor: Colors.redAccent,
+                  //     alignment: const Alignment(
+                  //       0.6,
+                  //       -0.6,
+                  //     ), // Adjusts dot position
+                  //     child: Container(
+                  //       padding: const EdgeInsets.all(8),
+                  //       decoration: BoxDecoration(
+                  //         border: Border.all(color: Ucolors.borderColor),
+                  //         shape: BoxShape.circle,
+                  //       ),
+                  //       child: CompactIcon(
+                  //         icon: Icons.tune,
+                  //         onPressed: () async {
+                  //           final result = await Get.toNamed(
+                  //             AppRoutes.filterpage,
+                  //           );
+                  //           if (result != null &&
+                  //               result is Map<String, dynamic>) {
+                  //             controller.applyFilters(result);
+                  //           }
+                  //         },
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+                  Obx(() {
+                    final fundController = Get.find<FundhouseController>();
+                    final int filterCount = fundController.activeFilterCount;
 
-        // Obx(
-        //   () => SliverToBoxAdapter(
-        //     child: Padding(
-        //       padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-        //       child: Row(
-        //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //         children: [
-        //           // Dynamic Fund Count
-        //           Text(
-        //             controller.selectedFundCount.value == 0
-        //                 ? '${controller.mutualfund.length} funds'
-        //                 : '${controller.selectedFundCount.value} funds',
-        //             style: UTextStyles.small,
-        //           ),
+                    return Badge(
+                      // Only show the badge if count > 0
+                      isLabelVisible: filterCount > 0,
+                      backgroundColor: Ucolors.primary, // Or Colors.redAccent
+                      label: Text(
+                        '$filterCount',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      alignment: const Alignment(
+                        0.7,
+                        -0.7,
+                      ), // Adjusts position for text
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Ucolors.borderColor),
+                          shape: BoxShape.circle,
+                        ),
+                        child: CompactIcon(
+                          icon: Icons.tune,
+                          onPressed: () async {
+                            final result = await Get.toNamed(
+                              AppRoutes.filterpage,
+                            );
+                            if (result != null &&
+                                result is Map<String, dynamic>) {
+                              controller.applyFilters(result);
+                            }
+                          },
+                        ),
+                      ),
+                    );
+                  }),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 5),
+                    height: 30,
+                    width: 1,
+                    color: Ucolors.borderside,
+                  ),
+                  // Expanded(
+                  //   child: SizedBox(
+                  //     height: 40,
+                  //     child: Row(
+                  //       children: [
+                  //         Expanded(
+                  //           child: SearchBar(
+                  //             onTapOutside: (event) => searchFocus.unfocus(),
+                  //             focusNode: searchFocus,
+                  //             backgroundColor: MaterialStateProperty.all(
+                  //               Colors.white,
+                  //             ),
+                  //             leading: const Icon(Icons.search),
+                  //             hintText: 'Search',
+                  //             onChanged: (value) =>
+                  //                 controller.onSearchQueryChanged(value),
+                  //           ),
+                  //         ),
+                  //         const Gap(2),
+                  //         // !searchFocus.hasFocus
+                  //         //     ? InkWell(
+                  //         //         onTap: () => showSelectionBottomSheet(
+                  //         //           selectedValue: sortController.text,
+                  //         //           search: false,
+                  //         //           context: context,
+                  //         //           title: 'Sort by ${sortController.text}',
+                  //         //           items: sortItems,
+                  //         //           controller: sortController,
+                  //         //         ),
+                  //         //         child: const _FilterChip(
+                  //         //           label: 'Sort by',
+                  //         //           icon: Icons.filter_list_sharp,
+                  //         //         ),
+                  //         //       )
+                  //         //     : const SizedBox.shrink(),
+                  //         Obx(
+                  //           () => InkWell(
+                  //             onTap: () => controller.cycleGlobalSort(),
+                  //             child: _FilterChip(
+                  //               label: controller.currentSortLabel.value,
+                  //               icon: Icons.sort,
+                  //               // Visually highlight if a sort is active (not Popularity)
+                  //               isSelected:
+                  //                   controller.currentSortLabel.value !=
+                  //                   "Popularity",
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
+                  Expanded(
+                    child: SizedBox(
+                      height: 40,
+                      child: Obx(() {
+                        final bool isSearching =
+                            controller.hasSearchFocus.value;
 
-        //           // CLICKABLE TOGGLE: Cycle through 1Y, 3Y, 5Y
-        //           // InkWell(
-        //           //   onTap: () => controller.cycleReturnYear(),
-        //           //   borderRadius: BorderRadius.circular(4),
-        //           //   child: Padding(
-        //           //     padding: const EdgeInsets.symmetric(
-        //           //       horizontal: 4,
-        //           //       vertical: 2,
-        //           //     ),
-        //           //     child: Row(
-        //           //       mainAxisSize: MainAxisSize.min,
-        //           //       children: [
-        //           //         const Icon(
-        //           //           Icons.swap_horiz,
-        //           //           size: 14,
-        //           //           color: Colors.black54,
-        //           //         ),
-        //           //         const SizedBox(width: 4),
-        //           //         Text(
-        //           //           controller.returnYearLabel,
-        //           //           style: UTextStyles.small.copyWith(
-        //           //             fontWeight: FontWeight.w600,
-        //           //             color: Colors.black87,
-        //           //           ),
-        //           //         ),
-        //           //       ],
-        //           //     ),
-        //           //   ),
-        //           // ),
-        //         ],
-        //       ),
-        //     ),
-        //   ),
-        // ),
+                        return Row(
+                          children: [
+                            // This Expanded child will take up all available space
+                            Expanded(
+                              child: SearchBar(
+                                onTap: () => controller.setSearchFocus(true),
+                                onTapOutside: (event) {
+                                  searchFocus.unfocus();
+                                  controller.setSearchFocus(false);
+                                },
+                                focusNode: searchFocus,
+                                backgroundColor: MaterialStateProperty.all(
+                                  Colors.white,
+                                ),
+                                leading: const Icon(Icons.search),
+                                hintText: 'Search',
+                                onChanged: (value) =>
+                                    controller.onSearchQueryChanged(value),
+                                elevation: MaterialStateProperty.all(0),
+                                side: MaterialStateProperty.all(
+                                  BorderSide(color: Colors.grey.shade300),
+                                ),
+                              ),
+                            ),
 
-        // Obx(
-        //   () => SliverToBoxAdapter(
-        //     child: Padding(
-        //       padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-        //       child: Row(
-        //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //         children: [
-        //           Text(
-        //             controller.selectedFundCount.value == 0
-        //                 ? '${controller.mutualfund.length} funds'
-        //                 : '${controller.selectedFundCount}  funds',
-        //             style: UTextStyles.small,
-        //           ),
-        //           Text('‹› 3 Year Returns', style: UTextStyles.small),
-        //           // Obx(() {
-        //           //   final mutualController = Get.find<MutualFundController>();
-
-        //           //   return Padding(
-        //           //     padding: EdgeInsets.zero,
-        //           //     // const EdgeInsets.symmetric(
-        //           //     //   // horizontal: 16,
-        //           //     //   // vertical: 8,
-        //           //     // ),
-        //           //     child:
-        //           // Row(
-        //           //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //           //       children: [
-        //           //         // Left Side: Fund Count
-        //           //         // Text(
-        //           //         //   '${mutualController.selectedFundCount.value} funds',
-        //           //         //   style: const TextStyle(fontSize: 13, color: Colors.black54),
-        //           //         // ),
-
-        //           //         // Right Side: Clickable Returns Toggle
-        //           //         // InkWell(
-        //           //         //   onTap: () => mutualController.cycleReturnYear(),
-        //           //         //   borderRadius: BorderRadius.circular(4),
-        //           //         //   child: Padding(
-        //           //         //     padding: const EdgeInsets.all(4.0),
-        //           //         //     child: Row(
-        //           //         //       mainAxisSize: MainAxisSize.min,
-        //           //         //       children: [
-        //           //         //         const Icon(
-        //           //         //           Icons.swap_horiz,
-        //           //         //           size: 14,
-        //           //         //           color: Colors.black87,
-        //           //         //         ),
-        //           //         //         const SizedBox(width: 4),
-        //           //         //         Text(
-        //           //         //           mutualController.returnYearLabel,
-        //           //         //           style: const TextStyle(
-        //           //         //             fontSize: 13,
-        //           //         //             fontWeight: FontWeight.w600,
-        //           //         //             color: Colors.black87,
-        //           //         //           ),
-        //           //         //         ),
-        //           //         //       ],
-        //           //         //     ),
-        //           //         //   ),
-        //           //         // ),
-        //           //       ],
-        //           //     ),
-        //           //   );
-        //           // }),
-        //         ],
-        //       ),
-        //     ),
-        //   ),
-        // ),
-        Obx(() {
-          if (controller.isLoading.value
-          //  || controller.searchFund.isEmpty
-          ) {
-            return const SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(
-                child: CircularProgressIndicator(color: Ucolors.primary),
+                            // The Sort Chip and its Gap only exist when NOT searching
+                            if (!isSearching) ...[
+                              const Gap(8),
+                              InkWell(
+                                onTap: () => controller.cycleGlobalSort(),
+                                child: _FilterChip(
+                                  label: controller.currentSortLabel.value,
+                                  icon: Icons.sort,
+                                  isSelected:
+                                      controller.currentSortLabel.value !=
+                                      "All Fund",
+                                ),
+                              ),
+                            ],
+                          ],
+                        );
+                      }),
+                    ),
+                  ),
+                ],
               ),
-            );
-          }
-          if (controller.searchFund.isEmpty) {
-            return SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(
-                child: AnimatedEmptyState(
-                  title: 'NO fund',
-                  message: 'No mutual funds foun',
+            ),
+          ),
+
+          Obx(
+            () => SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Dynamic Fund Count
+                    Text(
+                      controller.selectedFundCount.value == 0
+                          ? '${controller.mutualfund.length} funds'
+                          : '${controller.selectedFundCount.value} funds',
+                      style: UTextStyles.small,
+                    ),
+
+                    // CLICKABLE TOGGLE: Cycle through 1Y, 3Y, 5Y
+                    // InkWell(
+                    //   onTap: () => controller.cycleReturnYear(),
+                    //   borderRadius: BorderRadius.circular(4),
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.symmetric(
+                    //       horizontal: 4,
+                    //       vertical: 2,
+                    //     ),
+                    //     child: Row(
+                    //       mainAxisSize: MainAxisSize.min,
+                    //       children: [
+                    //         const Icon(
+                    //           Icons.swap_horiz,
+                    //           size: 14,
+                    //           color: Colors.black54,
+                    //         ),
+                    //         const SizedBox(width: 4),
+                    //         Text(
+                    //           controller.returnYearLabel,
+                    //           style: UTextStyles.small.copyWith(
+                    //             fontWeight: FontWeight.w600,
+                    //             color: Colors.black87,
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+                  ],
                 ),
               ),
-            );
-          }
-          return SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final fund = controller.searchFund[index];
-              return MutualFundCard(entity: fund);
-            }, childCount: controller.searchFund.length),
-          );
-        }),
-        Obx(() {
-          if (controller.isMoreLoading.value) {
-            return const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 24),
+            ),
+          ),
+
+          // Obx(
+          //   () => SliverToBoxAdapter(
+          //     child: Padding(
+          //       padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          //       child: Row(
+          //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //         children: [
+          //           Text(
+          //             controller.selectedFundCount.value == 0
+          //                 ? '${controller.mutualfund.length} funds'
+          //                 : '${controller.selectedFundCount}  funds',
+          //             style: UTextStyles.small,
+          //           ),
+          //           Text('‹› 3 Year Returns', style: UTextStyles.small),
+          //           // Obx(() {
+          //           //   final mutualController = Get.find<MutualFundController>();
+
+          //           //   return Padding(
+          //           //     padding: EdgeInsets.zero,
+          //           //     // const EdgeInsets.symmetric(
+          //           //     //   // horizontal: 16,
+          //           //     //   // vertical: 8,
+          //           //     // ),
+          //           //     child:
+          //           // Row(
+          //           //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //           //       children: [
+          //           //         // Left Side: Fund Count
+          //           //         // Text(
+          //           //         //   '${mutualController.selectedFundCount.value} funds',
+          //           //         //   style: const TextStyle(fontSize: 13, color: Colors.black54),
+          //           //         // ),
+
+          //           //         // Right Side: Clickable Returns Toggle
+          //           //         // InkWell(
+          //           //         //   onTap: () => mutualController.cycleReturnYear(),
+          //           //         //   borderRadius: BorderRadius.circular(4),
+          //           //         //   child: Padding(
+          //           //         //     padding: const EdgeInsets.all(4.0),
+          //           //         //     child: Row(
+          //           //         //       mainAxisSize: MainAxisSize.min,
+          //           //         //       children: [
+          //           //         //         const Icon(
+          //           //         //           Icons.swap_horiz,
+          //           //         //           size: 14,
+          //           //         //           color: Colors.black87,
+          //           //         //         ),
+          //           //         //         const SizedBox(width: 4),
+          //           //         //         Text(
+          //           //         //           mutualController.returnYearLabel,
+          //           //         //           style: const TextStyle(
+          //           //         //             fontSize: 13,
+          //           //         //             fontWeight: FontWeight.w600,
+          //           //         //             color: Colors.black87,
+          //           //         //           ),
+          //           //         //         ),
+          //           //         //       ],
+          //           //         //     ),
+          //           //         //   ),
+          //           //         // ),
+          //           //       ],
+          //           //     ),
+          //           //   );
+          //           // }),
+          //         ],
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          Obx(() {
+            if (controller.isLoading.value
+            //  || controller.searchFund.isEmpty
+            ) {
+              return const SliverFillRemaining(
+                hasScrollBody: false,
                 child: Center(
-                  child: SizedBox(
-                    height: 24,
-                    width: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      color: Ucolors.primary,
+                  child: CircularProgressIndicator(color: Ucolors.primary),
+                ),
+              );
+            }
+            if (controller.searchFund.isEmpty) {
+              return SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(
+                  child: AnimatedEmptyState(
+                    title: 'NO fund',
+                    message: 'No mutual funds foun',
+                  ),
+                ),
+              );
+            }
+            return SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final fund = controller.searchFund[index];
+                return MutualFundCard(entity: fund);
+              }, childCount: controller.searchFund.length),
+            );
+          }),
+          Obx(() {
+            if (controller.isMoreLoading.value) {
+              return const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: Ucolors.primary,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
-          }
-          return const SliverToBoxAdapter(child: SizedBox.shrink());
-        }),
-        const SliverToBoxAdapter(child: SizedBox(height: 20)),
-      ],
+              );
+            }
+            return const SliverToBoxAdapter(child: SizedBox.shrink());
+          }),
+          const SliverToBoxAdapter(child: SizedBox(height: 20)),
+        ],
+      ),
     );
   }
 }
@@ -1840,6 +1850,8 @@ class MutualFundCard extends StatelessWidget {
   final CartController controller = Get.find<CartController>();
   final MutualFundController mutualFundController =
       Get.find<MutualFundController>();
+
+  final WishlistController wishlistController = Get.find<WishlistController>();
 
   @override
   Widget build(BuildContext context) {
@@ -1977,6 +1989,10 @@ class MutualFundCard extends StatelessWidget {
                               break;
 
                             case FundMenuAction.addToWatchlist:
+                              await wishlistController.addToWishList(
+                                entity.schemeCode.toString(),
+                                entity.baseSchemeName.toString(),
+                              );
                               break;
                             case FundMenuAction.fundDetails:
                               Get.toNamed(

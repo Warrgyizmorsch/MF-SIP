@@ -27,7 +27,7 @@ class MutualFundController extends GetxController {
   final selectedFundCount = 0.obs;
 
   //  2. LOGIC MEMORY (Internal State)
-  final currentSortLabel = "Popularity".obs;
+  final currentSortLabel = "All Fund".obs;
 
   final hasSearchFocus = false.obs;
 
@@ -42,6 +42,7 @@ class MutualFundController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    // resetToDefaultStateOnly(); // Wipes memory without calling API
     fetchData();
   }
 
@@ -95,7 +96,7 @@ class MutualFundController extends GetxController {
       selectedReturnYear.value = newFilters['return_year'];
       currentSortLabel.value = "${newFilters['return_year']}Y Returns";
     }
-    // If no sorting is in newFilters, we leave currentSortLabel as "Popularity"
+    // If no sorting is in newFilters, we leave currentSortLabel as "All Fund"
 
     _resetAndFetch();
   }
@@ -124,7 +125,7 @@ class MutualFundController extends GetxController {
 
   void cycleGlobalSort() {
     switch (currentSortLabel.value) {
-      case "Popularity":
+      case "All Fund":
         currentSortLabel.value = "1Y Returns";
         applyFilters({'sort_order': 'desc', 'return_year': 1});
         break;
@@ -138,10 +139,12 @@ class MutualFundController extends GetxController {
         break;
       case "5Y Returns":
       default:
-        currentSortLabel.value = "Popularity";
+        currentSortLabel.value = "All Fund";
         _currentFilters.remove('sort_order');
         _currentFilters.remove('return_year');
-        resetToDefault(); // Clears all parameters for a clean base URL
+        selectedReturnYear.value = 3;
+        // resetToDefault();
+        _resetAndFetch(); // Clears all parameters for a clean base URL
         break;
     }
   }
@@ -163,7 +166,7 @@ class MutualFundController extends GetxController {
     _currentFilters
         .clear(); // Clears all params for {{baseURL}}/api/v1/mutual-funds
     selectedReturnYear.value = 3;
-    currentSortLabel.value = "Popularity"; // Explicitly return to default state
+    currentSortLabel.value = "All Fund"; // Explicitly return to default state
 
     if (Get.isRegistered<FundhouseController>()) {
       Get.find<FundhouseController>().clearAllFilters(); // Sync checkboxes
@@ -175,6 +178,20 @@ class MutualFundController extends GetxController {
   /// Usage: _scrollController listener -> controller.loadNextPage()
   void loadNextPage() {
     fetchData(isLoadMore: true);
+  }
+
+  void applyFreshFilter(Map<String, dynamic> newFilters) {
+    _currentSearchQuery = ""; // Clear search bar text
+    _currentFilters.clear(); // WIPE everything (AMC, Category, Risk, Sort)
+
+    // Reset UI Labels
+    selectedReturnYear.value = 3;
+    currentSortLabel.value = "All Fund";
+
+    // Apply the new specific filter from Home
+    _currentFilters.addAll(newFilters);
+
+    _resetAndFetch();
   }
 
   // =========================================================
@@ -270,6 +287,27 @@ class MutualFundController extends GetxController {
       (success) => success.data?.pagination?.total ?? 0,
       (failure) => 0,
     );
+  }
+
+  void resetToDefaultStateOnly() {
+    _currentSearchQuery = "";
+    _currentFilters.clear();
+    selectedReturnYear.value = 3;
+    currentSortLabel.value = "All Fund";
+
+    // if (Get.isRegistered<FundhouseController>()) {
+    //   Get.find<FundhouseController>().clearAllFilters();
+    // }
+    // _resetAndFetch();
+  }
+
+  Future<void> handleRefresh() async {
+    searchFund.clear();
+    mutualfund.clear();
+    currentPage = 1;
+    canLoadMore = true;
+    resetToDefaultStateOnly();
+    await fetchData(isLoadMore: false);
   }
 
   @override

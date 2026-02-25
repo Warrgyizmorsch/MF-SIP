@@ -112,6 +112,7 @@ class UBinding extends Bindings {
     // 5. Finally, register the Controller
     Get.lazyPut(() => MutualFundController(Get.find()), fenix: true);
 
+
     /////cart bindings
 
     Get.lazyPut<CartRemoteDs>(
@@ -148,5 +149,9 @@ class UBinding extends Bindings {
     // Get.lazyPut(() => GoalSipController(goalUseCases: Get.find<>()), fenix: true);
 
     // Get.lazyPut(() => PersonalisationController(Get.find()));
+
+    
+
+
   }
 }

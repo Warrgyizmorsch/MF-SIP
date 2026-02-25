@@ -32,13 +32,14 @@ import 'package:my_sip/features/personalization/presentation/pages/profile.dart'
 import 'package:my_sip/features/personalization/presentation/pages/risk_profile.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/nominee_list.dart';
 import 'package:my_sip/features/sip_process/presentation/pages/payment_screen.dart';
+import 'package:my_sip/features/wishlist/presentation/bindings/wishlist_binding.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
 import '../../features/freedom_sip/presentation/pages/accumulationAndDistributionScreen.dart';
 import '../../features/freedom_sip/presentation/pages/growth_scheme_screen.dart';
 import '../../features/fund_details/presentation/pages/fund_deatails.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/home/presentation/pages/notification_page.dart';
-import '../../features/home/presentation/pages/watchlist_page.dart';
+import '../../features/wishlist/presentation/pages/watchlist_page.dart';
 import '../../features/home/presentation/widgets/product_tool/compare_fund.dart';
 import '../../features/personalization/presentation/widgets/nominee_details.dart';
 import '../../features/personalization/presentation/widgets/personal_details.dart';
@@ -95,7 +96,11 @@ class AppPages {
       page: () => const FundDetailsScreen(),
       binding: FundDetailBinding(),
     ),
-    GetPage(name: AppRoutes.watchlist, page: () => WatchlistPage()),
+    GetPage(
+      name: AppRoutes.watchlist,
+      page: () => WatchlistPage(),
+      binding: WishlistBinding(),
+    ),
     GetPage(name: AppRoutes.cart, page: () => CartPage()),
     GetPage(name: AppRoutes.notification, page: () => NotificationPage()),
     GetPage(

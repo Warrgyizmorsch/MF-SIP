@@ -392,6 +392,7 @@ class _MobileLayout extends StatelessWidget {
                           );
                         }
                       });
+                      await Get.find<MutualFundController>().fetchData();
                     },
                     child: Center(
                       child: Text(

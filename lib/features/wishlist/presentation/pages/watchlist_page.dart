@@ -21,7 +21,7 @@ class WatchlistPage extends StatelessWidget {
             child: CircularProgressIndicator(color: Ucolors.primary),
           );
         }
-        if (controller.mutualfund.isEmpty) {
+        if (controller.searchFund.isEmpty) {
           return Center(child: Text("No mutual funds found"));
         }
 

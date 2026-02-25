@@ -1985,7 +1985,10 @@ class OverviewScreen extends GetView<FundDetailsController> {
                   }
 
                   // Check if data is loaded
-                  if (navEntity == null || navEntity.data.isEmpty) {
+                  if (controller.navHistoryHasError.value ||
+                      navEntity == null ||
+                      navEntity.data.isEmpty ||
+                      controller.hasError.value) {
                     return SizedBox(
                       height: 220,
                       child: Center(child: Text('No Data Available')),

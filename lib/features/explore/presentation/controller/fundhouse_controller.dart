@@ -733,7 +733,7 @@ class FundhouseController extends GetxController {
   );
 
   // -------------- Multi-Select Filter State ------------------//
-  final sortBy = 'popularity'.obs;
+  final sortBy = 'All Fund'.obs;
   final selectedSchemeTypes = <String>[].obs;
   final selectedAmcIds = <int>[].obs;
   final selectedRisks = <String>[].obs;
@@ -806,34 +806,36 @@ class FundhouseController extends GetxController {
   // }
 
   // Inside FundhouseController
-Map<String, dynamic> buildParam() {
-  final params = <String, dynamic>{};
+  Map<String, dynamic> buildParam() {
+    final params = <String, dynamic>{};
 
-  if (selectedSchemeTypes.isNotEmpty) params['scheme_category'] = selectedSchemeTypes.join(',');
-  if (selectedAmcIds.isNotEmpty) params['amc_id'] = selectedAmcIds.join(',');
-  if (selectedRisks.isNotEmpty) params['risk_level'] = selectedRisks.join(',');
-  if (selectedRating.value != null) params['rating'] = selectedRating.value;
+    if (selectedSchemeTypes.isNotEmpty)
+      params['scheme_category'] = selectedSchemeTypes.join(',');
+    if (selectedAmcIds.isNotEmpty) params['amc_id'] = selectedAmcIds.join(',');
+    if (selectedRisks.isNotEmpty)
+      params['risk_level'] = selectedRisks.join(',');
+    if (selectedRating.value != null) params['rating'] = selectedRating.value;
 
-  if (indexFundOnly.value) {
-    params['search'] = 'index';
-  } else if (customGlobalSearch.value != null) {
-    params['search'] = customGlobalSearch.value;
+    if (indexFundOnly.value) {
+      params['search'] = 'index';
+    } else if (customGlobalSearch.value != null) {
+      params['search'] = customGlobalSearch.value;
+    }
+
+    if (bestSipValue.value != null) params['best_sip'] = bestSipValue.value;
+    if (commodityFilter.value) params['asset_class'] = 'commodity';
+
+    // FIX: Access MutualFundController to check the current sort label
+    final mutualController = Get.find<MutualFundController>();
+
+    // Only add sorting parameters if the user has explicitly selected a year sort
+    if (mutualController.currentSortLabel.value != "All Fund") {
+      params['sort_order'] = 'desc';
+      params['return_year'] = mutualController.selectedReturnYear.value;
+    }
+
+    return params;
   }
-
-  if (bestSipValue.value != null) params['best_sip'] = bestSipValue.value;
-  if (commodityFilter.value) params['asset_class'] = 'commodity';
-
-  // FIX: Access MutualFundController to check the current sort label
-  final mutualController = Get.find<MutualFundController>();
-  
-  // Only add sorting parameters if the user has explicitly selected a year sort
-  if (mutualController.currentSortLabel.value != "Popularity") {
-    params['sort_order'] = 'desc';
-    params['return_year'] = mutualController.selectedReturnYear.value;
-  }
-
-  return params;
-}
 
   // ---------- Multi-Select Toggle Methods ----------
 
@@ -898,31 +900,51 @@ Map<String, dynamic> buildParam() {
     _clearStatesOnly();
     customGlobalSearch.value = query;
     fetchCount();
-    Get.find<MutualFundController>().applyFilters(buildParam());
+    // Get.find<MutualFundController>().applyFilters(buildParam());
+    Get.find<MutualFundController>().applyFreshFilter({'search': query});
   }
 
   void applyBestSipFilter(int value) {
     _clearStatesOnly();
     bestSipValue.value = value;
     fetchCount();
-    Get.find<MutualFundController>().applyFilters(buildParam());
+    // Get.find<MutualFundController>().applyFilters(buildParam());
+    Get.find<MutualFundController>().applyFreshFilter({'best_sip': value});
   }
 
+  // void applyCommodityFilter() {
+  //   _clearStatesOnly();
+  //   commodityFilter.value = true;
+  //   fetchCount();
+  //   Get.find<MutualFundController>().applyFilters(buildParam());
+  // }
   void applyCommodityFilter() {
+    // 1. Clear local UI states (checkboxes) in the filter page
     _clearStatesOnly();
+
+    // 2. Set the local commodity state
     commodityFilter.value = true;
-    fetchCount();
-    Get.find<MutualFundController>().applyFilters(buildParam());
+
+    // 3. Use applyFreshFilter to WIPE all previous parameters
+    // and call the API with ONLY asset_class=commodity
+    Get.find<MutualFundController>().applyFreshFilter({
+      'asset_class': 'commodity',
+    });
   }
 
   void applyHighReturnFilter() {
     _clearStatesOnly();
     highReturnFilter.value = true;
-    final params = buildParam();
-    params['sort_order'] = 'desc';
-    params['return_year'] = 1;
-    fetchCount();
-    Get.find<MutualFundController>().applyFilters(params);
+    // final params = buildParam();
+    // params['sort_order'] = 'desc';
+    // params['return_year'] = 1;
+    // fetchCount();
+    // Get.find<MutualFundController>().applyFilters(params);
+    // Use the NEW hard reset method with specific sorting
+    Get.find<MutualFundController>().applyFreshFilter({
+      'sort_order': 'desc',
+      'return_year': 1,
+    });
   }
 
   // ---------- Data Logic ----------
@@ -998,6 +1020,7 @@ Map<String, dynamic> buildParam() {
     selectedRisks.clear();
     selectedRating.value = null;
     indexFundOnly.value = false;
+
     customGlobalSearch.value = null;
     bestSipValue.value = null;
     commodityFilter.value = false;
@@ -1006,6 +1029,11 @@ Map<String, dynamic> buildParam() {
 
   void clearAllFilters() {
     _clearStatesOnly();
+
+    if (Get.isRegistered<MutualFundController>()) {
+      Get.find<MutualFundController>().resetToDefaultStateOnly();
+    }
+
     fetchCount();
   }
 }
