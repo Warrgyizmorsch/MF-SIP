@@ -8,6 +8,7 @@ import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/common/widget/shimmer/shimmer.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/nfo/presentation/controller/nfo_controller.dart';
@@ -142,6 +143,8 @@ class NfoListPage extends GetView<NfoController> {
                     final String urgencyText = getRemainingDays(
                       nfo.nfoCloseDate,
                     );
+                    log('${Appurl.baseUrl}${nfo.nfoAmcEntity?.amcLogo}}');
+
                     final bool isUrgent =
                         urgencyText.contains("TODAY") ||
                         urgencyText.contains("TOMORROW");
@@ -149,8 +152,9 @@ class NfoListPage extends GetView<NfoController> {
                     return NfoCard(
                       title: nfo.schemeName ?? 'N/A',
                       subtitle: '${nfo.assetClass} • ${nfo.riskLevel} Risk',
-                      logoUrl:
-                          'https://img.logo.dev/google.com?token=pk_example', // Example URL logic
+                      logoUrl: '${Appurl.baseUrl}${nfo.nfoAmcEntity?.amcLogo}',
+
+                      // 'https://img.logo.dev/google.com?token=pk_example', // Example URL logic
                       // tagText:
                       //     'Ends ${nfo.nfoCloseDate}', // You can calculate "Days left" here
                       tagText: getRemainingDays(nfo.nfoCloseDate),
@@ -233,31 +237,7 @@ class NfoCard extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade100),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: CustomCachedImage(imageUrl: logoUrl),
-                          //  Image.network(
-                          //   logoUrl,
-                          //   width: 32,
-                          //   height: 32,
-                          //   fit: BoxFit.scaleDown,
-                          //   // Fallback icon in case image URL fails
-                          //   errorBuilder: (context, error, stackTrace) =>
-                          //       const Icon(
-                          //         Icons.account_balance,
-                          //         color: Colors.grey,
-                          //       ),
-                          // ),
-                        ),
-                      ),
+                      ClipOval(child: CustomCachedImage(imageUrl: logoUrl)),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Padding(

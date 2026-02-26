@@ -192,23 +192,6 @@ class AppPages {
       page: () => NfoListPage(),
       binding: NfoListBinding(),
     ),
-    GetPage(
-      name: AppRoutes.nfodetailsPage,
-      page: () =>
-          // Implementation example
-          NfoDetailsPage(),
-      // NfoDetailScreen(
-      //   nfoData: myApiData,
-      //   // title: 'Axis Fixed Maturity Plan Series 129',
-      //   // subtitle: '(108 Days) Regular Plan Growth',
-      //   // riskText: 'Average Risk',
-      //   // navText: 'NAV: ₹10',
-      //   // closingText: 'Closes in 1 Day',
-      //   // launchDate: '18 Feb 2026',
-      //   // endDate: '23 Feb 2026',
-      // ),
-      //  NfoDetailsPage(),
-      // binding: NfoListBinding(),
-    ),
+    GetPage(name: AppRoutes.nfodetailsPage, page: () => NfoDetailsPage1()),
   ];
 }

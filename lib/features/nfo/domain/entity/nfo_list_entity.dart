@@ -59,6 +59,7 @@ class LaunchDataEntity extends Equatable {
   final double? minimumTopup;
   final String? createdAt;
   final String? updatedAt;
+  final NfoAmcEntity? nfoAmcEntity;
 
   const LaunchDataEntity({
     this.id,
@@ -96,6 +97,7 @@ class LaunchDataEntity extends Equatable {
     this.minimumTopup,
     this.createdAt,
     this.updatedAt,
+    this.nfoAmcEntity,
   });
 
   @override
@@ -135,6 +137,7 @@ class LaunchDataEntity extends Equatable {
     minimumTopup,
     createdAt,
     updatedAt,
+    nfoAmcEntity,
   ];
 }
 
@@ -174,6 +177,52 @@ extension LaunchDataEntityX on LaunchData {
       minimumTopup: minimumTopup,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      nfoAmcEntity: amc?.toEntity(),
+    );
+  }
+}
+
+class NfoAmcEntity extends Equatable {
+  final int? id;
+  final String? amcName;
+  final String? address;
+  final String? amcLogo;
+  final String? contactNo;
+  final String? email;
+  final String? status;
+
+  const NfoAmcEntity({
+    this.id,
+    this.amcName,
+    this.address,
+    this.amcLogo,
+    this.contactNo,
+    this.email,
+    this.status,
+  });
+
+  @override
+  List<Object?> get props => [
+    id,
+    amcName,
+    address,
+    amcLogo,
+    contactNo,
+    email,
+    status,
+  ];
+}
+
+extension NfoAmcEntityX on NfoAmcModel {
+  NfoAmcEntity toEntity() {
+    return NfoAmcEntity(
+      id: id,
+      amcName: amcName,
+      address: address,
+      amcLogo: amcLogo,
+      contactNo: contactNo,
+      email: email,
+      status: status,
     );
   }
 }

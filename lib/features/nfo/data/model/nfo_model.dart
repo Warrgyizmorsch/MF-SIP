@@ -57,6 +57,7 @@ class LaunchData {
   final double? minimumTopup;
   final String? createdAt;
   final String? updatedAt;
+  final NfoAmcModel? amc;
 
   LaunchData({
     this.id,
@@ -94,6 +95,7 @@ class LaunchData {
     this.minimumTopup,
     this.createdAt,
     this.updatedAt,
+    this.amc,
   });
 
   factory LaunchData.fromJson(Map<String, dynamic> json) {
@@ -133,6 +135,39 @@ class LaunchData {
       minimumTopup: json.parse<double>('minimum_topup'),
       createdAt: json.parse<String>('created_at'),
       updatedAt: json.parse<String>('updated_at'),
+      amc: json.parseNested('amc', (e) => NfoAmcModel.fromJson(e)),
+    );
+  }
+}
+
+class NfoAmcModel {
+  final int? id;
+  final String? amcName;
+  final String? address;
+  final String? amcLogo;
+  final String? contactNo;
+  final String? email;
+  final String? status;
+
+  NfoAmcModel({
+    required this.id,
+    required this.amcName,
+    required this.address,
+    required this.amcLogo,
+    required this.contactNo,
+    required this.email,
+    required this.status,
+  });
+
+  factory NfoAmcModel.fromJson(Map<String, dynamic> json) {
+    return NfoAmcModel(
+      id: json.parse<int>('id'),
+      amcName: json.parse<String>('amc_name'),
+      address: json.parse<String>('address'),
+      amcLogo: json.parse<String>('amc_logo'),
+      contactNo: json.parse<String>('contact_no'),
+      email: json.parse<String>('email_address'),
+      status: json.parse<String>('status'),
     );
   }
 }
