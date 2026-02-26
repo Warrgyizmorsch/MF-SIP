@@ -1499,7 +1499,7 @@ class _FilterpageState extends State<Filterpage> {
 
   int selectedMenuIndex = 0;
 
-  final List<String> leftMenu = ['Categories', 'Risk', 'Ratings', 'Fund House'];
+  final List<String> leftMenu = ['Categories', 'Risk', 'Fund House'];
 
   @override
   Widget build(BuildContext context) {
@@ -1549,11 +1549,11 @@ class _FilterpageState extends State<Filterpage> {
                   if (index == 0)
                     activeCount = controller.selectedSchemeTypes.length;
                   if (index == 1) activeCount = controller.selectedRisks.length;
+                  // if (index == 2)
+                  //   activeCount = controller.selectedRating.value != null
+                  //       ? 1
+                  //       : 0;
                   if (index == 2)
-                    activeCount = controller.selectedRating.value != null
-                        ? 1
-                        : 0;
-                  if (index == 3)
                     activeCount = controller.selectedAmcIds.length;
 
                   return InkWell(
@@ -1645,9 +1645,9 @@ class _FilterpageState extends State<Filterpage> {
         return CategoriesPanel();
       case 1:
         return RiskPanel();
+      // case 2:
+      // return RatingsPanel();
       case 2:
-        return RatingsPanel();
-      case 3:
         return FundHousePanel();
       default:
         return const SizedBox();
@@ -1708,11 +1708,30 @@ class CategoriesPanel extends StatelessWidget {
               rawList,
             );
 
+            // return ListView(
+            //   padding: const EdgeInsets.symmetric(horizontal: 16),
+            //   children: groupedData.entries.map((entry) {
+
+            //     return _expandTile(entry.key, entry.value);
+            //   }).toList(),
+            // );
             return ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: groupedData.entries.map((entry) {
-                return _expandTile(entry.key, entry.value);
-              }).toList(),
+              children: () {
+                // 1. Convert map entries to a list
+                final sortedEntries = groupedData.entries.toList();
+
+                // 2. Sort the list alphabetically based on the Category Name (Key)
+                sortedEntries.sort((a, b) => a.key.compareTo(b.key));
+
+                // 3. Map the sorted list to your expansion tiles
+                return sortedEntries.map((entry) {
+                  // Optional: If you also want sub-categories sorted alphabetically:
+                  final List<String> subCategories = entry.value..sort();
+
+                  return _expandTile(entry.key, subCategories);
+                }).toList();
+              }(),
             );
           }),
         ),

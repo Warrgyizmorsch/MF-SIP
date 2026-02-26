@@ -299,6 +299,9 @@ class MutualFundController extends GetxController {
     //   Get.find<FundhouseController>().clearAllFilters();
     // }
     // _resetAndFetch();
+    if (Get.isRegistered<FundhouseController>()) {
+      Get.find<FundhouseController>().resetUiStatesOnly();
+    }
   }
 
   Future<void> handleRefresh() async {

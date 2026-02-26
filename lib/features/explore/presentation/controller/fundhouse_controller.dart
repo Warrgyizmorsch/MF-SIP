@@ -1027,6 +1027,11 @@ class FundhouseController extends GetxController {
     highReturnFilter.value = false;
   }
 
+  void resetUiStatesOnly() {
+    _clearStatesOnly();
+    selectedFundCount.value = 0;
+  }
+
   void clearAllFilters() {
     _clearStatesOnly();
 
