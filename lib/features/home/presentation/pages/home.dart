@@ -21,6 +21,7 @@ import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_ca
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/features/sip_process/presentation/controllers/sip_process_controller.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
 import 'package:responsive_framework/responsive_framework.dart'; // Import Responsive Framework
 
@@ -428,13 +429,46 @@ class _WebDashboardLayout extends StatelessWidget {
   }
 
   Widget _buildWebCollectionGrid() {
+    final nav = Get.find<NavigationBarController>();
+    final funds = Get.find<FundhouseController>();
     final items = [
-      {'t': 'Best SIP', 'i': UImages.savingbank},
-      {'t': 'High Return', 'i': UImages.highreturn},
-      {'t': 'International', 'i': UImages.interfund},
-      {'t': 'Index Funds', 'i': UImages.indexfund},
-      {'t': 'Commodities', 'i': UImages.moneygold},
-      {'t': 'Equity', 'i': UImages.equity},
+      {
+        't': 'Best SIP',
+        'i': UImages.savingbank,
+        'onTap': () =>
+            nav.navigateToExploreWithFilter(() => funds.applyBestSipFilter(1)),
+      },
+      {
+        't': 'High Return',
+        'i': UImages.highreturn,
+        'onTap': () => nav.navigateToExploreWithFilter(
+          () => funds.applyHighReturnFilter(),
+        ),
+      },
+      {
+        't': 'International',
+        'i': UImages.interfund,
+        'onTap': () => nav.navigateToExploreWithFilter(
+          () => funds.applyCustomSearch('international'),
+        ),
+      },
+      {
+        't': 'Index Funds',
+        'i': UImages.indexfund,
+        'onTap': () => nav.navigateToExploreWithFilter(
+          () => funds.applyCustomSearch('index'),
+        ),
+      },
+      {
+        't': 'Commodities',
+        'i': UImages.moneygold,
+        'onTap': () =>
+            nav.navigateToExploreWithFilter(() => funds.applyCommodityFilter()),
+      },
+      {
+        't': 'NFO', 'i': UImages.equity,
+        'onTap': () => Get.toNamed(AppRoutes.nfolist), // <--- NFO ROUTE FIXED
+      },
     ];
 
     return GridView.builder(
@@ -449,8 +483,13 @@ class _WebDashboardLayout extends StatelessWidget {
       itemCount: items.length,
       itemBuilder: (ctx, i) => WebHoverScale(
         scale: 1.1, // Higher scale for small icons
-        onTap: () => Get.to(() =>  ExploreScreen()),
-        child: CollectionItem(title: items[i]['t']!, iconImg: items[i]['i']!),
+        // onTap: () => Get.to(() => ExploreScreen()),
+        
+        onTap: items[i]['onTap'] as VoidCallback,
+        child: CollectionItem(
+          title: items[i]['t']! as String,
+          iconImg: items[i]['i']! as String,
+        ),
       ),
     );
   }
@@ -889,7 +928,13 @@ class _MobileLayout extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         GestureDetector(
-                          onTap: () => Get.toNamed(AppRoutes.startSipScreen),
+                          // onTap: () => Get.toNamed(AppRoutes.startSipScreen),
+                          onTap: () {
+                            Get.find<SipProcessController>().setInvestmentMode(
+                              false,
+                            );
+                            Get.toNamed(AppRoutes.startSipScreen);
+                          },
                           child: const FeatureSection(
                             featureName: 'Start SIP',
                             iconPath: UImages.startsip,
@@ -899,7 +944,13 @@ class _MobileLayout extends StatelessWidget {
                         //     onTap: () => Get.toNamed(AppRoutes.startSipScreen),
                         //     child: const FeatureSection(featureName: 'Freedom SIP', iconPath: UImages.freedomsip)),
                         GestureDetector(
-                          onTap: () => Get.toNamed(AppRoutes.startSipScreen),
+                          // onTap: () => Get.toNamed(AppRoutes.startSipScreen),
+                          onTap: () {
+                            Get.find<SipProcessController>().setInvestmentMode(
+                              true,
+                            );
+                            Get.toNamed(AppRoutes.startSipScreen);
+                          },
                           child: const FeatureSection(
                             featureName: 'Lumpsum',
                             iconPath: UImages.glyph,

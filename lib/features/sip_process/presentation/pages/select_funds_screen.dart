@@ -377,6 +377,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
+import 'package:my_sip/common/widget/text_form/text_field_component.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
@@ -385,6 +386,8 @@ import 'package:my_sip/core/utils/constant/text.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/divider/thick_divider.dart';
+import 'package:my_sip/core/utils/enums/enums.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
 import 'package:my_sip/features/fund_details/presentation/widgets/helper.dart';
@@ -411,6 +414,21 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Ucolors.primary,
+
+      // appBar: AppBar(
+      //   backgroundColor: Ucolors.primary,
+
+      //   title: Row(
+      //     children: [
+      //       SvgPicture.asset(UImages.mfLogoLight, height: 20),
+      //       const SizedBox(width: 10),
+      //       Text(
+      //         UText.freedomSipTitle,
+      //         style: AppTextStyles.bodyLarge(color: Colors.white),
+      //       ),
+      //     ],
+      //   ),
+      // ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -496,82 +514,183 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
   }
 
   Widget _buildSchemeCard(MutualFundListEntity fund, int index) {
-    final isSelected = _selectedIndex == index;
-
-    return GestureDetector(
-      onTap: () => setState(() => _selectedIndex = index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isSelected ? Ucolors.primary.withOpacity(0.1) : Colors.white,
-          border: Border.all(
-            color: isSelected ? Ucolors.primary : Colors.grey.shade300,
-            width: isSelected ? 1.5 : 1.0,
+    return Obx(() {
+      // final isSelected = controller.isSelected(fund.schemeCode.toString());
+      final isSelected = controller.isSelected(fund.schemeCode ?? "");
+      return GestureDetector(
+        // onTap: () => setState(() => _selectedIndex = index),
+        onTap: () => controller.toggleSelection(fund),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isSelected ? Ucolors.primary.withOpacity(0.1) : Colors.white,
+            border: Border.all(
+              color: isSelected ? Ucolors.primary : Colors.grey.shade300,
+              width: isSelected ? 1.5 : 1.0,
+            ),
+            borderRadius: BorderRadius.circular(15.0),
           ),
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header: Icon and Name
-            Row(
-              children: [
-                ClipOval(
-                  child: CustomCachedImage(
-                    imageUrl: '${Appurl.baseUrl}${fund.amc?.amcLogoUrl}',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header: Icon and Name
+              Row(
+                children: [
+                  ClipOval(
+                    child: CustomCachedImage(
+                      imageUrl: '${Appurl.baseUrl}${fund.amc?.amcLogoUrl}',
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    fund.baseSchemeName ?? "Unknown Fund",
-                    style: AppTextStyles.bodyMediumSemiBold(size: 12),
-                    overflow: TextOverflow.ellipsis,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      fund.baseSchemeName ?? "Unknown Fund",
+                      style: AppTextStyles.bodyMediumSemiBold(size: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            DashedLine(color: Colors.grey.shade300),
-            const SizedBox(height: 10),
-            Row(
-              // mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                // Risk Level
-                Icon(
-                  Icons.circle,
-                  color: getRiskMeter(fund.riskLevel).color,
-                  size: 10,
-                ),
+                  if (isSelected)
+                    const Icon(
+                      Icons.check_circle,
+                      color: Ucolors.primary,
+                      size: 20,
+                    ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              DashedLine(color: Colors.grey.shade300),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  if (isSelected) ...[
+                    Column(
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.circle,
+                              color: getRiskMeter(fund.riskLevel).color,
+                              size: 10,
+                            ),
 
-                const SizedBox(width: 3),
-                Text(
-                  fund.riskLevel ?? "N/A",
-                  style: AppTextStyles.bodySmall(
-                    color: getRiskMeter(fund.riskLevel).color,
-                    size: 10,
-                  ),
-                ),
-                const SizedBox(width: 20),
-                // SIP Returns
-                Text(
-                  "SIP Returns (3Y): ",
-                  style: AppTextStyles.bodySmall(
-                    color: Colors.grey.shade700,
-                    size: 10,
-                  ),
-                ),
-                Text(
-                  "${fund.returnsEntity?.threeYear ?? '0.0'}%",
-                  style: AppTextStyles.bodySmall(color: Colors.green, size: 12),
-                ),
-              ],
-            ),
-          ],
+                            const SizedBox(width: 3),
+                            Text(
+                              fund.riskLevel ?? "N/A",
+                              style: AppTextStyles.bodySmall(
+                                color: getRiskMeter(fund.riskLevel).color,
+                                size: 10,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              "SIP Returns (3Y): ",
+                              style: AppTextStyles.bodySmall(
+                                color: Colors.grey.shade700,
+                                size: 10,
+                              ),
+                            ),
+                            Text(
+                              "${fund.returnsEntity?.threeYear ?? '0.0'}%",
+                              style: AppTextStyles.bodySmall(
+                                color: Colors.green,
+                                size: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(width: 10),
+                  ],
+                  if (!isSelected) ...[
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.circle,
+                          color: getRiskMeter(fund.riskLevel).color,
+                          size: 10,
+                        ),
+
+                        const SizedBox(width: 3),
+                        Text(
+                          fund.riskLevel ?? "N/A",
+                          style: AppTextStyles.bodySmall(
+                            color: getRiskMeter(fund.riskLevel).color,
+                            size: 10,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // SIP Returns
+                    Row(
+                      children: [
+                        Text(
+                          "SIP Returns (3Y): ",
+                          style: AppTextStyles.bodySmall(
+                            color: Colors.grey.shade700,
+                            size: 10,
+                          ),
+                        ),
+                        Text(
+                          "${fund.returnsEntity?.threeYear ?? '0.0'}%",
+                          style: AppTextStyles.bodySmall(
+                            color: Colors.green,
+                            size: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                  // SizedBox(width: 10),
+                  isSelected
+                      ? Expanded(
+                          child: CustomTextField(
+                            validationType: ValidationType
+                                .custom, // Enable custom validation
+                            keyboardType: TextInputType.number,
+                            height: 44,
+
+                            controller: controller.getTextController(
+                              fund.schemeCode ?? "",
+                            ),
+
+                            onChanged: (val) => controller.updateFundAmount(
+                              fund.schemeCode ?? "",
+                              val,
+                            ),
+                            customValidator: (value) {
+                              if (value == null || value.isEmpty)
+                                return "Required";
+
+                              final enteredAmount = int.tryParse(value) ?? 0;
+                              final minAmount = fund.minSipAmount ?? 500;
+
+                              if (enteredAmount < minAmount) {
+                                return "Min. ₹$minAmount required";
+                              }
+
+                              if (enteredAmount % 100 != 0) {
+                                return "Must be multiple of ₹100";
+                              }
+
+                              return null; // Valid
+                            },
+                          ),
+                        )
+                      : SizedBox.shrink(),
+                ],
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   // Widget _buildSchemeCard(MutualFundListEntity fund, int index) {
@@ -705,54 +824,170 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
   }
 
   Widget _buildBottomNav() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Colors.black12)),
-      ),
-      child: SafeArea(
-        child: Row(
-          children: [
-            Expanded(
-              child: UElevatedBUtton(
-                onPressed: () => Navigator.pop(context),
-                outlined: true,
-                child: Center(
-                  child: Text(
-                    'Back',
-                    style: AppTextStyles.bodyMedium(color: Ucolors.primary),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: UElevatedBUtton(
-                onPressed: () {
-                  if (_selectedIndex != -1 && controller.state != null) {
-                    Get.toNamed(
-                      AppRoutes.cart,
-                      // arguments: controller.state![_selectedIndex],
-                    );
-                  } else {
-                    Get.snackbar(
-                      "Selection Required",
-                      "Please select a fund to proceed",
-                    );
-                  }
-                },
-                child: Center(
-                  child: Text(
-                    'Next',
-                    style: AppTextStyles.bodyMedium(color: Colors.white),
-                  ),
-                ),
-              ),
+    return Obx(() {
+      final selectedCount = controller.selectedFunds.length;
+      final totalAmount = controller.totalSelectedAmount;
+
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              spreadRadius: 2,
             ),
           ],
+          border: const Border(top: BorderSide(color: Colors.black12)),
         ),
-      ),
-    );
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Total Summary Row
+              if (selectedCount > 0) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Total SIP Amount ($selectedCount funds)",
+                      style: AppTextStyles.bodySmall(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    Text(
+                      controller.formatCurrency(totalAmount),
+                      style: AppTextStyles.bodyMediumBold(
+                        color: Ucolors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+              ],
+
+              // Buttons Row
+              Row(
+                children: [
+                  Expanded(
+                    child: UElevatedBUtton(
+                      onPressed: () => Navigator.pop(context),
+                      outlined: true,
+                      child: Center(
+                        child: Text(
+                          'Back',
+                          style: AppTextStyles.bodyMedium(
+                            color: Ucolors.primary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: UElevatedBUtton(
+                      onPressed: controller.proceedToCart,
+                      //  selectedCount > 0
+                      //     ? () => controller.proceedToCart()
+                      //     : null,
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Add to Cart',
+                              style: AppTextStyles.bodyMedium(
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            const Icon(
+                              Icons.shopping_cart_checkout_sharp,
+                              color: Colors.white,
+                              size: 15,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
+
+  // Widget _buildBottomNav() {
+  //   return
+  //   // Obx(
+  //   //   () =>
+  //   Container(
+  //     padding: const EdgeInsets.all(16),
+  //     decoration: const BoxDecoration(
+  //       color: Colors.white,
+  //       border: Border(top: BorderSide(color: Colors.black12)),
+  //     ),
+  //     child: SafeArea(
+  //       child: Row(
+  //         children: [
+  //           Expanded(
+  //             child: UElevatedBUtton(
+  //               onPressed: () => Navigator.pop(context),
+  //               outlined: true,
+  //               child: Center(
+  //                 child: Text(
+  //                   'Back',
+  //                   style: AppTextStyles.bodyMedium(color: Ucolors.primary),
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //           const SizedBox(width: 16),
+  //           Expanded(
+  //             child: Obx(
+  //               () => UElevatedBUtton(
+  //                 // onPressed: () {
+  //                 //   if (_selectedIndex != -1 && controller.state != null) {
+  //                 //     Get.toNamed(
+  //                 //       AppRoutes.cart,
+  //                 //       // arguments: controller.state![_selectedIndex],
+  //                 //     );
+  //                 //   } else {
+  //                 //     Get.snackbar(
+  //                 //       "Selection Required",
+  //                 //       "Please select a fund to proceed",
+  //                 //     );
+  //                 //   }
+  //                 // },
+  //                 // onPressed:
+  //                 //  controller.selectedFunds.isEmpty
+  //                 //     ? null // Disable if nothing selected
+  //                 //     : () {
+  //                 //         Get.toNamed(
+  //                 //           AppRoutes.cart,
+  //                 //           // arguments: controller.selectedFunds.toList(),
+  //                 //         );
+  //                 //       },
+  //                 onPressed: controller.selectedFunds.isNotEmpty
+  //                     ? () => controller.proceedToCart()
+  //                     : null,
+  //                 child: Center(
+  //                   child: Text(
+  //                     'Add to Cart ${controller.selectedFunds.length}',
+  //                     style: AppTextStyles.bodyMedium(color: Colors.white),
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //       // ),
+  //     ),
+  //   );
+  // }
 }

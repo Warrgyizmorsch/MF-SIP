@@ -12,7 +12,33 @@ import 'core/utils/constant/images.dart';
 
 class NavigationBarController extends GetxController {
   static NavigationBarController get instance => Get.find();
+
+  @override
+  void onInit() {
+    super.onInit();
+    _syncTabWithUrl();
+  }
+
   final RxInt selectedIndex = 0.obs;
+
+  void _syncTabWithUrl() {
+    // Read the exact URL the user typed in the browser
+    String currentRoute = Get.currentRoute;
+
+    // Change the active tab based on the URL string.
+    // We use .contains() instead of == just in case there are query parameters (like ?fundId=123)
+    if (currentRoute.contains(AppRoutes.explorePage)) {
+      selectedIndex.value = 1;
+    } else if (currentRoute.contains(AppRoutes.dashBoardPage)) {
+      selectedIndex.value = 2;
+    } else if (currentRoute.contains(AppRoutes.goalScreen)) {
+      selectedIndex.value = 3;
+    } else if (currentRoute.contains(AppRoutes.profilePage)) {
+      selectedIndex.value = 4;
+    } else {
+      selectedIndex.value = 0; // Default to Home
+    }
+  }
 
   void changePage(int index) {
     if (selectedIndex.value == index) return;

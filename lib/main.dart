@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:my_sip/my_app.dart';
@@ -10,7 +12,12 @@ Future<void> main() async {
   // await SessionManager.instance.initialize();
   try {
     WidgetsFlutterBinding.ensureInitialized();
-    // Initialize SessionManager globally
+
+    if (!kIsWeb) {
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+      ]);
+    } // Initialize SessionManager globally
     await Get.putAsync<SessionManager>(() async {
       final session = SessionManager.instance;
       await session.initialize();

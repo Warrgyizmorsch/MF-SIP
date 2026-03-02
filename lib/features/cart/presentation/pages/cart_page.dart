@@ -86,7 +86,7 @@ class CartPage extends GetView<CartController> {
                         title: "Your Cart is Empty",
                         message:
                             "Looks like you haven't added any funds yet. Go explore!",
-                        icon: Iconsax.shopping_cart,
+                        icon: Icons.shopping_cart_outlined,
                       ),
                     );
 
@@ -140,34 +140,53 @@ class CartPage extends GetView<CartController> {
             amount: displayAmount,
 
             ontap: () {
-              final totalPayable = controller.totalAmount;
-              if (controller.monthlyAmount.value > totalPayable) {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: Text(
-                      'SIP amount is insufficient for this goal.\nPlease increase the amount or duration.',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text('Back'),
-                      ),
-                    ],
-                  ),
-                );
-
-                // Get.toNamed(AppRoutes.paymentScreen);
-              } else if (controller.monthlyAmount.value ==
-                  controller.totolAmount1) {
-                Get.toNamed(
-                  AppRoutes.paymentScreen,
-                  arguments: {'amount': controller.totolAmount1},
-                );
-              } else if (controller.monthlyAmount.value <
-                  controller.totolAmount1) {
-                log('Inscrease');
+              // 1. RUN VALIDATION GUARD
+              if (!controller.isCartValid1) {
+                // showCustomToast1(
+                //   title: "Validation Error",
+                //   message: "Please correct the amounts in your cart.",
+                //   backgroundColor: Colors.red.shade700,
+                //   icon: Icons.error_outline,
+                // );
+                return; // Stop here
               }
+              Get.toNamed(
+                AppRoutes.paymentScreen,
+                arguments: {'amount': controller.totolAmount1},
+              );
+
+              // final totalPayable = controller.totalAmount;
+              // if (controller.monthlyAmount.value > totalPayable) {
+              //   showDialog(
+              //     context: context,
+              //     builder: (context) => AlertDialog(
+              //       title: Text(
+              //         'SIP amount is insufficient for this goal.\nPlease increase the amount or duration.',
+              //       ),
+              //       actions: [
+              //         TextButton(
+              //           onPressed: () => Navigator.pop(context),
+              //           child: Text('Back'),
+              //         ),
+              //       ],
+              //     ),
+              //   );
+
+              //   // Get.toNamed(AppRoutes.paymentScreen);
+              // } else if (controller.monthlyAmount.value ==
+              //     controller.totolAmount1) {
+              //   Get.toNamed(
+              //     AppRoutes.paymentScreen,
+              //     arguments: {'amount': controller.totolAmount1},
+              //   );
+              // } else if (controller.monthlyAmount.value <
+              //     controller.totolAmount1) {
+              //   log('Inscrease');
+              //   Get.toNamed(
+              //     AppRoutes.paymentScreen,
+              //     arguments: {'amount': controller.totolAmount1},
+              //   );
+              // }
             },
           );
         }),
@@ -228,7 +247,7 @@ class CartBottomBar extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        goalAmount != null ? goalAmount! : '/Monthly',
+                        goalAmount != null ? goalAmount! : '',
                         style: TextStyle(
                           fontSize: goalAmount != null ? 14 : 14,
                         ),
@@ -239,17 +258,21 @@ class CartBottomBar extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: UElevatedBUtton(
-                // height: 50,
-                onPressed: ontap,
-                // width: 50,
-                child: Center(
-                  child: Text(
-                    buttonText ?? 'Purchase',
-                    style: UTextStyles.buttonText,
+              child: Obx(() {
+                final isValid = Get.find<CartController>().isCartValid1;
+                return UElevatedBUtton(
+                  color: isValid ? null : Colors.grey,
+                  // height: 50,
+                  onPressed: ontap,
+                  // width: 50,
+                  child: Center(
+                    child: Text(
+                      buttonText ?? 'Purchase',
+                      style: UTextStyles.buttonText,
+                    ),
                   ),
-                ),
-              ),
+                );
+              }),
             ),
           ],
         ),
@@ -599,22 +622,48 @@ class InvestmentInputsRow extends StatelessWidget {
                         //     : currentAmount,
                       ),
                       validationType: ValidationType.custom,
+                      onChanged: (value) {
+                        final amount = int.tryParse(value) ?? 0;
+                        bool hasError =
+                            amount < currentMinLimit || amount % 100 != 0;
+                        controller.setItemError(itemEntity.id!, hasError);
+                      },
                       customValidator: (value) {
                         if (value == null || value.trim().isEmpty) {
+                          // controller.setItemError(itemEntity.id!, true);
                           return 'Required';
                         }
-                        final amount = int.tryParse(value);
+                        final amount = int.tryParse(value) ?? 0;
 
                         // Check against the dynamic limit (SIP vs Lumpsum)
-                        if (amount == null || amount < currentMinLimit) {
+                        if (amount < currentMinLimit) {
+                          // controller.setItemError(itemEntity.id!, true);
                           return 'Min ₹$currentMinLimit'; // Shows red text automatically
                         }
+                        if (amount % 100 != 0) {
+                          // controller.setItemError(itemEntity.id!, true);
+                          return 'Multiple of ₹100';
+                        }
+                        // controller.setItemError(itemEntity.id!, false);
                         return null;
                       },
 
+                      // onChanged: (value) {
+                      //   final newAmt = int.tryParse(value);
+                      //   if (newAmt != null &&
+                      //       newAmt >= currentMinLimit &&
+                      //       newAmt % 100 == 0) {
+                      //     controller.updateCartItem(
+                      //       itemId: itemEntity.id!,
+                      //       amount: newAmt,
+                      //     );
+                      //   }
+                      // },
                       onSubmitted: (value) {
                         final newAmt = int.tryParse(value);
-                        if (newAmt != null && newAmt >= currentMinLimit) {
+                        if (newAmt != null &&
+                            newAmt >= currentMinLimit &&
+                            newAmt % 100 == 0) {
                           controller.updateCartItem(
                             itemId: itemEntity.id!,
                             amount: newAmt,
@@ -818,49 +867,136 @@ class InvestmentInputsRow extends StatelessWidget {
           ),
           const Gap(20),
           Expanded(
-            child: _buildColumn(
-              'Step Up Amount',
-              TextField(
-                key: ValueKey('topup_${itemEntity.id}_$currentTopUp'),
-                // controller: TextEditingController(
-
-                //   text: stepUpAmt,
-                // ),
-                // controller: TextEditingController(
-                //   text: currentTopUp == '0'
-                //       ? minTopUp.toString()
-                //       : currentTopUp,
-                // ),
-                controller: TextEditingController(text: currentTopUp),
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  isDense: true,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Step Up Amount',
+                  style: UTextStyles.small.copyWith(
+                    color: const Color(0xff5B5B5B),
+                    fontSize: 11,
+                  ),
                 ),
+                const SizedBox(height: 6),
+                // We REMOVE the _box() wrapper here because CustomTextField
+                // provides its own border and background.
+                CustomTextField(
+                  bgColor: Colors.white,
+                  height: 55, // Matches your other inputs
+                  borderRadius: 11, // Matches your _box decoration
+                  key: ValueKey('topup_${itemEntity.id}_$currentTopUp'),
+                  controller: TextEditingController(text: currentTopUp),
+                  keyboardType: TextInputType.number,
+                  validationType: ValidationType.custom,
+                  // Match your app's theme colors
+                  borderColor: Colors.grey.shade300,
 
-                onSubmitted: (val) {
-                  // final stepAmt = int.tryParse(val);
-                  // if (stepAmt != null) {
-                  //   controller.updateCartItem(
-                  //     itemId: itemEntity.id!,
-                  //     topUpAmount: stepAmt,
-                  //   );
-                  // }
-                  final amt = int.tryParse(val);
+                  focusedBorderColor: Ucolors.primary,
+                  onChanged: (value) {
+                    final amt = int.tryParse(value) ?? 0;
+                    bool hasError = amt < minTopUp || amt % 100 != 0;
+                    controller.setItemError(-itemEntity.id!, hasError);
+                  },
+                  customValidator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Required';
+                    }
+                    final amt = int.tryParse(value) ?? 0;
+                    if (amt < minTopUp) {
+                      return 'Min ₹$minTopUp';
+                    }
+                    if (amt % 100 != 0) {
+                      return 'Multiple of ₹100';
+                    }
 
-                  // TOPUP VALIDATION
-                  if (amt != null
-                  // && amt >= minTopUp
-                  ) {
-                    controller.updateCartItem(
-                      itemId: itemEntity.id!,
-                      topUpAmount: amt,
-                    );
-                  }
-                },
-              ),
+                    return null;
+                  },
+
+                  onSubmitted: (val) {
+                    final amt = int.tryParse(val);
+                    if (amt != null && amt >= minTopUp && amt % 100 == 0) {
+                      controller.updateCartItem(
+                        itemId: itemEntity.id!,
+                        topUpAmount: amt,
+                      );
+                    }
+                  },
+                ),
+              ],
             ),
           ),
+
+          // Expanded(
+          //   child: _buildColumn(
+          //     'Step Up Amount',
+          //     CustomTextField(
+          //       borderRadius: 11, // Matches your _box decoration
+
+          //       height: 44,
+          //       borderColor: Colors.grey.shade300,
+          //       key: ValueKey('topup_${itemEntity.id}_$currentTopUp'),
+          //       controller: TextEditingController(text: currentTopUp),
+          //       keyboardType: TextInputType.number,
+          //       validationType: ValidationType.custom,
+          //       customValidator: (value) {
+          //         if (value == null || value.trim().isEmpty) return 'Required';
+          //         final amt = int.tryParse(value) ?? 0;
+          //         if (amt < minTopUp) return 'Min ₹$minTopUp';
+          //         if (amt % minTopUp != 0) return 'Multiple of ₹$minTopUp';
+          //         return null;
+          //       },
+          //       onSubmitted: (val) {
+          //         final amt = int.tryParse(val);
+          //         if (amt != null && amt >= minTopUp && amt % minTopUp == 0) {
+          //           controller.updateCartItem(
+          //             itemId: itemEntity.id!,
+          //             topUpAmount: amt,
+          //           );
+          //         }
+          //       },
+          //     ),
+
+          //     // TextField(
+          //     //   key: ValueKey('topup_${itemEntity.id}_$currentTopUp'),
+          //     //   // controller: TextEditingController(
+
+          //     //   //   text: stepUpAmt,
+          //     //   // ),
+          //     //   // controller: TextEditingController(
+          //     //   //   text: currentTopUp == '0'
+          //     //   //       ? minTopUp.toString()
+          //     //   //       : currentTopUp,
+          //     //   // ),
+          //     //   controller: TextEditingController(text: currentTopUp),
+          //     //   keyboardType: TextInputType.number,
+          //     //   decoration: const InputDecoration(
+          //     //     border: InputBorder.none,
+          //     //     isDense: true,
+          //     //   ),
+
+          //     //   onSubmitted: (val) {
+          //     //     // final stepAmt = int.tryParse(val);
+          //     //     // if (stepAmt != null) {
+          //     //     //   controller.updateCartItem(
+          //     //     //     itemId: itemEntity.id!,
+          //     //     //     topUpAmount: stepAmt,
+          //     //     //   );
+          //     //     // }
+          //     //     final amt = int.tryParse(val);
+
+          //     //     // TOPUP VALIDATION
+          //     //     if (amt != null
+          //     //     // && amt >= minTopUp
+          //     //     ) {
+          //     //       controller.updateCartItem(
+          //     //         itemId: itemEntity.id!,
+          //     //         topUpAmount: amt,
+          //     //       );
+          //     //     }
+          //     //   },
+          //     // ),
+          //   ),
+          // ),
         ],
       ),
     );

@@ -61,7 +61,7 @@ class _SipTenureScreenState extends State<SipTenureScreen> {
                   Text(
                     UText.freedomSipTitle,
                     style: AppTextStyles.bodyLarge(color: Colors.white),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -80,24 +80,31 @@ class _SipTenureScreenState extends State<SipTenureScreen> {
                       flex: 3,
                       child: Container(
                         width: double.infinity,
-                        margin: isDesktop ? const EdgeInsets.only(right: 20) : EdgeInsets.zero,
+                        margin: isDesktop
+                            ? const EdgeInsets.only(right: 20)
+                            : EdgeInsets.zero,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(25.0),
                         ),
                         child: SingleChildScrollView(
-                          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 25),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20.0,
+                            vertical: 25,
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                  UText.sipTenureTitle,
-                                  style: AppTextStyles.bodyLargeBold()
+                                UText.sipTenureTitle,
+                                style: AppTextStyles.bodyLargeBold(),
                               ),
                               const SizedBox(height: 5),
                               Text(
-                                  UText.sipTenureDrag,
-                                  style: AppTextStyles.bodySmall(color: Colors.grey)
+                                UText.sipTenureDrag,
+                                style: AppTextStyles.bodySmall(
+                                  color: Colors.grey,
+                                ),
                               ),
                               const SizedBox(height: 15),
 
@@ -126,10 +133,11 @@ class _SipTenureScreenState extends State<SipTenureScreen> {
                               const SizedBox(height: 25),
 
                               AmountChipList(
+                                customAmounts: [],
                                 onSelected: (double amt) {
                                   _updateAmount(amount + amt);
                                 },
-                              )
+                              ),
                             ],
                           ),
                         ),
@@ -166,7 +174,8 @@ class _SipTenureScreenState extends State<SipTenureScreen> {
                                       child: Text(
                                         'Next',
                                         style: AppTextStyles.bodyMedium(
-                                            color: Colors.white),
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -178,7 +187,8 @@ class _SipTenureScreenState extends State<SipTenureScreen> {
                                       child: Text(
                                         'Back',
                                         style: AppTextStyles.bodyMedium(
-                                            color: Ucolors.primary),
+                                          color: Ucolors.primary,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -200,55 +210,54 @@ class _SipTenureScreenState extends State<SipTenureScreen> {
       bottomNavigationBar: isDesktop
           ? null
           : Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, -5),
+                  ),
+                ],
+              ),
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: UElevatedBUtton(
+                        onPressed: () => Navigator.pop(context),
+                        outlined: true,
+                        child: Center(
+                          child: Text(
+                            'Back',
+                            style: AppTextStyles.bodyMedium(
+                              color: Ucolors.primary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: UElevatedBUtton(
+                        onPressed: () {
+                          Get.toNamed(AppRoutes.growthSchemeScreen);
+                        },
+                        child: Center(
+                          child: Text(
+                            'Next',
+                            style: AppTextStyles.bodyMedium(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ],
-        ),
-        child: SafeArea(
-          child: Row(
-            children: [
-              Expanded(
-                child: UElevatedBUtton(
-                  onPressed: () => Navigator.pop(context),
-                  outlined: true,
-                  child: Center(
-                    child: Text(
-                      'Back',
-                      style: AppTextStyles.bodyMedium(
-                          color: Ucolors.primary),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: UElevatedBUtton(
-                  onPressed: () {
-                    Get.toNamed(AppRoutes.growthSchemeScreen);
-                  },
-                  child: Center(
-                    child: Text(
-                      'Next',
-                      style: AppTextStyles.bodyMedium(
-                          color: Colors.white),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
-
-
-

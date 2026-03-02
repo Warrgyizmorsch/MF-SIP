@@ -1,36 +1,36 @@
 import 'package:equatable/equatable.dart';
 import 'package:my_sip/features/authentication/data/models/auth_model.dart';
 
-
-class LoginResponseEntity  extends Equatable{
+class LoginResponseEntity extends Equatable {
   final String? token;
   final String? message;
   final UserModel userModel;
 
-  const LoginResponseEntity({required this.token, required this.message, required this.userModel});
+  const LoginResponseEntity({
+    required this.token,
+    required this.message,
+    required this.userModel,
+  });
 
   @override
   // TODO: implement props
-  List<Object?> get props => [
-    token, message, userModel
-  ];
+  List<Object?> get props => [token, message, userModel];
 }
-
 
 class RegisterResponseEntity extends Equatable {
   final String? token;
   final String? message;
   final UserModel userModel;
 
-  const RegisterResponseEntity({required this.token, required this.message, required this.userModel});
+  const RegisterResponseEntity({
+    required this.token,
+    required this.message,
+    required this.userModel,
+  });
 
   @override
-  List<Object?> get props => [
-    token, message, userModel
-  ];
+  List<Object?> get props => [token, message, userModel];
 }
-
-
 
 class UserEntity extends Equatable {
   final int id;
@@ -46,6 +46,7 @@ class UserEntity extends Equatable {
   final String kycStatus;
   final String? kycVerifiedAt;
   final String status;
+  final String? riskSlabId;
 
   const UserEntity({
     required this.id,
@@ -61,18 +62,27 @@ class UserEntity extends Equatable {
     required this.kycStatus,
     this.kycVerifiedAt,
     required this.status,
+    this.riskSlabId,
   });
 
   @override
   List<Object?> get props => [
-    id, roleId, name, email, mobile, panCard,
-    emailVerifiedAt, phoneVerifiedAt, createdAt,
-    updatedAt, kycStatus, kycVerifiedAt, status
+    id,
+    roleId,
+    name,
+    email,
+    mobile,
+    panCard,
+    emailVerifiedAt,
+    phoneVerifiedAt,
+    createdAt,
+    updatedAt,
+    kycStatus,
+    kycVerifiedAt,
+    status,
+    riskSlabId,
   ];
 }
-
-
-
 
 extension LoginResponseEntityx on LoginResponseModel {
   LoginResponseEntity toEntity() {
@@ -83,7 +93,6 @@ extension LoginResponseEntityx on LoginResponseModel {
     );
   }
 }
-
 
 extension RegisterResponseModelx on RegisterResponseModel {
   RegisterResponseEntity toEntity() {
@@ -111,8 +120,7 @@ extension UserModelx on UserModel {
       kycStatus: kycStatus ?? 'NOT_STARTED',
       kycVerifiedAt: kycVerifiedAt,
       status: status ?? 'inactive',
+      riskSlabId: riskSlabId ?? '',
     );
   }
 }
-
-

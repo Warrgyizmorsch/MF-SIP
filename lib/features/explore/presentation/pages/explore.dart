@@ -1977,14 +1977,25 @@ class MutualFundCard extends StatelessWidget {
                               break;
 
                             case FundMenuAction.buySIP:
-                            case FundMenuAction.buyLumpsum:
-                              controller.addItem(
-                                CartItem(
-                                  fundId: entity.amc?.id?.toString() ?? '',
-                                  fundName: entity.baseSchemeName ?? '',
-                                  logoUrl: entity.amc?.amcLogoUrl ?? '',
-                                ),
+                              await controller.addToCart(
+                                entity.schemeCode ?? '',
+                                entity.baseSchemeName ?? '',
+                                entity.minSipAmount ?? 0,
+                                null,
                               );
+                              await controller.fetchCart();
+
+                              Get.toNamed(AppRoutes.cart);
+                            case FundMenuAction.buyLumpsum:
+                              await controller.addToCart(
+                                entity.schemeCode ?? '',
+                                entity.baseSchemeName ?? '',
+                                entity.minSipAmount ?? 0,
+                                null,
+                                transType: 'lumpsum',
+                              );
+                              await controller.fetchCart();
+
                               Get.toNamed(AppRoutes.cart);
                               break;
 

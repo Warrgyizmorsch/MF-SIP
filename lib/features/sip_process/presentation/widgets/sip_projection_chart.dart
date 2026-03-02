@@ -12,7 +12,7 @@ class SipProjectionChart extends StatelessWidget {
     super.key,
     required this.investedSpots,
     required this.projectedSpots,
-     this.showLeftNumbers = true
+    this.showLeftNumbers = true,
   });
 
   @override
@@ -112,19 +112,41 @@ class SipProjectionChart extends StatelessWidget {
                 showTitles: showLeftNumbers ? true : false,
                 interval: maxYBuffer / 4,
                 reservedSize: 48,
+                // inside getTitlesWidget for leftTitles
                 getTitlesWidget: (value, meta) {
                   if (value == 0) {
                     return const Text(
                       '0',
-                      style: TextStyle(color: Colors.grey, fontSize: 11),
+                      style: TextStyle(color: Colors.white, fontSize: 10),
                     );
                   }
 
-                  return Text(
-                    '${(value / 100000).toStringAsFixed(1)}L',
-                    style:  AppTextStyles.bodyMedium(color: Colors.white),
-                  );
+                  if (value >= 100000) {
+                    return Text(
+                      '${(value / 100000).toStringAsFixed(1)}L',
+                      style: AppTextStyles.bodyMedium(color: Colors.white),
+                    );
+                  } else {
+                    return Text(
+                      '${(value / 1000).toStringAsFixed(0)}K',
+                      style: AppTextStyles.bodyMedium(color: Colors.white),
+                    );
+                  }
                 },
+
+                // getTitlesWidget: (value, meta) {
+                //   if (value == 0) {
+                //     return const Text(
+                //       '0',
+                //       style: TextStyle(color: Colors.grey, fontSize: 11),
+                //     );
+                //   }
+
+                //   return Text(
+                //     '${(value / 100000).toStringAsFixed(1)}L',
+                //     style:  AppTextStyles.bodyMedium(color: Colors.white),
+                //   );
+                // },
               ),
             ),
           ),

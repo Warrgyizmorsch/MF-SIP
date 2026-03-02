@@ -205,6 +205,12 @@ class _CustomTextFieldState extends State<CustomTextField> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
+              decoration: BoxDecoration(
+                color: widget.bgColor,
+                borderRadius: widget.borderRadius != null
+                    ? BorderRadius.circular(widget.borderRadius!)
+                    : null,
+              ),
               child: Stack(
                 alignment: Alignment.centerRight,
                 children: [
@@ -241,7 +247,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                       decoration: InputDecoration(
                         counterText: '',
                         isDense: true,
-                        contentPadding: contentPadding.copyWith(right: 40),
+                        contentPadding: contentPadding.copyWith(right: 10),
                         labelText: widget.label,
                         labelStyle: TextStyle(
                           color: widget.labelColor,

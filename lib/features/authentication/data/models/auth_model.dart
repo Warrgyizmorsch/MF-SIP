@@ -1,5 +1,3 @@
-
-
 import '../../../../core/utils/helper/custom_json_parser.dart';
 
 class LoginResponseModel {
@@ -8,7 +6,12 @@ class LoginResponseModel {
   final String? message;
   final UserModel userModel;
 
-  LoginResponseModel({required this.success,required this.token, required this.message, required this.userModel});
+  LoginResponseModel({
+    required this.success,
+    required this.token,
+    required this.message,
+    required this.userModel,
+  });
 
   factory LoginResponseModel.fromJson(Map<String, dynamic> json) {
     return LoginResponseModel(
@@ -34,6 +37,8 @@ class UserModel {
   final String? kycStatus;
   final String? kycVerifiedAt;
   final String? status;
+  final String? riskSlabId;
+  final RiskProfileModel? riskProfileModel;
 
   const UserModel({
     this.id,
@@ -49,13 +54,13 @@ class UserModel {
     this.kycStatus,
     this.kycVerifiedAt,
     this.status,
+    this.riskSlabId,
+    this.riskProfileModel,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
-
     final Map<String, dynamic> userData =
         json.parseNested<Map<String, dynamic>>('user', (data) => data) ?? json;
-
 
     return UserModel(
       id: userData.parse<int>('id'),
@@ -71,6 +76,11 @@ class UserModel {
       kycStatus: userData.parse<String>('kyc_status'),
       kycVerifiedAt: userData.parse<String>('kyc_verified_at'),
       status: userData.parse<String>('status'),
+      riskSlabId: userData.parse<String>('risk_slab_id'),
+      riskProfileModel: userData.parseNested(
+        'risk_profile',
+        (e) => RiskProfileModel.fromJson(e),
+      ),
     );
   }
 
@@ -89,19 +99,21 @@ class UserModel {
       'kyc_status': kycStatus,
       'kyc_verified_at': kycVerifiedAt,
       'status': status,
+      'risk_slab_id': riskSlabId,
     };
   }
-
-
 }
-
 
 class RegisterResponseModel {
   final String? token;
   final String? message;
   final UserModel userModel;
 
-  RegisterResponseModel({required this.token, required this.message, required this.userModel});
+  RegisterResponseModel({
+    required this.token,
+    required this.message,
+    required this.userModel,
+  });
 
   factory RegisterResponseModel.fromJson(Map<String, dynamic> json) {
     return RegisterResponseModel(
@@ -109,5 +121,45 @@ class RegisterResponseModel {
       message: json['message'],
       userModel: UserModel.fromJson(json),
     );
+  }
+}
+
+class RiskProfileModel {
+  final int? id;
+  final int? minScore;
+  final int? maxScore;
+  final String? profileName;
+  final int? fixesIncomePercent;
+  final int? equityPercent;
+
+  RiskProfileModel({
+    required this.id,
+    required this.minScore,
+    required this.maxScore,
+    required this.profileName,
+    required this.fixesIncomePercent,
+    required this.equityPercent,
+  });
+
+  factory RiskProfileModel.fromJson(Map<String, dynamic> json) {
+    return RiskProfileModel(
+      id: json.parse<int>('id'),
+      minScore: json.parse<int>('min_score'),
+      maxScore: json.parse<int>('max_score'),
+      profileName: json.parse<String>('profile_name'),
+      fixesIncomePercent: json.parse<int>('fixed_income_percent'),
+      equityPercent: json.parse<int>('equity_percent'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'min_score': minScore,
+      'max_score': maxScore,
+      'profile_name': profileName,
+      'fixed_income_percent': profileName,
+      'equity_percent': equityPercent,
+    };
   }
 }

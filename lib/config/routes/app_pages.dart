@@ -60,6 +60,7 @@ class AppPages {
         Bankbinding(),
         Fundhousebinding(),
         WishlistBinding(),
+        SipProcessBinding()
       ],
       name: AppRoutes.navMenuBar,
       page: () => const NavigationMenuBar(),
