@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
@@ -116,9 +117,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
+    final shortestSide = MediaQuery.of(context).size.shortestSide;
+
+    final bool isMobileDevice = kIsWeb ? false : shortestSide < 600;
+
+    final bool isDesktop1 =
+        !isMobileDevice && ResponsiveBreakpoints.of(context).largerThan(TABLET);
+
     return Scaffold(
       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
-      body: isDesktop
+      body:
+          isDesktop1 // change to isDesktop
           ? _WebDashboardLayout(
               authController: authController,
               cartController: cartController,
@@ -1367,7 +1376,8 @@ class _MobileLayout extends StatelessWidget {
           ),
           SliverToBoxAdapter(
             child: SizedBox(
-              height: size.height * 0.25,
+              // height: size.height * 0.25,
+              height: 220,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
