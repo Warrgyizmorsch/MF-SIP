@@ -7,6 +7,7 @@ import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/authentication/domain/entitites/auth_entity.dart';
 import 'package:my_sip/features/authentication/domain/usecases/auth_use_cases.dart';
 import 'package:flutter/material.dart';
+import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 class AuthController extends GetxController {
@@ -235,8 +236,28 @@ class AuthController extends GetxController {
 
     result.fold(
       (success) async {
+        final userModel = success.data?.userModel;
+        await SessionManager.instance.setSession(
+          jwtAccessToken: success.data?.token,
+          userData: success.data?.userModel,
+        );
+        if (userModel?.riskProfileModel != null) {
+          final profile = userModel!.riskProfileModel!;
 
-       await SessionManager.instance.setSession(jwtAccessToken: success.data?.token, userData: success.data?.userModel);
+          final riskResult = RiskResultModel(
+            status: true,
+            totalScore: int.tryParse(userModel.riskScore.toString()) ?? 0,
+            riskSlabId: profile.id ?? 0,
+            profileName: profile.profileName ?? '',
+          );
+
+          // This triggers the Obx in your Upgradebanner
+          await SessionManager.instance.saveRiskScore(riskResult);
+        } else {
+          // Clear it if they are a new user without a profile
+          await SessionManager.instance.saveRiskScore(null);
+        }
+
         isOtpVerifyLoading.value = false;
 
         user.value = success.data!.userModel.toEntity();
@@ -271,7 +292,13 @@ class AuthController extends GetxController {
     await sendOtp();
   }
 
-  Future<void> register(String name, String email, String mobile, String pan, String password,) async {
+  Future<void> register(
+    String name,
+    String email,
+    String mobile,
+    String pan,
+    String password,
+  ) async {
     isRegisterLoading.value = true;
     final requestData = {
       "name": name,

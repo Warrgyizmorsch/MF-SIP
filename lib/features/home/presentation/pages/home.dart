@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
@@ -6,6 +8,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
+import 'package:my_sip/common/widget/images/image_select.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/common/widget/video/custom_inline_youtube_player.dart';
@@ -21,8 +24,10 @@ import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_ca
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/sip_process/presentation/controllers/sip_process_controller.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
+import 'package:my_sip/services/session_manager.dart';
 import 'package:responsive_framework/responsive_framework.dart'; // Import Responsive Framework
 
 import '../widgets/product_tool/sip_calculator.dart';
@@ -484,7 +489,6 @@ class _WebDashboardLayout extends StatelessWidget {
       itemBuilder: (ctx, i) => WebHoverScale(
         scale: 1.1, // Higher scale for small icons
         // onTap: () => Get.to(() => ExploreScreen()),
-        
         onTap: items[i]['onTap'] as VoidCallback,
         child: CollectionItem(
           title: items[i]['t']! as String,
@@ -772,16 +776,21 @@ class _MobileLayout extends StatelessWidget {
   final MutualFundController mutualController;
   final NavigationBarController navController;
 
-  const _MobileLayout({
+  _MobileLayout({
     required this.authController,
     required this.cartController,
     required this.mutualController,
     required this.navController,
   });
 
+  final PersonalisationController personalisationController =
+      Get.find<PersonalisationController>();
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final user = SessionManager.instance.getUserData;
+    log(user?.img ?? 'image ------------------');
 
     return SafeArea(
       top: false,
@@ -816,6 +825,12 @@ class _MobileLayout extends StatelessWidget {
                     roleColor: Ucolors.borderColor,
                     greetingNameColor: Ucolors.light,
                     avatar: const AssetImage(UImages.avatar),
+                    // img: UCircularImage(image: user?.img ?? ''),
+                    img: UCircularImage(
+                      image: personalisationController.imagePath.isEmpty
+                          ? (user?.img ?? UImages.avatar)
+                          : personalisationController.imagePath.value,
+                    ),
                     action: [
                       CompactIcon(
                         icon: Iconsax.notification,

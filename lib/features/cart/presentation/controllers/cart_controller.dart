@@ -241,7 +241,9 @@ class CartController extends GetxController {
     bool alreadyInCart =
         cartResponseEntity.value?.items.any(
           (item) =>
-              item.schemeCode.toString() == schemeCode && item.goalId == goalId,
+              item.schemeCode.toString() == schemeCode &&
+              item.goalId == goalId &&
+              item.transType.toString() == transType,
         ) ??
         false;
 

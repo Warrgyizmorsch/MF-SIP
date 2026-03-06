@@ -375,8 +375,9 @@ class MutualFundCard1 extends StatelessWidget {
                       await controller.addToCart(
                         displaySchemeCode,
                         displaySchemeName,
-                        500,
+                        10000,
                         null,
+                        transType: 'sip',
                       );
                       await controller.fetchCart();
                       if (currentId.isNotEmpty) {

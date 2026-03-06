@@ -4,6 +4,7 @@ import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/features/personalization/data/model/bank_model.dart';
 import 'package:my_sip/features/personalization/data/model/nominee_model.dart';
+import 'package:my_sip/features/personalization/data/model/profile_update_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_question_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_submit_rq.dart';
@@ -73,8 +74,6 @@ class PersonalisationRemoteDataSource {
     }
   }
 
-
-
   // Submit risk
   Future<Either<Result<RiskResultModel>, ApiError>> submitRiskAssesment(
     Map<String, dynamic> data,
@@ -82,9 +81,7 @@ class PersonalisationRemoteDataSource {
     try {
       final resp = await _apiService.postApi(
         "${Appurl.baseUrl}/api/v1/risk-questions/submit",
-        data: data
-
-        
+        data: data,
       );
 
       createLog(
@@ -100,21 +97,18 @@ class PersonalisationRemoteDataSource {
         );
       }
     } catch (e) {
-      return Right(
-        ApiError(message: 'Risk Result Failed with Exception $e'),
-      );
+      return Right(ApiError(message: 'Risk Result Failed with Exception $e'));
     }
   }
 
-
   // Add Nominee
   Future<Either<Result<String>, ApiError>> addNominee(
-      Map<String, dynamic> data,
-      ) async {
+    Map<String, dynamic> data,
+  ) async {
     try {
       final resp = await _apiService.postApi(
-          "${Appurl.baseUrl}/api/v1/nominees",
-          data: data
+        "${Appurl.baseUrl}/api/v1/nominees",
+        data: data,
       );
 
       createLog(
@@ -125,26 +119,21 @@ class PersonalisationRemoteDataSource {
         // final result = RiskResultModel.fromJson(resp);
         return Left(Result.success(resp['message']));
       } else {
-        return Right(
-          ApiError(message: 'addNominee Failed'),
-        );
+        return Right(ApiError(message: 'addNominee Failed'));
       }
     } catch (e) {
-      return Right(
-        ApiError(message: 'addNominee Failed with Exception $e'),
-      );
+      return Right(ApiError(message: 'addNominee Failed with Exception $e'));
     }
   }
 
-
   // Get Nominee
   Future<Either<Result<NomineeResponseModel>, ApiError>> getNominee(
-      Map<String, dynamic> data,
-      ) async {
+    Map<String, dynamic> data,
+  ) async {
     try {
       final resp = await _apiService.postApi(
-          "${Appurl.baseUrl}/api/v1/nominees/get-by-customer",
-          data: data
+        "${Appurl.baseUrl}/api/v1/nominees/get-by-customer",
+        data: data,
       );
 
       createLog(
@@ -155,23 +144,21 @@ class PersonalisationRemoteDataSource {
         final result = NomineeResponseModel.fromJson(resp);
         return Left(Result.success(result));
       } else {
-        return Right(
-          ApiError(message: 'getNominee Failed'),
-        );
+        return Right(ApiError(message: 'getNominee Failed'));
       }
     } catch (e) {
-      return Right(
-        ApiError(message: 'getNominee Failed with Exception $e'),
-      );
+      return Right(ApiError(message: 'getNominee Failed with Exception $e'));
     }
   }
 
   // Delete Nominee
-  Future<Either<Result<String>, ApiError>> deleteNominee(Map<String, dynamic> data,) async {
+  Future<Either<Result<String>, ApiError>> deleteNominee(
+    Map<String, dynamic> data,
+  ) async {
     try {
       final resp = await _apiService.postApi(
-          "${Appurl.baseUrl}/api/v1/nominees/delete",
-          data: data
+        "${Appurl.baseUrl}/api/v1/nominees/delete",
+        data: data,
       );
 
       createLog(
@@ -182,15 +169,44 @@ class PersonalisationRemoteDataSource {
         // final result = NomineeResponseModel.fromJson(resp);
         return Left(Result.success(resp['message']));
       } else {
+        return Right(ApiError(message: 'deleteNominee Failed'));
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'deleteNominee Failed with Exception $e'));
+    }
+  }
+
+  // Update Profile
+  Future<Either<Result<ProfileUpdateModel>, ApiError>> updateProfile(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      // Using postFormData because the API requires 'form-data' for the image file
+      final resp = await _apiService.postFormData(
+        "${Appurl.baseUrl}/api/v1/profile/update",
+        data,
+      );
+
+      createLog(
+        "[Personalisation Remote Data Source] updateProfile Response: $resp",
+      );
+
+      // Checking 'status' as per your Postman response JSON
+      if (resp['status'] == true) {
+        final result = ProfileUpdateModel.fromJson(resp);
+        return Left(Result.success(result));
+      } else {
         return Right(
-          ApiError(message: 'deleteNominee Failed'),
+          ApiError(
+            message:
+                resp['message'] ?? 'Profile Update Failed: Status was false',
+          ),
         );
       }
     } catch (e) {
       return Right(
-        ApiError(message: 'deleteNominee Failed with Exception $e'),
+        ApiError(message: 'Profile Update Failed with Exception $e'),
       );
     }
   }
-
 }

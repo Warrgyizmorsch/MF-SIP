@@ -29,6 +29,7 @@ class UserModel {
   final String? name;
   final String? email;
   final String? mobile;
+  final String? img;
   final String? panCard;
   final String? emailVerifiedAt;
   final String? phoneVerifiedAt;
@@ -38,7 +39,9 @@ class UserModel {
   final String? kycVerifiedAt;
   final String? status;
   final String? riskSlabId;
+  final String? riskScore;
   final RiskProfileModel? riskProfileModel;
+  final CustomerDetailsModel1? customerDetailsModel;
 
   const UserModel({
     this.id,
@@ -46,6 +49,7 @@ class UserModel {
     this.name,
     this.email,
     this.mobile,
+    this.img,
     this.panCard,
     this.emailVerifiedAt,
     this.phoneVerifiedAt,
@@ -56,7 +60,27 @@ class UserModel {
     this.status,
     this.riskSlabId,
     this.riskProfileModel,
+    this.customerDetailsModel,
+    this.riskScore,
   });
+
+  UserModel copyWith({
+    int? id,
+    String? name,
+    String? email,
+    String? mobile,
+    String? image,
+    CustomerDetailsModel1? customerDetails,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      mobile: mobile ?? this.mobile,
+      img: image ?? this.img,
+      customerDetailsModel: customerDetails ?? this.customerDetailsModel,
+    );
+  }
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     final Map<String, dynamic> userData =
@@ -68,6 +92,7 @@ class UserModel {
       name: userData.parse<String>('name'),
       email: userData.parse<String>('email'),
       mobile: userData.parse<String>('mobile'),
+      img: userData.parse<String>('image') ?? userData.parse<String>('img'),
       panCard: userData.parse<String>('pan_card'),
       emailVerifiedAt: userData.parse<String>('email_verified_at'),
       phoneVerifiedAt: userData.parse<String>('phone_verified_at'),
@@ -77,9 +102,14 @@ class UserModel {
       kycVerifiedAt: userData.parse<String>('kyc_verified_at'),
       status: userData.parse<String>('status'),
       riskSlabId: userData.parse<String>('risk_slab_id'),
+      riskScore: userData.parse<String>('risk_score'),
       riskProfileModel: userData.parseNested(
         'risk_profile',
         (e) => RiskProfileModel.fromJson(e),
+      ),
+      customerDetailsModel: userData.parseNested(
+        'customer_details',
+        (e) => CustomerDetailsModel1.fromJson(e),
       ),
     );
   }
@@ -91,6 +121,7 @@ class UserModel {
       'name': name,
       'email': email,
       'mobile': mobile,
+      'image': img,
       'pan_card': panCard,
       'email_verified_at': emailVerifiedAt,
       'phone_verified_at': phoneVerifiedAt,
@@ -100,6 +131,8 @@ class UserModel {
       'kyc_verified_at': kycVerifiedAt,
       'status': status,
       'risk_slab_id': riskSlabId,
+      'risk_profile': riskProfileModel,
+      'customer_details': customerDetailsModel,
     };
   }
 }
@@ -160,6 +193,65 @@ class RiskProfileModel {
       'profile_name': profileName,
       'fixed_income_percent': profileName,
       'equity_percent': equityPercent,
+    };
+  }
+}
+
+class CustomerDetailsModel1 {
+  final int? id;
+  final int? userId;
+  final String? dob;
+  final String? wealthSource;
+  final String? ageGroup;
+  final String? riskAppetite;
+  final String? yearlyIncome;
+  final String? adhar;
+  final String? address;
+  final String? updatedAt;
+  final String? createdAt;
+
+  CustomerDetailsModel1({
+    this.id,
+    this.userId,
+    this.dob,
+    this.wealthSource,
+    this.ageGroup,
+    this.riskAppetite,
+    this.yearlyIncome,
+    this.adhar,
+    this.address,
+    this.updatedAt,
+    this.createdAt,
+  });
+
+  factory CustomerDetailsModel1.fromJson(Map<String, dynamic> json) {
+    return CustomerDetailsModel1(
+      id: json.parse<int>('id'),
+      userId: json.parse<int>('user_id'),
+      dob: json.parse<String>('dob'),
+      wealthSource: json.parse<String>('wealth_source'),
+      ageGroup: json.parse<String>('age_group'),
+      riskAppetite: json.parse<String>('risk_appetite'),
+      yearlyIncome: json.parse<String>('yearly_income'),
+      adhar: json.parse<String>('adhar'),
+      address: json.parse<String>('address'),
+      updatedAt: json.parse<String>('updated_at'),
+      createdAt: json.parse<String>('created_at'),
+    );
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'user_id': userId,
+      'dob': dob,
+      'wealth_source': wealthSource,
+      'age_group': ageGroup,
+      'risk_appetite': riskAppetite,
+      'yearly_income': yearlyIncome,
+      'adhar': adhar,
+      'address': address,
+      'updated_at': updatedAt,
+      'created_at': createdAt,
     };
   }
 }

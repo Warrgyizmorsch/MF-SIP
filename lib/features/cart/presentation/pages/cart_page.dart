@@ -627,6 +627,15 @@ class InvestmentInputsRow extends StatelessWidget {
                         bool hasError =
                             amount < currentMinLimit || amount % 100 != 0;
                         controller.setItemError(itemEntity.id!, hasError);
+                        // final newAmt = int.tryParse(value);
+                        // if (newAmt != null &&
+                        //     newAmt >= currentMinLimit &&
+                        //     newAmt % 100 == 0) {
+                        //   controller.updateCartItem(
+                        //     itemId: itemEntity.id!,
+                        //     amount: newAmt,
+                        //   );
+                        // }
                       },
                       customValidator: (value) {
                         if (value == null || value.trim().isEmpty) {

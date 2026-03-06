@@ -1,9 +1,15 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
+import 'package:my_sip/common/widget/images/custom_cached_image.dart';
+import 'package:my_sip/common/widget/images/image_picker.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/subtitle_section.dart';
 import 'package:my_sip/common/widget/webview/webview.dart';
@@ -38,9 +44,7 @@ class ProfileScreen extends StatelessWidget {
         backIcon: !isDesktop ? false : !isDesktop,
         backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : null,
       ),
-      body: isDesktop
-          ? const _WebProfileDashboard()
-          : const _MobileProfileLayout(),
+      body: isDesktop ? const _WebProfileDashboard() : _MobileProfileLayout(),
     );
   }
 }
@@ -49,11 +53,13 @@ class ProfileScreen extends StatelessWidget {
 // 📱 MOBILE LAYOUT (Your Original Code)
 // ==========================================
 class _MobileProfileLayout extends StatelessWidget {
-  const _MobileProfileLayout();
+  _MobileProfileLayout();
+
+  final controller = Get.find<PersonalisationController>();
 
   @override
   Widget build(BuildContext context) {
-    final user = SessionManager.instance.getUserData;
+    final user = SessionManager.instance.userObs.value;
     return Padding(
       padding: UPadding.screenPadding,
       child: SingleChildScrollView(
@@ -62,13 +68,47 @@ class _MobileProfileLayout extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: kToolbarHeight / 2),
-              ProfileHeader(
-                onTap: () {},
-                name: user?.name,
-                img: UImages.avatar,
-                subtitle: user?.email ?? '',
-                icon: Icons.edit,
-              ),
+              // ProfileHeader(
+              //   onTap: () =>  controller.pickImage,
+              //   name: user?.name,
+              //   img: UImages.avatar,
+              //   subtitle: user?.email ?? '',
+              //   icon: Icons.edit,
+              // ),
+              Obx(() {
+                final user1 = SessionManager.instance.userObs.value;
+
+                final reactiveUser = SessionManager.instance.userObs.value;
+
+                String displayImage = controller.imagePath.isNotEmpty
+                    ? controller.imagePath.value
+                    : (reactiveUser?.img ?? UImages.avatar);
+
+                log(user1?.img ?? ' not ');
+
+                return ProfileHeader(
+                  // onTap: () => controller.pickImage(
+                  //   ImageSource.gallery,
+                  // ), // Trigger image picker
+                  // onTap: () => UImagePicker.showImageSourceOptions(
+                  //   context: context,
+                  //   onImageSelected: (source) => controller.pickImage(source),
+                  // ),
+                  onTap: () => Get.toNamed(AppRoutes.personaldetails),
+                  // img: controller.imagePath.isEmpty
+                  //     ? UImages.avatar
+                  //     : controller.imagePath.toString(),
+                  // img: user!.img == null ? UImages.avatar : user.img.toString(),
+                  // img: controller.imagePath.isEmpty
+                  //     ? (user?.img ?? UImages.avatar)
+                  //     : controller.imagePath.value,
+                  img: displayImage,
+
+                  // : '${Appurl.baseUrl}${personalisationController}',
+                  subtitle: user?.name ?? '',
+                  icon: Icons.edit,
+                );
+              }),
               const SizedBox(height: 20),
               const Upgradebanner(),
               const SizedBox(height: 20),
@@ -611,6 +651,7 @@ class ProfileHeader extends StatelessWidget {
     required this.icon,
     required this.onTap,
   });
+
   final String img;
   final String? name;
   final String subtitle;
@@ -627,8 +668,9 @@ class ProfileHeader extends StatelessWidget {
               onTap: onTap,
               child: Center(
                 child: CircleAvatar(
-                  backgroundImage: AssetImage(img),
                   radius: 60,
+                  backgroundColor: Colors.grey.shade200,
+                  child: ClipOval(child: _buildImage()),
                 ),
               ),
             ),
@@ -637,19 +679,20 @@ class ProfileHeader extends StatelessWidget {
               right: 0,
               bottom: 5,
               child: CircleAvatar(
-                backgroundColor: Ucolors.light,
+                backgroundColor: Colors.white,
                 radius: 14,
-                child: Center(child: Icon(icon, color: Ucolors.dark)),
+                child: Center(child: Icon(icon, color: Colors.black, size: 16)),
               ),
             ),
           ],
         ),
         const SizedBox(height: 10),
-        SectionHeading(
-          sectionTitle: name ?? '',
-          textcolor: Ucolors.dark,
-          fontWeight: FontWeight.w700,
-        ),
+        if (name != null && name!.isNotEmpty) ...[
+          Text(
+            name!,
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+          ),
+        ],
         Text(
           subtitle,
           style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
@@ -657,4 +700,96 @@ class ProfileHeader extends StatelessWidget {
       ],
     );
   }
+
+  Widget _buildImage() {
+    // 1. Handle Network Images
+    if (img.startsWith('http') ||
+        img.startsWith('https') ||
+        img.startsWith('storage/')) {
+      final fullUrl = img.startsWith('storage/')
+          ? "https://sip-backend.londonstreetstore.com/public/$img"
+          : img;
+
+      return Image.network(
+        fullUrl,
+        fit: BoxFit.cover,
+        width: 120,
+        height: 120,
+        errorBuilder: (context, error, stackTrace) =>
+            const Icon(Icons.person, size: 50),
+      );
+    }
+
+    // 2. Handle Local File Images (from Image Picker)
+    if (img.isNotEmpty && File(img).existsSync()) {
+      return Image.file(File(img), fit: BoxFit.cover, width: 120, height: 120);
+    }
+
+    // 3. Default/Asset Image
+    return Image.asset(
+      img.isEmpty ? 'assets/images/avatar.png' : img,
+      fit: BoxFit.cover,
+      width: 120,
+      height: 120,
+    );
+  }
 }
+
+// class ProfileHeader extends StatelessWidget {
+//   const ProfileHeader({
+//     super.key,
+//     required this.img,
+//     this.name,
+//     required this.subtitle,
+//     required this.icon,
+//     required this.onTap,
+//   });
+//   final String img;
+//   final String? name;
+//   final String subtitle;
+//   final IconData icon;
+//   final VoidCallback onTap;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       children: [
+//         Stack(
+//           children: [
+//             GestureDetector(
+//               onTap: onTap,
+//               child: Center(
+//                 child: CircleAvatar(
+//                   radius: 60,
+//                   // child: CustomCachedImage(imageUrl: img),
+//                   // child: Image.asset(img),
+//                   child: ClipOval(child: Image.file(File(img))),
+//                 ),
+//               ),
+//             ),
+//             Positioned(
+//               left: 70,
+//               right: 0,
+//               bottom: 5,
+//               child: CircleAvatar(
+//                 backgroundColor: Ucolors.light,
+//                 radius: 14,
+//                 child: Center(child: Icon(icon, color: Ucolors.dark)),
+//               ),
+//             ),
+//           ],
+//         ),
+//         const SizedBox(height: 10),
+//         SectionHeading(
+//           sectionTitle: name ?? '',
+//           textcolor: Ucolors.dark,
+//           fontWeight: FontWeight.w700,
+//         ),
+//         Text(
+//           subtitle,
+//           style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
+//         ),
+//       ],
+//     );
+//   }
+// }

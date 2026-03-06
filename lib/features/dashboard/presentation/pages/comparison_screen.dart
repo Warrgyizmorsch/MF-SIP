@@ -155,52 +155,52 @@ class BottomBarButton extends StatelessWidget {
     required this.secondButton,
     this.firstButtonP,
     this.secondButtonP,
+    this.isLoading = false, // <--- Add this
   });
 
   final String firstButton;
   final String secondButton;
   final VoidCallback? firstButtonP;
   final VoidCallback? secondButtonP;
+  final bool isLoading; // <--- Add this
 
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewPadding.bottom;
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(
-        16,
-        16,
-        16,
-        // 16 + MediaQuery.of(context).viewPadding.bottom,
-        16 + bottomInset,
-      ),
+      padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
       child: Row(
         children: [
           Expanded(
             child: UElevatedBUtton(
-              onPressed: firstButtonP,
+              onPressed: isLoading ? null : firstButtonP, // Disable if loading
               height: 52,
               outlined: true,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(firstButton, style: TextStyle(color: Ucolors.dark)),
-                ],
+              child: Center(
+                child: Text(firstButton, style: TextStyle(color: Ucolors.dark)),
               ),
             ),
           ),
-          SizedBox(width: 16),
-
+          const SizedBox(width: 16),
           Expanded(
             child: UElevatedBUtton(
-              onPressed: secondButtonP,
-
+              onPressed: isLoading ? null : secondButtonP, // Disable if loading
               height: 52,
-
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [Text(secondButton, style: UTextStyles.buttonText)],
-              ),
+              child: isLoading
+                  ? const SizedBox(
+                      height: 10,
+                      width: 10,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      ),
+                    )
+                  : Center(
+                      child: Text(secondButton, style: UTextStyles.buttonText),
+                    ),
             ),
           ),
         ],
@@ -208,3 +208,64 @@ class BottomBarButton extends StatelessWidget {
     );
   }
 }
+
+// class BottomBarButton extends StatelessWidget {
+//   const BottomBarButton({
+//     super.key,
+//     required this.firstButton,
+//     required this.secondButton,
+//     this.firstButtonP,
+//     this.secondButtonP,
+//   });
+
+//   final String firstButton;
+//   final String secondButton;
+//   final VoidCallback? firstButtonP;
+//   final VoidCallback? secondButtonP;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final bottomInset = MediaQuery.of(context).viewPadding.bottom;
+
+//     return Padding(
+//       padding: EdgeInsets.fromLTRB(
+//         16,
+//         16,
+//         16,
+//         // 16 + MediaQuery.of(context).viewPadding.bottom,
+//         16 + bottomInset,
+//       ),
+//       child: Row(
+//         children: [
+//           Expanded(
+//             child: UElevatedBUtton(
+//               onPressed: firstButtonP,
+//               height: 52,
+//               outlined: true,
+//               child: Row(
+//                 mainAxisAlignment: MainAxisAlignment.center,
+//                 children: [
+//                   Text(firstButton, style: TextStyle(color: Ucolors.dark)),
+//                 ],
+//               ),
+//             ),
+//           ),
+//           SizedBox(width: 16),
+
+//           Expanded(
+//             child: UElevatedBUtton(
+//               onPressed: secondButtonP,
+
+//               height: 52,
+
+//               child: Row(
+//                 mainAxisAlignment: MainAxisAlignment.center,
+//                 children: [Text(secondButton, style: UTextStyles.buttonText)],
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }

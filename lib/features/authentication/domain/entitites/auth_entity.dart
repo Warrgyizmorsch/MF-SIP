@@ -13,7 +13,6 @@ class LoginResponseEntity extends Equatable {
   });
 
   @override
-  // TODO: implement props
   List<Object?> get props => [token, message, userModel];
 }
 
@@ -38,6 +37,7 @@ class UserEntity extends Equatable {
   final String name;
   final String email;
   final String mobile;
+  final String? img;
   final String panCard;
   final String? emailVerifiedAt;
   final String? phoneVerifiedAt;
@@ -47,6 +47,9 @@ class UserEntity extends Equatable {
   final String? kycVerifiedAt;
   final String status;
   final String? riskSlabId;
+  final String? riskScore;
+  final RiskProfileEntity? riskProfileEntity;
+  final CustomerDetailsEntity1? customerDetailsEntity;
 
   const UserEntity({
     required this.id,
@@ -54,6 +57,7 @@ class UserEntity extends Equatable {
     required this.name,
     required this.email,
     required this.mobile,
+    this.img,
     required this.panCard,
     this.emailVerifiedAt,
     this.phoneVerifiedAt,
@@ -63,6 +67,9 @@ class UserEntity extends Equatable {
     this.kycVerifiedAt,
     required this.status,
     this.riskSlabId,
+    this.riskScore,
+    this.riskProfileEntity,
+    this.customerDetailsEntity,
   });
 
   @override
@@ -72,6 +79,7 @@ class UserEntity extends Equatable {
     name,
     email,
     mobile,
+    img,
     panCard,
     emailVerifiedAt,
     phoneVerifiedAt,
@@ -81,7 +89,51 @@ class UserEntity extends Equatable {
     kycVerifiedAt,
     status,
     riskSlabId,
+    riskScore,
+    riskProfileEntity,
+    customerDetailsEntity,
   ];
+}
+
+class RiskProfileEntity extends Equatable {
+  final int? id;
+  final int? minScore;
+  final int? maxScore;
+  final String? profileName;
+  final int? fixesIncomePercent;
+  final int? equityPercent;
+
+  const RiskProfileEntity({
+    required this.id,
+    required this.minScore,
+    required this.maxScore,
+    required this.profileName,
+    required this.fixesIncomePercent,
+    required this.equityPercent,
+  });
+
+  @override
+  List<Object?> get props => [
+    id,
+    minScore,
+    maxScore,
+    profileName,
+    fixesIncomePercent,
+    equityPercent,
+  ];
+}
+
+extension RiskProfileEntityX on RiskProfileModel {
+  RiskProfileEntity toEntity() {
+    return RiskProfileEntity(
+      id: id,
+      minScore: minScore,
+      maxScore: maxScore,
+      profileName: profileName,
+      fixesIncomePercent: fixesIncomePercent,
+      equityPercent: equityPercent,
+    );
+  }
 }
 
 extension LoginResponseEntityx on LoginResponseModel {
@@ -112,6 +164,7 @@ extension UserModelx on UserModel {
       name: name ?? '',
       email: email ?? '',
       mobile: mobile ?? '',
+      img: img,
       panCard: panCard ?? '',
       emailVerifiedAt: emailVerifiedAt,
       phoneVerifiedAt: phoneVerifiedAt,
@@ -121,6 +174,70 @@ extension UserModelx on UserModel {
       kycVerifiedAt: kycVerifiedAt,
       status: status ?? 'inactive',
       riskSlabId: riskSlabId ?? '',
+
+      riskProfileEntity: riskProfileModel?.toEntity(),
+      customerDetailsEntity: customerDetailsModel?.toEntity(),
+    );
+  }
+}
+
+class CustomerDetailsEntity1 extends Equatable {
+  final int? id;
+  final int? userId;
+  final String? dob;
+  final String? wealthSource;
+  final String? ageGroup;
+  final String? riskAppetite;
+  final String? yearlyIncome;
+  final String? adhar;
+  final String? address;
+  final String? updatedAt;
+  final String? createdAt;
+
+  const CustomerDetailsEntity1({
+    required this.id,
+    required this.userId,
+    required this.dob,
+    required this.wealthSource,
+    required this.ageGroup,
+    required this.riskAppetite,
+    required this.yearlyIncome,
+    required this.adhar,
+    required this.address,
+    required this.updatedAt,
+    required this.createdAt,
+  });
+
+  @override
+  List<Object?> get props => [
+    id,
+    userId,
+    dob,
+    wealthSource,
+    ageGroup,
+    riskAppetite,
+    yearlyIncome,
+    adhar,
+    address,
+    updatedAt,
+    createdAt,
+  ];
+}
+
+extension CustomerDetailsEntityX on CustomerDetailsModel1 {
+  CustomerDetailsEntity1 toEntity() {
+    return CustomerDetailsEntity1(
+      id: id,
+      userId: userId,
+      dob: dob,
+      wealthSource: wealthSource,
+      ageGroup: ageGroup,
+      riskAppetite: riskAppetite,
+      yearlyIncome: yearlyIncome,
+      adhar: adhar,
+      address: address,
+      updatedAt: updatedAt,
+      createdAt: createdAt,
     );
   }
 }

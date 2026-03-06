@@ -9,7 +9,6 @@ import 'package:my_sip/services/session_manager.dart';
 import 'core/utils/helper/helpers.dart';
 
 Future<void> main() async {
-  // await SessionManager.instance.initialize();
   try {
     WidgetsFlutterBinding.ensureInitialized();
 

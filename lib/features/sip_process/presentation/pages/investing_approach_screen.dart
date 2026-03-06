@@ -125,20 +125,26 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                                 "Experienced Investor", // Static for now
                               ),
                               const SizedBox(height: 10),
-                              _buildProfileRow(
-                                UImages.logoShield,
-                                "Risk Appetite",
-                                "High", // Static for now
+                              Obx(
+                                () => _buildProfileRow(
+                                  UImages.logoShield,
+                                  "Risk Appetite",
+                                  // "High", // Static for now
+                                  '${session.riskScoreObs.value?.profileName ?? ''}',
+                                ),
                               ),
                               const SizedBox(height: 10),
 
                               // DYNAMIC AMOUNT ROW
-                              Obx(() => _buildProfileRow(
-                                UImages.logoCurrency,
-                                "Monthly SIP",
-                                controller.formatCurrency(
-                                    controller.amount.value),
-                              )),
+                              Obx(
+                                () => _buildProfileRow(
+                                  UImages.logoCurrency,
+                                  "Monthly SIP",
+                                  controller.formatCurrency(
+                                    controller.amount.value,
+                                  ),
+                                ),
+                              ),
                               const SizedBox(height: 10),
                             ],
                           ),
@@ -158,32 +164,36 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                             const SizedBox(height: 10),
 
                             // Option 0: Best Funds
-                            Obx(() => _buildSelectionCard(
-                              index: 0,
-                              isSelected:
-                              controller.selectedApproach.value == 0,
-                              iconPath: UImages.logoHighGrowthFunds,
-                              topText: "Fund Recommendation",
-                              mainText: "Best High Growth Funds",
-                              subText:
-                              "List of funds suggested by mutual fund analysis",
-                              onTap: () => controller.selectApproach(0),
-                            )),
+                            Obx(
+                              () => _buildSelectionCard(
+                                index: 0,
+                                isSelected:
+                                    controller.selectedApproach.value == 0,
+                                iconPath: UImages.logoHighGrowthFunds,
+                                topText: "Fund Recommendation",
+                                mainText: "Best High Growth Funds",
+                                subText:
+                                    "List of funds suggested by mutual fund analysis",
+                                onTap: () => controller.selectApproach(0),
+                              ),
+                            ),
 
                             const SizedBox(height: 10),
 
                             // Option 1: Readymade Portfolio
-                            Obx(() => _buildSelectionCard(
-                              index: 1,
-                              isSelected:
-                              controller.selectedApproach.value == 1,
-                              iconPath: UImages.logoSuggestedPortfolio,
-                              topText: "Readymade Portfolio",
-                              mainText: "Suggested Portfolio",
-                              subText:
-                              "Model portfolio created by expert team",
-                              onTap: () => controller.selectApproach(1),
-                            )),
+                            Obx(
+                              () => _buildSelectionCard(
+                                index: 1,
+                                isSelected:
+                                    controller.selectedApproach.value == 1,
+                                iconPath: UImages.logoSuggestedPortfolio,
+                                topText: "Readymade Portfolio",
+                                mainText: "Suggested Portfolio",
+                                subText:
+                                    "Model portfolio created by expert team",
+                                onTap: () => controller.selectApproach(1),
+                              ),
+                            ),
 
                             const SizedBox(height: 20),
                           ],
@@ -262,10 +272,10 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
           color: isSelected ? null : Colors.white,
           gradient: isSelected
               ? const LinearGradient(
-            colors: [Color(0xFFD7EFFF), Color(0xFFFFFFFF)],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          )
+                  colors: [Color(0xFFD7EFFF), Color(0xFFFFFFFF)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                )
               : null,
           border: Border.all(
             color: isSelected ? Ucolors.primary : Colors.grey,

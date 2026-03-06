@@ -2,6 +2,9 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:dio/dio.dart' as dio;
+import 'package:image_picker/image_picker.dart';
+import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_submit_rq.dart';
 import 'package:my_sip/features/personalization/domain/entity/nominee_entity.dart';
@@ -256,6 +259,9 @@ class PersonalisationController extends GetxController {
   final PersonalisationUseCases _useCases;
   PersonalisationController(this._useCases);
 
+  final panKeyboardType = TextInputType.text.obs;
+  final FocusNode panFocusNode = FocusNode();
+
   // --- State Variables ---
   final isLoading = false.obs;
   final isAnalyzing = false.obs;
@@ -265,7 +271,6 @@ class PersonalisationController extends GetxController {
   final analysisText = "Analyzing your profile...".obs;
   final riskResult = Rxn<RiskResultModel>();
   final applock = false.obs;
-
 
   // --- UI Controllers ---
   final PageController pageController = PageController();
@@ -278,9 +283,29 @@ class PersonalisationController extends GetxController {
   final isNomineeMinor = false.obs;
   final GlobalKey<FormState> nomineeFormKey = GlobalKey<FormState>();
   final nomineeList = Rxn<NomineeResponseEntity>();
-  final nomineeDocumentSelectionList = ["Pan", "Aadhaar", "Driving License", "Passport"];
-  final nomineeRelationSelectionList = ['Aunt', 'Brother-In-Law', 'Brother', 'Daughter', 'Daughter-In-Law', 'Father', 'Father-In-Law', 'Grand Daughter', 'Grand Father', 'Grand Mother', 'Mother', 'Mother-In-Law', 'Son', 'Spouse', 'Testing',];
-
+  final nomineeDocumentSelectionList = [
+    "Pan",
+    "Aadhaar",
+    "Driving License",
+    "Passport",
+  ];
+  final nomineeRelationSelectionList = [
+    'Aunt',
+    'Brother-In-Law',
+    'Brother',
+    'Daughter',
+    'Daughter-In-Law',
+    'Father',
+    'Father-In-Law',
+    'Grand Daughter',
+    'Grand Father',
+    'Grand Mother',
+    'Mother',
+    'Mother-In-Law',
+    'Son',
+    'Spouse',
+    'Testing',
+  ];
 
   final nomineeNameTextEditingController = TextEditingController();
   final nomineeDobTextEditingController = TextEditingController();
@@ -293,21 +318,155 @@ class PersonalisationController extends GetxController {
   final nomineeMinorsGuardianTextEditingController = TextEditingController();
   final nomineeAddressTextEditingController = TextEditingController();
 
+  // ------------------------ Update Profile ---------------------------------------///
+
+  // Observable states
+  final isLoadingPU = false.obs;
+  final imagePath = ''.obs;
+
+  // Form Controllers
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final mobileController = TextEditingController();
+  final panController = TextEditingController();
+  final adharController = TextEditingController();
+  final addressController = TextEditingController();
+  final dobController = TextEditingController();
+  final wealthSource = TextEditingController();
+  final yearlyIncome = TextEditingController();
+
+  // Pick Image Logic
+  Future<void> pickImage(ImageSource source) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: source);
+    if (image != null) {
+      imagePath.value = image.path;
+    }
+  }
+
+  Future<void> updateProfile() async {
+    isLoading.value = true;
+
+    // Prepare Multipart Data
+    final Map<String, dynamic> data = {
+      'name': nameController.text,
+      'email': emailController.text,
+      'mobile': mobileController.text,
+      'pan_card': panController.text,
+      'dob': formatToSqlDate(dobController.text),
+      'address': addressController.text,
+      'adhar': adharController.text,
+      'wealth_source': wealthSource.text,
+      'yearly_income': yearlyIncome.text,
+      'id': session.getUserData?.id, // Matches your Postman test ID
+    };
+
+    if (imagePath.isNotEmpty) {
+      // Use Dio's MultipartFile
+      data['image'] = await dio.MultipartFile.fromFile(
+        imagePath.value,
+        filename: imagePath.value.split('/').last,
+      );
+    }
+
+    final result = await _useCases.updateProfileUsecases.call(data);
+
+    result.fold(
+      (success) async {
+        isLoading.value = false;
+
+        if (success.data != null) {
+          final currentLocalUser = session.getUserData;
+          final apiData = success.data!; // ProfileDataEntity from API
+
+          if (currentLocalUser != null) {
+            // Merge the new data (especially the new image path)
+            final updatedUser = currentLocalUser.copyWith(
+              name: apiData.data?.name,
+              email: apiData.data?.email,
+              image:
+                  apiData.data?.image, // New path: 'storage/profile-images/...'
+              // ... map other fields
+            );
+
+            // Update session and storage
+            await session.updateUserData(updatedUser);
+          }
+
+          imagePath.value = ''; // Reset picker so UI shows network image
+          Get.snackbar("Success", "Profile Updated");
+          Get.back();
+        }
+
+        Get.snackbar("Success", success.data?.message ?? "Profile Updated");
+        // Update local user state if needed
+      },
+      (error) {
+        isLoading.value = false;
+        Get.snackbar("Error", error.message);
+      },
+    );
+  }
+
+  // ------------------------ Update Profile End ---------------------------------------///
 
   double get currentTotalAllocation {
     if (nomineeList.value == null || nomineeList.value!.nominees.isEmpty) {
       return 0.0;
     }
     // Sum up all existing nominees' allocation
-    return nomineeList.value!.nominees
-        .fold(0.0, (sum, item) => sum + item.allocationPercent);
+    return nomineeList.value!.nominees.fold(
+      0.0,
+      (sum, item) => sum + item.allocationPercent,
+    );
   }
 
   double get remainingAllocation => 100.0 - currentTotalAllocation;
+
   @override
   void onInit() {
     super.onInit();
+    panController.addListener(_onPanTextChanged);
     loadRiskQuestions();
+  }
+
+  void _onPanTextChanged() {
+    final text = panController.text;
+
+    // Determine the target keyboard type
+    TextInputType targetType = TextInputType.text;
+    if (text.length >= 5 && text.length < 9) {
+      targetType = TextInputType.number;
+    }
+
+    // If the keyboard type needs to change...
+    if (panKeyboardType.value != targetType) {
+      panKeyboardType.value = targetType; // This triggers the UI Obx to rebuild
+
+      // Force the keyboard to reload safely
+      _reloadKeyboard();
+    }
+  }
+
+  void _reloadKeyboard() {
+    if (panFocusNode.hasFocus) {
+      // 1. Drop focus to hide the current keyboard
+      panFocusNode.unfocus();
+
+      // 2. Wait for the UI to FINISH rebuilding with the new keyboard type
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // 3. Add a tiny delay to let the OS register the keyboard close event
+        Future.delayed(const Duration(milliseconds: 100), () {
+          // Request focus back
+          panFocusNode.requestFocus();
+
+          // Ensure the cursor stays at the end of the text
+          panController.selection = TextSelection.fromPosition(
+            TextPosition(offset: panController.text.length),
+          );
+        });
+      });
+    }
   }
 
   // --- Logic Methods ---
@@ -419,7 +578,6 @@ class PersonalisationController extends GetxController {
     );
   }
 
-
   // Get Nominee
 
   Future<void> getNominee() async {
@@ -439,11 +597,11 @@ class PersonalisationController extends GetxController {
       final result = await _useCases.getNomineeUseCase.call(requestData);
 
       result.fold(
-            (success) {
+        (success) {
           // Success: Update the observable with the Entity
           nomineeList.value = success.data;
         },
-            (failure) {
+        (failure) {
           // Failure: Show error
           nomineeList.value = null;
           Get.snackbar("Error Fetching Nominees", failure.message);
@@ -466,7 +624,8 @@ class PersonalisationController extends GetxController {
     }
 
     // Additional validation for Guardian
-    if (isNomineeMinor.value && nomineeMinorsGuardianTextEditingController.text.isEmpty) {
+    if (isNomineeMinor.value &&
+        nomineeMinorsGuardianTextEditingController.text.isEmpty) {
       Get.snackbar("Required", "Guardian Name is required for minors");
       return;
     }
@@ -484,7 +643,8 @@ class PersonalisationController extends GetxController {
         "name": nomineeNameTextEditingController.text,
         "relation": nomineeRelationTextEditingController.text,
         "dob": nomineeDobTextEditingController.text,
-        "allocation_percent": nomineeAllocationPercentTextEditingController.text,
+        "allocation_percent":
+            nomineeAllocationPercentTextEditingController.text,
         // Send 1 if minor, 0 if not
         "is_minor": isNomineeMinor.value ? 1 : 0,
         "guardian_name": nomineeMinorsGuardianTextEditingController.text,
@@ -498,16 +658,16 @@ class PersonalisationController extends GetxController {
       final result = await _useCases.addNomineeUseCase.call(requestData);
 
       result.fold(
-            (success) {
+        (success) {
           getNominee();
           _clearNomineeFields();
 
           Get.back();
           Get.snackbar("Success", "Nominee added successfully");
 
-              // Get.back();
+          // Get.back();
         },
-            (failure) {
+        (failure) {
           Get.snackbar("Error Adding Nominee", failure.message);
         },
       );
@@ -518,7 +678,6 @@ class PersonalisationController extends GetxController {
       addNomineeLoading.value = false;
     }
   }
-
 
   // Delete Nominee
 
@@ -532,12 +691,12 @@ class PersonalisationController extends GetxController {
       final result = await _useCases.deleteNomineeUseCase.call(requestData);
 
       result.fold(
-            (success) {
+        (success) {
           // 2. Refresh list on success
           getNominee();
           Get.snackbar("Success", "Nominee deleted successfully");
         },
-            (failure) {
+        (failure) {
           Get.snackbar("Error Deleting Nominee", failure.message);
         },
       );
@@ -570,7 +729,8 @@ class PersonalisationController extends GetxController {
     int age = now.year - dob.year;
 
     // Adjust age if birthday hasn't happened yet this year
-    if (now.month < dob.month || (now.month == dob.month && now.day < dob.day)) {
+    if (now.month < dob.month ||
+        (now.month == dob.month && now.day < dob.day)) {
       age--;
     }
 
@@ -582,8 +742,12 @@ class PersonalisationController extends GetxController {
     }
   }
 
+  // On close
+
   @override
   void onClose() {
+    panController.removeListener(_onPanTextChanged);
+    panFocusNode.dispose();
     pageController.dispose();
     super.onClose();
   }

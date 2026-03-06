@@ -373,6 +373,8 @@
 //   }
 // }
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -665,8 +667,9 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                               val,
                             ),
                             customValidator: (value) {
-                              if (value == null || value.isEmpty)
+                              if (value == null || value.isEmpty) {
                                 return "Required";
+                              }
 
                               final enteredAmount = int.tryParse(value) ?? 0;
                               final minAmount = fund.minSipAmount ?? 500;
@@ -827,6 +830,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
     return Obx(() {
       final selectedCount = controller.selectedFunds.length;
       final totalAmount = controller.totalSelectedAmount;
+      final selectedAmount = controller.amount.toDouble();
 
       return Container(
         padding: const EdgeInsets.all(16),
@@ -851,7 +855,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Total SIP Amount ($selectedCount funds)",
+                      "Total Amount ($selectedCount funds)",
                       style: AppTextStyles.bodySmall(
                         color: Colors.grey.shade600,
                       ),
@@ -888,9 +892,50 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                   Expanded(
                     child: UElevatedBUtton(
                       onPressed: controller.proceedToCart,
-                      //  selectedCount > 0
-                      //     ? () => controller.proceedToCart()
-                      //     : null,
+                      // onPressed: () {
+                      //   if (totalAmount < selectedAmount) {
+                      //     // Show the alert box
+                      //     Get.dialog(
+                      //       AlertDialog(
+                      //         shape: RoundedRectangleBorder(
+                      //           borderRadius: BorderRadius.circular(16),
+                      //         ),
+                      //         title: const Text('Amount Mismatch'),
+                      //         content: const Text(
+                      //           'The total amount is less than your selected investment amount. Do you want to proceed anyway?',
+                      //         ),
+                      //         actions: [
+                      //           // Back Button
+                      //           TextButton(
+                      //             onPressed: () {
+                      //               Get.back(); // Closes the dialog
+                      //             },
+                      //             child: const Text(
+                      //               'Back',
+                      //               style: TextStyle(color: Colors.grey),
+                      //             ),
+                      //           ),
+                      //           // Proceed Button
+                      //           TextButton(
+                      //             onPressed: () {
+                      //               Get.back(); // Closes the dialog first
+                      //               controller
+                      //                   .proceedToCart(); // Then executes the cart logic
+                      //             },
+                      //             child: const Text(
+                      //               'Proceed',
+                      //               style: TextStyle(
+                      //                 fontWeight: FontWeight.bold,
+                      //               ),
+                      //             ),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //     );
+                      //   } else {
+                      //     controller.proceedToCart;
+                      //   }
+                      // },
                       child: Center(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
