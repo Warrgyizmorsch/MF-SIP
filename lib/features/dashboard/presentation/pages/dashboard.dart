@@ -704,7 +704,8 @@ class _MobileDashboardLayout extends StatelessWidget {
           floating: false,
           pinned: true,
           flexibleSpace: CustomProfileAppbar(
-            onProfiletap: () => Get.to(() => ProfileScreen()),
+            // onProfiletap: () => Get.to(() => ProfileScreen()),
+            onProfiletap: () => Get.toNamed(AppRoutes.personaldetails),
             backgroundColor: const Color(0xffE8F5FF),
             greetingName: 'Pratik',
             role: 'Developer',

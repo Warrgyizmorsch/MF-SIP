@@ -826,7 +826,8 @@ class _MobileLayout extends StatelessWidget {
                 child: Center(
                   child: CustomProfileAppbar(
                     // onProfiletap: () => navController.selectedIndex.value = 4,
-                    onProfiletap: () => navController.changePage(4),
+                    // onProfiletap: () => navController.changePage(4),
+                    onProfiletap: () => Get.toNamed(AppRoutes.personaldetails),
                     backgroundColor: Colors.transparent,
                     greetingName: authController.user.value?.name ?? '',
                     role: UHelperFunction.getGreetingMsg(),

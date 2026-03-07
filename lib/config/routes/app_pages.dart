@@ -53,6 +53,7 @@ class AppPages {
   static pages() => [
     GetPage(name: AppRoutes.splash, page: () => const SplashScreen()),
     GetPage(name: AppRoutes.home, page: () => HomeScreen()),
+
     GetPage(
       bindings: [
         UBinding(),
@@ -60,7 +61,8 @@ class AppPages {
         Bankbinding(),
         Fundhousebinding(),
         WishlistBinding(),
-        SipProcessBinding()
+        SipProcessBinding(),
+        GoalBinding(),
       ],
       name: AppRoutes.navMenuBar,
       page: () => const NavigationMenuBar(),

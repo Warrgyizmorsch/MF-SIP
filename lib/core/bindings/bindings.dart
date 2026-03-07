@@ -16,6 +16,7 @@ import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_use
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/onboarding/presentation/controller/onboarding_controller.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/questions/question_controller.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 
 import '../../features/authentication/data/datasources/auth_remote_data_source.dart';
 import '../../features/authentication/data/repositories/auth_repository_impl.dart';
@@ -31,6 +32,8 @@ class UBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut(() => NetworkServicesApi());
+
+    Get.lazyPut(() => NavigationBarController(), fenix: true);
 
     // 1. Data Source (Lowest Level)
     Get.lazyPut<AuthRemoteDataSource>(
@@ -112,7 +115,6 @@ class UBinding extends Bindings {
     // 5. Finally, register the Controller
     Get.lazyPut(() => MutualFundController(Get.find()), fenix: true);
 
-
     /////cart bindings
 
     Get.lazyPut<CartRemoteDs>(
@@ -149,9 +151,5 @@ class UBinding extends Bindings {
     // Get.lazyPut(() => GoalSipController(goalUseCases: Get.find<>()), fenix: true);
 
     // Get.lazyPut(() => PersonalisationController(Get.find()));
-
-    
-
-
   }
 }

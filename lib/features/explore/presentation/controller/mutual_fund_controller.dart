@@ -149,6 +149,22 @@ class MutualFundController extends GetxController {
     }
   }
 
+  // 
+  void syncFilterPageParams(Map<String, dynamic> newParams) {
+    // 1. Remove keys managed by the Filter Page to handle unchecked items
+    _currentFilters.remove('amc_id');
+    _currentFilters.remove('scheme_category');
+    _currentFilters.remove('risk_level');
+    _currentFilters.remove('rating');
+    _currentFilters.remove('search'); // Used for index funds only
+
+    // 2. Merge the newly selected parameters from FundhouseController
+    _currentFilters.addAll(newParams);
+
+    // 3. Reset pagination and fetch fresh data
+    _resetAndFetch();
+  }
+
   // void resetToDefault() {
   //   _currentSearchQuery = "";
   //   _currentFilters

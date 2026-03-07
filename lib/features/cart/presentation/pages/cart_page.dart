@@ -412,57 +412,117 @@ class FundHeader extends StatelessWidget {
             ],
           ),
         ),
-
-        Deleteiconwithcontainer(
-          delete: () {
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                // backgroundColor: Ucolors.primary,
-                title: Text('Are you sure ? '),
-                actions: [
-                  TextButton(
-                    onPressed: () => Get.back(),
-                    child: Text(
-                      'No',
-                      style: TextStyle(fontSize: 14, color: Ucolors.blue),
+        Obx(() {
+          // Check if this specific item is the one being deleted
+          bool isDeleting =
+              controller.deletingItemId.value.toString() ==
+              itemEntity.id.toString();
+          return isDeleting
+              ? Container(
+                  height: 40,
+                  width: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(
+                      12.0,
+                    ), // Padding to make spinner small
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
                     ),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      // Get.snackbar(
-                      //   margin: EdgeInsets.symmetric(
-                      //     vertical: 15,
-                      //     horizontal: 15,
-                      //   ),
-                      //   colorText: Ucolors.light,
-                      //   'Remove from cart',
-                      //   // item.fundName.toString(),
-                      //   itemEntity.schemeName ?? '',
+                )
+              : Deleteiconwithcontainer(
+                  containercolor: Colors.redAccent.withOpacity(0.1),
+                  delete: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Are you sure ? '),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Get.back(),
+                            child: const Text(
+                              'No',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Ucolors.blue,
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Get.back();
+                              controller.deleteCartItem(
+                                itemEntity.id ?? 0,
+                                itemEntity.schemeName ?? "",
+                              );
+                            },
+                            child: const Text(
+                              'Yes',
+                              style: TextStyle(fontSize: 14, color: Colors.red),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+        }),
 
-                      //   snackPosition: SnackPosition.BOTTOM,
-                      //   backgroundColor: Ucolors.red,
-                      // );
+        // Deleteiconwithcontainer(
+        //   delete: () {
+        //     showDialog(
+        //       context: context,
+        //       builder: (context) => AlertDialog(
+        //         // backgroundColor: Ucolors.primary,
+        //         title: Text('Are you sure ? '),
+        //         actions: [
+        //           TextButton(
+        //             onPressed: () => Get.back(),
+        //             child: Text(
+        //               'No',
+        //               style: TextStyle(fontSize: 14, color: Ucolors.blue),
+        //             ),
+        //           ),
+        //           TextButton(
+        //             onPressed: () {
+        //               Navigator.of(context).pop();
+        //               // Get.snackbar(
+        //               //   margin: EdgeInsets.symmetric(
+        //               //     vertical: 15,
+        //               //     horizontal: 15,
+        //               //   ),
+        //               //   colorText: Ucolors.light,
+        //               //   'Remove from cart',
+        //               //   // item.fundName.toString(),
+        //               //   itemEntity.schemeName ?? '',
 
-                      // controller.removeItem(index);
-                      controller.deleteCartItem(
-                        itemEntity.id ?? 0,
-                        itemEntity.schemeName ?? "",
-                      );
-                    },
-                    child: Text(
-                      'Yes',
-                      style: TextStyle(fontSize: 14, color: Colors.red),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-          // delete: () => controller.removeItem(index),
-          containercolor: Colors.redAccent.withOpacity(0.1),
-        ),
+        //               //   snackPosition: SnackPosition.BOTTOM,
+        //               //   backgroundColor: Ucolors.red,
+        //               // );
+
+        //               // controller.removeItem(index);
+        //               controller.deleteCartItem(
+        //                 itemEntity.id ?? 0,
+        //                 itemEntity.schemeName ?? "",
+        //               );
+        //             },
+        //             child: Text(
+        //               'Yes',
+        //               style: TextStyle(fontSize: 14, color: Colors.red),
+        //             ),
+        //           ),
+        //         ],
+        //       ),
+        //     );
+        //   },
+        //   // delete: () => controller.removeItem(index),
+        //   containercolor: Colors.redAccent.withOpacity(0.1),
+        // ),
       ],
     );
   }

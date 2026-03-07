@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:my_sip/common/widget/animated/empty_filled.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
@@ -93,7 +94,14 @@ class WatchlistPage extends StatelessWidget {
         final wishlistItems =
             controllerr.wishlistResponseEntity.value?.data ?? [];
         if (wishlistItems.isEmpty) {
-          return const Center(child: Text("No mutual funds in your wishlist"));
+          // return const Center(child: Text("No mutual funds in your wishlist"));
+          return Center(
+            child: AnimatedEmptyState(
+              title: 'Empty Wishlist',
+              message: 'There is no fund in your wishlist',
+              icon: Icons.favorite_border,
+            ),
+          );
         }
 
         return ListView.builder(

@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
+import 'package:my_sip/features/explore/presentation/pages/explore.dart';
+import 'package:my_sip/features/goal/presentation/pages/goal.dart';
+import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import 'package:my_sip/services/session_manager.dart';
@@ -13,20 +17,18 @@ import 'core/utils/constant/images.dart';
 class NavigationBarController extends GetxController {
   static NavigationBarController get instance => Get.find();
 
+  final RxInt selectedIndex = 0.obs;
+
   @override
   void onInit() {
     super.onInit();
-    _syncTabWithUrl();
+    // URL syncing won't apply to nested widgets, but it's safe to leave this 
+    // if you handle deep links manually later.
+    _syncTabWithUrl(); 
   }
 
-  final RxInt selectedIndex = 0.obs;
-
   void _syncTabWithUrl() {
-    // Read the exact URL the user typed in the browser
     String currentRoute = Get.currentRoute;
-
-    // Change the active tab based on the URL string.
-    // We use .contains() instead of == just in case there are query parameters (like ?fundId=123)
     if (currentRoute.contains(AppRoutes.explorePage)) {
       selectedIndex.value = 1;
     } else if (currentRoute.contains(AppRoutes.dashBoardPage)) {
@@ -36,45 +38,91 @@ class NavigationBarController extends GetxController {
     } else if (currentRoute.contains(AppRoutes.profilePage)) {
       selectedIndex.value = 4;
     } else {
-      selectedIndex.value = 0; // Default to Home
+      selectedIndex.value = 0; 
     }
   }
 
   void changePage(int index) {
     if (selectedIndex.value == index) return;
-    selectedIndex.value = index;
-
-    // Use id: 1 to navigate inside the nested area
-    switch (index) {
-      case 0:
-        Get.toNamed(AppRoutes.home, id: 1);
-        break;
-      case 1:
-        Get.toNamed(AppRoutes.explorePage, id: 1);
-        break;
-      case 2:
-        Get.toNamed(AppRoutes.dashBoardPage, id: 1);
-        break;
-      case 3:
-        Get.toNamed(AppRoutes.goalScreen, id: 1);
-        break;
-      case 4:
-        Get.toNamed(AppRoutes.profilePage, id: 1);
-        break; // or AppRoutes.profile
-    }
+    // We NO LONGER use Get.offNamed. 
+    // Just change the value, and the Obx in the UI will instantly swap the widget.
+    selectedIndex.value = index; 
   }
 
-  // Inside NavigationBarController
   void navigateToExploreWithFilter(VoidCallback? filterLogic) {
-    // 1. Update the UI state for the Nav Bar
     changePage(1);
-
-    // 2. Execute the specific filter logic
     if (filterLogic != null) {
       filterLogic();
     }
   }
 }
+
+// class NavigationBarController extends GetxController {
+//   static NavigationBarController get instance => Get.find();
+
+//   @override
+//   void onInit() {
+//     super.onInit();
+//     _syncTabWithUrl();
+//   }
+
+//   final RxInt selectedIndex = 0.obs;
+
+//   void _syncTabWithUrl() {
+//     // Read the exact URL the user typed in the browser
+//     String currentRoute = Get.currentRoute;
+
+//     // Change the active tab based on the URL string.
+//     // We use .contains() instead of == just in case there are query parameters (like ?fundId=123)
+//     if (currentRoute.contains(AppRoutes.explorePage)) {
+//       selectedIndex.value = 1;
+//     } else if (currentRoute.contains(AppRoutes.dashBoardPage)) {
+//       selectedIndex.value = 2;
+//     } else if (currentRoute.contains(AppRoutes.goalScreen)) {
+//       selectedIndex.value = 3;
+//     } else if (currentRoute.contains(AppRoutes.profilePage)) {
+//       selectedIndex.value = 4;
+//     } else {
+//       selectedIndex.value = 0; // Default to Home
+//     }
+//   }
+
+//   void changePage(int index) {
+//     if (selectedIndex.value == index) return;
+//     selectedIndex.value = index;
+
+//     // Use id: 1 to navigate inside the nested area
+//     switch (index) {
+//       case 0:
+//         Get.off(AppRoutes.home, id: 1);
+//         // Get.toNamed(AppRoutes.home, id: 1);
+//         break;
+//       case 1:
+//         Get.off(AppRoutes.explorePage, id: 1);
+//         break;
+//       case 2:
+//         Get.off(AppRoutes.dashBoardPage, id: 1);
+//         break;
+//       case 3:
+//         Get.off(AppRoutes.goalScreen, id: 1);
+//         break;
+//       case 4:
+//         Get.off(AppRoutes.profilePage, id: 1);
+//         break; // or AppRoutes.profile
+//     }
+//   }
+
+//   // Inside NavigationBarController
+//   void navigateToExploreWithFilter(VoidCallback? filterLogic) {
+//     // 1. Update the UI state for the Nav Bar
+//     changePage(1);
+
+//     // 2. Execute the specific filter logic
+//     if (filterLogic != null) {
+//       filterLogic();
+//     }
+//   }
+// }
 
 class NavigationMenuBar extends StatelessWidget {
   const NavigationMenuBar({super.key});
@@ -82,48 +130,76 @@ class NavigationMenuBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Ensure the controller is loaded
-    final controller = Get.put(NavigationBarController());
+    // final controller = Get.put(NavigationBarController());
+    final controller = Get.find<NavigationBarController>();
 
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
     final isTablet = ResponsiveBreakpoints.of(context).equals(TABLET);
 
     return Scaffold(
       body: Row(
+        // key: const ValueKey('MainNavigationRow'),
         children: [
-          if (isDesktop)
-            _DesktopSideNav(isDesktop: isDesktop, isTablet: isTablet),
+          // if (isDesktop)
+          //   _DesktopSideNav(isDesktop: isDesktop, isTablet: isTablet),
+          isDesktop
+              ? _DesktopSideNav(isDesktop: isDesktop, isTablet: isTablet)
+              : const SizedBox.shrink(),
 
-          Expanded(
-            child: Navigator(
-              key: Get.nestedKey(
-                1,
-              ), // Ensure this matches controller.changePage logic
-              initialRoute: AppRoutes.home,
-              onGenerateRoute: (settings) {
-                // Look up the route in your existing AppPages
-                try {
-                  final getPage = AppPages.pages().firstWhere(
-                    (p) => p.name == settings.name,
-                  );
-
-                  return GetPageRoute(
-                    page: getPage.page,
-                    binding: getPage.binding,
-                    bindings: getPage.bindings,
-                    settings: settings,
-                    transition:
-                        Transition.fadeIn, // Optional: smoother tab switch
-                  );
-                } catch (e) {
-                  // Fallback if route not found in AppPages
-                  return GetPageRoute(
-                    page: () => HomeScreen(),
-                    settings: settings,
-                  );
-                }
-              },
-            ),
+              Expanded(
+            // THE ULTIMATE FIX: 
+            // We use Obx to dynamically return the exact screen widget based on the index.
+            // No GetX router, no nested keys, impossible to duplicate!
+            child: Obx(() {
+              switch (controller.selectedIndex.value) {
+                case 0:
+                  return HomeScreen();
+                case 1:
+                  return ExploreScreen();
+                case 2:
+                  return DashboardScreen();
+                case 3:
+                  return GoalScreen();
+                case 4:
+                  return ProfileScreen();
+                default:
+                  return HomeScreen();
+              }
+            }),
           ),
+
+          // Expanded(
+          //   child: Navigator(
+          //     key: Get.nestedKey(
+          //       1,
+          //     ), // Ensure this matches controller.changePage logic
+          //     initialRoute: AppRoutes.home,
+          //     onGenerateRoute: (settings) {
+          //       // Look up the route in your existing AppPages
+          //       try {
+          //         final getPage = AppPages.pages().firstWhere(
+          //           (p) => p.name == settings.name,
+          //         );
+
+          //         return GetPageRoute(
+          //           page: getPage.page,
+          //           binding: getPage.binding,
+          //           bindings: getPage.bindings,
+          //           settings: settings,
+          //           transition:
+          //               Transition.fadeIn, // Optional: smoother tab switch
+          //         );
+          //       } catch (e) {
+          //         // Fallback if route not found in AppPages
+          //         return GetPageRoute(
+          //           page: () => HomeScreen(),
+          //           settings: settings,
+          //         );
+          //       }
+          //     },
+          //   ),
+          // ),
+       
         ],
       ),
       bottomNavigationBar: (isDesktop) ? null : const _MobileBottomNavBar(),

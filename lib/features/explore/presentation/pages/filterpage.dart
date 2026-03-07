@@ -1503,133 +1503,147 @@ class _FilterpageState extends State<Filterpage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBarNormal(
-        title: 'Filters',
-        actionsPadding: 15,
-        action: [
-          Obx(
-            () => InkWell(
-              onTap: () => controller.clearAllFilters(),
-              child: Text(
-                'Clear all',
-                style: UTextStyles.caption.copyWith(
-                  color: controller.isFilterActive
-                      ? Ucolors.primary
-                      : Colors.grey,
-                  decoration: TextDecoration.underline,
+    return PopScope(
+      canPop: true, // Allow natural back navigation
+      onPopInvoked: (bool didPop) {
+        // 2. Grab the current selected checkboxes/filters
+        final params = controller.buildParam();
+
+        // 3. Send them to MutualFundController to update the main list
+        if (Get.isRegistered<MutualFundController>()) {
+          Get.find<MutualFundController>().syncFilterPageParams(params);
+        }
+      },
+
+      child: Scaffold(
+        appBar: CustomAppBarNormal(
+          title: 'Filters',
+          actionsPadding: 15,
+          action: [
+            Obx(
+              () => InkWell(
+                onTap: () => controller.clearAllFilters(),
+                child: Text(
+                  'Clear all',
+                  style: UTextStyles.caption.copyWith(
+                    color: controller.isFilterActive
+                        ? Ucolors.primary
+                        : Colors.grey,
+                    decoration: TextDecoration.underline,
+                  ),
                 ),
               ),
             ),
+          ],
+          bottom: const PreferredSize(
+            preferredSize: Size.fromHeight(1),
+            child: Divider(height: 0),
           ),
-        ],
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 0),
         ),
-      ),
-      body: Row(
-        children: [
-          /// LEFT MENU - Refactored to show active selection counts
-          Container(
-            width: 130,
-            decoration: const BoxDecoration(
-              border: Border(right: BorderSide(color: Colors.black12)),
-            ),
-            child: ListView.separated(
-              separatorBuilder: (context, index) =>
-                  DashedLine(color: Ucolors.borderColor, dashSpace: 0),
-              itemCount: leftMenu.length,
-              itemBuilder: (context, index) {
-                return Obx(() {
-                  final isSelected = selectedMenuIndex == index;
+        body: Row(
+          children: [
+            /// LEFT MENU - Refactored to show active selection counts
+            Container(
+              width: 130,
+              decoration: const BoxDecoration(
+                border: Border(right: BorderSide(color: Colors.black12)),
+              ),
+              child: ListView.separated(
+                separatorBuilder: (context, index) =>
+                    DashedLine(color: Ucolors.borderColor, dashSpace: 0),
+                itemCount: leftMenu.length,
+                itemBuilder: (context, index) {
+                  return Obx(() {
+                    final isSelected = selectedMenuIndex == index;
 
-                  // Calculate count based on controller lists
-                  int activeCount = 0;
-                  if (index == 0)
-                    activeCount = controller.selectedSchemeTypes.length;
-                  if (index == 1) activeCount = controller.selectedRisks.length;
-                  // if (index == 2)
-                  //   activeCount = controller.selectedRating.value != null
-                  //       ? 1
-                  //       : 0;
-                  if (index == 2)
-                    activeCount = controller.selectedAmcIds.length;
+                    // Calculate count based on controller lists
+                    int activeCount = 0;
+                    if (index == 0)
+                      activeCount = controller.selectedSchemeTypes.length;
+                    if (index == 1)
+                      activeCount = controller.selectedRisks.length;
+                    // if (index == 2)
+                    //   activeCount = controller.selectedRating.value != null
+                    //       ? 1
+                    //       : 0;
+                    if (index == 2)
+                      activeCount = controller.selectedAmcIds.length;
 
-                  return InkWell(
-                    onTap: () {
-                      setState(() {
-                        selectedMenuIndex = index;
-                      });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 18,
-                        horizontal: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isSelected ? Colors.transparent : Colors.white,
-                        border: Border(
-                          left: BorderSide(
-                            color: isSelected
-                                ? Ucolors.primary
-                                : Colors.transparent,
-                            width: 4,
-                          ),
+                    return InkWell(
+                      onTap: () {
+                        setState(() {
+                          selectedMenuIndex = index;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 18,
+                          horizontal: 12,
                         ),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              leftMenu[index],
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: isSelected
-                                    ? Ucolors.primary
-                                    : const Color(0xff4C4B50),
-                                fontWeight: isSelected
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
-                              ),
+                        decoration: BoxDecoration(
+                          color: isSelected ? Colors.transparent : Colors.white,
+                          border: Border(
+                            left: BorderSide(
+                              color: isSelected
+                                  ? Ucolors.primary
+                                  : Colors.transparent,
+                              width: 4,
                             ),
                           ),
-                          if (activeCount > 0)
-                            CircleAvatar(
-                              radius: 9,
-                              backgroundColor: Ucolors.primary,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
                               child: Text(
-                                '$activeCount',
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.white,
+                                leftMenu[index],
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: isSelected
+                                      ? Ucolors.primary
+                                      : const Color(0xff4C4B50),
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
                                 ),
                               ),
                             ),
-                        ],
+                            if (activeCount > 0)
+                              CircleAvatar(
+                                radius: 9,
+                                backgroundColor: Ucolors.primary,
+                                child: Text(
+                                  '$activeCount',
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                });
-              },
+                    );
+                  });
+                },
+              ),
             ),
-          ),
 
-          /// RIGHT PANEL
-          Expanded(child: _buildRightPanel()),
-        ],
-      ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Obx(
-            () => UElevatedBUtton(
-              onPressed: () => Get.back(result: controller.buildParam()),
-              child: Center(
-                child: Text(
-                  'View All ${controller.selectedFundCount}',
-                  style: TextStyle(color: Ucolors.light),
+            /// RIGHT PANEL
+            Expanded(child: _buildRightPanel()),
+          ],
+        ),
+        bottomNavigationBar: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Obx(
+              () => UElevatedBUtton(
+                onPressed: () => Get.back(result: controller.buildParam()),
+                child: Center(
+                  child: Text(
+                    'View All ${controller.selectedFundCount}',
+                    style: TextStyle(color: Ucolors.light),
+                  ),
                 ),
               ),
             ),

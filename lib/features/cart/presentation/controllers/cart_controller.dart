@@ -48,6 +48,7 @@ class CartController extends GetxController {
     );
   }
 
+  // Variable 
   int get itemsCount => cartResponseEntity.value?.items.length ?? 0;
 
   final RxBool isSyncing = false.obs; // Tracks background API calls
@@ -66,6 +67,9 @@ class CartController extends GetxController {
   final filterGoalId = RxnInt();
 
   final RxMap<int, bool> itemErrors = <int, bool>{}.obs;
+
+  //Tracks which specific item is currently being deleted
+  final RxInt deletingItemId = (-1).obs;
 
   // This is what the UI above is now listening to
   // This is the data source for your Cart Page ListView
@@ -558,45 +562,107 @@ class CartController extends GetxController {
     );
   }
 
-  // / --- REFACTORED DELETE (Optimistic UI) ---
   Future<void> deleteCartItem(int itemId, String schemeName) async {
-    final originalState = cartResponseEntity.value;
-
-    // 1. Optimistic Update: Remove item from local list immediately
-    if (cartResponseEntity.value != null) {
-      final updatedItems = cartResponseEntity.value!.items
-          .where((item) => item.id != itemId)
-          .toList();
-
-      cartResponseEntity.value = cartResponseEntity.value!.copyWith(
-        items: updatedItems,
-      );
-      cartResponseEntity.refresh();
+    // Safety check: If ID is null/0, the spinner won't show because 0 != null.
+    if (itemId == 0) {
+      Get.snackbar("Error", "Invalid Item ID. Cannot delete.");
+      return;
     }
 
-    // showCustomToast(
-    //   title: 'Removed',
-    //   message: schemeName,
-    //   backgroundColor: Colors.red,
-    //   icon: Icons.delete,
-    // );
+    try {
+      log("🟢 START DELETING ITEM ID: $itemId");
+      
+      // 1. Start loading state (This triggers the Obx spinner)
+      deletingItemId.value = itemId;
 
-    // 2. Background API Call
-    final result = await cartUsecases.deleteCartItemUsecases.call({
-      "item_id": itemId,
-    });
+      // 2. Background API Call
+      final result = await cartUsecases.deleteCartItemUsecases.call({
+        "item_id": itemId, // Ensure this key matches your API requirement
+      });
 
-    result.fold(
-      (success) async {
-        await fetchCart(); // Refresh summary/totals
-      },
-      (failure) {
-        // Rollback on failure
-        cartResponseEntity.value = originalState;
-        Get.snackbar("Error", "Could not remove item. Reverting...");
-      },
-    );
+      result.fold(
+        (success) async {
+          log("🟢 API DELETE SUCCESS");
+          
+          // 3. Remove item from local list instantly
+          if (cartResponseEntity.value != null) {
+            final updatedItems = cartResponseEntity.value!.items
+                .where((item) => item.id != itemId)
+                .toList();
+
+            cartResponseEntity.value = cartResponseEntity.value!.copyWith(
+              items: updatedItems,
+            );
+            cartResponseEntity.refresh(); // Tell UI to rebuild list
+          }
+
+          // 4. Show custom toast
+          showCustomToast(
+            title: 'Removed',
+            message: schemeName,
+            backgroundColor: Colors.red.shade700,
+            icon: Icons.delete_outline,
+          );
+
+          // 5. Refresh totals from server in background
+          await fetchCart(); 
+        },
+        (failure) {
+          log("🔴 API DELETE FAILED: ${failure.message}");
+          Get.snackbar("Error", failure.message.toString());
+        },
+      );
+    } catch (e) {
+      // If the API throws a raw exception, it lands here
+      log("🔴 RAW EXCEPTION DURING DELETE: $e");
+      Get.snackbar("Error", "Something went wrong: $e");
+    } finally {
+      // 6. THIS IS CRUCIAL: Always stop the spinner, even on error!
+      log("⚪ END DELETING STATE");
+      deletingItemId.value = -1;
+    }
   }
+
+  // // / --- REFACTORED DELETE (Optimistic UI) ---
+  // Future<void> deleteCartItem(int itemId, String schemeName) async {
+  //   final originalState = cartResponseEntity.value;
+
+  //   // 1. Optimistic Update: Remove item from local list immediately
+  //   if (cartResponseEntity.value != null) {
+  //     final updatedItems = cartResponseEntity.value!.items
+  //         .where((item) => item.id != itemId)
+  //         .toList();
+
+  //     cartResponseEntity.value = cartResponseEntity.value!.copyWith(
+  //       items: updatedItems,
+  //     );
+  //     cartResponseEntity.refresh();
+  //   }
+
+  //   // showCustomToast(
+  //   //   title: 'Removed',
+  //   //   message: schemeName,
+  //   //   backgroundColor: Colors.red,
+  //   //   icon: Icons.delete,
+  //   // );
+
+  //   // 2. Background API Call
+  //   final result = await cartUsecases.deleteCartItemUsecases.call({
+  //     "item_id": itemId,
+  //   });
+
+  //   result.fold(
+  //     (success) async {
+  //       await fetchCart(); // Refresh summary/totals
+  //     },
+  //     (failure) {
+  //       // Rollback on failure
+  //       cartResponseEntity.value = originalState;
+  //       Get.snackbar("Error", "Could not remove item. Reverting...");
+  //     },
+  //   );
+  // }
+  
   // Inside CartController
 
   // bool isCartValid() {

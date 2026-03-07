@@ -55,53 +55,55 @@ class CustomProfileAppbar extends StatelessWidget
       //Profile Details
       title: kIsWeb
           ? SizedBox.shrink()
-          : Row(
-              children: [
-                InkWell(
-                  onTap: onProfiletap,
-
-                  //avatar
-                  child: CircleAvatar(
+          : InkWell(
+              onTap: onProfiletap,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircleAvatar(
                     // backgroundColor: Colors.pink,
                     backgroundImage: avatar ?? AssetImage(UImages.imp),
 
                     child: img,
                   ),
-                ),
-                const SizedBox(width: 5),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    //Greeting
-                    Text(
-                      UHelperFunction.getGreetingMsg(),
+                  const SizedBox(width: 5),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      //Greeting
+                      Text(
+                        UHelperFunction.getGreetingMsg(),
 
-                      textAlign: TextAlign.start,
-                      style: UTextStyles.subtitle1.copyWith(
-                        color: roleColor ?? Ucolors.dark,
-                        fontSize: 10,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        //Name
-                        Text(
-                          // greetingName,
-                          user?.name ?? '',
-                          style: UTextStyles.heading1.copyWith(
-                            fontSize: 14,
-                            color: greetingNameColor,
-                          ),
+                        textAlign: TextAlign.start,
+                        style: UTextStyles.subtitle1.copyWith(
+                          color: roleColor ?? Ucolors.dark,
+                          fontSize: 10,
                         ),
-                        const SizedBox(width: 5),
+                      ),
+                      Row(
+                        children: [
+                          //Name
+                          Text(
+                            // greetingName,
+                            user?.name ?? '',
+                            style: UTextStyles.heading1.copyWith(
+                              fontSize: 14,
+                              color: greetingNameColor,
+                            ),
+                          ),
+                          const SizedBox(width: 5),
 
-                        Icon(Icons.keyboard_arrow_down_sharp, color: iconColor),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
+                          Icon(
+                            Icons.keyboard_arrow_down_sharp,
+                            color: iconColor,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
     );
   }
