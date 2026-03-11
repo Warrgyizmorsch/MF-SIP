@@ -5,6 +5,7 @@ import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/cart/data/model/cart_list_model.dart';
+import 'package:my_sip/services/session_manager.dart';
 
 class CartRemoteDs {
   final NetworkServicesApi networkServicesApi;
@@ -19,6 +20,9 @@ class CartRemoteDs {
       final res = await networkServicesApi.postApi(
         "${Appurl.baseUrl}/api/v1/addcart",
         data: data,
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
       );
 
       createLog("[Add to cart Remote Data Source]  Response: $res");
@@ -42,8 +46,11 @@ class CartRemoteDs {
   ) async {
     try {
       final res = await networkServicesApi.getApi(
-        "${Appurl.baseUrl}/api/v1/cart/get-by-user",
+        "${Appurl.baseUrl}/api/v1/cart",
         data: data,
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
       );
 
       createLog("[Get details cart Remote Data Source]  Response: $res");
@@ -63,7 +70,7 @@ class CartRemoteDs {
     }
   }
 
-  ///Update cart 
+  ///Update cart
   Future<Either<Result<String>, ApiError>> updateCart(
     Map<String, dynamic> data,
   ) async {
@@ -71,6 +78,9 @@ class CartRemoteDs {
       final res = await networkServicesApi.postApi(
         "${Appurl.baseUrl}/api/v1/cart/update-item",
         data: data,
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
       );
 
       createLog("[Update to cart Remote Data Source]  Response: $res");
@@ -84,12 +94,13 @@ class CartRemoteDs {
         );
       }
     } catch (e) {
-      return Right(ApiError(message: 'Update to cart Failed with Exception $e'));
+      return Right(
+        ApiError(message: 'Update to cart Failed with Exception $e'),
+      );
     }
   }
 
-
-  //Delete Item from cart 
+  //Delete Item from cart
   Future<Either<Result<String>, ApiError>> deleteCartItem(
     Map<String, dynamic> data,
   ) async {
@@ -97,6 +108,9 @@ class CartRemoteDs {
       final res = await networkServicesApi.postApi(
         "${Appurl.baseUrl}/api/v1/cart/delete-item",
         data: data,
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
       );
 
       createLog("[Delete Item from cart Remote Data Source]  Response: $res");
@@ -110,8 +124,9 @@ class CartRemoteDs {
         );
       }
     } catch (e) {
-      return Right(ApiError(message: 'Delete to cart Failed with Exception $e'));
+      return Right(
+        ApiError(message: 'Delete to cart Failed with Exception $e'),
+      );
     }
   }
-
 }

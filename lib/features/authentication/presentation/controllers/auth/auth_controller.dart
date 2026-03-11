@@ -39,7 +39,7 @@ class AuthController extends GetxController {
   final phoneFocusNode = FocusNode();
 
   // -- Timer State --
-  final RxInt remainingSeconds = 10.obs;
+  final RxInt remainingSeconds = 60.obs;
   final RxBool isResendEnabled = false.obs;
   Timer? _timer;
 
@@ -64,7 +64,7 @@ class AuthController extends GetxController {
 
   void startResendTimer() {
     isResendEnabled.value = false;
-    remainingSeconds.value = 10;
+    remainingSeconds.value = 60;
     _timer?.cancel();
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {

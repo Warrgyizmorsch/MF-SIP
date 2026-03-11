@@ -5,7 +5,10 @@ import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/features/kyc/data/model/bank_verification_model.dart';
+import 'package:my_sip/features/kyc/data/model/contractPdf_model.dart';
+import 'package:my_sip/features/kyc/data/model/create_esign_url_model.dart';
 import 'package:my_sip/features/kyc/data/model/file_upload_model.dart';
+import 'package:my_sip/features/kyc/data/model/get_esign_data_model.dart';
 import 'package:my_sip/features/kyc/data/model/poi_step_1_model.dart';
 import 'package:my_sip/features/personalization/data/model/bank_model.dart';
 import 'package:my_sip/services/session_manager.dart';
@@ -59,7 +62,7 @@ class KycRemoteDataSource {
           'Content-Type': 'application/json',
           // 'Authorization': sessionManager.getTokenData?.id ?? ''
           'Authorization':
-              'W20WzLyK9lssRsSlOuoXFDzE1BGYDEyJMbdUd845sCd2ROzQcFILNYhAOU6CmPmA',
+              'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
         },
       );
 
@@ -93,7 +96,9 @@ class KycRemoteDataSource {
         data: data,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': sessionManager.getTokenData?.id ?? '',
+          // 'Authorization': sessionManager.getTokenData?.id ?? '',
+          'Authorization':
+              'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
         },
       );
 
@@ -125,7 +130,9 @@ class KycRemoteDataSource {
         data: data,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': sessionManager.getTokenData?.id ?? '',
+          // 'Authorization': sessionManager.getTokenData?.id ?? '',
+          'Authorization':
+              'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
         },
       );
 
@@ -153,7 +160,9 @@ class KycRemoteDataSource {
         data: data,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': sessionManager.getTokenData?.id ?? '',
+          // 'Authorization': sessionManager.getTokenData?.id ?? '',
+          'Authorization':
+              'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
         },
       );
 
@@ -181,7 +190,9 @@ class KycRemoteDataSource {
         data: data,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': sessionManager.getTokenData?.id ?? '',
+          // 'Authorization': sessionManager.getTokenData?.id ?? '',
+          'Authorization':
+              'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
         },
       );
 
@@ -252,7 +263,11 @@ class KycRemoteDataSource {
         fields: data,
         files: files,
         fileNames: fileNames,
-        headers: {'Authorization': sessionManager.getTokenData?.id ?? ''},
+        headers: {
+          // 'Authorization': sessionManager.getTokenData?.id ?? ''
+          'Authorization':
+              'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
+        },
       );
 
       createLog("[Kyc Remote Data Source] uploadToSignZy Response: $resp");
@@ -297,6 +312,96 @@ class KycRemoteDataSource {
       }
     } catch (e) {
       return Right(ApiError(message: 'getTokenData Failed with Exception $e'));
+    }
+  }
+
+  // Create Contract PDF URL
+  Future<Either<Result<CreatePdfModel>, ApiError>> createPdf(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final resp = await _apiService.postApi(
+        "${Appurl.kycUrl}/api/onboardings/execute",
+        data: data,
+        headers: {
+          'Content-Type': 'application/json',
+          // 'Authorization': sessionManager.getTokenData?.id ?? ''
+          'Authorization':
+              'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
+        },
+      );
+
+      if (resp != null && resp['object'] != null) {
+        final result = CreatePdfModel.fromJson(resp);
+        return Left(Result.success(result));
+      } else {
+        return Right(
+          ApiError(message: 'createPdf Failed: Invalid response structure'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'createPdf Failed with Exception $e'));
+    }
+  }
+
+  // Generate Aadhaar Esign URL
+  Future<Either<Result<CreateEsignUrlModel>, ApiError>> createEsignUrl(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final resp = await _apiService.postApi(
+        "${Appurl.kycUrl}/api/onboardings/execute",
+        data: data,
+        headers: {
+          'Content-Type': 'application/json',
+          // 'Authorization': sessionManager.getTokenData?.id ?? '',
+          'Authorization':
+              'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
+        },
+      );
+
+      if (resp != null && resp['object'] != null) {
+        final result = CreateEsignUrlModel.fromJson(resp);
+        return Left(Result.success(result));
+      } else {
+        return Right(
+          ApiError(
+            message: 'createEsignUrl Failed: Invalid response structure',
+          ),
+        );
+      }
+    } catch (e) {
+      return Right(
+        ApiError(message: 'createEsignUrl Failed with Exception $e'),
+      );
+    }
+  }
+
+  //Save Aadhaar Esign Signed PDF
+  Future<Either<Result<GetEsignDataModel>, ApiError>> getEsignData(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final resp = await _apiService.postApi(
+        "${Appurl.kycUrl}/api/onboardings/execute",
+        data: data,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization':
+              'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
+        },
+      );
+
+      if (resp != null && resp['object'] != null) {
+        final result = GetEsignDataModel.fromJson(resp);
+        return Left(Result.success(result));
+      } else {
+        return Right(
+          ApiError(message: 'getEsignData Failed: Invalid response structure'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'getEsignData Failed with Exception $e'));
     }
   }
 }

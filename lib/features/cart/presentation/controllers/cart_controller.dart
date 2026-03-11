@@ -48,7 +48,7 @@ class CartController extends GetxController {
     );
   }
 
-  // Variable 
+  // Variable
   int get itemsCount => cartResponseEntity.value?.items.length ?? 0;
 
   final RxBool isSyncing = false.obs; // Tracks background API calls
@@ -240,6 +240,8 @@ class CartController extends GetxController {
     int? goalId, {
     String transType = 'sip',
   }) async {
+    log(SessionManager.instance.jwtRefreshToken.toString());
+
     HapticFeedback.successNotification();
     // 1. DUPLICATE CHECK: Verify if fund already exists in local state
     bool alreadyInCart =
@@ -571,7 +573,7 @@ class CartController extends GetxController {
 
     try {
       log("🟢 START DELETING ITEM ID: $itemId");
-      
+
       // 1. Start loading state (This triggers the Obx spinner)
       deletingItemId.value = itemId;
 
@@ -583,7 +585,7 @@ class CartController extends GetxController {
       result.fold(
         (success) async {
           log("🟢 API DELETE SUCCESS");
-          
+
           // 3. Remove item from local list instantly
           if (cartResponseEntity.value != null) {
             final updatedItems = cartResponseEntity.value!.items
@@ -605,7 +607,7 @@ class CartController extends GetxController {
           );
 
           // 5. Refresh totals from server in background
-          await fetchCart(); 
+          await fetchCart();
         },
         (failure) {
           log("🔴 API DELETE FAILED: ${failure.message}");
@@ -662,7 +664,7 @@ class CartController extends GetxController {
   //     },
   //   );
   // }
-  
+
   // Inside CartController
 
   // bool isCartValid() {

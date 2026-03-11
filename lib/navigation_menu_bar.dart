@@ -22,9 +22,9 @@ class NavigationBarController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // URL syncing won't apply to nested widgets, but it's safe to leave this 
+    // URL syncing won't apply to nested widgets, but it's safe to leave this
     // if you handle deep links manually later.
-    _syncTabWithUrl(); 
+    _syncTabWithUrl();
   }
 
   void _syncTabWithUrl() {
@@ -38,19 +38,20 @@ class NavigationBarController extends GetxController {
     } else if (currentRoute.contains(AppRoutes.profilePage)) {
       selectedIndex.value = 4;
     } else {
-      selectedIndex.value = 0; 
+      selectedIndex.value = 0;
     }
   }
 
   void changePage(int index) {
     if (selectedIndex.value == index) return;
-    // We NO LONGER use Get.offNamed. 
+    // We NO LONGER use Get.offNamed.
     // Just change the value, and the Obx in the UI will instantly swap the widget.
-    selectedIndex.value = index; 
+    selectedIndex.value = index;
   }
 
   void navigateToExploreWithFilter(VoidCallback? filterLogic) {
     changePage(1);
+    // Get.toNamed(AppRoutes.explorePage);
     if (filterLogic != null) {
       filterLogic();
     }
@@ -146,8 +147,8 @@ class NavigationMenuBar extends StatelessWidget {
               ? _DesktopSideNav(isDesktop: isDesktop, isTablet: isTablet)
               : const SizedBox.shrink(),
 
-              Expanded(
-            // THE ULTIMATE FIX: 
+          Expanded(
+            // THE ULTIMATE FIX:
             // We use Obx to dynamically return the exact screen widget based on the index.
             // No GetX router, no nested keys, impossible to duplicate!
             child: Obx(() {
@@ -199,7 +200,6 @@ class NavigationMenuBar extends StatelessWidget {
           //     },
           //   ),
           // ),
-       
         ],
       ),
       bottomNavigationBar: (isDesktop) ? null : const _MobileBottomNavBar(),
