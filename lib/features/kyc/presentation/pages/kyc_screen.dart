@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +14,7 @@ import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/core/utils/enums/enums.dart';
 import 'package:my_sip/features/kyc/presentation/controllers/kyc_controller.dart';
+import 'package:my_sip/services/session_manager.dart';
 import '../../../../common/widget/showbottomsheet/datepicker.dart';
 import '../../../../core/utils/helper/helpers.dart';
 import '../widgets/tax_status_slider_widget.dart';
@@ -120,7 +123,7 @@ class KycScreen extends GetView<KycController> {
             //   buttonText = "Proceed to E-Sign";
             // }
             else if (controller.currentStep.value == 7) {
-              buttonText = "Generate & Sign Contract"; // Final Action
+              buttonText = "Generate & eSign Contract"; // Final Action
             }
             // else if (controller.currentStep.value == 6) {
             //   buttonText = "Finish KYC";
@@ -521,6 +524,7 @@ class KycScreen extends GetView<KycController> {
                           // Update the observable when user selects an item
                           onChanged: (val) =>
                               controller.selectedOccupation.value = val,
+                          search: false,
                         ),
 
                         // Check the observable variable for immediate UI update
@@ -543,6 +547,7 @@ class KycScreen extends GetView<KycController> {
                     ),
                   ),
                   _buildPicker(
+                    search: false,
                     context,
                     "Wealth Source",
                     controller.wealthSourceList,
@@ -554,6 +559,20 @@ class KycScreen extends GetView<KycController> {
                     "Income Slab",
                     controller.incomeSlabList,
                     controller.incomeSlabTextEditingController,
+                    search: false,
+                  ),
+                  _buildPicker(
+                    context,
+                    "Marital Status",
+                    controller.maritalList,
+                    TextEditingController(),
+
+                    onChanged: (val) {
+                      controller.selectedMaritalStatus.value = val;
+                      log(controller.selectedMaritalStatus.toString());
+                    },
+
+                    search: false,
                   ),
 
                   CustomTextField(
@@ -576,6 +595,11 @@ class KycScreen extends GetView<KycController> {
                       LengthLimitingTextInputFormatter(6),
                     ],
                   ),
+                  // SelectionPickerWidget(
+                  //   title: "Marital Status",
+                  //   options: controller.maritalList,
+                  //   selectedValue: controller.selectedMaritalStatus,
+                  // ),
                 ],
               ),
             ),
@@ -968,11 +992,11 @@ class KycScreen extends GetView<KycController> {
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Column(
         children: [
-          const SizedBox(height: 50),
+          // const SizedBox(height: 50),
           SvgPicture.asset(UImages.appLogo, height: 40),
-          const SizedBox(height: 30),
+          const SizedBox(height: 15),
           Text("Upload Documents", style: AppTextStyles.h3()),
-          const SizedBox(height: 40),
+          const SizedBox(height: 20),
 
           // --- UPLOAD AREA START ---
           Material(
@@ -1013,11 +1037,21 @@ class KycScreen extends GetView<KycController> {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        CustomCachedImage(
-                          imageUrl: controller
-                              .signatureUploadResponse
-                              .value!
-                              .directURL,
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(18),
+
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: double.infinity,
+                            child: CustomCachedImage(
+                              // fit: BoxFit.cover,
+                              fit: BoxFit.contain,
+                              imageUrl: controller
+                                  .signatureUploadResponse
+                                  .value!
+                                  .directURL,
+                            ),
+                          ),
                         ),
                         // Display Image from URL
                         // ClipRRect(
@@ -1132,8 +1166,160 @@ class KycScreen extends GetView<KycController> {
             }),
           ),
 
+          const SizedBox(height: 30), // Spacing between the two boxes
+          // --- NEW: LIVE PHOTO CAPTURE AREA ---
+          Material(
+            color: Colors.transparent,
+            child: Obx(() {
+              // 1. LOADING STATE
+              if (controller.isUploadingPhoto.value) {
+                return Container(
+                  width: double.infinity,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    color: Ucolors.blue.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: Ucolors.blue.withOpacity(0.4),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: const Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              // 2. SUCCESS STATE (Show Captured Image)
+              if (controller.photoUploadSuccess.value &&
+                  controller.userPhotoBytes.value != null) {
+                return InkWell(
+                  onTap: () =>
+                      controller.captureAndUploadPhoto(), // Retake photo
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    width: double.infinity,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.green, width: 2),
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Show raw bytes directly from device (faster than network image)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(18),
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: double.infinity,
+                            child: Image.memory(
+                              controller.userPhotoBytes.value!,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        // Success Overlay
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          child: const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.check_circle,
+                                  color: Colors.green,
+                                  size: 50,
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  "Photo Verified",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  "(Tap to retake)",
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              // 3. DEFAULT STATE (Camera Button)
+              return InkWell(
+                onTap: () => controller.captureAndUploadPhoto(),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  width: double.infinity,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    color: Ucolors.blue.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: Ucolors.blue.withOpacity(0.4),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Ucolors.blue.withOpacity(0.1),
+                              blurRadius: 10,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.camera_alt_outlined,
+                          size: 40,
+                          color: Ucolors.blue,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        "Tap to Take Live Photo",
+                        style: AppTextStyles.bodyMediumW500(
+                          color: Ucolors.blue,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "Please ensure your face is clearly visible",
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ),
+
           // --- UPLOAD AREA END ---
-          const SizedBox(height: 100),
+          // const SizedBox(height: 100),
+          const SizedBox(height: 30),
           _buildSecurityFooter(),
           const SizedBox(height: 30),
         ],
@@ -1162,20 +1348,24 @@ class KycScreen extends GetView<KycController> {
           const SizedBox(height: 50),
 
           // E-Sign Visual Representation
-          Container(
-            padding: const EdgeInsets.all(30),
-            decoration: BoxDecoration(
-              color: Ucolors.blue.withOpacity(0.05),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Ucolors.blue.withOpacity(0.2),
-                width: 2,
+          Obx(
+            () => Container(
+              padding: const EdgeInsets.all(30),
+              decoration: BoxDecoration(
+                color: Ucolors.blue.withOpacity(0.05),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Ucolors.blue.withOpacity(0.2),
+                  width: 2,
+                ),
               ),
-            ),
-            child: const Icon(
-              Icons.edit_document,
-              size: 80,
-              color: Ucolors.blue,
+              child: controller.isLoading.value
+                  ? CircularProgressIndicator(color: Colors.blue)
+                  : const Icon(
+                      Icons.edit_document,
+                      size: 80,
+                      color: Ucolors.blue,
+                    ),
             ),
           ),
 
@@ -1219,10 +1409,12 @@ class KycScreen extends GetView<KycController> {
     List<String> items,
     TextEditingController controller, {
     Function(String)? onChanged,
+    bool search = true,
   }) {
     return GestureDetector(
       onTap: () async {
         await showSelectionBottomSheet(
+          search: search,
           context: context,
           title: title,
           items: items,

@@ -435,7 +435,7 @@ class FundHeader extends StatelessWidget {
                     ),
                   ),
                 )
-              : Deleteiconwithcontainer(
+              :  Deleteiconwithcontainer(
                   containercolor: Colors.redAccent.withOpacity(0.1),
                   delete: () {
                     showDialog(

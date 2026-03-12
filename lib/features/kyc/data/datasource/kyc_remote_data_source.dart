@@ -10,6 +10,7 @@ import 'package:my_sip/features/kyc/data/model/create_esign_url_model.dart';
 import 'package:my_sip/features/kyc/data/model/file_upload_model.dart';
 import 'package:my_sip/features/kyc/data/model/get_esign_data_model.dart';
 import 'package:my_sip/features/kyc/data/model/poi_step_1_model.dart';
+import 'package:my_sip/features/kyc/data/model/verify_bank_account_model.dart';
 import 'package:my_sip/features/personalization/data/model/bank_model.dart';
 import 'package:my_sip/services/session_manager.dart';
 import '../../../../core/network/network_api_service.dart';
@@ -181,6 +182,7 @@ class KycRemoteDataSource {
     }
   }
 
+  // Bank account penny transfer
   Future<Either<Result<BankVerificationModel>, ApiError>> executePennyDrop(
     Map<String, dynamic> data,
   ) async {
@@ -211,6 +213,36 @@ class KycRemoteDataSource {
     } catch (e) {
       return Right(
         ApiError(message: 'executePennyDrop Failed with Exception $e'),
+      );
+    }
+  }
+
+  //Execute verify bank account verifyAccount
+  Future<Either<Result<VerifyAmountModel>, ApiError>> executeVerifyAmount(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final resp = await _apiService.postApi(
+        "${Appurl.kycUrl}/api/onboardings/execute",
+        data: data,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization':
+              'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
+        },
+      );
+
+      if (resp != null) {
+        final result = VerifyAmountModel.fromJson(resp);
+        return Left(Result.success(result));
+      } else {
+        return Right(
+          ApiError(message: 'executeVerifyAmount Failed: Invalid response'),
+        );
+      }
+    } catch (e) {
+      return Right(
+        ApiError(message: 'executeVerifyAmount Failed with Exception: $e'),
       );
     }
   }

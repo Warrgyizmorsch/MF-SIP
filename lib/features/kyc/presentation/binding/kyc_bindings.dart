@@ -14,6 +14,7 @@ import 'package:my_sip/features/kyc/domain/usecases/get_token_data_use_case.dart
 import 'package:my_sip/features/kyc/domain/usecases/kyc_use_cases.dart';
 import 'package:my_sip/features/kyc/domain/usecases/update_form_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/upload_to_signZy_use_case.dart';
+import 'package:my_sip/features/kyc/domain/usecases/verify_amount_usecases.dart';
 import 'package:my_sip/features/kyc/presentation/controllers/kyc_controller.dart';
 
 import '../../../../services/session_manager.dart';
@@ -53,6 +54,11 @@ class KycBindings extends Bindings {
           ExecutePennyDropUseCase(kycRepository: Get.find<KycRepositoryImpl>()),
     );
     Get.lazyPut(
+      () => ExecuteVerifyAmountUseCase(
+        kycRepository: Get.find<KycRepositoryImpl>(),
+      ),
+    );
+    Get.lazyPut(
       () => UploadToSignzyUseCase(kycRepository: Get.find<KycRepositoryImpl>()),
     );
     Get.lazyPut(
@@ -80,6 +86,7 @@ class KycBindings extends Bindings {
         updateFormUseCase: Get.find<UpdateFormUseCase>(),
         executePoaUseCase: Get.find<ExecutePoaUseCase>(),
         executePennyDropUseCase: Get.find<ExecutePennyDropUseCase>(),
+        executeVerifyAmountUseCase: Get.find<ExecuteVerifyAmountUseCase>(),
         uploadToSignzyUseCase: Get.find<UploadToSignzyUseCase>(),
         getCaptchaUseCase: Get.find<GetCaptchaUseCase>(),
         getTokenDataUseCase: Get.find<GetTokenDataUseCase>(),

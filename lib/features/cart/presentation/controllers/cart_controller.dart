@@ -801,6 +801,7 @@ void showCustomToast1({
   required String message,
   required Color backgroundColor,
   required IconData icon,
+  SnackPosition snack = SnackPosition.BOTTOM,
 }) {
   Get.rawSnackbar(
     titleText: Text(
@@ -819,7 +820,8 @@ void showCustomToast1({
     backgroundColor: backgroundColor.withOpacity(0.9),
     borderRadius: 15,
     margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 80),
-    snackPosition: SnackPosition.BOTTOM,
+    // snackPosition: SnackPosition.BOTTOM,
+    snackPosition: snack,
     duration: const Duration(seconds: 1),
     isDismissible: true,
     forwardAnimationCurve: Curves.easeOutBack, // Modern pop effect

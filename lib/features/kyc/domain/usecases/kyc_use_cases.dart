@@ -9,6 +9,7 @@ import 'package:my_sip/features/kyc/domain/usecases/get_esign_data_usecase.dart'
 import 'package:my_sip/features/kyc/domain/usecases/get_token_data_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/update_form_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/upload_to_signZy_use_case.dart';
+import 'package:my_sip/features/kyc/domain/usecases/verify_amount_usecases.dart';
 
 import 'execute_poi_step2_use_case.dart';
 
@@ -25,6 +26,7 @@ class KycUseCases {
   final CreatePdfUseCase createPdfUseCase;
   final CreateEsignUrlUseCase createEsignUrlUseCase;
   final GetEsignDataUseCase getEsignDataUseCase;
+  final ExecuteVerifyAmountUseCase executeVerifyAmountUseCase;
   
 
   KycUseCases({
@@ -34,6 +36,7 @@ class KycUseCases {
     required this.updateFormUseCase,
     required this.executePoaUseCase,
     required this.executePennyDropUseCase,
+    required this.executeVerifyAmountUseCase,
     required this.uploadToSignzyUseCase,
     required this.getCaptchaUseCase,
     required this.getTokenDataUseCase,

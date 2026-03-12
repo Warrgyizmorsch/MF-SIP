@@ -11,6 +11,7 @@ import 'package:my_sip/features/kyc/domain/entity/execute_poi_step2_entity.dart'
 import 'package:my_sip/features/kyc/domain/entity/file_upload_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/get_esign_data_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/poi_step_1_entity.dart';
+import 'package:my_sip/features/kyc/domain/entity/verify_bank_account_entity.dart';
 import 'package:my_sip/features/kyc/domain/repository/kyc_repository.dart';
 import 'package:my_sip/features/personalization/domain/entity/bank_entity.dart';
 
@@ -162,6 +163,30 @@ class KycRepositoryImpl extends KycRepository {
       );
     } catch (e) {
       return Right(ApiError(message: 'executePennyDrop Failed $e'));
+    }
+  }
+
+  @override
+  Future<Either<Result<VerifyAmountEntity>, ApiError>> executeVerifyAmount(Map<String, dynamic> data) async {
+    try {
+      final result = await _remoteDataSource.executeVerifyAmount(data);
+      
+      return result.fold(
+        (success) {
+          if (success.isSuccess && success.data != null) {
+            // Map the Model to Entity safely
+            final entityResult = success.data!.toEntity();
+            return Left(Result.success(entityResult));
+          } else {
+            return Right(ApiError(message: 'executeVerifyAmount Failed: Invalid data structure'));
+          }
+        },
+        (error) {
+          return Right(ApiError(message: 'executeVerifyAmount Failed: ${error.message}'));
+        },
+      );
+    } catch (e) {
+      return Right(ApiError(message: 'executeVerifyAmount Failed Exception: $e'));
     }
   }
 

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/kyc/data/model/token_data_model.dart';
@@ -54,10 +55,10 @@ class KycController extends GetxController {
   final KycUseCases kycUseCases;
 
   // --- Controllers ---
-  final PageController pageController = PageController(initialPage: 7);
+  final PageController pageController = PageController(initialPage: 6);
 
   // --- State Variables ---
-  final currentStep = 7.obs;
+  final currentStep = 6.obs;
   final isLoading = false.obs;
 
   final taxStatusList = [
@@ -69,7 +70,7 @@ class KycController extends GetxController {
 
   // --- Gender Data ---
   final genderList = ["MALE", "FEMALE", "OTHER"];
-  final selectedGender = "Male".obs;
+  final selectedGender = "MALE".obs;
 
   // --- Gender Data ---
   final maritalList = ["MARRIED", "UNMARRIED", "OTHERS"];
@@ -100,6 +101,12 @@ class KycController extends GetxController {
   final isUploadingSignature = false.obs;
   final signatureUploadSuccess = false.obs; // To track if upload is done
   final signatureUploadResponse = Rxn<FileEntity>();
+
+  // --- LIVE PHOTO STATE ---
+  final userPhotoBytes = Rxn<Uint8List>();
+  final isUploadingPhoto = false.obs;
+  final photoUploadSuccess = false.obs;
+  final uploadedPhotoUrl = "".obs;
 
   // --- CAPTCHA STATE ---
   final captchaImage = Rxn<Uint8List>();
@@ -214,7 +221,9 @@ class KycController extends GetxController {
     switch (currentStep.value) {
       case 0:
         // --- STEP 0: IDENTITY (DigiLocker Flow) ---
-        await _handleDigiLockerFlow();
+        if (step1FormKey.currentState!.validate()) {
+          await _handleDigiLockerFlow();
+        }
         break;
 
       case 1:
@@ -250,6 +259,7 @@ class KycController extends GetxController {
         break;
 
       case 5:
+
         // --- STEP 5: BANK DETAILS ---
         if (selectedBank.value == null) {
           Get.snackbar("Error", "Please select a bank");
@@ -263,9 +273,8 @@ class KycController extends GetxController {
 
           // 3. Navigate only if verification passed
           if (!isVerified) {
-            ///
-            // Optional: Add a small delay for UX so user sees the success snackbar
-            await Future.delayed(const Duration(seconds: 1));
+            await Future.delayed(const Duration(seconds: 2));
+            await _submitFinalBankDetails();
             _goToNextPage();
           }
         }
@@ -285,12 +294,16 @@ class KycController extends GetxController {
         // --- STEP 6: FINISH / SUBMIT ---
         if (!signatureUploadSuccess.value) {
           Get.snackbar("Alert", "Please upload your signature first.");
+
           return;
         }
 
-        // await startEsignProcess();
-        // await _verifyAndSaveEsign();
-        // Final Success logic
+        if (!photoUploadSuccess.value) {
+          Get.snackbar("Alert", "Please capture your live photo.");
+
+          return;
+        }
+
         // Get.offAllNamed("/dashboard"); // or show success dialog
         _goToNextPage();
         break;
@@ -493,13 +506,12 @@ class KycController extends GetxController {
 
             final isSaved = await saveSignedPdfToForm(signedPdfUrl);
 
-            // await downloadSignedPdf(signedPdfUrl);
             if (isSaved) {
               // 2. DOWNLOAD THE CONTRACT TO DEVICE
               await downloadSignedPdf(signedPdfUrl);
 
               // 3. FINAL NAV (Uncomment to go to dashboard)
-              // Get.offAllNamed("/dashboard");
+              // Get.offAllNamed(AppRoutes.navMenuBar);
             }
           } else {
             Get.snackbar(
@@ -652,8 +664,112 @@ class KycController extends GetxController {
     }
   }
 
-  ////  -------  Aadhar Esign ---------- ///////
+  //  --------------  Update Form Photo  --------  /////
 
+  // LIVE PHOTO CAPTURE & UPLOAD
+  Future<void> captureAndUploadPhoto() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+
+      // Force ImageSource.camera for Live Photo requirement!
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 80,
+      );
+
+      if (image == null) return;
+
+      final Uint8List imageBytes = await image.readAsBytes();
+
+      // Check file size (e.g., limit to 2MB)
+      if (imageBytes.length > 2 * 1024 * 1024) {
+        Get.snackbar("Error", "Photo must be less than 2MB");
+        return;
+      }
+
+      userPhotoBytes.value = imageBytes;
+      isUploadingPhoto.value = true;
+
+      final extension = image.name.split('.').last.toLowerCase();
+
+      // Dynamic Merchant ID
+      // final currentMerchantId =
+      //     SessionManager.instance.getTokenData?.userId ?? "";
+      // if (currentMerchantId.isEmpty) throw "Session expired";
+
+      final fields = {
+        "merchantId": "69aac24da01541001c853d48",
+        "type": "photo",
+        "fileType": extension,
+      };
+
+      final files = [imageBytes];
+      final fileNames = ["live_photo.$extension"];
+
+      // 1. Upload raw image to get Signzy URL
+      final result = await kycUseCases.uploadToSignzyUseCase.call(
+        fields,
+        files,
+        fileNames,
+      );
+
+      await result.fold(
+        (success) async {
+          final imageUrl = success.data?.directURL;
+
+          if (imageUrl == null || imageUrl.isEmpty) {
+            isUploadingPhoto.value = false;
+            Get.snackbar("Error", "Invalid upload response from server");
+            return;
+          }
+
+          uploadedPhotoUrl.value = imageUrl;
+
+          // 2. Link the URL to the KYC Form
+          await _savePhotoToForm(imageUrl, "69aac24da01541001c853d48");
+        },
+        (error) {
+          isUploadingPhoto.value = false;
+          Get.snackbar("Error", "Photo Upload Failed: ${error.message}");
+        },
+      );
+    } catch (e) {
+      isUploadingPhoto.value = false;
+      Get.snackbar("Error", "Failed to capture photo: $e");
+    }
+  }
+
+  // UPDATE FORM WITH USER PHOTO
+  Future<void> _savePhotoToForm(String photoUrl, String merchantId) async {
+    try {
+      // Strictly matching the Signzy Document payload
+      final requestData = {
+        "merchantId": merchantId,
+        "save": "formData",
+        "type": "userPhoto",
+        "data": {"photoUrl": photoUrl},
+      };
+
+      final result = await kycUseCases.updateFormUseCase.call(requestData);
+
+      result.fold(
+        (success) {
+          photoUploadSuccess.value = true;
+          isUploadingPhoto.value = false;
+          Get.snackbar("Success", "Live Photo Saved Successfully");
+        },
+        (error) {
+          isUploadingPhoto.value = false;
+          Get.snackbar("Error", "Failed to link photo: ${error.message}");
+        },
+      );
+    } catch (e) {
+      isUploadingPhoto.value = false;
+      Get.snackbar("Error", "Exception saving photo: $e");
+    }
+  }
+
+  ///  ---------   Update Form Signature   --------------  ///
   Future<void> pickAndUploadSignature() async {
     try {
       final ImagePicker picker = ImagePicker();
@@ -724,6 +840,9 @@ class KycController extends GetxController {
     }
   }
 
+  ////////////   signature save //
+
+  /*  pickAndUploadSignature
   // Future<void> pickAndUploadSignature() async {
   //   try {
   //     // 1. Pick Image (Requires image_picker package)
@@ -793,6 +912,7 @@ class KycController extends GetxController {
   //     Get.snackbar("Error", "Failed to pick signature: $e");
   //   }
   // }
+ */
 
   // Save url signature
   Future<void> saveSignature(String imageUrl) async {
@@ -834,47 +954,57 @@ class KycController extends GetxController {
     try {
       isLoading.value = true;
 
-      final requestData = {
-        "merchantId": "69aac24da01541001c853d48",
-        "service": "nonRoc",
-        "type": "bankaccountverifications",
-        "task": "verifyAmount",
-        "data": {
-          "images": [],
-          "toVerifyData": {},
-          "searchParam": {
-            "amount": "1",
-            // "signzyId": verifiedBankName.value?.signzyReferenceId,
-            "signzyId": "wvDrsqnCP26ycHabL9NRkhMmfEmPFcJqO5rALaZi3LaPrIqlTd17",
-          },
-        },
-      };
       // final requestData = {
       //   "merchantId": "69aac24da01541001c853d48",
-      //   "inputData": {
-      //     "service": "nonRoc",
-      //     "type": "bankaccountverifications",
-      //     "task": "verifyAmount",
-      //     "data": {
-      //       "searchParam": {
-      //         "amount": 1,
-      //         // "signzyId": verifiedBankName.value?.signzyReferenceId,
-      //         "signzyId":
-      //             "wvDrsqnCP26ycHabL9NRkhMmfEmPFcJqO5rALaZi3LaPrIqlTd17",
-      //       },
+      //   "service": "nonRoc",
+      //   "type": "bankaccountverifications",
+      //   "task": "verifyAmount",
+      //   "data": {
+      //     "images": [],
+      //     "toVerifyData": {},
+      //     "searchParam": {
+      //       "amount": "1",
+      //       // "signzyId": verifiedBankName.value?.signzyReferenceId,
+      //       "signzyId": "wvDrsqnCP26ycHabL9NRkhMmfEmPFcJqO5rALaZi3LaPrIqlTd17",
       //     },
       //   },
       // };
 
-      final result = await kycUseCases.updateFormUseCase.call(requestData);
+      final signzyId = verifiedBankName.value?.signzyReferenceId;
+      //  ?? "wvDrsqnCP26ycHabL9NRkhMmfEmPFcJqO5rALaZi3LaPrIqlTd17";
+      final requestData = {
+        "merchantId": "69aac24da01541001c853d48",
+        "inputData": {
+          "service": "nonRoc",
+          "type": "bankaccountverifications",
+          "task": "verifyAmount",
+          "data": {
+            "searchParam": {
+              "amount": "1",
+              // "signzyId": verifiedBankName.value?.signzyReferenceId,
+              "signzyId": signzyId,
+            },
+          },
+        },
+      };
+
+      final result = await kycUseCases.executeVerifyAmountUseCase.call(
+        requestData,
+      );
 
       isLoading.value = false;
 
       result.fold(
         (success) {
-          Get.snackbar("Success", "Bank Details Verified & Locked!");
+          // Get.snackbar("Success", "Bank Details Verified & Locked!");
           // Move to Success Screen or Finish Flow
           // _goToNextPage();
+          if (success.data?.amountMatch == "true") {
+            Get.snackbar("Success", "Bank Details Verified & Locked!");
+            _goToNextPage();
+          } else {
+            Get.snackbar("Error", "Bank Verification Failed: Amount mismatch");
+          }
         },
         (error) {
           Get.snackbar("Error", "Final Bank Lock Failed: ${error.message}");
@@ -953,26 +1083,21 @@ class KycController extends GetxController {
         "data": {
           "type": "kycdata",
           "kycData": {
-            // --- CRITICAL FIX: ADD THESE TWO FIELDS ---
             "name":
                 nameTextEditingController.text, // Required for PAN verification
             "dob": dateOfBirthTextEditingController
                 .text, // Required for PAN verification
             // "panNumber": panTextEditingController.text,
-            "panNumber": nomineeSelectedDocumentTextEditingController.text,
+            "panNumber":
+                // SessionManager.instance.getUserData?.panCard ??
+                panTextEditingController.text,
 
-            // ====================================================
-            // 1. NOMINEE DETAILS (Your Current Focus)
-            // ====================================================
+            // 1. NOMINEE DETAILS
             "nomineeRelationShip": nomineeRelationTextEditingController.text
                 .toUpperCase(), // FATHER, SPOUSE, etc.
-            // ====================================================
             // 2. APPLICANT DETAILS (MANDATORY RE-SEND)
-            // ====================================================
-            // You must include these, or the API might error out on "Missing Fields"
-
             // Personal
-            "gender": selectedGender.value == "Male" ? "M" : "F",
+            "gender": selectedGender.value == "MALE" ? "M" : "F",
             "maritalStatus": selectedMaritalStatus.value, // MARRIED / UNMARRIED
             "fatherTitle": "Mr.",
             "fatherName": fatherNameTextEditingController.text, // REQUIRED
@@ -1188,8 +1313,7 @@ class KycController extends GetxController {
       return result.fold(
         (success) {
           // 3. Handle Success
-          if ((success.data?.active == "yes") ||
-              success.data != null && success.data != null) {
+          if ((success.data?.active == "yes") && success.data != null) {
             final output = success.data;
 
             // // Extract Name (adjust key based on actual API response)
@@ -1198,13 +1322,18 @@ class KycController extends GetxController {
             //     "Verified Account";
 
             verifiedBankName.value = output;
+            // Get.snackbar(
+            //   "Success",
+            //   "Bank Account Verified: ${verifiedBankName.value?.auditTrail?.value}",
+            // );
             Get.snackbar(
               "Success",
-              "Bank Account Verified: ${verifiedBankName.value?.auditTrail?.value}",
+              "Penny Drop Initiated. Reference: ${success.data?.signzyReferenceId}",
             );
             return true;
           } else {
-            Get.snackbar("Error", "Bank verification failed: No data returned");
+            // Get.snackbar("Error", "Bank verification failed: No data returned");
+            Get.snackbar("Error", "Bank verification failed: Invalid account");
             return false;
           }
         },
