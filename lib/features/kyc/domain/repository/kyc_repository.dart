@@ -1,11 +1,13 @@
 import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
+import 'package:my_sip/features/kyc/data/model/onboarding_login_model.dart';
 import 'package:my_sip/features/kyc/domain/entity/bank_verification_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/createPdf_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/create_esign_url_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/file_upload_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/get_esign_data_entity.dart';
+import 'package:my_sip/features/kyc/domain/entity/onboarding_login_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/poi_step_1_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/verify_bank_account_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/bank_entity.dart';
@@ -53,6 +55,9 @@ abstract class KycRepository {
     Map<String, dynamic> data,
   );
   Future<Either<Result<GetEsignDataEntity>, ApiError>> getEsignData(
+    Map<String, dynamic> data,
+  );
+  Future<Either<Result<OnboardingResponse>, ApiError>> saveOnboardingData(
     Map<String, dynamic> data,
   );
 }

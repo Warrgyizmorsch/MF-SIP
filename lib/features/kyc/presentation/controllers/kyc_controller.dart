@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
@@ -10,8 +11,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/kyc/data/model/onboarding_login_model.dart';
 import 'package:my_sip/features/kyc/data/model/token_data_model.dart';
 import 'package:my_sip/features/kyc/domain/entity/file_upload_entity.dart';
+import 'package:my_sip/features/kyc/domain/entity/onboarding_login_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/poi_step_1_entity.dart';
 import 'package:my_sip/features/kyc/domain/usecases/kyc_use_cases.dart';
 import 'package:my_sip/services/session_manager.dart';
@@ -37,6 +40,8 @@ class KycController extends GetxController {
     // 2. Await Token Data FIRST
     final bool tokenSuccess = await getTokenData();
 
+    final bool tokenCred = await saveOnboardingData();
+
     // 3. Only proceed if token data was successfully fetched
     if (tokenSuccess) {
       // Now it is safe to call other APIs that might need the token
@@ -55,10 +60,10 @@ class KycController extends GetxController {
   final KycUseCases kycUseCases;
 
   // --- Controllers ---
-  final PageController pageController = PageController(initialPage: 6);
+  final PageController pageController = PageController();
 
   // --- State Variables ---
-  final currentStep = 6.obs;
+  final currentStep = 0.obs;
   final isLoading = false.obs;
 
   final taxStatusList = [
@@ -117,6 +122,7 @@ class KycController extends GetxController {
   // --- Token Data ---
   final isLoadingTokenData = false.obs;
   final tokenData = Rxn<TokenDataModel>();
+  final onboardingResult = Rxn<OnboardingResponse>();
 
   final occupationList = [
     "Business",
@@ -272,7 +278,8 @@ class KycController extends GetxController {
           final bool isVerified = await executePennydrop();
 
           // 3. Navigate only if verification passed
-          if (!isVerified) {
+          if (isVerified) {
+            // change to true when dynamic merchant ID
             await Future.delayed(const Duration(seconds: 2));
             await _submitFinalBankDetails();
             _goToNextPage();
@@ -356,7 +363,10 @@ class KycController extends GetxController {
 
       if (step2Success) {
         final requestData = {
-          "merchantId": "69aac24da01541001c853d48",
+          // "merchantId": "69aac24da01541001c853d48",
+          "merchantId":
+              SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
+
           "save": "formData",
           "type": 'identityProof',
           "data": {
@@ -403,7 +413,10 @@ class KycController extends GetxController {
       // STEP 1: Generate the Unsigned Contract PDF
       // ---------------------------------------------------------
       final createPdfRequest = {
-        "merchantId": currentMerchantId,
+        // "merchantId": currentMerchantId,
+        "merchantId":
+            SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
+
         "inputData": {"service": "esign", "task": "createPdf", "type": ""},
       };
 
@@ -426,7 +439,13 @@ class KycController extends GetxController {
           // STEP 2: Generate the Aadhaar E-Sign URL
           // ---------------------------------------------------------
           final esignUrlRequest = {
-            "merchantId": currentMerchantId,
+            // "merchantId": currentMerchantId,
+            "merchantId": SessionManager
+                .instance
+                .getOnboardingData
+                ?.dbRecord
+                ?.signzyUserId,
+
             "inputData": {
               "service": "esign",
               "task": "createEsignUrl",
@@ -489,7 +508,10 @@ class KycController extends GetxController {
     isLoading.value = true;
     try {
       final requestData = {
-        "merchantId": "69aac24da01541001c853d48",
+        // "merchantId": "69aac24da01541001c853d48",
+        "merchantId":
+            SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
+
         "inputData": {"service": "esign", "task": "getEsignData", "type": ""},
       };
 
@@ -641,7 +663,10 @@ class KycController extends GetxController {
   Future<bool> saveSignedPdfToForm(String signedPdfUrl) async {
     try {
       final requestData = {
-        "merchantId": "69aac24da01541001c853d48",
+        // "merchantId": "69aac24da01541001c853d48",
+        "merchantId":
+            SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
+
         "save": "esign",
         "data": {"signedPdf": signedPdfUrl},
       };
@@ -698,7 +723,11 @@ class KycController extends GetxController {
       // if (currentMerchantId.isEmpty) throw "Session expired";
 
       final fields = {
-        "merchantId": "69aac24da01541001c853d48",
+        // "merchantId": "69aac24da01541001c853d48",
+        "merchantId":
+            SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId ??
+            '',
+
         "type": "photo",
         "fileType": extension,
       };
@@ -744,7 +773,10 @@ class KycController extends GetxController {
     try {
       // Strictly matching the Signzy Document payload
       final requestData = {
-        "merchantId": merchantId,
+        // "merchantId": merchantId,
+        "merchantId":
+            SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
+
         "save": "formData",
         "type": "userPhoto",
         "data": {"photoUrl": photoUrl},
@@ -796,7 +828,11 @@ class KycController extends GetxController {
       final extension = image.name.split('.').last.toLowerCase();
 
       final fields = {
-        "merchantId": "69aac24da01541001c853d48",
+        // "merchantId": "69aac24da01541001c853d48",
+        "merchantId":
+            SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId ??
+            '',
+
         "type": "signature",
         "fileType": extension,
       };
@@ -825,6 +861,7 @@ class KycController extends GetxController {
           // Get.snackbar("Success", "Signature Uploaded Successfully");
 
           // Save signature to KYC form
+          log("image url ------------${imageUrl}");
           await saveSignature(imageUrl);
 
           isUploadingSignature.value = false;
@@ -917,7 +954,10 @@ class KycController extends GetxController {
   // Save url signature
   Future<void> saveSignature(String imageUrl) async {
     final requestData = {
-      "merchantId": "69aac24da01541001c853d48",
+      // "merchantId": "69aac24da01541001c853d48",
+      "merchantId":
+          SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
+
       "save": "formData",
       "type": "signature",
       "data": {
@@ -971,16 +1011,24 @@ class KycController extends GetxController {
       // };
 
       final signzyId = verifiedBankName.value?.signzyReferenceId;
-      //  ?? "wvDrsqnCP26ycHabL9NRkhMmfEmPFcJqO5rALaZi3LaPrIqlTd17";
+      if (signzyId == null || signzyId.isEmpty) {
+        Get.snackbar("Error", "Reference ID is missing. Please retry.");
+        isLoading.value = false;
+        return;
+      }
       final requestData = {
-        "merchantId": "69aac24da01541001c853d48",
+        // "merchantId": "69aac24da01541001c853d48",
+        "merchantId":
+            SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId ??
+            "",
+
         "inputData": {
           "service": "nonRoc",
           "type": "bankaccountverifications",
           "task": "verifyAmount",
           "data": {
             "searchParam": {
-              "amount": "1",
+              "amount": 1,
               // "signzyId": verifiedBankName.value?.signzyReferenceId,
               "signzyId": signzyId,
             },
@@ -1021,8 +1069,11 @@ class KycController extends GetxController {
       isLoading.value = true;
 
       final poaRequestData = {
+        // "merchantId":
+        //     "69aac24da01541001c853d48", // from investor login Response User Id
         "merchantId":
-            "69aac24da01541001c853d48", // from investor login Response User Id
+            SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
+
         "inputData": {
           "service": "identity",
           "type": "aadhaarDigiLocker",
@@ -1032,7 +1083,10 @@ class KycController extends GetxController {
       };
 
       final requestData = {
-        "merchantId": "69aac24da01541001c853d48",
+        // "merchantId": "69aac24da01541001c853d48",
+        "merchantId":
+            SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
+
         "save": "formData",
         "type": 'addressProof',
         "data": {
@@ -1077,7 +1131,10 @@ class KycController extends GetxController {
       isLoading.value = true;
 
       final requestData = {
-        "merchantId": "69aac24da01541001c853d48", // Use dynamic ID
+        // "merchantId": "69aac24da01541001c853d48", // Use dynamic ID
+        "merchantId":
+            SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
+
         "save": "formData",
         "type": "kycdata",
         "data": {
@@ -1177,7 +1234,9 @@ class KycController extends GetxController {
       final taxResidentOutsideIndia = isResident ? "NO" : "YES";
 
       final requestData = {
-        "merchantId": "69aac24da01541001c853d48",
+        // "merchantId": "69aac24da01541001c853d48",
+        "merchantId":
+            SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
         "save": "formData",
         "type": "fatca", // <--- KEY TYPE
         "data": {
@@ -1248,6 +1307,48 @@ class KycController extends GetxController {
     }
   }
 
+  // Onboarding and Login Data
+  Future<bool> saveOnboardingData() async {
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      final Map<String, dynamic> requestBody = {
+        "user_id": SessionManager.instance.getUserData?.id,
+      };
+
+      final result = await kycUseCases.saveOnboardingDataUseCase.call(
+        requestBody,
+      );
+
+      return result.fold(
+        (success) async {
+          onboardingResult.value = success.data;
+          await SessionManager.instance.saveOnboardingData(
+            onboardingResult.value,
+          );
+
+          createLog(
+            "Onboarding Initiated Successfully: ${success.data?.message}",
+          );
+
+          return true;
+        },
+        (error) {
+          errorMessage.value = error.message;
+          Get.snackbar("KYC Initiation Error", error.message);
+          return false;
+        },
+      );
+    } catch (e) {
+      errorMessage.value = "An unexpected error occurred.";
+      createLog("Exception in saveOnboardingData: $e");
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   Future<bool> getCaptcha() async {
     try {
       isLoadingCaptcha.value = true;
@@ -1289,7 +1390,10 @@ class KycController extends GetxController {
       isLoading.value = true; // Block global navigation too
 
       final requestData = {
-        "merchantId": "69aac24da01541001c853d48",
+        // "merchantId": "69aac24da01541001c853d48",
+        "merchantId":
+            SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
+
         "inputData": {
           "service": "nonRoc",
           "type": "bankaccountverifications",
@@ -1313,7 +1417,8 @@ class KycController extends GetxController {
       return result.fold(
         (success) {
           // 3. Handle Success
-          if ((success.data?.active == "yes") && success.data != null) {
+          log("🕵️ DEBUG ACTIVE STATUS: '${success.data?.active}'");
+          if ((success.data?.active == "yes")) {
             final output = success.data;
 
             // // Extract Name (adjust key based on actual API response)
@@ -1330,6 +1435,7 @@ class KycController extends GetxController {
               "Success",
               "Penny Drop Initiated. Reference: ${success.data?.signzyReferenceId}",
             );
+
             return true;
           } else {
             // Get.snackbar("Error", "Bank verification failed: No data returned");
@@ -1477,8 +1583,11 @@ class KycController extends GetxController {
       isExecutingPOIStep1.value = true;
 
       final requestData = {
+        // "merchantId":
+        //     "69aac24da01541001c853d48", // from investor login Response User Id
         "merchantId":
-            "69aac24da01541001c853d48", // from investor login Response User Id
+            SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
+
         "inputData": {
           "service": "identity",
           "type": "aadhaarDigiLocker",
@@ -1517,8 +1626,11 @@ class KycController extends GetxController {
       isExecutingPOIStep2.value = true;
 
       final requestData = {
+        // "merchantId":
+        //     "69aac24da01541001c853d48", // from investor login Response User Id
         "merchantId":
-            "69aac24da01541001c853d48", // from investor login Response User Id
+            SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
+
         "inputData": {
           "service": "identity",
           "type": "aadhaarDigiLocker",

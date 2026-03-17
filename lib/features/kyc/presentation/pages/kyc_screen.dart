@@ -13,6 +13,7 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/core/utils/enums/enums.dart';
+import 'package:my_sip/features/authentication/presentation/pages/signup/register_account.dart';
 import 'package:my_sip/features/kyc/presentation/controllers/kyc_controller.dart';
 import 'package:my_sip/services/session_manager.dart';
 import '../../../../common/widget/showbottomsheet/datepicker.dart';
@@ -895,8 +896,11 @@ class KycScreen extends GetView<KycController> {
                       validationType: ValidationType.required,
                       height: 60,
                       controller: controller.ifscController,
+
                       label: "IFSC Code",
                       hint: "Enter IFSC Code",
+
+                      inputFormatters: [UpperCaseTextFormatter()],
                     ),
                   ],
                 );
@@ -1146,7 +1150,7 @@ class KycScreen extends GetView<KycController> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        "Upload Bank Signature",
+                        "Upload Signature",
                         style: AppTextStyles.bodyMediumW500(
                           color: Ucolors.blue,
                         ),

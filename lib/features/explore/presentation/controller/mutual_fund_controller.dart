@@ -27,7 +27,7 @@ class MutualFundController extends GetxController {
   final selectedFundCount = 0.obs;
 
   //  2. LOGIC MEMORY (Internal State)
-  final currentSortLabel = "All Fund".obs;
+  final currentSortLabel = "1Y,3Y,5Y".obs;
 
   final hasSearchFocus = false.obs;
 
@@ -94,7 +94,8 @@ class MutualFundController extends GetxController {
     // ONLY update labels if return_year is explicitly passed in the newFilters map
     if (newFilters.containsKey('return_year')) {
       selectedReturnYear.value = newFilters['return_year'];
-      currentSortLabel.value = "${newFilters['return_year']}Y Returns";
+      // currentSortLabel.value = "${newFilters['return_year']}Y Returns";
+      currentSortLabel.value = "${newFilters['return_year']}Y";
     }
     // If no sorting is in newFilters, we leave currentSortLabel as "All Fund"
 
@@ -125,21 +126,21 @@ class MutualFundController extends GetxController {
 
   void cycleGlobalSort() {
     switch (currentSortLabel.value) {
-      case "All Fund":
-        currentSortLabel.value = "1Y Returns";
+      case "1Y,3Y,5Y":
+        currentSortLabel.value = "1Y";
         applyFilters({'sort_order': 'desc', 'return_year': 1});
         break;
-      case "1Y Returns":
-        currentSortLabel.value = "3Y Returns";
+      case "1Y":
+        currentSortLabel.value = "3Y";
         applyFilters({'sort_order': 'desc', 'return_year': 3});
         break;
-      case "3Y Returns":
-        currentSortLabel.value = "5Y Returns";
+      case "3Y":
+        currentSortLabel.value = "5Y";
         applyFilters({'sort_order': 'desc', 'return_year': 5});
         break;
-      case "5Y Returns":
+      case "5Y":
       default:
-        currentSortLabel.value = "All Fund";
+        currentSortLabel.value = "1Y,3Y,5Y";
         _currentFilters.remove('sort_order');
         _currentFilters.remove('return_year');
         selectedReturnYear.value = 3;
@@ -149,7 +150,7 @@ class MutualFundController extends GetxController {
     }
   }
 
-  // 
+  //
   void syncFilterPageParams(Map<String, dynamic> newParams) {
     // 1. Remove keys managed by the Filter Page to handle unchecked items
     _currentFilters.remove('amc_id');
@@ -309,7 +310,7 @@ class MutualFundController extends GetxController {
     _currentSearchQuery = "";
     _currentFilters.clear();
     selectedReturnYear.value = 3;
-    currentSortLabel.value = "All Fund";
+    currentSortLabel.value = "1Y,3Y,5Y";
 
     // if (Get.isRegistered<FundhouseController>()) {
     //   Get.find<FundhouseController>().clearAllFilters();

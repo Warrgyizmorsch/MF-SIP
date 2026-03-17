@@ -253,15 +253,19 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
           style: AppTextStyles.h3(color: Ucolors.dark),
         ),
       ),
-      body: Stack(
-        children: [
-          AnimatedOpacity(
-            duration: const Duration(milliseconds: 1000),
-            opacity: _isLoading ? 0 : 1,
-            child: WebViewWidget(controller: _controller),
-          ),
-          if (_isLoading) const Center(child: CircularProgressIndicator()),
-        ],
+      body: SafeArea(
+         
+        bottom: true,
+        child: Stack(
+          children: [
+            AnimatedOpacity(
+              duration: const Duration(milliseconds: 1000),
+              opacity: _isLoading ? 0 : 1,
+              child: WebViewWidget(controller: _controller),
+            ),
+            if (_isLoading) const Center(child: CircularProgressIndicator()),
+          ],
+        ),
       ),
     );
   }

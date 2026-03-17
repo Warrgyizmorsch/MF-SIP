@@ -6,6 +6,7 @@ import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/animated/empty_filled.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:readmore/readmore.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
@@ -33,8 +34,9 @@ import '../widgets/stock_allocation_items.dart';
 import '../widgets/timeselecter.dart';
 
 class FundDetailsScreen extends GetView<FundDetailsController> {
-  const FundDetailsScreen({super.key});
+  FundDetailsScreen({super.key});
 
+  final CartController cartController = Get.find<CartController>();
   @override
   Widget build(BuildContext context) {
     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
@@ -66,6 +68,39 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                     ? BottomBarButton(
                         firstButton: 'Lumpsum',
                         secondButton: 'Start SIP',
+                        firstButtonP: () async {
+                          // await controller.addToCart(
+                          //     entity.schemeCode ?? '',
+                          //     entity.baseSchemeName ?? '',
+                          //     entity.minSipAmount ?? 0,
+                          //     null,
+                          //   );
+                          //   await controller.fetchCart();
+                          await cartController.addToCart(
+                            controller.schemeCode,
+                            controller.schemeName,
+
+                            controller.fundDetail.value?.minimumInvestment
+                                    .toInt() ??
+                                5000,
+                            transType: 'lumpsum',
+
+                            null,
+                          );
+                          Get.toNamed(AppRoutes.cart);
+                        },
+                        secondButtonP: () async {
+                          await cartController.addToCart(
+                            controller.schemeCode,
+                            controller.schemeName,
+                            controller.fundDetail.value?.sipMinimumAmount ??
+                                1000,
+                            transType: 'sip',
+
+                            null,
+                          );
+                          Get.toNamed(AppRoutes.cart);
+                        },
                       )
                     : const SizedBox.shrink(),
               );

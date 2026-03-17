@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
+import 'package:my_sip/features/kyc/data/model/onboarding_login_model.dart';
 import 'package:my_sip/features/kyc/data/model/token_data_model.dart';
 import 'package:my_sip/features/kyc/domain/entity/bank_verification_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/createPdf_entity.dart';
@@ -10,6 +11,7 @@ import 'package:my_sip/features/kyc/domain/entity/create_esign_url_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/execute_poi_step2_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/file_upload_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/get_esign_data_entity.dart';
+import 'package:my_sip/features/kyc/domain/entity/onboarding_login_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/poi_step_1_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/verify_bank_account_entity.dart';
 import 'package:my_sip/features/kyc/domain/repository/kyc_repository.dart';
@@ -167,10 +169,12 @@ class KycRepositoryImpl extends KycRepository {
   }
 
   @override
-  Future<Either<Result<VerifyAmountEntity>, ApiError>> executeVerifyAmount(Map<String, dynamic> data) async {
+  Future<Either<Result<VerifyAmountEntity>, ApiError>> executeVerifyAmount(
+    Map<String, dynamic> data,
+  ) async {
     try {
       final result = await _remoteDataSource.executeVerifyAmount(data);
-      
+
       return result.fold(
         (success) {
           if (success.isSuccess && success.data != null) {
@@ -178,15 +182,23 @@ class KycRepositoryImpl extends KycRepository {
             final entityResult = success.data!.toEntity();
             return Left(Result.success(entityResult));
           } else {
-            return Right(ApiError(message: 'executeVerifyAmount Failed: Invalid data structure'));
+            return Right(
+              ApiError(
+                message: 'executeVerifyAmount Failed: Invalid data structure',
+              ),
+            );
           }
         },
         (error) {
-          return Right(ApiError(message: 'executeVerifyAmount Failed: ${error.message}'));
+          return Right(
+            ApiError(message: 'executeVerifyAmount Failed: ${error.message}'),
+          );
         },
       );
     } catch (e) {
-      return Right(ApiError(message: 'executeVerifyAmount Failed Exception: $e'));
+      return Right(
+        ApiError(message: 'executeVerifyAmount Failed Exception: $e'),
+      );
     }
   }
 
@@ -347,6 +359,33 @@ class KycRepositoryImpl extends KycRepository {
       );
     } catch (e) {
       return Right(ApiError(message: 'getEsignData Failed with Exception: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Result<OnboardingResponse>, ApiError>> saveOnboardingData(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final result = await _remoteDataSource.saveOnboardingLoginData(data);
+
+      return result.fold(
+        (success) {
+          if (success.isSuccess) {
+            final result = success.data;
+            return Left(Result.success(result));
+          } else {
+            return Right(ApiError(message: 'Save Onboarding Data Failed'));
+          }
+        },
+        (error) {
+          return Right(
+            ApiError(message: 'Save Onboarding Data Failed: ${error.message}'),
+          );
+        },
+      );
+    } catch (e) {
+      return Right(ApiError(message: 'Save Onboarding Data Exception: $e'));
     }
   }
 }

@@ -97,7 +97,7 @@ class AppPages {
 
     GetPage(
       name: AppRoutes.funddetails,
-      page: () => const FundDetailsScreen(),
+      page: () =>  FundDetailsScreen(),
       binding: FundDetailBinding(),
     ),
     GetPage(

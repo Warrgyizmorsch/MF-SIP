@@ -12,6 +12,7 @@ import 'package:my_sip/features/kyc/domain/usecases/get_captcha_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/get_esign_data_usecase.dart';
 import 'package:my_sip/features/kyc/domain/usecases/get_token_data_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/kyc_use_cases.dart';
+import 'package:my_sip/features/kyc/domain/usecases/saveOnboarding_login_usecases.dart';
 import 'package:my_sip/features/kyc/domain/usecases/update_form_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/upload_to_signZy_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/verify_amount_usecases.dart';
@@ -37,6 +38,8 @@ class KycBindings extends Bindings {
     Get.lazyPut(() => KycRepositoryImpl(Get.find<KycRemoteDataSource>()));
 
     // 3. Use Cases
+    Get.lazyPut(() => SaveOnboardingDataUseCase(Get.find<KycRepositoryImpl>()));
+
     Get.lazyPut(() => GetAllBanksUseCases(Get.find<KycRepositoryImpl>()));
     Get.lazyPut(
       () =>
@@ -80,6 +83,7 @@ class KycBindings extends Bindings {
     // 4. Main UseCase Wrapper
     Get.lazyPut(
       () => KycUseCases(
+        saveOnboardingDataUseCase: Get.find<SaveOnboardingDataUseCase>(),
         getAllBanksUseCases: Get.find<GetAllBanksUseCases>(),
         executePoiStep1UseCase: Get.find<ExecutePoiStep1UseCase>(),
         executePoiStep2UseCase: Get.find<ExecutePoiStep2UseCase>(),

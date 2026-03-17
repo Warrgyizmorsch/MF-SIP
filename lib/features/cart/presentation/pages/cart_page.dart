@@ -435,7 +435,7 @@ class FundHeader extends StatelessWidget {
                     ),
                   ),
                 )
-              :  Deleteiconwithcontainer(
+              : Deleteiconwithcontainer(
                   containercolor: Colors.redAccent.withOpacity(0.1),
                   delete: () {
                     showDialog(
@@ -682,20 +682,18 @@ class InvestmentInputsRow extends StatelessWidget {
                         //     : currentAmount,
                       ),
                       validationType: ValidationType.custom,
+                      // onChanged: (value) {
+                      //   final amount = int.tryParse(value) ?? 0;
+                      //   bool hasError =
+                      //       amount < currentMinLimit || amount % 100 != 0;
+                      //   controller.setItemError(itemEntity.id!, hasError);
+                      // },
                       onChanged: (value) {
-                        final amount = int.tryParse(value) ?? 0;
-                        bool hasError =
-                            amount < currentMinLimit || amount % 100 != 0;
-                        controller.setItemError(itemEntity.id!, hasError);
-                        // final newAmt = int.tryParse(value);
-                        // if (newAmt != null &&
-                        //     newAmt >= currentMinLimit &&
-                        //     newAmt % 100 == 0) {
-                        //   controller.updateCartItem(
-                        //     itemId: itemEntity.id!,
-                        //     amount: newAmt,
-                        //   );
-                        // }
+                        controller.debouncedAmountUpdate(
+                          itemId: itemEntity.id!,
+                          value: value,
+                          currentMinLimit: currentMinLimit,
+                        );
                       },
                       customValidator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -717,17 +715,6 @@ class InvestmentInputsRow extends StatelessWidget {
                         return null;
                       },
 
-                      // onChanged: (value) {
-                      //   final newAmt = int.tryParse(value);
-                      //   if (newAmt != null &&
-                      //       newAmt >= currentMinLimit &&
-                      //       newAmt % 100 == 0) {
-                      //     controller.updateCartItem(
-                      //       itemId: itemEntity.id!,
-                      //       amount: newAmt,
-                      //     );
-                      //   }
-                      // },
                       onSubmitted: (value) {
                         final newAmt = int.tryParse(value);
                         if (newAmt != null &&

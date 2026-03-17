@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -231,6 +232,36 @@ class CartController extends GetxController {
     }
   }
    */
+  // Map to track timers for each cart item
+  final Map<int, Timer> _debounceTimers = {};
+
+  // Debounce Method
+  void debouncedAmountUpdate({
+    required int itemId,
+    required String value,
+    required int currentMinLimit,
+  }) {
+    final amount = int.tryParse(value) ?? 0;
+
+    // Validate instantly for UI red text
+    bool hasError = amount < currentMinLimit || amount % 100 != 0;
+    setItemError(itemId, hasError);
+
+    // Cancel any existing timer for this specific item
+    if (_debounceTimers[itemId]?.isActive ?? false) {
+      _debounceTimers[itemId]!.cancel();
+    }
+
+    // If there is an error, DO NOT call the API
+    if (hasError) return;
+
+    // Start a new timer. If the user doesn't type anything for 800ms, it submits.
+    _debounceTimers[itemId] = Timer(const Duration(milliseconds: 800), () {
+      log("⏳ Auto-submitting amount $amount for item $itemId");
+      updateCartItem(itemId: itemId, amount: amount);
+    });
+  }
+
   // Add to cart with duplicate check and custom toast
   Future<void> addToCart(
     String schemeCode,
@@ -789,6 +820,9 @@ class CartController extends GetxController {
   //////  -------------------------  ///////////////////
   @override
   void onClose() {
+    for (var timer in _debounceTimers.values) {
+      timer.cancel();
+    }
     filterGoalId.value = null;
     items.clear();
 

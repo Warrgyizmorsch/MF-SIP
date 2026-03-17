@@ -7,6 +7,7 @@ import 'package:my_sip/features/kyc/domain/usecases/get_all_banks_use_case.dart'
 import 'package:my_sip/features/kyc/domain/usecases/get_captcha_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/get_esign_data_usecase.dart';
 import 'package:my_sip/features/kyc/domain/usecases/get_token_data_use_case.dart';
+import 'package:my_sip/features/kyc/domain/usecases/saveOnboarding_login_usecases.dart';
 import 'package:my_sip/features/kyc/domain/usecases/update_form_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/upload_to_signZy_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/verify_amount_usecases.dart';
@@ -27,6 +28,8 @@ class KycUseCases {
   final CreateEsignUrlUseCase createEsignUrlUseCase;
   final GetEsignDataUseCase getEsignDataUseCase;
   final ExecuteVerifyAmountUseCase executeVerifyAmountUseCase;
+  final SaveOnboardingDataUseCase saveOnboardingDataUseCase ;
+
   
 
   KycUseCases({
@@ -42,6 +45,7 @@ class KycUseCases {
     required this.getTokenDataUseCase,
     required this.createPdfUseCase,
     required this.createEsignUrlUseCase,
-    required this.getEsignDataUseCase
+    required this.getEsignDataUseCase,
+    required this.saveOnboardingDataUseCase
   });
 }

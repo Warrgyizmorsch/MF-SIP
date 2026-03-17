@@ -124,8 +124,7 @@ class PersonalDetailsScreen extends GetView<AuthController> {
                   const SmallHeading(smallheading: 'Full Name'),
                   const SizedBox(height: 5),
                   UTextFormField(
-                    readOnly: true,
-
+                    // readOnly: true,
                     prefixIcon: null,
                     hintText: 'Pratik Hinger',
                     // controller: TextEditingController(text: user?.name ?? ''),
@@ -166,7 +165,7 @@ class PersonalDetailsScreen extends GetView<AuthController> {
                   const SmallHeading(smallheading: 'Email'),
                   const SizedBox(height: 5),
                   UTextFormField(
-                    readOnly: true,
+                    // readOnly: true,
                     prefixIcon: null,
                     hintText: 'abc@123gmail.com',
                     // controller: TextEditingController(text: user?.email ?? ''),

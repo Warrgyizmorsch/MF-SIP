@@ -98,6 +98,11 @@ class RiskProfile extends GetView<PersonalisationController> {
                 ),
               ),
 
+              InkWell(
+                onTap: () => controller.previousPage(),
+                child: const Text('Back', style: TextStyle(color: Colors.blue)),
+              ),
+
               // --- Footer: Trust Badge ---
               _buildSecurityFooter(),
             ],

@@ -1644,7 +1644,7 @@ class _MobileExploreLayout extends StatelessWidget {
                                   icon: Icons.sort,
                                   isSelected:
                                       controller.currentSortLabel.value !=
-                                      "All Fund",
+                                      "1Y,3Y,5Y",
                                 ),
                               ),
                             ],
@@ -1658,55 +1658,55 @@ class _MobileExploreLayout extends StatelessWidget {
             ),
           ),
 
-          Obx(
-            () => SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Dynamic Fund Count
-                    Text(
-                      controller.selectedFundCount.value == 0
-                          ? '${controller.mutualfund.length} funds'
-                          : '${controller.selectedFundCount.value} funds',
-                      style: UTextStyles.small,
-                    ),
+          // Obx(
+          //   () => SliverToBoxAdapter(
+          //     child: Padding(
+          //       padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          //       child: Row(
+          //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //         children: [
+          //           // Dynamic Fund Count
+          //           Text(
+          //             controller.selectedFundCount.value == 0
+          //                 ? '${controller.mutualfund.length} funds'
+          //                 : '${controller.selectedFundCount.value} funds',
+          //             style: UTextStyles.small,
+          //           ),
 
-                    // CLICKABLE TOGGLE: Cycle through 1Y, 3Y, 5Y
-                    // InkWell(
-                    //   onTap: () => controller.cycleReturnYear(),
-                    //   borderRadius: BorderRadius.circular(4),
-                    //   child: Padding(
-                    //     padding: const EdgeInsets.symmetric(
-                    //       horizontal: 4,
-                    //       vertical: 2,
-                    //     ),
-                    //     child: Row(
-                    //       mainAxisSize: MainAxisSize.min,
-                    //       children: [
-                    //         const Icon(
-                    //           Icons.swap_horiz,
-                    //           size: 14,
-                    //           color: Colors.black54,
-                    //         ),
-                    //         const SizedBox(width: 4),
-                    //         Text(
-                    //           controller.returnYearLabel,
-                    //           style: UTextStyles.small.copyWith(
-                    //             fontWeight: FontWeight.w600,
-                    //             color: Colors.black87,
-                    //           ),
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   ),
-                    // ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          //           // CLICKABLE TOGGLE: Cycle through 1Y, 3Y, 5Y
+          //           // InkWell(
+          //           //   onTap: () => controller.cycleReturnYear(),
+          //           //   borderRadius: BorderRadius.circular(4),
+          //           //   child: Padding(
+          //           //     padding: const EdgeInsets.symmetric(
+          //           //       horizontal: 4,
+          //           //       vertical: 2,
+          //           //     ),
+          //           //     child: Row(
+          //           //       mainAxisSize: MainAxisSize.min,
+          //           //       children: [
+          //           //         const Icon(
+          //           //           Icons.swap_horiz,
+          //           //           size: 14,
+          //           //           color: Colors.black54,
+          //           //         ),
+          //           //         const SizedBox(width: 4),
+          //           //         Text(
+          //           //           controller.returnYearLabel,
+          //           //           style: UTextStyles.small.copyWith(
+          //           //             fontWeight: FontWeight.w600,
+          //           //             color: Colors.black87,
+          //           //           ),
+          //           //         ),
+          //           //       ],
+          //           //     ),
+          //           //   ),
+          //           // ),
+          //         ],
+          //       ),
+          //     ),
+          //   ),
+          // ),
 
           // Obx(
           //   () => SliverToBoxAdapter(

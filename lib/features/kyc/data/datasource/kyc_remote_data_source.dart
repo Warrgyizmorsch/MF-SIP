@@ -9,6 +9,7 @@ import 'package:my_sip/features/kyc/data/model/contractPdf_model.dart';
 import 'package:my_sip/features/kyc/data/model/create_esign_url_model.dart';
 import 'package:my_sip/features/kyc/data/model/file_upload_model.dart';
 import 'package:my_sip/features/kyc/data/model/get_esign_data_model.dart';
+import 'package:my_sip/features/kyc/data/model/onboarding_login_model.dart';
 import 'package:my_sip/features/kyc/data/model/poi_step_1_model.dart';
 import 'package:my_sip/features/kyc/data/model/verify_bank_account_model.dart';
 import 'package:my_sip/features/personalization/data/model/bank_model.dart';
@@ -61,9 +62,9 @@ class KycRemoteDataSource {
         data: data,
         headers: {
           'Content-Type': 'application/json',
-          // 'Authorization': sessionManager.getTokenData?.id ?? ''
-          'Authorization':
-              'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
+          'Authorization': sessionManager.getOnboardingData?.sessionToken ?? '',
+          // 'Authorization':
+          //     'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
         },
       );
 
@@ -97,9 +98,9 @@ class KycRemoteDataSource {
         data: data,
         headers: {
           'Content-Type': 'application/json',
-          // 'Authorization': sessionManager.getTokenData?.id ?? '',
-          'Authorization':
-              'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
+          'Authorization': sessionManager.getOnboardingData?.sessionToken ?? '',
+          // 'Authorization':
+          //     'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
         },
       );
 
@@ -131,9 +132,9 @@ class KycRemoteDataSource {
         data: data,
         headers: {
           'Content-Type': 'application/json',
-          // 'Authorization': sessionManager.getTokenData?.id ?? '',
-          'Authorization':
-              'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
+          'Authorization': sessionManager.getOnboardingData?.sessionToken ?? '',
+          // 'Authorization':
+          //     'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
         },
       );
 
@@ -161,9 +162,9 @@ class KycRemoteDataSource {
         data: data,
         headers: {
           'Content-Type': 'application/json',
-          // 'Authorization': sessionManager.getTokenData?.id ?? '',
-          'Authorization':
-              'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
+          'Authorization': sessionManager.getOnboardingData?.sessionToken ?? '',
+          // 'Authorization':
+          //     'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
         },
       );
 
@@ -174,7 +175,7 @@ class KycRemoteDataSource {
         return Left(Result.success(result));
       } else {
         return Right(
-          ApiError(message: 'updateForm Failed: Invalid response structure'),
+          ApiError(message: 'updateForm Failed: Invalid response structure '),
         );
       }
     } catch (e) {
@@ -192,9 +193,9 @@ class KycRemoteDataSource {
         data: data,
         headers: {
           'Content-Type': 'application/json',
-          // 'Authorization': sessionManager.getTokenData?.id ?? '',
-          'Authorization':
-              'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
+          'Authorization': sessionManager.getOnboardingData?.sessionToken ?? '',
+          // 'Authorization':
+          //     'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
         },
       );
 
@@ -227,10 +228,13 @@ class KycRemoteDataSource {
         data: data,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization':
-              'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
+          'Authorization': sessionManager.getOnboardingData?.sessionToken ?? '',
+
+          // 'Authorization':
+          //     'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
         },
       );
+      createLog("[Kyc Remote Data Source] executeVerifyAmount Response: $resp");
 
       if (resp != null) {
         final result = VerifyAmountModel.fromJson(resp);
@@ -296,9 +300,9 @@ class KycRemoteDataSource {
         files: files,
         fileNames: fileNames,
         headers: {
-          // 'Authorization': sessionManager.getTokenData?.id ?? ''
-          'Authorization':
-              'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
+          'Authorization': sessionManager.getOnboardingData?.sessionToken ?? '',
+          // 'Authorization':
+          //     'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
         },
       );
 
@@ -357,10 +361,13 @@ class KycRemoteDataSource {
         data: data,
         headers: {
           'Content-Type': 'application/json',
-          // 'Authorization': sessionManager.getTokenData?.id ?? ''
-          'Authorization':
-              'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
+          'Authorization': sessionManager.getOnboardingData?.sessionToken ?? '',
+          // 'Authorization':
+          //     'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
         },
+      );
+      createLog(
+        "[Kyc Remote Data Source] create pdf Response: $resp",
       );
 
       if (resp != null && resp['object'] != null) {
@@ -386,10 +393,13 @@ class KycRemoteDataSource {
         data: data,
         headers: {
           'Content-Type': 'application/json',
-          // 'Authorization': sessionManager.getTokenData?.id ?? '',
-          'Authorization':
-              'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
+          'Authorization': sessionManager.getOnboardingData?.sessionToken ?? '',
+          // 'Authorization':
+          //     'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
         },
+      );
+      createLog(
+        "[Kyc Remote Data Source] create e sign url Response: $resp",
       );
 
       if (resp != null && resp['object'] != null) {
@@ -419,9 +429,15 @@ class KycRemoteDataSource {
         data: data,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization':
-              'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
+          'Authorization': sessionManager.getOnboardingData?.sessionToken ?? '',
+
+          // 'Authorization':
+          //     'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
         },
+      );
+
+      createLog(
+        "[Kyc Remote Data Source] get e sign data Response: $resp",
       );
 
       if (resp != null && resp['object'] != null) {
@@ -434,6 +450,37 @@ class KycRemoteDataSource {
       }
     } catch (e) {
       return Right(ApiError(message: 'getEsignData Failed with Exception $e'));
+    }
+  }
+
+  // Onboarding and login data
+  Future<Either<Result<OnboardingResponse>, ApiError>> saveOnboardingLoginData(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/initiate-kyc/1",
+        data: data,
+        headers: {
+          'Content-Type': 'application/json',
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
+      );
+
+      createLog(
+        "[Kyc Remote Data Source] saveOnboaridng data Response: $resp",
+      );
+
+      if (resp != null || resp['success'] == true) {
+        final result = OnboardingResponse.fromJson(resp);
+        return Left(Result.success(result));
+      } else {
+        return Right(
+          ApiError(message: resp['message'] ?? 'Onboarding failed on server'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'Onboarding failed with exception:$e'));
     }
   }
 }

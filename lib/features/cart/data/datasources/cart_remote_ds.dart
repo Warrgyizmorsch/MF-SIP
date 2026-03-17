@@ -53,6 +53,8 @@ class CartRemoteDs {
         },
       );
 
+      createLog(SessionManager.instance.jwtAccessToken);
+
       createLog("[Get details cart Remote Data Source]  Response: $res");
 
       if (res['status'] == true) {

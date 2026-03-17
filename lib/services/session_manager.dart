@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_disposable.dart';
 import 'package:my_sip/features/authentication/data/models/auth_model.dart';
+import 'package:my_sip/features/kyc/data/model/onboarding_login_model.dart';
 import 'package:my_sip/features/kyc/data/model/token_data_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,6 +17,7 @@ class SessionManager extends GetxService {
   static final SessionManager _instance = SessionManager._internal();
   static SessionManager get instance => _instance;
   TokenDataModel? get getTokenData => tokenDataModel.value;
+  OnboardingResponse? get getOnboardingData => onboardingRespone.value;
 
   final FlutterSecureStorage? _secureStorage = kIsWeb
       ? null
@@ -30,6 +32,7 @@ class SessionManager extends GetxService {
   final Rxn<RiskResultModel> riskScoreObs = Rxn<RiskResultModel>();
 
   final Rxn<TokenDataModel> tokenDataModel = Rxn<TokenDataModel>();
+  final Rxn<OnboardingResponse> onboardingRespone = Rxn<OnboardingResponse>();
 
   // app lock
   final RxBool isAppLockEnabled = false.obs;
@@ -50,15 +53,30 @@ class SessionManager extends GetxService {
       userId = _prefs?.getString('userId');
 
       final tokenDataString = _prefs?.getString('tokenData');
+      final onBoardingDataString = _prefs?.getString('onBoardingData');
       if (tokenDataString != null) {
         try {
           final loadedData = TokenDataModel.fromJson(
             jsonDecode(tokenDataString),
           );
+
           // Update Observable
           tokenDataModel.value = loadedData;
         } catch (e) {
           debugPrint("Error parsing tokenData on web: $e");
+        }
+      }
+
+      if (onBoardingDataString != null) {
+        try {
+          final loadedData = OnboardingResponse.fromJson(
+            jsonDecode(onBoardingDataString),
+          );
+
+          // Update Observable
+          onboardingRespone.value = loadedData;
+        } catch (e) {
+          debugPrint("Error parsing onBoarding on web: $e");
         }
       }
 
@@ -177,6 +195,38 @@ class SessionManager extends GetxService {
     }
   }
 
+  Future<bool> saveOnboardingData(OnboardingResponse? data) async {
+    // 1. Update the Observable immediately
+    onboardingRespone.value = data;
+
+    // 2. Convert to String
+    String? dataString;
+    if (data != null) {
+      dataString = jsonEncode(data.toJson());
+    }
+
+    // 3. Persist to Storage
+    if (kIsWeb) {
+      await _ensurePrefsInitialized();
+      if (dataString != null) {
+        await _prefs!.setString('onBoardingData', dataString);
+        return true;
+      } else {
+        await _prefs!.remove('onBoardingData');
+        return false;
+      }
+    } else {
+      // Mobile (Secure Storage)
+      if (dataString != null) {
+        await _secureStorage!.write(key: "onBoardingData", value: dataString);
+        return true;
+      } else {
+        await _secureStorage!.delete(key: "onBoardingData");
+        return false;
+      }
+    }
+  }
+
   Future<void> setSession({
     required String? jwtAccessToken,
     String? jwtRefreshToken,
@@ -263,6 +313,7 @@ class SessionManager extends GetxService {
     String? riskScoreString;
     String? appLockString;
     String? tokenDataString;
+    String? onboardingString;
 
     if (kIsWeb) {
       await _ensurePrefsInitialized();
@@ -272,6 +323,7 @@ class SessionManager extends GetxService {
       userDataString = _prefs?.getString('userData');
       riskScoreString = _prefs?.getString('riskScore');
       tokenDataString = _prefs?.getString('tokenData');
+      onboardingString = _prefs?.getString('onBoardingData');
       appLockString = _prefs?.getString('isAppLockEnabled'); // 2. Read for Web
     } else {
       String? appLockVal = await _secureStorage?.read(key: 'isAppLockEnabled');
@@ -285,6 +337,7 @@ class SessionManager extends GetxService {
         key: 'isAppLockEnabled',
       ); // 3. Read for Mobile
       tokenDataString = await _secureStorage?.read(key: 'tokenData');
+      onboardingString = await _secureStorage?.read(key: 'onBoardingData');
     }
     // 4. Update the Observable
     if (appLockString != null) {
@@ -298,6 +351,15 @@ class SessionManager extends GetxService {
         );
       } catch (e) {
         debugPrint("Error parsing TokenDataModel: $e");
+      }
+    }
+    if (onboardingString != null) {
+      try {
+        onboardingRespone.value = OnboardingResponse.fromJson(
+          jsonDecode(onboardingString),
+        );
+      } catch (e) {
+        debugPrint("Error parsing OnboardindData: $e");
       }
     }
     // Convert String -> UserEntity
@@ -334,6 +396,7 @@ class SessionManager extends GetxService {
     riskScoreObs.value = null;
 
     tokenDataModel.value = null;
+    onboardingRespone.value = null;
 
     if (kIsWeb) {
       await _ensurePrefsInitialized();
@@ -344,6 +407,7 @@ class SessionManager extends GetxService {
         _prefs!.remove('userData'), // Added missing removal
         _prefs!.remove('riskScore'),
         _prefs!.remove('tokenData'),
+        _prefs!.remove('onBoardingData'),
       ]);
     } else {
       await Future.wait([
@@ -353,6 +417,7 @@ class SessionManager extends GetxService {
         _secureStorage!.delete(key: 'userData'),
         _secureStorage!.delete(key: 'riskScore'),
         _secureStorage!.delete(key: 'tokenData'),
+        _secureStorage!.delete(key: 'onBoardingData'),
       ]);
     }
 

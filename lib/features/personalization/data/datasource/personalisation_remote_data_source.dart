@@ -8,6 +8,7 @@ import 'package:my_sip/features/personalization/data/model/profile_update_model.
 import 'package:my_sip/features/personalization/data/model/risk_question_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_submit_rq.dart';
+import 'package:my_sip/services/session_manager.dart';
 
 import '../../../../core/network/network_api_service.dart';
 import '../../../../core/utils/helper/helpers.dart';
@@ -131,8 +132,12 @@ class PersonalisationRemoteDataSource {
     Map<String, dynamic> data,
   ) async {
     try {
-      final resp = await _apiService.postApi(
-        "${Appurl.baseUrl}/api/v1/nominees/get-by-customer",
+      final resp = await _apiService.getApi(
+        "${Appurl.baseUrl}/api/v1/nominees",
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
+
         data: data,
       );
 
