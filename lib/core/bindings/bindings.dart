@@ -1,14 +1,22 @@
 import 'package:get/get.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
+import 'package:my_sip/features/cart/data/datasources/cart_remote_ds.dart';
+import 'package:my_sip/features/cart/data/repositories/cart_repo_imp.dart';
+import 'package:my_sip/features/cart/domain/repositories/cart_repo.dart';
+import 'package:my_sip/features/cart/domain/usecases/add_to_cart_usecases.dart';
+import 'package:my_sip/features/cart/domain/usecases/cart_usecases.dart';
+import 'package:my_sip/features/cart/domain/usecases/delete_cart_item_usecases.dart';
+import 'package:my_sip/features/cart/domain/usecases/get_cart_list_usecases.dart';
+import 'package:my_sip/features/cart/domain/usecases/update_cart_usecases.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/data/datasources/mutualfund_remote_ds.dart';
 import 'package:my_sip/features/explore/data/repositories/mutual_fund_repo_implement.dart';
 import 'package:my_sip/features/explore/domain/repositories/mutual_fund_repository.dart';
 import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_usecases.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
-import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
 import 'package:my_sip/features/onboarding/presentation/controller/onboarding_controller.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/questions/question_controller.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 
 import '../../features/authentication/data/datasources/auth_remote_data_source.dart';
 import '../../features/authentication/data/repositories/auth_repository_impl.dart';
@@ -24,6 +32,8 @@ class UBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut(() => NetworkServicesApi());
+
+    Get.lazyPut(() => NavigationBarController(), fenix: true);
 
     // 1. Data Source (Lowest Level)
     Get.lazyPut<AuthRemoteDataSource>(
@@ -103,14 +113,43 @@ class UBinding extends Bindings {
     // Get.lazyPut(() => GetSchemeInfousecase(Get.find()), fenix: true);
 
     // 5. Finally, register the Controller
-    Get.lazyPut(
-      () => MutualFundController(Get.find()),
-      fenix: true,
+    Get.lazyPut(() => MutualFundController(Get.find()), fenix: true);
+
+    /////cart bindings
+
+    Get.lazyPut<CartRemoteDs>(
+      () => CartRemoteDs(Get.find<NetworkServicesApi>()),
     );
 
-    Get.put<CartController>(CartController(), permanent: true);
+    Get.lazyPut<CartRepo>(() => CartRepoImp(Get.find<CartRemoteDs>()));
 
-    // Goal controller
-    Get.lazyPut(() => GoalSipController(), fenix: true);
+    Get.lazyPut(() => GetCartListUsecases(Get.find<CartRepo>()));
+    Get.lazyPut(() => UpdateCartUsecases(Get.find<CartRepo>()));
+
+    Get.lazyPut(() => AddToCartUsecases(Get.find<CartRepo>()));
+    Get.lazyPut(() => DeleteCartItemUsecases(Get.find<CartRepo>()));
+
+    Get.lazyPut(
+      () => CartUsecases(
+        Get.find<AddToCartUsecases>(),
+        Get.find<GetCartListUsecases>(),
+        Get.find<UpdateCartUsecases>(),
+        Get.find<DeleteCartItemUsecases>(),
+      ),
+    );
+
+    // --------------//
+
+    // Get.put<CartController>(CartController(Get.find()), permanent: true);
+    // To this:
+    Get.lazyPut<CartController>(
+      () => CartController(Get.find()),
+      fenix: true, // This allows it to be recreated after being disposed
+    );
+
+    // // Goal controller
+    // Get.lazyPut(() => GoalSipController(goalUseCases: Get.find<>()), fenix: true);
+
+    // Get.lazyPut(() => PersonalisationController(Get.find()));
   }
 }

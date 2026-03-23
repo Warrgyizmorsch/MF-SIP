@@ -18,6 +18,9 @@ class FundDetailsController extends GetxController
   late String imgUrl;
   late String schemeCode;
   final selectedPeriod = '1Y'.obs;
+  late String email;
+  late String contact;
+  late String address;
 
   // Controllers
   late TabController tabController;
@@ -58,9 +61,12 @@ class FundDetailsController extends GetxController
   FundDetailsController({required this.fundDetailsUsecases}) {
     final args = Get.arguments as Map<String, dynamic>? ?? {};
     schemeName = args['scheme'] ?? 'Fund Details';
-    imgUrl = args['imgUrl'] ?? '';
+    imgUrl = args['imgUrl'] ?? '--';
 
     schemeCode = args['scheme_code'] ?? '';
+    email = args['email'] ?? '--';
+    contact = args['contact'] ?? '--';
+    address = args['address'] ?? '--';
 
     createLog("gggg$schemeName");
     // createLog("gggg$schemeCode");
@@ -160,6 +166,8 @@ class FundDetailsController extends GetxController
     }
   }
 
+  final navHistoryHasError = false.obs; // Use a specific error variable for the chart
+
   // Get Scheme nav history
   Future<void> getShcemeNavHistory({
     required String scchemeCode,
@@ -170,6 +178,7 @@ class FundDetailsController extends GetxController
       isNavHistoryLoading.value = true;
       hasError.value = false;
       errorMessage.value = '';
+      navHistoryHasError.value = false; // Reset local error
 
       final now = DateTime.now();
       DateTime fromDate;
@@ -211,8 +220,8 @@ class FundDetailsController extends GetxController
           "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
 
       final result = await fundDetailsUsecases.navHistoryUsecases.call({
-        'from': formatDate(fromDate),
-        'to': formatDate(now),
+        'startDate': formatDate(fromDate),
+        'endDate': formatDate(now),
         'scheme_code': scchemeCode,
       });
 
@@ -225,14 +234,18 @@ class FundDetailsController extends GetxController
           );
         },
         (error) {
+          navHistorydata.value = null;
           hasError.value = true;
           errorMessage.value = error.toString();
           isNavHistoryLoading.value = false;
+          navHistoryHasError.value = true; // Reset local error
           createLog("Error loading Navhistory details: $error");
         },
       );
     } catch (e) {
       hasError.value = true;
+      navHistoryHasError.value = true; // Reset local error
+      navHistorydata.value = null;
       errorMessage.value = e.toString();
       isNavHistoryLoading.value = false;
       createLog("Exception in Portfolio: $e");
@@ -346,13 +359,12 @@ class FundDetailsController extends GetxController
     double c(double? v) => v ?? 0;
 
     return [
-       ReturnRow(
+      ReturnRow(
         period: '1W',
         scheme: scheme.oneWeekReturn,
         category: c(category?.oneWeekReturn),
         benchmark: b(benchmark?.oneWeekReturn),
       ),
-      
 
       ReturnRow(
         period: '1M',

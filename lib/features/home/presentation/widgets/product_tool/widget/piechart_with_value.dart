@@ -24,6 +24,8 @@ class PieChartWithValue extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min
+      ,
       children: [
         ...list,
 

@@ -187,8 +187,9 @@ import 'package:get/get.dart';
 //   // }
 // }
 
-import 'dart:math';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 
 // class GoalSipController extends GetxController {
 //   // Inputs
@@ -271,8 +272,22 @@ import 'package:get/get.dart';
 // }
 
 import 'package:my_sip/features/fund_details/data/models/return_model.dart';
+import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
+import 'package:my_sip/features/goal/domain/usecases/goal_use_cases.dart';
+import 'package:my_sip/services/session_manager.dart';
 
 class GoalSipController extends GetxController {
+  final GoalUseCases goalUseCases;
+
+  final cartController = Get.find<CartController>();
+
+  final savedDatabaseId = RxnInt();
+
+  // --- Goal Response data ---
+  final isLoadingGoals = false.obs;
+  final goalResponse = Rxn<GoalResponseEntity>();
+
+  final coverImage = Rxn<XFile>();
   // Inputs
   final targetAmount = 0.0.obs;
   final years = 1.0.obs;
@@ -284,7 +299,6 @@ class GoalSipController extends GetxController {
   final futureValue = 0.obs;
   final totalReturn = 0.obs;
 
-
   final isGoalSaved = false.obs;
 
   // Yearly report
@@ -295,14 +309,16 @@ class GoalSipController extends GetxController {
   final selectedPopularFund = <String>{}.obs;
   // RxList<int> selectedPopularFund = <int>[].obs;
 
-
   final goalNameTextEditingController = TextEditingController();
+
+  GoalSipController({required this.goalUseCases});
 
   @override
   void onInit() {
     super.onInit();
     _recalculate();
   }
+
   void initFromGoal({
     required double amount,
     required double years,
@@ -313,21 +329,64 @@ class GoalSipController extends GetxController {
     setRate(rate);
   }
 
-  Future<void> saveGoalToDb() async {
+  Future<bool> getAllGoals() async {
+    isLoadingGoals.value = true;
+    try {
+      final result = await goalUseCases.getGoalsUseCase.call();
+      return result.fold(
+        (success) {
+          goalResponse.value = success.data;
+          return true;
+        },
+        (error) {
+          Get.snackbar("Error", error.message);
+          return false;
+        },
+      );
+    } catch (e) {
+      Get.snackbar("Error", e.toString());
+      return false;
+    } finally {
+      isLoadingGoals.value = false;
+    }
+  }
 
-    if(goalNameTextEditingController.text.isEmpty){
+  Future<void> saveGoalToDb() async {
+    if (goalNameTextEditingController.text.isEmpty) {
       Get.snackbar("Error", "Please enter a goal name");
       return;
     }
-    // 1. Simulate DB Loading or API Call
-    // await Future.delayed(const Duration(milliseconds: 600));
 
-    // 2. TODO: Insert your Database/API logic here
-    // Example: DatabaseHelper.insertGoal(targetAmount.value, years.value, ...);
-    print("Goal Saved: Target: ${targetAmount.value}, Years: ${years.value}");
+    final requestData = {
+      "user_id": SessionManager.instance.getUserData?.id,
+      "created_date": DateTime.now().toString(),
+      "target_amount": targetAmount.value,
+      "frequency": "Monthly",
+      "monthly_investment": monthlySip.value,
+      "expected_return_rate": annualRate.value,
+      "goal_tenure": years.value,
+      "invested_amount": invested.value,
+      "status": "active",
+      "goal_name": goalNameTextEditingController.text,
+      "goal_id": "1",
+    };
 
-    // 3. Unlock the projections
-    isGoalSaved.value = true;
+    final result = await goalUseCases.saveGoalUseCase.call(requestData);
+    return result.fold(
+      (success) {
+        // Get.snackbar("Success", success.data ?? '');
+        Get.snackbar("Success", 'Goal saved successfully,');
+
+        isGoalSaved.value = true;
+        savedDatabaseId.value = int.tryParse(success.data?.toString() ?? '0');
+
+        print('goal id save ${success.data}');
+      },
+      (error) {
+        Get.snackbar("Error", error.message);
+        isGoalSaved.value = true;
+      },
+    );
   }
 
   ///// -------------- Goal Calculation ---------------///
@@ -439,7 +498,7 @@ class GoalSipController extends GetxController {
   //       : selectedPopularFund.add(id);
   // }
 
-    void toggleFund(String fundName) {
+  void toggleFund(String fundName) {
     selectedPopularFund.contains(fundName)
         ? selectedPopularFund.remove(fundName)
         : selectedPopularFund.add(fundName);

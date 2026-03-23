@@ -21,7 +21,9 @@ class _GroupedPerformanceBarChartState
     if (widget.data.isEmpty) return const SizedBox();
 
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
-    final width = isDesktop ? 16.0 : 8.0; // Increased width slightly for desktop
+    final width = isDesktop
+        ? 16.0
+        : 12.0; // Increased width slightly for desktop
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -31,12 +33,12 @@ class _GroupedPerformanceBarChartState
         border: isDesktop ? Border.all(color: Colors.grey.shade200) : null,
         boxShadow: isDesktop
             ? [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          )
-        ]
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ]
             : [],
       ),
       padding: isDesktop ? const EdgeInsets.all(24) : const EdgeInsets.all(16),
@@ -66,14 +68,18 @@ class _GroupedPerformanceBarChartState
           // 👇 FIX: Use SizedBox with fixed height instead of AspectRatio
           // ---------------------------------------------------------
           SizedBox(
-            height: isDesktop ? 300 : 250, // Fixed height prevents overflow on wide screens
+            height: isDesktop
+                ? 300
+                : 250, // Fixed height prevents overflow on wide screens
             child: BarChart(
               BarChartData(
-                alignment: BarChartAlignment.spaceAround,
+                // alignment: BarChartAlignment.spaceAround,
+                alignment: BarChartAlignment.spaceBetween,
                 titlesData: FlTitlesData(
                   show: true,
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
+                      interval: 1,
                       showTitles: true,
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
@@ -98,7 +104,8 @@ class _GroupedPerformanceBarChartState
                   ),
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
-                      showTitles: true,
+                      // interval: 1,
+                      showTitles: false,
                       reservedSize: isDesktop ? 40 : 30,
                       getTitlesWidget: (value, meta) {
                         if (value == 0) return const SizedBox();
@@ -113,30 +120,36 @@ class _GroupedPerformanceBarChartState
                       },
                     ),
                   ),
-                  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  rightTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
                 ),
                 gridData: FlGridData(
                   show: true,
+
                   drawVerticalLine: false,
-                  horizontalInterval: 5,
-                  getDrawingHorizontalLine: (value) => FlLine(
-                    color: Colors.grey.shade100,
-                    strokeWidth: 1,
-                  ),
+                  horizontalInterval: 1,
+                  getDrawingHorizontalLine: (value) =>
+                      FlLine(color: Colors.grey.shade100, strokeWidth: 1),
                 ),
                 borderData: FlBorderData(show: false),
                 barTouchData: BarTouchData(
                   enabled: true,
                   touchTooltipData: BarTouchTooltipData(
                     getTooltipColor: (_) => Colors.grey.shade900,
-                    tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    tooltipPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
                     tooltipMargin: 8,
                     getTooltipItem: (group, groupIndex, rod, rodIndex) {
                       String label = '';
                       if (rodIndex == 0) label = 'Fund';
                       if (rodIndex == 1) label = 'Benchmark';
-                      if (rodIndex == 2) label = 'Category';
+                      // if (rodIndex == 2) label = 'Category';
                       return BarTooltipItem(
                         '$label\n',
                         const TextStyle(
@@ -165,7 +178,8 @@ class _GroupedPerformanceBarChartState
                         touchedIndex = -1;
                         return;
                       }
-                      touchedIndex = barTouchResponse.spot!.touchedBarGroupIndex;
+                      touchedIndex =
+                          barTouchResponse.spot!.touchedBarGroupIndex;
                     });
                   },
                 ),
@@ -176,12 +190,13 @@ class _GroupedPerformanceBarChartState
                     index,
                     row.scheme,
                     row.benchmark,
-                    row.category,
+                    // row.category,
                     width,
                     isDesktop,
                   );
                 }).toList(),
-                maxY: _getMaxY() + 5, // Added buffer for top labels
+                // maxY: _getMaxY(), // Added buffer for top labels
+                maxY: (_getMaxY()).ceilToDouble(), // Adds 1% buffer to the top
               ),
             ),
           ),
@@ -195,13 +210,15 @@ class _GroupedPerformanceBarChartState
   }
 
   Widget _buildLegend({required bool isDesktop, required double width}) {
-    return Wrap(
-      spacing: isDesktop ? 24 : 16,
-      runSpacing: 8,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      // spacing: isDesktop ? 24 : 16,
+
+      // runSpacing: 8,
       children: [
         _legendItem('Fund', const Color(0xFF22C55E), width),
         _legendItem('Benchmark', Colors.grey.shade400, width),
-        _legendItem('Category', const Color(0xFF60A5FA), width),
+        // _legendItem('Category', const Color(0xFF60A5FA), width),
       ],
     );
   }
@@ -242,14 +259,15 @@ class _GroupedPerformanceBarChartState
   }
 
   BarChartGroupData generateGroup(
-      int x,
-      double fund,
-      double benchmark,
-      double category,
-      double width,
-      bool isDesktop,
-      ) {
+    int x,
+    double fund,
+    double benchmark,
+    // double category,
+    double width,
+    bool isDesktop,
+  ) {
     return BarChartGroupData(
+      barsSpace: 4,
       x: x,
       groupVertically: false,
       barRods: [
@@ -261,20 +279,26 @@ class _GroupedPerformanceBarChartState
             end: Alignment.topCenter,
           ),
           width: width,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(isDesktop ? 4 : 2)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(isDesktop ? 4 : 2),
+          ),
         ),
         BarChartRodData(
           toY: benchmark,
           color: Colors.grey.shade400,
           width: width,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(isDesktop ? 4 : 2)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(isDesktop ? 4 : 2),
+          ),
         ),
-        BarChartRodData(
-          toY: category,
-          color: const Color(0xFF60A5FA),
-          width: width,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(isDesktop ? 4 : 2)),
-        ),
+        // BarChartRodData(
+        //   toY: category,
+        //   color: const Color(0xFF60A5FA),
+        //   width: width,
+        //   borderRadius: BorderRadius.vertical(
+        //     top: Radius.circular(isDesktop ? 4 : 2),
+        //   ),
+        // ),
       ],
     );
   }

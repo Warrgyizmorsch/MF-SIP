@@ -6,6 +6,7 @@ import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
+import 'package:my_sip/features/explore/data/model/categories_filter_model.dart';
 import 'package:my_sip/features/explore/data/model/mutual_fund_list_model.dart';
 
 class MutualfundRemoteDs {
@@ -18,8 +19,9 @@ class MutualfundRemoteDs {
     Map<String, dynamic> data,
   ) async {
     try {
-      final resp = await _servicesApi.getApi(
+      final resp = await _servicesApi.postApi(
         "${Appurl.baseUrl}/api/v1/mutual-funds",
+        
         queryParameters: data,
       );
 
@@ -38,5 +40,39 @@ class MutualfundRemoteDs {
     }
   }
 
+  /// categories of filter
+  Future<Either<Result<FundCategoryModel>, ApiError>> getMfCategories(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _servicesApi.postApi(
+        '${Appurl.baseUrl2}/getAllSchemeCategories',
+        queryParameters: {
+          'key': 'c6b23a3f-ee3c-4b8b-a9bb-05bce1e39405',
+          // 'scheme': data['scheme'],
+        },
+      );
+      createLog(
+        "[fund categories Remote Data Source] scheme detail model  Response: $response",
+      );
 
+      //
+      final Map<String, dynamic> json = response is String
+          ? jsonDecode(response)
+          : response;
+
+      createLog("[fund  categories  Remote DS] Parsed response: $json");
+
+      if (json['status'] == 200 || json['status_msg'] == 'Success') {
+        final result = FundCategoryModel.fromJson(json);
+        return Left(Result.success(result));
+      } else {
+        return Right(
+          ApiError(message: 'fund categories info: Success was false'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'fund categories info failed $e'));
+    }
+  }
 }

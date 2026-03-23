@@ -23,6 +23,7 @@ class CustomProfileAppbar extends StatelessWidget
     this.iconColor,
     this.actionsPadding,
     this.actionIconcolor,
+    this.img,
   });
 
   final String greetingName;
@@ -37,6 +38,7 @@ class CustomProfileAppbar extends StatelessWidget
   final EdgeInsetsGeometry? actionsPadding;
   final Color? actionIconcolor;
   final AuthController controller = Get.find<AuthController>();
+  final Widget? img;
 
   @override
   Widget build(BuildContext context) {
@@ -45,58 +47,64 @@ class CustomProfileAppbar extends StatelessWidget
       actionsPadding: actionsPadding,
 
       automaticallyImplyLeading: false,
-      backgroundColor: kIsWeb ? Colors.transparent :backgroundColor,
+      backgroundColor: kIsWeb ? Colors.transparent : backgroundColor,
 
       // elevation: 10,
       actions: action,
 
       //Profile Details
-      title: kIsWeb ? SizedBox.shrink() : Row(
-        children: [
-          InkWell(
-            onTap: onProfiletap,
-
-            //avatar
-            child: CircleAvatar(
-              // backgroundColor: Colors.pink,
-              backgroundImage: avatar ?? AssetImage(UImages.imp),
-            ),
-          ),
-          const SizedBox(width: 5),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              //Greeting
-              Text(
-                UHelperFunction.getGreetingMsg(),
-
-                textAlign: TextAlign.start,
-                style: UTextStyles.subtitle1.copyWith(
-                  color: roleColor ?? Ucolors.dark,
-                  fontSize: 10,
-                ),
-              ),
-              Row(
+      title: kIsWeb
+          ? SizedBox.shrink()
+          : InkWell(
+              onTap: onProfiletap,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  //Name
-                  Text(
-                    // greetingName,
-                    user?.name ?? '',
-                    style: UTextStyles.heading1.copyWith(
-                      fontSize: 14,
-                      color: greetingNameColor,
-                    ),
+                  CircleAvatar(
+                    // backgroundColor: Colors.pink,
+                    backgroundImage: avatar ?? AssetImage(UImages.imp),
+
+                    child: img,
                   ),
                   const SizedBox(width: 5),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      //Greeting
+                      Text(
+                        UHelperFunction.getGreetingMsg(),
 
-                  Icon(Icons.keyboard_arrow_down_sharp, color: iconColor),
+                        textAlign: TextAlign.start,
+                        style: UTextStyles.subtitle1.copyWith(
+                          color: roleColor ?? Ucolors.dark,
+                          fontSize: 10,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          //Name
+                          Text(
+                            // greetingName,
+                            user?.name ?? '',
+                            style: UTextStyles.heading1.copyWith(
+                              fontSize: 14,
+                              color: greetingNameColor,
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+
+                          Icon(
+                            Icons.keyboard_arrow_down_sharp,
+                            color: iconColor,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ],
               ),
-            ],
-          ),
-        ],
-      ),
+            ),
     );
   }
 

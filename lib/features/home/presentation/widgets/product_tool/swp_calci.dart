@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
+import 'package:get/get.dart'; // Ensure Get is imported if used for navigation or utils
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/table/table_header.dart';
@@ -7,6 +9,8 @@ import 'package:my_sip/features/home/presentation/widgets/product_tool/swp_calcu
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/InvestValue.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/piechart_with_value.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/sipslidertile.dart';
+import 'package:responsive_framework/responsive_framework.dart'; // Import Responsive
+
 import '../../../../fund_details/data/models/return_model.dart';
 import '../../../../fund_details/presentation/pages/fund_deatails.dart';
 import '../../../../fund_details/presentation/widgets/return.dart';
@@ -19,13 +23,16 @@ class SwpCalciScreen extends StatefulWidget {
 }
 
 class _SwpCalciScreenState extends State<SwpCalciScreen> {
-  double initialInvestment = 10000;
-  double monthlyWithdrawal = 500;
-  double years = 1;
+  double initialInvestment = 100000; // Increased default for realistic SWP
+  double monthlyWithdrawal = 5000;
+  double years = 5;
   double returnRate = 12;
 
   @override
   Widget build(BuildContext context) {
+    // Detect Desktop
+    final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+
     final swp = calculateSwp(
       initialInvestment: initialInvestment,
       monthlyWithdrawal: monthlyWithdrawal,
@@ -34,337 +41,239 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
     );
 
     return Scaffold(
-      backgroundColor: Colors.white.withOpacity(0.96),
-
+      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white.withOpacity(0.96),
       appBar: CustomAppBarNormal(title: 'SWP Calculator'),
-      body: Padding(
-        padding: UPadding.screenPadding.copyWith(top: 20, bottom: 20),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              SipSliderTile2(
-                title: 'Initial Investment',
-                value: initialInvestment,
-                min: 10000,
-                max: 1000000,
-                suffix: null,
-                prefix: '₹',
+      body: SingleChildScrollView(
+        padding: isDesktop
+            ? const EdgeInsets.symmetric(vertical: 30, horizontal: 24)
+            : UPadding.screenPadding.copyWith(top: 20, bottom: 20),
+        child: Column(
+          children: [
+            // --- 1. Header/Tabs (Optional for consistency, but simple title is fine here) ---
 
-                onChanged: (value) {
-                  setState(() {
-                    initialInvestment = value;
-                  });
-                },
-              ),
-              SipSliderTile2(
-                title: 'Withdraw per month',
-                value: monthlyWithdrawal,
-                // value: for,
-                min: 500,
-                max: 1000000,
-                // suffix: '₹',
-                suffix: null,
-                prefix: '₹',
-                onChanged: (value) {
-                  setState(() {
-                    monthlyWithdrawal = value;
-                  });
-                },
-              ),
-              SipSliderTile2(
-                title: 'Over a period of',
-                value: years,
-                min: 1,
-                max: 30,
-                suffix: 'Years',
-                onChanged: (value) {
-                  setState(() {
-                    years = value;
-                  });
-                },
-              ),
-              SipSliderTile2(
-                // prefix: 'da',
-                title: 'Expected rate of return %',
-                value: returnRate,
-                min: 1,
-                max: 20,
-                suffix: '%',
-                onChanged: (value) {
-                  setState(() {
-                    returnRate = value;
-                  });
-                },
-              ),
-
-              Card(
-                elevation: 1,
-                shadowColor: Colors.white,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Ucolors.light,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Ucolors.borderside),
-                  ),
-                  child: DefaultTabController(
-                    length: 2,
-
-                    child: Column(
-                      children: [
-                        Tab(
-                          child: TabBar(
-                            indicatorSize: TabBarIndicatorSize.tab,
-
-                            // tabAlignment: TabAlignment.start,
-                            // tabAlignment: TabAlignment.startOffset,s
-                            // dividerHeight: 40,
-                            // isScrollable: true,
-                            unselectedLabelColor: Colors.grey,
-                            dividerColor: Colors.transparent,
-                            labelColor: Ucolors.primary,
-                            indicatorColor: Colors.transparent,
-                            labelPadding: EdgeInsets.symmetric(vertical: 5),
-                            indicator: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-
-                              color: Ucolors.primary.withOpacity(0.1),
-                            ),
-                            tabs: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8.0,
-                                ),
-                                child: Text(
-                                  'Visual Rep.',
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8.0,
-                                ),
-                                child: Text(
-                                  'Report',
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 450,
-                          child: TabBarView(
-                            children: [
-                              //Visual representation
-                              Column(
-                                // mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  PieChartWithValue(
-                                    title1: 'Withdrawn',
-                                    title2: 'Remaining',
-                                    piechartvalue1: swp.totalWithdrawn,
-                                    piechartvalue2: swp.remainingValue,
-                                    list: [
-                                      InvestValue(
-                                        inrFomat: false,
-                                        title: 'Invest Amount',
-                                        value: formatIndianNumber(
-                                          initialInvestment,
-                                        ),
-                                        // value: initialInvestment
-                                        //     .toStringAsFixed(0),
-                                      ),
-                                      InvestValue(
-                                        title: 'Total Withdrawn',
-                                        inrFomat: false,
-                                        value: formatIndianNumber(
-                                          swp.totalWithdrawn,
-                                        ),
-                                        // value: swp.totalWithdrawn
-                                        //     .toStringAsFixed(0),
-                                      ),
-                                      InvestValue(
-                                        inrFomat: false,
-                                        title: 'Remaining Value',
-                                        value: formatIndianNumber(
-                                          swp.remainingValue,
-                                        ),
-                                        // value: swp.remainingValue
-                                        //     .toStringAsFixed(0),
-                                      ),
-                                      InvestValue(
-                                        inrFomat: false,
-                                        title: 'Total Profit',
-                                        // value: formatIndianNumber(
-                                        //   swp.totalProfit,
-                                        // ),
-                                        value: formatIndianNumber(
-                                          swp.totalProfit,
-                                        ),
-                                        // value: swp.totalProfit.toStringAsFixed(
-                                        //   0,
-                                        // ),
-                                      ),
-                                    ],
-                                    piechartcolor1: Ucolors.primary,
-                                    piechartcolor2: Ucolors.primary.withOpacity(
-                                      0.1,
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              //2nd correct
-                              SizedBox(
-                                height: 450,
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis
-                                      .horizontal, // 🔑 one horizontal scroll
-                                  child: SizedBox(
-                                    width: 400, // total table width
-                                    child: Column(
-                                      children: [
-                                        /// HEADER
-                                        const TableHeader(
-                                          heading1: "Years",
-                                          heading2: "Withdrawn",
-                                          heading3: "Profit",
-                                          heading4: "Remaining",
-                                        ),
-
-                                        // const Divider(height: 1),
-                                        DashedLine(
-                                          dashSpace: 0,
-                                          color: Ucolors.borderColor,
-                                        ),
-
-                                        /// BODY (VERTICAL SCROLL HERE ✅)
-                                        SizedBox(
-                                          height: 370,
-                                          child: swp.report.isEmpty
-                                              ? Center(
-                                                  child: Text(
-                                                    'No Data Available',
-                                                  ),
-                                                )
-                                              : ListView.builder(
-                                                  itemCount: swp.report.length,
-                                                  itemBuilder: (_, i) {
-                                                    final r = swp.report[i];
-                                                    return ReturnsTableRow(
-                                                      percentage: false,
-                                                      color3: Colors.green,
-                                                      data: ReturnRow(
-                                                        period: r.year
-                                                            .toString(),
-                                                        scheme: r.withdrawn,
-                                                        category: r.profit,
-                                                        benchmark: r.remaining,
-                                                      ),
-                                                    );
-                                                  },
-                                                ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              //Correct
-                              // Expanded(
-                              //   child: SingleChildScrollView(
-                              //     scrollDirection: Axis.horizontal,
-                              //     child: SizedBox(
-                              //       width: 550,
-                              //       child: Column(
-                              //         children: [
-                              //           const TableHeader(
-                              //             heading1: "Years",
-                              //             heading2: "Withdrawn",
-                              //             heading3: "Profit",
-                              //             heading4: "Remaining",
-                              //           ),
-
-                              //           const Divider(height: 1),
-
-                              //           SizedBox(
-                              //             height:
-                              //                 MediaQuery.of(
-                              //                   context,
-                              //                 ).size.height *
-                              //                 0.4,
-                              //             child: ListView.builder(
-                              //               itemCount: swp.report.length,
-                              //               itemBuilder: (_, i) {
-                              //                 final r = swp.report[i];
-                              //                 return ReturnsTableRow(
-                              //                   percentage: false,
-                              //                   color3: Colors.green,
-                              //                   data: ReturnRow(
-                              //                     period: r.year.toString(),
-                              //                     scheme: r.withdrawn,
-                              //                     category: r.profit,
-                              //                     benchmark: r.remaining,
-                              //                   ),
-                              //                 );
-                              //               },
-                              //             ),
-                              //           ),
-                              //         ],
-                              //       ),
-                              //     ),
-                              //   ),
-                              // ),
-
-                              //Report table
-                              // Column(
-                              //   children: [
-                              //     TableHeader(
-                              //       heading1: 'Years',
-                              //       heading2: 'Withdrawn',
-                              //       heading3: 'Profit',
-                              //       heading4: 'Remaining',
-                              //     ),
-                              //     DashedLine(
-                              //       color: Ucolors.borderColor,
-                              //       dashSpace: 0,
-                              //     ),
-
-                              //     Expanded(
-                              //       child: ListView.builder(
-                              //         itemCount: swp.report.length,
-                              //         itemBuilder: (_, i) {
-                              //           final r = swp.report[i];
-                              //           return ReturnsTableRow(
-                              //             percentage: false,
-                              //             color3: Colors.green,
-                              //             data: ReturnRow(
-                              //               period: r.year.toString(),
-                              //               scheme: r.withdrawn,
-                              //               category: r.profit,
-                              //               benchmark: r.remaining,
-                              //             ),
-                              //           );
-                              //         },
-                              //       ),
-                              //     ),
-                              //   ],
-                              // ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+            // --- 2. Main Layout ---
+            isDesktop
+                ? Center(
+              child: MaxWidthBox(
+                maxWidth: 1200,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 4, child: _buildInputs(isDesktop)),
+                    const Gap(30),
+                    Expanded(flex: 6, child: _buildResults(isDesktop, swp)),
+                  ],
                 ),
               ),
-            ],
-          ),
+            )
+                : Column(
+              children: [
+                _buildInputs(isDesktop),
+                const Gap(20),
+                _buildResults(isDesktop, swp),
+              ],
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  // =========================================================
+  // 🔹 INPUT SECTION (Sliders)
+  // =========================================================
+  Widget _buildInputs(bool isDesktop) {
+    return Container(
+      padding: EdgeInsets.all(isDesktop ? 24 : 0),
+      decoration: isDesktop ? _webCardDecoration() : null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (isDesktop) ...[
+            const Text("Input Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Gap(20),
+          ],
+          SipSliderTile2(
+            title: 'Initial Investment',
+            value: initialInvestment,
+            min: 10000,
+            max: 5000000, // Increased Max
+            suffix: null,
+            prefix: '₹',
+            onChanged: (value) => setState(() => initialInvestment = value),
+          ),
+          SipSliderTile2(
+            title: 'Withdraw per month',
+            value: monthlyWithdrawal,
+            min: 500,
+            max: 200000, // Increased Max
+            suffix: null,
+            prefix: '₹',
+            onChanged: (value) => setState(() => monthlyWithdrawal = value),
+          ),
+          SipSliderTile2(
+            title: 'Over a period of',
+            value: years,
+            min: 1,
+            max: 30,
+            suffix: 'Years',
+            onChanged: (value) => setState(() => years = value),
+          ),
+          SipSliderTile2(
+            title: 'Expected rate of return',
+            value: returnRate,
+            min: 1,
+            max: 30,
+            suffix: '%',
+            onChanged: (value) => setState(() => returnRate = value),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =========================================================
+  // 🔹 RESULTS SECTION (Chart + Table)
+  // =========================================================
+  Widget _buildResults(bool isDesktop, dynamic swp) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+      decoration: BoxDecoration(
+        color: Ucolors.light,
+        borderRadius: BorderRadius.circular(isDesktop ? 16 : 10),
+        border: Border.all(color: Ucolors.borderside),
+        boxShadow: isDesktop ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)] : null,
+      ),
+      child: DefaultTabController(
+        length: 2,
+        child: Column(
+          children: [
+            // Tabs
+            Container(
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: TabBar(
+                indicatorSize: TabBarIndicatorSize.tab,
+                unselectedLabelColor: Colors.grey,
+                dividerColor: Colors.transparent,
+                labelColor: Ucolors.primary,
+                indicator: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white,
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)]
+                ),
+                tabs: const [
+                  Tab(text: 'Visual Rep.'),
+                  Tab(text: 'Report'),
+                ],
+              ),
+            ),
+
+            const Gap(20),
+
+            // Views
+            SizedBox(
+              height: 450,
+              child: TabBarView(
+                children: [
+                  // 1. Visual Chart
+                  SingleChildScrollView(
+                    child: PieChartWithValue(
+                      title1: 'Withdrawn',
+                      title2: 'Remaining',
+                      piechartvalue1: swp.totalWithdrawn,
+                      piechartvalue2: swp.remainingValue,
+                      list: [
+                        InvestValue(
+                          inrFomat: false,
+                          title: 'Invest Amount',
+                          value: formatIndianNumber(initialInvestment),
+                        ),
+                        InvestValue(
+                          title: 'Total Withdrawn',
+                          inrFomat: false,
+                          value: formatIndianNumber(swp.totalWithdrawn),
+                        ),
+                        InvestValue(
+                          inrFomat: false,
+                          title: 'Remaining Value',
+                          value: formatIndianNumber(swp.remainingValue),
+                        ),
+                        InvestValue(
+                          inrFomat: false,
+                          title: 'Total Profit',
+                          value: formatIndianNumber(swp.totalProfit),
+                        ),
+                      ],
+                      piechartcolor1: Ucolors.primary,
+                      piechartcolor2: Ucolors.primary.withOpacity(0.1),
+                    ),
+                  ),
+
+                  // 2. Report Table
+                  SingleChildScrollView(
+                    scrollDirection: Axis.vertical, // Allow vertical scroll
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal, // Allow horizontal scroll for table
+                      child: SizedBox(
+                        width: 450, // Fixed width to ensure columns align
+                        child: Column(
+                          children: [
+                            const TableHeader(
+                              heading1: "Years",
+                              heading2: "Withdrawn",
+                              heading3: "Profit",
+                              heading4: "Remaining",
+                            ),
+                            DashedLine(dashSpace: 0, color: Ucolors.borderColor),
+
+                            // Using a Column here instead of ListView to work inside ScrollView
+                            if (swp.report.isEmpty)
+                              const Padding(
+                                padding: EdgeInsets.all(20.0),
+                                child: Text('No Data Available'),
+                              )
+                            else
+                              Column(
+                                children: List.generate(swp.report.length, (i) {
+                                  final r = swp.report[i];
+                                  return ReturnsTableRow(
+                                    percentage: false,
+                                    color3: Colors.green,
+                                    data: ReturnRow(
+                                      period: r.year.toString(),
+                                      scheme: r.withdrawn,
+                                      category: r.profit,
+                                      benchmark: r.remaining,
+                                    ),
+                                  );
+                                }),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  BoxDecoration _webCardDecoration() {
+    return BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+      ],
+      border: Border.all(color: Colors.grey.shade200),
     );
   }
 }

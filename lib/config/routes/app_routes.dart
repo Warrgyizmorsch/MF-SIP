@@ -1,5 +1,6 @@
 class AppRoutes {
   static const home = '/home';
+  static const String mainMenu = '/main-menu';
   static const navMenuBar = '/navMenuBar';
   static const splash = '/';
   static const login = '/login';
@@ -12,20 +13,29 @@ class AppRoutes {
   static const watchlist = '/watchlist';
   static const notification = '/notification';
   static const cart = '/cart';
-  static const accumulationanddistributionscreen = '/accumulationanddistributionscreen';
+  static const accumulationanddistributionscreen =
+      '/accumulationanddistributionscreen';
   static const startSipScreen = '/startSipScreen';
   static const investingApproachScreen = '/investingApproachScreen';
   static const selectFundsScreen = '/selectFundsScreen';
   static const personaldetails = '/personaldetails';
-  static const ihavegoal= '/ihavegoal';
-  static const successfullcreategoal= '/successfullcreategoal';
-  static const goalviewcard= '/goalviewcard';
-  static const goaldetails= '/goaldetails';
-  static const addanotherbank= '/addanotherbank';
-  static const filterpage= '/filterpage';
-  static const otpVerificationScreen= '/otpVerificationScreen';
-  static const paymentScreen= '/paymentScreen';
-  static const kycScreen= '/kycScreen';
-  static const webView= '/webView';
-  static const riskProfile= '/riskProfile';
+  static const ihavegoal = '/ihavegoal';
+  static const successfullcreategoal = '/successfullcreategoal';
+  static const goalviewcard = '/goalviewcard';
+  static const goaldetails = '/goaldetails';
+  static const addanotherbank = '/addanotherbank';
+  static const filterpage = '/filterpage';
+  static const otpVerificationScreen = '/otpVerificationScreen';
+  static const paymentScreen = '/paymentScreen';
+  static const kycScreen = '/kycScreen';
+  static const webView = '/webView';
+  static const riskProfile = '/riskProfile';
+  static const nomineeList = '/nomineeListScreen';
+  static const nomineeDetail = '/nomineeDetailScreen';
+  static const goalScreen = '/goalScreen';
+  static const explorePage = '/explorePage';
+  static const dashBoardPage = '/dashBoardPage';
+  static const profilePage = '/profilePage';
+  static const nfolist = '/nfolist';
+  static const nfodetailsPage = '/nfoDetailsPage';
 }

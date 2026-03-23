@@ -1,7 +1,7 @@
 import 'package:my_sip/core/utils/helper/custom_json_parser.dart';
 
 class NavHistoryResponseModel {
-  final bool? success;
+  final bool? status;
   final int? schemeCode;
   final String? from;
   final String? to;
@@ -9,7 +9,7 @@ class NavHistoryResponseModel {
   final List<NavEntry>? data;
 
   NavHistoryResponseModel({
-    this.success,
+    this.status,
     this.schemeCode,
     this.from,
     this.to,
@@ -19,7 +19,7 @@ class NavHistoryResponseModel {
 
   factory NavHistoryResponseModel.fromJson(Map<String, dynamic> json) {
     return NavHistoryResponseModel(
-      success: json.parse<bool>('success'),
+      status: json.parse<bool>('status'),
       schemeCode: json.parse<int>('scheme_code'),
       from: json.parse<String>('from'),
       to: json.parse<String>('to'),
@@ -37,7 +37,7 @@ class NavEntry {
 
   factory NavEntry.fromJson(Map<String, dynamic> json) {
     return NavEntry(
-      navDate: json.parse<String>('nav_date'),
+      navDate: json.parse<String>('date'),
       nav: double.tryParse(json['nav']?.toString() ?? ''),
     );
   }

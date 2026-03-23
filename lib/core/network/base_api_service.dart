@@ -21,10 +21,15 @@ abstract class BaseApiServices {
 
 
   /// Multipart (supports ANY file type)
-  Future<dynamic> postMultipart(
-      String url,
-      Map<String, String> fields,
-      List<Uint8List> files,
-      List<String> fileNames,
-      );
+  Future<dynamic> postMultipart({
+    required String url,
+    required Map<String, String> fields,
+    required List<Uint8List> files,
+    required List<String> fileNames,
+
+    Map<String, String>? headers,
+    String? fileFieldName,
+    String? contentType,
+  });
+
 }

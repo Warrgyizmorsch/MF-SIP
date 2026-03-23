@@ -54,6 +54,16 @@ dependencies:
   html_unescape: ^2.0.0 # webview
   youtube_player_flutter: ^9.1.1
   youtube_player_iframe: ^5.2.2
+  image_picker: ^1.2.1
+  permission_handler: ^12.0.1
+  device_info_plus: ^12.3.0
+  in_app_review: ^2.0.11
+  local_auth: ^3.0.0
+
+  path_provider: ^2.1.5
+  file_saver: ^0.3.1
+  geolocator: ^14.0.2
+ 
 
 
 

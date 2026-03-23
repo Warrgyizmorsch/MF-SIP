@@ -710,13 +710,11 @@
 //   }
 // }
 
-import 'dart:developer';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:my_sip/common/widget/animated/empty_filled.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
@@ -725,14 +723,44 @@ import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/cart/data/model/cartItem_model.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
+import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
+import 'package:my_sip/features/fund_details/presentation/widgets/helper.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart'; // Ensure this import exists for Deleteiconwithcontainer
+import 'package:my_sip/features/wishlist/presentation/controller/wishlist_controller.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-import '../../../dashboard/presentation/pages/dashboard.dart';
+enum FundMenuAction {
+  addToCart,
+  buySIP,
+  buyLumpsum,
+  addToWatchlist,
+  fundDetails,
+}
+
+PopupMenuItem<FundMenuAction> buildFundMenuItem({
+  required IconData icon,
+  required String text,
+  required FundMenuAction value,
+}) {
+  return PopupMenuItem<FundMenuAction>(
+    value: value,
+    child: Row(
+      children: [
+        Icon(icon, size: 20, color: Colors.black87),
+        const SizedBox(width: 12),
+        Text(
+          text,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        ),
+      ],
+    ),
+  );
+}
 
 // --- ANIMATION WRAPPER FOR WEB ROWS ---
 class WebHoverRow extends StatefulWidget {
@@ -781,13 +809,8 @@ class ExploreScreen extends StatefulWidget {
 }
 
 class _ExploreScreenState extends State<ExploreScreen> {
-  final items = [
-    'Popularity',
-    '1Y Returns',
-    '3Y Returns',
-    '5Y Returns',
-    'Rating',
-  ];
+  final items = ['1Y Returns', '3Y Returns', '5Y Returns'];
+
   final TextEditingController sort = TextEditingController();
   final MutualFundController controller = Get.find();
   final CartController cartController = Get.find();
@@ -795,9 +818,21 @@ class _ExploreScreenState extends State<ExploreScreen> {
   late FocusNode _searchFocus;
   late ScrollController _scrollController;
 
+  // Inside _ExploreScreenState
+  final Map<String, int> sortYearMapping = {
+    '1Y Returns': 1,
+    '3Y Returns': 3,
+    '5Y Returns': 5,
+  };
+
+  // Use this for the bottom sheet items
+  late List<String> sortItems;
+
   @override
   void initState() {
     super.initState();
+    sortItems = sortYearMapping.keys
+        .toList(); // ['1Y Returns', '3Y Returns', '5Y Returns']
     _searchFocus = FocusNode();
     _scrollController = ScrollController();
     _scrollController.addListener(() {
@@ -932,7 +967,7 @@ class _WebExploreLayout extends StatelessWidget {
                       icon: const Icon(Iconsax.shopping_cart),
                       hoverColor: Ucolors.primary.withOpacity(0.1),
                     ),
-                    if (cartController.itemsCount > 0)
+                    if (cartController.itemsCount1 > 0)
                       Positioned(
                         right: 5,
                         top: 5,
@@ -943,7 +978,7 @@ class _WebExploreLayout extends StatelessWidget {
                             shape: BoxShape.circle,
                           ),
                           child: Text(
-                            cartController.itemsCount.toString(),
+                            cartController.itemsCount1.toString(),
                             style: const TextStyle(
                               fontSize: 10,
                               color: Colors.white,
@@ -1326,187 +1361,474 @@ class _MobileExploreLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     final MutualFundController controller = Get.find();
     final CartController cartController = Get.find();
-    return CustomScrollView(
-      controller: scrollController,
-      slivers: [
-        SliverAppBar(
-          automaticallyImplyLeading: false,
-          pinned: true,
-          flexibleSpace: CustomAppBarNormal(
-            title: 'All Mutual Funds',
-            backgroundColor: Ucolors.light,
-            actionsPadding: 15,
-            action: [
-              Obx(
-                () => Stack(
-                  children: [
-                    CompactIcon(
-                      icon: Iconsax.shopping_cart,
-                      onPressed: () => Get.toNamed(AppRoutes.cart),
-                      iconColor: Ucolors.dark,
-                    ),
-                    if (cartController.itemsCount > 0)
-                      Positioned(
-                        right: 0,
-                        top: -5,
-                        child: Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: const BoxDecoration(
-                            color: Ucolors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            cartController.itemsCount.toString(),
-                            style: UTextStyles.buttonText.copyWith(
-                              fontSize: 10,
-                            ),
-                          ),
-                        ),
+    return RefreshIndicator(
+      onRefresh: () => controller.handleRefresh(),
+      color: Ucolors.primary, // Use your app's primary theme color
+      backgroundColor: Colors.white,
+      displacement: CircularProgressIndicator.strokeAlignCenter,
+
+      // displacement: 100,
+      child: CustomScrollView(
+        controller: scrollController,
+        slivers: [
+          SliverAppBar(
+            automaticallyImplyLeading: false,
+            pinned: true,
+            flexibleSpace: CustomAppBarNormal(
+              backIcon: false,
+              title: 'All Mutual Funds',
+              backgroundColor: Ucolors.light,
+              actionsPadding: 15,
+              action: [
+                // Obx(() {
+                //   final count = cartController.itemsCount1;
+                //   return Stack(
+                //     children: [
+                //       CompactIcon(
+                //         icon: Iconsax.shopping_cart,
+                //         onPressed: () => Get.toNamed(AppRoutes.cart),
+                //         iconColor: Ucolors.dark,
+                //       ),
+                //       if (count > 0)
+                //         Positioned(
+                //           right: 0,
+                //           top: -5,
+                //           child: Container(
+                //             padding: const EdgeInsets.all(5),
+                //             decoration: const BoxDecoration(
+                //               color: Ucolors.red,
+                //               shape: BoxShape.circle,
+                //             ),
+                //             child: Text(
+                //               count.toString(),
+                //               style: UTextStyles.buttonText.copyWith(
+                //                 fontSize: 10,
+                //               ),
+                //             ),
+                //           ),
+                //         ),
+                //     ],
+                //   );
+                // }),'
+                Obx(
+                  () => Stack(
+                    children: [
+                      CompactIcon(
+                        icon: Iconsax.shopping_cart,
+                        onPressed: () {
+                          Get.find<CartController>().filterGoalId.value = null;
+                          Get.toNamed(AppRoutes.cart);
+                          // cartController.fetchCart();
+                        },
+                        iconColor: Ucolors.dark,
                       ),
-                  ],
-                ),
-              ),
-              CompactIcon(
-                icon: Iconsax.archive_tick,
-                onPressed: () => Get.toNamed(AppRoutes.watchlist),
-                iconColor: Ucolors.dark,
-              ),
-            ],
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Ucolors.borderColor),
-                    shape: BoxShape.circle,
-                  ),
-                  child: CompactIcon(
-                    icon: Icons.tune,
-                    onPressed: () async {
-                      final result = await Get.toNamed(AppRoutes.filterpage);
-                      if (result != null && result is Map<String, dynamic>) {
-                        controller.applyFilters(result);
-                      }
-                    },
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 5),
-                  height: 30,
-                  width: 1,
-                  color: Ucolors.borderside,
-                ),
-                Expanded(
-                  child: SizedBox(
-                    height: 40,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: SearchBar(
-                            onTapOutside: (event) => searchFocus.unfocus(),
-                            focusNode: searchFocus,
-                            backgroundColor: MaterialStateProperty.all(
-                              Colors.white,
+                      if (cartController.generalItemsCount > 0)
+                        Positioned(
+                          right: 0,
+                          top: -5,
+                          child: Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: const BoxDecoration(
+                              color: Ucolors.red,
+                              shape: BoxShape.circle,
                             ),
-                            leading: const Icon(Icons.search),
-                            hintText: 'Search',
-                            onChanged: (value) =>
-                                controller.onSearchQueryChanged(value),
+                            child: Text(
+                              cartController.generalItemsCount.toString(),
+                              style: UTextStyles.buttonText.copyWith(
+                                fontSize: 10,
+                              ),
+                            ),
                           ),
                         ),
-                        const Gap(2),
-                        !searchFocus.hasFocus
-                            ? InkWell(
-                                onTap: () => showSelectionBottomSheet(
-                                  selectedValue: sortController.text,
-                                  search: false,
-                                  context: context,
-                                  title: 'Sort by ${sortController.text}',
-                                  items: sortItems,
-                                  controller: sortController,
-                                ),
-                                child: const _FilterChip(
-                                  label: 'Sort by',
-                                  icon: Icons.filter_list_sharp,
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                      ],
-                    ),
+                    ],
                   ),
+                ),
+                CompactIcon(
+                  icon: Iconsax.archive_tick,
+                  onPressed: () => Get.toNamed(AppRoutes.watchlist),
+                  iconColor: Ucolors.dark,
                 ),
               ],
             ),
           ),
-        ),
-        Obx(
-          () => SliverToBoxAdapter(
+          SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    controller.selectedFundCount.value == 0
-                        ? '${controller.mutualfund.length} funds'
-                        : '${controller.selectedFundCount}  funds',
-                    style: UTextStyles.small,
+                  // Container(
+                  //   padding: const EdgeInsets.all(8),
+                  //   decoration: BoxDecoration(
+                  //     border: Border.all(color: Ucolors.borderColor),
+                  //     shape: BoxShape.circle,
+                  //   ),
+                  //   child: CompactIcon(
+                  //     icon: Icons.tune,
+                  //     onPressed: () async {
+                  //       final result = await Get.toNamed(AppRoutes.filterpage);
+                  //       if (result != null && result is Map<String, dynamic>) {
+                  //         controller.applyFilters(result);
+                  //       }
+                  //     },
+                  //   ),
+                  // ),
+                  // Obx(
+                  //   () => Badge(
+                  //     isLabelVisible:
+                  //         Get.find<FundhouseController>().isFilterActive,
+                  //     backgroundColor: Colors.redAccent,
+                  //     alignment: const Alignment(
+                  //       0.6,
+                  //       -0.6,
+                  //     ), // Adjusts dot position
+                  //     child: Container(
+                  //       padding: const EdgeInsets.all(8),
+                  //       decoration: BoxDecoration(
+                  //         border: Border.all(color: Ucolors.borderColor),
+                  //         shape: BoxShape.circle,
+                  //       ),
+                  //       child: CompactIcon(
+                  //         icon: Icons.tune,
+                  //         onPressed: () async {
+                  //           final result = await Get.toNamed(
+                  //             AppRoutes.filterpage,
+                  //           );
+                  //           if (result != null &&
+                  //               result is Map<String, dynamic>) {
+                  //             controller.applyFilters(result);
+                  //           }
+                  //         },
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+                  Obx(() {
+                    final fundController = Get.find<FundhouseController>();
+                    final int filterCount = fundController.activeFilterCount;
+
+                    return Badge(
+                      // Only show the badge if count > 0
+                      isLabelVisible: filterCount > 0,
+                      backgroundColor: Ucolors.primary, // Or Colors.redAccent
+                      label: Text(
+                        '$filterCount',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      alignment: const Alignment(
+                        0.7,
+                        -0.7,
+                      ), // Adjusts position for text
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Ucolors.borderColor),
+                          shape: BoxShape.circle,
+                        ),
+                        child: CompactIcon(
+                          icon: Icons.tune,
+                          onPressed: () async {
+                            final result = await Get.toNamed(
+                              AppRoutes.filterpage,
+                            );
+                            if (result != null &&
+                                result is Map<String, dynamic>) {
+                              controller.applyFilters(result);
+                            }
+                          },
+                        ),
+                      ),
+                    );
+                  }),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 5),
+                    height: 30,
+                    width: 1,
+                    color: Ucolors.borderside,
                   ),
-                  Text('‹› 3 Year Returns', style: UTextStyles.small),
+                  // Expanded(
+                  //   child: SizedBox(
+                  //     height: 40,
+                  //     child: Row(
+                  //       children: [
+                  //         Expanded(
+                  //           child: SearchBar(
+                  //             onTapOutside: (event) => searchFocus.unfocus(),
+                  //             focusNode: searchFocus,
+                  //             backgroundColor: MaterialStateProperty.all(
+                  //               Colors.white,
+                  //             ),
+                  //             leading: const Icon(Icons.search),
+                  //             hintText: 'Search',
+                  //             onChanged: (value) =>
+                  //                 controller.onSearchQueryChanged(value),
+                  //           ),
+                  //         ),
+                  //         const Gap(2),
+                  //         // !searchFocus.hasFocus
+                  //         //     ? InkWell(
+                  //         //         onTap: () => showSelectionBottomSheet(
+                  //         //           selectedValue: sortController.text,
+                  //         //           search: false,
+                  //         //           context: context,
+                  //         //           title: 'Sort by ${sortController.text}',
+                  //         //           items: sortItems,
+                  //         //           controller: sortController,
+                  //         //         ),
+                  //         //         child: const _FilterChip(
+                  //         //           label: 'Sort by',
+                  //         //           icon: Icons.filter_list_sharp,
+                  //         //         ),
+                  //         //       )
+                  //         //     : const SizedBox.shrink(),
+                  //         Obx(
+                  //           () => InkWell(
+                  //             onTap: () => controller.cycleGlobalSort(),
+                  //             child: _FilterChip(
+                  //               label: controller.currentSortLabel.value,
+                  //               icon: Icons.sort,
+                  //               // Visually highlight if a sort is active (not Popularity)
+                  //               isSelected:
+                  //                   controller.currentSortLabel.value !=
+                  //                   "Popularity",
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
+                  Expanded(
+                    child: SizedBox(
+                      height: 40,
+                      child: Obx(() {
+                        final bool isSearching =
+                            controller.hasSearchFocus.value;
+
+                        return Row(
+                          children: [
+                            // This Expanded child will take up all available space
+                            Expanded(
+                              child: SearchBar(
+                                onTap: () => controller.setSearchFocus(true),
+                                onTapOutside: (event) {
+                                  searchFocus.unfocus();
+                                  controller.setSearchFocus(false);
+                                },
+                                focusNode: searchFocus,
+                                backgroundColor: MaterialStateProperty.all(
+                                  Colors.white,
+                                ),
+                                leading: const Icon(Icons.search),
+                                hintText: 'Search',
+                                onChanged: (value) =>
+                                    controller.onSearchQueryChanged(value),
+                                elevation: MaterialStateProperty.all(0),
+                                side: MaterialStateProperty.all(
+                                  BorderSide(color: Colors.grey.shade300),
+                                ),
+                              ),
+                            ),
+
+                            // The Sort Chip and its Gap only exist when NOT searching
+                            if (!isSearching) ...[
+                              const Gap(8),
+                              InkWell(
+                                onTap: () => controller.cycleGlobalSort(),
+                                child: _FilterChip(
+                                  label: controller.currentSortLabel.value,
+                                  icon: Icons.sort,
+                                  isSelected:
+                                      controller.currentSortLabel.value !=
+                                      "1Y,3Y,5Y",
+                                ),
+                              ),
+                            ],
+                          ],
+                        );
+                      }),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
-        ),
-        Obx(() {
-          if (controller.isLoading.value && controller.searchFund.isEmpty) {
-            return const SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(
-                child: CircularProgressIndicator(color: Ucolors.primary),
-              ),
-            );
-          }
-          if (controller.searchFund.isEmpty) {
-            return const SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(child: Text("No mutual funds found")),
-            );
-          }
-          return SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final fund = controller.searchFund[index];
-              return MutualFundCard(entity: fund);
-            }, childCount: controller.searchFund.length),
-          );
-        }),
-        Obx(() {
-          if (controller.isMoreLoading.value) {
-            return const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 24),
+
+          // Obx(
+          //   () => SliverToBoxAdapter(
+          //     child: Padding(
+          //       padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          //       child: Row(
+          //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //         children: [
+          //           // Dynamic Fund Count
+          //           Text(
+          //             controller.selectedFundCount.value == 0
+          //                 ? '${controller.mutualfund.length} funds'
+          //                 : '${controller.selectedFundCount.value} funds',
+          //             style: UTextStyles.small,
+          //           ),
+
+          //           // CLICKABLE TOGGLE: Cycle through 1Y, 3Y, 5Y
+          //           // InkWell(
+          //           //   onTap: () => controller.cycleReturnYear(),
+          //           //   borderRadius: BorderRadius.circular(4),
+          //           //   child: Padding(
+          //           //     padding: const EdgeInsets.symmetric(
+          //           //       horizontal: 4,
+          //           //       vertical: 2,
+          //           //     ),
+          //           //     child: Row(
+          //           //       mainAxisSize: MainAxisSize.min,
+          //           //       children: [
+          //           //         const Icon(
+          //           //           Icons.swap_horiz,
+          //           //           size: 14,
+          //           //           color: Colors.black54,
+          //           //         ),
+          //           //         const SizedBox(width: 4),
+          //           //         Text(
+          //           //           controller.returnYearLabel,
+          //           //           style: UTextStyles.small.copyWith(
+          //           //             fontWeight: FontWeight.w600,
+          //           //             color: Colors.black87,
+          //           //           ),
+          //           //         ),
+          //           //       ],
+          //           //     ),
+          //           //   ),
+          //           // ),
+          //         ],
+          //       ),
+          //     ),
+          //   ),
+          // ),
+
+          // Obx(
+          //   () => SliverToBoxAdapter(
+          //     child: Padding(
+          //       padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          //       child: Row(
+          //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //         children: [
+          //           Text(
+          //             controller.selectedFundCount.value == 0
+          //                 ? '${controller.mutualfund.length} funds'
+          //                 : '${controller.selectedFundCount}  funds',
+          //             style: UTextStyles.small,
+          //           ),
+          //           Text('‹› 3 Year Returns', style: UTextStyles.small),
+          //           // Obx(() {
+          //           //   final mutualController = Get.find<MutualFundController>();
+
+          //           //   return Padding(
+          //           //     padding: EdgeInsets.zero,
+          //           //     // const EdgeInsets.symmetric(
+          //           //     //   // horizontal: 16,
+          //           //     //   // vertical: 8,
+          //           //     // ),
+          //           //     child:
+          //           // Row(
+          //           //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //           //       children: [
+          //           //         // Left Side: Fund Count
+          //           //         // Text(
+          //           //         //   '${mutualController.selectedFundCount.value} funds',
+          //           //         //   style: const TextStyle(fontSize: 13, color: Colors.black54),
+          //           //         // ),
+
+          //           //         // Right Side: Clickable Returns Toggle
+          //           //         // InkWell(
+          //           //         //   onTap: () => mutualController.cycleReturnYear(),
+          //           //         //   borderRadius: BorderRadius.circular(4),
+          //           //         //   child: Padding(
+          //           //         //     padding: const EdgeInsets.all(4.0),
+          //           //         //     child: Row(
+          //           //         //       mainAxisSize: MainAxisSize.min,
+          //           //         //       children: [
+          //           //         //         const Icon(
+          //           //         //           Icons.swap_horiz,
+          //           //         //           size: 14,
+          //           //         //           color: Colors.black87,
+          //           //         //         ),
+          //           //         //         const SizedBox(width: 4),
+          //           //         //         Text(
+          //           //         //           mutualController.returnYearLabel,
+          //           //         //           style: const TextStyle(
+          //           //         //             fontSize: 13,
+          //           //         //             fontWeight: FontWeight.w600,
+          //           //         //             color: Colors.black87,
+          //           //         //           ),
+          //           //         //         ),
+          //           //         //       ],
+          //           //         //     ),
+          //           //         //   ),
+          //           //         // ),
+          //           //       ],
+          //           //     ),
+          //           //   );
+          //           // }),
+          //         ],
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          Obx(() {
+            if (controller.isLoading.value
+            //  || controller.searchFund.isEmpty
+            ) {
+              return const SliverFillRemaining(
+                hasScrollBody: false,
                 child: Center(
-                  child: SizedBox(
-                    height: 24,
-                    width: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      color: Ucolors.primary,
+                  child: CircularProgressIndicator(color: Ucolors.primary),
+                ),
+              );
+            }
+            if (controller.searchFund.isEmpty) {
+              return SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(
+                  child: AnimatedEmptyState(
+                    title: 'NO fund',
+                    message: 'No mutual funds foun',
+                  ),
+                ),
+              );
+            }
+            return SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final fund = controller.searchFund[index];
+                return MutualFundCard(entity: fund);
+              }, childCount: controller.searchFund.length),
+            );
+          }),
+          Obx(() {
+            if (controller.isMoreLoading.value) {
+              return const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: Ucolors.primary,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
-          }
-          return const SliverToBoxAdapter(child: SizedBox.shrink());
-        }),
-        const SliverToBoxAdapter(child: SizedBox(height: 20)),
-      ],
+              );
+            }
+            return const SliverToBoxAdapter(child: SizedBox.shrink());
+          }),
+          const SliverToBoxAdapter(child: SizedBox(height: 20)),
+        ],
+      ),
     );
   }
 }
@@ -1529,6 +1851,8 @@ class MutualFundCard extends StatelessWidget {
   final MutualFundController mutualFundController =
       Get.find<MutualFundController>();
 
+  final WishlistController wishlistController = Get.find<WishlistController>();
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -1539,6 +1863,9 @@ class MutualFundCard extends StatelessWidget {
             'scheme': entity.baseSchemeName,
             'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
             'scheme_code': entity.schemeCode.toString(),
+            'email': entity.amc?.email,
+            'address': entity.amc?.address,
+            'contact': entity.amc?.contact,
           },
         );
       },
@@ -1589,14 +1916,18 @@ class MutualFundCard extends StatelessWidget {
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text: 'Risk:',
+                              text: 'Risk: ',
+                              // text: entity.riskLevel,
                               style: Theme.of(context).textTheme.labelSmall!
                                   .copyWith(fontWeight: FontWeight.normal),
                             ),
                             TextSpan(
-                              text: 'Very High',
+                              text: entity.riskLevel,
                               style: Theme.of(context).textTheme.labelMedium!
-                                  .copyWith(color: Ucolors.red),
+                                  .copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: getRiskMeter(entity.riskLevel).color,
+                                  ),
                             ),
                           ],
                         ),
@@ -1606,52 +1937,75 @@ class MutualFundCard extends StatelessWidget {
                 ),
 
                 !isDelete
-                    ? PopupMenuButton<PortfolioMenuAction>(
+                    ? PopupMenuButton<FundMenuAction>(
                         color: Ucolors.light,
                         icon: const Icon(Icons.more_vert, color: Colors.grey),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
                         offset: const Offset(0, 40),
-                        onSelected: (value) {
+                        onSelected: (value) async {
                           switch (value) {
                             // Add to cart
-                            case PortfolioMenuAction.topUp:
-                              controller.addItem(
-                                CartItem(
-                                  fundId: entity.amc?.id?.toString() ?? '',
-                                  fundName: entity.baseSchemeName ?? '',
-                                  logoUrl: entity.amc?.amcLogoUrl ?? '',
-                                ),
+                            case FundMenuAction.addToCart:
+                              await controller.addToCart(
+                                entity.schemeCode ?? '',
+                                entity.baseSchemeName ?? '',
+                                entity.minSipAmount ?? 0,
+                                null,
                               );
-                              Get.snackbar(
-                                'Add to cart',
-                                entity.baseSchemeName.toString(),
-                                margin: const EdgeInsets.symmetric(
-                                  vertical: 15,
-                                  horizontal: 15,
-                                ),
-                                colorText: Ucolors.light,
-                                snackPosition: SnackPosition.BOTTOM,
-                                backgroundColor: Ucolors.primary,
-                              );
+                              await controller.fetchCart();
+
+                              // controller.addItem(
+                              //   CartItem(
+                              //     fundId: entity.amc?.id?.toString() ?? '',
+                              //     fundName: entity.baseSchemeName ?? '',
+                              //     logoUrl: entity.amc?.amcLogoUrl ?? '',
+                              //   ),
+                              // );
+                              // Get.snackbar(
+                              //   'Add to cart',
+                              //   entity.baseSchemeName.toString(),
+                              //   margin: const EdgeInsets.symmetric(
+                              //     vertical: 15,
+                              //     horizontal: 15,
+                              //   ),
+                              //   colorText: Ucolors.light,
+                              //   snackPosition: SnackPosition.BOTTOM,
+                              //   backgroundColor: Ucolors.primary,
+                              // );
                               break;
 
-                            case PortfolioMenuAction.modify:
-                            case PortfolioMenuAction.pause:
-                              controller.addItem(
-                                CartItem(
-                                  fundId: entity.amc?.id?.toString() ?? '',
-                                  fundName: entity.baseSchemeName ?? '',
-                                  logoUrl: entity.amc?.amcLogoUrl ?? '',
-                                ),
+                            case FundMenuAction.buySIP:
+                              await controller.addToCart(
+                                entity.schemeCode ?? '',
+                                entity.baseSchemeName ?? '',
+                                entity.minSipAmount ?? 0,
+                                null,
                               );
+                              await controller.fetchCart();
+
+                              Get.toNamed(AppRoutes.cart);
+                            case FundMenuAction.buyLumpsum:
+                              await controller.addToCart(
+                                entity.schemeCode ?? '',
+                                entity.baseSchemeName ?? '',
+                                entity.minSipAmount ?? 0,
+                                null,
+                                transType: 'lumpsum',
+                              );
+                              await controller.fetchCart();
+
                               Get.toNamed(AppRoutes.cart);
                               break;
 
-                            case PortfolioMenuAction.cancel:
+                            case FundMenuAction.addToWatchlist:
+                              await wishlistController.addToWishList(
+                                entity.schemeCode.toString(),
+                                entity.baseSchemeName.toString(),
+                              );
                               break;
-                            case PortfolioMenuAction.redemption:
+                            case FundMenuAction.fundDetails:
                               Get.toNamed(
                                 AppRoutes.funddetails,
                                 arguments: {
@@ -1665,30 +2019,30 @@ class MutualFundCard extends StatelessWidget {
                           }
                         },
                         itemBuilder: (context) => [
-                          buildMenuItem(
+                          buildFundMenuItem(
                             icon: Iconsax.card_send,
                             text: 'Add to cart',
-                            value: PortfolioMenuAction.topUp,
+                            value: FundMenuAction.addToCart,
                           ),
-                          buildMenuItem(
+                          buildFundMenuItem(
                             icon: Iconsax.edit_2,
                             text: 'Buy SIP',
-                            value: PortfolioMenuAction.modify,
+                            value: FundMenuAction.buySIP,
                           ),
-                          buildMenuItem(
-                            icon: Iconsax.pause,
+                          buildFundMenuItem(
+                            icon: Iconsax.pause, // Or Iconsax.convert_card
                             text: 'Buy Lumpsum',
-                            value: PortfolioMenuAction.pause,
+                            value: FundMenuAction.buyLumpsum,
                           ),
-                          buildMenuItem(
+                          buildFundMenuItem(
                             icon: Iconsax.add,
                             text: 'Add to watchlist',
-                            value: PortfolioMenuAction.cancel,
+                            value: FundMenuAction.addToWatchlist,
                           ),
-                          buildMenuItem(
+                          buildFundMenuItem(
                             icon: Iconsax.receipt,
                             text: 'Fund Details',
-                            value: PortfolioMenuAction.redemption,
+                            value: FundMenuAction.fundDetails,
                           ),
                         ],
                       )
@@ -1712,11 +2066,36 @@ class MutualFundCard extends StatelessWidget {
             /// Returns Row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: const [
-                _ReturnItem(title: '1W', value: '-0.15%', isNegative: true),
-                _ReturnItem(title: '1Y', value: '5.20%'),
-                _ReturnItem(title: '3Y', value: '18.42%'),
-                _ReturnItem(title: '5Y', value: '20.89%'),
+              children: [
+                _ReturnItem(
+                  isNegative: parseIntSafe(entity.returnsEntity?.oneMonth) < 0
+                      ? true
+                      : false,
+                  title: '1M',
+                  value: '${entity.returnsEntity?.oneMonth}%',
+                  // isNegative: true,
+                ),
+                _ReturnItem(
+                  isNegative: parseIntSafe(entity.returnsEntity?.oneYear) < 0
+                      ? true
+                      : false,
+                  title: '1Y',
+                  value: '${entity.returnsEntity?.oneYear}%',
+                ),
+                _ReturnItem(
+                  isNegative: parseIntSafe(entity.returnsEntity?.threeYear) < 0
+                      ? true
+                      : false,
+                  title: '3Y',
+                  value: '${entity.returnsEntity?.threeYear}%',
+                ),
+                _ReturnItem(
+                  isNegative: parseIntSafe(entity.returnsEntity?.fiveYear) < 0
+                      ? true
+                      : false,
+                  title: '5Y',
+                  value: '${entity.returnsEntity?.fiveYear}%',
+                ),
               ],
             ),
           ],

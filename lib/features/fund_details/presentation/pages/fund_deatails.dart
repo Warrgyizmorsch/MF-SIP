@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:my_sip/common/widget/animated/empty_filled.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:readmore/readmore.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
@@ -18,7 +20,6 @@ import '../../../../config/routes/app_routes.dart';
 import '../../../../core/utils/constant/colors.dart';
 import '../../../../core/utils/constant/images.dart';
 import '../../../../core/utils/constant/text_style.dart';
-import '../../../../core/utils/helper/helpers.dart';
 import '../../../dashboard/presentation/pages/comparison_screen.dart';
 import '../../../dashboard/presentation/pages/dashboard.dart';
 import '../controllers/fund_details_controller.dart';
@@ -31,44 +32,11 @@ import '../widgets/risk_indicator_ball.dart';
 import '../widgets/schemeLineChart.dart';
 import '../widgets/stock_allocation_items.dart';
 import '../widgets/timeselecter.dart';
-import 'dart:developer';
-
-import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
-import 'package:get/get.dart';
-import 'package:iconsax/iconsax.dart';
-import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
-import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
-import 'package:my_sip/common/widget/images/custom_cached_image.dart';
-import 'package:my_sip/common/widget/shimmer/shimmer.dart';
-import 'package:my_sip/common/widget/table/table_header.dart';
-import 'package:my_sip/common/widget/text/view_all.dart';
-import 'package:my_sip/config/routes/app_routes.dart';
-import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/images.dart';
-import 'package:my_sip/core/utils/constant/text_style.dart';
-import 'package:my_sip/core/utils/helper/helpers.dart';
-import 'package:my_sip/features/fund_details/presentation/widgets/fund_performance_chart.dart';
-import 'package:my_sip/features/fund_details/presentation/widgets/helper.dart';
-import 'package:readmore/readmore.dart';
-import 'package:responsive_framework/responsive_framework.dart';
-import 'package:syncfusion_flutter_gauges/gauges.dart';
-
-import '../../../dashboard/presentation/pages/comparison_screen.dart';
-import '../../../dashboard/presentation/pages/dashboard.dart';
-import '../controllers/fund_details_controller.dart';
-import '../widgets/fund_performance_bar.dart';
-import '../widgets/percentage_indicator.dart';
-import '../widgets/return.dart';
-import '../widgets/risk_indicator_ball.dart';
-import '../widgets/schemeLineChart.dart';
-import '../widgets/stock_allocation_items.dart';
-import '../widgets/timeselecter.dart';
 
 class FundDetailsScreen extends GetView<FundDetailsController> {
-  const FundDetailsScreen({super.key});
+  FundDetailsScreen({super.key});
 
+  final CartController cartController = Get.find<CartController>();
   @override
   Widget build(BuildContext context) {
     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
@@ -76,7 +44,8 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
     return Scaffold(
       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.grey[50],
       body: Obx(() {
-        if (controller.isLoading.value) return _buildLoading(context, isDesktop);
+        if (controller.isLoading.value)
+          return _buildLoading(context, isDesktop);
         if (controller.hasError.value) return _buildError(context, isDesktop);
         if (controller.fundDetail.value?.riskStatisticsList.isEmpty ?? true) {
           return _buildEmpty(context, isDesktop);
@@ -89,19 +58,53 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
       bottomNavigationBar: isDesktop
           ? null
           : Obx(() {
-        if (controller.isLoading.value || controller.hasError.value) {
-          return const SizedBox.shrink();
-        }
-        return SafeArea(
-          top: false,
-          child: controller.fundDetail.value!.riskStatisticsList.isNotEmpty
-              ? BottomBarButton(
-            firstButton: 'Lumpsum',
-            secondButton: 'Start SIP',
-          )
-              : const SizedBox.shrink(),
-        );
-      }),
+              if (controller.isLoading.value || controller.hasError.value) {
+                return const SizedBox.shrink();
+              }
+              return SafeArea(
+                top: false,
+                child:
+                    controller.fundDetail.value!.riskStatisticsList.isNotEmpty
+                    ? BottomBarButton(
+                        firstButton: 'Lumpsum',
+                        secondButton: 'Start SIP',
+                        firstButtonP: () async {
+                          // await controller.addToCart(
+                          //     entity.schemeCode ?? '',
+                          //     entity.baseSchemeName ?? '',
+                          //     entity.minSipAmount ?? 0,
+                          //     null,
+                          //   );
+                          //   await controller.fetchCart();
+                          await cartController.addToCart(
+                            controller.schemeCode,
+                            controller.schemeName,
+
+                            controller.fundDetail.value?.minimumInvestment
+                                    .toInt() ??
+                                5000,
+                            transType: 'lumpsum',
+
+                            null,
+                          );
+                          Get.toNamed(AppRoutes.cart);
+                        },
+                        secondButtonP: () async {
+                          await cartController.addToCart(
+                            controller.schemeCode,
+                            controller.schemeName,
+                            controller.fundDetail.value?.sipMinimumAmount ??
+                                1000,
+                            transType: 'sip',
+
+                            null,
+                          );
+                          Get.toNamed(AppRoutes.cart);
+                        },
+                      )
+                    : const SizedBox.shrink(),
+              );
+            }),
     );
   }
 
@@ -114,12 +117,15 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
             const SizedBox(
               width: 60,
               height: 60,
-              child: CircularProgressIndicator(strokeWidth: 3),
+              child: CircularProgressIndicator(
+                strokeWidth: 3,
+                color: Ucolors.primary,
+              ),
             ),
             const Gap(20),
             Text(
               'Loading fund details...',
-              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 16, color: Ucolors.primary),
             ),
           ],
         ),
@@ -295,7 +301,7 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
               const Gap(16),
               Expanded(
                 child: Text(
-                  fund?.schemeName ?? "Fund Details",
+                  "Fund Details",
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
@@ -328,10 +334,6 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                 constraints: const BoxConstraints(maxWidth: 1600),
                 child: Column(
                   children: [
-                    // Fund Header Card
-                    _DesktopFundHeader(fund: fund, controller: controller),
-                    const Gap(32),
-
                     // Performance Section (Full Width)
 
                     // const Gap(32),
@@ -346,14 +348,20 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                           flex: 6,
                           child: Column(
                             children: [
-                              _DesktopPerformanceSection(controller: controller),
+                              // Fund Header Card
+                              _DesktopFundHeader(
+                                fund: fund,
+                                controller: controller,
+                              ),
+                              const Gap(24),
+                              _DesktopPerformanceSection(
+                                controller: controller,
+                              ),
                               const Gap(24),
                               _DesktopOverviewCard(fund: fund),
                               const Gap(24),
-                              _DesktopQuickLookCard(fund: fund),
-                              const Gap(24),
-                              // const Gap(24),
 
+                              // const Gap(24),
                             ],
                           ),
                         ),
@@ -363,11 +371,14 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                           flex: 4,
                           child: Column(
                             children: [
-                              const Gap(50),
+                              _DesktopQuickLookCard(fund: fund),
+                              const Gap(24),
+                              // const Gap(50),
                               _DesktopActionCard(fund: fund),
-                              const Gap(50),
+                              const Gap(24),
 
                               _DesktopAllocationCard(controller: controller),
+                              const Gap(24),
                             ],
                           ),
                         ),
@@ -437,10 +448,7 @@ class _DesktopFundHeader extends StatelessWidget {
               children: [
                 Text(
                   fund?.schemeName ?? '',
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: AppTextStyles.bodyLargeBold(color: Colors.black),
                 ),
                 const Gap(12),
                 Wrap(
@@ -455,10 +463,7 @@ class _DesktopFundHeader extends StatelessWidget {
                       fund?.riskometerValue ?? 'High',
                       _getRiskColor(fund?.riskometerValue ?? ''),
                     ),
-                    _buildBadge(
-                      'OPEN',
-                      Ucolors.success,
-                    ),
+                    _buildBadge('OPEN', Ucolors.success),
                   ],
                 ),
               ],
@@ -585,7 +590,12 @@ class _DesktopPerformanceSection extends StatelessWidget {
     });
   }
 
-  Widget _buildStatCard(String label, String value, String suffix, Color color) {
+  Widget _buildStatCard(
+    String label,
+    String value,
+    String suffix,
+    Color color,
+  ) {
     return Column(
       children: [
         Text(
@@ -641,13 +651,13 @@ class _DesktopOverviewCard extends StatelessWidget {
           _buildInfoGrid([
             {'label': 'Min SIP', 'value': '₹ ${fund?.sipMinimumAmount}'},
             {'label': 'Min Lumpsum', 'value': '₹ ${fund?.minimumInvestment}'},
-            {'label': 'Expense Ratio', 'value': '${fund?.expenseRatioPercentage}%'},
+            {
+              'label': 'Expense Ratio',
+              'value': '${fund?.expenseRatioPercentage}%',
+            },
             {'label': 'AUM', 'value': '₹ ${fund?.schemeAssets} Cr'},
             {'label': 'Lock In', 'value': 'No Lock-in'},
-            {
-              'label': 'Launch Date',
-              'value': '${fund?.schemeInceptionDate}'
-            },
+            {'label': 'Launch Date', 'value': '${fund?.schemeInceptionDate}'},
           ]),
           const Gap(20),
           Align(
@@ -693,7 +703,7 @@ class _DesktopOverviewCard extends StatelessWidget {
         crossAxisCount: 2,
         childAspectRatio: 7,
         crossAxisSpacing: 10,
-        mainAxisSpacing: 5,
+        mainAxisSpacing: 25,
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
@@ -807,9 +817,7 @@ class _DesktopReturnsCard extends StatelessWidget {
   Widget _buildTableHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-      ),
+      decoration: BoxDecoration(color: Colors.grey.shade50),
       child: Row(
         children: [
           const SizedBox(
@@ -883,7 +891,9 @@ class _DesktopRiskCard extends StatelessWidget {
                     // Give chart a fixed height or aspect ratio
                     SizedBox(
                       height: 300,
-                      child: YearlyReturnsChart(yearlyData: controller.yearlyReturns),
+                      child: YearlyReturnsChart(
+                        yearlyData: controller.yearlyReturns,
+                      ),
                     ),
                   ],
                 ),
@@ -891,11 +901,7 @@ class _DesktopRiskCard extends StatelessWidget {
               // Spacer between the two columns
               const Gap(40),
               // Vertical Divider for visual separation (Optional)
-              Container(
-                  width: 1,
-                  height: 300,
-                  color: Colors.grey.shade200
-              ),
+              Container(width: 1, height: 300, color: Colors.grey.shade200),
               const Gap(40),
             ],
 
@@ -919,10 +925,7 @@ class _DesktopRiskCard extends StatelessWidget {
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [
-                          risk.color.withOpacity(0.08),
-                          Colors.white,
-                        ],
+                        colors: [risk.color.withOpacity(0.08), Colors.white],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                       ),
@@ -950,11 +953,41 @@ class _DesktopRiskCard extends StatelessWidget {
                                   color: Colors.transparent,
                                 ),
                                 ranges: [
-                                  GaugeRange(startValue: 0, endValue: 20, color: Colors.green, startWidth: 15, endWidth: 15),
-                                  GaugeRange(startValue: 20, endValue: 40, color: Colors.lightGreen, startWidth: 15, endWidth: 15),
-                                  GaugeRange(startValue: 40, endValue: 60, color: Colors.yellow, startWidth: 15, endWidth: 15),
-                                  GaugeRange(startValue: 60, endValue: 80, color: Colors.orange, startWidth: 15, endWidth: 15),
-                                  GaugeRange(startValue: 80, endValue: 100, color: Colors.red, startWidth: 15, endWidth: 15),
+                                  GaugeRange(
+                                    startValue: 0,
+                                    endValue: 20,
+                                    color: Colors.green,
+                                    startWidth: 15,
+                                    endWidth: 15,
+                                  ),
+                                  GaugeRange(
+                                    startValue: 20,
+                                    endValue: 40,
+                                    color: Colors.lightGreen,
+                                    startWidth: 15,
+                                    endWidth: 15,
+                                  ),
+                                  GaugeRange(
+                                    startValue: 40,
+                                    endValue: 60,
+                                    color: Colors.yellow,
+                                    startWidth: 15,
+                                    endWidth: 15,
+                                  ),
+                                  GaugeRange(
+                                    startValue: 60,
+                                    endValue: 80,
+                                    color: Colors.orange,
+                                    startWidth: 15,
+                                    endWidth: 15,
+                                  ),
+                                  GaugeRange(
+                                    startValue: 80,
+                                    endValue: 100,
+                                    color: Colors.red,
+                                    startWidth: 15,
+                                    endWidth: 15,
+                                  ),
                                 ],
                                 pointers: [
                                   NeedlePointer(
@@ -985,7 +1018,10 @@ class _DesktopRiskCard extends StatelessWidget {
                         const Gap(8),
                         Text(
                           "Investors with high risk appetite",
-                          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
                         ),
                       ],
                     ),
@@ -1000,8 +1036,14 @@ class _DesktopRiskCard extends StatelessWidget {
                       children: const [
                         RiskLegendItem(color: Colors.green, label: 'Very Low'),
                         RiskLegendItem(color: Colors.lightGreen, label: 'Low'),
-                        RiskLegendItem(color: Colors.yellow, label: 'Moderate'), // Added Moderate for completeness
-                        RiskLegendItem(color: Colors.orange, label: 'Medium'), // "Medium" often maps to "Moderately High" or distinct category
+                        RiskLegendItem(
+                          color: Colors.yellow,
+                          label: 'Moderate',
+                        ), // Added Moderate for completeness
+                        RiskLegendItem(
+                          color: Colors.orange,
+                          label: 'Medium',
+                        ), // "Medium" often maps to "Moderately High" or distinct category
                         RiskLegendItem(color: Colors.redAccent, label: 'High'),
                         RiskLegendItem(color: Colors.red, label: 'Very High'),
                       ],
@@ -1094,10 +1136,7 @@ class _DesktopActionCard extends StatelessWidget {
               ),
               child: const Text(
                 "Start SIP",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -1116,10 +1155,7 @@ class _DesktopActionCard extends StatelessWidget {
               ),
               child: const Text(
                 "Lumpsum Invest",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -1141,11 +1177,7 @@ class _DesktopQuickLookCard extends StatelessWidget {
       title: 'Quick Look',
       child: Column(
         children: [
-          _buildQuickStat(
-            '5Y CAGR',
-            '20.23%',
-            Colors.green.shade700,
-          ),
+          _buildQuickStat('5Y CAGR', '20.23%', Colors.green.shade700),
           const Gap(20),
           _buildQuickStat(
             '5Y SIP Return',
@@ -1274,7 +1306,9 @@ class _DesktopAllocationCard extends StatelessWidget {
   }
 
   Widget _buildPieChartTab(
-      List<MapEntry<String, double>> data, String centerText) {
+    List<MapEntry<String, double>> data,
+    String centerText,
+  ) {
     if (data.isEmpty) {
       return const Center(child: Text('No data available'));
     }
@@ -1393,12 +1427,14 @@ class _DesktopAllocationCard extends StatelessWidget {
             ),
           ),
           const Divider(height: 1),
-          ...top5.map((item) => StockAllocationItem(
-            name: item.key,
-            category: '',
-            sector: '',
-            percentage: item.value,
-          )),
+          ...top5.map(
+            (item) => StockAllocationItem(
+              name: item.key,
+              category: '',
+              sector: '',
+              percentage: item.value,
+            ),
+          ),
         ],
       ),
     );
@@ -1454,18 +1490,16 @@ class _DesktopAboutCard extends StatelessWidget {
           const Gap(24),
           const Text(
             'Fund Manager(s)',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
           ),
           const Gap(16),
           if (managers.isNotEmpty)
             Wrap(
               spacing: 12,
               runSpacing: 12,
-              children:
-              managers.map((name) => _buildManagerChip(name)).toList(),
+              children: managers
+                  .map((name) => _buildManagerChip(name))
+                  .toList(),
             )
           else
             Text(
@@ -1547,7 +1581,7 @@ class _DesktopComparisonSection extends StatelessWidget {
                       'name': controller.schemeName,
                       'imgUrl': controller.imgUrl,
                       'name2':
-                      fund.schemePeerComparisonList[index + 1].schemeName,
+                          fund.schemePeerComparisonList[index + 1].schemeName,
                     },
                   );
                 },
@@ -1658,10 +1692,7 @@ class _DesktopComparisonSection extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey.shade600,
-          ),
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
         ),
         const Gap(4),
         Text(
@@ -1697,8 +1728,7 @@ class _DesktopInvestmentDetailsCard extends StatelessWidget {
           const Divider(height: 32),
           _buildDetailRow('Min. Topup', '₹${fund?.minimumTopup}'),
           const Divider(height: 32),
-          _buildDetailRow(
-              'Expense Ratio', '${fund?.expenseRatioPercentage}%'),
+          _buildDetailRow('Expense Ratio', '${fund?.expenseRatioPercentage}%'),
         ],
       ),
     );
@@ -1718,10 +1748,7 @@ class _DesktopInvestmentDetailsCard extends StatelessWidget {
         ),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-          ),
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
         ),
       ],
     );
@@ -1734,11 +1761,7 @@ class _DesktopCard extends StatelessWidget {
   final Widget child;
   final Widget? action;
 
-  const _DesktopCard({
-    required this.title,
-    required this.child,
-    this.action,
-  });
+  const _DesktopCard({required this.title, required this.child, this.action});
 
   @override
   Widget build(BuildContext context) {
@@ -1844,8 +1867,14 @@ class _MobileFundDetailsLayout extends StatelessWidget {
         actionsPadding: 10,
         title: 'Fund Details',
         action: [
-          CompactIcon(icon: Iconsax.shopping_cart, onPressed: () => Get.toNamed(AppRoutes.cart)),
-          CompactIcon(icon: Iconsax.archive_tick, onPressed: () => Get.toNamed(AppRoutes.watchlist)),
+          CompactIcon(
+            icon: Iconsax.shopping_cart,
+            onPressed: () => Get.toNamed(AppRoutes.cart),
+          ),
+          CompactIcon(
+            icon: Iconsax.archive_tick,
+            onPressed: () => Get.toNamed(AppRoutes.watchlist),
+          ),
         ],
       ),
     );
@@ -1861,14 +1890,18 @@ class _MobileFundDetailsLayout extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  ClipOval(child: CustomCachedImage(imageUrl: controller.imgUrl)),
+                  ClipOval(
+                    child: CustomCachedImage(imageUrl: controller.imgUrl),
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       fund?.schemeName ?? '',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.w600),
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
@@ -1887,7 +1920,9 @@ class _MobileFundDetailsLayout extends StatelessWidget {
                   _metaText('STATUS:'),
                   _metaText(
                     fund?.schemeStatus.toUpperCase().split(" ")[0] ?? 'Open',
-                    color: (fund?.schemeStatus == 'Open Ended Schemes') ? Ucolors.success : Ucolors.red,
+                    color: (fund?.schemeStatus == 'Open Ended Schemes')
+                        ? Ucolors.success
+                        : Ucolors.red,
                     fontWeight: FontWeight.bold,
                   ),
                 ],
@@ -1908,6 +1943,7 @@ class _MobileFundDetailsLayout extends StatelessWidget {
     return Ucolors.darkgrey;
   }
 }
+
 class OverviewScreen extends GetView<FundDetailsController> {
   final GlobalKey overViewKey;
   final GlobalKey returnsKey;
@@ -1927,7 +1963,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size;
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
-
 
     return Obx(() {
       final fund = controller.fundDetail.value;
@@ -1985,14 +2020,19 @@ class OverviewScreen extends GetView<FundDetailsController> {
                   }
 
                   // Check if data is loaded
-                  if (navEntity == null || navEntity.data.isEmpty) {
+                  if (controller.navHistoryHasError.value ||
+                      navEntity == null ||
+                      navEntity.data.isEmpty ||
+                      controller.hasError.value) {
                     return SizedBox(
                       height: 220,
                       child: Center(child: Text('No Data Available')),
                     );
                   }
 
-                  return SchemeLineChart(navData: navEntity.data);
+                  return SchemeLineChart(
+                    navData: navEntity.data.reversed.toList(),
+                  );
                 }),
                 const Gap(12),
                 const PeriodSelector(),
@@ -2166,7 +2206,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
                           400, // Fixed height to accommodate the larger view (Table)
                       child: TabBarView(
                         children: [
-
                           // TAB 2: Graph VIEW
                           SingleChildScrollView(
                             child: Column(
@@ -2193,7 +2232,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                 GroupedPerformanceBarChart(data: returnss),
                                 const SizedBox(height: 10),
                                 Text(
-                                  "Returns vs Benchmark vs Category",
+                                  "Returns vs Benchmark",
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey.shade500,
@@ -2220,7 +2259,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
           ),
           CustomContainer(
             child: SizedBox(
-              height:  isDesktop ? 500 :160,
+              height: isDesktop ? 500 : 160,
               // child: ReturnsBarChart(data: yearlyData),
               // child: ,
               child: Obx(() {
@@ -2382,8 +2421,17 @@ class OverviewScreen extends GetView<FundDetailsController> {
                       List<MapEntry<String, double>> data,
                       String centerText,
                     ) {
+                      // if (data.isEmpty) {
+                      //   return const Center(child: Text("No data available"));
+                      // }
                       if (data.isEmpty) {
-                        return const Center(child: Text("No data available"));
+                        return AnimatedEmptyState(
+                          icon: Iconsax.ghost,
+
+                          title: 'No Market Cap Data',
+                          message:
+                              'The AMC hasnt disclosed the Market Cap for this fund, or it may not be applicable to this scheme',
+                        ); // <-- So much cleaner!
                       }
 
                       final List<Color> colors = [
@@ -2462,7 +2510,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
                       length: 2, // Two Tabs
                       child: Column(
                         children: [
-
                           const Gap(10),
                           // --- TAB BAR ---
                           // Container(
@@ -2602,15 +2649,14 @@ class OverviewScreen extends GetView<FundDetailsController> {
                           padding: EdgeInsets.zero,
                           labelPadding: EdgeInsets.zero,
                           tabs: const [
-                            Tab(text: "Top 5 Sector"),
-                            Tab(text: "Top 5 Stock"),
+                            Tab(text: "Top 10 Sector"),
+                            Tab(text: "Top 10 Stock"),
                           ],
                         ),
                       ),
 
                       /// Tab bar for top 5 sector and top 5 stock
                       SizedBox(
-
                         height: 450,
                         child: TabBarView(
                           children: [
@@ -2634,18 +2680,92 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                 }
 
                                 // 3. Empty Check
+                                // if (entity == null ||
+                                //     names.isEmpty ||
+                                //     values.isEmpty) {
+                                //   return Container(
+                                //     height: 200,
+                                //     alignment: Alignment.center,
+                                //     child: const Text(
+                                //       "No Sector Data Available",
+                                //       style: TextStyle(color: Colors.grey),
+                                //     ),
+                                //   );
+                                // }
+
+                                // 3. Empty State Check
                                 if (entity == null ||
                                     names.isEmpty ||
                                     values.isEmpty) {
-                                  return Container(
-                                    height: 200,
-                                    alignment: Alignment.center,
-                                    child: const Text(
-                                      "No Sector Data Available",
-                                      style: TextStyle(color: Colors.grey),
-                                    ),
-                                  );
+                                  return AnimatedEmptyState(
+                                    title: 'No Sector Data',
+                                    message:
+                                        'The AMC hasnt disclosed the holdings for this fund, or it may not be applicable to this scheme',
+                                  ); // <-- So much cleaner!
                                 }
+                                // 3. Empty State Check
+                                // if (entity == null ||
+                                //     names.isEmpty ||
+                                //     values.isEmpty) {
+                                //   return Container(
+                                //     height:
+                                //         300, // Give it enough height to look intentional
+                                //     width: double.infinity,
+                                //     padding: const EdgeInsets.symmetric(
+                                //       horizontal: 24,
+                                //       vertical: 32,
+                                //     ),
+                                //     child: Column(
+                                //       mainAxisAlignment:
+                                //           MainAxisAlignment.center,
+                                //       children: [
+                                //         // 1. Soft Icon Background
+                                //         Container(
+                                //           padding: const EdgeInsets.all(20),
+                                //           decoration: BoxDecoration(
+                                //             color: Ucolors.darkgrey.withOpacity(
+                                //               0.05,
+                                //             ), // Very subtle grey circle
+                                //             shape: BoxShape.circle,
+                                //           ),
+                                //           child: Icon(
+                                //             Iconsax
+                                //                 .chart_fail, // Or Iconsax.document_text, Iconsax.box_remove
+                                //             size: 48,
+                                //             color: Ucolors.darkgrey.withOpacity(
+                                //               0.5,
+                                //             ),
+                                //           ),
+                                //         ),
+                                //         const SizedBox(height: 20),
+
+                                //         // 2. Friendly Heading
+                                //         const Text(
+                                //           "No Portfolio Data",
+                                //           style: TextStyle(
+                                //             fontSize: 16,
+                                //             fontWeight: FontWeight.w600,
+                                //             color: Colors.black87,
+                                //           ),
+                                //         ),
+                                //         const SizedBox(height: 8),
+
+                                //         // 3. Reassuring Subtitle
+                                //         const Text(
+                                //           "The AMC hasn't disclosed the holdings for this fund, or it may not be applicable to this scheme category.",
+                                //           textAlign: TextAlign.center,
+                                //           style: TextStyle(
+                                //             fontSize: 13,
+                                //             fontWeight: FontWeight.w400,
+                                //             color: Colors.grey,
+                                //             height:
+                                //                 1.4, // Makes multi-line text easier to read
+                                //           ),
+                                //         ),
+                                //       ],
+                                //     ),
+                                //   );
+                                // }
 
                                 // 4. Combine, Sort, and Limit to Top 5
                                 // Safety: use the smaller length to avoid crashes
@@ -2668,26 +2788,30 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                 );
 
                                 // Take only the Top 5
-                                final top5Items = combinedList.take(5).toList();
+                                final top10Items = combinedList
+                                    .take(10)
+                                    .toList();
 
                                 // 5. Render
-                                return Column(
-                                  children: top5Items.map((entry) {
-                                    return Padding(
-                                      padding: const EdgeInsets.only(
-                                        // bottom: 10,
-                                        top: 10,
-                                      ),
-                                      child: PercentageBar(
-                                        title: entry
-                                            .key, // Name (e.g., Financial Services)
-                                        percentage:
-                                            entry.value, // Value (e.g., 30.62)
-                                        color: Colors
-                                            .blue, // Replace with Ucolors.primary
-                                      ),
-                                    );
-                                  }).toList(),
+                                return SingleChildScrollView(
+                                  child: Column(
+                                    children: top10Items.map((entry) {
+                                      return Padding(
+                                        padding: const EdgeInsets.only(
+                                          // bottom: 10,
+                                          top: 10,
+                                        ),
+                                        child: PercentageBar(
+                                          title: entry
+                                              .key, // Name (e.g., Financial Services)
+                                          percentage: entry
+                                              .value, // Value (e.g., 30.62)
+                                          color: Colors
+                                              .blue, // Replace with Ucolors.primary
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
                                 );
                               },
                             ),
@@ -2718,17 +2842,26 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                 }
 
                                 // 3. Empty State Check
+                                // if (entity == null ||
+                                //     names.isEmpty ||
+                                //     values.isEmpty) {
+                                //   return Container(
+                                //     height: 200,
+                                //     alignment: Alignment.center,
+                                //     child: const Text(
+                                //       "No Holdings Data Available",
+                                //       style: TextStyle(color: Colors.grey),
+                                //     ),
+                                //   );
+                                // }
                                 if (entity == null ||
                                     names.isEmpty ||
                                     values.isEmpty) {
-                                  return Container(
-                                    height: 200,
-                                    alignment: Alignment.center,
-                                    child: const Text(
-                                      "No Holdings Data Available",
-                                      style: TextStyle(color: Colors.grey),
-                                    ),
-                                  );
+                                  return AnimatedEmptyState(
+                                    title: 'No Sector Data',
+                                    message:
+                                        'The AMC hasnt disclosed the holdings for this fund, or it may not be applicable to this scheme',
+                                  ); // <-- So much cleaner!
                                 }
 
                                 // 4. CLEAN, COMBINE & SORT
@@ -2798,51 +2931,68 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                 );
 
                                 // Take Top 5
-                                final top5Items = holdings.take(5).toList();
+                                final top10Items = holdings.take(10).toList();
 
                                 // 5. Render
-                                return Column(
-                                  children: [
-                                    const Gap(10),
-                                    const Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          'Stock Allocation',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w400,
-                                            color: Ucolors.darkgrey,
+                                return SingleChildScrollView(
+                                  physics: BouncingScrollPhysics(),
+                                  child: Column(
+                                    children: [
+                                      const Gap(10),
+                                      const Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Stock Allocation',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w400,
+                                              color: Ucolors.darkgrey,
+                                            ),
                                           ),
-                                        ),
-                                        Text(
-                                          'Holding %',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w400,
-                                            color: Ucolors.darkgrey,
+                                          Text(
+                                            'Holding %',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w400,
+                                              color: Ucolors.darkgrey,
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    const Gap(10),
+                                        ],
+                                      ),
+                                      const Gap(10),
 
-                                    const DashedLine(
-                                      dashSpace: 0,
+                                      const DashedLine(
+                                        dashSpace: 0,
 
-                                      color: Ucolors.borderColor,
-                                    ),
-                                    const Gap(10),
-                                    ...top5Items.map((item) {
-                                      return StockAllocationItem(
-                                        name: item.key, // Clean Name
-                                        category: '', // Placeholder
-                                        sector: '', // Placeholder
-                                        percentage: item.value,
-                                      );
-                                    }).toList(),
-                                  ],
+                                        color: Ucolors.borderColor,
+                                      ),
+                                      const Gap(10),
+                                      ...top10Items.map((item) {
+                                        return
+                                        // StockAllocationItem(
+                                        //   name: item.key, // Clean Name
+                                        //   category: '', // Placeholder
+                                        //   sector: '', // Placeholder
+                                        //   percentage: item.value,
+                                        // );
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            bottom: 10,
+                                          ),
+                                          child: PercentageBar(
+                                            title: item
+                                                .key, // Name (e.g., Financial Services)
+                                            percentage: item
+                                                .value, // Value (e.g., 30.62)
+                                            color: Colors
+                                                .blue, // Replace with Ucolors.primary
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ],
+                                  ),
                                 );
                               },
                             ),
@@ -3367,7 +3517,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
             shape: Border(),
             collapsedShape: Border(),
             // dense: true,
-            title: Text('AMC Inforamtion'),
+            title: Text('AMC Information'),
             children: [
               CustomContainer(
                 bottomPadding: 0,
@@ -3378,31 +3528,34 @@ class OverviewScreen extends GetView<FundDetailsController> {
                       fund?.schemeCompany.toString() ?? '',
                       Icons.bar_chart_rounded,
                     ),
-                    // DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                    // investmentDetailSection(
-                    //   'Email',
-                    //   'abc.warrgyizmorch@gmail.com',
-                    //   Icons.mail_outline,
-                    // ),
+                    DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                    investmentDetailSection(
+                      'Email',
+                      // 'abc.warrgyizmorch@gmail.com',
+                      controller.email,
+                      Icons.mail_outline,
+                    ),
 
-                    // DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                    // investmentDetailSection(
-                    //   'Office No',
-                    //   '1876471871',
-                    //   Icons.home_work_outlined,
-                    // ),
+                    DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                    investmentDetailSection(
+                      'Office No',
+                      // '1876471871',
+                      controller.contact,
+                      Icons.home_work_outlined,
+                    ),
                     // DashedLine(dashSpace: 0, color: Colors.grey.shade300),
                     // investmentDetailSection(
                     //   'Website',
                     //   'http://www.google.com',
                     //   Iconsax.global,
                     // ),
-                    // DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                    // investmentDetailSection(
-                    //   'Address',
-                    //   '',
-                    //   Icons.location_on_outlined,
-                    // ),
+                    DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                    investmentDetailSection(
+                      'Address',
+                      // '',
+                      controller.address,
+                      Icons.location_on_outlined,
+                    ),
                   ],
                 ),
               ),
@@ -3491,6 +3644,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
               style: UTextStyles.medium.copyWith(
                 fontWeight: FontWeight.w600,
                 color: Ucolors.dark,
+                fontSize: 12,
               ),
             ),
           ),
@@ -3937,7 +4091,11 @@ class SliverPageTabs extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToActiveTab());
 
     return Container(
@@ -3994,6 +4152,7 @@ class SliverPageTabs extends SliverPersistentHeaderDelegate {
   @override
   double get minExtent => 50;
 }
+
 Widget _dot() {
   return const Text('•', style: TextStyle(fontSize: 12, color: Colors.grey));
 }

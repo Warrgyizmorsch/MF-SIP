@@ -1,14 +1,21 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
+import 'package:my_sip/common/widget/images/custom_cached_image.dart';
+import 'package:my_sip/common/widget/images/image_picker.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/subtitle_section.dart';
 import 'package:my_sip/common/widget/webview/webview.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
+import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/document.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/help_support.dart';
@@ -29,15 +36,15 @@ class ProfileScreen extends StatelessWidget {
     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Scaffold(
-      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : null, // Professional Web Grey
+      backgroundColor: isDesktop
+          ? const Color(0xFFF5F7FA)
+          : null, // Professional Web Grey
       appBar: CustomAppBarNormal(
         title: 'Profile',
-        backIcon: !isDesktop,
+        backIcon: !isDesktop ? false : !isDesktop,
         backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : null,
       ),
-      body: isDesktop
-          ? const _WebProfileDashboard()
-          : const _MobileProfileLayout(),
+      body: isDesktop ? const _WebProfileDashboard() : _MobileProfileLayout(),
     );
   }
 }
@@ -46,11 +53,13 @@ class ProfileScreen extends StatelessWidget {
 // 📱 MOBILE LAYOUT (Your Original Code)
 // ==========================================
 class _MobileProfileLayout extends StatelessWidget {
-  const _MobileProfileLayout();
+  _MobileProfileLayout();
+
+  final controller = Get.find<PersonalisationController>();
 
   @override
   Widget build(BuildContext context) {
-    final user = SessionManager.instance.getUserData;
+    final user = SessionManager.instance.userObs.value;
     return Padding(
       padding: UPadding.screenPadding,
       child: SingleChildScrollView(
@@ -59,17 +68,51 @@ class _MobileProfileLayout extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: kToolbarHeight / 2),
-              ProfileHeader(
-                onTap: () {},
-                name: user?.name,
-                img: UImages.avatar,
-                subtitle: user?.email ?? '',
-                icon: Icons.edit,
-              ),
+              // ProfileHeader(
+              //   onTap: () =>  controller.pickImage,
+              //   name: user?.name,
+              //   img: UImages.avatar,
+              //   subtitle: user?.email ?? '',
+              //   icon: Icons.edit,
+              // ),
+              Obx(() {
+                final user1 = SessionManager.instance.userObs.value;
+
+                final reactiveUser = SessionManager.instance.userObs.value;
+
+                String displayImage = controller.imagePath.isNotEmpty
+                    ? controller.imagePath.value
+                    : (reactiveUser?.img ?? UImages.avatar);
+
+                log(user1?.img ?? ' not ');
+
+                return ProfileHeader(
+                  // onTap: () => controller.pickImage(
+                  //   ImageSource.gallery,
+                  // ), // Trigger image picker
+                  // onTap: () => UImagePicker.showImageSourceOptions(
+                  //   context: context,
+                  //   onImageSelected: (source) => controller.pickImage(source),
+                  // ),
+                  onTap: () => Get.toNamed(AppRoutes.personaldetails),
+                  // img: controller.imagePath.isEmpty
+                  //     ? UImages.avatar
+                  //     : controller.imagePath.toString(),
+                  // img: user!.img == null ? UImages.avatar : user.img.toString(),
+                  // img: controller.imagePath.isEmpty
+                  //     ? (user?.img ?? UImages.avatar)
+                  //     : controller.imagePath.value,
+                  img: displayImage,
+
+                  // : '${Appurl.baseUrl}${personalisationController}',
+                  subtitle: user?.name ?? '',
+                  icon: Icons.edit,
+                );
+              }),
               const SizedBox(height: 20),
               const Upgradebanner(),
               const SizedBox(height: 20),
-              const ActivityGeneralSectionMobile(),
+              ActivityGeneralSectionMobile(),
               const SizedBox(height: 20),
               const LogoutButton(),
               const Gap(15),
@@ -83,7 +126,6 @@ class _MobileProfileLayout extends StatelessWidget {
   }
 }
 
-
 class _WebProfileDashboard extends StatelessWidget {
   const _WebProfileDashboard();
 
@@ -94,7 +136,8 @@ class _WebProfileDashboard extends StatelessWidget {
     return Center(
       child: MaxWidthBox(
         maxWidth: 1000,
-        child: SingleChildScrollView( // Allow scrolling on smaller laptops
+        child: SingleChildScrollView(
+          // Allow scrolling on smaller laptops
           padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,7 +149,11 @@ class _WebProfileDashboard extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 4)),
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 20,
+                      offset: const Offset(0, 4),
+                    ),
                   ],
                 ),
                 child: Row(
@@ -120,12 +167,23 @@ class _WebProfileDashboard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(user?.name ?? 'User Name', style: UTextStyles.heading1.copyWith(fontSize: 24)),
-                          Text(user?.email ?? 'email@address.com', style: UTextStyles.subtitle2.copyWith(color: Colors.grey)),
+                          Text(
+                            user?.name ?? 'User Name',
+                            style: UTextStyles.heading1.copyWith(fontSize: 24),
+                          ),
+                          Text(
+                            user?.email ?? 'email@address.com',
+                            style: UTextStyles.subtitle2.copyWith(
+                              color: Colors.grey,
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 150, child: LogoutButton(compact: true)),
+                    const SizedBox(
+                      width: 150,
+                      child: LogoutButton(compact: true),
+                    ),
                   ],
                 ),
               ),
@@ -138,14 +196,19 @@ class _WebProfileDashboard extends StatelessWidget {
                 children: [
                   // Left Side: Upgrade Banner
 
-
                   // Right Side: Action Grid
                   Expanded(
                     flex: 8,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text("Account Settings", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        const Text(
+                          "Account Settings",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const Gap(16),
                         _buildGrid(context),
                       ],
@@ -163,8 +226,6 @@ class _WebProfileDashboard extends StatelessWidget {
                       ],
                     ),
                   ),
-
-
                 ],
               ),
             ],
@@ -177,13 +238,49 @@ class _WebProfileDashboard extends StatelessWidget {
   Widget _buildGrid(BuildContext context) {
     // Grid Items Data
     final items = [
-      _GridItem('KYC Details', UImages.archiveadd, () => Get.to(() => const KycDetailsScreen())),
-      _GridItem('Personal Details', UImages.verify, () => Get.toNamed(AppRoutes.personaldetails)),
-      _GridItem('Bank Account', UImages.arrow, () => Get.to(() => const BankDetailsScreen())),
-      _GridItem('Nominee Details', UImages.verify, () => Get.to(() => const NomineeListScreen())),
-      _GridItem('Documents', UImages.cardtick, () => Get.to(() => const DocumentScreen())),
-      _GridItem('Help & Support', UImages.eye, () => Get.to(() => const HelpSupportScreen())),
-      _GridItem('About Us', UImages.msgques, () => Navigator.push(context, MaterialPageRoute(builder: (c) => const HtmlWebViewPage(title: 'About us', url: 'https://sip.londonstreetstore.com/about-us?mobile=true')))),
+      _GridItem(
+        'KYC Details',
+        UImages.archiveadd,
+        () => Get.to(() => const KycDetailsScreen()),
+      ),
+      _GridItem(
+        'Personal Details',
+        UImages.verify,
+        () => Get.toNamed(AppRoutes.personaldetails),
+      ),
+      _GridItem(
+        'Bank Account',
+        UImages.arrow,
+        () => Get.to(() => const BankDetailsScreen()),
+      ),
+      _GridItem(
+        'Nominee Details',
+        UImages.verify,
+        () => Get.toNamed(AppRoutes.nomineeList),
+      ),
+      _GridItem(
+        'Documents',
+        UImages.cardtick,
+        () => Get.to(() => const DocumentScreen()),
+      ),
+      _GridItem(
+        'Help & Support',
+        UImages.eye,
+        () => Get.to(() => const HelpSupportScreen()),
+      ),
+      _GridItem(
+        'About Us',
+        UImages.msgques,
+        () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (c) => const HtmlWebViewPage(
+              title: 'About us',
+              url: 'https://sip.londonstreetstore.com/about-us?mobile=true',
+            ),
+          ),
+        ),
+      ),
     ];
 
     return LayoutBuilder(
@@ -199,13 +296,20 @@ class _WebProfileDashboard extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               child: Container(
                 width: width,
-                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 24,
+                  horizontal: 16,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: Colors.grey.shade200),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
                   ],
                 ),
                 child: Column(
@@ -216,7 +320,10 @@ class _WebProfileDashboard extends StatelessWidget {
                     Text(
                       item.title,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
                     ),
                   ],
                 ),
@@ -235,8 +342,6 @@ class _GridItem {
   final VoidCallback onTap;
   _GridItem(this.title, this.image, this.onTap);
 }
-
-
 
 class LogoutButton extends StatelessWidget {
   final bool compact;
@@ -279,9 +384,15 @@ class FooterSection extends StatelessWidget {
       children: [
         Text('Version 1.0.0', style: UTextStyles.small),
         const Gap(12),
-        Text('Ridit Finworld', style: UTextStyles.small.copyWith(fontWeight: FontWeight.bold)),
-        Text('AMFI registered mutual fund distributor', style: UTextStyles.small),
-        Text('AMFI ARN NO: 123456', style: UTextStyles.small),
+        Text(
+          'Ridit Finworld',
+          style: UTextStyles.small.copyWith(fontWeight: FontWeight.bold),
+        ),
+        Text(
+          'AMFI registered mutual fund distributor',
+          style: UTextStyles.small,
+        ),
+        Text('AMFI ARN NO: 104807', style: UTextStyles.small),
       ],
     );
   }
@@ -289,8 +400,9 @@ class FooterSection extends StatelessWidget {
 
 // Renamed to avoid confusion with the web grid logic
 class ActivityGeneralSectionMobile extends StatelessWidget {
-  const ActivityGeneralSectionMobile({super.key});
+  ActivityGeneralSectionMobile({super.key});
 
+  final PersonalisationController controller = Get.find();
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -300,17 +412,78 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 16),
-          const Row(children: [SizedBox(width: 16), SectionHeading(sectionTitle: 'Activity', fontWeight: FontWeight.w700)]),
-          Listtilecustom(onTap: () => Get.to(() => const KycDetailsScreen()), title: 'KYC Details', images: UImages.archiveadd),
-          Listtilecustom(onTap: () => Get.toNamed(AppRoutes.personaldetails), title: 'Personal Details', images: UImages.verify),
-          Listtilecustom(onTap: () => Get.to(() => const BankDetailsScreen()), title: 'Bank Account', images: UImages.arrow),
-          Listtilecustom(onTap: () => Get.to(() => const NomineeListScreen()), title: 'Nominee Details', images: UImages.verify),
-          Listtilecustom(onTap: () => Get.to(() => const DocumentScreen()), title: 'Documents', images: UImages.cardtick),
-          const Row(children: [SizedBox(width: 16), SectionHeading(sectionTitle: 'General', fontWeight: FontWeight.w700)]),
-          Listtilecustom(title: 'Applock', images: UImages.setting, onTap: () {}),
-          Listtilecustom(title: 'Help & Support', images: UImages.eye, onTap: () => Get.to(() => const HelpSupportScreen())),
-          Listtilecustom(title: 'About Us', images: UImages.msgques, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const HtmlWebViewPage(title: 'About us', url: 'https://sip.londonstreetstore.com/about-us?mobile=true')))),
-          Listtilecustom(onTap: () {}, title: 'Rate Us', images: UImages.likedislike),
+          const Row(
+            children: [
+              SizedBox(width: 16),
+              SectionHeading(
+                sectionTitle: 'Activity',
+                fontWeight: FontWeight.w700,
+              ),
+            ],
+          ),
+          Listtilecustom(
+            onTap: () => Get.to(() => const KycDetailsScreen()),
+            title: 'KYC Details',
+            images: UImages.archiveadd,
+          ),
+          Listtilecustom(
+            onTap: () => Get.toNamed(AppRoutes.personaldetails),
+            title: 'Personal Details',
+            images: UImages.verify,
+          ),
+          Listtilecustom(
+            onTap: () => Get.to(() => const BankDetailsScreen()),
+            title: 'Bank Account',
+            images: UImages.arrow,
+          ),
+          Listtilecustom(
+            onTap: () => Get.toNamed(AppRoutes.nomineeList),
+            title: 'Nominee Details',
+            images: UImages.verify,
+          ),
+          Listtilecustom(
+            onTap: () => Get.to(() => const DocumentScreen()),
+            title: 'Documents',
+            images: UImages.cardtick,
+          ),
+          const Row(
+            children: [
+              SizedBox(width: 16),
+              SectionHeading(
+                sectionTitle: 'General',
+                fontWeight: FontWeight.w700,
+              ),
+            ],
+          ),
+          Listtilecustom(
+            isLock: true,
+            title: 'Applock',
+            images: UImages.setting,
+            onTap: () {},
+          ),
+          Listtilecustom(
+            title: 'Help & Support',
+            images: UImages.eye,
+            onTap: () => Get.to(() => const HelpSupportScreen()),
+          ),
+          Listtilecustom(
+            title: 'About Us',
+            images: UImages.msgques,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const HtmlWebViewPage(
+                  title: 'About us',
+                  url: 'https://sip.londonstreetstore.com/about-us?mobile=true',
+                ),
+              ),
+            ),
+          ),
+          Listtilecustom(
+            onTap: () {},
+            title: 'Rate Us',
+            images: UImages.likedislike,
+          ),
         ],
       ),
     );
@@ -318,10 +491,19 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
 }
 
 class Listtilecustom extends StatelessWidget {
-  const Listtilecustom({super.key, required this.title, this.images, required this.onTap});
+  Listtilecustom({
+    super.key,
+    required this.title,
+    this.images,
+    required this.onTap,
+    this.isLock = false,
+  });
   final String title;
   final String? images;
   final VoidCallback onTap;
+  final bool isLock;
+  // final PersonalisationController controller =
+  //     Get.find<PersonalisationController>();
 
   @override
   Widget build(BuildContext context) {
@@ -331,8 +513,30 @@ class Listtilecustom extends StatelessWidget {
       visualDensity: const VisualDensity(vertical: -1),
       onTap: onTap,
       leading: images != null ? Image.asset(images!) : null,
-      title: Text(title, style: UTextStyles.subtitle2.copyWith(color: Ucolors.dark, fontWeight: FontWeight.w500)),
-      trailing: const Icon(Icons.arrow_forward_ios, color: Ucolors.darkgrey, size: 14),
+      title: Text(
+        title,
+        style: UTextStyles.subtitle2.copyWith(
+          color: Ucolors.dark,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      trailing: !isLock
+          ? const Icon(
+              Icons.arrow_forward_ios,
+              color: Ucolors.darkgrey,
+              size: 14,
+            )
+          : Obx(
+              () => Switch(
+                activeColor: Colors.blue,
+                // value: controller.applock.value,
+                value: SessionManager.instance.isAppLockEnabled.value,
+                onChanged: (bool value) async {
+                  // controller.applock.toggle();
+                  await SessionManager.instance.toggleAppLock(value);
+                },
+              ),
+            ),
     );
   }
 }
@@ -342,24 +546,112 @@ class Upgradebanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final session = SessionManager.instance;
     final sz = MediaQuery.of(context).size;
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
-    return UElevatedBUtton(
-      onPressed: () => Get.toNamed(AppRoutes.riskProfile),
-      height: isDesktop ? 80 : sz.height * 0.08,
-      child: Center(
-        child: ListTile(
-          leading: CircleAvatar(backgroundColor: Colors.amber, backgroundImage: AssetImage(UImages.crown)),
-          title: SubtitleText(fontWeight: FontWeight.w600, textcolor: Ucolors.light, subtitle: 'Check Your Risk Profile Now!', textAlignCenter: TextAlign.left),
-          trailing: const Icon(Icons.arrow_forward_ios, color: Ucolors.light),
-        ),
-      ),
-    );
+
+    // WRAP IN OBX FOR REAL-TIME UPDATES
+    return Obx(() {
+      // Accessing the reactive getter triggers the listener
+      final riskData = session.getRiskScore;
+
+      return riskData == null
+          ? UElevatedBUtton(
+              onPressed: () => Get.toNamed(AppRoutes.riskProfile),
+              height: isDesktop ? 80 : sz.height * 0.08,
+              child: Center(
+                child: ListTile(
+                  leading: const CircleAvatar(
+                    backgroundColor: Colors.amber,
+                    backgroundImage: AssetImage(UImages.crown),
+                  ),
+                  title: SubtitleText(
+                    fontWeight: FontWeight.w600,
+                    textcolor: Ucolors.light,
+                    subtitle: 'Check Your Risk Profile Now!',
+                    textAlignCenter: TextAlign.left,
+                  ),
+                  trailing: const Icon(
+                    Icons.arrow_forward_ios,
+                    color: Ucolors.light,
+                  ),
+                ),
+              ),
+            )
+          : UElevatedBUtton(
+              // Allow users to re-take the test/refresh if they wish
+              onPressed: () => Get.toNamed(AppRoutes.riskProfile),
+              height: isDesktop ? 80 : sz.height * 0.08,
+              color: Ucolors.blue, // 'Completed' state color
+              child: Center(
+                child: ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: Colors.white24,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.verified_user, color: Colors.white),
+                  ),
+                  title: SubtitleText(
+                    fontWeight: FontWeight.w400,
+                    textcolor: Ucolors.light.withOpacity(0.8),
+                    subtitle: 'Your Risk Profile',
+                    textAlignCenter: TextAlign.left,
+                  ),
+                  subtitle: Text(
+                    "${riskData.profileName} (${riskData.totalScore}/150)",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  trailing: const Icon(
+                    Icons.refresh,
+                    color: Ucolors.light,
+                    size: 20,
+                  ),
+                ),
+              ),
+            );
+    });
   }
 }
 
+// class Upgradebanner extends StatelessWidget {
+//   const Upgradebanner({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final session = SessionManager.instance;
+//     final sz = MediaQuery.of(context).size;
+//     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+//     return session.getRiskScore == null ?  UElevatedBUtton(
+//       onPressed: () => Get.toNamed(AppRoutes.riskProfile),
+//       height: isDesktop ? 80 : sz.height * 0.08,
+//       child: Center(
+//         child: ListTile(
+//           leading: CircleAvatar(backgroundColor: Colors.amber, backgroundImage: AssetImage(UImages.crown)),
+//           title: SubtitleText(fontWeight: FontWeight.w600, textcolor: Ucolors.light, subtitle: 'Check Your Risk Profile Now!', textAlignCenter: TextAlign.left),
+//           trailing: const Icon(Icons.arrow_forward_ios, color: Ucolors.light),
+//         ),
+//       ),
+//     ) :
+//     ;
+//   }
+// }
+
 class ProfileHeader extends StatelessWidget {
-  const ProfileHeader({super.key, required this.img, this.name, required this.subtitle, required this.icon, required this.onTap});
+  const ProfileHeader({
+    super.key,
+    required this.img,
+    this.name,
+    required this.subtitle,
+    required this.icon,
+    required this.onTap,
+  });
+
   final String img;
   final String? name;
   final String subtitle;
@@ -372,17 +664,132 @@ class ProfileHeader extends StatelessWidget {
       children: [
         Stack(
           children: [
-            GestureDetector(onTap: onTap, child: Center(child: CircleAvatar(backgroundImage: AssetImage(img), radius: 60))),
+            GestureDetector(
+              onTap: onTap,
+              child: Center(
+                child: CircleAvatar(
+                  radius: 60,
+                  backgroundColor: Colors.grey.shade200,
+                  child: ClipOval(child: _buildImage()),
+                ),
+              ),
+            ),
             Positioned(
-              left: 70, right: 0, bottom: 5,
-              child: CircleAvatar(backgroundColor: Ucolors.light, radius: 14, child: Center(child: Icon(icon, color: Ucolors.dark))),
+              left: 70,
+              right: 0,
+              bottom: 5,
+              child: CircleAvatar(
+                backgroundColor: Colors.white,
+                radius: 14,
+                child: Center(child: Icon(icon, color: Colors.black, size: 16)),
+              ),
             ),
           ],
         ),
         const SizedBox(height: 10),
-        SectionHeading(sectionTitle: name ?? '', textcolor: Ucolors.dark, fontWeight: FontWeight.w700),
-        Text(subtitle, style: TextStyle(color: Colors.grey.shade700, fontSize: 14)),
+        if (name != null && name!.isNotEmpty) ...[
+          Text(
+            name!,
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+          ),
+        ],
+        Text(
+          subtitle,
+          style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
+        ),
       ],
     );
   }
+
+  Widget _buildImage() {
+    // 1. Handle Network Images
+    if (img.startsWith('http') ||
+        img.startsWith('https') ||
+        img.startsWith('storage/')) {
+      final fullUrl = img.startsWith('storage/')
+          ? "https://sip-backend.londonstreetstore.com/public/$img"
+          : img;
+
+      return Image.network(
+        fullUrl,
+        fit: BoxFit.cover,
+        width: 120,
+        height: 120,
+        errorBuilder: (context, error, stackTrace) =>
+            const Icon(Icons.person, size: 50),
+      );
+    }
+
+    // 2. Handle Local File Images (from Image Picker)
+    if (img.isNotEmpty && File(img).existsSync()) {
+      return Image.file(File(img), fit: BoxFit.cover, width: 120, height: 120);
+    }
+
+    // 3. Default/Asset Image
+    return Image.asset(
+      img.isEmpty ? 'assets/images/avatar.png' : img,
+      fit: BoxFit.cover,
+      width: 120,
+      height: 120,
+    );
+  }
 }
+
+// class ProfileHeader extends StatelessWidget {
+//   const ProfileHeader({
+//     super.key,
+//     required this.img,
+//     this.name,
+//     required this.subtitle,
+//     required this.icon,
+//     required this.onTap,
+//   });
+//   final String img;
+//   final String? name;
+//   final String subtitle;
+//   final IconData icon;
+//   final VoidCallback onTap;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       children: [
+//         Stack(
+//           children: [
+//             GestureDetector(
+//               onTap: onTap,
+//               child: Center(
+//                 child: CircleAvatar(
+//                   radius: 60,
+//                   // child: CustomCachedImage(imageUrl: img),
+//                   // child: Image.asset(img),
+//                   child: ClipOval(child: Image.file(File(img))),
+//                 ),
+//               ),
+//             ),
+//             Positioned(
+//               left: 70,
+//               right: 0,
+//               bottom: 5,
+//               child: CircleAvatar(
+//                 backgroundColor: Ucolors.light,
+//                 radius: 14,
+//                 child: Center(child: Icon(icon, color: Ucolors.dark)),
+//               ),
+//             ),
+//           ],
+//         ),
+//         const SizedBox(height: 10),
+//         SectionHeading(
+//           sectionTitle: name ?? '',
+//           textcolor: Ucolors.dark,
+//           fontWeight: FontWeight.w700,
+//         ),
+//         Text(
+//           subtitle,
+//           style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
+//         ),
+//       ],
+//     );
+//   }
+// }

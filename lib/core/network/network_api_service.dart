@@ -45,37 +45,53 @@ class NetworkServicesApi implements BaseApiServices {
 
   @override
   Future<dynamic> getApi(
-    String url, {
-    Map<String, dynamic>? queryParameters,
-  }) async {
+      String url, {
+        dynamic data,
+        Map<String, dynamic>? queryParameters,
+        Map<String, String>? headers,
+        bool isPublic = false,
+        ResponseType? responseType, // <--- NEW PARAMETER
+      }) async {
     try {
-      final response = await _dio.get(url, queryParameters: queryParameters);
+      final response = await _dio.get(
+        url,
+        queryParameters: queryParameters,
+        data: data, // Note: GET requests usually don't have body data, but if your API needs it, this is fine.
+        options: Options(
+          headers: headers,
+          responseType: responseType, // <--- PASS IT HERE
+          extra: {'isPublic': isPublic},
+          contentType: (kIsWeb && isPublic) ? Headers.jsonContentType : null,
+        ),
+      );
+
+      // If we requested bytes, return the data directly (don't run it through JSON parsers)
+      if (responseType == ResponseType.bytes) {
+        return response.data;
+      }
+
       return _handleResponse(response);
     } on DioException catch (e) {
       throw _handleDioError(e);
     }
   }
-
-  // @override
-  // Future<dynamic> postApi(String url, dynamic data) async {
-  //   try {
-  //     final response = await _dio.post(url, data: data);
-  //     return _handleResponse(response);
-  //   } on DioException catch (e) {
-  //     throw _handleDioError(e);
-  //   }
-  // }
   @override
   Future<dynamic> postApi(
-    String url, {
-    dynamic data,
-    Map<String, dynamic>? queryParameters,
-  }) async {
+      String url, {
+        dynamic data,
+        Map<String, dynamic>? queryParameters,
+        Map<String, String>? headers,
+        bool isPublic = false, // Added
+      }) async {
     try {
       final response = await _dio.post(
         url,
         data: data,
         queryParameters: queryParameters,
+        options: Options(
+          headers: headers,
+          extra: {'isPublic': isPublic},
+        ),
       );
       return _handleResponse(response);
     } on DioException catch (e) {
@@ -84,9 +100,21 @@ class NetworkServicesApi implements BaseApiServices {
   }
 
   @override
-  Future<dynamic> putApi(String url, dynamic data) async {
+  Future<dynamic> putApi(
+      String url,
+      dynamic data, {
+        Map<String, String>? headers,
+        bool isPublic = false, // Added
+      }) async {
     try {
-      final response = await _dio.put(url, data: data);
+      final response = await _dio.put(
+        url,
+        data: data,
+        options: Options(
+          headers: headers,
+          extra: {'isPublic': isPublic},
+        ),
+      );
       return _handleResponse(response);
     } on DioException catch (e) {
       throw _handleDioError(e);
@@ -94,9 +122,21 @@ class NetworkServicesApi implements BaseApiServices {
   }
 
   @override
-  Future<dynamic> patchApi(String url, dynamic data) async {
+  Future<dynamic> patchApi(
+      String url,
+      dynamic data, {
+        Map<String, String>? headers,
+        bool isPublic = false, // Added
+      }) async {
     try {
-      final response = await _dio.patch(url, data: data);
+      final response = await _dio.patch(
+        url,
+        data: data,
+        options: Options(
+          headers: headers,
+          extra: {'isPublic': isPublic},
+        ),
+      );
       return _handleResponse(response);
     } on DioException catch (e) {
       throw _handleDioError(e);
@@ -104,9 +144,21 @@ class NetworkServicesApi implements BaseApiServices {
   }
 
   @override
-  Future<dynamic> deleteApi(String url, dynamic data) async {
+  Future<dynamic> deleteApi(
+      String url,
+      dynamic data, {
+        Map<String, String>? headers,
+        bool isPublic = false, // Added
+      }) async {
     try {
-      final response = await _dio.delete(url, data: data);
+      final response = await _dio.delete(
+        url,
+        data: data,
+        options: Options(
+          headers: headers,
+          extra: {'isPublic': isPublic},
+        ),
+      );
       return _handleResponse(response);
     } on DioException catch (e) {
       throw _handleDioError(e);
@@ -118,12 +170,21 @@ class NetworkServicesApi implements BaseApiServices {
   // ---------------------------------------------------------------------------
 
   @override
-  Future<dynamic> postFormData(String url, Map<String, dynamic> data) async {
+  Future<dynamic> postFormData(
+      String url,
+      Map<String, dynamic> data, {
+        Map<String, String>? headers,
+        bool isPublic = false, // Added
+      }) async {
     try {
       final response = await _dio.post(
         url,
         data: FormData.fromMap(data),
-        options: Options(contentType: 'application/x-www-form-urlencoded'),
+        options: Options(
+          contentType: 'application/x-www-form-urlencoded',
+          headers: headers,
+          extra: {'isPublic': isPublic},
+        ),
       );
       return _handleResponse(response);
     } on DioException catch (e) {
@@ -136,32 +197,43 @@ class NetworkServicesApi implements BaseApiServices {
   // ---------------------------------------------------------------------------
 
   @override
-  Future<dynamic> postMultipart(
-    String url,
-    Map<String, String> fields,
-    List<Uint8List> files,
-    List<String> fileNames,
-  ) async {
+  Future<dynamic> postMultipart({
+    required String url,
+    required Map<String, dynamic> fields,
+    required List<Uint8List> files,
+    required List<String> fileNames,
+    Map<String, String>? headers,
+    String? fileFieldName,
+    String? contentType,
+  }) async {
+    final actualFileField = fileFieldName ?? 'attachments';
+    final actualContentType = contentType ?? 'multipart/form-data';
+
+    assert(files.length == fileNames.length,
+    'files and fileNames length must match');
+
     try {
       final formData = FormData();
 
-      // Add text fields
       fields.forEach((key, value) {
         formData.fields.add(MapEntry(key, value));
       });
 
-      // Add files
       for (int i = 0; i < files.length; i++) {
-        final mime = lookupMimeType(fileNames[i]) ?? "application/octet-stream";
+        final mime =
+            lookupMimeType(fileNames[i]) ?? 'application/octet-stream';
         final mimeType = mime.split('/');
 
         formData.files.add(
           MapEntry(
-            'attachments',
+            actualFileField,
             MultipartFile.fromBytes(
               files[i],
               filename: fileNames[i],
-              contentType: DioMediaType(mimeType[0], mimeType[1]),
+              contentType: DioMediaType(
+                mimeType[0],
+                mimeType.length > 1 ? mimeType[1] : 'octet-stream',
+              ),
             ),
           ),
         );
@@ -170,7 +242,10 @@ class NetworkServicesApi implements BaseApiServices {
       final response = await _dio.post(
         url,
         data: formData,
-        options: Options(contentType: 'multipart/form-data'),
+        options: Options(
+          contentType: actualContentType,
+          headers: headers,
+        ),
       );
 
       return _handleResponse(response);
@@ -178,6 +253,8 @@ class NetworkServicesApi implements BaseApiServices {
       throw _handleDioError(e);
     }
   }
+
+
 
   // ---------------------------------------------------------------------------
   // S3 UPLOAD (DIRECT PUT)
@@ -270,9 +347,9 @@ class NetworkServicesApi implements BaseApiServices {
         if (kIsWeb) {
           return NoInternetException(
             "Network error on web. Check:\n"
-            "1. Your internet connection\n"
-            "2. CORS configuration on your backend\n"
-            "3. Backend URL is correct and accessible",
+                "1. Your internet connection\n"
+                "2. CORS configuration on your backend\n"
+                "3. Backend URL is correct and accessible",
           );
         }
         return NoInternetException('No internet connection');
@@ -315,9 +392,15 @@ class NetworkServicesApi implements BaseApiServices {
 class _HeadersInterceptor extends Interceptor {
   @override
   void onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) async {
+      RequestOptions options,
+      RequestInterceptorHandler handler,
+      ) async {
+    // UPDATED: Skip adding headers on Web if it is a public request
+    // This helps avoid CORS issues with unnecessary headers
+    if (kIsWeb && options.extra['isPublic'] == true) {
+      return super.onRequest(options, handler);
+    }
+
     // skips interceptor [for s3 uploads]
     if (options.extra['skipAuthInterceptor'] == true) {
       createLog("[API] Request: ${options.method} ${options.uri}");
@@ -371,15 +454,29 @@ class _HeadersInterceptor extends Interceptor {
 class _AuthInterceptor extends Interceptor {
   @override
   void onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) async {
-    // Skip auth for certain requests (like S3 uploads)
+      RequestOptions options,
+      RequestInterceptorHandler handler,
+      ) async {
+    // 1. Skip if explicitly disabled
     if (options.extra['skipAuthInterceptor'] == true) {
       return super.onRequest(options, handler);
     }
 
-    // Add access token to headers
+    // UPDATED: Skip adding Bearer token on Web if 'isPublic' is true
+    // This is crucial for public APIs that don't support CORS Preflight for custom headers
+    if (kIsWeb && options.extra['isPublic'] == true) {
+      return super.onRequest(options, handler);
+    }
+
+    // 2. CHECK: If Authorization header is ALREADY present, do not overwrite it.
+    // This allows you to pass custom tokens (like Signzy) manually.
+    if (options.headers.containsKey('Authorization')) {
+      createLog(
+          "[API] specific Authorization header found, skipping default Bearer token");
+      return super.onRequest(options, handler);
+    }
+
+    // 3. Otherwise, add the default App Session Bearer token
     final accessToken = SessionManager.instance.getAccessToken;
     if (accessToken != null && accessToken.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $accessToken';
@@ -511,76 +608,76 @@ class AppException implements Exception {
 /// Exception for network connectivity issues
 class NoInternetException extends AppException {
   NoInternetException([String? message])
-    : super(
-        message: message ?? 'No internet connection',
-        prefix: 'No Internet',
-      );
+      : super(
+    message: message ?? 'No internet connection',
+    prefix: 'No Internet',
+  );
 }
 
 /// Exception for request timeout
 class RequestTimeoutException extends AppException {
   RequestTimeoutException([String? message])
-    : super(message: message ?? 'Request timeout', prefix: 'Timeout');
+      : super(message: message ?? 'Request timeout', prefix: 'Timeout');
 }
 
 /// Exception for bad requests (400)
 class BadRequestException extends AppException {
   BadRequestException([String? message])
-    : super(
-        message: message ?? 'Bad request',
-        prefix: 'Bad Request',
-        statusCode: 400,
-      );
+      : super(
+    message: message ?? 'Bad request',
+    prefix: 'Bad Request',
+    statusCode: 400,
+  );
 }
 
 /// Exception for unauthorized access (401)
 class UnauthorizedException extends AppException {
   UnauthorizedException([String? message])
-    : super(
-        message: message ?? 'Unauthorized access',
-        prefix: 'Unauthorized',
-        statusCode: 401,
-      );
+      : super(
+    message: message ?? 'Unauthorized access',
+    prefix: 'Unauthorized',
+    statusCode: 401,
+  );
 }
 
 /// Exception for forbidden access (403)
 class ForbiddenException extends AppException {
   ForbiddenException([String? message])
-    : super(
-        message: message ?? 'Access forbidden',
-        prefix: 'Forbidden',
-        statusCode: 403,
-      );
+      : super(
+    message: message ?? 'Access forbidden',
+    prefix: 'Forbidden',
+    statusCode: 403,
+  );
 }
 
 /// Exception for not found (404)
 class NotFoundException extends AppException {
   NotFoundException([String? message])
-    : super(
-        message: message ?? 'Resource not found',
-        prefix: 'Not Found',
-        statusCode: 404,
-      );
+      : super(
+    message: message ?? 'Resource not found',
+    prefix: 'Not Found',
+    statusCode: 404,
+  );
 }
 
 /// Exception for server errors (500+)
 class ServerException extends AppException {
   ServerException([String? message])
-    : super(
-        message: message ?? 'Internal server error',
-        prefix: 'Server Error',
-        statusCode: 500,
-      );
+      : super(
+    message: message ?? 'Internal server error',
+    prefix: 'Server Error',
+    statusCode: 500,
+  );
 }
 
 /// Exception for data fetching errors
 class FetchDataException extends AppException {
   FetchDataException([String? message])
-    : super(message: message ?? 'Error fetching data', prefix: 'Fetch Error');
+      : super(message: message ?? 'Error fetching data', prefix: 'Fetch Error');
 }
 
 /// Exception for data parsing errors
 class InvalidInputException extends AppException {
   InvalidInputException([String? message])
-    : super(message: message ?? 'Invalid input', prefix: 'Invalid Input');
+      : super(message: message ?? 'Invalid input', prefix: 'Invalid Input');
 }

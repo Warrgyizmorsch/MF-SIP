@@ -66,9 +66,17 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const SizedBox(height: 15.0),
-                            Text(
-                              "Monthly Investment",
-                              style: AppTextStyles.bodyLargeBold(),
+                            // Text(
+                            //   "Monthly Investment",
+                            //   style: AppTextStyles.bodyLargeBold(),
+                            // ),
+                            Obx(
+                              () => Text(
+                                controller.isLumpsum.value
+                                    ? "Lumpsum Investment"
+                                    : "Monthly Investment",
+                                style: AppTextStyles.bodyLargeBold(),
+                              ),
                             ),
                             Text(
                               "Start small grow big. You can change this later",
@@ -80,20 +88,36 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                             const SizedBox(height: 10),
 
                             // Obx needed here: Updates slider/input UI when amount changes
-                            Obx(() => SipAmountSelector(
-                              label: "Select Amount(₹)",
-                              amount: controller.amount.value,
-                              onChanged: controller.updateAmount,
-                            )),
+                            Obx(
+                              () => SipAmountSelector(
+                                label: "Select Amount(₹)",
+                                amount: controller.amount.value,
+                                onChanged: controller.updateAmount,
+                              ),
+                            ),
 
                             const SizedBox(height: 10),
 
                             // No Obx needed here: The list doesn't change, only the click action
                             AmountChipList(
+                              customAmounts: controller.currentChips,
                               onSelected: (val) {
-                                controller.updateAmount(
-                                    val + controller.amount.value);
+                                // For Lumpsum, we usually replace the value rather than adding to it
+                                if (controller.isLumpsum.value) {
+                                  controller.updateAmount(
+                                    val + controller.amount.value,
+                                  );
+                                } else {
+                                  controller.updateAmount(
+                                    val + controller.amount.value,
+                                  );
+                                }
                               },
+
+                              // onSelected: (val) {
+                              //   controller.updateAmount(
+                              //       val + controller.amount.value);
+                              // },
                             ),
                           ],
                         ),
@@ -161,7 +185,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                                       children: [
                                         Row(
                                           mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
                                               "Projected Value (5y)",
@@ -170,20 +194,24 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                                               ),
                                             ),
                                             // Dynamic Projected Value
-                                            Obx(() => Text(
-                                              controller.formatCurrency(controller
-                                                  .totalProjected.value),
-                                              style:
-                                              AppTextStyles.bodyLarge(
-                                                color: Colors.white,
+                                            Obx(
+                                              () => Text(
+                                                controller.formatCurrency(
+                                                  controller
+                                                      .totalProjected
+                                                      .value,
+                                                ),
+                                                style: AppTextStyles.bodyLarge(
+                                                  color: Colors.white,
+                                                ),
                                               ),
-                                            )),
+                                            ),
                                           ],
                                         ),
                                         const SizedBox(height: 10),
                                         Row(
                                           mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
                                               "Invested Amount",
@@ -192,14 +220,18 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                                               ),
                                             ),
                                             // Dynamic Invested Amount
-                                            Obx(() => Text(
-                                              controller.formatCurrency(controller
-                                                  .totalInvested.value),
-                                              style:
-                                              AppTextStyles.bodyLarge(
-                                                color: Colors.white,
+                                            Obx(
+                                              () => Text(
+                                                controller.formatCurrency(
+                                                  controller
+                                                      .totalInvested
+                                                      .value,
+                                                ),
+                                                style: AppTextStyles.bodyLarge(
+                                                  color: Colors.white,
+                                                ),
                                               ),
-                                            )),
+                                            ),
                                           ],
                                         ),
                                       ],
@@ -225,41 +257,44 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                                       ),
                                     ),
                                     const SizedBox(height: 10),
-                                    Obx(() => RichText(
-                                      text: TextSpan(
-                                        text: "Your wealth will grow to",
-                                        style: AppTextStyles.bodySmall(
-                                          color: const Color(0xffC9EAFB),
+                                    Obx(
+                                      () => RichText(
+                                        text: TextSpan(
+                                          text: "Your wealth will grow to",
+                                          style: AppTextStyles.bodySmall(
+                                            color: const Color(0xffC9EAFB),
+                                          ),
+                                          children: [
+                                            TextSpan(
+                                              text:
+                                                  ' ${controller.formatCurrency(controller.totalProjected.value)}',
+                                              style:
+                                                  AppTextStyles.bodySmallBold(
+                                                    color: const Color(
+                                                      0xffC9EAFB,
+                                                    ),
+                                                  ),
+                                            ),
+                                            TextSpan(
+                                              text: ' by ',
+                                              style: AppTextStyles.bodySmall(
+                                                color: const Color(0xffC9EAFB),
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text:
+                                                  '${DateTime.now().year + 5}',
+                                              style:
+                                                  AppTextStyles.bodySmallBold(
+                                                    color: const Color(
+                                                      0xffC9EAFB,
+                                                    ),
+                                                  ),
+                                            ),
+                                          ],
                                         ),
-                                        children: [
-                                          TextSpan(
-                                            text:
-                                            ' ${controller.formatCurrency(controller.totalProjected.value)}',
-                                            style: AppTextStyles
-                                                .bodySmallBold(
-                                              color:
-                                              const Color(0xffC9EAFB),
-                                            ),
-                                          ),
-                                          TextSpan(
-                                            text: ' by ',
-                                            style: AppTextStyles.bodySmall(
-                                              color:
-                                              const Color(0xffC9EAFB),
-                                            ),
-                                          ),
-                                          TextSpan(
-                                            text:
-                                            '${DateTime.now().year + 5}',
-                                            style: AppTextStyles
-                                                .bodySmallBold(
-                                              color:
-                                              const Color(0xffC9EAFB),
-                                            ),
-                                          ),
-                                        ],
                                       ),
-                                    )),
+                                    ),
                                     RichText(
                                       text: TextSpan(
                                         text: "assuming",
@@ -269,7 +304,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                                         children: [
                                           TextSpan(
                                             text:
-                                            ' ${controller.expectedReturnRate.toStringAsFixed(0)}% ',
+                                                ' ${controller.expectedReturnRate.toStringAsFixed(0)}% ',
                                             style: AppTextStyles.bodySmallBold(
                                               color: const Color(0xffC9EAFB),
                                             ),
@@ -292,15 +327,17 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                                 child: SizedBox(
                                   height: 190,
                                   // Dynamic Chart Data
-                                  child: Obx(() => SipProjectionChart(
-                                    showLeftNumbers: false,
-                                    investedSpots: controller
-                                        .chartInvestedSpots
-                                        .toList(),
-                                    projectedSpots: controller
-                                        .chartProjectedSpots
-                                        .toList(),
-                                  )),
+                                  child: Obx(
+                                    () => SipProjectionChart(
+                                      showLeftNumbers: false,
+                                      investedSpots: controller
+                                          .chartInvestedSpots
+                                          .toList(),
+                                      projectedSpots: controller
+                                          .chartProjectedSpots
+                                          .toList(),
+                                    ),
+                                  ),
                                 ),
                               ),
 

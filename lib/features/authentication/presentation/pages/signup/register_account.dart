@@ -129,25 +129,25 @@ class RegisterAccountScreen extends GetView<AuthController> {
                       ),
                     ),
 
-                    SizedBox(height: Get.height * 0.01),
-
-                    // --- Password ---
-                    CustomTextField(
-                      controller: controller.passwordController,
-                      label: "Password",
-                      obscureText: true,
-                      validationType: ValidationType.custom,
-                      customValidator: controller.validatePassword,
-                      leading: SvgPicture.asset(
-                        UImages.key,
-                        height: 20,
-                        fit: BoxFit.scaleDown,
-                        colorFilter: const ColorFilter.mode(
-                          Colors.grey,
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                    ),
+                    // SizedBox(height: Get.height * 0.01),
+                    //
+                    // // --- Password ---
+                    // CustomTextField(
+                    //   controller: controller.passwordController,
+                    //   label: "Password",
+                    //   obscureText: true,
+                    //   validationType: ValidationType.custom,
+                    //   customValidator: controller.validatePassword,
+                    //   leading: SvgPicture.asset(
+                    //     UImages.key,
+                    //     height: 20,
+                    //     fit: BoxFit.scaleDown,
+                    //     colorFilter: const ColorFilter.mode(
+                    //       Colors.grey,
+                    //       BlendMode.srcIn,
+                    //     ),
+                    //   ),
+                    // ),
 
                     SizedBox(height: Get.height * 0.01),
 

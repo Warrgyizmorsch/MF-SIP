@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
@@ -6,6 +9,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
+import 'package:my_sip/common/widget/images/image_select.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/common/widget/video/custom_inline_youtube_player.dart';
@@ -14,13 +18,17 @@ import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_calculator.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
+import 'package:my_sip/features/sip_process/presentation/controllers/sip_process_controller.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
+import 'package:my_sip/services/session_manager.dart';
 import 'package:responsive_framework/responsive_framework.dart'; // Import Responsive Framework
 
 import '../widgets/product_tool/sip_calculator.dart';
@@ -109,9 +117,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
+    final shortestSide = MediaQuery.of(context).size.shortestSide;
+
+    final bool isMobileDevice = kIsWeb ? false : shortestSide < 600;
+
+    final bool isDesktop1 =
+        !isMobileDevice && ResponsiveBreakpoints.of(context).largerThan(TABLET);
+
     return Scaffold(
       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
-      body: isDesktop
+      body:
+          isDesktop1 // change to isDesktop
           ? _WebDashboardLayout(
               authController: authController,
               cartController: cartController,
@@ -157,80 +173,88 @@ class _WebDashboardLayout extends StatelessWidget {
                 maxWidth: 1200,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Row(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // --- LEFT COLUMN ---
-                      Expanded(
-                        flex: 8,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildHeroBanner(),
-                            const Gap(30),
-                            const Text(
-                              "Quick Actions",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const Gap(16),
-                            _buildQuickActionsCard(),
-                            const Gap(30),
-                            const Text(
-                              "Explore Categories",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const Gap(16),
-                            _buildWebCollectionGrid(),
-                            const Gap(30),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // --- LEFT COLUMN ---
+                          Expanded(
+                            flex: 8,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                _buildHeroBanner(),
+                                const Gap(30),
                                 const Text(
-                                  "Popular Funds",
+                                  "Quick Actions",
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                TextButton(
-                                  onPressed: () {},
-                                  child: const Text("View All"),
+                                const Gap(16),
+                                _buildQuickActionsCard(),
+                                const Gap(30),
+                                const Text(
+                                  "Explore Categories",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
+                                const Gap(16),
+                                _buildWebCollectionGrid(),
+                                const Gap(30),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      "Popular Funds",
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {},
+                                      child: const Text("View All"),
+                                    ),
+                                  ],
+                                ),
+                                const Gap(10),
+                                _buildWebFundGrid(),
+                                const Gap(30),
                               ],
                             ),
-                            const Gap(10),
-                            _buildWebFundGrid(),
-                            const Gap(30),
-                            const Text(
-                              "Learn & Grow",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          ),
+                          const Gap(30),
+                          // --- RIGHT COLUMN ---
+                          Expanded(
+                            flex: 4,
+                            child: Column(
+                              children: [
+                                _buildWebGoalSection(),
+                                const Gap(24),
+                                _buildWebToolsSection(),
+                              ],
                             ),
-                            const Gap(16),
-                            _buildWebVideoRow(),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      const Gap(30),
-                      // --- RIGHT COLUMN ---
-                      Expanded(
-                        flex: 4,
-                        child: Column(
-                          children: [
-                            _buildWebGoalSection(),
-                            const Gap(24),
-                            _buildWebToolsSection(),
-                          ],
+                      const Text(
+                        "Learn & Grow",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
+                        textAlign: TextAlign.start,
                       ),
+                      const Gap(16),
+
+                      _buildWebVideoRow(),
                     ],
                   ),
                 ),
@@ -265,7 +289,13 @@ class _WebDashboardLayout extends StatelessWidget {
                   children: [
                     IconButton(
                       icon: const Icon(Iconsax.shopping_cart),
-                      onPressed: () => Get.toNamed(AppRoutes.cart),
+                      onPressed: () {
+                        Get.find<CartController>().filterGoalId.value = null;
+                        Get.toNamed(
+                          AppRoutes.cart,
+                          // arguments: {'goal_id': null},
+                        );
+                      },
                       hoverColor: Ucolors.primary.withOpacity(0.1),
                     ),
                     if (cartController.itemsCount > 0)
@@ -392,10 +422,10 @@ class _WebDashboardLayout extends StatelessWidget {
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           _WebQuickActionItem(
-            "Start SIP",
+            "SIP",
             UImages.startsip,
             () => Get.toNamed(AppRoutes.startSipScreen),
           ),
@@ -413,13 +443,46 @@ class _WebDashboardLayout extends StatelessWidget {
   }
 
   Widget _buildWebCollectionGrid() {
+    final nav = Get.find<NavigationBarController>();
+    final funds = Get.find<FundhouseController>();
     final items = [
-      {'t': 'Best SIP', 'i': UImages.savingbank},
-      {'t': 'High Return', 'i': UImages.highreturn},
-      {'t': 'International', 'i': UImages.interfund},
-      {'t': 'Index Funds', 'i': UImages.indexfund},
-      {'t': 'Commodities', 'i': UImages.moneygold},
-      {'t': 'Equity', 'i': UImages.equity},
+      {
+        't': 'Best SIP',
+        'i': UImages.savingbank,
+        'onTap': () =>
+            nav.navigateToExploreWithFilter(() => funds.applyBestSipFilter(1)),
+      },
+      {
+        't': 'High Return',
+        'i': UImages.highreturn,
+        'onTap': () => nav.navigateToExploreWithFilter(
+          () => funds.applyHighReturnFilter(),
+        ),
+      },
+      {
+        't': 'International',
+        'i': UImages.interfund,
+        'onTap': () => nav.navigateToExploreWithFilter(
+          () => funds.applyCustomSearch('international'),
+        ),
+      },
+      {
+        't': 'Index Funds',
+        'i': UImages.indexfund,
+        'onTap': () => nav.navigateToExploreWithFilter(
+          () => funds.applyCustomSearch('index'),
+        ),
+      },
+      {
+        't': 'Commodities',
+        'i': UImages.moneygold,
+        'onTap': () =>
+            nav.navigateToExploreWithFilter(() => funds.applyCommodityFilter()),
+      },
+      {
+        't': 'NFO', 'i': UImages.equity,
+        'onTap': () => Get.toNamed(AppRoutes.nfolist), // <--- NFO ROUTE FIXED
+      },
     ];
 
     return GridView.builder(
@@ -434,8 +497,12 @@ class _WebDashboardLayout extends StatelessWidget {
       itemCount: items.length,
       itemBuilder: (ctx, i) => WebHoverScale(
         scale: 1.1, // Higher scale for small icons
-        onTap: () => Get.to(() => const ExploreScreen()),
-        child: CollectionItem(title: items[i]['t']!, iconImg: items[i]['i']!),
+        // onTap: () => Get.to(() => ExploreScreen()),
+        onTap: items[i]['onTap'] as VoidCallback,
+        child: CollectionItem(
+          title: items[i]['t']! as String,
+          iconImg: items[i]['i']! as String,
+        ),
       ),
     );
   }
@@ -718,16 +785,21 @@ class _MobileLayout extends StatelessWidget {
   final MutualFundController mutualController;
   final NavigationBarController navController;
 
-  const _MobileLayout({
+  _MobileLayout({
     required this.authController,
     required this.cartController,
     required this.mutualController,
     required this.navController,
   });
 
+  final PersonalisationController personalisationController =
+      Get.find<PersonalisationController>();
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final user = SessionManager.instance.getUserData;
+    log(user?.img ?? 'image ------------------');
 
     return SafeArea(
       top: false,
@@ -753,7 +825,9 @@ class _MobileLayout extends StatelessWidget {
                 bottom: false,
                 child: Center(
                   child: CustomProfileAppbar(
-                    onProfiletap: () => navController.selectedIndex.value = 4,
+                    // onProfiletap: () => navController.selectedIndex.value = 4,
+                    // onProfiletap: () => navController.changePage(4),
+                    onProfiletap: () => Get.toNamed(AppRoutes.personaldetails),
                     backgroundColor: Colors.transparent,
                     greetingName: authController.user.value?.name ?? '',
                     role: UHelperFunction.getGreetingMsg(),
@@ -761,6 +835,12 @@ class _MobileLayout extends StatelessWidget {
                     roleColor: Ucolors.borderColor,
                     greetingNameColor: Ucolors.light,
                     avatar: const AssetImage(UImages.avatar),
+                    // img: UCircularImage(image: user?.img ?? ''),
+                    img: UCircularImage(
+                      image: personalisationController.imagePath.isEmpty
+                          ? (user?.img ?? UImages.avatar)
+                          : personalisationController.imagePath.value,
+                    ),
                     action: [
                       CompactIcon(
                         icon: Iconsax.notification,
@@ -772,10 +852,15 @@ class _MobileLayout extends StatelessWidget {
                           children: [
                             CompactIcon(
                               icon: Iconsax.shopping_cart,
-                              onPressed: () => Get.toNamed(AppRoutes.cart),
+                              onPressed: () {
+                                Get.find<CartController>().filterGoalId.value =
+                                    null;
+                                Get.toNamed(AppRoutes.cart);
+                                // cartController.fetchCart();
+                              },
                               iconColor: Ucolors.light,
                             ),
-                            if (cartController.itemsCount > 0)
+                            if (cartController.generalItemsCount > 0)
                               Positioned(
                                 right: 0,
                                 top: -5,
@@ -786,7 +871,7 @@ class _MobileLayout extends StatelessWidget {
                                     shape: BoxShape.circle,
                                   ),
                                   child: Text(
-                                    cartController.itemsCount.toString(),
+                                    cartController.generalItemsCount.toString(),
                                     style: UTextStyles.buttonText.copyWith(
                                       fontSize: 10,
                                     ),
@@ -796,6 +881,44 @@ class _MobileLayout extends StatelessWidget {
                           ],
                         ),
                       ),
+                      // Obx(
+                      //   () => Stack(
+                      //     children: [
+                      //       IconButton(
+                      //         color: Ucolors.light,
+                      //         icon: const Icon(Iconsax.shopping_cart),
+                      //         onPressed: () {
+                      //           // Reset filter to ensure regular cart items are shown
+                      //           Get.find<CartController>().filterGoalId.value =
+                      //               null;
+                      //           Get.toNamed(AppRoutes.cart);
+                      //         },
+                      //         hoverColor: Ucolors.primary.withOpacity(0.1),
+                      //       ),
+                      //       // Use the new getter here
+                      //       if (cartController.generalItemsCount > 0)
+                      //         Positioned(
+                      //           right: 5,
+                      //           top: 5,
+                      //           child: Container(
+                      //             padding: const EdgeInsets.all(4),
+                      //             decoration: const BoxDecoration(
+                      //               color: Ucolors.red,
+                      //               shape: BoxShape.circle,
+                      //             ),
+                      //             child: Text(
+                      //               // Display the count of goal_id: null items
+                      //               cartController.generalItemsCount.toString(),
+                      //               style: const TextStyle(
+                      //                 fontSize: 10,
+                      //                 color: Colors.white,
+                      //               ),
+                      //             ),
+                      //           ),
+                      //         ),
+                      //     ],
+                      //   ),
+                      // ),
                       CompactIcon(
                         icon: Iconsax.archive_tick,
                         onPressed: () => Get.toNamed(AppRoutes.watchlist),
@@ -830,9 +953,15 @@ class _MobileLayout extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         GestureDetector(
-                          onTap: () => Get.toNamed(AppRoutes.startSipScreen),
+                          // onTap: () => Get.toNamed(AppRoutes.startSipScreen),
+                          onTap: () {
+                            Get.find<SipProcessController>().setInvestmentMode(
+                              false,
+                            );
+                            Get.toNamed(AppRoutes.startSipScreen);
+                          },
                           child: const FeatureSection(
-                            featureName: 'Start SIP',
+                            featureName: 'SIP',
                             iconPath: UImages.startsip,
                           ),
                         ),
@@ -840,7 +969,13 @@ class _MobileLayout extends StatelessWidget {
                         //     onTap: () => Get.toNamed(AppRoutes.startSipScreen),
                         //     child: const FeatureSection(featureName: 'Freedom SIP', iconPath: UImages.freedomsip)),
                         GestureDetector(
-                          onTap: () => Get.toNamed(AppRoutes.startSipScreen),
+                          // onTap: () => Get.toNamed(AppRoutes.startSipScreen),
+                          onTap: () {
+                            Get.find<SipProcessController>().setInvestmentMode(
+                              true,
+                            );
+                            Get.toNamed(AppRoutes.startSipScreen);
+                          },
                           child: const FeatureSection(
                             featureName: 'Lumpsum',
                             iconPath: UImages.glyph,
@@ -945,31 +1080,76 @@ class _MobileLayout extends StatelessWidget {
                 CollectionItem(
                   title: 'Best SIP Funds',
                   iconImg: UImages.savingbank,
-                  onTap: () => Get.to(() => const ExploreScreen()),
+
+                  onTap: () {
+                    // // navController.changePage(1);
+                    // Get.find<NavigationBarController>().changePage(1);
+                    // Get.find<FundhouseController>().applyBestSipFilter(1);
+                    final nav = Get.find<NavigationBarController>();
+                    final funds = Get.find<FundhouseController>();
+                    nav.navigateToExploreWithFilter(() {
+                      funds.applyBestSipFilter(1);
+                    });
+                  },
                 ),
                 CollectionItem(
                   title: 'High Returns',
                   iconImg: UImages.highreturn,
-                  onTap: () => Get.to(() => const ExploreScreen()),
+                  onTap: () {
+                    // navController.changePage(1);
+                    // Get.find<FundhouseController>().applyHighReturnFilter();
+                    final nav = Get.find<NavigationBarController>();
+                    final funds = Get.find<FundhouseController>();
+                    nav.navigateToExploreWithFilter(() {
+                      funds.applyHighReturnFilter();
+                    });
+                  },
                 ),
                 CollectionItem(
-                  onTap: () => Get.to(() => const ExploreScreen()),
+                  onTap: () {
+                    // navController.changePage(1);
+                    // Get.find<FundhouseController>().applyCustomSearch(
+                    //   'international',
+                    // );
+                    final nav = Get.find<NavigationBarController>();
+                    final funds = Get.find<FundhouseController>();
+                    nav.navigateToExploreWithFilter(() {
+                      funds.applyCustomSearch('international');
+                    });
+                  },
                   title: 'International Funds',
                   iconImg: UImages.interfund,
                 ),
                 CollectionItem(
-                  onTap: () => Get.to(() => const ExploreScreen()),
+                  onTap: () {
+                    // navController.changePage(1);
+                    // Get.find<FundhouseController>().applyCustomSearch('index');
+                    final nav = Get.find<NavigationBarController>();
+                    final funds = Get.find<FundhouseController>();
+                    nav.navigateToExploreWithFilter(() {
+                      funds.applyCustomSearch('index');
+                    });
+                  },
+
                   title: 'Index Funds',
                   iconImg: UImages.indexfund,
                 ),
                 CollectionItem(
-                  onTap: () => Get.to(() => const ExploreScreen()),
+                  onTap: () {
+                    // navController.changePage(1);
+                    // Get.find<FundhouseController>().applyCommodityFilter();
+                    final nav = Get.find<NavigationBarController>();
+                    final funds = Get.find<FundhouseController>();
+                    nav.navigateToExploreWithFilter(() {
+                      funds.applyCommodityFilter();
+                    });
+                  },
                   title: 'Commodities',
                   iconImg: UImages.moneygold,
                 ),
                 CollectionItem(
-                  onTap: () => Get.to(() => const ExploreScreen()),
-                  title: 'Equity',
+                  onTap: () => Get.toNamed(AppRoutes.nfolist),
+                  title: 'NFO',
                   iconImg: UImages.equity,
                 ),
               ]),
@@ -1095,11 +1275,12 @@ class _MobileLayout extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(16, 20, 16, 0),
               child: USectionHeading(
                 title: 'Products & Tool',
-                buttonTitle: 'See all',
-                showActionButton: true,
+                // buttonTitle: 'See all',
+                showActionButton: false,
               ),
             ),
           ),
+          SliverToBoxAdapter(child: SizedBox(height: 5)),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             sliver: SliverGrid(
@@ -1135,12 +1316,15 @@ class _MobileLayout extends StatelessWidget {
           ),
 
           // Popular Funds
-          const SliverToBoxAdapter(
+          SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.fromLTRB(16, 20, 16, 0),
               child: USectionHeading(
                 title: 'Popular Funds',
                 showActionButton: true,
+                // onPressed: () => navController.selectedIndex.value = 1,
+                onPressed: () =>
+                    navController.navigateToExploreWithFilter(null),
               ),
             ),
           ),
@@ -1159,6 +1343,7 @@ class _MobileLayout extends StatelessWidget {
                   final fund = mutualController.searchFund[index];
                   final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
                   final name = fund.baseSchemeName ?? 'Unknown Name';
+                  final threeyear = fund.returnsEntity?.threeYear ?? '';
                   final schemeCode = fund.schemeCode.toString();
                   return PopularFundCard(
                     onTap: () => Get.toNamed(
@@ -1172,6 +1357,7 @@ class _MobileLayout extends StatelessWidget {
                     isNetwork: true,
                     imgPath: img,
                     name: name,
+                    threeYear: threeyear,
                   );
                 },
               );
@@ -1191,7 +1377,8 @@ class _MobileLayout extends StatelessWidget {
           ),
           SliverToBoxAdapter(
             child: SizedBox(
-              height: size.height * 0.25,
+              // height: size.height * 0.25,
+              height: 220,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1325,6 +1512,7 @@ class PopularFundCard extends StatelessWidget {
     this.onTap,
     this.isNetwork = false,
     this.borderColor = Ucolors.borderColor,
+    this.threeYear,
   });
 
   final String imgPath;
@@ -1332,6 +1520,7 @@ class PopularFundCard extends StatelessWidget {
   final VoidCallback? onTap;
   final bool isNetwork;
   final Color borderColor;
+  final String? threeYear;
 
   @override
   Widget build(BuildContext context) {
@@ -1406,7 +1595,7 @@ class PopularFundCard extends StatelessWidget {
                         size: 20,
                       ),
                       Text(
-                        '+31.06%',
+                        '${threeYear}%',
                         style: UTextStyles.caption.copyWith(
                           color: Ucolors.success,
                           fontWeight: FontWeight.bold,

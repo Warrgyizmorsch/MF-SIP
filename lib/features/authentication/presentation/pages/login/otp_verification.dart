@@ -115,16 +115,16 @@ class OtpVerificationScreen extends GetView<AuthController> {
 
                                 // -- OTP INPUT --
                                 Obx(
-                                      () => Pinput(
+                                  () => Pinput(
                                     separatorBuilder: (index) =>
-                                    const SizedBox(width: 5),
+                                        const SizedBox(width: 5),
                                     controller: controller.otpController,
                                     autofocus: true,
                                     showCursor: true,
                                     length: 6,
                                     keyboardType: TextInputType.number,
                                     forceErrorState:
-                                    controller.isOtpError.value,
+                                        controller.isOtpError.value,
                                     defaultPinTheme: PinTheme(
                                       width: 50,
                                       height: 50,
@@ -134,7 +134,9 @@ class OtpVerificationScreen extends GetView<AuthController> {
                                       ),
                                       decoration: BoxDecoration(
                                         border: Border.all(
-                                            color: Ucolors.darkgrey, width: 2),
+                                          color: Ucolors.darkgrey,
+                                          width: 2,
+                                        ),
                                         borderRadius: BorderRadius.circular(15),
                                       ),
                                     ),
@@ -147,7 +149,9 @@ class OtpVerificationScreen extends GetView<AuthController> {
                                       ),
                                       decoration: BoxDecoration(
                                         border: Border.all(
-                                            color: Ucolors.primary, width: 2),
+                                          color: Ucolors.primary,
+                                          width: 2,
+                                        ),
                                         borderRadius: BorderRadius.circular(15),
                                       ),
                                     ),
@@ -160,7 +164,9 @@ class OtpVerificationScreen extends GetView<AuthController> {
                                       ),
                                       decoration: BoxDecoration(
                                         border: Border.all(
-                                            color: Ucolors.red, width: 2),
+                                          color: Ucolors.red,
+                                          width: 2,
+                                        ),
                                         borderRadius: BorderRadius.circular(15),
                                       ),
                                     ),
@@ -175,11 +181,11 @@ class OtpVerificationScreen extends GetView<AuthController> {
 
                                 const SizedBox(height: 15),
                                 Obx(
-                                      () => Text(
+                                  () => Text(
                                     "00:${controller.remainingSeconds.value.toString().padLeft(2, '0')}",
                                     style: UTextStyles.heading2.copyWith(
                                       color:
-                                      controller.remainingSeconds.value > 0
+                                          controller.remainingSeconds.value > 0
                                           ? Ucolors.blue
                                           : Colors.grey,
                                     ),
@@ -187,65 +193,109 @@ class OtpVerificationScreen extends GetView<AuthController> {
                                 ),
                                 const SizedBox(height: 10),
                                 const SmallHeading(
-                                    smallheading: "Didn't get the code?"),
+                                  smallheading: "Didn't get the code?",
+                                ),
                                 const SizedBox(height: 15),
 
-                                Obx(
-                                      () => controller.isOtpSendLoading.value
-                                      ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                        strokeWidth: 2),
-                                  )
-                                      : UElevatedBUtton(
-                                    height: Get.height * 0.060,
-                                    color:
-                                    controller.isResendEnabled.value
-                                        ? null
-                                        : Colors.grey,
-                                    onPressed: (controller
-                                        .isResendEnabled.value &&
-                                        !controller
-                                            .isOtpSendLoading.value)
-                                        ? () => controller.resendOtp()
-                                        : null,
-                                    child: Center(
-                                      child: Text(
-                                        'Resend Code',
-                                        style: UTextStyles.buttonText
-                                            .copyWith(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                // Obx(
+                                //       () => controller.isOtpSendLoading.value
+                                //       ? const SizedBox(
+                                //     height: 20,
+                                //     width: 20,
+                                //     child: CircularProgressIndicator(
+                                //         strokeWidth: 2),
+                                //   )
+                                //       : UElevatedBUtton(
+                                //     height: Get.height * 0.060,
+                                //     color:
+                                //     controller.isResendEnabled.value
+                                //         ? null
+                                //         : Colors.grey,
+                                //     onPressed: (controller
+                                //         .isResendEnabled.value &&
+                                //         !controller
+                                //             .isOtpSendLoading.value)
+                                //         ? () => controller.resendOtp()
+                                //         : null,
+                                //     child: Center(
+                                //       child: Text(
+                                //         'Resend Code',
+                                //         style: UTextStyles.buttonText
+                                //             .copyWith(
+                                //           color: Colors.white,
+                                //           fontSize: 14,
+                                //         ),
+                                //       ),
+                                //     ),
+                                //   ),
+                                // ),
 
                                 // Vertical Spacing
-                                SizedBox(height: isDesktop ? 40 : 40),
+                                // SizedBox(height: isDesktop ? 40 : 40),
 
                                 // -- VERIFY BUTTON --
                                 Obx(
-                                      () => controller.isOtpVerifyLoading.value
+                                  () => controller.isOtpVerifyLoading.value
                                       ? const CircularProgressIndicator(
-                                      color: Ucolors.primary)
+                                          color: Ucolors.primary,
+                                        )
                                       : UElevatedBUtton(
-                                    onPressed: controller
-                                        .isOtpVerifyLoading.value
-                                        ? null
-                                        : () => controller
-                                        .verifyOtpAndLogin(),
-                                    child: Center(
-                                      child: Text(
-                                        "Verify",
-                                        style: AppTextStyles.bodyLarge(
-                                          color: Colors.white,
+                                          onPressed:
+                                              controller
+                                                  .isOtpVerifyLoading
+                                                  .value
+                                              ? null
+                                              : () => controller
+                                                    .verifyOtpAndLogin(),
+                                          child: Center(
+                                            child: Text(
+                                              "Verify",
+                                              style: AppTextStyles.bodyLarge(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  ),
+                                ),
+
+                                // const SizedBox(height: 10),
+                                SizedBox(height: isDesktop ? 40 : 40),
+
+                                Obx(
+                                  () => controller.isOtpSendLoading.value
+                                      ? const SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : UElevatedBUtton(
+                                          height: Get.height * 0.060,
+                                          color:
+                                              controller.isResendEnabled.value
+                                              ? null
+                                              : Colors.grey,
+                                          onPressed:
+                                              (controller
+                                                      .isResendEnabled
+                                                      .value &&
+                                                  !controller
+                                                      .isOtpSendLoading
+                                                      .value)
+                                              ? () => controller.resendOtp()
+                                              : null,
+                                          child: Center(
+                                            child: Text(
+                                              'Resend Code',
+                                              style: UTextStyles.buttonText
+                                                  .copyWith(
+                                                    color: Colors.white,
+                                                    fontSize: 14,
+                                                  ),
+                                            ),
+                                          ),
+                                        ),
                                 ),
 
                                 const SizedBox(height: 10),
@@ -255,8 +305,10 @@ class OtpVerificationScreen extends GetView<AuthController> {
                                   onPressed: () => Get.back(),
                                   outlined: true,
                                   child: Center(
-                                    child: Text("Back",
-                                        style: AppTextStyles.bodyLarge()),
+                                    child: Text(
+                                      "Back",
+                                      style: AppTextStyles.bodyLarge(),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -303,21 +355,17 @@ class OtpTopSection extends StatelessWidget {
           //     fit: BoxFit.contain,
           //   ),
           // ),
-          SvgPicture.asset(UImages.messageLogo,
-            height: isDesktop ? 300 : null,
-          ),
+          SvgPicture.asset(UImages.messageLogo, height: isDesktop ? 300 : null),
 
           const SizedBox(height: 15),
 
-
-            const HeadingText(title: 'Verify Your Number'),
-            const SizedBox(height: 10),
-            const SubtitleText(
-              subtitle:
-              'To verify your account, enter the 6 digit OTP code that we sent to your number.',
-            ),
-            const SizedBox(height: 25),
-
+          const HeadingText(title: 'Verify Your Number'),
+          const SizedBox(height: 10),
+          const SubtitleText(
+            subtitle:
+                'To verify your account, enter the 6 digit OTP code that we sent to your number.',
+          ),
+          const SizedBox(height: 25),
         ],
       ),
     );

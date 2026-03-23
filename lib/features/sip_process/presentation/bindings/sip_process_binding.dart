@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:my_sip/core/network/network_api_service.dart';
+import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_usecases.dart';
 
 import '../../data/datasource/sip_process_data_source.dart';
 import '../../data/repository/sip_process_repository_impl.dart';
@@ -21,8 +22,9 @@ class SipProcessBinding extends Bindings {
 
     Get.lazyPut<GetFundListUsecase>(() => GetFundListUsecase(Get.find()));
 
+final getMutualFundListUsecases = Get.find<GetMutualFundListUsecases>();
 
 
-    Get.lazyPut(() => SipProcessController(Get.find()));
+    Get.lazyPut(() => SipProcessController(Get.find(),getMutualFundListUsecases));
   }
 }
