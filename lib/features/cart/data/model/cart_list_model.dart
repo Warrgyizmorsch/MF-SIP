@@ -32,6 +32,8 @@ class CartDataModel {
   final int? topUPTotal;
   final TransactionSummaryModel? sip;
   final TransactionSummaryModel? lumpsum;
+  final GoalSummaryModel? withoutGoal;
+  final GoalSummaryModel? withGoal;
 
   CartDataModel({
     this.cartId,
@@ -42,6 +44,8 @@ class CartDataModel {
     this.topUPTotal,
     this.sip,
     this.lumpsum,
+    this.withoutGoal,
+    this.withGoal,
   });
 
   factory CartDataModel.fromJson(Map<String, dynamic> json) {
@@ -59,6 +63,34 @@ class CartDataModel {
         (e) => TransactionSummaryModel.fromJson(e),
       ),
       // lumpsum: TransactionSummaryModel.fromJson(json['lumpsum']),
+      withoutGoal: json.parseNested('without_goal', (e) => GoalSummaryModel.fromJson(e)),
+      withGoal: json.parseNested('with_goal', (e) => GoalSummaryModel.fromJson(e)),
+    );
+  }
+}
+
+class GoalSummaryModel {
+  final int? totalItems;
+  final int? totalAmount;
+  final int? topUpTotal;
+  final TransactionSummaryModel? sip;
+  final TransactionSummaryModel? lumpsum;
+
+  GoalSummaryModel({
+    this.totalItems,
+    this.totalAmount,
+    this.topUpTotal,
+    this.sip,
+    this.lumpsum,
+  });
+
+  factory GoalSummaryModel.fromJson(Map<String, dynamic> json) {
+    return GoalSummaryModel(
+      totalItems: json.parse<int>('total_items'),
+      totalAmount: json.parse<int>('total_amount'),
+      topUpTotal: json.parse<int>('top_up_total'),
+      sip: json.parseNested('sip', (e) => TransactionSummaryModel.fromJson(e)),
+      lumpsum: json.parseNested('lumpsum', (e) => TransactionSummaryModel.fromJson(e)),
     );
   }
 }

@@ -777,7 +777,48 @@ class FundhouseController extends GetxController {
     return count;
   }
 
-  //----- Build Param (Converts Lists to Comma Separated Strings) -----//
+  // Inside FundhouseController
+  Map<String, dynamic> buildParam() {
+    final params = <String, dynamic>{};
+
+    // 1. Combine standard categories and the Index Fund toggle into one list
+    List<String> combinedCategories = List.from(selectedSchemeTypes);
+
+    if (indexFundOnly.value && !combinedCategories.contains('Index Fund')) {
+      combinedCategories.add('Index Fund');
+    }
+
+    // 2. Safely apply all categories at once (so nothing gets erased)
+    if (combinedCategories.isNotEmpty) {
+      params['scheme_category'] = combinedCategories.join(',');
+    }
+
+    // 3. Standard filters
+    if (selectedAmcIds.isNotEmpty) params['amc_id'] = selectedAmcIds.join(',');
+    if (selectedRisks.isNotEmpty)
+      params['risk_level'] = selectedRisks.join(',');
+    if (selectedRating.value != null) params['rating'] = selectedRating.value;
+
+    // 4. Search operates independently now
+    if (customGlobalSearch.value != null &&
+        customGlobalSearch.value!.isNotEmpty) {
+      params['search'] = customGlobalSearch.value;
+    }
+
+    // 5. Quick Collections
+    if (bestSipValue.value != null) params['best_sip'] = bestSipValue.value;
+    if (commodityFilter.value) params['asset_class'] = 'commodity';
+
+    // 6. Sorting Logic
+    final mutualController = Get.find<MutualFundController>();
+
+    if (mutualController.currentSortLabel.value != "1Y,3Y,5Y") {
+      params['sort_order'] = 'desc';
+      params['return_year'] = mutualController.selectedReturnYear.value;
+    }
+
+    return params;
+  }
   // Map<String, dynamic> buildParam() {
   //   final params = <String, dynamic>{};
 
@@ -789,7 +830,7 @@ class FundhouseController extends GetxController {
   //   if (selectedRating.value != null) params['rating'] = selectedRating.value;
 
   //   if (indexFundOnly.value) {
-  //     params['search'] = 'index';
+  //     params['scheme_category'] = 'Index Fund';
   //   } else if (customGlobalSearch.value != null) {
   //     params['search'] = customGlobalSearch.value;
   //   }
@@ -797,45 +838,17 @@ class FundhouseController extends GetxController {
   //   if (bestSipValue.value != null) params['best_sip'] = bestSipValue.value;
   //   if (commodityFilter.value) params['asset_class'] = 'commodity';
 
-  //   //sorting
+  //   // FIX: Access MutualFundController to check the current sort label
   //   final mutualController = Get.find<MutualFundController>();
-  //   params['sort_order'] = 'desc';
-  //   params['return_year'] = mutualController.selectedReturnYear.value;
+
+  //   // Only add sorting parameters if the user has explicitly selected a year sort
+  //   if (mutualController.currentSortLabel.value != "1Y,3Y,5Y") {
+  //     params['sort_order'] = 'desc';
+  //     params['return_year'] = mutualController.selectedReturnYear.value;
+  //   }
 
   //   return params;
   // }
-
-  // Inside FundhouseController
-  Map<String, dynamic> buildParam() {
-    final params = <String, dynamic>{};
-
-    if (selectedSchemeTypes.isNotEmpty)
-      params['scheme_category'] = selectedSchemeTypes.join(',');
-    if (selectedAmcIds.isNotEmpty) params['amc_id'] = selectedAmcIds.join(',');
-    if (selectedRisks.isNotEmpty)
-      params['risk_level'] = selectedRisks.join(',');
-    if (selectedRating.value != null) params['rating'] = selectedRating.value;
-
-    if (indexFundOnly.value) {
-      params['search'] = 'index';
-    } else if (customGlobalSearch.value != null) {
-      params['search'] = customGlobalSearch.value;
-    }
-
-    if (bestSipValue.value != null) params['best_sip'] = bestSipValue.value;
-    if (commodityFilter.value) params['asset_class'] = 'commodity';
-
-    // FIX: Access MutualFundController to check the current sort label
-    final mutualController = Get.find<MutualFundController>();
-
-    // Only add sorting parameters if the user has explicitly selected a year sort
-    if (mutualController.currentSortLabel.value != "All Fund") {
-      params['sort_order'] = 'desc';
-      params['return_year'] = mutualController.selectedReturnYear.value;
-    }
-
-    return params;
-  }
 
   // ---------- Multi-Select Toggle Methods ----------
 
@@ -843,9 +856,6 @@ class FundhouseController extends GetxController {
     if (amcId == null) return;
 
     final int id = int.tryParse(amcId.toString()) ?? 0;
-    // selectedAmcIds.contains(amcId)
-    //     ? selectedAmcIds.remove(amcId)
-    //     : selectedAmcIds.add(amcId);
 
     if (selectedAmcIds.contains(id)) {
       selectedAmcIds.remove(id);

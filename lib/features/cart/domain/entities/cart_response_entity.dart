@@ -42,6 +42,9 @@ class CartDataEntity extends Equatable {
   final TransactionSummaryEntity? sip;
   final TransactionSummaryEntity? lumpsum;
 
+  final GoalSummaryEntity? withoutGoal;
+  final GoalSummaryEntity? withGoal;
+
   const CartDataEntity({
     this.cartId,
     this.userId,
@@ -51,6 +54,8 @@ class CartDataEntity extends Equatable {
     this.topUPTotal,
     this.sip,
     this.lumpsum,
+    this.withGoal,
+    this.withoutGoal
   });
 
   @override
@@ -64,6 +69,25 @@ class CartDataEntity extends Equatable {
     sip,
     lumpsum,
   ];
+}
+
+class GoalSummaryEntity extends Equatable {
+  final int? totalItems;
+  final int? totalAmount;
+  final int? topUpTotal;
+  final TransactionSummaryEntity? sip;
+  final TransactionSummaryEntity? lumpsum;
+
+  const GoalSummaryEntity({
+    this.totalItems,
+    this.totalAmount,
+    this.topUpTotal,
+    this.sip,
+    this.lumpsum,
+  });
+
+  @override
+  List<Object?> get props => [totalItems, totalAmount, topUpTotal, sip, lumpsum];
 }
 
 class TransactionSummaryEntity extends Equatable {
@@ -155,6 +179,14 @@ class CartItemEntity extends Equatable {
     String? minSipAmount,
     String? minLumpsum,
     String? minTopupAmount,
+    int? goalId,
+    String? goalName,
+    String? goalTargetAmount,
+    String? goalMonthlyInvestment,
+    String? goalTenure,
+    String? expectedReturnRate,
+    String? goalStatus,
+    String? goalCover,
   }) {
     return CartItemEntity(
       id: id ?? this.id,
@@ -210,6 +242,18 @@ class CartItemEntity extends Equatable {
   ];
 }
 
+extension GoalSummaryModelX on GoalSummaryModel {
+  GoalSummaryEntity toEntity() {
+    return GoalSummaryEntity(
+      totalItems: totalItems,
+      totalAmount: totalAmount,
+      topUpTotal: topUpTotal,
+      sip: sip?.toEntity(),
+      lumpsum: lumpsum?.toEntity(),
+    );
+  }
+}
+
 extension CartResponseModelX on CartResponseModel {
   CartResponseEntity toEntity() {
     return CartResponseEntity(
@@ -232,6 +276,8 @@ extension CartDataModelX on CartDataModel {
       topUPTotal: topUPTotal,
       sip: sip?.toEntity(),
       lumpsum: lumpsum?.toEntity(),
+      withoutGoal: withoutGoal?.toEntity(),
+      withGoal: withGoal?.toEntity(),
     );
   }
 }

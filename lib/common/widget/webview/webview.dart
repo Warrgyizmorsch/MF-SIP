@@ -87,6 +87,7 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
             // Allow normal navigation (clicking buttons, logging in)
             return NavigationDecision.navigate;
           },
+
           onWebResourceError: (error) {
             setState(() {
               _isLoading = false;
@@ -233,38 +234,48 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            createLog("Success Result ${result}");
+    return PopScope(
+      canPop: false, // Intercept the physical back button
+      onPopInvoked: (bool didPop) {
+        if (didPop) return;
 
-            Get.back(result: result);
-          },
-          icon: Icon(Icons.arrow_back_ios),
-        ),
-        titleSpacing: -10.0,
+        // Trigger the exact same logic as your AppBar back button
+        createLog("Success Result $result");
+        Get.back(result: result);
+      },
+
+      child: Scaffold(
         backgroundColor: Colors.white,
-        centerTitle: true,
-        title: Text(
-          widget.title,
-          textAlign: TextAlign.start,
-          style: AppTextStyles.h3(color: Ucolors.dark),
+        appBar: AppBar(
+          leading: IconButton(
+            onPressed: () {
+              createLog("Success Result ${result}");
+
+              Get.back(result: result);
+            },
+            icon: Icon(Icons.arrow_back_ios),
+          ),
+          titleSpacing: -10.0,
+          backgroundColor: Colors.white,
+          centerTitle: true,
+          title: Text(
+            widget.title,
+            textAlign: TextAlign.start,
+            style: AppTextStyles.h3(color: Ucolors.dark),
+          ),
         ),
-      ),
-      body: SafeArea(
-         
-        bottom: true,
-        child: Stack(
-          children: [
-            AnimatedOpacity(
-              duration: const Duration(milliseconds: 1000),
-              opacity: _isLoading ? 0 : 1,
-              child: WebViewWidget(controller: _controller),
-            ),
-            if (_isLoading) const Center(child: CircularProgressIndicator()),
-          ],
+        body: SafeArea(
+          bottom: true,
+          child: Stack(
+            children: [
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 1000),
+                opacity: _isLoading ? 0 : 1,
+                child: WebViewWidget(controller: _controller),
+              ),
+              if (_isLoading) const Center(child: CircularProgressIndicator()),
+            ],
+          ),
         ),
       ),
     );

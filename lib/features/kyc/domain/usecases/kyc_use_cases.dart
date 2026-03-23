@@ -7,14 +7,17 @@ import 'package:my_sip/features/kyc/domain/usecases/get_all_banks_use_case.dart'
 import 'package:my_sip/features/kyc/domain/usecases/get_captcha_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/get_esign_data_usecase.dart';
 import 'package:my_sip/features/kyc/domain/usecases/get_token_data_use_case.dart';
+import 'package:my_sip/features/kyc/domain/usecases/kyc_check_usecases.dart';
 import 'package:my_sip/features/kyc/domain/usecases/saveOnboarding_login_usecases.dart';
 import 'package:my_sip/features/kyc/domain/usecases/update_form_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/upload_to_signZy_use_case.dart';
+import 'package:my_sip/features/kyc/domain/usecases/verification_engine_usecases.dart';
 import 'package:my_sip/features/kyc/domain/usecases/verify_amount_usecases.dart';
 
 import 'execute_poi_step2_use_case.dart';
 
 class KycUseCases {
+  final CheckKycUseCase checkKycUseCase;
   final GetAllBanksUseCases getAllBanksUseCases;
   final ExecutePoiStep1UseCase executePoiStep1UseCase;
   final ExecutePoiStep2UseCase executePoiStep2UseCase;
@@ -29,10 +32,12 @@ class KycUseCases {
   final GetEsignDataUseCase getEsignDataUseCase;
   final ExecuteVerifyAmountUseCase executeVerifyAmountUseCase;
   final SaveOnboardingDataUseCase saveOnboardingDataUseCase ;
+  final ExecuteVerificationEngineUseCase executeVerificationEngineUseCase;
 
   
 
   KycUseCases({
+    required this.checkKycUseCase,
     required this.getAllBanksUseCases,
     required this.executePoiStep1UseCase,
     required this.executePoiStep2UseCase,
@@ -46,6 +51,7 @@ class KycUseCases {
     required this.createPdfUseCase,
     required this.createEsignUrlUseCase,
     required this.getEsignDataUseCase,
-    required this.saveOnboardingDataUseCase
+    required this.saveOnboardingDataUseCase,
+    required this.executeVerificationEngineUseCase,
   });
 }

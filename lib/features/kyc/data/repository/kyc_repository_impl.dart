@@ -11,6 +11,7 @@ import 'package:my_sip/features/kyc/domain/entity/create_esign_url_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/execute_poi_step2_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/file_upload_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/get_esign_data_entity.dart';
+import 'package:my_sip/features/kyc/domain/entity/kyc_check_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/onboarding_login_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/poi_step_1_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/verify_bank_account_entity.dart';
@@ -23,6 +24,29 @@ class KycRepositoryImpl extends KycRepository {
   final KycRemoteDataSource _remoteDataSource;
 
   KycRepositoryImpl(this._remoteDataSource);
+
+
+  @override
+  Future<Either<Result<KycCheckEntity>, ApiError>> checkKycStatus(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final response = await _remoteDataSource.checkKycStatus(data);
+
+      return response.fold(
+        (successResult) {
+          
+          final entity = successResult.data!.toEntity(); 
+          return Left(Result.success(entity));
+        },
+        (error) {
+          return Right(error);
+        },
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
+  }
 
   @override
   Future<Either<Result<BankResponseListEntity>, ApiError>> getAllBanks(
@@ -160,11 +184,13 @@ class KycRepositoryImpl extends KycRepository {
           }
         },
         (error) {
-          return Right(ApiError(message: 'executePennyDrop Failed $error'));
+          // return Right(ApiError(message: 'executePennyDrop Failed $error'));
+          return Right(error); // <-- Fixed here
         },
       );
     } catch (e) {
-      return Right(ApiError(message: 'executePennyDrop Failed $e'));
+      // return Right(ApiError(message: 'executePennyDrop Failed $e'));
+      return Right(ApiError(message: e.toString()));
     }
   }
 
@@ -387,5 +413,12 @@ class KycRepositoryImpl extends KycRepository {
     } catch (e) {
       return Right(ApiError(message: 'Save Onboarding Data Exception: $e'));
     }
+  }
+
+  @override
+  Future<Either<Result<bool>, ApiError>> executeVerificationEngine(
+    Map<String, dynamic> data,
+  ) async {
+    return await _remoteDataSource.executeVerificationEngine(data);
   }
 }

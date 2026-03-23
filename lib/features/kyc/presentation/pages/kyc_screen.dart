@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
+import 'package:my_sip/common/widget/images/image_picker.dart';
 import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
 import 'package:my_sip/common/widget/text_form/text_field_component.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
@@ -46,158 +47,183 @@ class KycScreen extends GetView<KycController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white, // Keep scaffold white
-      appBar: AppBar(
-        backgroundColor:
-            Colors.transparent, // Transparent to show ripple if needed
-        elevation: 0,
-        centerTitle: true,
-        title: Obx(
-          () => AnimatedSwitcher(
-            duration: const Duration(milliseconds: 400),
-            transitionBuilder: (child, anim) => FadeTransition(
-              opacity: anim,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 0.2),
-                  end: Offset.zero,
-                ).animate(anim),
-                child: child,
-              ),
-            ),
-            child: Text(
-              _getStepTitle(controller.currentStep.value),
-              key: ValueKey<int>(controller.currentStep.value),
-              style: AppTextStyles.h3().copyWith(fontSize: 18),
-            ),
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-          onPressed: () {
-            if (controller.currentStep.value > 0) {
-              controller.pageController.previousPage(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-              );
-              controller.currentStep.value--;
-            } else {
-              Get.back();
-            }
-          },
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(90),
-          child: Obx(
-            () => KycStepper(currentStepIndex: controller.currentStep.value),
-          ),
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, -4),
-              ),
-            ],
-          ),
-          child: Obx(() {
-            // 1. Check ALL loading states (General + DigiLocker specific)
-            final bool isBusy =
-                controller.isLoading.value ||
-                controller.isExecutingPOIStep1.value ||
-                controller.isExecutingPOIStep2.value;
+    return Obx(
+      () => PopScope(
+        canPop: controller.currentStep.value == 0,
 
-            // 2. Determine Button Text
-            String buttonText = "Continue";
-            if (controller.currentStep.value == 0) {
-              buttonText =
-                  "Verify Identity"; // Specific text for DigiLocker step
-            }
-            // else if (controller.currentStep.value == 6) {
-            //   buttonText = "Proceed to E-Sign";
-            // }
-            else if (controller.currentStep.value == 7) {
-              buttonText = "Generate & eSign Contract"; // Final Action
-            }
-            // else if (controller.currentStep.value == 6) {
-            //   buttonText = "Finish KYC";
-            // }
+        // 2. This runs when the user presses the hardware back button
+        onPopInvoked: (didPop) {
+          if (didPop) {
+            // The system successfully popped the screen (because we were on Step 0)
+            return;
+          }
 
-            return UElevatedBUtton(
-              // Disable button if busy
-              onPressed: isBusy ? null : controller.onNextTap,
-              child: isBusy
-                  ? const Center(
-                      child: SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      ),
-                    )
-                  : Center(
-                      child: Text(
-                        buttonText,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+          // The system was blocked from popping (because we are on Step 1 or higher).
+          // Now, we manually move the PageView back one step.
+          if (controller.currentStep.value > 0) {
+            controller.pageController.previousPage(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
             );
-          }),
-        ),
-      ),
-      // STACK FOR BACKGROUND ANIMATION
-      body: Stack(
-        children: [
-          // 1. The Water Drop / Ripple Animation Layer
-          Obx(
-            () => WaterRippleBackground(
-              triggerCount: controller.currentStep.value,
+            controller.currentStep.value--;
+          }
+        },
+
+        child: Scaffold(
+          backgroundColor: Colors.white, // Keep scaffold white
+          appBar: AppBar(
+            backgroundColor:
+                Colors.transparent, // Transparent to show ripple if needed
+            elevation: 0,
+            centerTitle: true,
+            title: Obx(
+              () => AnimatedSwitcher(
+                duration: const Duration(milliseconds: 400),
+                transitionBuilder: (child, anim) => FadeTransition(
+                  opacity: anim,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0.2),
+                      end: Offset.zero,
+                    ).animate(anim),
+                    child: child,
+                  ),
+                ),
+                child: Text(
+                  _getStepTitle(controller.currentStep.value),
+                  key: ValueKey<int>(controller.currentStep.value),
+                  style: AppTextStyles.h3().copyWith(fontSize: 18),
+                ),
+              ),
+            ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+              onPressed: () {
+                if (controller.currentStep.value > 0) {
+                  controller.pageController.previousPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                  controller.currentStep.value--;
+                } else {
+                  Get.back();
+                }
+              },
+            ),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(90),
+              child: Obx(
+                () =>
+                    KycStepper(currentStepIndex: controller.currentStep.value),
+              ),
             ),
           ),
+          bottomNavigationBar: SafeArea(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, -4),
+                  ),
+                ],
+              ),
+              child: Obx(() {
+                // 1. Check ALL loading states (General + DigiLocker specific)
+                final bool isBusy =
+                    controller.isLoading.value ||
+                    controller.isExecutingPOIStep1.value ||
+                    controller.isExecutingPOIStep2.value;
 
-          // 2. The Actual Page Content
-          PageView(
-            controller: controller.pageController,
-            physics: const NeverScrollableScrollPhysics(),
+                // 2. Determine Button Text
+                String buttonText = "Continue";
+                if (controller.currentStep.value == 0) {
+                  buttonText =
+                      "Verify Identity"; // Specific text for DigiLocker step
+                }
+                //  else if (controller.currentStep.value == 6) {
+                //   buttonText = "Proceed to E-Sign";
+                // }
+                else if (controller.currentStep.value == 7) {
+                  buttonText = "Generate & eSign Contract"; // Final Action
+                }
+                // else if (controller.currentStep.value == 6) {
+                //   buttonText = "Finish KYC";
+                // }
+
+                return UElevatedBUtton(
+                  // Disable button if busy
+                  onPressed: isBusy ? null : controller.onNextTap,
+                  child: isBusy
+                      ? const Center(
+                          child: SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        )
+                      : Center(
+                          child: Text(
+                            buttonText,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                );
+              }),
+            ),
+          ),
+          // STACK FOR BACKGROUND ANIMATION
+          body: Stack(
             children: [
-              SingleChildScrollView(child: _buildPage1(controller)),
-              SingleChildScrollView(
-                child: _buildPage2(controller, context: context),
+              // 1. The Water Drop / Ripple Animation Layer
+              Obx(
+                () => WaterRippleBackground(
+                  triggerCount: controller.currentStep.value,
+                ),
               ),
-              SingleChildScrollView(
-                child: _buildPage3(controller, context: context),
+
+              // 2. The Actual Page Content
+              PageView(
+                controller: controller.pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  SingleChildScrollView(child: _buildPage1(controller)),
+                  SingleChildScrollView(
+                    child: _buildPage2(controller, context: context),
+                  ),
+                  SingleChildScrollView(
+                    child: _buildPage3(controller, context: context),
+                  ),
+                  SingleChildScrollView(
+                    child: _buildPage4_1(controller, context: context),
+                  ),
+                  SingleChildScrollView(
+                    child: _buildPage4_2(controller, context: context),
+                  ),
+                  SingleChildScrollView(
+                    child: _buildPage5(controller, context: context),
+                  ),
+                  SingleChildScrollView(
+                    child: _buildPage6(controller, context: context),
+                  ),
+                  SingleChildScrollView(
+                    child: _buildPage7(controller, context: context),
+                  ), // NEW PAGE ADDED
+                ],
               ),
-              SingleChildScrollView(
-                child: _buildPage4_1(controller, context: context),
-              ),
-              SingleChildScrollView(
-                child: _buildPage4_2(controller, context: context),
-              ),
-              SingleChildScrollView(
-                child: _buildPage5(controller, context: context),
-              ),
-              SingleChildScrollView(
-                child: _buildPage6(controller, context: context),
-              ),
-              SingleChildScrollView(
-                child: _buildPage7(controller, context: context),
-              ), // NEW PAGE ADDED
             ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -245,8 +271,14 @@ class KycScreen extends GetView<KycController> {
                     options: controller.taxStatusList,
                     selectedValue: controller.selectedTaxStatus,
                   ),
-                  const SizedBox(height: 24),
+                  // const SizedBox(height: 24),
                   // PAN Field (Wrapped in Obx ONLY if controller.panKeyboardType is an observable)
+                  SelectionPickerWidget(
+                    title: "MODE OF HOLDING",
+                    options: controller.modeOfHoldingList,
+                    selectedValue: controller.selectedModeOfHolding,
+                  ),
+                  const SizedBox(height: 24),
                   Obx(
                     () => CustomTextField(
                       validationType: ValidationType.required,
@@ -266,98 +298,98 @@ class KycScreen extends GetView<KycController> {
 
                   const SizedBox(height: 24),
 
-                  // --- CAPTCHA SECTION START ---
-                  Text(
-                    "Security Check",
-                    style: AppTextStyles.bodySmall(color: Ucolors.darkgrey),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      // Captcha Image Box
-                      Expanded(
-                        flex: 2,
-                        child: Container(
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.grey.shade300),
-                          ),
-                          child: Obx(() {
-                            if (controller.isLoadingCaptcha.value) {
-                              return const Center(
-                                child: SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                ),
-                              );
-                            }
-                            if (controller.captchaImage.value != null) {
-                              return ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Image.memory(
-                                  controller.captchaImage.value!,
-                                  fit: BoxFit
-                                      .contain, // Ensures image fits within box
-                                  gaplessPlayback:
-                                      true, // Prevents flickering on refresh
-                                ),
-                              );
-                            }
-                            return const Center(
-                              child: Text(
-                                "Tap refresh",
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            );
-                          }),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      // Refresh Button
-                      InkWell(
-                        onTap: () => controller.getCaptcha(),
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          height: 50,
-                          width: 50,
-                          decoration: BoxDecoration(
-                            color: Ucolors.blue.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(Icons.refresh, color: Ucolors.blue),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ), // Add spacing between image and text field
-                  // Captcha Text Field (Removed Obx as it's likely not needed here unless properties change dynamically)
-                  CustomTextField(
-                    validationType: ValidationType.required,
-                    label: "Captcha Text",
-                    height: 70,
-                    controller: controller.captchaTextEditingController,
-                    hint: "Enter code",
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(
-                        6,
-                      ), // Usually captchas are 4-6 chars
-                    ],
-                    leading: const Icon(
-                      Icons.security,
-                      size: 20,
-                      color: Colors.grey,
-                    ),
-                  ),
+                  // // --- CAPTCHA SECTION START ---
+                  // Text(
+                  //   "Security Check",
+                  //   style: AppTextStyles.bodySmall(color: Ucolors.darkgrey),
+                  // ),
+                  // const SizedBox(height: 10),
+                  // Row(
+                  //   children: [
+                  //     // Captcha Image Box
+                  //     Expanded(
+                  //       flex: 2,
+                  //       child: Container(
+                  //         height: 50,
+                  //         decoration: BoxDecoration(
+                  //           color: Colors.grey.shade100,
+                  //           borderRadius: BorderRadius.circular(10),
+                  //           border: Border.all(color: Colors.grey.shade300),
+                  //         ),
+                  //         child: Obx(() {
+                  //           if (controller.isLoadingCaptcha.value) {
+                  //             return const Center(
+                  //               child: SizedBox(
+                  //                 height: 20,
+                  //                 width: 20,
+                  //                 child: CircularProgressIndicator(
+                  //                   strokeWidth: 2,
+                  //                 ),
+                  //               ),
+                  //             );
+                  //           }
+                  //           if (controller.captchaImage.value != null) {
+                  //             return ClipRRect(
+                  //               borderRadius: BorderRadius.circular(10),
+                  //               child: Image.memory(
+                  //                 controller.captchaImage.value!,
+                  //                 fit: BoxFit
+                  //                     .contain, // Ensures image fits within box
+                  //                 gaplessPlayback:
+                  //                     true, // Prevents flickering on refresh
+                  //               ),
+                  //             );
+                  //           }
+                  //           return const Center(
+                  //             child: Text(
+                  //               "Tap refresh",
+                  //               style: TextStyle(
+                  //                 fontSize: 10,
+                  //                 color: Colors.grey,
+                  //               ),
+                  //             ),
+                  //           );
+                  //         }),
+                  //       ),
+                  //     ),
+                  //     const SizedBox(width: 10),
+                  //     // Refresh Button
+                  //     InkWell(
+                  //       onTap: () => controller.getCaptcha(),
+                  //       borderRadius: BorderRadius.circular(10),
+                  //       child: Container(
+                  //         height: 50,
+                  //         width: 50,
+                  //         decoration: BoxDecoration(
+                  //           color: Ucolors.blue.withOpacity(0.1),
+                  //           borderRadius: BorderRadius.circular(10),
+                  //         ),
+                  //         child: const Icon(Icons.refresh, color: Ucolors.blue),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  // const SizedBox(
+                  //   height: 16,
+                  // ), // Add spacing between image and text field
+                  // // Captcha Text Field (Removed Obx as it's likely not needed here unless properties change dynamically)
+                  // CustomTextField(
+                  //   validationType: ValidationType.required,
+                  //   label: "Captcha Text",
+                  //   height: 70,
+                  //   controller: controller.captchaTextEditingController,
+                  //   hint: "Enter code",
+                  //   inputFormatters: [
+                  //     LengthLimitingTextInputFormatter(
+                  //       6,
+                  //     ), // Usually captchas are 4-6 chars
+                  //   ],
+                  //   leading: const Icon(
+                  //     Icons.security,
+                  //     size: 20,
+                  //     color: Colors.grey,
+                  //   ),
+                  // ),
                   // --- CAPTCHA SECTION END ---
                 ],
               ),
@@ -753,6 +785,7 @@ class KycScreen extends GetView<KycController> {
                     selectedValue: controller.selectedNomineeDocument,
                   ),
                   const SizedBox(height: 24),
+
                   Obx(
                     () => CustomTextField(
                       validationType: ValidationType.required,
@@ -769,28 +802,53 @@ class KycScreen extends GetView<KycController> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  CustomTextField(
-                    validationType: ValidationType.required,
-                    label: "Nominee Address",
-                    hint: "Enter Full Address",
-                    height: 60,
-                    maxLines: 2,
-                    textInputAction: TextInputAction.done,
-                    controller: controller.nomineeAddressTextEditingController,
+                  Obx(
+                    () => CustomTextField(
+                      validationType: ValidationType.required,
+                      label: "Nominee Address",
+                      hint: "Enter Full Address",
+                      height: 60,
+                      maxLines: 2,
+                      textInputAction: TextInputAction.done,
+                      controller:
+                          controller.nomineeAddressTextEditingController,
+                      enabled:
+                          !controller.isNomineeAddressSameAsApplicant.value,
+                    ),
                   ),
                   const SizedBox(height: 20),
-                  CustomTextField(
-                    height: 60,
-                    label: "Nominee PIN Code",
-                    hint: "Enter Pincode",
-                    maxLines: 2,
-                    controller: controller.nomineePinCodeTextEditingController,
-                    textInputAction: TextInputAction.done,
-                    validationType: ValidationType.required,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(6),
-                    ],
+                  Obx(
+                    () => CustomTextField(
+                      height: 60,
+                      label: "Nominee PIN Code",
+                      hint: "Enter Pincode",
+                      maxLines: 2,
+                      controller:
+                          controller.nomineePinCodeTextEditingController,
+                      textInputAction: TextInputAction.done,
+                      validationType: ValidationType.required,
+                      enabled:
+                          !controller.isNomineeAddressSameAsApplicant.value,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(6),
+                      ],
+                    ),
+                  ),
+                  Obx(
+                    () => CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      activeColor: Ucolors.blue,
+                      title: Text(
+                        "Address is same as Applicant",
+                        style: AppTextStyles.bodyMediumW500(
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                      value: controller.isNomineeAddressSameAsApplicant.value,
+                      onChanged: controller.toggleNomineeAddressSameAsApplicant,
+                    ),
                   ),
                 ],
               ),
@@ -1028,7 +1086,16 @@ class KycScreen extends GetView<KycController> {
                   controller.signatureUploadResponse.value != null) {
                 return InkWell(
                   // Optional: Allow re-upload on tap
-                  onTap: () => controller.pickAndUploadSignature(),
+                  // onTap: () => controller.pickAndUploadSignature(),
+                  onTap: () {
+                    UImagePicker.showImageSourceOptions(
+                      context: context,
+                      title: "Upload Signature",
+                      onImageSelected: (source) {
+                        controller.pickAndUploadSignature(source);
+                      },
+                    );
+                  },
                   borderRadius: BorderRadius.circular(20),
                   child: Container(
                     width: double.infinity,
@@ -1113,7 +1180,16 @@ class KycScreen extends GetView<KycController> {
 
               // 3. DEFAULT STATE (Upload Button)
               return InkWell(
-                onTap: () => controller.pickAndUploadSignature(),
+                // onTap: () => controller.pickAndUploadSignature(),
+                onTap: () {
+                  UImagePicker.showImageSourceOptions(
+                    context: context,
+                    title: "Upload Signature",
+                    onImageSelected: (source) {
+                      controller.pickAndUploadSignature(source);
+                    },
+                  );
+                },
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
                   width: double.infinity,

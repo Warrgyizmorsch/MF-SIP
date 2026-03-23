@@ -11,10 +11,12 @@ import 'package:my_sip/features/kyc/domain/usecases/get_all_banks_use_case.dart'
 import 'package:my_sip/features/kyc/domain/usecases/get_captcha_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/get_esign_data_usecase.dart';
 import 'package:my_sip/features/kyc/domain/usecases/get_token_data_use_case.dart';
+import 'package:my_sip/features/kyc/domain/usecases/kyc_check_usecases.dart';
 import 'package:my_sip/features/kyc/domain/usecases/kyc_use_cases.dart';
 import 'package:my_sip/features/kyc/domain/usecases/saveOnboarding_login_usecases.dart';
 import 'package:my_sip/features/kyc/domain/usecases/update_form_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/upload_to_signZy_use_case.dart';
+import 'package:my_sip/features/kyc/domain/usecases/verification_engine_usecases.dart';
 import 'package:my_sip/features/kyc/domain/usecases/verify_amount_usecases.dart';
 import 'package:my_sip/features/kyc/presentation/controllers/kyc_controller.dart';
 
@@ -38,6 +40,9 @@ class KycBindings extends Bindings {
     Get.lazyPut(() => KycRepositoryImpl(Get.find<KycRemoteDataSource>()));
 
     // 3. Use Cases
+
+    Get.lazyPut(() => CheckKycUseCase(Get.find<KycRepositoryImpl>()));
+
     Get.lazyPut(() => SaveOnboardingDataUseCase(Get.find<KycRepositoryImpl>()));
 
     Get.lazyPut(() => GetAllBanksUseCases(Get.find<KycRepositoryImpl>()));
@@ -80,9 +85,16 @@ class KycBindings extends Bindings {
       () => GetEsignDataUseCase(kycRepository: Get.find<KycRepositoryImpl>()),
     );
 
+    Get.lazyPut(
+      () => ExecuteVerificationEngineUseCase(
+        kycRepository: Get.find<KycRepositoryImpl>(),
+      ),
+    );
+
     // 4. Main UseCase Wrapper
     Get.lazyPut(
       () => KycUseCases(
+        checkKycUseCase: Get.find<CheckKycUseCase>(),
         saveOnboardingDataUseCase: Get.find<SaveOnboardingDataUseCase>(),
         getAllBanksUseCases: Get.find<GetAllBanksUseCases>(),
         executePoiStep1UseCase: Get.find<ExecutePoiStep1UseCase>(),
@@ -97,6 +109,8 @@ class KycBindings extends Bindings {
         createPdfUseCase: Get.find<CreatePdfUseCase>(),
         createEsignUrlUseCase: Get.find<CreateEsignUrlUseCase>(),
         getEsignDataUseCase: Get.find<GetEsignDataUseCase>(),
+        executeVerificationEngineUseCase:
+            Get.find<ExecuteVerificationEngineUseCase>(),
       ),
     );
 

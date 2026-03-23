@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
@@ -128,6 +131,143 @@ class NavigationBarController extends GetxController {
 class NavigationMenuBar extends StatelessWidget {
   const NavigationMenuBar({super.key});
 
+  Future<bool> _showModernExitDialog(BuildContext context) async {
+    return await showGeneralDialog<bool>(
+          context: context,
+          barrierDismissible: true,
+          barrierLabel: "ExitDialog",
+          barrierColor: Colors.black.withOpacity(
+            0.5,
+          ), // Semi-transparent overlay
+          transitionDuration: const Duration(milliseconds: 200),
+          pageBuilder: (context, anim1, anim2) {
+            return BackdropFilter(
+              filter: ImageFilter.blur(
+                sigmaX: 5,
+                sigmaY: 5,
+              ), // Adjust blur intensity here
+              child: Center(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(
+                      0.9,
+                    ), // Slightly transparent white
+                    borderRadius: BorderRadius.circular(28),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 20,
+                        spreadRadius: 5,
+                      ),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Warning Icon with soft glow
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Iconsax.info_circle,
+                            color: Colors.redAccent,
+                            size: 40,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        const Text(
+                          'Wait! Are you leaving?',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.5,
+                            color: Color(0xFF1A1A1A),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Closing the app will pause your current session. Are you sure you want to exit?',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey.shade600,
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+
+                        // Action Buttons
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                      color: Colors.grey.shade300,
+                                    ),
+
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Stay here',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade700,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.redAccent,
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                      color: Colors.grey.shade300,
+                                    ),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Exit App',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ) ??
+        false;
+  }
+
   @override
   Widget build(BuildContext context) {
     // Ensure the controller is loaded
@@ -137,72 +277,92 @@ class NavigationMenuBar extends StatelessWidget {
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
     final isTablet = ResponsiveBreakpoints.of(context).equals(TABLET);
 
-    return Scaffold(
-      body: Row(
-        // key: const ValueKey('MainNavigationRow'),
-        children: [
-          // if (isDesktop)
-          //   _DesktopSideNav(isDesktop: isDesktop, isTablet: isTablet),
-          isDesktop
-              ? _DesktopSideNav(isDesktop: isDesktop, isTablet: isTablet)
-              : const SizedBox.shrink(),
+    return PopScope(
+      canPop: false, // Prevents the default back button behavior
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
 
-          Expanded(
-            // THE ULTIMATE FIX:
-            // We use Obx to dynamically return the exact screen widget based on the index.
-            // No GetX router, no nested keys, impossible to duplicate!
-            child: Obx(() {
-              switch (controller.selectedIndex.value) {
-                case 0:
-                  return HomeScreen();
-                case 1:
-                  return ExploreScreen();
-                case 2:
-                  return DashboardScreen();
-                case 3:
-                  return GoalScreen();
-                case 4:
-                  return ProfileScreen();
-                default:
-                  return HomeScreen();
-              }
-            }),
-          ),
+        // If user is NOT on the Home tab (index 0), navigate to Home first
+        if (controller.selectedIndex.value != 0) {
+          controller.changePage(0);
+          return;
+        }
 
-          // Expanded(
-          //   child: Navigator(
-          //     key: Get.nestedKey(
-          //       1,
-          //     ), // Ensure this matches controller.changePage logic
-          //     initialRoute: AppRoutes.home,
-          //     onGenerateRoute: (settings) {
-          //       // Look up the route in your existing AppPages
-          //       try {
-          //         final getPage = AppPages.pages().firstWhere(
-          //           (p) => p.name == settings.name,
-          //         );
+        // If already on Home tab, show the exit warning
+        final shouldExit = await _showModernExitDialog(context);
+        if (shouldExit) {
+          // This closes the app
+          SystemNavigator.pop();
+        }
+      },
 
-          //         return GetPageRoute(
-          //           page: getPage.page,
-          //           binding: getPage.binding,
-          //           bindings: getPage.bindings,
-          //           settings: settings,
-          //           transition:
-          //               Transition.fadeIn, // Optional: smoother tab switch
-          //         );
-          //       } catch (e) {
-          //         // Fallback if route not found in AppPages
-          //         return GetPageRoute(
-          //           page: () => HomeScreen(),
-          //           settings: settings,
-          //         );
-          //       }
-          //     },
-          //   ),
-          // ),
-        ],
+      child: Scaffold(
+        body: Row(
+          // key: const ValueKey('MainNavigationRow'),
+          children: [
+            // if (isDesktop)
+            //   _DesktopSideNav(isDesktop: isDesktop, isTablet: isTablet),
+            isDesktop
+                ? _DesktopSideNav(isDesktop: isDesktop, isTablet: isTablet)
+                : const SizedBox.shrink(),
+
+            Expanded(
+              // THE ULTIMATE FIX:
+              // We use Obx to dynamically return the exact screen widget based on the index.
+              // No GetX router, no nested keys, impossible to duplicate!
+              child: Obx(() {
+                switch (controller.selectedIndex.value) {
+                  case 0:
+                    return HomeScreen();
+                  case 1:
+                    return ExploreScreen();
+                  case 2:
+                    return DashboardScreen();
+                  case 3:
+                    return GoalScreen();
+                  case 4:
+                    return ProfileScreen();
+                  default:
+                    return HomeScreen();
+                }
+              }),
+            ),
+
+            // Expanded(
+            //   child: Navigator(
+            //     key: Get.nestedKey(
+            //       1,
+            //     ), // Ensure this matches controller.changePage logic
+            //     initialRoute: AppRoutes.home,
+            //     onGenerateRoute: (settings) {
+            //       // Look up the route in your existing AppPages
+            //       try {
+            //         final getPage = AppPages.pages().firstWhere(
+            //           (p) => p.name == settings.name,
+            //         );
+
+            //         return GetPageRoute(
+            //           page: getPage.page,
+            //           binding: getPage.binding,
+            //           bindings: getPage.bindings,
+            //           settings: settings,
+            //           transition:
+            //               Transition.fadeIn, // Optional: smoother tab switch
+            //         );
+            //       } catch (e) {
+            //         // Fallback if route not found in AppPages
+            //         return GetPageRoute(
+            //           page: () => HomeScreen(),
+            //           settings: settings,
+            //         );
+            //       }
+            //     },
+            //   ),
+            // ),
+          ],
+        ),
+        bottomNavigationBar: (isDesktop) ? null : const _MobileBottomNavBar(),
       ),
-      bottomNavigationBar: (isDesktop) ? null : const _MobileBottomNavBar(),
     );
   }
 }

@@ -425,7 +425,7 @@ class _WebDashboardLayout extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           _WebQuickActionItem(
-            "Start SIP",
+            "SIP",
             UImages.startsip,
             () => Get.toNamed(AppRoutes.startSipScreen),
           ),
@@ -961,7 +961,7 @@ class _MobileLayout extends StatelessWidget {
                             Get.toNamed(AppRoutes.startSipScreen);
                           },
                           child: const FeatureSection(
-                            featureName: 'Start SIP',
+                            featureName: 'SIP',
                             iconPath: UImages.startsip,
                           ),
                         ),

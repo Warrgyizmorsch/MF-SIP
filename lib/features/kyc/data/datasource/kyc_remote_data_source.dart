@@ -9,6 +9,7 @@ import 'package:my_sip/features/kyc/data/model/contractPdf_model.dart';
 import 'package:my_sip/features/kyc/data/model/create_esign_url_model.dart';
 import 'package:my_sip/features/kyc/data/model/file_upload_model.dart';
 import 'package:my_sip/features/kyc/data/model/get_esign_data_model.dart';
+import 'package:my_sip/features/kyc/data/model/kyc_check_model.dart';
 import 'package:my_sip/features/kyc/data/model/onboarding_login_model.dart';
 import 'package:my_sip/features/kyc/data/model/poi_step_1_model.dart';
 import 'package:my_sip/features/kyc/data/model/verify_bank_account_model.dart';
@@ -24,6 +25,45 @@ class KycRemoteDataSource {
   final SessionManager sessionManager;
 
   KycRemoteDataSource(this._apiService, this.sessionManager);
+
+  // CHECK KYC STATUS API
+  Future<Either<Result<KycCheckModel>, ApiError>> checkKycStatus(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/check-kyc", 
+        data: data,
+        // headers: {
+        //   'Content-Type': 'application/json',
+        // },
+      );
+
+      createLog("[Kyc Remote Data Source] checkKycStatus Response: $resp");
+
+      if (resp != null) {
+        final result = KycCheckModel.fromJson(resp);
+        
+        // Check your API's 'status' boolean
+        if (result.status == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(message: result.message ?? 'Check KYC Failed'),
+          );
+        }
+      } else {
+        return Right(
+          ApiError(message: 'checkKycStatus Failed: Invalid response structure'),
+        );
+      }
+    } catch (e) {
+      return Right(
+        ApiError(message: 'checkKycStatus Failed with Exception $e'),
+      );
+    }
+  }
 
   Future<Either<Result<BankListResponseModel>, ApiError>> getAllBanks(
     Map<String, dynamic> data,
@@ -201,19 +241,28 @@ class KycRemoteDataSource {
 
       createLog("[Kyc Remote Data Source] executePennyDrop Response: $resp");
 
+      // PROFESSIONAL ERROR PARSING
+      if (resp != null && resp['error'] != null) {
+        // Use your factory to parse the statusCode and message correctly
+        return Right(ApiError.fromJson(resp['error']));
+      }
+
       if (resp != null && resp['object'] != null) {
         final result = BankVerificationModel.fromJson(resp['object']);
         return Left(Result.success(result));
       } else {
         return Right(
           ApiError(
-            message: 'executePennyDrop Failed: Invalid response structure',
+            message:
+                'executePennyDrop Failed: Invalid response structure ${resp}',
           ),
         );
       }
     } catch (e) {
       return Right(
-        ApiError(message: 'executePennyDrop Failed with Exception $e'),
+        ApiError(
+          message: 'executePennyDrop Failed with Exception ${e.toString()}',
+        ),
       );
     }
   }
@@ -366,9 +415,7 @@ class KycRemoteDataSource {
           //     'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
         },
       );
-      createLog(
-        "[Kyc Remote Data Source] create pdf Response: $resp",
-      );
+      createLog("[Kyc Remote Data Source] create pdf Response: $resp");
 
       if (resp != null && resp['object'] != null) {
         final result = CreatePdfModel.fromJson(resp);
@@ -398,9 +445,7 @@ class KycRemoteDataSource {
           //     'LBa6b1FZrCLy8Tq0tlyJXuoKo9j2INFiMT0EYn4kE8V8aYZQJFxXgrXjqslnckw0',
         },
       );
-      createLog(
-        "[Kyc Remote Data Source] create e sign url Response: $resp",
-      );
+      createLog("[Kyc Remote Data Source] create e sign url Response: $resp");
 
       if (resp != null && resp['object'] != null) {
         final result = CreateEsignUrlModel.fromJson(resp);
@@ -436,9 +481,7 @@ class KycRemoteDataSource {
         },
       );
 
-      createLog(
-        "[Kyc Remote Data Source] get e sign data Response: $resp",
-      );
+      createLog("[Kyc Remote Data Source] get e sign data Response: $resp");
 
       if (resp != null && resp['object'] != null) {
         final result = GetEsignDataModel.fromJson(resp);
@@ -450,6 +493,38 @@ class KycRemoteDataSource {
       }
     } catch (e) {
       return Right(ApiError(message: 'getEsignData Failed with Exception $e'));
+    }
+  }
+
+  //  Verification Engine
+  Future<Either<Result<bool>, ApiError>> executeVerificationEngine(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final resp = await _apiService.postApi(
+        "${Appurl.kycUrl}/api/onboardings/execute",
+        data: data,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': sessionManager.getOnboardingData?.sessionToken ?? '',
+        },
+      );
+
+      createLog(
+        "[Kyc Remote Data Source] executeVerificationEngine Response: $resp",
+      );
+
+      if (resp != null) {
+        return Left(Result.success(true));
+      } else {
+        return Right(
+          ApiError(message: 'executeVerificationEngine Failed: Empty response'),
+        );
+      }
+    } catch (e) {
+      return Right(
+        ApiError(message: 'executeVerificationEngine Exception: $e'),
+      );
     }
   }
 
@@ -467,9 +542,7 @@ class KycRemoteDataSource {
         },
       );
 
-      createLog(
-        "[Kyc Remote Data Source] saveOnboaridng data Response: $resp",
-      );
+      createLog("[Kyc Remote Data Source] saveOnboaridng data Response: $resp");
 
       if (resp != null || resp['success'] == true) {
         final result = OnboardingResponse.fromJson(resp);

@@ -5,9 +5,11 @@ import 'package:dio/dio.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
@@ -43,15 +45,15 @@ class KycController extends GetxController {
     final bool tokenCred = await saveOnboardingData();
 
     // 3. Only proceed if token data was successfully fetched
-    if (tokenSuccess) {
-      // Now it is safe to call other APIs that might need the token
-      await getCaptcha();
-    } else {
-      Get.snackbar(
-        "Error While Initiating KYC Process",
-        "Please try Later....",
-      );
-    }
+    // if (tokenSuccess) {
+    //   // Now it is safe to call other APIs that might need the token
+    await getCaptcha();
+    // } else {
+    //   Get.snackbar(
+    //     "Error While Initiating KYC Process",
+    //     "Please try Later....",
+    //   );
+    // }
 
     // 4. Unblock UI
     isLoading.value = false;
@@ -80,6 +82,19 @@ class KycController extends GetxController {
   // --- Gender Data ---
   final maritalList = ["MARRIED", "UNMARRIED", "OTHERS"];
   final selectedMaritalStatus = "MARRIED".obs;
+
+  // Mode of Holding ---
+  final modeOfHoldingList = ["Single", "Joint", "Anyone or Survivor"];
+  final selectedModeOfHolding = "Single".obs;
+
+  //  Resident list
+  final resdStatusList = [
+    "Resident Individual",
+    "Non-Resident Indian",
+    "Foreign National",
+    "Hindu Undivided Family",
+  ];
+  final resdStatus = "Resident Individual".obs;
 
   // --- Bank Data ---
   final bankList = <BankItemEntity>[].obs;
@@ -198,6 +213,8 @@ class KycController extends GetxController {
       TextEditingController();
   final TextEditingController nomineePinCodeTextEditingController =
       TextEditingController();
+  // --- Nominee Address Checkbox State ---
+  final isNomineeAddressSameAsApplicant = false.obs;
 
   final step1FormKey = GlobalKey<FormState>();
   final step2FormKey = GlobalKey<FormState>();
@@ -226,9 +243,23 @@ class KycController extends GetxController {
     // 2. Decide logic based on the current step
     switch (currentStep.value) {
       case 0:
+
         // --- STEP 0: IDENTITY (DigiLocker Flow) ---
         if (step1FormKey.currentState!.validate()) {
-          await _handleDigiLockerFlow();
+          // 1. Check Backend Status First
+          final bool needsKyc = await checkKycStatus();
+          // await _handleDigiLockerFlow();
+          if (needsKyc) {
+            // 2. Proceed to Signzy DigiLocker
+            await _handleDigiLockerFlow();
+          } else {
+            // 3. Stop flow and redirect
+            Get.snackbar(
+              "KYC Verified",
+              "Your KYC is already completed! You can start investing.",
+            );
+            // Get.offAllNamed(AppRoutes.navMenuBar); // Redirect user
+          }
         }
         break;
 
@@ -274,8 +305,11 @@ class KycController extends GetxController {
 
         // 1. Validate Form
         if (step5FormKey.currentState!.validate()) {
+          // ULoaders.showLoading(message: 'Bank Processing');
           // 2. Execute Penny Drop Verification
           final bool isVerified = await executePennydrop();
+
+          // ULoaders.stopLoading();
 
           // 3. Navigate only if verification passed
           if (isVerified) {
@@ -311,19 +345,66 @@ class KycController extends GetxController {
           return;
         }
 
-        // Get.offAllNamed("/dashboard"); // or show success dialog
         _goToNextPage();
         break;
       case 7:
         // --- STEP 7: AADHAAR E-SIGN ---
 
-        await startEsignProcess();
+        // await startEsignProcess();
+        log(
+          "${SessionManager.instance.getOnboardingData?.dbRecord?.onboardingId}",
+        );
         // await _verifyAndSaveEsign();
 
         break;
 
       default:
         _goToNextPage();
+    }
+  }
+
+  Future<bool> checkKycStatus() async {
+    try {
+      isLoading.value = true;
+      ULoaders.showLoading(message: "Verifying PAN Details...");
+
+      // 1. Translate the UI values for the backend API
+      final requestData = {
+        "pan_card": panTextEditingController.text.toUpperCase(),
+        "modeOfHld": getModeOfHldCode(selectedModeOfHolding.value),
+        "resdStatus": getResdStatusCode(selectedTaxStatus.value),
+      };
+
+      // 2. Call the UseCase
+      final result = await kycUseCases.checkKycUseCase.call(requestData);
+      ULoaders.stopLoading();
+
+      // 3. Handle the Fold (Left = Success Result, Right = ApiError)
+      return result.fold(
+        (success) {
+          // Extract the entity from your Result class
+          final entity = success.data;
+          final currentStatus = entity?.currentStatus?.toLowerCase() ?? "";
+
+          if (currentStatus == "Approved") {
+            return false; // KYC is done! Do NOT launch Signzy.
+          } else {
+            return true; // KYC is needed (e.g., "timed out" or "pending")
+          }
+        },
+        (error) {
+          Get.snackbar(
+            "Error",
+            "Check KYC failed: ${error.message}. Proceeding to verification.",
+          );
+          return true; // Fallback to Signzy flow if the API crashes
+        },
+      );
+    } catch (e) {
+      Get.snackbar("Error", "Unexpected error: $e");
+      return true; // Fallback
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -392,12 +473,29 @@ class KycController extends GetxController {
         isLoading.value = false;
 
         if (poiSaved) {
+          await _submitUserForensics("identity");
           _goToNextPage(); // Move to Personal Details page
         }
       }
     } else {
       // User cancelled or failed in WebView (pressed back or closed)
       Get.snackbar("Cancelled", "Verification process was cancelled");
+    }
+  }
+
+  void toggleNomineeAddressSameAsApplicant(bool? value) {
+    isNomineeAddressSameAsApplicant.value = value ?? false;
+
+    if (isNomineeAddressSameAsApplicant.value) {
+      // Copy applicant's address and PIN to nominee fields
+      nomineeAddressTextEditingController.text =
+          addressTextEditingController.text;
+      nomineePinCodeTextEditingController.text =
+          pinCodeTextEditingController.text;
+    } else {
+      // Clear them if the user unchecks the box
+      nomineeAddressTextEditingController.clear();
+      nomineePinCodeTextEditingController.clear();
     }
   }
 
@@ -531,6 +629,22 @@ class KycController extends GetxController {
             if (isSaved) {
               // 2. DOWNLOAD THE CONTRACT TO DEVICE
               await downloadSignedPdf(signedPdfUrl);
+
+              await _submitUserForensics("contract");
+
+              // final gpsSaved = await _submitUserForensics();
+
+              // if (gpsSaved) {
+              // 🔴 3. RUN FINAL VERIFICATION ENGINE
+              final isFullyVerified = await runVerificationEngine();
+
+              if (isFullyVerified) {
+                Get.snackbar(
+                  "🎉 KYC COMPLETE",
+                  "Your application is fully verified!",
+                );
+              }
+              // }
 
               // 3. FINAL NAV (Uncomment to go to dashboard)
               // Get.offAllNamed(AppRoutes.navMenuBar);
@@ -717,13 +831,7 @@ class KycController extends GetxController {
 
       final extension = image.name.split('.').last.toLowerCase();
 
-      // Dynamic Merchant ID
-      // final currentMerchantId =
-      //     SessionManager.instance.getTokenData?.userId ?? "";
-      // if (currentMerchantId.isEmpty) throw "Session expired";
-
       final fields = {
-        // "merchantId": "69aac24da01541001c853d48",
         "merchantId":
             SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId ??
             '',
@@ -785,10 +893,11 @@ class KycController extends GetxController {
       final result = await kycUseCases.updateFormUseCase.call(requestData);
 
       result.fold(
-        (success) {
+        (success) async {
           photoUploadSuccess.value = true;
           isUploadingPhoto.value = false;
           Get.snackbar("Success", "Live Photo Saved Successfully");
+          await _submitUserForensics("photo");
         },
         (error) {
           isUploadingPhoto.value = false;
@@ -802,13 +911,18 @@ class KycController extends GetxController {
   }
 
   ///  ---------   Update Form Signature   --------------  ///
-  Future<void> pickAndUploadSignature() async {
+  Future<void> pickAndUploadSignature(ImageSource source) async {
     try {
       final ImagePicker picker = ImagePicker();
 
       final XFile? image = await picker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 80,
+        // source: ImageSource.gallery,
+        source: source,
+        // imageQuality: 80,
+        imageQuality:
+            50, // Lower quality slightly (50 is still very clear for a signature)
+        maxWidth: 1024, // Force the image to scale down if it's huge
+        maxHeight: 1024, // Force the image to scale down
       );
 
       if (image == null) return;
@@ -974,6 +1088,7 @@ class KycController extends GetxController {
         signatureUploadSuccess.value = true;
 
         Get.snackbar("Success", "Signature Saved Successfully");
+        await _submitUserForensics("signature");
         // showCustomToast(
 
         //   title: 'Success',
@@ -988,80 +1103,6 @@ class KycController extends GetxController {
         Get.snackbar("Error", "Signature Save Failed: ${error.message}");
       },
     );
-  }
-
-  Future<void> _submitFinalBankDetails() async {
-    try {
-      isLoading.value = true;
-
-      // final requestData = {
-      //   "merchantId": "69aac24da01541001c853d48",
-      //   "service": "nonRoc",
-      //   "type": "bankaccountverifications",
-      //   "task": "verifyAmount",
-      //   "data": {
-      //     "images": [],
-      //     "toVerifyData": {},
-      //     "searchParam": {
-      //       "amount": "1",
-      //       // "signzyId": verifiedBankName.value?.signzyReferenceId,
-      //       "signzyId": "wvDrsqnCP26ycHabL9NRkhMmfEmPFcJqO5rALaZi3LaPrIqlTd17",
-      //     },
-      //   },
-      // };
-
-      final signzyId = verifiedBankName.value?.signzyReferenceId;
-      if (signzyId == null || signzyId.isEmpty) {
-        Get.snackbar("Error", "Reference ID is missing. Please retry.");
-        isLoading.value = false;
-        return;
-      }
-      final requestData = {
-        // "merchantId": "69aac24da01541001c853d48",
-        "merchantId":
-            SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId ??
-            "",
-
-        "inputData": {
-          "service": "nonRoc",
-          "type": "bankaccountverifications",
-          "task": "verifyAmount",
-          "data": {
-            "searchParam": {
-              "amount": 1,
-              // "signzyId": verifiedBankName.value?.signzyReferenceId,
-              "signzyId": signzyId,
-            },
-          },
-        },
-      };
-
-      final result = await kycUseCases.executeVerifyAmountUseCase.call(
-        requestData,
-      );
-
-      isLoading.value = false;
-
-      result.fold(
-        (success) {
-          // Get.snackbar("Success", "Bank Details Verified & Locked!");
-          // Move to Success Screen or Finish Flow
-          // _goToNextPage();
-          if (success.data?.amountMatch == "true") {
-            Get.snackbar("Success", "Bank Details Verified & Locked!");
-            _goToNextPage();
-          } else {
-            Get.snackbar("Error", "Bank Verification Failed: Amount mismatch");
-          }
-        },
-        (error) {
-          Get.snackbar("Error", "Final Bank Lock Failed: ${error.message}");
-        },
-      );
-    } catch (e) {
-      isLoading.value = false;
-      Get.snackbar("Error", "Unexpected Error: $e");
-    }
   }
 
   Future<void> _handleAdditionalInfoSubmission() async {
@@ -1117,12 +1158,239 @@ class KycController extends GetxController {
         isLoading.value = false;
 
         if (formUpdated) {
+          await _submitUserForensics("address");
           _goToNextPage(); // Move to Additional Info
         }
       }
     } catch (e) {
       isLoading.value = false;
       Get.snackbar("Error", "Unexpected error: $e");
+    }
+  }
+
+  //  SUBMIT USER FORENSICS (MANDATORY GPS DATA)
+  // SILENTLY SUBMIT USER FORENSICS FOR A SPECIFIC STEP
+  Future<bool> _submitUserForensics(String stepName) async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return false;
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) return false;
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      final merchantId =
+          SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId ??
+          "";
+      if (merchantId.isEmpty) return false;
+
+      // STRICT PAYLOAD MATCHING SIGNZY DOCS
+      final requestData = {
+        "merchantId": merchantId,
+        "save": "formData",
+        "type": "userForensics",
+        "data": {
+          "type": "usersData",
+          "userData": {
+            stepName: {
+              // <-- DYNAMIC KEY (identity, bankaccount, address, etc.)
+              "geoLocationData": {},
+              "browserData": {
+                "browserName": "Flutter Mobile App",
+                "cookieEnabled": "true",
+                "browserLanguage": "en",
+                "os": Platform.isAndroid ? "Android" : "iOS",
+                "userAgent": "Mobile App",
+                "pluginsInstalled": [],
+                "browserVersion": "1.0",
+                "screenWidth": Get.width.toInt().toString(),
+                "screenHeight": Get.height.toInt().toString(),
+                "screenPixelDepth": "24",
+                "screenColorDepth": "24",
+                "deviceInfo": {
+                  "complete_device_name": Platform.isAndroid
+                      ? "Android Mobile"
+                      : "iPhone",
+                  "form_factor": "Mobile",
+                  "is_mobile": true,
+                },
+                "signzyPlatformUsed": "Mobile",
+                "userLat": position.latitude,
+                "userLong": position.longitude,
+              },
+              "pageName": stepName, // <-- SIBLING TO browserData
+            },
+          },
+        },
+      };
+
+      final result = await kycUseCases.updateFormUseCase.call(requestData);
+
+      return result.fold(
+        (success) {
+          log("📍 Forensics securely logged for step: $stepName");
+          return true;
+        },
+        (error) {
+          log("Forensics Failed for $stepName: ${error.message}");
+          return false;
+        },
+      );
+    } catch (e) {
+      log("Exception in GPS Forensics for $stepName: $e");
+      return false;
+    }
+  }
+  // Future<bool> _submitUserForensics() async {
+  //   try {
+  //     isLoading.value = true;
+  //     Get.snackbar("Location", "Securing GPS coordinates for compliance...");
+
+  //     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  //     if (!serviceEnabled) {
+  //       Get.snackbar(
+  //         "Error",
+  //         "Location services are disabled. Please enable GPS.",
+  //       );
+  //       return false;
+  //     }
+
+  //     LocationPermission permission = await Geolocator.checkPermission();
+  //     if (permission == LocationPermission.denied) {
+  //       permission = await Geolocator.requestPermission();
+  //       if (permission == LocationPermission.denied) {
+  //         Get.snackbar("Error", "Location permissions denied.");
+  //         return false;
+  //       }
+  //     }
+
+  //     Position position = await Geolocator.getCurrentPosition(
+  //       desiredAccuracy: LocationAccuracy.high,
+  //     );
+
+  //     final merchantId =
+  //         SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId ??
+  //         "";
+  //     if (merchantId.isEmpty) return false;
+
+  //     // Reusable browser data block
+  //     Map<String, dynamic> generateBrowserData(String pageName) {
+  //       return {
+  //         "browserName": "Flutter Mobile App",
+  //         "cookieEnabled": "true",
+  //         "os": Platform.isAndroid ? "Android" : "iOS",
+  //         "deviceInfo": {
+  //           "complete_device_name": Platform.isAndroid
+  //               ? "Android Mobile"
+  //               : "iPhone",
+  //           "form_factor": "Mobile",
+  //           "is_mobile": true,
+  //         },
+  //         "signzyPlatformUsed": "Mobile",
+  //         "userLat": position.latitude,
+  //         "userLong": position.longitude,
+  //         "pageName": pageName,
+  //       };
+  //     }
+
+  //     final requestData = {
+  //       "merchantId": merchantId,
+  //       "save": "formData",
+  //       "type": "userForensics",
+  //       "data": {
+  //         "type": "usersData",
+  //         "userData": {
+  //           "identity": {"browserData": generateBrowserData("identity")},
+  //           "address": {"browserData": generateBrowserData("address")},
+  //           "bankaccount": {"browserData": generateBrowserData("bankaccount")},
+  //           "documents": {"browserData": generateBrowserData("documents")},
+  //           "contract": {"browserData": generateBrowserData("contract")},
+  //           "thankyou": {"browserData": generateBrowserData("thankyou")},
+  //         },
+  //       },
+  //     };
+
+  //     final result = await kycUseCases.updateFormUseCase.call(requestData);
+
+  //     return result.fold((success) => true, (error) {
+  //       Get.snackbar("Error", "Forensics Failed: ${error.message}");
+  //       return false;
+  //     });
+  //   } catch (e) {
+  //     Get.snackbar("Error", "Exception in GPS Forensics: $e");
+  //     return false;
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
+
+  // EXECUTE FINAL VERIFICATION ENGINE
+  Future<bool> runVerificationEngine() async {
+    try {
+      isLoading.value = true;
+      Get.snackbar("Verifying", "Running final compliance checks...");
+
+      final merchantId =
+          SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId ??
+          "";
+
+      final requestData = {
+        "merchantId": merchantId,
+        "inputData": {
+          "service": "verificationEngine",
+          "merchantId": merchantId,
+        },
+      };
+
+      // NOTE: Ensure you have executeVerificationEngineUseCase created!
+      final result = await kycUseCases.executeVerificationEngineUseCase.call(
+        requestData,
+      );
+
+      return result.fold((success) => true, (error) {
+        Get.snackbar(
+          "Verification Failed",
+          "Data Incomplete or Invalid: ${error.message}",
+        );
+        return false;
+      });
+    } catch (e) {
+      Get.snackbar("Error", "Exception in Verification Engine: $e");
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Submit Correspondence Address (Required by AMC)
+  Future<bool> _submitCorrespondenceAddress() async {
+    try {
+      final requestData = {
+        "merchantId":
+            SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
+        "save": "formData",
+        "type": "corrAddressProof",
+        "data": {"sameAsPermanent": "true"},
+      };
+
+      final result = await kycUseCases.updateFormUseCase.call(requestData);
+
+      return result.fold((success) => true, (error) {
+        Get.snackbar(
+          "Error",
+          "Correspondence Address Failed: ${error.message}",
+        );
+        return false;
+      });
+    } catch (e) {
+      Get.snackbar("Error", "Correspondence Address Exception: $e");
+      return false;
     }
   }
 
@@ -1219,7 +1487,12 @@ class KycController extends GetxController {
       if (nomineeSaved) {
         final result = await _submitFatcaData();
         if (result == true) {
-          _goToNextPage(); // Move to Additional Info
+          await _submitUserForensics("fatca");
+          final corrResult = await _submitCorrespondenceAddress();
+          // _goToNextPage(); // Move to Additional Info
+          if (corrResult == true) {
+            _goToNextPage(); // Move to the next screen safely!
+          }
         }
       }
     } catch (e) {
@@ -1245,7 +1518,7 @@ class KycController extends GetxController {
             // "NO" means "I am NOT a tax resident of any other country" (Standard for Locals)
             "residentForTaxInIndia": taxResidentOutsideIndia,
 
-            "pep": "NO", // Politically Exposed Person (Default to NO)
+            "pep": "NO", // Politically Exposed Personult to  (DefaNO)
             "rpep": "NO", // Related to PEP (Default to NO)
             "relatedPerson": "NO",
 
@@ -1353,13 +1626,8 @@ class KycController extends GetxController {
     try {
       isLoadingCaptcha.value = true;
 
-      final requestData = {
-        "username": "Hinger_icici_preprod",
-        "password": "3uQ01VPPZfyNwCAq",
-      };
-
       // Call the UseCase (which now returns Uint8List?)
-      final result = await kycUseCases.getCaptchaUseCase.call(requestData);
+      final result = await kycUseCases.getCaptchaUseCase.call({});
 
       return result.fold(
         (success) {
@@ -1388,6 +1656,7 @@ class KycController extends GetxController {
       // 1. Start Loading
       isVerifyingBank.value = true;
       isLoading.value = true; // Block global navigation too
+      ULoaders.showLoading(message: "Verifying Bank Account...");
 
       final requestData = {
         // "merchantId": "69aac24da01541001c853d48",
@@ -1407,12 +1676,10 @@ class KycController extends GetxController {
         },
       };
 
-      // 2. Call the UseCase (Assuming you have updated it to use the generic executePoiStep1UseCase)
-      // Note: If you created a dedicated 'executePennyDropUseCase' as discussed, use that instead.
-      // Here I am reusing 'executePoiStep1UseCase' as it fits the generic 'execute' pattern.
       final result = await kycUseCases.executePennyDropUseCase.call(
         requestData,
       );
+      ULoaders.stopLoading();
 
       return result.fold(
         (success) {
@@ -1427,30 +1694,44 @@ class KycController extends GetxController {
             //     "Verified Account";
 
             verifiedBankName.value = output;
-            // Get.snackbar(
-            //   "Success",
-            //   "Bank Account Verified: ${verifiedBankName.value?.auditTrail?.value}",
-            // );
-            Get.snackbar(
-              "Success",
-              "Penny Drop Initiated. Reference: ${success.data?.signzyReferenceId}",
+            ULoaders.success(
+              title: "Account Found",
+              message: "We've successfully verified}.",
             );
 
             return true;
           } else {
-            // Get.snackbar("Error", "Bank verification failed: No data returned");
-            Get.snackbar("Error", "Bank verification failed: Invalid account");
+            ULoaders.error(
+              title: "Invalid Account",
+              message: "Verification failed.",
+            );
             return false;
           }
         },
         (error) {
-          // 4. Handle Failure
-          Get.snackbar("Error", "Pennydrop Failed: ${error.message}");
+          // ULoaders.error(title: "Pennydrop Failed", message: error.message);
+          final userFriendlyMessage = UErrorMessages.getReadableError(
+            error.message,
+          );
+          // ULoaders.error(
+          //   title: "Verification Failed",
+          //   message:
+          //       "We couldn't verify this account. Please check the Account/IFSC details.",
+          // );
+          ULoaders.error(
+            title: "Verification Failed",
+            message: userFriendlyMessage,
+          );
           return false;
         },
       );
     } catch (e) {
-      Get.snackbar("Error", "Pennydrop Exception: $e");
+      // ULoaders.error(title: "System Error", message: e.toString());
+      ULoaders.stopLoading();
+      ULoaders.error(
+        title: "Connection Error",
+        message: "Unable to reach bank servers.",
+      );
       return false;
     } finally {
       // 5. Stop Loading (Critical!)
@@ -1459,9 +1740,108 @@ class KycController extends GetxController {
     }
   }
 
+  Future<void> _submitFinalBankDetails() async {
+    try {
+      isLoading.value = true;
+      ULoaders.showLoading(message: "Securing Bank Details...");
+
+      // final requestData = {
+      //   "merchantId": "69aac24da01541001c853d48",
+      //   "service": "nonRoc",
+      //   "type": "bankaccountverifications",
+      //   "task": "verifyAmount",
+      //   "data": {
+      //     "images": [],
+      //     "toVerifyData": {},
+      //     "searchParam": {
+      //       "amount": "1",
+      //       // "signzyId": verifiedBankName.value?.signzyReferenceId,
+      //       "signzyId": "wvDrsqnCP26ycHabL9NRkhMmfEmPFcJqO5rALaZi3LaPrIqlTd17",
+      //     },
+      //   },
+      // };
+
+      final signzyId = verifiedBankName.value?.signzyReferenceId;
+      if (signzyId == null || signzyId.isEmpty) {
+        ULoaders.stopLoading();
+        // Get.snackbar("Error", "Reference ID is missing. Please retry.");
+        // ULoaders.error(title: "Error", message: "Reference ID is missing. Please retry.");
+        ULoaders.error(
+          title: "Session Expired",
+          message:
+              "We couldn't find your verification ID. Please restart the process.",
+        );
+        isLoading.value = false;
+        return;
+      }
+      final requestData = {
+        "merchantId":
+            SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId ??
+            "",
+
+        "inputData": {
+          "service": "nonRoc",
+          "type": "bankaccountverifications",
+          "task": "verifyAmount",
+          "data": {
+            "searchParam": {
+              "amount": 1,
+              // "signzyId": verifiedBankName.value?.signzyReferenceId,
+              "signzyId": signzyId,
+            },
+          },
+        },
+      };
+
+      final result = await kycUseCases.executeVerifyAmountUseCase.call(
+        requestData,
+      );
+
+      isLoading.value = false;
+      ULoaders.stopLoading();
+
+      result.fold(
+        (success) async {
+          // Get.snackbar("Success", "Bank Details Verified & Locked!");
+          // Move to Success Screen or Finish Flow
+          // _goToNextPage();
+          if (success.data?.amountMatch == "true") {
+            // Get.snackbar("Success", "Bank Details Verified & Locked!");
+            ULoaders.success(
+              title: "Verification Successful",
+              message: "Your bank account has been securely linked.",
+            );
+            await _submitUserForensics("bankaccount");
+          } else {
+            // Get.snackbar("Error", "Bank Verification Failed: Amount mismatch");
+            ULoaders.warning(
+              title: "Amount Mismatch",
+              message:
+                  "The penny drop amount entered does not match our records.",
+            );
+          }
+        },
+        (error) {
+          // Get.snackbar("Error", "Final Bank Lock Failed: ${error.message}");
+          ULoaders.error(
+            title: "Verification Failed",
+            message: UErrorMessages.getReadableError(error.message),
+          );
+        },
+      );
+    } catch (e) {
+      isLoading.value = false;
+      ULoaders.stopLoading();
+      // Get.snackbar("Error", "Unexpected Error: $e");
+      ULoaders.error(
+        title: "Connection Error",
+        message: "We're unable to reach the verification service right now.",
+      );
+    }
+  }
+
   // ===========================================================================
   // NAVIGATION HELPERS
-  // ===========================================================================
   void _goToNextPage() {
     if (currentStep.value < 7) {
       // 6 is the max index based on your 7 steps
@@ -1488,18 +1868,56 @@ class KycController extends GetxController {
   String getIncomeCode(String text) {
     final value = text.trim();
 
-    // Mapping based on Signzy Table 1.8
-    if (value.contains("Below 1")) return "31"; // Below 1 Lac
-    if (value.contains("1") && value.contains("5")) return "32"; // 1-5 Lacs
-    if (value.contains("5") && value.contains("10")) return "33"; // 5-10 Lacs
-    if (value.contains("10") && value.contains("25")) return "34"; // 10-25 Lacs
-    if (value.contains("25") && value.contains("1"))
-      return "35"; // 25 Lacs-1 crore
-    if (value.contains("Above 1") || value.contains("> 1"))
-      return "36"; // > 1 crore
+    // Exact string matching based on your incomeSlabList
+    switch (value) {
+      case "Below 1 Lakh":
+        return "31";
+      case "1 Lacs - 5 Lacs":
+        return "32";
+      case "5 Lacs - 10 Lacs":
+        return "33";
+      case "10 Lacs - 25 Lacs":
+        return "34";
+      case "25 Lacs - 1 Cr.":
+        return "35";
+      case "Above 1 Cr.":
+        return "36";
+      default:
+        // Default fallback just in case
+        return "31";
+    }
+  }
 
-    // Default fallback (e.g., 1-5 Lacs)
-    return "32";
+  // String getIncomeCode(String text) {
+  //   final value = text.trim();
+
+  //   // Mapping based on Signzy Table 1.8
+  //   if (value.contains("Below 1")) return "31"; // Below 1 Lac
+  //   if (value.contains("1") && value.contains("5")) return "32"; // 1-5 Lacs
+  //   if (value.contains("5") && value.contains("10")) return "33"; // 5-10 Lacs
+  //   if (value.contains("10") && value.contains("25")) return "34"; // 10-25 Lacs
+  //   if (value.contains("25") && value.contains("1"))
+  //     return "35"; // 25 Lacs-1 crore
+  //   if (value.contains("Above 1") || value.contains("> 1"))
+  //     return "36"; // > 1 crore
+
+  //   // Default fallback (e.g., 1-5 Lacs)
+  //   return "32";
+  // }
+
+  String getResdStatusCode(String text) {
+    if (text == "Resident Individual") return "RI";
+    if (text == "Non-Resident Indian") return "NRI";
+    if (text == "Foreign National") return "FN";
+    if (text == "Hindu Undivided Family") return "HUF";
+    return "RI";
+  }
+
+  String getModeOfHldCode(String text) {
+    if (text == "Single") return "SI";
+    if (text == "Joint") return "JO";
+    if (text == "Anyone or Survivor") return "AS";
+    return "SI";
   }
 
   String getApplicationStatusCode(String selectedStatus) {
@@ -1653,6 +2071,7 @@ class KycController extends GetxController {
                 executePOIStep2Data.value?.result.output.gender ?? '';
             addressTextEditingController.text =
                 executePOIStep2Data.value?.result.output.address ?? '';
+
             pinCodeTextEditingController.text =
                 executePOIStep2Data.value?.result.output.splitAddress.pincode ??
                 '';

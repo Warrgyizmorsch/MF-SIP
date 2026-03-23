@@ -131,7 +131,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       ),
                     ),
                     TextSpan(
-                      text: 'Riddit Finworld',
+                      text: 'Ridit Finworld',
                       style: TextStyle(color: Ucolors.primary, fontSize: 18),
                     ),
                   ],

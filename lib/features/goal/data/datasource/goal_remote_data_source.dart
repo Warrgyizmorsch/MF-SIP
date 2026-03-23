@@ -19,7 +19,11 @@ class GoalRemoteDataSource {
     try {
       final result = await apiService.postApi(
         "${Appurl.baseUrl}/api/v1/goals/save",
+
         data: data,
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
       );
 
       createLog("[Goal Remote Data Source] Goal Response: ${result}");

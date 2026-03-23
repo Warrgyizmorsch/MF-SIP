@@ -183,7 +183,7 @@ class MutualFundController extends GetxController {
     _currentFilters
         .clear(); // Clears all params for {{baseURL}}/api/v1/mutual-funds
     selectedReturnYear.value = 3;
-    currentSortLabel.value = "All Fund"; // Explicitly return to default state
+    currentSortLabel.value = "1Y,3Y,5Y"; // Explicitly return to default state
 
     if (Get.isRegistered<FundhouseController>()) {
       Get.find<FundhouseController>().clearAllFilters(); // Sync checkboxes
@@ -203,7 +203,7 @@ class MutualFundController extends GetxController {
 
     // Reset UI Labels
     selectedReturnYear.value = 3;
-    currentSortLabel.value = "All Fund";
+    currentSortLabel.value = "1Y,3Y,5Y";
 
     // Apply the new specific filter from Home
     _currentFilters.addAll(newFilters);
