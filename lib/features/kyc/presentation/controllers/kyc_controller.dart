@@ -40,14 +40,14 @@ class KycController extends GetxController {
     isLoading.value = true;
 
     // 2. Await Token Data FIRST
-    final bool tokenSuccess = await getTokenData();
+    // final bool tokenSuccess = await getTokenData();
 
     final bool tokenCred = await saveOnboardingData();
 
     // 3. Only proceed if token data was successfully fetched
     // if (tokenSuccess) {
     //   // Now it is safe to call other APIs that might need the token
-    await getCaptcha();
+    // await getCaptcha();
     // } else {
     //   Get.snackbar(
     //     "Error While Initiating KYC Process",
@@ -62,10 +62,10 @@ class KycController extends GetxController {
   final KycUseCases kycUseCases;
 
   // --- Controllers ---
-  final PageController pageController = PageController();
+  final PageController pageController = PageController(initialPage: 7);
 
   // --- State Variables ---
-  final currentStep = 0.obs;
+  final currentStep = 7.obs;
   final isLoading = false.obs;
 
   final taxStatusList = [
@@ -320,16 +320,6 @@ class KycController extends GetxController {
           }
         }
         break;
-      // case 5:
-      // // --- STEP 5: BANK DETAILS ---
-      //   if (selectedBank.value == null) {
-      //     Get.snackbar("Error", "Please select a bank");
-      //     return;
-      //   }
-      //   if (step5FormKey.currentState!.validate()) {
-      //     _goToNextPage();
-      //   }
-      //   break;
 
       case 6:
         // --- STEP 6: FINISH / SUBMIT ---
@@ -350,7 +340,7 @@ class KycController extends GetxController {
       case 7:
         // --- STEP 7: AADHAAR E-SIGN ---
 
-        // await startEsignProcess();
+        await startEsignProcess();
         log(
           "${SessionManager.instance.getOnboardingData?.dbRecord?.onboardingId}",
         );
@@ -412,14 +402,14 @@ class KycController extends GetxController {
   // DIGILOCKER FLOW HELPER
   // ===========================================================================
   Future<void> _handleDigiLockerFlow() async {
-    // 1. Call YOUR existing Step 1 function (Generates URL)
+    // --- PHASE 1: GENERATE URL ---
+    ULoaders.showLoading(message: "Initiating DigiLocker...");
     final bool step1Success = await executePOIStep1();
+    ULoaders.stopLoading(); // Stop before opening the WebView
 
     // If failed, the function itself should show a snackbar, so we just return
     if (!step1Success) return;
 
-    // 2. Extract URL safely from your data variable
-    // We check both result.url (common structure) or direct url property
     String? startUrl;
     if (executePOIStep1Data.value?.result?.url != null) {
       startUrl = executePOIStep1Data.value!.result.url;
@@ -432,56 +422,161 @@ class KycController extends GetxController {
       return;
     }
 
-    // 3. Open WebView and wait for 'true' signal (Success callback)
+    // --- PHASE 2: OPEN WEBVIEW ---
     final bool? isWebViewSuccess = await Get.to(
       () => HtmlWebViewPage(title: "Identity Verification", url: startUrl!),
     );
 
+    // --- PHASE 3: PROCESS RESULT ---
     if (isWebViewSuccess == true) {
-      // 4. Call YOUR existing Step 2 function
-      // (This automatically Fetches details & Fills your text controllers)
-      final bool step2Success = await executePOIStep2();
+      try {
+        // Start loader for the background data processing
+        ULoaders.showLoading(message: "Verifing Aadhaar Details...");
 
-      if (step2Success) {
-        final requestData = {
-          // "merchantId": "69aac24da01541001c853d48",
-          "merchantId":
-              SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
+        final bool step2Success = await executePOIStep2();
 
-          "save": "formData",
-          "type": 'identityProof',
-          "data": {
-            "type": "aadhaarDigiLocker",
-            "name":
-                nameTextEditingController.text ??
-                executePOIStep2Data.value?.result.output.name,
-            "uid": executePOIStep2Data.value?.result.output.uid,
-            "dob": executePOIStep2Data.value?.result.output.dob,
-            "gender": executePOIStep2Data.value?.result.output.gender,
-            "address": executePOIStep2Data.value?.result.output.address,
-            "pincode":
-                executePOIStep2Data.value?.result.output.splitAddress.pincode,
-            "city": executePOIStep2Data.value?.result.output.splitAddress.city,
-            "state":
-                executePOIStep2Data.value?.result.output.splitAddress.state,
-            "district":
-                executePOIStep2Data.value?.result.output.splitAddress.district,
-          },
-        };
-        isLoading.value = true;
-        final bool poiSaved = await updateForm(data: requestData);
-        isLoading.value = false;
+        if (step2Success) {
+          final requestData = {
+            "merchantId": SessionManager
+                .instance
+                .getOnboardingData
+                ?.dbRecord
+                ?.signzyUserId,
+            "save": "formData",
+            "type": 'identityProof',
+            "data": {
+              "type": "aadhaarDigiLocker",
+              "name":
+                  nameTextEditingController.text ??
+                  executePOIStep2Data.value?.result.output.name,
+              "uid": executePOIStep2Data.value?.result.output.uid,
+              "dob": executePOIStep2Data.value?.result.output.dob,
+              "gender": executePOIStep2Data.value?.result.output.gender,
+              "address": executePOIStep2Data.value?.result.output.address,
+              "pincode":
+                  executePOIStep2Data.value?.result.output.splitAddress.pincode,
+              "city":
+                  executePOIStep2Data.value?.result.output.splitAddress.city,
+              "state":
+                  executePOIStep2Data.value?.result.output.splitAddress.state,
+              "district": executePOIStep2Data
+                  .value
+                  ?.result
+                  .output
+                  .splitAddress
+                  .district,
+            },
+          };
 
-        if (poiSaved) {
-          await _submitUserForensics("identity");
-          _goToNextPage(); // Move to Personal Details page
+          isLoading.value = true;
+          final bool poiSaved = await updateForm(data: requestData);
+          isLoading.value = false;
+
+          if (poiSaved) {
+            await _submitUserForensics("identity");
+
+            // Stop the loader and show success message
+            ULoaders.stopLoading();
+            ULoaders.success(
+              title: "Verified",
+              message: "Identity details saved successfully.",
+            );
+
+            // Brief pause so the user can read the success message
+            await Future.delayed(const Duration(seconds: 1));
+
+            _goToNextPage(); // Move to Personal Details page
+          } else {
+            ULoaders.stopLoading(); // Stop if form update fails
+          }
+        } else {
+          ULoaders.stopLoading(); // Stop if fetching details fails
         }
+      } catch (e) {
+        ULoaders.stopLoading(); // Failsafe
+        Get.snackbar(
+          "Error",
+          "An unexpected error occurred processing your data.",
+        );
       }
     } else {
       // User cancelled or failed in WebView (pressed back or closed)
       Get.snackbar("Cancelled", "Verification process was cancelled");
     }
   }
+  // Future<void> _handleDigiLockerFlow() async {
+  //   // 1. Call YOUR existing Step 1 function (Generates URL)
+  //   ULoaders.showLoading(message: "Initiating DigiLocker...");
+  //   final bool step1Success = await executePOIStep1();
+  //   ULoaders.stopLoading(); // Stop before opening the WebView
+
+  //   // If failed, the function itself should show a snackbar, so we just return
+  //   if (!step1Success) return;
+
+  //   // 2. Extract URL safely from your data variable
+  //   // We check both result.url (common structure) or direct url property
+  //   String? startUrl;
+  //   if (executePOIStep1Data.value?.result?.url != null) {
+  //     startUrl = executePOIStep1Data.value!.result.url;
+  //   } else {
+  //     startUrl = executePOIStep1Data.value?.result.url;
+  //   }
+
+  //   if (startUrl == null || startUrl.isEmpty) {
+  //     Get.snackbar("Error", "URL not found in server response");
+  //     return;
+  //   }
+
+  //   // 3. Open WebView and wait for 'true' signal (Success callback)
+  //   final bool? isWebViewSuccess = await Get.to(
+  //     () => HtmlWebViewPage(title: "Identity Verification", url: startUrl!),
+  //   );
+
+  //   if (isWebViewSuccess == true) {
+  //     // 4. Call YOUR existing Step 2 function
+  //     // (This automatically Fetches details & Fills your text controllers)
+  //     final bool step2Success = await executePOIStep2();
+
+  //     if (step2Success) {
+  //       final requestData = {
+  //         // "merchantId": "69aac24da01541001c853d48",
+  //         "merchantId":
+  //             SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
+
+  //         "save": "formData",
+  //         "type": 'identityProof',
+  //         "data": {
+  //           "type": "aadhaarDigiLocker",
+  //           "name":
+  //               nameTextEditingController.text ??
+  //               executePOIStep2Data.value?.result.output.name,
+  //           "uid": executePOIStep2Data.value?.result.output.uid,
+  //           "dob": executePOIStep2Data.value?.result.output.dob,
+  //           "gender": executePOIStep2Data.value?.result.output.gender,
+  //           "address": executePOIStep2Data.value?.result.output.address,
+  //           "pincode":
+  //               executePOIStep2Data.value?.result.output.splitAddress.pincode,
+  //           "city": executePOIStep2Data.value?.result.output.splitAddress.city,
+  //           "state":
+  //               executePOIStep2Data.value?.result.output.splitAddress.state,
+  //           "district":
+  //               executePOIStep2Data.value?.result.output.splitAddress.district,
+  //         },
+  //       };
+  //       isLoading.value = true;
+  //       final bool poiSaved = await updateForm(data: requestData);
+  //       isLoading.value = false;
+
+  //       if (poiSaved) {
+  //         await _submitUserForensics("identity");
+  //         _goToNextPage(); // Move to Personal Details page
+  //       }
+  //     }
+  //   } else {
+  //     // User cancelled or failed in WebView (pressed back or closed)
+  //     Get.snackbar("Cancelled", "Verification process was cancelled");
+  //   }
+  // }
 
   void toggleNomineeAddressSameAsApplicant(bool? value) {
     isNomineeAddressSameAsApplicant.value = value ?? false;
@@ -504,6 +599,7 @@ class KycController extends GetxController {
     isLoading.value = true;
 
     try {
+      ULoaders.showLoading(message: "Generating Contract...");
       // Fetching dynamic merchant ID (fallback to your hardcoded one if session is null)
       final currentMerchantId = "69aac24da01541001c853d48";
 
@@ -528,6 +624,7 @@ class KycController extends GetxController {
           final String combinedPdfUrl = pdfSuccess.data?.combinedPdfUrl ?? "";
 
           if (combinedPdfUrl.isEmpty) {
+            ULoaders.stopLoading();
             isLoading.value = false;
             Get.snackbar("Error", "Failed to generate contract PDF");
             return;
@@ -562,6 +659,7 @@ class KycController extends GetxController {
 
           await esignResult.fold(
             (esignSuccess) async {
+              ULoaders.stopLoading();
               isLoading.value = false;
 
               // Extracted cleanly using the new Entity!
@@ -578,26 +676,44 @@ class KycController extends GetxController {
                   await _verifyAndSaveEsign();
                 }
               } else {
-                Get.snackbar("Error", "E-Sign URL not found in response");
+                // Get.snackbar("Error", "E-Sign URL not found in response");
+                ULoaders.error(
+                  title: "Error",
+                  message: "E-Sign URL not found in response",
+                );
               }
             },
             (error) {
               isLoading.value = false;
-              Get.snackbar(
-                "Error",
-                "Failed to generate E-sign URL: ${error.message}",
+              ULoaders.stopLoading();
+              // Get.snackbar(
+              //   "Error",
+              //   "Failed to generate E-sign URL: ${error.message}",
+              // );
+              ULoaders.error(
+                title: "Error",
+                message: "Failed to generate E-sign URL: ${error.message}",
               );
             },
           );
         },
         (error) {
           isLoading.value = false;
-          Get.snackbar("Error", "Failed to create contract: ${error.message}");
+          ULoaders.stopLoading();
+          // Get.snackbar("Error", "Failed to create contract: ${error.message}");
+          ULoaders.error(
+            title: "Error",
+            message: "Failed to create contract: ${error.message}",
+          );
         },
       );
     } catch (e) {
       isLoading.value = false;
-      Get.snackbar("Error", "Unexpected Error during E-Sign: $e");
+      // Get.snackbar("Error", "Unexpected Error during E-Sign: $e");
+      ULoaders.error(
+        title: "Error",
+        message: "Unexpected Error during E-Sign: $e",
+      );
     }
   }
 
@@ -605,6 +721,7 @@ class KycController extends GetxController {
   Future<void> _verifyAndSaveEsign() async {
     isLoading.value = true;
     try {
+      ULoaders.showLoading(message: "Verifying Digital Signature...");
       final requestData = {
         // "merchantId": "69aac24da01541001c853d48",
         "merchantId":
@@ -622,7 +739,7 @@ class KycController extends GetxController {
           final signedPdfUrl = success.data?.signedPdfUrl ?? "";
 
           if (isSigned && signedPdfUrl.isNotEmpty) {
-            Get.snackbar("Success", "Contract Signed Successfully!");
+            // Get.snackbar("Success", "Contract Signed Successfully!");
 
             final isSaved = await saveSignedPdfToForm(signedPdfUrl);
 
@@ -638,11 +755,15 @@ class KycController extends GetxController {
               // 🔴 3. RUN FINAL VERIFICATION ENGINE
               final isFullyVerified = await runVerificationEngine();
 
+              ULoaders.stopLoading();
+
               if (isFullyVerified) {
                 Get.snackbar(
                   "🎉 KYC COMPLETE",
                   "Your application is fully verified!",
                 );
+              } else {
+                ULoaders.stopLoading();
               }
               // }
 
@@ -650,6 +771,7 @@ class KycController extends GetxController {
               // Get.offAllNamed(AppRoutes.navMenuBar);
             }
           } else {
+            ULoaders.stopLoading();
             Get.snackbar(
               "Pending",
               "E-sign process was not completed or cancelled by the user.",
@@ -657,6 +779,7 @@ class KycController extends GetxController {
           }
         },
         (error) {
+          ULoaders.stopLoading();
           Get.snackbar(
             "Error",
             "Failed to fetch E-sign status: ${error.message}",
@@ -664,9 +787,11 @@ class KycController extends GetxController {
         },
       );
     } catch (e) {
+      ULoaders.stopLoading();
       Get.snackbar("Error", "Exception verifying signature: $e");
     } finally {
       isLoading.value = false;
+      ULoaders.stopLoading();
     }
   }
 
@@ -1108,6 +1233,7 @@ class KycController extends GetxController {
   Future<void> _handleAdditionalInfoSubmission() async {
     try {
       isLoading.value = true;
+      ULoaders.showLoading(message: "Saving Additional Details...");
 
       final poaRequestData = {
         // "merchantId":
@@ -1159,10 +1285,23 @@ class KycController extends GetxController {
 
         if (formUpdated) {
           await _submitUserForensics("address");
+          ULoaders.stopLoading();
+          ULoaders.success(
+            title: "Success",
+            message: "Additional details saved successfully.",
+          );
+          await Future.delayed(const Duration(seconds: 1));
           _goToNextPage(); // Move to Additional Info
+        } else {
+          ULoaders.stopLoading();
+          isLoading.value = false;
         }
+      } else {
+        ULoaders.stopLoading();
+        isLoading.value = false;
       }
     } catch (e) {
+      ULoaders.stopLoading();
       isLoading.value = false;
       Get.snackbar("Error", "Unexpected error: $e");
     }
@@ -1334,7 +1473,7 @@ class KycController extends GetxController {
   Future<bool> runVerificationEngine() async {
     try {
       isLoading.value = true;
-      Get.snackbar("Verifying", "Running final compliance checks...");
+      // Get.snackbar("Verifying", "Running final compliance checks...");
 
       final merchantId =
           SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId ??
@@ -1397,6 +1536,7 @@ class KycController extends GetxController {
   Future<void> _updateFormKycDataSubmission() async {
     try {
       isLoading.value = true;
+      ULoaders.showLoading(message: "Submitting KYC Data...");
 
       final requestData = {
         // "merchantId": "69aac24da01541001c853d48", // Use dynamic ID
@@ -1491,11 +1631,21 @@ class KycController extends GetxController {
           final corrResult = await _submitCorrespondenceAddress();
           // _goToNextPage(); // Move to Additional Info
           if (corrResult == true) {
+            // 2. STOP LOADER & SHOW SUCCESS
+            ULoaders.stopLoading();
+            ULoaders.success(
+              title: "Success",
+              message: "Nominee & FATCA details verified.",
+            );
+            await Future.delayed(const Duration(seconds: 1));
             _goToNextPage(); // Move to the next screen safely!
           }
         }
       }
+      ULoaders.stopLoading();
+      isLoading.value = false;
     } catch (e) {
+      ULoaders.stopLoading();
       isLoading.value = false;
       Get.snackbar("Error", "Unexpected error: $e");
     }

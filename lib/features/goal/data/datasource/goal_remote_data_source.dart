@@ -18,7 +18,7 @@ class GoalRemoteDataSource {
   ) async {
     try {
       final result = await apiService.postApi(
-        "${Appurl.baseUrl}/api/v1/goals/save",
+        "${Appurl.baseUrl}/api/v1/goals",
 
         data: data,
         headers: {

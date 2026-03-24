@@ -50,44 +50,120 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
           },
           onNavigationRequest: (NavigationRequest request) {
             final url = request.url;
-
-            // 1. DEFINED SUCCESS URL (The base part)
-            // We only care if the actual loaded page is this one.
             final successBaseUrl =
                 "https://digilocker-preproduction.signzy.tech/digilocker-auth-complete";
-            // 2. CHECK: Does the current navigation START with the success URL?
-            // This fails for the initial "api.digitallocker.gov.in" URL (Correct!)
-            // This passes ONLY when the flow redirects to "signzy.tech/..." (Correct!)
-
-            // 2. AADHAAR E-SIGN SUCCESS URL (From your KycController payload)
             final esignSuccessUrl = "https://signzy.com";
+
+            // 1. SUCCESS CHECK
             if (url.startsWith(successBaseUrl) ||
                 url.startsWith(esignSuccessUrl)) {
-              setState(() => _isLoading = true);
+              // Set result to true and show the loading spinner
+              setState(() {
+                result = true;
+                _isLoading = true;
+              });
 
-              // // Success! The user has been redirected.
-              // if (mounted) {
-              //   Get.back(result: true);
-              // }
-              setState(() => result = true);
-              // createLog("Success caled ${result}");
-              createLog("Success called $result for URL: $url");
+              // Mimic the "Human Delay": Wait 3.5 seconds, then auto-close
+              Future.delayed(const Duration(milliseconds: 3500), () {
+                if (mounted) {
+                  Get.back(result: true);
+                }
+              });
 
-              // return NavigationDecision.prevent; // Stop loading the JSON/Success page
+              // CRITICAL: Let the URL load so Signzy gets the code!
+              return NavigationDecision.navigate;
             }
 
-            // 3. Optional: Check for failures (denied, cancelled)
-            if (url.contains("access_denied") || url.contains("error")) {
+            // 2. FAILURE CHECK
+            if (url.contains("error=access_denied") ||
+                url.contains("user_cancelled")) {
               if (mounted) {
                 Get.back(result: false);
               }
               return NavigationDecision.prevent;
             }
 
-            // Allow normal navigation (clicking buttons, logging in)
             return NavigationDecision.navigate;
           },
+          // onNavigationRequest: (NavigationRequest request) {
+          //   final url = request.url;
 
+          //   // 1. DEFINED SUCCESS URL (The base part)
+          //   // We only care if the actual loaded page is this one.
+          //   final successBaseUrl =
+          //       "https://digilocker-preproduction.signzy.tech/digilocker-auth-complete";
+          //   // 2. CHECK: Does the current navigation START with the success URL?
+          //   // This fails for the initial "api.digitallocker.gov.in" URL (Correct!)
+          //   // This passes ONLY when the flow redirects to "signzy.tech/..." (Correct!)
+
+          //   // 2. AADHAAR E-SIGN SUCCESS URL (From your KycController payload)
+          //   final esignSuccessUrl = "https://signzy.com";
+          //   if (url.startsWith(successBaseUrl) ||
+          //       url.startsWith(esignSuccessUrl)) {
+          //     setState(() => _isLoading = true);
+
+          //     // // Success! The user has been redirected.
+          //     // if (mounted) {
+          //     //   Get.back(result: true);
+          //     // }
+          //     setState(() => result = true);
+          //     // createLog("Success caled ${result}");
+          //     createLog("Success called $result for URL: $url");
+
+          //     // return NavigationDecision.prevent; // Stop loading the JSON/Success page
+          //   }
+
+          //   // 3. Optional: Check for failures (denied, cancelled)
+          //   if (url.contains("access_denied") || url.contains("error")) {
+          //     if (mounted) {
+          //       Get.back(result: false);
+          //     }
+          //     return NavigationDecision.prevent;
+          //   }
+
+          //   // Allow normal navigation (clicking buttons, logging in)
+          //   return NavigationDecision.navigate;
+          // },
+
+          // onNavigationRequest: (NavigationRequest request) {
+          //   final url = request.url;
+
+          //   // 1. DEFINED SUCCESS URL (The base part)
+          //   // We only care if the actual loaded page is this one.
+          //   final successBaseUrl =
+          //       "https://digilocker-preproduction.signzy.tech/digilocker-auth-complete";
+          //   // 2. CHECK: Does the current navigation START with the success URL?
+          //   // This fails for the initial "api.digitallocker.gov.in" URL (Correct!)
+          //   // This passes ONLY when the flow redirects to "signzy.tech/..." (Correct!)
+
+          //   // 2. AADHAAR E-SIGN SUCCESS URL (From your KycController payload)
+          //   final esignSuccessUrl = "https://signzy.com";
+          //   if (url.startsWith(successBaseUrl) ||
+          //       url.startsWith(esignSuccessUrl)) {
+          //     setState(() => _isLoading = true);
+
+          //     // // Success! The user has been redirected.
+          //     // if (mounted) {
+          //     //   Get.back(result: true);
+          //     // }
+          //     setState(() => result = true);
+          //     // createLog("Success caled ${result}");
+          //     createLog("Success called $result for URL: $url");
+
+          //     // return NavigationDecision.prevent; // Stop loading the JSON/Success page
+          //   }
+
+          //   // 3. Optional: Check for failures (denied, cancelled)
+          //   if (url.contains("access_denied") || url.contains("error")) {
+          //     if (mounted) {
+          //       Get.back(result: false);
+          //     }
+          //     return NavigationDecision.prevent;
+          //   }
+
+          //   // Allow normal navigation (clicking buttons, logging in)
+          //   return NavigationDecision.navigate;
+          // },
           onWebResourceError: (error) {
             setState(() {
               _isLoading = false;

@@ -1990,7 +1990,7 @@ class MutualFundCard extends StatelessWidget {
                               await controller.addToCart(
                                 entity.schemeCode ?? '',
                                 entity.baseSchemeName ?? '',
-                                entity.minSipAmount ?? 0,
+                                entity.minLumpsum ?? 0,
                                 null,
                                 transType: 'lumpsum',
                               );
