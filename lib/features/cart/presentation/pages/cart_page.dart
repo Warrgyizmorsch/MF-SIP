@@ -132,6 +132,7 @@ class CartPage extends GetView<CartController> {
         child: Obx(() {
           final displayAmount = controller.totalAmount.toString();
           return CartBottomBar(
+            isValid: controller.isCartValid1,
             // goalAmount: controller.items.isEmpty
             //     ? '/Monthly'
             //     : controller.monthlyAmount.value == 0
@@ -204,6 +205,7 @@ class CartBottomBar extends StatelessWidget {
     required this.ontap,
     this.amount,
     this.goalAmount,
+    this.isValid = true,
   });
 
   final String? title;
@@ -212,6 +214,7 @@ class CartBottomBar extends StatelessWidget {
   final VoidCallback ontap;
   final String? amount;
   final String? goalAmount;
+  final bool isValid;
 
   @override
   Widget build(BuildContext context) {
@@ -258,21 +261,25 @@ class CartBottomBar extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: Obx(() {
-                final isValid = Get.find<CartController>().isCartValid1;
-                return UElevatedBUtton(
-                  color: isValid ? null : Colors.grey,
-                  // height: 50,
-                  onPressed: ontap,
-                  // width: 50,
-                  child: Center(
-                    child: Text(
-                      buttonText ?? 'Purchase',
-                      style: UTextStyles.buttonText,
+              child:
+                  //  Obx(() {
+                  //   final isValid = Get.find<CartController>().isCartValid1;
+                  //   return
+                  UElevatedBUtton(
+                    // color: isValid ? null : Colors.grey,
+                    color: isValid ? null : Colors.grey,
+                    // height: 50,
+                    // onPressed: ontap,
+                    onPressed: isValid ? ontap : null,
+                    // width: 50,
+                    child: Center(
+                      child: Text(
+                        buttonText ?? 'Purchase',
+                        style: UTextStyles.buttonText,
+                      ),
                     ),
                   ),
-                );
-              }),
+              // }),
             ),
           ],
         ),

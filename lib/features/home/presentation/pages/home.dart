@@ -985,74 +985,182 @@ class _MobileLayout extends StatelessWidget {
                     ),
                   ),
                 ),
-                Positioned(
-                  left: 20,
-                  right: 20,
-                  bottom: 0,
-                  child: Center(
-                    child: GestureDetector(
-                      onTap: () => Get.toNamed(AppRoutes.kycScreen),
-                      child: Container(
-                        height: size.height * 0.13,
-                        decoration: BoxDecoration(
-                          color: Ucolors.light,
-                          borderRadius: BorderRadius.circular(15),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.15),
-                              blurRadius: 5,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 15,
-                            vertical: 10,
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.person, size: 24),
-                              const SizedBox(width: 15),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      'Onboarding task',
-                                      style: UTextStyles.caption.copyWith(
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Complete KYC & Profile',
-                                      style: UTextStyles.medium.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: Ucolors.dark,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Verify your Identity to start Investing',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: UTextStyles.caption.copyWith(
-                                        fontSize: 10,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                Obx(() {
+                  final isVerified =
+                      SessionManager.instance.isKycVerified.value;
+
+                  return Positioned(
+                    left: 20,
+                    right: 20,
+                    bottom: 0,
+                    child: Center(
+                      child: GestureDetector(
+                        onTap: () async {
+                          if (!isVerified) {
+                            Get.toNamed(AppRoutes.kycScreen);
+                            await SessionManager.instance.setKycVerified(false);
+                          }
+                        },
+                        child: Container(
+                          height: size.height * 0.13,
+                          decoration: BoxDecoration(
+                            color: isVerified
+                                ? Colors.green.shade50
+                                : Ucolors.light,
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 5,
+                                offset: const Offset(0, 4),
                               ),
-                              const Icon(Icons.arrow_forward_ios, size: 12),
                             ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 15,
+                              vertical: 10,
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  isVerified
+                                      ? Icons.check_circle
+                                      : Icons.person,
+                                  size: 24,
+                                  color: isVerified
+                                      ? Colors.green
+                                      : Colors.black,
+                                ),
+                                const SizedBox(width: 15),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Onboarding task',
+                                        style: UTextStyles.caption.copyWith(
+                                          fontSize: 12,
+                                        ),
+                                      ),
+
+                                      /// 🔥 MAIN TEXT CHANGE
+                                      Text(
+                                        isVerified
+                                            ? 'KYC Completed'
+                                            : 'Complete KYC & Profile',
+                                        style: UTextStyles.medium.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: isVerified
+                                              ? Colors.green
+                                              : Ucolors.dark,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+
+                                      /// 🔥 SUB TEXT CHANGE
+                                      Text(
+                                        isVerified
+                                            ? 'Your account is fully verified 🎉'
+                                            : 'Verify your Identity to start Investing',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: UTextStyles.caption.copyWith(
+                                          fontSize: 10,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                /// 🔥 RIGHT ICON CHANGE
+                                Icon(
+                                  isVerified
+                                      ? Icons.verified
+                                      : Icons.arrow_forward_ios,
+                                  size: 12,
+                                  color: isVerified
+                                      ? Colors.green
+                                      : Colors.black,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
+                  );
+                }),
+                // Positioned(
+                //   left: 20,
+                //   right: 20,
+                //   bottom: 0,
+                //   child: Center(
+                //     child: GestureDetector(
+                //       onTap: () => Get.toNamed(AppRoutes.kycScreen),
+                //       child: Container(
+                //         height: size.height * 0.13,
+                //         decoration: BoxDecoration(
+                //           color: Ucolors.light,
+                //           borderRadius: BorderRadius.circular(15),
+                //           boxShadow: [
+                //             BoxShadow(
+                //               color: Colors.black.withOpacity(0.15),
+                //               blurRadius: 5,
+                //               offset: const Offset(0, 4),
+                //             ),
+                //           ],
+                //         ),
+                //         child: Padding(
+                //           padding: const EdgeInsets.symmetric(
+                //             horizontal: 15,
+                //             vertical: 10,
+                //           ),
+                //           child: Row(
+                //             children: [
+                //               const Icon(Icons.person, size: 24),
+                //               const SizedBox(width: 15),
+                //               Expanded(
+                //                 child: Column(
+                //                   crossAxisAlignment: CrossAxisAlignment.start,
+                //                   mainAxisAlignment: MainAxisAlignment.center,
+                //                   mainAxisSize: MainAxisSize.min,
+                //                   children: [
+                //                     Text(
+                //                       'Onboarding task',
+                //                       style: UTextStyles.caption.copyWith(
+                //                         fontSize: 12,
+                //                       ),
+                //                     ),
+                //                     Text(
+                //                       'Complete KYC & Profile',
+                //                       style: UTextStyles.medium.copyWith(
+                //                         fontWeight: FontWeight.bold,
+                //                         color: Ucolors.dark,
+                //                         fontSize: 14,
+                //                       ),
+                //                     ),
+                //                     Text(
+                //                       'Verify your Identity to start Investing',
+                //                       maxLines: 1,
+                //                       overflow: TextOverflow.ellipsis,
+                //                       style: UTextStyles.caption.copyWith(
+                //                         fontSize: 10,
+                //                       ),
+                //                     ),
+                //                   ],
+                //                 ),
+                //               ),
+                //               const Icon(Icons.arrow_forward_ios, size: 12),
+                //             ],
+                //           ),
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),

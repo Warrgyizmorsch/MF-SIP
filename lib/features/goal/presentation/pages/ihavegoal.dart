@@ -107,6 +107,8 @@ class IhavegoalPage extends GetView<GoalSipController> {
             ? SafeArea(
                 top: false,
                 child: CartBottomBar(
+                  isValid: controller.selectedPopularFund.isNotEmpty,
+
                   ontap: () {
                     log(controller.savedDatabaseId.value.toString());
                     final cartCont = Get.find<CartController>();

@@ -18,6 +18,9 @@ class WishlistRmDs {
     try {
       final res = await networkServicesApi.postApi(
         "${Appurl.baseUrl}/api/v1/wishlist/store",
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
         data: data,
       );
 
@@ -72,6 +75,9 @@ class WishlistRmDs {
     try {
       final res = await networkServicesApi.deleteApi(
         "${Appurl.baseUrl}/api/v1/wishlist/$wishlistId",
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
         {},
       );
 

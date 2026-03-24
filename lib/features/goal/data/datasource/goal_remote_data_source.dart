@@ -37,6 +37,9 @@ class GoalRemoteDataSource {
     try {
       final result = await apiService.getApi(
         "${Appurl.baseUrl}/api/v1/goals/user/${SessionManager.instance.getUserData?.id}",
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
       );
       createLog("[Goal Remote Data Source] Login Response: ${result}");
       if (result['success'] == true) {

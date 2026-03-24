@@ -62,10 +62,11 @@ class KycController extends GetxController {
   final KycUseCases kycUseCases;
 
   // --- Controllers ---
-  final PageController pageController = PageController(initialPage: 7);
+  final PageController pageController = PageController();
+  
 
   // --- State Variables ---
-  final currentStep = 7.obs;
+  final currentStep = 0.obs;
   final isLoading = false.obs;
 
   final taxStatusList = [
@@ -243,39 +244,30 @@ class KycController extends GetxController {
     // 2. Decide logic based on the current step
     switch (currentStep.value) {
       case 0:
-
         // --- STEP 0: IDENTITY (DigiLocker Flow) ---
         if (step1FormKey.currentState!.validate()) {
-          // 1. Check Backend Status First
           final bool needsKyc = await checkKycStatus();
-          // await _handleDigiLockerFlow();
           if (needsKyc) {
-            // 2. Proceed to Signzy DigiLocker
             await _handleDigiLockerFlow();
           } else {
-            // 3. Stop flow and redirect
             Get.snackbar(
               "KYC Verified",
               "Your KYC is already completed! You can start investing.",
             );
-            // Get.offAllNamed(AppRoutes.navMenuBar); // Redirect user
+            // Get.offAllNamed(AppRoutes.navMenuBar);
           }
         }
         break;
 
       case 1:
         // --- STEP 1: PERSONAL DETAILS ---
-        // Validate Personal Details Form
         if (step2FormKey.currentState!.validate()) {
-          // If you have an update API for this step, await it here
-          // _handlePersonalDetailsSubmission();
           _goToNextPage();
         }
         break;
 
       case 2:
         // --- STEP 2: ADDITIONAL INFO ---
-        // Validate Additional Info Form
         if (step3FormKey.currentState!.validate()) {
           _handleAdditionalInfoSubmission();
         }
@@ -291,66 +283,134 @@ class KycController extends GetxController {
       case 4:
         // --- STEP 4: NOMINEE VERIFICATION ---
         if (step4_2FormKey.currentState!.validate()) {
-          _updateFormKycDataSubmission();
+          _updateFormKycDataSubmission(); // This method should call _goToNextPage() on success
         }
         break;
 
       case 5:
-
-        // --- STEP 5: BANK DETAILS ---
-        if (selectedBank.value == null) {
-          Get.snackbar("Error", "Please select a bank");
+        // --- STEP 5: LIVE PHOTO ONLY (Old Step 6) ---
+        // 🔴 Signature requirement completely removed!
+        if (!photoUploadSuccess.value) {
+          Get.snackbar("Alert", "Please capture your live photo.");
           return;
         }
-
-        // 1. Validate Form
-        if (step5FormKey.currentState!.validate()) {
-          // ULoaders.showLoading(message: 'Bank Processing');
-          // 2. Execute Penny Drop Verification
-          final bool isVerified = await executePennydrop();
-
-          // ULoaders.stopLoading();
-
-          // 3. Navigate only if verification passed
-          if (isVerified) {
-            // change to true when dynamic merchant ID
-            await Future.delayed(const Duration(seconds: 2));
-            await _submitFinalBankDetails();
-            _goToNextPage();
-          }
-        }
+        _goToNextPage();
         break;
 
       case 6:
-        // --- STEP 6: FINISH / SUBMIT ---
-        if (!signatureUploadSuccess.value) {
-          Get.snackbar("Alert", "Please upload your signature first.");
-
-          return;
-        }
-
-        if (!photoUploadSuccess.value) {
-          Get.snackbar("Alert", "Please capture your live photo.");
-
-          return;
-        }
-
-        _goToNextPage();
-        break;
-      case 7:
-        // --- STEP 7: AADHAAR E-SIGN ---
-
+        // --- STEP 6: AADHAAR E-SIGN (Old Step 7) ---
         await startEsignProcess();
-        log(
-          "${SessionManager.instance.getOnboardingData?.dbRecord?.onboardingId}",
-        );
-        // await _verifyAndSaveEsign();
-
         break;
 
       default:
         _goToNextPage();
     }
+    // switch (currentStep.value) {
+    //   case 0:
+
+    //     // --- STEP 0: IDENTITY (DigiLocker Flow) ---
+    //     if (step1FormKey.currentState!.validate()) {
+    //       // 1. Check Backend Status First
+    //       final bool needsKyc = await checkKycStatus();
+    //       // await _handleDigiLockerFlow();
+    //       if (needsKyc) {
+    //         // 2. Proceed to Signzy DigiLocker
+    //         await _handleDigiLockerFlow();
+    //       } else {
+    //         // 3. Stop flow and redirect
+    //         Get.snackbar(
+    //           "KYC Verified",
+    //           "Your KYC is already completed! You can start investing.",
+    //         );
+    //         // Get.offAllNamed(AppRoutes.navMenuBar); // Redirect user
+    //       }
+    //     }
+    //     break;
+
+    //   case 1:
+    //     // --- STEP 1: PERSONAL DETAILS ---
+    //     // Validate Personal Details Form
+    //     if (step2FormKey.currentState!.validate()) {
+    //       // If you have an update API for this step, await it here
+    //       // _handlePersonalDetailsSubmission();
+    //       _goToNextPage();
+    //     }
+    //     break;
+
+    //   case 2:
+    //     // --- STEP 2: ADDITIONAL INFO ---
+    //     // Validate Additional Info Form
+    //     if (step3FormKey.currentState!.validate()) {
+    //       _handleAdditionalInfoSubmission();
+    //     }
+    //     break;
+
+    //   case 3:
+    //     // --- STEP 3: NOMINEE DETAILS ---
+    //     if (step4_1FormKey.currentState!.validate()) {
+    //       _goToNextPage();
+    //     }
+    //     break;
+
+    //   case 4:
+    //     // --- STEP 4: NOMINEE VERIFICATION ---
+    //     if (step4_2FormKey.currentState!.validate()) {
+    //       _updateFormKycDataSubmission();
+    //     }
+    //     break;
+
+    //   case 5:
+
+    //     // --- STEP 5: BANK DETAILS ---
+    //     if (selectedBank.value == null) {
+    //       Get.snackbar("Error", "Please select a bank");
+    //       return;
+    //     }
+
+    //     // 1. Validate Form
+    //     if (step5FormKey.currentState!.validate()) {
+    //       // ULoaders.showLoading(message: 'Bank Processing');
+    //       // 2. Execute Penny Drop Verification
+    //       final bool isVerified = await executePennydrop();
+
+    //       // ULoaders.stopLoading();
+
+    //       // 3. Navigate only if verification passed
+    //       if (isVerified) {
+    //         // change to true when dynamic merchant ID
+    //         await Future.delayed(const Duration(seconds: 2));
+    //         await _submitFinalBankDetails();
+    //         _goToNextPage();
+    //       }
+    //     }
+    //     break;
+
+    //   case 6:
+    //     // --- STEP 6: FINISH / SUBMIT ---
+    //     if (!signatureUploadSuccess.value) {
+    //       Get.snackbar("Alert", "Please upload your signature first.");
+
+    //       return;
+    //     }
+
+    //     if (!photoUploadSuccess.value) {
+    //       Get.snackbar("Alert", "Please capture your live photo.");
+
+    //       return;
+    //     }
+
+    //     _goToNextPage();
+    //     break;
+    //   case 7:
+    //     // --- STEP 7: AADHAAR E-SIGN ---
+
+    //     await startEsignProcess();
+
+    //     break;
+
+    //   default:
+    //     _goToNextPage();
+    // }
   }
 
   Future<bool> checkKycStatus() async {
@@ -758,17 +818,24 @@ class KycController extends GetxController {
               ULoaders.stopLoading();
 
               if (isFullyVerified) {
-                Get.snackbar(
-                  "🎉 KYC COMPLETE",
-                  "Your application is fully verified!",
+                await SessionManager.instance.setKycVerified(true);
+
+                ULoaders.success(
+                  title: '🎉 KYC COMPLETE',
+                  message: 'Your application is fully verified!',
                 );
+
+                // Get.snackbar(
+                //   "🎉 KYC COMPLETE",
+                //   "Your application is fully verified!",
+                // );
               } else {
                 ULoaders.stopLoading();
               }
               // }
 
               // 3. FINAL NAV (Uncomment to go to dashboard)
-              // Get.offAllNamed(AppRoutes.navMenuBar);
+              Get.offAllNamed(AppRoutes.navMenuBar);
             }
           } else {
             ULoaders.stopLoading();
@@ -938,7 +1005,9 @@ class KycController extends GetxController {
       // Force ImageSource.camera for Live Photo requirement!
       final XFile? image = await picker.pickImage(
         source: ImageSource.camera,
-        imageQuality: 80,
+        imageQuality: 50,
+        maxHeight: 1024,
+        maxWidth: 1024,
       );
 
       if (image == null) return;
@@ -1993,7 +2062,7 @@ class KycController extends GetxController {
   // ===========================================================================
   // NAVIGATION HELPERS
   void _goToNextPage() {
-    if (currentStep.value < 7) {
+    if (currentStep.value < 6) {
       // 6 is the max index based on your 7 steps
       currentStep.value++;
       pageController.nextPage(

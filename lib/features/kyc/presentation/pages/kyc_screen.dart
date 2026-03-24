@@ -23,7 +23,6 @@ import '../widgets/tax_status_slider_widget.dart';
 
 class KycScreen extends GetView<KycController> {
   const KycScreen({super.key});
-
   String _getStepTitle(int index) {
     switch (index) {
       case 0:
@@ -37,13 +36,34 @@ class KycScreen extends GetView<KycController> {
       case 4:
         return "Nominee Verification";
       case 5:
-        return "Bank Account";
+        return "Live Photo";
       case 6:
-        return "Documents";
+        return "KYC Contract";
       default:
         return "KYC Process";
     }
   }
+
+  // String _getStepTitle(int index) {
+  //   switch (index) {
+  //     case 0:
+  //       return "Identity Verification";
+  //     case 1:
+  //       return "Personal Details";
+  //     case 2:
+  //       return "Additional Info";
+  //     case 3:
+  //       return "Nominee Details";
+  //     case 4:
+  //       return "Nominee Verification";
+  //     case 5:
+  //       return "Bank Account";
+  //     case 6:
+  //       return "Documents";
+  //     default:
+  //       return "KYC Process";
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -210,9 +230,9 @@ class KycScreen extends GetView<KycController> {
                   SingleChildScrollView(
                     child: _buildPage4_2(controller, context: context),
                   ),
-                  SingleChildScrollView(
-                    child: _buildPage5(controller, context: context),
-                  ),
+                  // SingleChildScrollView(
+                  //   child: _buildPage5(controller, context: context),
+                  // ),
                   SingleChildScrollView(
                     child: _buildPage6(controller, context: context),
                   ),
@@ -1057,7 +1077,7 @@ class KycScreen extends GetView<KycController> {
           // const SizedBox(height: 50),
           SvgPicture.asset(UImages.appLogo, height: 40),
           const SizedBox(height: 15),
-          Text("Upload Documents", style: AppTextStyles.h3()),
+          Text("Upload Photo", style: AppTextStyles.h3()),
           const SizedBox(height: 20),
 
           // --- UPLOAD AREA START ---
@@ -1245,7 +1265,6 @@ class KycScreen extends GetView<KycController> {
               );
             }),
           ),
-
           const SizedBox(height: 30), // Spacing between the two boxes
           // --- NEW: LIVE PHOTO CAPTURE AREA ---
           Material(
@@ -1654,7 +1673,7 @@ class KycStepper extends StatelessWidget {
       {'icon': Icons.person_outline, 'label': 'Info'},
       {'icon': Icons.work_outline, 'label': 'Details'},
       {'icon': Icons.family_restroom, 'label': 'Nominee'},
-      {'icon': Icons.account_balance, 'label': 'Bank'},
+      // {'icon': Icons.account_balance, 'label': 'Bank'},
       {'icon': Icons.cloud_upload_outlined, 'label': 'Docs'},
       {'icon': Icons.draw, 'label': 'E-Sign'}, // NEW STEP BUBBLE
     ];

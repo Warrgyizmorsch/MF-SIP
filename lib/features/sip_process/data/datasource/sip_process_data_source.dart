@@ -6,18 +6,15 @@ import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/features/explore/data/model/mutual_fund_list_model.dart';
 import 'package:my_sip/features/sip_process/data/model/fund_model.dart';
 import 'package:get/get.dart';
-
+import 'package:my_sip/services/session_manager.dart';
 
 class SipProcessDataSource {
-
   final NetworkServicesApi _networkServicesApi = Get.find<NetworkServicesApi>();
-
 
   SipProcessDataSource();
 
   Future<Either<Result<List<FundModel>>, ApiError>> getSipFunds() async {
     try {
-
       final response = await _networkServicesApi.getApi("YOUR_ENDPOINT_HERE");
 
       if (response.statusCode == 200) {
@@ -35,21 +32,20 @@ class SipProcessDataSource {
             .toList();
 
         return Left(Result.success(funds));
-
       } else {
-        return Right(ApiError(
+        return Right(
+          ApiError(
             message: "Server Error: ${response.statusCode}",
-            statusCode: response.statusCode
-        ));
+            statusCode: response.statusCode,
+          ),
+        );
       }
     } catch (e) {
-      return Right(ApiError(
-        message: "Something went wrong: $e",
-      ));
+      return Right(ApiError(message: "Something went wrong: $e"));
     }
   }
 
-  /// get best sip fund 
+  /// get best sip fund
   Future<Either<Result<MutualFundListResponseModel>, ApiError>> getBestSipFunds(
     Map<String, dynamic> params,
   ) async {
@@ -57,6 +53,9 @@ class SipProcessDataSource {
       // Use the same endpoint as the Explore page
       final response = await _networkServicesApi.postApi(
         "${Appurl.baseUrl}/api/v1/mutual-funds",
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
         queryParameters: params,
       );
 
@@ -70,6 +69,4 @@ class SipProcessDataSource {
       return Right(ApiError(message: 'Exception: $e'));
     }
   }
-
-
 }

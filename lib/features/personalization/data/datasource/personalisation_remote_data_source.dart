@@ -55,8 +55,8 @@ class PersonalisationRemoteDataSource {
       final resp = await _apiService.getApi(
         "${Appurl.baseUrl}/api/v1/risk-questions",
         headers: {
-          
-        }
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
       );
 
       createLog(
@@ -85,6 +85,9 @@ class PersonalisationRemoteDataSource {
     try {
       final resp = await _apiService.postApi(
         "${Appurl.baseUrl}/api/v1/risk-questions/submit",
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
         data: data,
       );
 
@@ -112,6 +115,9 @@ class PersonalisationRemoteDataSource {
     try {
       final resp = await _apiService.postApi(
         "${Appurl.baseUrl}/api/v1/nominees",
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
         data: data,
       );
 
@@ -166,6 +172,9 @@ class PersonalisationRemoteDataSource {
     try {
       final resp = await _apiService.postApi(
         "${Appurl.baseUrl}/api/v1/nominees/delete",
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
         data: data,
       );
 

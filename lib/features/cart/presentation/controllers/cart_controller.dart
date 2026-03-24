@@ -40,13 +40,22 @@ class CartController extends GetxController {
   // int get totalAmount => cartResponseEntity.value?.cart?.totalAmount ?? 0;
 
   // Getters
+  // int get totalAmount {
+  //   if (cartResponseEntity.value == null) return 0;
+  //   // Calculate total locally for instant UI updates
+  //   return cartResponseEntity.value!.items.fold(
+  //     0,
+  //     (sum, item) => sum + (item.amount ?? 0),
+  //   );
+  // }
+  // Getters
   int get totalAmount {
     if (cartResponseEntity.value == null) return 0;
-    // Calculate total locally for instant UI updates
-    return cartResponseEntity.value!.items.fold(
-      0,
-      (sum, item) => sum + (item.amount ?? 0),
-    );
+
+    // Instead of summing ALL items, we sum only the items currently displayed.
+    // If filterGoalId is set, this sums the Goal items.
+    // If filterGoalId is null, this sums the General items.
+    return displayedItems.fold(0, (sum, item) => sum + (item.amount ?? 0));
   }
 
   // Variable
@@ -384,105 +393,6 @@ class CartController extends GetxController {
     }
   }
 
-  /* //fetch cart details
-  Future<void> fetchCart() async {
-    // log("CONTROLLER: Successfully assigned ${cartItemList.length} cart");
-
-    try {
-      isLoading(true);
-      errorMessage('');
-      final result = await cartUsecases.getCartListUsecases.call({
-        "user_id": SessionManager.instance.getUserData!.id,
-      });
-
-      result.fold(
-        (success) {
-          if (success.data != null) {
-            // cartItemList.assignAll([success.data!]);
-            cartResponseEntity.value = success.data;
-            log(
-              "CONTROLLER: Successfully assigned ${cartResponseEntity.value?.items.length} cart",
-            );
-          }
-        },
-        (error) {
-          errorMessage.value = error.message;
-          print("CONTROLLER ERROR: ${errorMessage.value}");
-        },
-      );
-    } catch (e) {
-      errorMessage.value = "An unexpected error occurred: $e";
-      print("CONTROLLER ERROR: ${errorMessage.value}");
-    } finally {
-      isLoading(false);
-    }
-  }
-*/
-
-  // // Update cart Items
-  // Future<void> updateCartItem({
-  //   required int itemId,
-  //   String? transType,
-  //   int? sipDay,
-  //   int? amount,
-  //   String? frequency,
-  //   int? topUpAmount,
-  // }) async {
-  //   final result = await cartUsecases.updateCartUsecases.call({
-  //     "item_id": itemId,
-  //     if (transType != null) "trans_type": transType,
-  //     if (sipDay != null) "sip_day": sipDay,
-  //     if (amount != null) "amount": amount,
-  //     if (frequency != null) "frequency": frequency,
-  //     if (topUpAmount != null) "top_up_amount": topUpAmount,
-  //   });
-
-  //   result.fold(
-  //     (success) async => await fetchCart(),
-  //     (failure) => Get.snackbar("Update Failed", failure.message),
-  //   );
-  // }
-
-  /* // Delete cart items
-  Future<void> deleteCartItem(int itemId, String schemeName) async {
-    try {
-      isLoading(true);
-
-      // Constructing the map exactly as you wanted
-      final Map<String, dynamic> params = {"item_id": itemId};
-
-      final result = await cartUsecases.deleteCartItemUsecases.call(params);
-
-      result.fold(
-        (success) async {
-         
-          Get.snackbar(
-            margin: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-            colorText: Ucolors.light,
-            'Remove from cart',
-            // item.fundName.toString(),
-            schemeName,
-
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Ucolors.red,
-          );
-
-          // This triggers the immediate UI update by refreshing the entity
-          await fetchCart();
-        },
-        (failure) {
-          isLoading(false);
-          Get.snackbar("Error", failure.message);
-        },
-      );
-    } catch (e) {
-      isLoading(false);
-      log("Delete Error: $e");
-    }
-  }
-
-*/
-
   /*
   Future<void> updateCartItem({
     required int itemId,
@@ -656,100 +566,6 @@ class CartController extends GetxController {
     }
   }
 
-  // // / --- REFACTORED DELETE (Optimistic UI) ---
-  // Future<void> deleteCartItem(int itemId, String schemeName) async {
-  //   final originalState = cartResponseEntity.value;
-
-  //   // 1. Optimistic Update: Remove item from local list immediately
-  //   if (cartResponseEntity.value != null) {
-  //     final updatedItems = cartResponseEntity.value!.items
-  //         .where((item) => item.id != itemId)
-  //         .toList();
-
-  //     cartResponseEntity.value = cartResponseEntity.value!.copyWith(
-  //       items: updatedItems,
-  //     );
-  //     cartResponseEntity.refresh();
-  //   }
-
-  //   // showCustomToast(
-  //   //   title: 'Removed',
-  //   //   message: schemeName,
-  //   //   backgroundColor: Colors.red,
-  //   //   icon: Icons.delete,
-  //   // );
-
-  //   // 2. Background API Call
-  //   final result = await cartUsecases.deleteCartItemUsecases.call({
-  //     "item_id": itemId,
-  //   });
-
-  //   result.fold(
-  //     (success) async {
-  //       await fetchCart(); // Refresh summary/totals
-  //     },
-  //     (failure) {
-  //       // Rollback on failure
-  //       cartResponseEntity.value = originalState;
-  //       Get.snackbar("Error", "Could not remove item. Reverting...");
-  //     },
-  //   );
-  // }
-
-  // Inside CartController
-
-  // bool isCartValid() {
-  //   if (itemErrors.values.any((hasError) => hasError)) {
-  //     return false;
-  //   }
-  //   final currentItems = displayedItems; // Validates only what's on screen
-  //   if (currentItems.isEmpty) return false;
-
-  //   for (var item in currentItems) {
-  //     final int amount = item.amount ?? 0;
-  //     final String type = item.transType?.toLowerCase() ?? 'sip';
-
-  //     // Parse limits
-  //     final int minSip =
-  //         double.tryParse(item.minSipAmount ?? '0')?.toInt() ?? 0;
-  //     final int minLumpsum =
-  //         double.tryParse(item.minLumpsum ?? '0')?.toInt() ?? 0;
-  //     final int minTopup =
-  //         double.tryParse(item.minTopupAmount ?? '0')?.toInt() ?? 0;
-
-  //     // 1. Check Min Amount based on type
-  //     int minRequired = (type == 'lumpsum') ? minLumpsum : minSip;
-  //     if (amount < minRequired) return false;
-
-  //     // 2. Check Multiples (Modulo)
-  //     if (amount % 100 != 0) return false;
-
-  //     // 3. Step Up Specific Validation
-  //     if (type == 'stepup') {
-  //       final int topUp =
-  //           double.tryParse(item.topUpAmount ?? '0')?.toInt() ?? 0;
-  //       if (topUp < minTopup || topUp % 100 != 0) return false;
-  //     }
-  //   }
-  //   return true;
-  // }
-
-  // Inside CartController
-  // bool get isCartValid1 {
-  //   for (var item in displayedItems) {
-  //     int amt = item.amount ?? 0;
-  //     int min = int.tryParse(item.minSipAmount ?? '0') ?? 500;
-  //     if (amt < min || amt % 100 != 0) return false;
-
-  //     if (item.transType?.toLowerCase() == 'stepup') {
-  //       int topup = int.tryParse(item.topUpAmount ?? '0') ?? 0;
-  //       int minTop = int.tryParse(item.minTopupAmount ?? '0') ?? 500;
-  //       if (topup < minTop || topup % 100 != 0) return false;
-  //     }
-  //   }
-  //   return true;
-  // }
-
   bool get isCartValid1 {
     // 1. Check if any active UI field has an error
     if (itemErrors.values.any((hasError) => hasError)) {
@@ -787,35 +603,7 @@ class CartController extends GetxController {
     return true;
   }
 
-  // bool get isCartValid1 {
-  //   // 1. Check if any UI field has actively reported an error
-  //   if (itemErrors.values.any((hasError) => hasError)) {
-  //     return false; // Blocks navigation if ANY red text is visible
-  //   }
-
-  //   // 2. Fallback check on the actual data (just in case)
-  //   final currentItems = displayedItems;
-  //   if (currentItems.isEmpty) return false;
-
-  //   for (var item in currentItems) {
-  //     int amt = item.amount ?? 0;
-  //     String type = item.transType?.toLowerCase() ?? 'sip';
-
-  //     int minSip = int.tryParse(item.minSipAmount ?? '0') ?? 500;
-  //     int minLumpsum = int.tryParse(item.minLumpsum ?? '0') ?? 5000;
-  //     int currentMin = (type == 'lumpsum') ? minLumpsum : minSip;
-
-  //     if (amt < currentMin) return false;
-  //     if (amt % 100 != 0) return false;
-
-  //     if (type == 'stepup') {
-  //       int topup = int.tryParse(item.topUpAmount ?? '0') ?? 0;
-  //       int minTop = int.tryParse(item.minTopupAmount ?? '0') ?? 500;
-  //       if (topup < minTop || topup % 100 != 0) return false;
-  //     }
-  //   }
-  //   return true;
-  // }
+  
 
   //////  -------------------------  ///////////////////
   @override
