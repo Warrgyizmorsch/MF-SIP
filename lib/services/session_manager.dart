@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert'; // Required for jsonEncode/jsonDecode
+import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -410,7 +411,7 @@ class SessionManager extends GetxService {
 
   Future<void> clearSession() async {
     // ADD THIS LINE:
-    debugPrint("🚨 WARNING: CLEAR SESSION CALLED! Wiping all data! 🚨");
+    log("🚨 WARNING: CLEAR SESSION CALLED! Wiping all data! 🚨");
     debugPrint(StackTrace.current.toString());
 
     jwtAccessToken = null;

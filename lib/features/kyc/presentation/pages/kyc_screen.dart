@@ -167,7 +167,7 @@ class KycScreen extends GetView<KycController> {
                 //  else if (controller.currentStep.value == 6) {
                 //   buttonText = "Proceed to E-Sign";
                 // }
-                else if (controller.currentStep.value == 7) {
+                else if (controller.currentStep.value == 6) {
                   buttonText = "Generate & eSign Contract"; // Final Action
                 }
                 // else if (controller.currentStep.value == 6) {

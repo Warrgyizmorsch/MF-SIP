@@ -996,9 +996,11 @@ class _MobileLayout extends StatelessWidget {
                     child: Center(
                       child: GestureDetector(
                         onTap: () async {
-                          if (!isVerified) {
+                          if (isVerified) {
                             Get.toNamed(AppRoutes.kycScreen);
                             await SessionManager.instance.setKycVerified(false);
+                          } else {
+                            Get.toNamed(AppRoutes.kycScreen);
                           }
                         },
                         child: Container(

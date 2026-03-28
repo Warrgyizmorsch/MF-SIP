@@ -201,6 +201,9 @@ class PersonalisationRemoteDataSource {
       // Using postFormData because the API requires 'form-data' for the image file
       final resp = await _apiService.postFormData(
         "${Appurl.baseUrl}/api/v1/profile/update",
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
         data,
       );
 

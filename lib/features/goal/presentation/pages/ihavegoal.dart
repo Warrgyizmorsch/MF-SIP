@@ -997,11 +997,34 @@ class _PickerSheet extends StatelessWidget {
 
   _PickerSheet({required this.controller});
 
+  // Future<void> _pick(BuildContext context, ImageSource source) async {
+  //   final image = await _pickerService.pickImage(source);
+  //   if (image != null) {
+  //     controller.coverImage.value = image; // Save to controller
+  //     Get.back(); // Close sheet
+  //   }
+  // }
   Future<void> _pick(BuildContext context, ImageSource source) async {
-    final image = await _pickerService.pickImage(source);
-    if (image != null) {
-      controller.coverImage.value = image; // Save to controller
-      Get.back(); // Close sheet
+    // 1. Close the bottom sheet FIRST
+    Get.back();
+
+    // 2. Wait just a split second for the closing animation
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    // 3. Use the raw ImagePicker directly (Bypass the buggy custom service!)
+    try {
+      final ImagePicker picker = ImagePicker(); // <-- Use official package
+
+      final XFile? image = await picker.pickImage(
+        source: source,
+        imageQuality: 80, // Optional compression
+      );
+
+      if (image != null) {
+        controller.coverImage.value = image;
+      }
+    } catch (e) {
+      debugPrint("Error picking image: $e");
     }
   }
 

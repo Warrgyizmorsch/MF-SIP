@@ -2,23 +2,20 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
-import 'package:file_saver/file_saver.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
-import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/kyc/data/model/onboarding_login_model.dart';
 import 'package:my_sip/features/kyc/data/model/token_data_model.dart';
 import 'package:my_sip/features/kyc/domain/entity/file_upload_entity.dart';
-import 'package:my_sip/features/kyc/domain/entity/onboarding_login_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/poi_step_1_entity.dart';
 import 'package:my_sip/features/kyc/domain/usecases/kyc_use_cases.dart';
+import 'package:my_sip/features/personalization/domain/usecases/add_nominee_use_case.dart';
+import 'package:my_sip/features/personalization/domain/usecases/update_profile_usecases.dart';
 import 'package:my_sip/services/session_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -42,7 +39,7 @@ class KycController extends GetxController {
     // 2. Await Token Data FIRST
     // final bool tokenSuccess = await getTokenData();
 
-    final bool tokenCred = await saveOnboardingData();
+    // final bool tokenCred = await saveOnboardingData();
 
     // 3. Only proceed if token data was successfully fetched
     // if (tokenSuccess) {
@@ -62,11 +59,10 @@ class KycController extends GetxController {
   final KycUseCases kycUseCases;
 
   // --- Controllers ---
-  final PageController pageController = PageController();
-  
+  final PageController pageController = PageController(initialPage: 6);
 
   // --- State Variables ---
-  final currentStep = 0.obs;
+  final currentStep = 6.obs;
   final isLoading = false.obs;
 
   final taxStatusList = [
@@ -227,7 +223,12 @@ class KycController extends GetxController {
 
   final panKeyboardType = TextInputType.name.obs;
 
+  final session = SessionManager.instance;
+
   KycController(this.kycUseCases);
+
+  final updateUserData = Get.find<UpdateProfileUsecases>();
+  final saveDataNominee = Get.find<AddNomineeUseCase>();
 
   // ===========================================================================
   // CENTRAL NAVIGATION LOGIC
@@ -443,6 +444,7 @@ class KycController extends GetxController {
           }
         },
         (error) {
+          ULoaders.stopLoading();
           Get.snackbar(
             "Error",
             "Check KYC failed: ${error.message}. Proceeding to verification.",
@@ -451,6 +453,7 @@ class KycController extends GetxController {
         },
       );
     } catch (e) {
+      ULoaders.stopLoading();
       Get.snackbar("Error", "Unexpected error: $e");
       return true; // Fallback
     } finally {
@@ -805,6 +808,7 @@ class KycController extends GetxController {
 
             if (isSaved) {
               // 2. DOWNLOAD THE CONTRACT TO DEVICE
+              ULoaders.showLoading(message: "Downloading signed contract...");
               await downloadSignedPdf(signedPdfUrl);
 
               await _submitUserForensics("contract");
@@ -813,6 +817,9 @@ class KycController extends GetxController {
 
               // if (gpsSaved) {
               // 🔴 3. RUN FINAL VERIFICATION ENGINE
+              ULoaders.showLoading(
+                message: "Running final compliance checks...",
+              );
               final isFullyVerified = await runVerificationEngine();
 
               ULoaders.stopLoading();
@@ -963,6 +970,7 @@ class KycController extends GetxController {
     } catch (e) {
       Get.snackbar("Download Failed", "Could not download the document: $e");
     }
+    
   }
 
   // SAVE SIGNED PDF TO FORM
@@ -1343,7 +1351,32 @@ class KycController extends GetxController {
         },
       };
 
+      final Map<String, dynamic> saveData = {
+        'id': session.getUserData?.id,
+
+        'name': nameTextEditingController.text,
+        // 'email': emailController.text,
+        'mobile': session.getUserData?.mobile,
+        'pan_card': panTextEditingController.text,
+        'dob': formatToSqlDate(dateOfBirthTextEditingController.text),
+        'address': addressTextEditingController.text,
+        // 'adhar': adharController.text,
+        'wealth_source': wealthSourceTextEditingController.text,
+        'yearly_income': getYearlyIncomeAsInt(
+          incomeSlabTextEditingController.text,
+        ),
+        'occupation': occupationTextEditingController.text,
+        'marital_status': materialTextSelectionControls.toString(),
+        'father_name': fatherNameTextEditingController.text,
+        'mother_name': motherNameTextEditingController.text,
+        'adhar': executePOIStep2Data.value?.result.output.uid,
+      };
+
       final poaExecuteResult = await executePOA(data: poaRequestData);
+
+      // final saveData = updateUserData(data);
+      // 3. Save to YOUR backend
+      await saveUserData(saveData);
 
       if (poaExecuteResult) {
         // Send the Address Data as "addressProof"
@@ -1373,6 +1406,43 @@ class KycController extends GetxController {
       ULoaders.stopLoading();
       isLoading.value = false;
       Get.snackbar("Error", "Unexpected error: $e");
+    }
+  }
+
+  //SAVE DATA TO  OWN BACKEND
+  Future<void> saveUserData(Map<String, dynamic> requestData) async {
+    try {
+      // Assuming updateProfileUsecases is injected via your constructor/binding
+      final result = await updateUserData.call(requestData);
+
+      result.fold(
+        (success) async {
+          log("✅ User profile successfully synced to our local database.");
+
+          // Update local session storage so the app knows about the new data instantly
+          if (success.data != null) {
+            final currentLocalUser = SessionManager.instance.getUserData;
+            final apiData = success.data!;
+
+            if (currentLocalUser != null) {
+              final updatedUser = currentLocalUser.copyWith(
+                name: apiData.data?.name ?? currentLocalUser.name,
+                email: apiData.data?.email ?? currentLocalUser.email,
+
+                // panCard: apiData.data?.panCard ?? currentLocalUser.panCard,
+                // Add any other fields your copyWith supports
+              );
+
+              await SessionManager.instance.updateUserData(updatedUser);
+            }
+          }
+        },
+        (error) {
+          log("❌ Failed to sync profile to local DB: ${error.message}");
+        },
+      );
+    } catch (e) {
+      log("Exception syncing to local DB: $e");
     }
   }
 
@@ -1691,6 +1761,24 @@ class KycController extends GetxController {
       // This saves whatever is currently in your address text controllers
       final bool nomineeSaved = await updateForm(data: requestData);
 
+      final saveRequestData = {
+        "customer_id": session.getUserData?.id,
+        "name": nomineeNameTextEditingController.text,
+        "relation": nomineeRelationTextEditingController.text,
+        "dob": formatToSqlDate(nomineeDateOfBirthTextEditingController.text),
+        "allocation_percent": '100',
+        // Send 1 if minor, 0 if not
+        "is_minor": 0,
+        "guardian_name": '',
+        "email": nomineeEmailTextEditingController.text,
+        "phone_number": nomineeMobileTextEditingController.text,
+        "document_type": selectedNomineeDocument.toString(),
+        "document_number": nomineeSelectedDocumentTextEditingController.text,
+        "address": nomineeAddressTextEditingController.text,
+      };
+
+      await saveNomineeToDatabase(saveRequestData);
+
       isLoading.value = false;
 
       if (nomineeSaved) {
@@ -1717,6 +1805,24 @@ class KycController extends GetxController {
       ULoaders.stopLoading();
       isLoading.value = false;
       Get.snackbar("Error", "Unexpected error: $e");
+    }
+  }
+
+  // SILENTLY SAVE NOMINEE TO YOUR OWN BACKEND
+  Future<void> saveNomineeToDatabase(Map<String, dynamic> requestData) async {
+    try {
+      final result = await saveDataNominee.call(requestData);
+
+      result.fold(
+        (success) {
+          log("✅ Nominee data successfully synced to our local database.");
+        },
+        (error) {
+          log("❌ Failed to sync nominee to local DB: ${error.message}");
+        },
+      );
+    } catch (e) {
+      log("Exception syncing nominee to local DB: $e");
     }
   }
 
@@ -2185,11 +2291,13 @@ class KycController extends GetxController {
           return true;
         },
         (error) {
+          ULoaders.stopLoading();
           Get.snackbar("Error", error.message ?? "Update Form Failed");
           return false;
         },
       );
     } catch (e) {
+      ULoaders.stopLoading();
       Get.snackbar("Error", "Unexpected error: $e");
       return false;
     }
@@ -2241,16 +2349,19 @@ class KycController extends GetxController {
             executePOIStep1Data.value = success.data;
             return true;
           } else {
+            ULoaders.stopLoading();
             Get.snackbar("Error", "Invalid server response");
             return false;
           }
         },
         (error) {
+          ULoaders.stopLoading();
           Get.snackbar("Error", error.message ?? "Execute POI Step 1 Failed");
           return false;
         },
       );
     } catch (e) {
+      ULoaders.stopLoading();
       Get.snackbar("Error", "Unexpected error: $e");
       return false;
     } finally {
@@ -2333,6 +2444,28 @@ class KycController extends GetxController {
       errorMessage.value = "An unexpected error occurred: $e";
     } finally {
       isLoadingBanks(false);
+    }
+  }
+
+  int getYearlyIncomeAsInt(String text) {
+    final value = text.trim();
+
+    // Translate the dropdown string into a raw integer for your database
+    switch (value) {
+      case "Below 1 Lakh":
+        return 90000; // Using 90,000 as seen in your success log
+      case "1 Lacs - 5 Lacs":
+        return 500000;
+      case "5 Lacs - 10 Lacs":
+        return 1000000;
+      case "10 Lacs - 25 Lacs":
+        return 2500000;
+      case "25 Lacs - 1 Cr.":
+        return 10000000;
+      case "Above 1 Cr.":
+        return 50000000;
+      default:
+        return 0;
     }
   }
 
