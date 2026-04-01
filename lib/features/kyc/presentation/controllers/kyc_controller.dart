@@ -39,7 +39,7 @@ class KycController extends GetxController {
     // 2. Await Token Data FIRST
     // final bool tokenSuccess = await getTokenData();
 
-    // final bool tokenCred = await saveOnboardingData();
+    final bool tokenCred = await saveOnboardingData();
 
     // 3. Only proceed if token data was successfully fetched
     // if (tokenSuccess) {
@@ -59,10 +59,10 @@ class KycController extends GetxController {
   final KycUseCases kycUseCases;
 
   // --- Controllers ---
-  final PageController pageController = PageController(initialPage: 6);
+  final PageController pageController = PageController();
 
   // --- State Variables ---
-  final currentStep = 6.obs;
+  final currentStep = 0.obs;
   final isLoading = false.obs;
 
   final taxStatusList = [
@@ -970,7 +970,6 @@ class KycController extends GetxController {
     } catch (e) {
       Get.snackbar("Download Failed", "Could not download the document: $e");
     }
-    
   }
 
   // SAVE SIGNED PDF TO FORM

@@ -8,4 +8,5 @@ class Appurl {
   static const navUrl = 'https://api.mfapi.in/mf';
 
   static const kycUrl = 'https://multi-channel-preproduction.signzy.tech';
+  // static const kycUrl = 'multi-channel.signzy.tech';
 }

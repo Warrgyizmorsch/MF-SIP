@@ -49,6 +49,8 @@ class _SplashScreenState extends State<SplashScreen> {
   //   }
   // }
 
+  
+
   Future<void> _checkAuthAndNavigate() async {
     // 1. Initialize Session
     await SessionManager.instance.initialize();

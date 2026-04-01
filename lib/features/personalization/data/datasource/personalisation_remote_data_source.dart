@@ -7,7 +7,6 @@ import 'package:my_sip/features/personalization/data/model/nominee_model.dart';
 import 'package:my_sip/features/personalization/data/model/profile_update_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_question_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
-import 'package:my_sip/features/personalization/data/model/risk_submit_rq.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 import '../../../../core/network/network_api_service.dart';
