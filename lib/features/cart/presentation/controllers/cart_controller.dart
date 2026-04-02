@@ -603,8 +603,6 @@ class CartController extends GetxController {
     return true;
   }
 
-  
-
   //////  -------------------------  ///////////////////
   @override
   void onClose() {

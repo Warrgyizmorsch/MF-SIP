@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
@@ -146,7 +147,8 @@ class PersonalisationRemoteDataSource {
           "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
         },
 
-        data: data,
+        queryParameters: data,
+        data: kIsWeb ? null : data,
       );
 
       createLog(

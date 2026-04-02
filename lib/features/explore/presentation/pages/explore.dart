@@ -967,7 +967,7 @@ class _WebExploreLayout extends StatelessWidget {
                       icon: const Icon(Iconsax.shopping_cart),
                       hoverColor: Ucolors.primary.withOpacity(0.1),
                     ),
-                    if (cartController.itemsCount1 > 0)
+                    if (cartController.generalItemsCount > 0)
                       Positioned(
                         right: 5,
                         top: 5,
@@ -978,7 +978,7 @@ class _WebExploreLayout extends StatelessWidget {
                             shape: BoxShape.circle,
                           ),
                           child: Text(
-                            cartController.itemsCount1.toString(),
+                            cartController.generalItemsCount.toString(),
                             style: const TextStyle(
                               fontSize: 10,
                               color: Colors.white,
@@ -1308,14 +1308,27 @@ class WebFundTableRow extends StatelessWidget {
                   child: SizedBox(
                     height: 32,
                     child: ElevatedButton(
-                      onPressed: () {
-                        controller.addItem(
-                          CartItem(
-                            fundId: entity.amc?.id?.toString() ?? '',
-                            fundName: entity.baseSchemeName ?? '',
-                            logoUrl: entity.amc?.amcLogoUrl ?? '',
-                          ),
+                      onPressed: () async {
+                        // controller.addItem(
+                        //   CartItem(
+                        //     fundId: entity.amc?.id?.toString() ?? '',
+                        //     fundName: entity.baseSchemeName ?? '',
+                        //     logoUrl: entity.amc?.amcLogoUrl ?? '',
+                        //   ),
+                        // );
+                        // await controller.addToCart(
+                        //   entity.schemeCode ?? '',
+                        //   entity.baseSchemeName ?? '',
+                        //   entity.minSipAmount ?? 0,
+                        //   null,
+                        // );
+                        await controller.addToCart(
+                          entity.schemeCode ?? '',
+                          entity.baseSchemeName ?? '',
+                          entity.minSipAmount ?? 0,
+                          null,
                         );
+                        await controller.fetchCart();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Ucolors.primary,

@@ -47,7 +47,10 @@ class CartRemoteDs {
     try {
       final res = await networkServicesApi.getApi(
         "${Appurl.baseUrl}/api/v1/cart",
+        // data: data,
+        queryParameters: data,
         data: data,
+
         headers: {
           "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
         },

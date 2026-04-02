@@ -1677,7 +1677,6 @@ class KycController extends GetxController {
       ULoaders.showLoading(message: "Submitting KYC Data...");
 
       final requestData = {
-        // "merchantId": "69aac24da01541001c853d48", // Use dynamic ID
         "merchantId":
             SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
 
@@ -1695,7 +1694,7 @@ class KycController extends GetxController {
                 // SessionManager.instance.getUserData?.panCard ??
                 panTextEditingController.text,
 
-            // 1. NOMINEE DETAILS
+            // // 1. NOMINEE DETAILS
             "nomineeRelationShip": nomineeRelationTextEditingController.text
                 .toUpperCase(), // FATHER, SPOUSE, etc.
             // 2. APPLICANT DETAILS (MANDATORY RE-SEND)
@@ -1759,6 +1758,7 @@ class KycController extends GetxController {
       // Send the Address Data as "addressProof"
       // This saves whatever is currently in your address text controllers
       final bool nomineeSaved = await updateForm(data: requestData);
+      // final bool nomineeSaved = true;
 
       final saveRequestData = {
         "customer_id": session.getUserData?.id,

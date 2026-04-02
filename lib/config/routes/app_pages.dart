@@ -30,6 +30,8 @@ import 'package:my_sip/features/personalization/presentation/bindings/personalis
 import 'package:my_sip/features/personalization/presentation/pages/add_another_bank.dart';
 import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:my_sip/features/personalization/presentation/pages/risk_profile.dart';
+import 'package:my_sip/features/personalization/presentation/widgets/document.dart';
+import 'package:my_sip/features/personalization/presentation/widgets/kyc_details.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/nominee_list.dart';
 import 'package:my_sip/features/sip_process/presentation/pages/payment_screen.dart';
 import 'package:my_sip/features/wishlist/presentation/bindings/wishlist_binding.dart';
@@ -97,7 +99,7 @@ class AppPages {
 
     GetPage(
       name: AppRoutes.funddetails,
-      page: () =>  FundDetailsScreen(),
+      page: () => FundDetailsScreen(),
       binding: FundDetailBinding(),
     ),
     GetPage(
@@ -196,5 +198,7 @@ class AppPages {
       binding: NfoListBinding(),
     ),
     GetPage(name: AppRoutes.nfodetailsPage, page: () => NfoDetailsPage1()),
+    GetPage(name: AppRoutes.kycDeatailScreen, page: () => KycDetailsScreen()),
+    GetPage(name: AppRoutes.documentsScreen, page: () => DocumentScreen()),
   ];
 }

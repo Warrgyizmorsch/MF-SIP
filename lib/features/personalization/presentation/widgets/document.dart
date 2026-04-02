@@ -9,12 +9,14 @@ import 'package:my_sip/features/personalization/presentation/pages/profile.dart'
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/services/session_manager.dart';
 
 class DocumentScreen extends StatelessWidget {
   const DocumentScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final user = SessionManager.instance.userObs.value;
     return Scaffold(
       appBar: CustomAppBarNormal(title: 'Document'),
       body: Padding(
@@ -25,16 +27,21 @@ class DocumentScreen extends StatelessWidget {
 
             ProfileHeader(
               // iconcolor: Ucolors.primary,
-              name: 'Pratik',
-              img: UImages.avatar,
-              subtitle: 'Ready to invest since 2025',
+              name: user?.name ?? '',
+              img: user?.img ?? '',
+              subtitle:
+                  'Ready to invest since ${user?.createdAt?.split('-')[0]}',
               icon: Icons.verified,
               onTap: () {},
             ),
 
             SizedBox(height: 10),
 
-            InfoCard(onTap: () {}, title: 'PAN Card', subtitle: 'ADBPH2798C'),
+            InfoCard(
+              onTap: () {},
+              title: 'PAN Card',
+              subtitle: user?.panCard ?? '',
+            ),
             SizedBox(height: 10),
             InfoCard(
               onTap: () {},

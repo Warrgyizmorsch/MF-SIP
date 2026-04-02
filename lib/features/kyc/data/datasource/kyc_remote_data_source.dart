@@ -208,6 +208,7 @@ class KycRemoteDataSource {
       );
 
       createLog("[Kyc Remote Data Source] updateForm Response: $resp");
+      createLog("[Kyc Remote Data Source] updateForm data: $data");
 
       if (resp != null && resp['object'] != null) {
         final result = resp['object'];

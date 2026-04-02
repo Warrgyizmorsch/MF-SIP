@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:my_sip/common/widget/images/image_select.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
@@ -465,6 +466,8 @@ class _DesktopSideNav extends StatelessWidget {
                           radius: 20,
                           backgroundImage: AssetImage(UImages.avatar),
                         ),
+
+                        // UCircularImage(image: user?.img ?? ''),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(

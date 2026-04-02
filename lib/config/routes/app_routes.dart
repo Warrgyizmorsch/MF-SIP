@@ -28,6 +28,7 @@ class AppRoutes {
   static const otpVerificationScreen = '/otpVerificationScreen';
   static const paymentScreen = '/paymentScreen';
   static const kycScreen = '/kycScreen';
+  static const kycDeatailScreen = '/kycDetailsScreen';
   static const webView = '/webView';
   static const riskProfile = '/riskProfile';
   static const nomineeList = '/nomineeListScreen';
@@ -38,4 +39,5 @@ class AppRoutes {
   static const profilePage = '/profilePage';
   static const nfolist = '/nfolist';
   static const nfodetailsPage = '/nfoDetailsPage';
+  static const documentsScreen = '/documentPage';
 }

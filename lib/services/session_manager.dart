@@ -428,6 +428,7 @@ class SessionManager extends GetxService {
 
     if (kIsWeb) {
       await _ensurePrefsInitialized();
+      log("🚨 WEB MODE: Skipped deleting SharedPreferences to protect Next.js session. 🚨");
       await Future.wait([
         _prefs!.remove('jwtAccessToken'),
         _prefs!.remove('jwtRefreshToken'),

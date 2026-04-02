@@ -20,7 +20,6 @@ import 'package:my_sip/features/authentication/presentation/controllers/auth/aut
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
-import 'package:my_sip/features/explore/presentation/pages/explore.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_calculator.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
@@ -298,7 +297,7 @@ class _WebDashboardLayout extends StatelessWidget {
                       },
                       hoverColor: Ucolors.primary.withOpacity(0.1),
                     ),
-                    if (cartController.itemsCount > 0)
+                    if (cartController.generalItemsCount > 0)
                       Positioned(
                         right: 5,
                         top: 5,
@@ -309,7 +308,7 @@ class _WebDashboardLayout extends StatelessWidget {
                             shape: BoxShape.circle,
                           ),
                           child: Text(
-                            cartController.itemsCount.toString(),
+                            cartController.generalItemsCount.toString(),
                             style: const TextStyle(
                               fontSize: 10,
                               color: Colors.white,
@@ -999,10 +998,9 @@ class _MobileLayout extends StatelessWidget {
                           if (!isVerified) {
                             Get.toNamed(AppRoutes.kycScreen);
                             // await SessionManager.instance.setKycVerified(false);
+                          } else {
+                            Get.toNamed(AppRoutes.kycScreen);
                           }
-                          // else {
-                          //   Get.toNamed(AppRoutes.kycScreen);
-                          // }
                         },
                         child: Container(
                           height: size.height * 0.13,
