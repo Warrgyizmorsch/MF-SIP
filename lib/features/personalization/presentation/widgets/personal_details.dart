@@ -472,7 +472,7 @@ class PersonalDetailsScreen extends GetView<AuthController> {
 
     return Scaffold(
       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
-      appBar: CustomAppBarNormal(title: 'Personal Info'),
+      appBar: isDesktop ? null : CustomAppBarNormal(title: 'Personal Info'),
 
       // 🚀 FIX: Removed bottomNavigationBar for Web. It feels unnatural on desktop.
       bottomNavigationBar: isDesktop

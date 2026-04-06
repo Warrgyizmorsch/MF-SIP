@@ -375,10 +375,8 @@ class KycDetailsScreen extends StatelessWidget {
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
     return Scaffold(
-      backgroundColor: isDesktop
-          ? const Color(0xFFF5F7FA)
-          : Colors.white, 
-      appBar: CustomAppBarNormal(title: 'KYC Details'),
+      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
+      appBar: isDesktop ? null : CustomAppBarNormal(title: 'KYC Details'),
       body: SingleChildScrollView(
         padding: isDesktop ? const EdgeInsets.all(40) : UPadding.screenPadding,
         child: Center(
@@ -403,7 +401,7 @@ class KycDetailsScreen extends StatelessWidget {
       children: [
         // --- LEFT COLUMN: Profile Summary ---
         Expanded(
-          flex: 4, 
+          flex: 4,
           child: Card(
             color: Colors.white,
             elevation: 0,
@@ -440,7 +438,7 @@ class KycDetailsScreen extends StatelessWidget {
         const SizedBox(width: 30), // Gap between columns
         // --- RIGHT COLUMN: KYC Cards Grid ---
         Expanded(
-          flex: 8, 
+          flex: 8,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -510,7 +508,8 @@ class KycDetailsScreen extends StatelessWidget {
         const SizedBox(height: 10),
         InfoCard(
           title: 'Pan Number',
-          subtitle: user?.panCard ?? 'Not Available',
+          subtitle:
+              SessionManager.instance.getUserData?.panCard ?? 'Not Available',
         ),
       ],
     );

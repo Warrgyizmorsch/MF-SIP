@@ -277,7 +277,7 @@ class BankDetailsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
-      appBar: CustomAppBarNormal(title: 'Bank Details'),
+      appBar: isDesktop ? null : CustomAppBarNormal(title: 'Bank Details'),
       body: SingleChildScrollView(
         padding: isDesktop
             ? const EdgeInsets.all(40)

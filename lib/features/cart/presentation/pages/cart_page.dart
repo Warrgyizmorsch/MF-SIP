@@ -659,7 +659,7 @@ class FundHeader extends StatelessWidget {
                   ),
                 )
               : Deleteiconwithcontainer(
-                  containercolor: Colors.redAccent,
+                  containercolor: Colors.redAccent.shade200,
                   delete: () {
                     showDialog(
                       context: context,

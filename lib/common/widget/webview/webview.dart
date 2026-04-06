@@ -373,9 +373,11 @@ class HtmlWebViewPage extends StatefulWidget {
   final String? htmlContent;
   final String? url;
   final String? successUrlTrigger;
+  final bool appBar;
 
   const HtmlWebViewPage({
     super.key,
+    this.appBar = true,
     this.title = '',
     this.htmlContent,
     this.url,
@@ -610,24 +612,26 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
 
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          leading: IconButton(
-            onPressed: () {
-              createLog("Success Result ${result}");
+        appBar: !widget.appBar
+            ? null
+            : AppBar(
+                leading: IconButton(
+                  onPressed: () {
+                    createLog("Success Result ${result}");
 
-              Get.back(result: result);
-            },
-            icon: Icon(Icons.arrow_back_ios),
-          ),
-          titleSpacing: -10.0,
-          backgroundColor: Colors.white,
-          centerTitle: true,
-          title: Text(
-            widget.title,
-            textAlign: TextAlign.start,
-            style: AppTextStyles.h3(color: Ucolors.dark),
-          ),
-        ),
+                    Get.back(result: result);
+                  },
+                  icon: Icon(Icons.arrow_back_ios),
+                ),
+                titleSpacing: -10.0,
+                backgroundColor: Colors.white,
+                centerTitle: true,
+                title: Text(
+                  widget.title,
+                  textAlign: TextAlign.start,
+                  style: AppTextStyles.h3(color: Ucolors.dark),
+                ),
+              ),
         body: SafeArea(
           bottom: true,
           child: Stack(

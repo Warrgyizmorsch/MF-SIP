@@ -107,7 +107,7 @@ class DocumentScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
-      appBar: const CustomAppBarNormal(title: 'Documents'),
+      appBar: isDesktop ? null : const CustomAppBarNormal(title: 'Documents'),
 
       body: SingleChildScrollView(
         padding: isDesktop ? const EdgeInsets.all(40) : UPadding.screenPadding,

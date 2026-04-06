@@ -161,107 +161,96 @@ class _WebDashboardLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _buildWebHeader(),
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 30),
-            child: Center(
-              child: MaxWidthBox(
-                maxWidth: 1200,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(vertical: 30),
+      child: Center(
+        child: MaxWidthBox(
+          maxWidth: 1200,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // --- LEFT COLUMN ---
+                    Expanded(
+                      flex: 8,
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // --- LEFT COLUMN ---
-                          Expanded(
-                            flex: 8,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildHeroBanner(),
-                                const Gap(30),
-                                const Text(
-                                  "Quick Actions",
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const Gap(16),
-                                _buildQuickActionsCard(),
-                                const Gap(30),
-                                const Text(
-                                  "Explore Categories",
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const Gap(16),
-                                _buildWebCollectionGrid(),
-                                const Gap(30),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text(
-                                      "Popular Funds",
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {},
-                                      child: const Text("View All"),
-                                    ),
-                                  ],
-                                ),
-                                const Gap(10),
-                                _buildWebFundGrid(),
-                                const Gap(30),
-                              ],
-                            ),
-                          ),
+                          _buildHeroBanner(),
                           const Gap(30),
-                          // --- RIGHT COLUMN ---
-                          Expanded(
-                            flex: 4,
-                            child: Column(
-                              children: [
-                                _buildWebGoalSection(),
-                                const Gap(24),
-                                _buildWebToolsSection(),
-                              ],
+                          const Text(
+                            "Quick Actions",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
+                          const Gap(16),
+                          _buildQuickActionsCard(),
+                          const Gap(30),
+                          const Text(
+                            "Explore Categories",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Gap(16),
+                          _buildWebCollectionGrid(),
+                          const Gap(30),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Popular Funds",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {},
+                                child: const Text("View All"),
+                              ),
+                            ],
+                          ),
+                          const Gap(10),
+                          _buildWebFundGrid(),
+                          const Gap(30),
                         ],
                       ),
-                      const Text(
-                        "Learn & Grow",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.start,
+                    ),
+                    const Gap(30),
+                    // --- RIGHT COLUMN ---
+                    Expanded(
+                      flex: 4,
+                      child: Column(
+                        children: [
+                          _buildWebGoalSection(),
+                          const Gap(24),
+                          _buildWebToolsSection(),
+                        ],
                       ),
-                      const Gap(16),
-
-                      _buildWebVideoRow(),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ),
+                const Text(
+                  "Learn & Grow",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.start,
+                ),
+                const Gap(16),
+
+                _buildWebVideoRow(),
+              ],
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 

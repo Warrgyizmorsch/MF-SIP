@@ -710,6 +710,7 @@
 //   }
 // }
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -894,104 +895,107 @@ class _WebExploreLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     final MutualFundController controller = Get.find();
     final CartController cartController = Get.find();
+    final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Column(
       children: [
         // 1. COMPACT DASHBOARD HEADER
-        Container(
-          height: 70,
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
-          ),
-          child: Row(
-            children: [
-              Text(
-                "Explore Funds",
-                style: UTextStyles.heading2.copyWith(fontSize: 20),
-              ),
-              const Spacer(),
-
-              // Search
-              SizedBox(
-                width: 300,
-                height: 40,
-                child: SearchBar(
-                  focusNode: searchFocus,
-                  elevation: MaterialStateProperty.all(0),
-                  backgroundColor: MaterialStateProperty.all(
-                    const Color(0xFFF0F2F5),
-                  ),
-                  leading: const Icon(
-                    Icons.search,
-                    size: 20,
-                    color: Colors.grey,
-                  ),
-                  hintText: 'Search funds...',
-                  onChanged: (value) => controller.onSearchQueryChanged(value),
-                  padding: MaterialStateProperty.all(
-                    const EdgeInsets.symmetric(horizontal: 10),
-                  ),
+        if (!isDesktop)
+          Container(
+            height: 70,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+            ),
+            child: Row(
+              children: [
+                Text(
+                  "Explore Funds",
+                  style: UTextStyles.heading2.copyWith(fontSize: 20),
                 ),
-              ),
-              const Gap(16),
+                const Spacer(),
 
-              // Filter & Sort
-              OutlinedButton.icon(
-                onPressed: () async {
-                  final result = await Get.toNamed(AppRoutes.filterpage);
-                  if (result != null && result is Map<String, dynamic>) {
-                    controller.applyFilters(result);
-                  }
-                },
-                icon: Icon(Icons.tune, size: 16, color: Ucolors.primary),
-                label: Text("Filters", style: UTextStyles.medium),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                  side: BorderSide(color: Colors.grey.shade300),
-                ),
-              ),
-              const Gap(10),
-
-              // Cart
-              Obx(
-                () => Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    IconButton(
-                      onPressed: () => Get.toNamed(AppRoutes.cart),
-                      icon: const Icon(Iconsax.shopping_cart),
-                      hoverColor: Ucolors.primary.withOpacity(0.1),
+                // Search
+                SizedBox(
+                  width: 300,
+                  height: 40,
+                  child: SearchBar(
+                    focusNode: searchFocus,
+                    elevation: MaterialStateProperty.all(0),
+                    backgroundColor: MaterialStateProperty.all(
+                      const Color(0xFFF0F2F5),
                     ),
-                    if (cartController.generalItemsCount > 0)
-                      Positioned(
-                        right: 5,
-                        top: 5,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: Ucolors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            cartController.generalItemsCount.toString(),
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: Colors.white,
+                    leading: const Icon(
+                      Icons.search,
+                      size: 20,
+                      color: Colors.grey,
+                    ),
+                    hintText: 'Search funds...',
+                    onChanged: (value) =>
+                        controller.onSearchQueryChanged(value),
+                    padding: MaterialStateProperty.all(
+                      const EdgeInsets.symmetric(horizontal: 10),
+                    ),
+                  ),
+                ),
+                const Gap(16),
+
+                // Filter & Sort
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    final result = await Get.toNamed(AppRoutes.filterpage);
+                    if (result != null && result is Map<String, dynamic>) {
+                      controller.applyFilters(result);
+                    }
+                  },
+                  icon: Icon(Icons.tune, size: 16, color: Ucolors.primary),
+                  label: Text("Filters", style: UTextStyles.medium),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                    side: BorderSide(color: Colors.grey.shade300),
+                  ),
+                ),
+                const Gap(10),
+
+                // Cart
+                Obx(
+                  () => Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      IconButton(
+                        onPressed: () => Get.toNamed(AppRoutes.cart),
+                        icon: const Icon(Iconsax.shopping_cart),
+                        hoverColor: Ucolors.primary.withOpacity(0.1),
+                      ),
+                      if (cartController.generalItemsCount > 0)
+                        Positioned(
+                          right: 5,
+                          top: 5,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Ucolors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              cartController.generalItemsCount.toString(),
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
 
         // 2. MAIN CONTENT (CENTERED TABLE)
         Expanded(

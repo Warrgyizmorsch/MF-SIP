@@ -26,7 +26,9 @@ class NomineeListScreen extends GetView<PersonalisationController> {
 
     return Scaffold(
       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
-      appBar: const CustomAppBarNormal(title: 'Nominee List'),
+      appBar: isDesktop
+          ? null
+          : const CustomAppBarNormal(title: 'Nominee List'),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(

@@ -1458,7 +1458,9 @@ import 'package:flutter/services.dart';
 import 'package:my_sip/common/widget/images/image_select.dart';
 import 'package:my_sip/common/widget/webview/webview.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
+import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
 import 'package:my_sip/features/goal/presentation/pages/goal.dart';
 import 'package:my_sip/features/home/presentation/pages/home.dart';
@@ -1700,87 +1702,267 @@ class NavigationMenuBar extends StatelessWidget {
       child: Scaffold(
         body: Row(
           children: [
-            isDesktop
-                ? _DesktopSideNav(isDesktop: isDesktop, isTablet: isTablet)
-                : const SizedBox.shrink(),
+            // isDesktop
+            //     ? _DesktopSideNav(isDesktop: isDesktop, isTablet: isTablet)
+            //     : const SizedBox.shrink(),
+            if (isDesktop || isTablet)
+              _DesktopSideNav(isDesktop: isDesktop, isTablet: isTablet),
             Expanded(
-              child: Obx(() {
-                switch (controller.selectedIndex.value) {
-                  case 0:
-                    return const HomeScreen();
-                  case 1:
-                    return const ExploreScreen();
-                  case 2:
-                    return DashboardScreen();
-                  case 3:
-                    return const GoalScreen();
+              child: Column(
+                children: [
+                  if (isDesktop) const GlobalTopHeader(),
+                  Expanded(
+                    child: Obx(() {
+                      switch (controller.selectedIndex.value) {
+                        case 0:
+                          return const HomeScreen();
+                        case 1:
+                          return const ExploreScreen();
+                        case 2:
+                          return DashboardScreen();
+                        case 3:
+                          return const GoalScreen();
 
-                  // Profile Sub-categories
-                  case 40:
-                    return const ProfileScreen(); // Base profile or overview
-                  case 41:
-                    return const KycDetailsScreen();
-                  case 42:
-                    return PersonalDetailsScreen();
-                  case 43:
-                    return const BankDetailsScreen();
-                  case 44:
-                    return const NomineeListScreen();
-                  case 45:
-                    return const DocumentScreen();
-                  // case 46:
-                  //   return HelpSupportScreen();
+                        // Profile Sub-categories
+                        case 40:
+                          return const ProfileScreen(); // Base profile or overview
+                        case 41:
+                          return const KycDetailsScreen();
+                        case 42:
+                          return PersonalDetailsScreen();
+                        case 43:
+                          return const BankDetailsScreen();
+                        case 44:
+                          return const NomineeListScreen();
+                        case 45:
+                          return const DocumentScreen();
+                        // case 46:
+                        //   return HelpSupportScreen();
 
-                  // Help & Support
+                        // Help & Support
 
-                  case 50:
-                    return HtmlWebViewPage(
-                      key: const ValueKey('contact'),
+                        case 50:
+                          return HtmlWebViewPage(
+                            key: const ValueKey('contact'),
+                            appBar: false,
 
-                      title: 'Contact Support',
-                      url:
-                          'https://sip.londonstreetstore.com/contact-us?mobile=true',
-                    );
-                  case 51:
-                    return HtmlWebViewPage(
-                      key: const ValueKey('privacy'),
+                            title: 'Contact Support',
+                            url:
+                                'https://sip.londonstreetstore.com/contact-us?mobile=true',
+                          );
+                        case 51:
+                          return HtmlWebViewPage(
+                            appBar: false,
+                            key: const ValueKey('privacy'),
 
-                      title: 'Privacy Policy',
-                      url:
-                          'https://sip.londonstreetstore.com/privacy-policy?mobile=true',
-                    );
-                  case 52:
-                    return HtmlWebViewPage(
-                      key: const ValueKey('terms'),
+                            title: 'Privacy Policy',
+                            url:
+                                'https://sip.londonstreetstore.com/privacy-policy?mobile=true',
+                          );
+                        case 52:
+                          return HtmlWebViewPage(
+                            appBar: false,
+                            key: const ValueKey('terms'),
 
-                      title: 'Terms & Conditions',
-                      url:
-                          'https://sip.londonstreetstore.com/terms-and-conditions?mobile=true',
-                    );
-                  case 53:
-                    return HtmlWebViewPage(
-                      key: const ValueKey('faq'),
+                            title: 'Terms & Conditions',
+                            url:
+                                'https://sip.londonstreetstore.com/terms-and-conditions?mobile=true',
+                          );
+                        case 53:
+                          return HtmlWebViewPage(
+                            appBar: false,
+                            key: const ValueKey('faq'),
 
-                      title: 'FAQs',
-                      url: 'https://sip.londonstreetstore.com/faq?mobile=true',
-                    );
-                  case 54:
-                    return HtmlWebViewPage(
-                      key: const ValueKey('abouts'),
+                            title: 'FAQs',
+                            url:
+                                'https://sip.londonstreetstore.com/faq?mobile=true',
+                          );
+                        case 54:
+                          return HtmlWebViewPage(
+                            appBar: false,
+                            key: const ValueKey('abouts'),
 
-                      title: 'About Us',
-                      url:
-                          'https://sip.londonstreetstore.com/about-us?mobile=true',
-                    );
+                            title: 'About Us',
+                            url:
+                                'https://sip.londonstreetstore.com/about-us?mobile=true',
+                          );
 
-                  default:
-                    return const HomeScreen();
-                }
-              }),
+                        default:
+                          return const HomeScreen();
+                      }
+                    }),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
         bottomNavigationBar: (isDesktop) ? null : const _MobileBottomNavBar(),
+      ),
+    );
+  }
+}
+
+class GlobalTopHeader extends StatelessWidget {
+  const GlobalTopHeader({super.key});
+
+  String _getPageTitle(int index) {
+    switch (index) {
+      case 0:
+        return 'Home Overview';
+      case 1:
+        return 'Explore Funds';
+      case 2:
+        return 'My Dashboard';
+      case 3:
+        return 'My Goals';
+
+      // Profile Section
+      case 40:
+        return 'Profile Overview';
+      case 41:
+        return 'KYC Details';
+      case 42:
+        return 'Personal Details';
+      case 43:
+        return 'Bank Account';
+      case 44:
+        return 'Nominee Details';
+      case 45:
+        return 'Documents';
+
+      // Help & Support Section
+      case 50:
+        return 'Contact Support';
+      case 51:
+        return 'Privacy Policy';
+      case 52:
+        return 'Terms & Conditions';
+      case 53:
+        return 'FAQs';
+      case 54:
+        return 'About Us';
+
+      default:
+        return 'MF SIP';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cartController = Get.find<CartController>();
+    final navController = Get.find<NavigationBarController>();
+    final mutualController = Get.find<MutualFundController>();
+
+    return Container(
+      height: 80,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          bottom: BorderSide(color: Colors.grey.shade200, width: 1),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Obx(() {
+            final title = _getPageTitle(navController.selectedIndex.value);
+            return Text(
+              title,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Ucolors.dark,
+                letterSpacing: -0.5,
+              ),
+            );
+          }),
+          Row(
+            children: [
+              SizedBox(
+                width: 300,
+                height: 40,
+                child: SearchBar(
+                  // focusNode: searchFocus,
+                  elevation: MaterialStateProperty.all(0),
+                  backgroundColor: MaterialStateProperty.all(
+                    const Color(0xFFF0F2F5),
+                  ),
+                  leading: const Icon(
+                    Icons.search,
+                    size: 20,
+                    color: Colors.grey,
+                  ),
+                  hintText: 'Search funds...',
+                  // onChanged: (value) =>
+                  //     mutualController.onSearchQueryChanged(value),
+                  padding: MaterialStateProperty.all(
+                    const EdgeInsets.symmetric(horizontal: 10),
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 15),
+
+              // 🚀 Notification Icon
+              IconButton(
+                onPressed: () => Get.toNamed(AppRoutes.notification),
+                icon: const Icon(Iconsax.notification),
+                color: Ucolors.darkgrey,
+                hoverColor: Ucolors.primary.withOpacity(0.1),
+              ),
+              const SizedBox(width: 16),
+
+              // 🚀 Cart Icon with Badge
+              Obx(
+                () => Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Iconsax.shopping_cart),
+                      color: Ucolors.darkgrey,
+                      hoverColor: Ucolors.primary.withOpacity(0.1),
+                      onPressed: () {
+                        cartController.filterGoalId.value = null;
+                        Get.toNamed(AppRoutes.cart);
+                      },
+                    ),
+                    if (cartController.generalItemsCount > 0)
+                      Positioned(
+                        right: 4,
+                        top: 4,
+                        child: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: const BoxDecoration(
+                            color: Ucolors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            cartController.generalItemsCount.toString(),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+
+              // 🚀 Watchlist/Bookmark Icon
+              IconButton(
+                onPressed: () => Get.toNamed(AppRoutes.watchlist),
+                icon: const Icon(Iconsax.archive_tick),
+                color: Ucolors.darkgrey,
+                hoverColor: Ucolors.primary.withOpacity(0.1),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -1899,7 +2081,21 @@ class _DesktopSideNav extends StatelessWidget {
             //     ],
             //   ),
             // ),
-
+            // if (isDesktop)
+            //   Padding(
+            //     padding: const EdgeInsets.only(left: 16, bottom: 8),
+            //     child: Align(
+            //       alignment: Alignment.centerLeft,
+            //       child: Text(
+            //         "Generals",
+            //         style: TextStyle(
+            //           fontSize: 11,
+            //           color: Colors.grey.shade500,
+            //           fontWeight: FontWeight.bold,
+            //         ),
+            //       ),
+            //     ),
+            //   ),
             // const SizedBox(height: 20),
             Expanded(
               child: SingleChildScrollView(
