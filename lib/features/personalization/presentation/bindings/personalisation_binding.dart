@@ -70,6 +70,7 @@ class PersonalisationBinding extends Bindings {
     // 5. Finally, register the Controller
     Get.lazyPut(
       () => PersonalisationController(Get.find<PersonalisationUseCases>()),
+      fenix: true,
     );
   }
 }

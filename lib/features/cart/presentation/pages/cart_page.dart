@@ -21,180 +21,397 @@ import 'package:my_sip/features/cart/presentation/controllers/cart_controller.da
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
 
+// class CartPage extends GetView<CartController> {
+//   const CartPage({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     // log('${Get.arguments}');
+//     final args = Get.arguments as Map<String, dynamic>?;
+//     if (args != null && args['monthlyAmount'] != null) {
+//       controller.monthlyAmount.value = int.parse(
+//         args['monthlyAmount'].toString(),
+//       );
+//     }
+//     // final monthly = args?['monthlyAmount'];
+//     // final amount = args['totalAmount'] ?? '';
+//     return Scaffold(
+//       appBar: CustomAppBarNormal(title: 'Cart'),
+//       body:
+//           //  Obx(() {
+//           //   final items = controller.cartResponseEntity.value?.items ?? [];
+//           //   if ((controller.cartResponseEntity.value?.items.length ?? 0) < 1) {
+//           //     return Center(child: Text('Add scheme to cart'));
+//           //   }
+//           //   // return ListView.builder(
+//           //   //   padding: EdgeInsets.symmetric(vertical: 8),
+//           //   //   itemBuilder: (context, index) =>
+//           //   //       CartItemCard(item: controller.items[index], index: index),
+//           //   //   itemCount: controller.itemsCount,
+//           //   // );
+//           //   if (controller.cartResponseEntity?.value?.items.isEmpty ?? true) {
+//           //     return SizedBox.shrink();
+//           //   }
+//           //   return ListView.builder(
+//           //     padding: EdgeInsets.symmetric(vertical: 8),
+//           //     itemBuilder: (context, index) => CartItemCard(
+//           //       index: index,
+//           //       // itemEntity: controller.cartResponseEntity.value!.items[index],
+//           //       itemEntity: items[index],
+//           //     ),
+//           //     itemCount: controller.cartResponseEntity.value?.items.length,
+//           //   );
+//           // }),
+//           Obx(() {
+//             // Use the filtered list from the controller
+//             final items = controller.displayedItems;
+
+//             // if (items.isEmpty) {
+//             //   return Center(
+//             //     child: Text(
+//             //       "No funds for Goal ID: ${controller.filterGoalId.value}",
+//             //     ),
+//             //   );
+//             if (items.isEmpty) {
+//               return controller.filterGoalId.value != null
+//                   ? Center(
+//                       child: Text(
+//                         controller.filterGoalId.value != null
+//                             ? "No funds for this goal"
+//                             : "No general funds in cart",
+//                       ),
+//                     )
+//                   : Center(
+//                       child: AnimatedEmptyState(
+//                         title: "Your Cart is Empty",
+//                         message:
+//                             "Looks like you haven't added any funds yet. Go explore!",
+//                         icon: Icons.shopping_cart_outlined,
+//                       ),
+//                     );
+
+//               // return Center(
+//               //   child: Column(
+//               //     mainAxisAlignment: MainAxisAlignment.center,
+//               //     children: [
+//               //       Icon(
+//               //         Icons.shopping_cart_outlined,
+//               //         size: 64,
+//               //         color: Colors.grey,
+//               //       ),
+//               //       SizedBox(height: 16),
+//               //       Text(
+//               //         controller.filterGoalId.value != null
+//               //             ? 'No funds added for this specific goal'
+//               //             : 'Add funds to cart',
+//               //         style: TextStyle(color: Colors.grey.shade600),
+//               //       ),
+//               //     ],
+//               //   ),
+//               // );
+//             }
+
+//             return ListView.builder(
+//               padding: EdgeInsets.symmetric(vertical: 8),
+//               itemCount: items.length,
+//               itemBuilder: (context, index) {
+//                 return CartItemCard(
+//                   index: index,
+//                   itemEntity: items[index], // Binding to the filtered list
+//                 );
+//               },
+//             );
+//           }),
+//       persistentFooterDecoration: BoxDecoration(),
+//       persistentFooterButtons: [
+//         TermAndPolicy(term: 'By Proceeding I accept the '),
+//       ],
+
+//       bottomNavigationBar: SafeArea(
+//         top: false,
+//         child: Obx(() {
+//           final displayAmount = controller.totalAmount.toString();
+//           return CartBottomBar(
+//             isValid: controller.isCartValid1,
+//             // goalAmount: controller.items.isEmpty
+//             //     ? '/Monthly'
+//             //     : controller.monthlyAmount.value == 0
+//             //     ? '/Monthly'
+//             //     : '/${controller.monthlyAmount.value.toString()}',
+//             amount: displayAmount,
+
+//             ontap: () {
+//               // 1. RUN VALIDATION GUARD
+//               if (!controller.isCartValid1) {
+//                 // showCustomToast1(
+//                 //   title: "Validation Error",
+//                 //   message: "Please correct the amounts in your cart.",
+//                 //   backgroundColor: Colors.red.shade700,
+//                 //   icon: Icons.error_outline,
+//                 // );
+//                 return; // Stop here
+//               }
+//               Get.toNamed(
+//                 AppRoutes.paymentScreen,
+//                 arguments: {'amount': controller.totolAmount1},
+//               );
+
+//               // final totalPayable = controller.totalAmount;
+//               // if (controller.monthlyAmount.value > totalPayable) {
+//               //   showDialog(
+//               //     context: context,
+//               //     builder: (context) => AlertDialog(
+//               //       title: Text(
+//               //         'SIP amount is insufficient for this goal.\nPlease increase the amount or duration.',
+//               //       ),
+//               //       actions: [
+//               //         TextButton(
+//               //           onPressed: () => Navigator.pop(context),
+//               //           child: Text('Back'),
+//               //         ),
+//               //       ],
+//               //     ),
+//               //   );
+
+//               //   // Get.toNamed(AppRoutes.paymentScreen);
+//               // } else if (controller.monthlyAmount.value ==
+//               //     controller.totolAmount1) {
+//               //   Get.toNamed(
+//               //     AppRoutes.paymentScreen,
+//               //     arguments: {'amount': controller.totolAmount1},
+//               //   );
+//               // } else if (controller.monthlyAmount.value <
+//               //     controller.totolAmount1) {
+//               //   log('Inscrease');
+//               //   Get.toNamed(
+//               //     AppRoutes.paymentScreen,
+//               //     arguments: {'amount': controller.totolAmount1},
+//               //   );
+//               // }
+//             },
+//           );
+//         }),
+//       ),
+//     );
+//   }
+// }
+import 'dart:developer';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:gap/gap.dart';
+import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:my_sip/common/widget/animated/empty_filled.dart';
+import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
+import 'package:my_sip/common/widget/button/elevated_button.dart';
+import 'package:my_sip/common/widget/images/custom_cached_image.dart';
+import 'package:my_sip/common/widget/text_form/text_field_component.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/utils/constant/appUrl.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/enums/enums.dart';
+import 'package:my_sip/features/authentication/presentation/widgets/term_policy.dart';
+import 'package:my_sip/features/cart/domain/entities/cart_response_entity.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
+import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
+
 class CartPage extends GetView<CartController> {
   const CartPage({super.key});
 
+  // 🚀 Common Purchase Logic dono web aur mobile ke liye
+  void _handlePurchase() {
+    if (!controller.isCartValid1) return;
+    Get.toNamed(
+      AppRoutes.paymentScreen,
+      arguments: {'amount': controller.totolAmount1},
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // log('${Get.arguments}');
     final args = Get.arguments as Map<String, dynamic>?;
     if (args != null && args['monthlyAmount'] != null) {
       controller.monthlyAmount.value = int.parse(
         args['monthlyAmount'].toString(),
       );
     }
-    // final monthly = args?['monthlyAmount'];
-    // final amount = args['totalAmount'] ?? '';
+
+    // 🚀 Check if screen is wide enough for Web Layout
+    final bool isDesktop = MediaQuery.of(context).size.width > 800;
+
     return Scaffold(
-      appBar: CustomAppBarNormal(title: 'Cart'),
-      body:
-          //  Obx(() {
-          //   final items = controller.cartResponseEntity.value?.items ?? [];
-          //   if ((controller.cartResponseEntity.value?.items.length ?? 0) < 1) {
-          //     return Center(child: Text('Add scheme to cart'));
-          //   }
-          //   // return ListView.builder(
-          //   //   padding: EdgeInsets.symmetric(vertical: 8),
-          //   //   itemBuilder: (context, index) =>
-          //   //       CartItemCard(item: controller.items[index], index: index),
-          //   //   itemCount: controller.itemsCount,
-          //   // );
-          //   if (controller.cartResponseEntity?.value?.items.isEmpty ?? true) {
-          //     return SizedBox.shrink();
-          //   }
-          //   return ListView.builder(
-          //     padding: EdgeInsets.symmetric(vertical: 8),
-          //     itemBuilder: (context, index) => CartItemCard(
-          //       index: index,
-          //       // itemEntity: controller.cartResponseEntity.value!.items[index],
-          //       itemEntity: items[index],
-          //     ),
-          //     itemCount: controller.cartResponseEntity.value?.items.length,
-          //   );
-          // }),
-          Obx(() {
-            // Use the filtered list from the controller
-            final items = controller.displayedItems;
+      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
+      appBar: const CustomAppBarNormal(title: 'Cart'),
 
-            // if (items.isEmpty) {
-            //   return Center(
-            //     child: Text(
-            //       "No funds for Goal ID: ${controller.filterGoalId.value}",
-            //     ),
-            //   );
-            if (items.isEmpty) {
-              return controller.filterGoalId.value != null
-                  ? Center(
-                      child: Text(
-                        controller.filterGoalId.value != null
-                            ? "No funds for this goal"
-                            : "No general funds in cart",
-                      ),
-                    )
-                  : Center(
-                      child: AnimatedEmptyState(
-                        title: "Your Cart is Empty",
-                        message:
-                            "Looks like you haven't added any funds yet. Go explore!",
-                        icon: Icons.shopping_cart_outlined,
-                      ),
-                    );
-
-              // return Center(
-              //   child: Column(
-              //     mainAxisAlignment: MainAxisAlignment.center,
-              //     children: [
-              //       Icon(
-              //         Icons.shopping_cart_outlined,
-              //         size: 64,
-              //         color: Colors.grey,
-              //       ),
-              //       SizedBox(height: 16),
-              //       Text(
-              //         controller.filterGoalId.value != null
-              //             ? 'No funds added for this specific goal'
-              //             : 'Add funds to cart',
-              //         style: TextStyle(color: Colors.grey.shade600),
-              //       ),
-              //     ],
-              //   ),
-              // );
-            }
-
-            return ListView.builder(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                return CartItemCard(
-                  index: index,
-                  itemEntity: items[index], // Binding to the filtered list
+      // 🚀 MOBILE BOTTOM BAR (Hide on Desktop)
+      persistentFooterDecoration: isDesktop ? null : const BoxDecoration(),
+      persistentFooterButtons: isDesktop
+          ? null
+          : [const TermAndPolicy(term: 'By Proceeding I accept the ')],
+      bottomNavigationBar: isDesktop
+          ? null
+          : SafeArea(
+              top: false,
+              child: Obx(() {
+                return CartBottomBar(
+                  isValid: controller.isCartValid1,
+                  amount: controller.totalAmount.toString(),
+                  ontap: _handlePurchase,
                 );
-              },
+              }),
+            ),
+
+      // 🚀 MAIN BODY (Responsive)
+      body: Obx(() {
+        final items = controller.displayedItems;
+
+        // --- EMPTY STATE ---
+        if (items.isEmpty) {
+          return Center(
+            child: controller.filterGoalId.value != null
+                ? const Text("No funds for this goal")
+                : const AnimatedEmptyState(
+                    title: "Your Cart is Empty",
+                    message:
+                        "Looks like you haven't added any funds yet. Go explore!",
+                    icon: Icons.shopping_cart_outlined,
+                  ),
+          );
+        }
+
+        // --- DESKTOP / WEB LAYOUT ---
+        if (isDesktop) {
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 1100,
+              ), // Max width for clean look
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 24,
+                  horizontal: 16,
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 60% Left Side: Item List
+                    Expanded(
+                      flex: 6,
+                      child: ListView.builder(
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          return CartItemCard(
+                            index: index,
+                            itemEntity: items[index],
+                          );
+                        },
+                      ),
+                    ),
+                    const Gap(24),
+                    // 40% Right Side: Order Summary Card
+                    Expanded(flex: 4, child: _buildWebOrderSummary()),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
+        // --- MOBILE LAYOUT ---
+        return ListView.builder(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            return CartItemCard(index: index, itemEntity: items[index]);
+          },
+        );
+      }),
+    );
+  }
+
+  // =========================================
+  // 💻 WEB ORDER SUMMARY WIDGET
+  // =========================================
+  Widget _buildWebOrderSummary() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            'Order Summary',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Ucolors.dark,
+            ),
+          ),
+          const Gap(16),
+          Divider(color: Colors.grey.shade200),
+          const Gap(16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Total Amount Payable',
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+              ),
+              Obx(
+                () => Text(
+                  '₹ ${controller.totalAmount}',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Ucolors.success,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const Gap(24),
+          const TermAndPolicy(term: 'By Proceeding I accept the '),
+          const Gap(24),
+          Obx(() {
+            final isValid = controller.isCartValid1;
+            return UElevatedBUtton(
+              color: isValid ? Ucolors.primary : Colors.grey,
+              onPressed: isValid ? _handlePurchase : null,
+              child: const Center(
+                child: Text(
+                  'Complete Purchase',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
             );
           }),
-      persistentFooterDecoration: BoxDecoration(),
-      persistentFooterButtons: [
-        TermAndPolicy(term: 'By Proceeding I accept the '),
-      ],
-
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Obx(() {
-          final displayAmount = controller.totalAmount.toString();
-          return CartBottomBar(
-            isValid: controller.isCartValid1,
-            // goalAmount: controller.items.isEmpty
-            //     ? '/Monthly'
-            //     : controller.monthlyAmount.value == 0
-            //     ? '/Monthly'
-            //     : '/${controller.monthlyAmount.value.toString()}',
-            amount: displayAmount,
-
-            ontap: () {
-              // 1. RUN VALIDATION GUARD
-              if (!controller.isCartValid1) {
-                // showCustomToast1(
-                //   title: "Validation Error",
-                //   message: "Please correct the amounts in your cart.",
-                //   backgroundColor: Colors.red.shade700,
-                //   icon: Icons.error_outline,
-                // );
-                return; // Stop here
-              }
-              Get.toNamed(
-                AppRoutes.paymentScreen,
-                arguments: {'amount': controller.totolAmount1},
-              );
-
-              // final totalPayable = controller.totalAmount;
-              // if (controller.monthlyAmount.value > totalPayable) {
-              //   showDialog(
-              //     context: context,
-              //     builder: (context) => AlertDialog(
-              //       title: Text(
-              //         'SIP amount is insufficient for this goal.\nPlease increase the amount or duration.',
-              //       ),
-              //       actions: [
-              //         TextButton(
-              //           onPressed: () => Navigator.pop(context),
-              //           child: Text('Back'),
-              //         ),
-              //       ],
-              //     ),
-              //   );
-
-              //   // Get.toNamed(AppRoutes.paymentScreen);
-              // } else if (controller.monthlyAmount.value ==
-              //     controller.totolAmount1) {
-              //   Get.toNamed(
-              //     AppRoutes.paymentScreen,
-              //     arguments: {'amount': controller.totolAmount1},
-              //   );
-              // } else if (controller.monthlyAmount.value <
-              //     controller.totolAmount1) {
-              //   log('Inscrease');
-              //   Get.toNamed(
-              //     AppRoutes.paymentScreen,
-              //     arguments: {'amount': controller.totolAmount1},
-              //   );
-              // }
-            },
-          );
-        }),
+        ],
       ),
     );
   }
 }
+
+// ⚠️ Yahan aapke baaki ke same widgets rahenge...
+// (CartBottomBar, CartItemCard, FundHeader, InvestmentInputsRow etc... unhe chhedne ki zaroorat nahi hai)
 
 class CartBottomBar extends StatelessWidget {
   const CartBottomBar({
@@ -337,7 +554,6 @@ class FundHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log('${Appurl.baseUrl}${itemEntity.amcLogo}');
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -443,7 +659,7 @@ class FundHeader extends StatelessWidget {
                   ),
                 )
               : Deleteiconwithcontainer(
-                  containercolor: Colors.redAccent.withOpacity(0.1),
+                  containercolor: Colors.redAccent,
                   delete: () {
                     showDialog(
                       context: context,

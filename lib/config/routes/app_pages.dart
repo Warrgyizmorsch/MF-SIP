@@ -63,7 +63,7 @@ class AppPages {
         Bankbinding(),
         Fundhousebinding(),
         WishlistBinding(),
-        SipProcessBinding(),
+        // SipProcessBinding(),
         GoalBinding(),
       ],
       name: AppRoutes.navMenuBar,

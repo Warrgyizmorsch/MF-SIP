@@ -22,7 +22,7 @@ class Bankbinding extends Bindings {
     );
 
     // 4. Register the Use Case
-    Get.lazyPut(() => GetBankUseCases(Get.find()));
+    Get.lazyPut(() => GetBankUseCases(Get.find()), fenix: true);
 
     // 5. Finally, register the Controller
     Get.lazyPut(() => BankController(Get.find()));

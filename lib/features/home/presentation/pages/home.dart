@@ -954,10 +954,14 @@ class _MobileLayout extends StatelessWidget {
                         GestureDetector(
                           // onTap: () => Get.toNamed(AppRoutes.startSipScreen),
                           onTap: () {
-                            Get.find<SipProcessController>().setInvestmentMode(
-                              false,
+                            // Get.find<SipProcessController>().setInvestmentMode(
+                            //   false,
+                            // );
+                            // Get.toNamed(AppRoutes.startSipScreen);
+                            Get.toNamed(
+                              AppRoutes.startSipScreen,
+                              arguments: {'isLumpsum': false},
                             );
-                            Get.toNamed(AppRoutes.startSipScreen);
                           },
                           child: const FeatureSection(
                             featureName: 'SIP',
@@ -970,10 +974,14 @@ class _MobileLayout extends StatelessWidget {
                         GestureDetector(
                           // onTap: () => Get.toNamed(AppRoutes.startSipScreen),
                           onTap: () {
-                            Get.find<SipProcessController>().setInvestmentMode(
-                              true,
+                            // Get.find<SipProcessController>().setInvestmentMode(
+                            //   true,
+                            // );
+                            // Get.toNamed(AppRoutes.startSipScreen);
+                            Get.toNamed(
+                              AppRoutes.startSipScreen,
+                              arguments: {'isLumpsum': true},
                             );
-                            Get.toNamed(AppRoutes.startSipScreen);
                           },
                           child: const FeatureSection(
                             featureName: 'Lumpsum',
