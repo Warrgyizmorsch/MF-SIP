@@ -389,6 +389,25 @@ class GoalSipController extends GetxController {
     );
   }
 
+  // Add this inside GoalSipController
+  Future<void> pickCoverImage(ImageSource source) async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      
+      // Using the exact same picker setup as your signature code
+      final XFile? image = await picker.pickImage(
+        source: source,
+        imageQuality: 80, // Optional: compresses the image slightly
+      );
+
+      if (image != null) {
+        coverImage.value = image; // Updates the Obx in the UI
+      }
+    } catch (e) {
+      Get.snackbar("Error", "Failed to pick cover: $e");
+    }
+  }
+
   ///// -------------- Goal Calculation ---------------///
   void setTarget(double value) {
     targetAmount.value = value;

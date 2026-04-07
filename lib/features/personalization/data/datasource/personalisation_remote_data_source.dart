@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
@@ -7,7 +8,6 @@ import 'package:my_sip/features/personalization/data/model/nominee_model.dart';
 import 'package:my_sip/features/personalization/data/model/profile_update_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_question_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
-import 'package:my_sip/features/personalization/data/model/risk_submit_rq.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 import '../../../../core/network/network_api_service.dart';
@@ -54,6 +54,9 @@ class PersonalisationRemoteDataSource {
     try {
       final resp = await _apiService.getApi(
         "${Appurl.baseUrl}/api/v1/risk-questions",
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
       );
 
       createLog(
@@ -82,6 +85,9 @@ class PersonalisationRemoteDataSource {
     try {
       final resp = await _apiService.postApi(
         "${Appurl.baseUrl}/api/v1/risk-questions/submit",
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
         data: data,
       );
 
@@ -109,6 +115,9 @@ class PersonalisationRemoteDataSource {
     try {
       final resp = await _apiService.postApi(
         "${Appurl.baseUrl}/api/v1/nominees",
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
         data: data,
       );
 
@@ -138,7 +147,8 @@ class PersonalisationRemoteDataSource {
           "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
         },
 
-        data: data,
+        queryParameters: data,
+        data: kIsWeb ? null : data,
       );
 
       createLog(
@@ -163,6 +173,9 @@ class PersonalisationRemoteDataSource {
     try {
       final resp = await _apiService.postApi(
         "${Appurl.baseUrl}/api/v1/nominees/delete",
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
         data: data,
       );
 
@@ -189,6 +202,9 @@ class PersonalisationRemoteDataSource {
       // Using postFormData because the API requires 'form-data' for the image file
       final resp = await _apiService.postFormData(
         "${Appurl.baseUrl}/api/v1/profile/update",
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
         data,
       );
 

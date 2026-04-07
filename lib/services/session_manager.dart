@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert'; // Required for jsonEncode/jsonDecode
+import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -40,6 +41,9 @@ class SessionManager extends GetxService {
   // Store as UserEntity object in memory
   // UserModel? _userData;
   final Rxn<UserModel> _userData = Rxn<UserModel>();
+
+  //kyc check
+  final RxBool isKycVerified = false.obs;
 
   final StreamController<String?> _controller =
       StreamController<String?>.broadcast();
@@ -114,6 +118,10 @@ class SessionManager extends GetxService {
         appLockVal = await _secureStorage?.read(key: 'isAppLockEnabled');
       }
       isAppLockEnabled.value = appLockVal == 'true';
+
+      //kyc
+      final kycVal = _prefs?.getBool('kyc_verified');
+      isKycVerified.value = kycVal ?? false;
     } else {
       await getSession();
     }
@@ -129,6 +137,17 @@ class SessionManager extends GetxService {
       await _prefs!.setString('isAppLockEnabled', valString);
     } else {
       await _secureStorage!.write(key: 'isAppLockEnabled', value: valString);
+    }
+  }
+
+  // Kyc Method
+  Future<void> setKycVerified(bool value) async {
+    isKycVerified.value = value;
+    if (kIsWeb) {
+      await _ensurePrefsInitialized();
+      await _prefs!.setBool('kyc_verified', value);
+    } else {
+      await _secureStorage!.write(key: 'kyc_verified', value: value.toString());
     }
   }
 
@@ -338,6 +357,11 @@ class SessionManager extends GetxService {
       ); // 3. Read for Mobile
       tokenDataString = await _secureStorage?.read(key: 'tokenData');
       onboardingString = await _secureStorage?.read(key: 'onBoardingData');
+      //kyc
+      final kycVal = await _secureStorage?.read(key: 'kyc_verified');
+      if (kycVal != null) {
+        isKycVerified.value = kycVal == 'true';
+      }
     }
     // 4. Update the Observable
     if (appLockString != null) {
@@ -386,6 +410,10 @@ class SessionManager extends GetxService {
   }
 
   Future<void> clearSession() async {
+    // ADD THIS LINE:
+    log("🚨 WARNING: CLEAR SESSION CALLED! Wiping all data! 🚨");
+    debugPrint(StackTrace.current.toString());
+
     jwtAccessToken = null;
     jwtRefreshToken = null;
     userId = null;
@@ -400,6 +428,7 @@ class SessionManager extends GetxService {
 
     if (kIsWeb) {
       await _ensurePrefsInitialized();
+      log("🚨 WEB MODE: Skipped deleting SharedPreferences to protect Next.js session. 🚨");
       await Future.wait([
         _prefs!.remove('jwtAccessToken'),
         _prefs!.remove('jwtRefreshToken'),

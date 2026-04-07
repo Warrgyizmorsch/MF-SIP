@@ -42,30 +42,31 @@ class NetworkServicesApi implements BaseApiServices {
   // ---------------------------------------------------------------------------
   // BASIC REQUESTS
   // ---------------------------------------------------------------------------
-
   @override
   Future<dynamic> getApi(
-      String url, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        Map<String, String>? headers,
-        bool isPublic = false,
-        ResponseType? responseType, // <--- NEW PARAMETER
-      }) async {
+    String url, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Map<String, String>? headers,
+    bool isPublic = false,
+    ResponseType? responseType,
+  }) async {
     try {
       final response = await _dio.get(
         url,
         queryParameters: queryParameters,
-        data: data, // Note: GET requests usually don't have body data, but if your API needs it, this is fine.
+        // 🔥 FIX 1: Web par GET request mein body allow nahi hai, isliye ignore kar do.
+        data: kIsWeb ? null : data,
         options: Options(
           headers: headers,
-          responseType: responseType, // <--- PASS IT HERE
+          responseType: responseType,
           extra: {'isPublic': isPublic},
           contentType: (kIsWeb && isPublic) ? Headers.jsonContentType : null,
+          // 🔥 FIX 2: Web par GET request (bina body) ke sath sendTimeout warning deta hai, usko hata do.
+          sendTimeout: kIsWeb ? null : const Duration(seconds: 30),
         ),
       );
 
-      // If we requested bytes, return the data directly (don't run it through JSON parsers)
       if (responseType == ResponseType.bytes) {
         return response.data;
       }
@@ -75,23 +76,54 @@ class NetworkServicesApi implements BaseApiServices {
       throw _handleDioError(e);
     }
   }
+
+  // @override
+  // Future<dynamic> getApi(
+  //     String url, {
+  //       dynamic data,
+  //       Map<String, dynamic>? queryParameters,
+  //       Map<String, String>? headers,
+  //       bool isPublic = false,
+  //       ResponseType? responseType, // <--- NEW PARAMETER
+  //     }) async {
+  //   try {
+  //     final response = await _dio.get(
+  //       url,
+  //       queryParameters: queryParameters,
+  //       data: data, // Note: GET requests usually don't have body data, but if your API needs it, this is fine.
+  //       options: Options(
+  //         headers: headers,
+  //         responseType: responseType, // <--- PASS IT HERE
+  //         extra: {'isPublic': isPublic},
+  //         contentType: (kIsWeb && isPublic) ? Headers.jsonContentType : null,
+  //       ),
+  //     );
+
+  //     // If we requested bytes, return the data directly (don't run it through JSON parsers)
+  //     if (responseType == ResponseType.bytes) {
+  //       return response.data;
+  //     }
+
+  //     return _handleResponse(response);
+  //   } on DioException catch (e) {
+  //     throw _handleDioError(e);
+  //   }
+  // }
+
   @override
   Future<dynamic> postApi(
-      String url, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        Map<String, String>? headers,
-        bool isPublic = false, // Added
-      }) async {
+    String url, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Map<String, String>? headers,
+    bool isPublic = false, // Added
+  }) async {
     try {
       final response = await _dio.post(
         url,
         data: data,
         queryParameters: queryParameters,
-        options: Options(
-          headers: headers,
-          extra: {'isPublic': isPublic},
-        ),
+        options: Options(headers: headers, extra: {'isPublic': isPublic}),
       );
       return _handleResponse(response);
     } on DioException catch (e) {
@@ -101,19 +133,16 @@ class NetworkServicesApi implements BaseApiServices {
 
   @override
   Future<dynamic> putApi(
-      String url,
-      dynamic data, {
-        Map<String, String>? headers,
-        bool isPublic = false, // Added
-      }) async {
+    String url,
+    dynamic data, {
+    Map<String, String>? headers,
+    bool isPublic = false, // Added
+  }) async {
     try {
       final response = await _dio.put(
         url,
         data: data,
-        options: Options(
-          headers: headers,
-          extra: {'isPublic': isPublic},
-        ),
+        options: Options(headers: headers, extra: {'isPublic': isPublic}),
       );
       return _handleResponse(response);
     } on DioException catch (e) {
@@ -123,19 +152,16 @@ class NetworkServicesApi implements BaseApiServices {
 
   @override
   Future<dynamic> patchApi(
-      String url,
-      dynamic data, {
-        Map<String, String>? headers,
-        bool isPublic = false, // Added
-      }) async {
+    String url,
+    dynamic data, {
+    Map<String, String>? headers,
+    bool isPublic = false, // Added
+  }) async {
     try {
       final response = await _dio.patch(
         url,
         data: data,
-        options: Options(
-          headers: headers,
-          extra: {'isPublic': isPublic},
-        ),
+        options: Options(headers: headers, extra: {'isPublic': isPublic}),
       );
       return _handleResponse(response);
     } on DioException catch (e) {
@@ -145,19 +171,16 @@ class NetworkServicesApi implements BaseApiServices {
 
   @override
   Future<dynamic> deleteApi(
-      String url,
-      dynamic data, {
-        Map<String, String>? headers,
-        bool isPublic = false, // Added
-      }) async {
+    String url,
+    dynamic data, {
+    Map<String, String>? headers,
+    bool isPublic = false, // Added
+  }) async {
     try {
       final response = await _dio.delete(
         url,
         data: data,
-        options: Options(
-          headers: headers,
-          extra: {'isPublic': isPublic},
-        ),
+        options: Options(headers: headers, extra: {'isPublic': isPublic}),
       );
       return _handleResponse(response);
     } on DioException catch (e) {
@@ -171,11 +194,11 @@ class NetworkServicesApi implements BaseApiServices {
 
   @override
   Future<dynamic> postFormData(
-      String url,
-      Map<String, dynamic> data, {
-        Map<String, String>? headers,
-        bool isPublic = false, // Added
-      }) async {
+    String url,
+    Map<String, dynamic> data, {
+    Map<String, String>? headers,
+    bool isPublic = false, // Added
+  }) async {
     try {
       final response = await _dio.post(
         url,
@@ -209,8 +232,10 @@ class NetworkServicesApi implements BaseApiServices {
     final actualFileField = fileFieldName ?? 'attachments';
     final actualContentType = contentType ?? 'multipart/form-data';
 
-    assert(files.length == fileNames.length,
-    'files and fileNames length must match');
+    assert(
+      files.length == fileNames.length,
+      'files and fileNames length must match',
+    );
 
     try {
       final formData = FormData();
@@ -220,8 +245,7 @@ class NetworkServicesApi implements BaseApiServices {
       });
 
       for (int i = 0; i < files.length; i++) {
-        final mime =
-            lookupMimeType(fileNames[i]) ?? 'application/octet-stream';
+        final mime = lookupMimeType(fileNames[i]) ?? 'application/octet-stream';
         final mimeType = mime.split('/');
 
         formData.files.add(
@@ -242,10 +266,7 @@ class NetworkServicesApi implements BaseApiServices {
       final response = await _dio.post(
         url,
         data: formData,
-        options: Options(
-          contentType: actualContentType,
-          headers: headers,
-        ),
+        options: Options(contentType: actualContentType, headers: headers),
       );
 
       return _handleResponse(response);
@@ -253,8 +274,6 @@ class NetworkServicesApi implements BaseApiServices {
       throw _handleDioError(e);
     }
   }
-
-
 
   // ---------------------------------------------------------------------------
   // S3 UPLOAD (DIRECT PUT)
@@ -347,9 +366,9 @@ class NetworkServicesApi implements BaseApiServices {
         if (kIsWeb) {
           return NoInternetException(
             "Network error on web. Check:\n"
-                "1. Your internet connection\n"
-                "2. CORS configuration on your backend\n"
-                "3. Backend URL is correct and accessible",
+            "1. Your internet connection\n"
+            "2. CORS configuration on your backend\n"
+            "3. Backend URL is correct and accessible",
           );
         }
         return NoInternetException('No internet connection');
@@ -392,9 +411,9 @@ class NetworkServicesApi implements BaseApiServices {
 class _HeadersInterceptor extends Interceptor {
   @override
   void onRequest(
-      RequestOptions options,
-      RequestInterceptorHandler handler,
-      ) async {
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     // UPDATED: Skip adding headers on Web if it is a public request
     // This helps avoid CORS issues with unnecessary headers
     if (kIsWeb && options.extra['isPublic'] == true) {
@@ -454,9 +473,9 @@ class _HeadersInterceptor extends Interceptor {
 class _AuthInterceptor extends Interceptor {
   @override
   void onRequest(
-      RequestOptions options,
-      RequestInterceptorHandler handler,
-      ) async {
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     // 1. Skip if explicitly disabled
     if (options.extra['skipAuthInterceptor'] == true) {
       return super.onRequest(options, handler);
@@ -472,7 +491,8 @@ class _AuthInterceptor extends Interceptor {
     // This allows you to pass custom tokens (like Signzy) manually.
     if (options.headers.containsKey('Authorization')) {
       createLog(
-          "[API] specific Authorization header found, skipping default Bearer token");
+        "[API] specific Authorization header found, skipping default Bearer token",
+      );
       return super.onRequest(options, handler);
     }
 
@@ -608,76 +628,76 @@ class AppException implements Exception {
 /// Exception for network connectivity issues
 class NoInternetException extends AppException {
   NoInternetException([String? message])
-      : super(
-    message: message ?? 'No internet connection',
-    prefix: 'No Internet',
-  );
+    : super(
+        message: message ?? 'No internet connection',
+        prefix: 'No Internet',
+      );
 }
 
 /// Exception for request timeout
 class RequestTimeoutException extends AppException {
   RequestTimeoutException([String? message])
-      : super(message: message ?? 'Request timeout', prefix: 'Timeout');
+    : super(message: message ?? 'Request timeout', prefix: 'Timeout');
 }
 
 /// Exception for bad requests (400)
 class BadRequestException extends AppException {
   BadRequestException([String? message])
-      : super(
-    message: message ?? 'Bad request',
-    prefix: 'Bad Request',
-    statusCode: 400,
-  );
+    : super(
+        message: message ?? 'Bad request',
+        prefix: 'Bad Request',
+        statusCode: 400,
+      );
 }
 
 /// Exception for unauthorized access (401)
 class UnauthorizedException extends AppException {
   UnauthorizedException([String? message])
-      : super(
-    message: message ?? 'Unauthorized access',
-    prefix: 'Unauthorized',
-    statusCode: 401,
-  );
+    : super(
+        message: message ?? 'Unauthorized access',
+        prefix: 'Unauthorized',
+        statusCode: 401,
+      );
 }
 
 /// Exception for forbidden access (403)
 class ForbiddenException extends AppException {
   ForbiddenException([String? message])
-      : super(
-    message: message ?? 'Access forbidden',
-    prefix: 'Forbidden',
-    statusCode: 403,
-  );
+    : super(
+        message: message ?? 'Access forbidden',
+        prefix: 'Forbidden',
+        statusCode: 403,
+      );
 }
 
 /// Exception for not found (404)
 class NotFoundException extends AppException {
   NotFoundException([String? message])
-      : super(
-    message: message ?? 'Resource not found',
-    prefix: 'Not Found',
-    statusCode: 404,
-  );
+    : super(
+        message: message ?? 'Resource not found',
+        prefix: 'Not Found',
+        statusCode: 404,
+      );
 }
 
 /// Exception for server errors (500+)
 class ServerException extends AppException {
   ServerException([String? message])
-      : super(
-    message: message ?? 'Internal server error',
-    prefix: 'Server Error',
-    statusCode: 500,
-  );
+    : super(
+        message: message ?? 'Internal server error',
+        prefix: 'Server Error',
+        statusCode: 500,
+      );
 }
 
 /// Exception for data fetching errors
 class FetchDataException extends AppException {
   FetchDataException([String? message])
-      : super(message: message ?? 'Error fetching data', prefix: 'Fetch Error');
+    : super(message: message ?? 'Error fetching data', prefix: 'Fetch Error');
 }
 
 /// Exception for data parsing errors
 class InvalidInputException extends AppException {
   InvalidInputException([String? message])
-      : super(message: message ?? 'Invalid input', prefix: 'Invalid Input');
+    : super(message: message ?? 'Invalid input', prefix: 'Invalid Input');
 }

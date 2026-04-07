@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,10 +7,12 @@ import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
+import 'package:my_sip/features/authentication/data/models/auth_model.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/welcome_page.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/services/session_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -59,6 +62,33 @@ class _SplashScreenState extends State<SplashScreen> {
     }
 
     if (!mounted) return;
+
+    // 🚀 --- WEB AUTO-LOGIN SYNC LOGIC --- 🚀
+    // Flutter check karega ki local storage mein Next.js ne data rakha hai ya nahi
+    // if (kIsWeb) {
+    //   try {
+    //     final prefs = await SharedPreferences.getInstance();
+
+    //     // Flutter natively reads "flutter.jwtAccessToken" when you ask for "jwtAccessToken"
+    //     final String? webToken = prefs.getString('jwtAccessToken');
+    //     final String? webUserDataString = prefs.getString('userData');
+
+    //     if (webToken != null && webToken.isNotEmpty && webUserDataString != null) {
+    //       createLog("Web Sync: Token found, auto-logging in!");
+
+    //       final Map<String, dynamic> webUserJson = jsonDecode(webUserDataString);
+
+    //       // Force update the SessionManager with Next.js data
+    //       // Ensure UserModel.fromJson() matches your actual model method
+    //       await SessionManager.instance.setSession(
+    //         jwtAccessToken: webToken,
+    //         userData: UserModel.fromJson(webUserJson),
+    //       );
+    //     }
+    //   } catch (e) {
+    //     createLog("Web Auto-Login Sync Error: $e");
+    //   }
+    // }
 
     final bool loggedIn = SessionManager.instance.isAuthenticated();
 

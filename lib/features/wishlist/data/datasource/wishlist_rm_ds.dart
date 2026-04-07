@@ -5,6 +5,7 @@ import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/wishlist/data/model/wishlist_model.dart';
+import 'package:my_sip/services/session_manager.dart';
 
 class WishlistRmDs {
   final NetworkServicesApi networkServicesApi;
@@ -17,6 +18,9 @@ class WishlistRmDs {
     try {
       final res = await networkServicesApi.postApi(
         "${Appurl.baseUrl}/api/v1/wishlist/store",
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
         data: data,
       );
 
@@ -44,6 +48,9 @@ class WishlistRmDs {
     try {
       final res = await networkServicesApi.getApi(
         "${Appurl.baseUrl}/api/v1/wishlist/$userID",
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
       );
 
       createLog("[fetch Wishlist Remote Data Source]  Response: $res");
@@ -68,6 +75,9 @@ class WishlistRmDs {
     try {
       final res = await networkServicesApi.deleteApi(
         "${Appurl.baseUrl}/api/v1/wishlist/$wishlistId",
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
         {},
       );
 

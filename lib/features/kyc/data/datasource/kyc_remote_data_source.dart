@@ -31,9 +31,8 @@ class KycRemoteDataSource {
     Map<String, dynamic> data,
   ) async {
     try {
-
       final resp = await _apiService.postApi(
-        "${Appurl.baseUrl}/api/v1/check-kyc", 
+        "${Appurl.baseUrl}/api/v1/check-kyc",
         data: data,
         // headers: {
         //   'Content-Type': 'application/json',
@@ -44,18 +43,18 @@ class KycRemoteDataSource {
 
       if (resp != null) {
         final result = KycCheckModel.fromJson(resp);
-        
+
         // Check your API's 'status' boolean
         if (result.status == true) {
           return Left(Result.success(result));
         } else {
-          return Right(
-            ApiError(message: result.message ?? 'Check KYC Failed'),
-          );
+          return Right(ApiError(message: result.message ?? 'Check KYC Failed'));
         }
       } else {
         return Right(
-          ApiError(message: 'checkKycStatus Failed: Invalid response structure'),
+          ApiError(
+            message: 'checkKycStatus Failed: Invalid response structure',
+          ),
         );
       }
     } catch (e) {
@@ -209,6 +208,7 @@ class KycRemoteDataSource {
       );
 
       createLog("[Kyc Remote Data Source] updateForm Response: $resp");
+      createLog("[Kyc Remote Data Source] updateForm data: $data");
 
       if (resp != null && resp['object'] != null) {
         final result = resp['object'];

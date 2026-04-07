@@ -20,7 +20,6 @@ import 'package:my_sip/features/authentication/presentation/controllers/auth/aut
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
-import 'package:my_sip/features/explore/presentation/pages/explore.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_calculator.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
@@ -162,107 +161,96 @@ class _WebDashboardLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _buildWebHeader(),
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 30),
-            child: Center(
-              child: MaxWidthBox(
-                maxWidth: 1200,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(vertical: 30),
+      child: Center(
+        child: MaxWidthBox(
+          maxWidth: 1200,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // --- LEFT COLUMN ---
+                    Expanded(
+                      flex: 8,
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // --- LEFT COLUMN ---
-                          Expanded(
-                            flex: 8,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildHeroBanner(),
-                                const Gap(30),
-                                const Text(
-                                  "Quick Actions",
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const Gap(16),
-                                _buildQuickActionsCard(),
-                                const Gap(30),
-                                const Text(
-                                  "Explore Categories",
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const Gap(16),
-                                _buildWebCollectionGrid(),
-                                const Gap(30),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text(
-                                      "Popular Funds",
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {},
-                                      child: const Text("View All"),
-                                    ),
-                                  ],
-                                ),
-                                const Gap(10),
-                                _buildWebFundGrid(),
-                                const Gap(30),
-                              ],
-                            ),
-                          ),
+                          _buildHeroBanner(),
                           const Gap(30),
-                          // --- RIGHT COLUMN ---
-                          Expanded(
-                            flex: 4,
-                            child: Column(
-                              children: [
-                                _buildWebGoalSection(),
-                                const Gap(24),
-                                _buildWebToolsSection(),
-                              ],
+                          const Text(
+                            "Quick Actions",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
+                          const Gap(16),
+                          _buildQuickActionsCard(),
+                          const Gap(30),
+                          const Text(
+                            "Explore Categories",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Gap(16),
+                          _buildWebCollectionGrid(),
+                          const Gap(30),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Popular Funds",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {},
+                                child: const Text("View All"),
+                              ),
+                            ],
+                          ),
+                          const Gap(10),
+                          _buildWebFundGrid(),
+                          const Gap(30),
                         ],
                       ),
-                      const Text(
-                        "Learn & Grow",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.start,
+                    ),
+                    const Gap(30),
+                    // --- RIGHT COLUMN ---
+                    Expanded(
+                      flex: 4,
+                      child: Column(
+                        children: [
+                          _buildWebGoalSection(),
+                          const Gap(24),
+                          _buildWebToolsSection(),
+                        ],
                       ),
-                      const Gap(16),
-
-                      _buildWebVideoRow(),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ),
+                const Text(
+                  "Learn & Grow",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.start,
+                ),
+                const Gap(16),
+
+                _buildWebVideoRow(),
+              ],
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 
@@ -298,7 +286,7 @@ class _WebDashboardLayout extends StatelessWidget {
                       },
                       hoverColor: Ucolors.primary.withOpacity(0.1),
                     ),
-                    if (cartController.itemsCount > 0)
+                    if (cartController.generalItemsCount > 0)
                       Positioned(
                         right: 5,
                         top: 5,
@@ -309,7 +297,7 @@ class _WebDashboardLayout extends StatelessWidget {
                             shape: BoxShape.circle,
                           ),
                           child: Text(
-                            cartController.itemsCount.toString(),
+                            cartController.generalItemsCount.toString(),
                             style: const TextStyle(
                               fontSize: 10,
                               color: Colors.white,
@@ -955,10 +943,14 @@ class _MobileLayout extends StatelessWidget {
                         GestureDetector(
                           // onTap: () => Get.toNamed(AppRoutes.startSipScreen),
                           onTap: () {
-                            Get.find<SipProcessController>().setInvestmentMode(
-                              false,
+                            // Get.find<SipProcessController>().setInvestmentMode(
+                            //   false,
+                            // );
+                            // Get.toNamed(AppRoutes.startSipScreen);
+                            Get.toNamed(
+                              AppRoutes.startSipScreen,
+                              arguments: {'isLumpsum': false},
                             );
-                            Get.toNamed(AppRoutes.startSipScreen);
                           },
                           child: const FeatureSection(
                             featureName: 'SIP',
@@ -971,10 +963,14 @@ class _MobileLayout extends StatelessWidget {
                         GestureDetector(
                           // onTap: () => Get.toNamed(AppRoutes.startSipScreen),
                           onTap: () {
-                            Get.find<SipProcessController>().setInvestmentMode(
-                              true,
+                            // Get.find<SipProcessController>().setInvestmentMode(
+                            //   true,
+                            // );
+                            // Get.toNamed(AppRoutes.startSipScreen);
+                            Get.toNamed(
+                              AppRoutes.startSipScreen,
+                              arguments: {'isLumpsum': true},
                             );
-                            Get.toNamed(AppRoutes.startSipScreen);
                           },
                           child: const FeatureSection(
                             featureName: 'Lumpsum',
@@ -985,74 +981,184 @@ class _MobileLayout extends StatelessWidget {
                     ),
                   ),
                 ),
-                Positioned(
-                  left: 20,
-                  right: 20,
-                  bottom: 0,
-                  child: Center(
-                    child: GestureDetector(
-                      onTap: () => Get.toNamed(AppRoutes.kycScreen),
-                      child: Container(
-                        height: size.height * 0.13,
-                        decoration: BoxDecoration(
-                          color: Ucolors.light,
-                          borderRadius: BorderRadius.circular(15),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.15),
-                              blurRadius: 5,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 15,
-                            vertical: 10,
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.person, size: 24),
-                              const SizedBox(width: 15),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      'Onboarding task',
-                                      style: UTextStyles.caption.copyWith(
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Complete KYC & Profile',
-                                      style: UTextStyles.medium.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: Ucolors.dark,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Verify your Identity to start Investing',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: UTextStyles.caption.copyWith(
-                                        fontSize: 10,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                Obx(() {
+                  final isVerified =
+                      SessionManager.instance.isKycVerified.value;
+
+                  return Positioned(
+                    left: 20,
+                    right: 20,
+                    bottom: 0,
+                    child: Center(
+                      child: GestureDetector(
+                        onTap: () async {
+                          if (!isVerified) {
+                            Get.toNamed(AppRoutes.kycScreen);
+                            // await SessionManager.instance.setKycVerified(false);
+                          } else {
+                            Get.toNamed(AppRoutes.kycScreen);
+                          }
+                        },
+                        child: Container(
+                          height: size.height * 0.13,
+                          decoration: BoxDecoration(
+                            color: isVerified
+                                ? Colors.green.shade50
+                                : Ucolors.light,
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 5,
+                                offset: const Offset(0, 4),
                               ),
-                              const Icon(Icons.arrow_forward_ios, size: 12),
                             ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 15,
+                              vertical: 10,
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  isVerified
+                                      ? Icons.check_circle
+                                      : Icons.person,
+                                  size: 24,
+                                  color: isVerified
+                                      ? Colors.green
+                                      : Colors.black,
+                                ),
+                                const SizedBox(width: 15),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Onboarding task',
+                                        style: UTextStyles.caption.copyWith(
+                                          fontSize: 12,
+                                        ),
+                                      ),
+
+                                      /// 🔥 MAIN TEXT CHANGE
+                                      Text(
+                                        isVerified
+                                            ? 'KYC Completed'
+                                            : 'Complete KYC & Profile',
+                                        style: UTextStyles.medium.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: isVerified
+                                              ? Colors.green
+                                              : Ucolors.dark,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+
+                                      /// 🔥 SUB TEXT CHANGE
+                                      Text(
+                                        isVerified
+                                            ? 'Your account is fully verified 🎉'
+                                            : 'Verify your Identity to start Investing',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: UTextStyles.caption.copyWith(
+                                          fontSize: 10,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                /// 🔥 RIGHT ICON CHANGE
+                                Icon(
+                                  isVerified
+                                      ? Icons.verified
+                                      : Icons.arrow_forward_ios,
+                                  size: 12,
+                                  color: isVerified
+                                      ? Colors.green
+                                      : Colors.black,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
+                  );
+                }),
+                // Positioned(
+                //   left: 20,
+                //   right: 20,
+                //   bottom: 0,
+                //   child: Center(
+                //     child: GestureDetector(
+                //       onTap: () => Get.toNamed(AppRoutes.kycScreen),
+                //       child: Container(
+                //         height: size.height * 0.13,
+                //         decoration: BoxDecoration(
+                //           color: Ucolors.light,
+                //           borderRadius: BorderRadius.circular(15),
+                //           boxShadow: [
+                //             BoxShadow(
+                //               color: Colors.black.withOpacity(0.15),
+                //               blurRadius: 5,
+                //               offset: const Offset(0, 4),
+                //             ),
+                //           ],
+                //         ),
+                //         child: Padding(
+                //           padding: const EdgeInsets.symmetric(
+                //             horizontal: 15,
+                //             vertical: 10,
+                //           ),
+                //           child: Row(
+                //             children: [
+                //               const Icon(Icons.person, size: 24),
+                //               const SizedBox(width: 15),
+                //               Expanded(
+                //                 child: Column(
+                //                   crossAxisAlignment: CrossAxisAlignment.start,
+                //                   mainAxisAlignment: MainAxisAlignment.center,
+                //                   mainAxisSize: MainAxisSize.min,
+                //                   children: [
+                //                     Text(
+                //                       'Onboarding task',
+                //                       style: UTextStyles.caption.copyWith(
+                //                         fontSize: 12,
+                //                       ),
+                //                     ),
+                //                     Text(
+                //                       'Complete KYC & Profile',
+                //                       style: UTextStyles.medium.copyWith(
+                //                         fontWeight: FontWeight.bold,
+                //                         color: Ucolors.dark,
+                //                         fontSize: 14,
+                //                       ),
+                //                     ),
+                //                     Text(
+                //                       'Verify your Identity to start Investing',
+                //                       maxLines: 1,
+                //                       overflow: TextOverflow.ellipsis,
+                //                       style: UTextStyles.caption.copyWith(
+                //                         fontSize: 10,
+                //                       ),
+                //                     ),
+                //                   ],
+                //                 ),
+                //               ),
+                //               const Icon(Icons.arrow_forward_ios, size: 12),
+                //             ],
+                //           ),
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),

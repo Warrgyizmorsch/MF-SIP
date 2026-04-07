@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -241,7 +242,8 @@ class _WebProfileDashboard extends StatelessWidget {
       _GridItem(
         'KYC Details',
         UImages.archiveadd,
-        () => Get.to(() => const KycDetailsScreen()),
+        // () => Get.to(() => const KycDetailsScreen()),
+        () => Get.toNamed(AppRoutes.kycDeatailScreen),
       ),
       _GridItem(
         'Personal Details',
@@ -261,7 +263,8 @@ class _WebProfileDashboard extends StatelessWidget {
       _GridItem(
         'Documents',
         UImages.cardtick,
-        () => Get.to(() => const DocumentScreen()),
+        // () => Get.to(() => const DocumentScreen()),
+        () => Get.toNamed(AppRoutes.documentsScreen),
       ),
       _GridItem(
         'Help & Support',
@@ -345,7 +348,8 @@ class _GridItem {
 
 class LogoutButton extends StatelessWidget {
   final bool compact;
-  const LogoutButton({super.key, this.compact = false});
+  const LogoutButton({super.key, this.compact = false, this.web = false});
+  final bool web;
 
   @override
   Widget build(BuildContext context) {
@@ -355,18 +359,24 @@ class LogoutButton extends StatelessWidget {
       height: compact ? 45 : Get.height * 0.063,
       child: OutlinedButton.icon(
         style: OutlinedButton.styleFrom(
-          backgroundColor: compact ? Colors.white : null,
+          backgroundColor: compact
+              ? Colors.white
+              : web
+              ? Ucolors.blue
+              : null,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadiusGeometry.circular(14),
             side: const BorderSide(color: Ucolors.darkgrey),
           ),
         ),
         onPressed: () => controller.logOut(),
-        icon: Image.asset(UImages.logout, height: 20),
+        icon: web
+            ? Icon(Icons.logout, color: Colors.white)
+            : Image.asset(UImages.logout, height: 20),
         label: Text(
           'Logout',
           style: UTextStyles.buttonText.copyWith(
-            color: Ucolors.blue,
+            color: web ? Colors.white : Ucolors.blue,
             fontWeight: FontWeight.w500,
             fontSize: compact ? 14 : 16,
           ),
@@ -422,7 +432,8 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
             ],
           ),
           Listtilecustom(
-            onTap: () => Get.to(() => const KycDetailsScreen()),
+            // onTap: () => Get.to(() => const KycDetailsScreen()),
+            onTap: () => Get.toNamed(AppRoutes.kycDeatailScreen),
             title: 'KYC Details',
             images: UImages.archiveadd,
           ),
@@ -724,6 +735,13 @@ class ProfileHeader extends StatelessWidget {
     if (img.isNotEmpty && File(img).existsSync()) {
       return Image.file(File(img), fit: BoxFit.cover, width: 120, height: 120);
     }
+
+    // if (!kIsWeb && img.isNotEmpty) {
+    //   final file = File(img);
+    //   if (file.existsSync()) {
+    //     return Image.file(file, fit: BoxFit.cover, width: 120, height: 120);
+    //   }
+    // }
 
     // 3. Default/Asset Image
     return Image.asset(

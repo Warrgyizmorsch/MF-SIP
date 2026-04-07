@@ -73,6 +73,8 @@ class UserModel {
     String? email,
     String? mobile,
     String? image,
+    String? panCard,
+
     CustomerDetailsModel1? customerDetails,
   }) {
     return UserModel(
@@ -81,6 +83,7 @@ class UserModel {
       email: email ?? this.email,
       mobile: mobile ?? this.mobile,
       img: image ?? this.img,
+      panCard: panCard ?? this.panCard,
       customerDetailsModel: customerDetails ?? this.customerDetailsModel,
     );
   }

@@ -121,6 +121,7 @@ import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_usecases.dart';
+import 'package:my_sip/services/session_manager.dart';
 import '../../domain/usecases/get_fund_list_usecase.dart';
 import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
@@ -135,6 +136,8 @@ class SipProcessController extends GetxController
     this._getFundListUsecase,
     this._getMutualFundListUsecases,
   );
+
+  final user = SessionManager.instance.userObs.value;
 
   // --- State Variables ---
   final RxDouble amount = 1000.0.obs;
@@ -308,7 +311,15 @@ class SipProcessController extends GetxController
       fundAmounts.clear();
 
       // 6. NAVIGATE
-      Get.toNamed(AppRoutes.cart);
+      // Get.toNamed(AppRoutes.cart);
+      // Get.offNamed(AppRoutes.cart);
+      Get.offNamedUntil(
+        AppRoutes.cart,
+        (route) =>
+            route.isFirst ||
+            route.settings.name == AppRoutes.navMenuBar ||
+            route.settings.name == AppRoutes.home,
+      );
     } catch (e) {
       if (Get.isDialogOpen == true) Get.back();
       Get.snackbar("Error", "Something went wrong during the batch process.");
@@ -389,6 +400,18 @@ class SipProcessController extends GetxController
   @override
   void onInit() {
     super.onInit();
+
+    if (Get.arguments != null && Get.arguments['isLumpsum'] != null) {
+      setInvestmentMode(Get.arguments['isLumpsum']);
+    }
+
+    // selectedFunds.clear();
+    // fundAmounts.clear();
+    // for (var c in textControllers.values) {
+    //   c.dispose();
+    // }
+    // textControllers.clear();
+
     // Fetch Best SIP funds on start
     // getBestSipFunds();
     fetchFundsByApproach();
@@ -412,7 +435,7 @@ class SipProcessController extends GetxController
     // 0: Best High Growth -> best_sip
     // 1: Suggested Portfolio -> curated
     final Map<String, dynamic> params = selectedApproach.value == 0
-        ? {'best_sip': 1}
+        ? {'best_sip': 1, 'risk_type': user?.riskProfileModel?.profileName}
         : {'is_curated': 1};
 
     final result = await _getMutualFundListUsecases.call(params);

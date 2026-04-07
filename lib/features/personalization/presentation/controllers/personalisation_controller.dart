@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:image_picker/image_picker.dart';
+import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_submit_rq.dart';
@@ -384,8 +385,10 @@ class PersonalisationController extends GetxController {
             final updatedUser = currentLocalUser.copyWith(
               name: apiData.data?.name,
               email: apiData.data?.email,
-              image:
-                  apiData.data?.image, // New path: 'storage/profile-images/...'
+              image: apiData.data?.image,
+              panCard: apiData
+                  .data
+                  ?.panCard, // New path: 'storage/profile-images/...'
               // ... map other fields
             );
 
@@ -394,11 +397,16 @@ class PersonalisationController extends GetxController {
           }
 
           imagePath.value = ''; // Reset picker so UI shows network image
-          Get.snackbar("Success", "Profile Updated");
+          // Get.snackbar("Success", "Profile Updated");
+          Get.back();
+          ULoaders.success(title: 'Success', message: 'Profile Updated');
           Get.back();
         }
 
-        Get.snackbar("Success", success.data?.message ?? "Profile Updated");
+        // Get.snackbar("Success", success.data?.message ?? "Profile Updated");
+
+        ULoaders.success(title: 'Success', message: 'Profile Updated');
+
         // Update local user state if needed
       },
       (error) {
