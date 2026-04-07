@@ -386,7 +386,9 @@ class CartPage extends GetView<CartController> {
           ),
           const Gap(24),
           const TermAndPolicy(term: 'By Proceeding I accept the '),
+
           const Gap(24),
+
           Obx(() {
             final isValid = controller.isCartValid1;
             return UElevatedBUtton(

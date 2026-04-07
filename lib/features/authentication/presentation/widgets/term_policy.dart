@@ -9,8 +9,12 @@ class TermAndPolicy extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDesktop = MediaQuery.of(context).size.width > 800;
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: Get.width * 0.1),
+      // padding: EdgeInsets.symmetric(horizontal: Get.width * 0.1),
+      padding: EdgeInsets.symmetric(
+        horizontal: isDesktop ? 10.0 : Get.width * 0.1,
+      ),
       child: RichText(
         textAlign: TextAlign.center,
         text: TextSpan(

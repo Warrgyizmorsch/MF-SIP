@@ -1,259 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
-
-// class NfoDetailsPage extends StatelessWidget {
-//   const NfoDetailsPage({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(appBar: CustomAppBarNormal(title: 'NFO Details Page'));
-//   }
-// }
-
-// import 'dart:ui';
-// import 'package:flutter/material.dart';
-
-// class NfoDetailsPage extends StatelessWidget {
-//   final String title;
-//   final String subtitle;
-//   final String riskText;
-//   final String navText;
-//   final String closingText;
-//   final String launchDate;
-//   final String endDate;
-
-//   const NfoDetailsPage({
-//     super.key,
-//     required this.title,
-//     required this.subtitle,
-//     required this.riskText,
-//     required this.navText,
-//     required this.closingText,
-//     required this.launchDate,
-//     required this.endDate,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-
-//     // Theme Colors based on your Tailwind config
-//     final Color cardColor = isDark ? const Color(0xFF1F2937) : Colors.white;
-//     final Color textColor = isDark ? Colors.white : const Color(0xFF111827);
-//     final Color mutedColor = isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
-//     final Color borderColor = isDark ? const Color(0xFF374151) : const Color(0xFFF3F4F6);
-
-//     return Container(
-//       clipBehavior: Clip.antiAlias, // Ensures the blur doesn't bleed out
-//       decoration: BoxDecoration(
-//         color: cardColor,
-//         borderRadius: BorderRadius.circular(24),
-//         boxShadow: [
-//           BoxShadow(
-//             color: Colors.black.withOpacity(0.05),
-//             blurRadius: 20,
-//             offset: const Offset(0, 4),
-//           ),
-//         ],
-//       ),
-//       child: Stack(
-//         children: [
-//           // Background Blur Effect (Top Right)
-//           Positioned(
-//             top: -64,
-//             right: -64,
-//             child: Container(
-//               width: 192,
-//               height: 192,
-//               decoration: BoxDecoration(
-//                 shape: BoxShape.circle,
-//                 color: isDark
-//                     ? Colors.blue.shade400.withOpacity(0.1)
-//                     : Colors.blue.shade500.withOpacity(0.1),
-//               ),
-//               child: BackdropFilter(
-//                 filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-//                 child: Container(color: Colors.transparent),
-//               ),
-//             ),
-//           ),
-
-//           // Main Card Content
-//           Padding(
-//             padding: const EdgeInsets.all(20.0),
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 // --- Top Row: Icon and Title ---
-//                 Row(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     Container(
-//                       padding: const EdgeInsets.all(8),
-//                       decoration: BoxDecoration(
-//                         color: isDark ? const Color(0xFF1F2937) : Colors.white,
-//                         borderRadius: BorderRadius.circular(12),
-//                         border: Border.all(color: borderColor),
-//                       ),
-//                       child: const Icon(
-//                         Icons.change_history_rounded,
-//                         color: Colors.pink,
-//                         size: 28,
-//                       ),
-//                     ),
-//                     const SizedBox(width: 16),
-//                     Expanded(
-//                       child: Column(
-//                         crossAxisAlignment: CrossAxisAlignment.start,
-//                         children: [
-//                           Text(
-//                             title,
-//                             style: TextStyle(
-//                               fontSize: 18,
-//                               fontWeight: FontWeight.bold,
-//                               color: textColor,
-//                               height: 1.2,
-//                             ),
-//                           ),
-//                           const SizedBox(height: 4),
-//                           Text(
-//                             subtitle,
-//                             style: TextStyle(
-//                               fontSize: 14,
-//                               fontWeight: FontWeight.w500,
-//                               color: mutedColor,
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-
-//                 const SizedBox(height: 24),
-
-//                 // --- Tags Row ---
-//                 Wrap(
-//                   spacing: 8,
-//                   runSpacing: 8,
-//                   children: [
-//                     _buildTag(
-//                       icon: Icons.warning_rounded,
-//                       text: riskText,
-//                       textColor: isDark ? Colors.orange.shade300 : Colors.orange.shade700,
-//                       bgColor: isDark ? Colors.orange.shade900.withOpacity(0.2) : Colors.orange.shade50,
-//                     ),
-//                     _buildTag(
-//                       icon: Icons.currency_rupee_rounded,
-//                       text: navText,
-//                       textColor: isDark ? Colors.blue.shade300 : const Color(0xFF1E40AF), // Primary blue
-//                       bgColor: isDark ? Colors.blue.shade900.withOpacity(0.2) : Colors.blue.shade50,
-//                     ),
-//                     _buildTag(
-//                       icon: Icons.timer_rounded,
-//                       text: closingText,
-//                       textColor: isDark ? Colors.red.shade300 : Colors.red.shade700,
-//                       bgColor: isDark ? Colors.red.shade900.withOpacity(0.2) : Colors.red.shade50,
-//                     ),
-//                   ],
-//                 ),
-
-//                 const SizedBox(height: 24),
-
-//                 // --- Dates Divider & Section ---
-//                 Container(
-//                   padding: const EdgeInsets.only(top: 16),
-//                   decoration: BoxDecoration(
-//                     border: Border(top: BorderSide(color: borderColor)),
-//                   ),
-//                   child: Row(
-//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                     children: [
-//                       Column(
-//                         crossAxisAlignment: CrossAxisAlignment.start,
-//                         children: [
-//                           Text(
-//                             'Launch Date',
-//                             style: TextStyle(
-//                               fontSize: 12,
-//                               color: mutedColor,
-//                             ),
-//                           ),
-//                           const SizedBox(height: 4),
-//                           Text(
-//                             launchDate,
-//                             style: TextStyle(
-//                               fontSize: 14,
-//                               fontWeight: FontWeight.w600,
-//                               color: textColor,
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                       Column(
-//                         crossAxisAlignment: CrossAxisAlignment.end,
-//                         children: [
-//                           Text(
-//                             'End Date',
-//                             style: TextStyle(
-//                               fontSize: 12,
-//                               color: mutedColor,
-//                             ),
-//                           ),
-//                           const SizedBox(height: 4),
-//                           Text(
-//                             endDate,
-//                             style: TextStyle(
-//                               fontSize: 14,
-//                               fontWeight: FontWeight.w600,
-//                               color: textColor,
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   // Helper widget to generate the info pills (tags)
-//   Widget _buildTag({
-//     required IconData icon,
-//     required String text,
-//     required Color textColor,
-//     required Color bgColor,
-//   }) {
-//     return Container(
-//       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-//       decoration: BoxDecoration(
-//         color: bgColor,
-//         borderRadius: BorderRadius.circular(8),
-//       ),
-//       child: Row(
-//         mainAxisSize: MainAxisSize.min,
-//         children: [
-//           Icon(icon, size: 14, color: textColor),
-//           const SizedBox(width: 4),
-//           Text(
-//             text,
-//             style: TextStyle(
-//               fontSize: 12,
-//               fontWeight: FontWeight.w600,
-//               color: textColor,
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -316,7 +60,7 @@ final myApiData = NfoDetailModel(
 class NfoDetailsPage1 extends StatelessWidget {
   const NfoDetailsPage1({Key? key}) : super(key: key);
 
-  // Theme Colors from Tailwind config
+  // Theme Colors
   static const Color primaryColor = Color(0xFF1E40AF);
   static const Color backgroundColor = Color(0xFFF9FAFB);
   static const Color cardColor = Colors.white;
@@ -328,14 +72,10 @@ class NfoDetailsPage1 extends StatelessWidget {
     if (dateStr == null || dateStr.isEmpty || dateStr == '--') {
       return ['--', ''];
     }
-
     DateTime? parsedDate;
-
-    // Attempt standard parsing (e.g., "2026-02-28")
     try {
       parsedDate = DateTime.parse(dateStr);
     } catch (e) {
-      // Fallback for formats like DD-MM-YYYY or DD/MM/YYYY
       try {
         final parts = dateStr.split(RegExp(r'[-/]'));
         if (parts.length == 3) {
@@ -347,83 +87,182 @@ class NfoDetailsPage1 extends StatelessWidget {
         }
       } catch (_) {}
     }
-
     if (parsedDate != null) {
-      // Returns [ "28 Feb", "2026" ]
       return [
         DateFormat('dd MMM').format(parsedDate),
         DateFormat('yyyy').format(parsedDate),
       ];
     }
-
-    // Ultimate fallback if parsing fails completely
     return [dateStr, ''];
   }
 
   @override
   Widget build(BuildContext context) {
-    // Retrieve the entity passed via GetX navigation
-    // Fallback to a dummy entity for UI testing if arguments are null
     final LaunchDataEntity nfoData =
         Get.arguments as LaunchDataEntity? ?? const LaunchDataEntity();
 
-    return Scaffold(
-      backgroundColor: backgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.white.withOpacity(0.9),
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: textDark),
-        title: const Text(
-          'NFO Detail',
-          style: TextStyle(
-            color: textDark,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        // actions: [
-        //   IconButton(
-        //     icon: const Icon(Icons.share_outlined),
-        //     onPressed: () {},
-        //   ),
-        // ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(color: borderColor, height: 1),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildMainDetailsCard(nfoData),
-            const SizedBox(height: 24),
-            _buildMinimumInvestmentSection(nfoData),
-            const SizedBox(height: 24),
-            _buildFundDetailsSection(nfoData),
-            const SizedBox(height: 24),
+    // 🚀 Check for Web/Desktop
+    final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
-            _buildExitLoadAndTaxSection(nfoData),
-            const SizedBox(height: 32),
-            _buildAmcCard(nfoData),
-            const SizedBox(height: 24), //
-          ],
-        ),
-      ),
-      bottomNavigationBar: _buildBottomBar(),
+    return Scaffold(
+      backgroundColor: isDesktop ? Colors.transparent : backgroundColor,
+
+      // 🚀 THE FIX: Web par local AppBar hide karo
+      appBar: isDesktop
+          ? null
+          : AppBar(
+              backgroundColor: Colors.white.withOpacity(0.9),
+              elevation: 0,
+              centerTitle: true,
+              iconTheme: const IconThemeData(color: textDark),
+              title: const Text(
+                'NFO Detail',
+                style: TextStyle(
+                  color: textDark,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(1),
+                child: Container(color: borderColor, height: 1),
+              ),
+            ),
+
+      body: isDesktop
+          ? _buildWebLayout(nfoData, context)
+          : _buildMobileLayout(nfoData),
+
+      // 🚀 Bottom Nav mobile ke liye, Web mein card ke andar hoga
+      bottomNavigationBar: isDesktop
+          ? null
+          : _buildBottomBar(context, isWeb: false),
     );
   }
 
-  // --- Asset Management Company Card ---
+  // =========================================
+  // 💻 WEB / DESKTOP LAYOUT (2-Column)
+  // =========================================
+  Widget _buildWebLayout(LaunchDataEntity nfoData, BuildContext context) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1100), // Max width for Web
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(40),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // --- Web Header ---
+                Text(
+                  "NFO Details",
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: textDark,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "Review all information before investing in this New Fund Offering.",
+                  style: TextStyle(color: textMuted, fontSize: 14),
+                ),
+                const SizedBox(height: 32),
+
+                // --- 2 Column Split ---
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Left Column
+                    Expanded(
+                      flex: 5,
+                      child: Column(
+                        children: [
+                          _buildMainDetailsCard(nfoData),
+                          const SizedBox(height: 24),
+                          _buildAmcCard(nfoData),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 32),
+
+                    // Right Column
+                    Expanded(
+                      flex: 6,
+                      child: Column(
+                        children: [
+                          _buildMinimumInvestmentSection(nfoData),
+                          const SizedBox(height: 24),
+                          _buildFundDetailsSection(nfoData),
+                          const SizedBox(height: 24),
+                          _buildExitLoadAndTaxSection(nfoData),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 40),
+                const Divider(color: borderColor),
+                const SizedBox(height: 24),
+
+                // --- Action Buttons (Web) ---
+                _buildBottomBar(context, isWeb: true),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // =========================================
+  // 📱 MOBILE LAYOUT
+  // =========================================
+  Widget _buildMobileLayout(LaunchDataEntity nfoData) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildMainDetailsCard(nfoData),
+          const SizedBox(height: 24),
+          _buildMinimumInvestmentSection(nfoData),
+          const SizedBox(height: 24),
+          _buildFundDetailsSection(nfoData),
+          const SizedBox(height: 24),
+          _buildExitLoadAndTaxSection(nfoData),
+          const SizedBox(height: 32),
+          _buildAmcCard(nfoData),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+
+  // =========================================
+  // 🧩 REUSABLE WIDGETS
+  // =========================================
+
   Widget _buildAmcCard(LaunchDataEntity nfo) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF3F4F6)), // borderColor
+        border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.02),
@@ -435,29 +274,25 @@ class NfoDetailsPage1 extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
           const Text(
             'AMC Details',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1F2937), // textDark
+              color: textDark,
             ),
           ),
           const SizedBox(height: 24),
-
-          // AMC Logo and Name Row
           Row(
             children: [
               Container(
                 width: 48,
                 height: 48,
-
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF9FAFB),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFF3F4F6)),
+                  border: Border.all(color: borderColor),
                 ),
                 child: CustomCachedImage(
                   imageUrl: '${Appurl.baseUrl}${nfo.nfoAmcEntity?.amcLogo}',
@@ -470,20 +305,20 @@ class NfoDetailsPage1 extends StatelessWidget {
                   children: [
                     Text(
                       nfo.nfoAmcEntity?.amcName ?? '',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1F2937), // textDark
+                        color: textDark,
                         height: 1.2,
                       ),
                     ),
-                    SizedBox(height: 2),
-                    Text(
+                    const SizedBox(height: 2),
+                    const Text(
                       'FUND HOUSE',
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF6B7280), // textMuted
+                        color: textMuted,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -493,8 +328,6 @@ class NfoDetailsPage1 extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 15),
-
-          // Contact Details Section
           Container(
             padding: const EdgeInsets.only(top: 16),
             decoration: const BoxDecoration(
@@ -508,29 +341,27 @@ class NfoDetailsPage1 extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF6B7280), // textMuted
+                    color: textMuted,
                     letterSpacing: 1.0,
                   ),
                 ),
                 const SizedBox(height: 12),
-
-                // Location Row
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.location_on_outlined,
                       size: 20,
-                      color: Color(0xFF9CA3AF), // gray-400
+                      color: Color(0xFF9CA3AF),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         nfo.nfoAmcEntity?.address ?? '',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF1F2937), // textDark
+                          color: textDark,
                           height: 1.5,
                         ),
                       ),
@@ -538,23 +369,21 @@ class NfoDetailsPage1 extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 12),
-
-                // Email Row
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.mail_outline_rounded,
                       size: 20,
                       color: Color(0xFF9CA3AF),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         nfo.nfoAmcEntity?.email ?? '',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF1E40AF), // primaryColor
+                          color: primaryColor,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -563,22 +392,20 @@ class NfoDetailsPage1 extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 12),
-
-                // Phone Row
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.call_outlined,
                       size: 20,
                       color: Color(0xFF9CA3AF),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Text(
                       nfo.nfoAmcEntity?.contactNo ?? '',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF1F2937), // textDark
+                        color: textDark,
                       ),
                     ),
                   ],
@@ -591,24 +418,23 @@ class NfoDetailsPage1 extends StatelessWidget {
     );
   }
 
-  // --- 1. Main Details Card ---
   Widget _buildMainDetailsCard(LaunchDataEntity nfo) {
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Stack(
         children: [
-          // Background Blur Effect (Top Right)
           Positioned(
             top: -64,
             right: -64,
@@ -625,13 +451,11 @@ class NfoDetailsPage1 extends StatelessWidget {
               ),
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header Row
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -642,13 +466,6 @@ class NfoDetailsPage1 extends StatelessWidget {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: borderColor),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.02),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
                       ),
                       child: CustomCachedImage(
                         imageUrl:
@@ -684,8 +501,6 @@ class NfoDetailsPage1 extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 20),
-
-                // Tags
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -695,7 +510,6 @@ class NfoDetailsPage1 extends StatelessWidget {
                       text: '${nfo.riskLevel ?? '--'}',
                       textColor: getRiskMeter(nfo.riskLevel).color,
                       bgColor: Colors.green.shade50,
-                      // bgColor: getRiskMeter(nfo.riskLevel).color,
                     ),
                     _buildTag(
                       icon: Icons.currency_rupee_rounded,
@@ -706,8 +520,6 @@ class NfoDetailsPage1 extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 20),
-
-                // 4-Column Dates Grid
                 Container(
                   padding: const EdgeInsets.only(top: 16),
                   decoration: const BoxDecoration(
@@ -715,34 +527,33 @@ class NfoDetailsPage1 extends StatelessWidget {
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
                         child: _buildDateItem(
                           'OPEN',
                           nfo.nfoOpenDate ?? '--',
-                          CrossAxisAlignment.center,
+                          CrossAxisAlignment.start,
                         ),
                       ),
                       Expanded(
                         child: _buildDateItem(
                           'CLOSE',
                           nfo.nfoCloseDate ?? '--',
-                          CrossAxisAlignment.center,
+                          CrossAxisAlignment.start,
                         ),
                       ),
                       Expanded(
                         child: _buildDateItem(
                           'ALLOTMENT',
                           nfo.allotmentDate ?? '--',
-                          CrossAxisAlignment.center,
+                          CrossAxisAlignment.start,
                         ),
                       ),
                       Expanded(
                         child: _buildDateItem(
                           'LAUNCH',
                           nfo.launchDate ?? '--',
-                          CrossAxisAlignment.center,
+                          CrossAxisAlignment.start,
                         ),
                       ),
                     ],
@@ -762,9 +573,6 @@ class NfoDetailsPage1 extends StatelessWidget {
     CrossAxisAlignment alignment,
   ) {
     final parsedData = _parseDate(rawDateStr);
-    final String dayMonth = parsedData[0]; // e.g., "28 Feb"
-    final String year = parsedData[1]; // e.g., "2026"
-
     return Column(
       crossAxisAlignment: alignment,
       children: [
@@ -779,62 +587,22 @@ class NfoDetailsPage1 extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          dayMonth,
+          parsedData[0],
           style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
             color: textDark,
           ),
-          textAlign: alignment == CrossAxisAlignment.end
-              ? TextAlign.right
-              : TextAlign.left,
         ),
-        if (year.isNotEmpty)
+        if (parsedData[1].isNotEmpty)
           Text(
-            year,
+            parsedData[1],
             style: const TextStyle(fontSize: 10, color: textMuted),
-            textAlign: alignment == CrossAxisAlignment.end
-                ? TextAlign.right
-                : TextAlign.left,
           ),
       ],
     );
   }
 
-  // Widget _buildDateItem(
-  //   String label,
-  //   String dateText,
-  //   CrossAxisAlignment alignment,
-  // ) {
-  //   return Column(
-  //     crossAxisAlignment: alignment,
-  //     children: [
-  //       Text(
-  //         label,
-  //         style: const TextStyle(
-  //           fontSize: 10,
-  //           color: textMuted,
-  //           letterSpacing: 0.5,
-  //           fontWeight: FontWeight.w600,
-  //         ),
-  //       ),
-  //       const SizedBox(height: 4),
-  //       Text(
-  //         dateText,
-  //         style: const TextStyle(
-  //           fontSize: 12,
-  //           fontWeight: FontWeight.w600,
-  //           color: textDark,
-  //         ),
-  //         textAlign: alignment == CrossAxisAlignment.end
-  //             ? TextAlign.right
-  //             : TextAlign.left,
-  //       ),
-  //     ],
-  //   );
-  // }
-
-  // --- 2. Minimum Investment Section ---
   Widget _buildMinimumInvestmentSection(LaunchDataEntity nfo) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -944,7 +712,6 @@ class NfoDetailsPage1 extends StatelessWidget {
     );
   }
 
-  // --- 3. Fund Details Section ---
   Widget _buildFundDetailsSection(LaunchDataEntity nfo) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -1020,12 +787,10 @@ class NfoDetailsPage1 extends StatelessWidget {
     );
   }
 
-  // --- 4. Exit Load & Tax Implications ---
   Widget _buildExitLoadAndTaxSection(LaunchDataEntity nfo) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        // color: Color(0xFFF9FAFB),
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: borderColor),
@@ -1108,57 +873,96 @@ class NfoDetailsPage1 extends StatelessWidget {
     );
   }
 
-  // --- 5. Bottom Action Bar ---
-  Widget _buildBottomBar() {
+  // --- 5. Bottom Action Bar (Responsive) ---
+  Widget _buildBottomBar(BuildContext context, {required bool isWeb}) {
     return Container(
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 32),
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom: isWeb ? 16 : 32,
+      ),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: const Border(top: BorderSide(color: borderColor)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -4),
-          ),
-        ],
+        color: isWeb ? Colors.transparent : Colors.white,
+        border: isWeb
+            ? null
+            : const Border(top: BorderSide(color: borderColor)),
+        boxShadow: isWeb
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, -4),
+                ),
+              ],
       ),
       child: Row(
+        mainAxisAlignment: isWeb
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            child: OutlinedButton(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                foregroundColor: primaryColor,
-                side: const BorderSide(color: primaryColor, width: 1.5),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+          if (isWeb) ...[
+            SizedBox(
+              width: 140,
+              child: OutlinedButton(
+                onPressed: () => Get.back(),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: primaryColor,
+                  side: const BorderSide(color: primaryColor, width: 1.5),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-              ),
-              child: const Text(
-                'Buy SIP',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                child: const Text(
+                  'Back',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                elevation: 4,
-                shadowColor: primaryColor.withOpacity(0.4),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            const SizedBox(width: 16),
+          ],
+          if (!isWeb) ...[
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => Get.back(),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: primaryColor,
+                  side: const BorderSide(color: primaryColor, width: 1.5),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Back',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
               ),
-              child: const Text(
-                'Buy Lumpsum',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(width: 12),
+          ],
+          SizedBox(
+            width: isWeb ? 180 : null,
+            child: Expanded(
+              flex: isWeb ? 0 : 1,
+              child: ElevatedButton(
+                onPressed: () {}, // Aapki buy logic
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  elevation: 4,
+                  shadowColor: primaryColor.withOpacity(0.4),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Invest Now',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ),
@@ -1197,6 +1001,891 @@ class NfoDetailsPage1 extends StatelessWidget {
     );
   }
 }
+
+// class NfoDetailsPage1 extends StatelessWidget {
+//   const NfoDetailsPage1({Key? key}) : super(key: key);
+
+//   // Theme Colors from Tailwind config
+//   static const Color primaryColor = Color(0xFF1E40AF);
+//   static const Color backgroundColor = Color(0xFFF9FAFB);
+//   static const Color cardColor = Colors.white;
+//   static const Color textDark = Color(0xFF1F2937);
+//   static const Color textMuted = Color(0xFF6B7280);
+//   static const Color borderColor = Color(0xFFF3F4F6);
+
+//   List<String> _parseDate(String? dateStr) {
+//     if (dateStr == null || dateStr.isEmpty || dateStr == '--') {
+//       return ['--', ''];
+//     }
+
+//     DateTime? parsedDate;
+
+//     // Attempt standard parsing (e.g., "2026-02-28")
+//     try {
+//       parsedDate = DateTime.parse(dateStr);
+//     } catch (e) {
+//       // Fallback for formats like DD-MM-YYYY or DD/MM/YYYY
+//       try {
+//         final parts = dateStr.split(RegExp(r'[-/]'));
+//         if (parts.length == 3) {
+//           parsedDate = DateTime(
+//             int.parse(parts[2]),
+//             int.parse(parts[1]),
+//             int.parse(parts[0]),
+//           );
+//         }
+//       } catch (_) {}
+//     }
+
+//     if (parsedDate != null) {
+//       // Returns [ "28 Feb", "2026" ]
+//       return [
+//         DateFormat('dd MMM').format(parsedDate),
+//         DateFormat('yyyy').format(parsedDate),
+//       ];
+//     }
+
+//     // Ultimate fallback if parsing fails completely
+//     return [dateStr, ''];
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     // Retrieve the entity passed via GetX navigation
+//     // Fallback to a dummy entity for UI testing if arguments are null
+//     final LaunchDataEntity nfoData =
+//         Get.arguments as LaunchDataEntity? ?? const LaunchDataEntity();
+
+//     return Scaffold(
+//       backgroundColor: backgroundColor,
+//       appBar: AppBar(
+//         backgroundColor: Colors.white.withOpacity(0.9),
+//         elevation: 0,
+//         centerTitle: true,
+//         iconTheme: const IconThemeData(color: textDark),
+//         title: const Text(
+//           'NFO Detail',
+//           style: TextStyle(
+//             color: textDark,
+//             fontSize: 18,
+//             fontWeight: FontWeight.w600,
+//           ),
+//         ),
+//         // actions: [
+//         //   IconButton(
+//         //     icon: const Icon(Icons.share_outlined),
+//         //     onPressed: () {},
+//         //   ),
+//         // ],
+//         bottom: PreferredSize(
+//           preferredSize: const Size.fromHeight(1),
+//           child: Container(color: borderColor, height: 1),
+//         ),
+//       ),
+//       body: SingleChildScrollView(
+//         padding: const EdgeInsets.all(16.0),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             _buildMainDetailsCard(nfoData),
+//             const SizedBox(height: 24),
+//             _buildMinimumInvestmentSection(nfoData),
+//             const SizedBox(height: 24),
+//             _buildFundDetailsSection(nfoData),
+//             const SizedBox(height: 24),
+
+//             _buildExitLoadAndTaxSection(nfoData),
+//             const SizedBox(height: 32),
+//             _buildAmcCard(nfoData),
+//             const SizedBox(height: 24), //
+//           ],
+//         ),
+//       ),
+//       bottomNavigationBar: _buildBottomBar(),
+//     );
+//   }
+
+//   // --- Asset Management Company Card ---
+//   Widget _buildAmcCard(LaunchDataEntity nfo) {
+//     return Container(
+//       padding: const EdgeInsets.all(20),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(24),
+//         border: Border.all(color: const Color(0xFFF3F4F6)), // borderColor
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withOpacity(0.02),
+//             blurRadius: 8,
+//             offset: const Offset(0, 2),
+//           ),
+//         ],
+//       ),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           // Header
+//           const Text(
+//             'AMC Details',
+//             style: TextStyle(
+//               fontSize: 16,
+//               fontWeight: FontWeight.bold,
+//               color: Color(0xFF1F2937), // textDark
+//             ),
+//           ),
+//           const SizedBox(height: 24),
+
+//           // AMC Logo and Name Row
+//           Row(
+//             children: [
+//               Container(
+//                 width: 48,
+//                 height: 48,
+
+//                 padding: const EdgeInsets.all(4),
+//                 decoration: BoxDecoration(
+//                   color: const Color(0xFFF9FAFB),
+//                   borderRadius: BorderRadius.circular(12),
+//                   border: Border.all(color: const Color(0xFFF3F4F6)),
+//                 ),
+//                 child: CustomCachedImage(
+//                   imageUrl: '${Appurl.baseUrl}${nfo.nfoAmcEntity?.amcLogo}',
+//                 ),
+//               ),
+//               const SizedBox(width: 16),
+//               Expanded(
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Text(
+//                       nfo.nfoAmcEntity?.amcName ?? '',
+//                       style: TextStyle(
+//                         fontSize: 14,
+//                         fontWeight: FontWeight.bold,
+//                         color: Color(0xFF1F2937), // textDark
+//                         height: 1.2,
+//                       ),
+//                     ),
+//                     SizedBox(height: 2),
+//                     Text(
+//                       'FUND HOUSE',
+//                       style: TextStyle(
+//                         fontSize: 10,
+//                         fontWeight: FontWeight.w600,
+//                         color: Color(0xFF6B7280), // textMuted
+//                         letterSpacing: 0.5,
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ],
+//           ),
+//           const SizedBox(height: 15),
+
+//           // Contact Details Section
+//           Container(
+//             padding: const EdgeInsets.only(top: 16),
+//             decoration: const BoxDecoration(
+//               border: Border(top: BorderSide(color: Color(0xFFF9FAFB))),
+//             ),
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 const Text(
+//                   'CONTACT DETAILS',
+//                   style: TextStyle(
+//                     fontSize: 10,
+//                     fontWeight: FontWeight.bold,
+//                     color: Color(0xFF6B7280), // textMuted
+//                     letterSpacing: 1.0,
+//                   ),
+//                 ),
+//                 const SizedBox(height: 12),
+
+//                 // Location Row
+//                 Row(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Icon(
+//                       Icons.location_on_outlined,
+//                       size: 20,
+//                       color: Color(0xFF9CA3AF), // gray-400
+//                     ),
+//                     SizedBox(width: 12),
+//                     Expanded(
+//                       child: Text(
+//                         nfo.nfoAmcEntity?.address ?? '',
+//                         style: TextStyle(
+//                           fontSize: 12,
+//                           fontWeight: FontWeight.w500,
+//                           color: Color(0xFF1F2937), // textDark
+//                           height: 1.5,
+//                         ),
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//                 const SizedBox(height: 12),
+
+//                 // Email Row
+//                 Row(
+//                   children: [
+//                     Icon(
+//                       Icons.mail_outline_rounded,
+//                       size: 20,
+//                       color: Color(0xFF9CA3AF),
+//                     ),
+//                     SizedBox(width: 12),
+//                     Expanded(
+//                       child: Text(
+//                         nfo.nfoAmcEntity?.email ?? '',
+//                         style: TextStyle(
+//                           fontSize: 12,
+//                           fontWeight: FontWeight.w600,
+//                           color: Color(0xFF1E40AF), // primaryColor
+//                         ),
+//                         maxLines: 1,
+//                         overflow: TextOverflow.ellipsis,
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//                 const SizedBox(height: 12),
+
+//                 // Phone Row
+//                 Row(
+//                   children: [
+//                     Icon(
+//                       Icons.call_outlined,
+//                       size: 20,
+//                       color: Color(0xFF9CA3AF),
+//                     ),
+//                     SizedBox(width: 12),
+//                     Text(
+//                       nfo.nfoAmcEntity?.contactNo ?? '',
+//                       style: TextStyle(
+//                         fontSize: 12,
+//                         fontWeight: FontWeight.w600,
+//                         color: Color(0xFF1F2937), // textDark
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   // --- 1. Main Details Card ---
+//   Widget _buildMainDetailsCard(LaunchDataEntity nfo) {
+//     return Container(
+//       clipBehavior: Clip.antiAlias,
+//       decoration: BoxDecoration(
+//         color: cardColor,
+//         borderRadius: BorderRadius.circular(24),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withOpacity(0.05),
+//             blurRadius: 20,
+//             offset: const Offset(0, 4),
+//           ),
+//         ],
+//       ),
+//       child: Stack(
+//         children: [
+//           // Background Blur Effect (Top Right)
+//           Positioned(
+//             top: -64,
+//             right: -64,
+//             child: Container(
+//               width: 192,
+//               height: 192,
+//               decoration: BoxDecoration(
+//                 shape: BoxShape.circle,
+//                 color: Colors.blue.shade500.withOpacity(0.1),
+//               ),
+//               child: BackdropFilter(
+//                 filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+//                 child: Container(color: Colors.transparent),
+//               ),
+//             ),
+//           ),
+
+//           Padding(
+//             padding: const EdgeInsets.all(20),
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 // Header Row
+//                 Row(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Container(
+//                       width: 48,
+//                       height: 48,
+//                       decoration: BoxDecoration(
+//                         color: Colors.white,
+//                         borderRadius: BorderRadius.circular(12),
+//                         border: Border.all(color: borderColor),
+//                         boxShadow: [
+//                           BoxShadow(
+//                             color: Colors.black.withOpacity(0.02),
+//                             blurRadius: 4,
+//                             offset: const Offset(0, 2),
+//                           ),
+//                         ],
+//                       ),
+//                       child: CustomCachedImage(
+//                         imageUrl:
+//                             '${Appurl.baseUrl}${nfo.nfoAmcEntity?.amcLogo}',
+//                       ),
+//                     ),
+//                     const SizedBox(width: 16),
+//                     Expanded(
+//                       child: Column(
+//                         crossAxisAlignment: CrossAxisAlignment.start,
+//                         children: [
+//                           Text(
+//                             nfo.schemeName ?? '--',
+//                             style: const TextStyle(
+//                               fontSize: 18,
+//                               fontWeight: FontWeight.bold,
+//                               color: textDark,
+//                               height: 1.2,
+//                             ),
+//                           ),
+//                           const SizedBox(height: 4),
+//                           Text(
+//                             '${nfo.schemeCategory ?? '--'} • ${nfo.assetClass ?? '--'}',
+//                             style: const TextStyle(
+//                               fontSize: 14,
+//                               color: textMuted,
+//                               fontWeight: FontWeight.w500,
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//                 const SizedBox(height: 20),
+
+//                 // Tags
+//                 Wrap(
+//                   spacing: 8,
+//                   runSpacing: 8,
+//                   children: [
+//                     _buildTag(
+//                       icon: Icons.shield_rounded,
+//                       text: '${nfo.riskLevel ?? '--'}',
+//                       textColor: getRiskMeter(nfo.riskLevel).color,
+//                       bgColor: Colors.green.shade50,
+//                       // bgColor: getRiskMeter(nfo.riskLevel).color,
+//                     ),
+//                     _buildTag(
+//                       icon: Icons.currency_rupee_rounded,
+//                       text: 'NAV: ₹${nfo.nav ?? nfo.nfoPrice ?? ""}',
+//                       textColor: primaryColor,
+//                       bgColor: Colors.blue.shade50,
+//                     ),
+//                   ],
+//                 ),
+//                 const SizedBox(height: 20),
+
+//                 // 4-Column Dates Grid
+//                 Container(
+//                   padding: const EdgeInsets.only(top: 16),
+//                   decoration: const BoxDecoration(
+//                     border: Border(top: BorderSide(color: borderColor)),
+//                   ),
+//                   child: Row(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                     children: [
+//                       Expanded(
+//                         child: _buildDateItem(
+//                           'OPEN',
+//                           nfo.nfoOpenDate ?? '--',
+//                           CrossAxisAlignment.center,
+//                         ),
+//                       ),
+//                       Expanded(
+//                         child: _buildDateItem(
+//                           'CLOSE',
+//                           nfo.nfoCloseDate ?? '--',
+//                           CrossAxisAlignment.center,
+//                         ),
+//                       ),
+//                       Expanded(
+//                         child: _buildDateItem(
+//                           'ALLOTMENT',
+//                           nfo.allotmentDate ?? '--',
+//                           CrossAxisAlignment.center,
+//                         ),
+//                       ),
+//                       Expanded(
+//                         child: _buildDateItem(
+//                           'LAUNCH',
+//                           nfo.launchDate ?? '--',
+//                           CrossAxisAlignment.center,
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildDateItem(
+//     String label,
+//     String? rawDateStr,
+//     CrossAxisAlignment alignment,
+//   ) {
+//     final parsedData = _parseDate(rawDateStr);
+//     final String dayMonth = parsedData[0]; // e.g., "28 Feb"
+//     final String year = parsedData[1]; // e.g., "2026"
+
+//     return Column(
+//       crossAxisAlignment: alignment,
+//       children: [
+//         Text(
+//           label,
+//           style: const TextStyle(
+//             fontSize: 10,
+//             color: textMuted,
+//             letterSpacing: 0.5,
+//             fontWeight: FontWeight.w600,
+//           ),
+//         ),
+//         const SizedBox(height: 4),
+//         Text(
+//           dayMonth,
+//           style: const TextStyle(
+//             fontSize: 12,
+//             fontWeight: FontWeight.w600,
+//             color: textDark,
+//           ),
+//           textAlign: alignment == CrossAxisAlignment.end
+//               ? TextAlign.right
+//               : TextAlign.left,
+//         ),
+//         if (year.isNotEmpty)
+//           Text(
+//             year,
+//             style: const TextStyle(fontSize: 10, color: textMuted),
+//             textAlign: alignment == CrossAxisAlignment.end
+//                 ? TextAlign.right
+//                 : TextAlign.left,
+//           ),
+//       ],
+//     );
+//   }
+
+//   // Widget _buildDateItem(
+//   //   String label,
+//   //   String dateText,
+//   //   CrossAxisAlignment alignment,
+//   // ) {
+//   //   return Column(
+//   //     crossAxisAlignment: alignment,
+//   //     children: [
+//   //       Text(
+//   //         label,
+//   //         style: const TextStyle(
+//   //           fontSize: 10,
+//   //           color: textMuted,
+//   //           letterSpacing: 0.5,
+//   //           fontWeight: FontWeight.w600,
+//   //         ),
+//   //       ),
+//   //       const SizedBox(height: 4),
+//   //       Text(
+//   //         dateText,
+//   //         style: const TextStyle(
+//   //           fontSize: 12,
+//   //           fontWeight: FontWeight.w600,
+//   //           color: textDark,
+//   //         ),
+//   //         textAlign: alignment == CrossAxisAlignment.end
+//   //             ? TextAlign.right
+//   //             : TextAlign.left,
+//   //       ),
+//   //     ],
+//   //   );
+//   // }
+
+//   // --- 2. Minimum Investment Section ---
+//   Widget _buildMinimumInvestmentSection(LaunchDataEntity nfo) {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Row(
+//           children: [
+//             Container(
+//               width: 4,
+//               height: 20,
+//               decoration: BoxDecoration(
+//                 color: primaryColor,
+//                 borderRadius: BorderRadius.circular(4),
+//               ),
+//             ),
+//             const SizedBox(width: 8),
+//             const Text(
+//               'Minimum Investment',
+//               style: TextStyle(
+//                 fontSize: 16,
+//                 fontWeight: FontWeight.bold,
+//                 color: textDark,
+//               ),
+//             ),
+//           ],
+//         ),
+//         const SizedBox(height: 16),
+//         Row(
+//           children: [
+//             Expanded(
+//               child: _buildInvestmentTypeCard(
+//                 icon: Icons.repeat_rounded,
+//                 type: 'SIP',
+//                 amount: '₹${nfo.minSipAmount ?? "500"}',
+//                 subtitle: 'Min. installment',
+//               ),
+//             ),
+//             const SizedBox(width: 12),
+//             Expanded(
+//               child: _buildInvestmentTypeCard(
+//                 icon: Icons.payments_outlined,
+//                 type: 'LUMPSUM',
+//                 amount:
+//                     '₹${nfo.minLumpsum ?? nfo.minSubscriptionAmount ?? "5,000"}',
+//                 subtitle: '1st Investment',
+//               ),
+//             ),
+//           ],
+//         ),
+//       ],
+//     );
+//   }
+
+//   Widget _buildInvestmentTypeCard({
+//     required IconData icon,
+//     required String type,
+//     required String amount,
+//     required String subtitle,
+//   }) {
+//     return Container(
+//       padding: const EdgeInsets.all(16),
+//       decoration: BoxDecoration(
+//         color: cardColor,
+//         borderRadius: BorderRadius.circular(16),
+//         border: Border.all(color: borderColor),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withOpacity(0.02),
+//             blurRadius: 4,
+//             offset: const Offset(0, 2),
+//           ),
+//         ],
+//       ),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Row(
+//             children: [
+//               Icon(icon, size: 18, color: textMuted),
+//               const SizedBox(width: 6),
+//               Text(
+//                 type,
+//                 style: const TextStyle(
+//                   fontSize: 12,
+//                   fontWeight: FontWeight.w600,
+//                   color: textMuted,
+//                   letterSpacing: 0.5,
+//                 ),
+//               ),
+//             ],
+//           ),
+//           const SizedBox(height: 12),
+//           Text(
+//             amount,
+//             style: const TextStyle(
+//               fontSize: 20,
+//               fontWeight: FontWeight.bold,
+//               color: textDark,
+//             ),
+//           ),
+//           const SizedBox(height: 4),
+//           Text(
+//             subtitle,
+//             style: const TextStyle(fontSize: 11, color: textMuted),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   // --- 3. Fund Details Section ---
+//   Widget _buildFundDetailsSection(LaunchDataEntity nfo) {
+//     return Container(
+//       padding: const EdgeInsets.all(20),
+//       decoration: BoxDecoration(
+//         color: cardColor,
+//         borderRadius: BorderRadius.circular(24),
+//         border: Border.all(color: borderColor),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withOpacity(0.02),
+//             blurRadius: 8,
+//             offset: const Offset(0, 2),
+//           ),
+//         ],
+//       ),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           const Text(
+//             'Fund Details',
+//             style: TextStyle(
+//               fontSize: 16,
+//               fontWeight: FontWeight.bold,
+//               color: textDark,
+//             ),
+//           ),
+//           const SizedBox(height: 16),
+//           _buildFundDetailRow('Fund Manager', nfo.fundManager ?? '--'),
+//           _buildFundDetailRow('Benchmark', nfo.benchmark ?? '--'),
+//           _buildFundDetailRow(
+//             'Expense Ratio',
+//             nfo.expenseRatio != null ? '${nfo.expenseRatio}%' : '--',
+//           ),
+//           _buildFundDetailRow(
+//             'Scheme Type',
+//             nfo.schemeType ?? '--',
+//             isLast: true,
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildFundDetailRow(
+//     String label,
+//     String value, {
+//     bool isLast = false,
+//   }) {
+//     return Container(
+//       padding: const EdgeInsets.symmetric(vertical: 12),
+//       decoration: BoxDecoration(
+//         border: isLast
+//             ? null
+//             : const Border(bottom: BorderSide(color: Color(0xFFF9FAFB))),
+//       ),
+//       child: Row(
+//         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//         children: [
+//           Text(label, style: const TextStyle(fontSize: 14, color: textMuted)),
+//           Flexible(
+//             child: Text(
+//               value,
+//               textAlign: TextAlign.right,
+//               style: const TextStyle(
+//                 fontSize: 14,
+//                 fontWeight: FontWeight.w600,
+//                 color: textDark,
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   // --- 4. Exit Load & Tax Implications ---
+//   Widget _buildExitLoadAndTaxSection(LaunchDataEntity nfo) {
+//     return Container(
+//       padding: const EdgeInsets.all(20),
+//       decoration: BoxDecoration(
+//         // color: Color(0xFFF9FAFB),
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(24),
+//         border: Border.all(color: borderColor),
+//       ),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           const Text(
+//             'Exit Load & Tax Implications',
+//             style: TextStyle(
+//               fontSize: 16,
+//               fontWeight: FontWeight.bold,
+//               color: textDark,
+//             ),
+//           ),
+//           const SizedBox(height: 20),
+//           _buildInfoRow(
+//             icon: Icons.logout_rounded,
+//             iconColor: primaryColor,
+//             iconBg: Colors.blue.shade50,
+//             title: 'Exit Load',
+//             description: nfo.exitLoad ?? 'Nil',
+//           ),
+//           const SizedBox(height: 20),
+//           _buildInfoRow(
+//             icon: Icons.account_balance_rounded,
+//             iconColor: Colors.green.shade600,
+//             iconBg: Colors.green.shade50,
+//             title: 'Tax Implications',
+//             description:
+//                 'As a Debt scheme, gains are taxed at your applicable income tax slab rate, regardless of the holding period.',
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildInfoRow({
+//     required IconData icon,
+//     required Color iconColor,
+//     required Color iconBg,
+//     required String title,
+//     required String description,
+//   }) {
+//     return Row(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Container(
+//           width: 36,
+//           height: 36,
+//           decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
+//           child: Icon(icon, size: 18, color: iconColor),
+//         ),
+//         const SizedBox(width: 12),
+//         Expanded(
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Text(
+//                 title,
+//                 style: const TextStyle(
+//                   fontSize: 14,
+//                   fontWeight: FontWeight.w600,
+//                   color: textDark,
+//                 ),
+//               ),
+//               const SizedBox(height: 4),
+//               Text(
+//                 description,
+//                 style: const TextStyle(
+//                   fontSize: 13,
+//                   color: textMuted,
+//                   height: 1.4,
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+
+//   // --- 5. Bottom Action Bar ---
+//   Widget _buildBottomBar() {
+//     return Container(
+//       padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 32),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         border: const Border(top: BorderSide(color: borderColor)),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withOpacity(0.05),
+//             blurRadius: 10,
+//             offset: const Offset(0, -4),
+//           ),
+//         ],
+//       ),
+//       child: Row(
+//         children: [
+//           Expanded(
+//             child: OutlinedButton(
+//               onPressed: () {},
+//               style: OutlinedButton.styleFrom(
+//                 foregroundColor: primaryColor,
+//                 side: const BorderSide(color: primaryColor, width: 1.5),
+//                 padding: const EdgeInsets.symmetric(vertical: 16),
+//                 shape: RoundedRectangleBorder(
+//                   borderRadius: BorderRadius.circular(12),
+//                 ),
+//               ),
+//               child: const Text(
+//                 'Buy SIP',
+//                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+//               ),
+//             ),
+//           ),
+//           const SizedBox(width: 12),
+//           Expanded(
+//             child: ElevatedButton(
+//               onPressed: () {},
+//               style: ElevatedButton.styleFrom(
+//                 backgroundColor: primaryColor,
+//                 foregroundColor: Colors.white,
+//                 padding: const EdgeInsets.symmetric(vertical: 16),
+//                 elevation: 4,
+//                 shadowColor: primaryColor.withOpacity(0.4),
+//                 shape: RoundedRectangleBorder(
+//                   borderRadius: BorderRadius.circular(12),
+//                 ),
+//               ),
+//               child: const Text(
+//                 'Buy Lumpsum',
+//                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildTag({
+//     required IconData icon,
+//     required String text,
+//     required Color textColor,
+//     required Color bgColor,
+//   }) {
+//     return Container(
+//       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+//       decoration: BoxDecoration(
+//         color: bgColor,
+//         borderRadius: BorderRadius.circular(8),
+//       ),
+//       child: Row(
+//         mainAxisSize: MainAxisSize.min,
+//         children: [
+//           Icon(icon, size: 14, color: textColor),
+//           const SizedBox(width: 4),
+//           Text(
+//             text,
+//             style: TextStyle(
+//               fontSize: 12,
+//               fontWeight: FontWeight.w600,
+//               color: textColor,
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 // Make sure to import your entity file here
 // import 'package:my_sip/features/nfo/data/model/nfo_model.dart';
