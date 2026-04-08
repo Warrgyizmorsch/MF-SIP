@@ -415,7 +415,10 @@ class _WebDashboardLayout extends StatelessWidget {
           _WebQuickActionItem(
             "SIP",
             UImages.startsip,
-            () => Get.toNamed(AppRoutes.startSipScreen),
+            () => Get.toNamed(
+              AppRoutes.startSipScreen,
+              arguments: {'isLumpsum': false},
+            ),
           ),
           const Gap(40),
           // _WebQuickActionItem("Freedom SIP", UImages.freedomsip, () => Get.toNamed(AppRoutes.startSipScreen)),
@@ -423,7 +426,10 @@ class _WebDashboardLayout extends StatelessWidget {
           _WebQuickActionItem(
             "Lumpsum",
             UImages.glyph,
-            () => Get.toNamed(AppRoutes.startSipScreen),
+            () => Get.toNamed(
+              AppRoutes.startSipScreen,
+              arguments: {'isLumpsum': true},
+            ),
           ),
         ],
       ),
