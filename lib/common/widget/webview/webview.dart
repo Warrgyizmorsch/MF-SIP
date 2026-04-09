@@ -403,7 +403,6 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted);
 
-    // 🚀 FIX: Wrap NavigationDelegate in !kIsWeb to prevent crash on Web
     if (!kIsWeb) {
       _controller.setNavigationDelegate(
         NavigationDelegate(
@@ -428,14 +427,12 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
                 _isLoading = true;
               });
 
-              // Mimic the "Human Delay": Wait 3.5 seconds, then auto-close
               Future.delayed(const Duration(milliseconds: 3500), () {
                 if (mounted) {
                   Get.back(result: true);
                 }
               });
 
-              // CRITICAL: Let the URL load so Signzy gets the code!
               return NavigationDecision.navigate;
             }
 
@@ -458,7 +455,6 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
         ),
       );
     } else {
-      // 🚀 Web doesn't support onPageFinished properly, so turn off loader immediately
       _isLoading = false;
     }
 
@@ -467,12 +463,10 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
     } else if (widget.htmlContent != null) {
       final unescape = HtmlUnescape();
 
-      // Decode twice to handle double-escaped HTML
       String decodedHtmlContent = widget.htmlContent!;
       decodedHtmlContent = unescape.convert(decodedHtmlContent);
       decodedHtmlContent = unescape.convert(decodedHtmlContent);
 
-      // Wrap with full HTML for reliable rendering
       final wrappedHtml =
           """
     <!DOCTYPE html>

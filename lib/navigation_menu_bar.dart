@@ -1457,7 +1457,6 @@ import 'package:iconsax/iconsax.dart';
 import 'package:flutter/services.dart';
 import 'package:my_sip/common/widget/images/image_select.dart';
 import 'package:my_sip/common/widget/webview/webview.dart';
-import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
@@ -1465,26 +1464,19 @@ import 'package:my_sip/features/explore/presentation/pages/explore.dart';
 import 'package:my_sip/features/goal/presentation/pages/goal.dart';
 import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/document.dart';
-import 'package:my_sip/features/personalization/presentation/widgets/help_support.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/personal_details.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/services/session_manager.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
-
-// Screens imports (Replace with your actual paths)
 
 import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/kyc_details.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/nominee_list.dart';
 
-// =========================================
-// 1. UPDATED CONTROLLER
-// =========================================
 class NavigationBarController extends GetxController {
   static NavigationBarController get instance => Get.find();
 
@@ -1514,23 +1506,18 @@ class NavigationBarController extends GetxController {
     }
   }
 
-  // 🚀 FIX: isDesktop parameter add kiya
   void changePage(int index, {bool isDesktop = true}) {
-    // Agar "Profile" (Main Menu) par click kiya hai
     if (index == 4) {
       if (isDesktop) {
-        // Web par sirf Accordion kholo/band karo. Screen change MAT karo.
         isProfileExpanded.value = !isProfileExpanded.value;
       } else {
-        // Mobile par dropdown nahi hota, toh seedha Profile Overview (40) par bhej do
         selectedIndex.value = 40;
       }
-      return; // Yahin se wapas laut jao, selectedIndex update mat hone do
+      return;
     }
 
     if (selectedIndex.value == index) return;
 
-    // Agar Home/Dashboard jaise kisi aur main tab par click kiya, toh Profile ka dropdown band kar do
     if (index < 4) {
       isProfileExpanded.value = false;
     }
@@ -1549,9 +1536,6 @@ class NavigationBarController extends GetxController {
       selectedIndex.value >= 40 && selectedIndex.value < 50;
 }
 
-// =========================================
-// 2. MAIN LAYOUT WIDGET
-// =========================================
 class NavigationMenuBar extends StatelessWidget {
   const NavigationMenuBar({super.key});
 
@@ -1725,7 +1709,7 @@ class NavigationMenuBar extends StatelessWidget {
 
                         // Profile Sub-categories
                         case 40:
-                          return const ProfileScreen(); // Base profile or overview
+                          return const ProfileScreen();
                         case 41:
                           return const KycDetailsScreen();
                         case 42:
@@ -1895,8 +1879,8 @@ class GlobalTopHeader extends StatelessWidget {
                     color: Colors.grey,
                   ),
                   hintText: 'Search funds...',
-                  // onChanged: (value) =>
-                  //     mutualController.onSearchQueryChanged(value),
+                  onChanged: (value) =>
+                      mutualController.onSearchQueryChanged(value),
                   padding: MaterialStateProperty.all(
                     const EdgeInsets.symmetric(horizontal: 10),
                   ),

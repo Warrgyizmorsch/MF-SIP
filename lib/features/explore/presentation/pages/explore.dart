@@ -875,9 +875,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 }
 
-// ==========================================
-// 💻 WEB LAYOUT (Professional Table View)
-// ==========================================
 class _WebExploreLayout extends StatelessWidget {
   final ScrollController scrollController;
   final FocusNode searchFocus;
@@ -1011,40 +1008,40 @@ class _WebExploreLayout extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Count & Sort
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Obx(
-                          () => Text(
-                            "${controller.selectedFundCount.value == 0 ? controller.mutualfund.length : controller.selectedFundCount} funds found",
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () => showSelectionBottomSheet(
-                            selectedValue: sortController.text,
-                            search: false,
-                            context: context,
-                            title: 'Sort by',
-                            items: sortItems,
-                            controller: sortController,
-                          ),
-                          child: Row(
-                            children: const [
-                              Text(
-                                "Sort by: Popularity",
-                                style: TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              Icon(Icons.keyboard_arrow_down, size: 16),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Gap(16),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //   children: [
+                    //     Obx(
+                    //       () => Text(
+                    //         "${controller.selectedFundCount.value == 0 ? controller.mutualfund.length : controller.selectedFundCount} funds found",
+                    //         style: TextStyle(
+                    //           color: Colors.grey.shade600,
+                    //           fontWeight: FontWeight.bold,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //     InkWell(
+                    //       onTap: () => showSelectionBottomSheet(
+                    //         selectedValue: sortController.text,
+                    //         search: false,
+                    //         context: context,
+                    //         title: 'Sort by',
+                    //         items: sortItems,
+                    //         controller: sortController,
+                    //       ),
+                    //       child: Row(
+                    //         children: const [
+                    //           Text(
+                    //             "Sort by: Popularity",
+                    //             style: TextStyle(fontWeight: FontWeight.w600),
+                    //           ),
+                    //           Icon(Icons.keyboard_arrow_down, size: 16),
+                    //         ],
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
+                    // const Gap(16),
 
                     // TABLE HEADER
                     Container(
@@ -1228,7 +1225,7 @@ class WebFundTableRow extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          "Equity • Growth",
+                          "${entity.amc?.amcName}",
                           style: TextStyle(
                             color: Colors.grey.shade500,
                             fontSize: 11,
@@ -1252,14 +1249,21 @@ class WebFundTableRow extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Ucolors.red.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: Ucolors.red.withOpacity(0.2)),
+                      // color: Colors.blue.shade200,
+                      color: getRiskMeter(
+                        entity.riskLevel,
+                      ).color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(
+                        color: getRiskMeter(
+                          entity.riskLevel,
+                        ).color.withOpacity(0.1),
+                      ),
                     ),
                     child: Text(
-                      "Very High",
+                      "${entity.riskLevel}",
                       style: TextStyle(
-                        color: Ucolors.red,
+                        color: getRiskMeter(entity.riskLevel).color,
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                       ),
@@ -1273,9 +1277,12 @@ class WebFundTableRow extends StatelessWidget {
             Expanded(
               flex: 1,
               child: Text(
-                "15.2%",
+                '${entity.returnsEntity?.oneYear}%',
                 style: TextStyle(
-                  color: Ucolors.success,
+                  // color: Ucolors.success,
+                  color: parseIntSafe(entity.returnsEntity?.oneYear) < 0
+                      ? Colors.red
+                      : Ucolors.success,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -1283,9 +1290,12 @@ class WebFundTableRow extends StatelessWidget {
             Expanded(
               flex: 1,
               child: Text(
-                "18.5%",
+                '${entity.returnsEntity?.threeYear}%',
+
                 style: TextStyle(
-                  color: Ucolors.success,
+                  color: parseIntSafe(entity.returnsEntity?.threeYear) < 0
+                      ? Colors.red
+                      : Ucolors.success,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -1293,9 +1303,12 @@ class WebFundTableRow extends StatelessWidget {
             Expanded(
               flex: 1,
               child: Text(
-                "22.1%",
+                '${entity.returnsEntity?.fiveYear}%',
                 style: TextStyle(
-                  color: Ucolors.success,
+                  // color: Ucolors.success,
+                  color: parseIntSafe(entity.returnsEntity?.fiveYear) < 0
+                      ? Colors.red
+                      : Ucolors.success,
                   fontWeight: FontWeight.bold,
                 ),
               ),

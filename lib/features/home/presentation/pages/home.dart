@@ -143,9 +143,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// ==========================================
-// 💻 WEB DASHBOARD LAYOUT
-// ==========================================
 class _WebDashboardLayout extends StatelessWidget {
   final AuthController authController;
   final CartController cartController;
@@ -323,6 +320,7 @@ class _WebDashboardLayout extends StatelessWidget {
 
   Widget _buildHeroBanner() {
     return WebHoverScale(
+      onTap: () => Get.toNamed(AppRoutes.kycScreen),
       scale: 1.02, // Subtle scale for the big banner
       child: Container(
         width: double.infinity,
@@ -525,6 +523,7 @@ class _WebDashboardLayout extends StatelessWidget {
           // Wrap Fund Card with Hover Scale
           return WebHoverScale(
             child: PopularFundCard(
+              threeYear: fund.returnsEntity?.threeYear ?? '--',
               isNetwork: true,
               imgPath: img,
               name: name,

@@ -21,11 +21,12 @@ class PersonalisationBinding extends Bindings {
     Get.lazyPut(() => NetworkServicesApi());
 
     // 2. Register the Data Source (it will "find" the API service)
-    Get.lazyPut(() => PersonalisationRemoteDataSource(Get.find()));
+    Get.lazyPut(() => PersonalisationRemoteDataSource(Get.find()), fenix: true);
 
     // 3. Register the Repository
     Get.lazyPut<PersonalisationRepository>(
       () => PersonalisationRepositoryImpl(Get.find()),
+      fenix: true,
     );
 
     /// --
@@ -35,22 +36,27 @@ class PersonalisationBinding extends Bindings {
     Get.lazyPut(
       () => AddNomineeUseCase(
         personalisationRepository: Get.find<PersonalisationRepository>(),
+        
       ),
+      fenix: true
     );
     Get.lazyPut(
       () => GetNomineeUseCase(
         personalisationRepository: Get.find<PersonalisationRepository>(),
       ),
+      fenix: true
     );
     Get.lazyPut(
       () => DeleteNomineeUseCase(
         personalisationRepository: Get.find<PersonalisationRepository>(),
       ),
+      fenix: true
     );
     Get.lazyPut(
       () => UpdateProfileUsecases(
         personalisationRepository: Get.find<PersonalisationRepository>(),
       ),
+      fenix: true,
     );
     Get.lazyPut(
       () => PersonalisationUseCases(
@@ -62,6 +68,7 @@ class PersonalisationBinding extends Bindings {
         Get.find<DeleteNomineeUseCase>(),
         Get.find(),
       ),
+      fenix: true,
     );
 
     // 4. Register the Use Case
