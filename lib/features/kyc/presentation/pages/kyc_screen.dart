@@ -6,8 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
-import 'package:my_sip/common/widget/images/custom_cached_image.dart';
-import 'package:my_sip/common/widget/images/image_picker.dart';
 import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
 import 'package:my_sip/common/widget/text_form/text_field_component.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
@@ -16,7 +14,6 @@ import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/core/utils/enums/enums.dart';
 import 'package:my_sip/features/authentication/presentation/pages/signup/register_account.dart';
 import 'package:my_sip/features/kyc/presentation/controllers/kyc_controller.dart';
-import 'package:my_sip/services/session_manager.dart';
 import '../../../../common/widget/showbottomsheet/datepicker.dart';
 import '../../../../core/utils/helper/helpers.dart';
 import '../widgets/tax_status_slider_widget.dart';
@@ -44,42 +41,17 @@ class KycScreen extends GetView<KycController> {
     }
   }
 
-  // String _getStepTitle(int index) {
-  //   switch (index) {
-  //     case 0:
-  //       return "Identity Verification";
-  //     case 1:
-  //       return "Personal Details";
-  //     case 2:
-  //       return "Additional Info";
-  //     case 3:
-  //       return "Nominee Details";
-  //     case 4:
-  //       return "Nominee Verification";
-  //     case 5:
-  //       return "Bank Account";
-  //     case 6:
-  //       return "Documents";
-  //     default:
-  //       return "KYC Process";
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Obx(
       () => PopScope(
         canPop: controller.currentStep.value == 0,
 
-        // 2. This runs when the user presses the hardware back button
         onPopInvoked: (didPop) {
           if (didPop) {
-            // The system successfully popped the screen (because we were on Step 0)
             return;
           }
 
-          // The system was blocked from popping (because we are on Step 1 or higher).
-          // Now, we manually move the PageView back one step.
           if (controller.currentStep.value > 0) {
             controller.pageController.previousPage(
               duration: const Duration(milliseconds: 300),
