@@ -906,7 +906,7 @@ class NfoDetailsPage1 extends StatelessWidget {
             SizedBox(
               width: 140,
               child: OutlinedButton(
-                onPressed: () => Get.back(),
+                onPressed: () => Navigator.maybePop(context),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: primaryColor,
                   side: const BorderSide(color: primaryColor, width: 1.5),
@@ -948,7 +948,7 @@ class NfoDetailsPage1 extends StatelessWidget {
             child: Expanded(
               flex: isWeb ? 0 : 1,
               child: ElevatedButton(
-                onPressed: () {}, // Aapki buy logic
+                onPressed: () {},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryColor,
                   foregroundColor: Colors.white,

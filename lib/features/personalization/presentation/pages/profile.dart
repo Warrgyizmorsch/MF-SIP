@@ -712,43 +712,108 @@ class ProfileHeader extends StatelessWidget {
     );
   }
 
+  // Widget _buildImage() {
+  //   // 1. Handle Network Images
+  //   if (img.startsWith('http') ||
+  //       img.startsWith('https') ||
+  //       img.startsWith('storage/')) {
+  //     final fullUrl = img.startsWith('storage/')
+  //         ? "https://sip-backend.londonstreetstore.com/public/$img"
+  //         : img;
+
+  //     return Image.network(
+  //       fullUrl,
+  //       fit: BoxFit.cover,
+  //       width: 120,
+  //       height: 120,
+  //       errorBuilder: (context, error, stackTrace) =>
+  //           const Icon(Icons.person, size: 50),
+  //     );
+  //   }
+
+  //   // 2. Handle Local File Images (from Image Picker)
+  //   if (img.isNotEmpty && File(img).existsSync()) {
+  //     return Image.file(File(img), fit: BoxFit.cover, width: 120, height: 120);
+  //   }
+
+  //   // if (!kIsWeb && img.isNotEmpty) {
+  //   //   final file = File(img);
+  //   //   if (file.existsSync()) {
+  //   //     return Image.file(file, fit: BoxFit.cover, width: 120, height: 120);
+  //   //   }
+  //   // }
+
+  //   // 3. Default/Asset Image
+  //   return Image.asset(
+  //     img.isEmpty ? 'assets/images/avatar.png' : img,
+  //     fit: BoxFit.cover,
+  //     width: 120,
+  //     height: 120,
+  //   );
+  // }
   Widget _buildImage() {
-    // 1. Handle Network Images
-    if (img.startsWith('http') ||
-        img.startsWith('https') ||
-        img.startsWith('storage/')) {
-      final fullUrl = img.startsWith('storage/')
-          ? "https://sip-backend.londonstreetstore.com/public/$img"
-          : img;
+    // 1. Agar image empty/null hai
+    if (img.isEmpty || img == 'null') {
+      return Image.asset(
+        'assets/images/avatar.png',
+        fit: BoxFit.cover,
+        width: 120,
+        height: 120,
+      );
+    }
+
+    // 2. 🌐 WEB BLOB (Local Web Picker)
+    if (kIsWeb && img.startsWith('blob:')) {
+      return Image.network(
+        img,
+        fit: BoxFit.cover,
+        width: 120,
+        height: 120,
+        errorBuilder: (context, error, stackTrace) =>
+            const Icon(Icons.person, size: 50, color: Colors.grey),
+      );
+    }
+
+    // 3. ☁️ NETWORK IMAGE (API)
+    if (img.startsWith('http') || img.contains('storage/')) {
+      String fullUrl = img;
+
+      if (!img.startsWith('http') && !img.startsWith('blob:')) {
+        fullUrl = "https://sip-backend.londonstreetstore.com/$img";
+      }
 
       return Image.network(
         fullUrl,
         fit: BoxFit.cover,
         width: 120,
         height: 120,
-        errorBuilder: (context, error, stackTrace) =>
-            const Icon(Icons.person, size: 50),
+        errorBuilder: (context, error, stackTrace) {
+          log("Image Blocked by CORS/Network Error: $error");
+          return const Icon(Icons.person, size: 50, color: Colors.grey);
+        },
       );
     }
 
-    // 2. Handle Local File Images (from Image Picker)
-    if (img.isNotEmpty && File(img).existsSync()) {
-      return Image.file(File(img), fit: BoxFit.cover, width: 120, height: 120);
+    // 4. 📱 MOBILE LOCAL FILE (Web par nahi chalega)
+    if (!kIsWeb && !img.startsWith('assets/')) {
+      try {
+        final file = File(img);
+        if (file.existsSync()) {
+          return Image.file(file, fit: BoxFit.cover, width: 120, height: 120);
+        }
+      } catch (e) {
+        log("File error: $e");
+      }
     }
 
-    // if (!kIsWeb && img.isNotEmpty) {
-    //   final file = File(img);
-    //   if (file.existsSync()) {
-    //     return Image.file(file, fit: BoxFit.cover, width: 120, height: 120);
-    //   }
-    // }
-
-    // 3. Default/Asset Image
+    // 5. Default Fallback
     return Image.asset(
-      img.isEmpty ? 'assets/images/avatar.png' : img,
+      img,
       fit: BoxFit.cover,
       width: 120,
       height: 120,
+      errorBuilder: (context, error, stackTrace) =>
+          const Icon(Icons.person, size: 50, color: Colors.grey),
     );
   }
 }

@@ -10,16 +10,19 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/authentication/presentation/widgets/term_policy.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/cart/presentation/pages/cart_page.dart';
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
 
 class PaymentScreen extends StatelessWidget {
-  const PaymentScreen({super.key});
+  PaymentScreen({super.key});
+
+  CartController cartController = Get.find<CartController>();
 
   @override
   Widget build(BuildContext context) {
     final arg = Get.arguments as Map<String, dynamic>?;
-    final amount = arg!['amount'];
+    final amount = arg?['amount'] ?? 0;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.grey.shade50,
@@ -141,18 +144,19 @@ class PaymentScreen extends StatelessWidget {
       bottomNavigationBar: SafeArea(
         top: false,
         child: CartBottomBar(
-          amount: amount.toString(),
+          amount: cartController.totalAmount.toString(),
           title: 'Amount Payable',
-          ontap: () => Get.toNamed(
-            AppRoutes.successfullcreategoal,
-            arguments: {
-              'title': 'Congratulations',
-              'subtitle':
-                  'Lorem Ipsum is simply dummy text of the printing and',
-              'textButton': 'Go to Goal section',
-              'nextroute': AppRoutes.goalviewcard,
-            },
-          ),
+          ontap: () {},
+          // ontap: () => Get.toNamed(
+          //   AppRoutes.successfullcreategoal,
+          //   arguments: {
+          //     'title': 'Congratulations',
+          //     'subtitle':
+          //         'Lorem Ipsum is simply dummy text of the printing and',
+          //     'textButton': 'Go to Goal section',
+          //     'nextroute': AppRoutes.goalviewcard,
+          //   },
+          // ),
         ),
       ),
     );

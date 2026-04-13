@@ -9,6 +9,7 @@ class UImages {
   static const String topRight2 = 'assets/logo/Vector 28.png';
   static const String topRight3 = 'assets/logo/Vector 29.png';
   static const String topRight4 = 'assets/logo/Ellipse 265.png';
+  static const String mfsiplogo = 'assets/logo/mfsiplogo.svg';
 
   //Onboarding
   // static const String onboarding1 = 'assets/images/onboarding/Illustration.png';

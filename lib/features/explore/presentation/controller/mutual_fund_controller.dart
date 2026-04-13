@@ -58,7 +58,19 @@ class MutualFundController extends GetxController {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
 
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      _currentSearchQuery = query.trim(); // Save search text
+      _currentSearchQuery = query.trim();
+
+      ///       ----------------------       //
+      if (_currentSearchQuery.isNotEmpty) {
+        if (Get.isRegistered<FundhouseController>()) {
+          final fundhouse = Get.find<FundhouseController>();
+          fundhouse.resetUiStatesOnly();
+        }
+
+        _currentFilters.clear();
+      }
+
+      /// ---------------------------------  ///
       _resetAndFetch(); // Start over from Page 1
     });
   }

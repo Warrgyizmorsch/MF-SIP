@@ -2,26 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
+import 'package:my_sip/common/widget/responsive/responsive_helpers.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 class NotificationPage extends StatelessWidget {
   const NotificationPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
     final bool isRead = false;
     return Scaffold(
-      appBar: CustomAppBarNormal(
-        actionsPadding: 15,
-        title: 'Notification',
-        action: [
-          Text(
-            'Mark all read',
-            style: UTextStyles.medium.copyWith(color: Ucolors.blue),
-          ),
-        ],
-      ),
+      appBar: isDesktop
+          ? null
+          : CustomAppBarNormal(
+              actionsPadding: 15,
+              title: 'Notification',
+              action: [
+                Text(
+                  'Mark all read',
+                  style: UTextStyles.medium.copyWith(color: Ucolors.blue),
+                ),
+              ],
+            ),
       body: SingleChildScrollView(
         child: Column(
           children: [

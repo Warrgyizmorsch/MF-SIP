@@ -115,6 +115,7 @@
 
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
@@ -164,6 +165,9 @@ class SipProcessController extends GetxController
       <MutualFundListEntity>[].obs;
 
   final RxMap<String, double> fundAmounts = <String, double>{}.obs;
+
+
+  static bool? navIsLumpsum;
 
   void setInvestmentMode(bool lumpsum) {
     isLumpsum.value = lumpsum;
@@ -229,6 +233,8 @@ class SipProcessController extends GetxController
       );
       return;
     }
+
+    bool isDesktop = Get.width > 600;
 
     // if (selectedFunds.isEmpty) return;
     for (var fund in selectedFunds) {
@@ -315,6 +321,7 @@ class SipProcessController extends GetxController
       // Get.offNamed(AppRoutes.cart);
       Get.offNamedUntil(
         AppRoutes.cart,
+        id: isDesktop ? 1 : null,
         (route) =>
             route.isFirst ||
             route.settings.name == AppRoutes.navMenuBar ||
@@ -400,8 +407,11 @@ class SipProcessController extends GetxController
   @override
   void onInit() {
     super.onInit();
-
-    if (Get.arguments != null && Get.arguments['isLumpsum'] != null) {
+    if (navIsLumpsum != null) {
+      setInvestmentMode(navIsLumpsum!);
+      navIsLumpsum = null; 
+    }
+    else if (Get.arguments != null && Get.arguments['isLumpsum'] != null) {
       setInvestmentMode(Get.arguments['isLumpsum']);
     }
 

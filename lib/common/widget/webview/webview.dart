@@ -375,6 +375,8 @@ class HtmlWebViewPage extends StatefulWidget {
   final String? successUrlTrigger;
   final bool appBar;
 
+  static Map<String, String>? navData;
+
   const HtmlWebViewPage({
     super.key,
     this.appBar = true,
@@ -382,10 +384,12 @@ class HtmlWebViewPage extends StatefulWidget {
     this.htmlContent,
     this.url,
     this.successUrlTrigger = "signzy",
-  }) : assert(
-         htmlContent != null || url != null,
-         'Either htmlContent or url must be provided',
-       );
+    th,
+  });
+  // : assert(
+  //        htmlContent != null || url != null,
+  //        'Either htmlContent or url must be provided',
+  //      );
 
   @override
   State<HtmlWebViewPage> createState() => _HtmlWebViewPageState();
@@ -396,9 +400,35 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
   bool _isLoading = true; // Loader state
   bool result = false;
 
+  late String finalTitle;
+  late String? finalUrl;
+  late String? finalHtmlContent;
+
+  bool finalAppBar = true;
+
   @override
   void initState() {
     super.initState();
+
+    if (HtmlWebViewPage.navData != null &&
+        HtmlWebViewPage.navData!['appBar'] == 'false') {
+      finalAppBar = false;
+    } else {
+      finalAppBar = widget.appBar;
+    }
+
+    finalTitle =
+        HtmlWebViewPage.navData?['title'] ??
+        (widget.title.isNotEmpty ? widget.title : null) ??
+        Get.arguments?['title'] ??
+        '';
+
+    finalUrl =
+        HtmlWebViewPage.navData?['url'] ?? widget.url ?? Get.arguments?['url'];
+    finalHtmlContent = widget.htmlContent ?? Get.arguments?['htmlContent'];
+
+    // 2. Data reset karo
+    HtmlWebViewPage.navData = null;
 
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted);
@@ -458,8 +488,11 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
       _isLoading = false;
     }
 
-    if (widget.url != null && widget.url!.isNotEmpty) {
-      _controller.loadRequest(Uri.parse(widget.url!));
+    // if (widget.url != null && widget.url!.isNotEmpty) {
+    //   _controller.loadRequest(Uri.parse(widget.url!));
+    // }
+    if (finalUrl != null && finalUrl!.isNotEmpty) {
+      _controller.loadRequest(Uri.parse(finalUrl!));
     } else if (widget.htmlContent != null) {
       final unescape = HtmlUnescape();
 
@@ -606,7 +639,7 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
 
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: !widget.appBar
+        appBar: !finalAppBar
             ? null
             : AppBar(
                 leading: IconButton(
@@ -621,7 +654,8 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
                 backgroundColor: Colors.white,
                 centerTitle: true,
                 title: Text(
-                  widget.title,
+                  // widget.title,
+                  finalTitle,
                   textAlign: TextAlign.start,
                   style: AppTextStyles.h3(color: Ucolors.dark),
                 ),

@@ -645,6 +645,7 @@
 // }
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
@@ -673,7 +674,9 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
 
     return Scaffold(
       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
-      appBar: const CustomAppBarNormal(title: 'Nominee Details'),
+      appBar: (isDesktop || kIsWeb)
+          ? null
+          : const CustomAppBarNormal(title: 'Nominee Details'),
 
       // 🚀 FIX: Removed bottomNavigationBar for Web.
       bottomNavigationBar: isDesktop ? null : _buildMobileBottomBar(),
@@ -789,7 +792,7 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: () => Get.back(),
+                  onPressed: () => Navigator.maybePop(context),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 24,

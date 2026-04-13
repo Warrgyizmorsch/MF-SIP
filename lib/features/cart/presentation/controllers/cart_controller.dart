@@ -94,20 +94,8 @@ class CartController extends GetxController {
     }
   }
 
-  // List<CartItemEntity> get displayedItems {
-  //   final allItems = cartResponseEntity.value?.items ?? [];
-
-  //   if (filterGoalId.value != null) {
-  //     return allItems
-  //         .where((item) => item.goalId == filterGoalId.value)
-  //         .toList();
-  //   }
-
-  //   return allItems.where((item) => item.goalId == null).toList();
-  // }
   // Inside CartController
   int get generalItemsCount {
-    // Filter the list to find only items where goalId is null
     return cartResponseEntity.value?.items
             .where((item) => item.goalId == null)
             .length ??
@@ -125,41 +113,8 @@ class CartController extends GetxController {
           .toList();
     }
 
-    // Show only general items (matches the badge count logic)
     return allItems.where((item) => item.goalId == null).toList();
   }
-
-  // List<CartItemEntity> get displayedItems {
-  //   // Accessing .value makes this getter reactive
-  //   final allItems = cartResponseEntity.value?.items ?? [];
-  //   final targetId = filterGoalId.value;
-
-  //   if (targetId != null) {
-  //     log("Filtering for Goal ID: $targetId");
-  //     return allItems.where((item) {
-  //       log("Checking Item: ${item.schemeName} | Item GoalID: ${item.goalId}");
-  //       return item.goalId == targetId;
-  //     }).toList();
-  //   }
-
-  //   log("No filter applied, showing all ${allItems.length} items");
-  //   return allItems;
-  // }
-
-  // // Use this list to drive your UI
-  // List<CartItemEntity> get goalSpecificItems {
-  //   final allItems = cartResponseEntity.value?.items ?? [];
-
-  //   if (filterGoalId.value != null) {
-  //     // ONLY show items that match the current goal ID
-  //     // This effectively hides "previous" or "main cart" items
-  //     return allItems
-  //         .where((item) => item.goalId == filterGoalId.value)
-  //         .toList();
-  //   }
-
-  //   return allItems; // Show all if no goal is active
-  // }
 
   CartController(this.cartUsecases);
 
@@ -280,10 +235,7 @@ class CartController extends GetxController {
     int? goalId, {
     String transType = 'sip',
   }) async {
-    log(SessionManager.instance.jwtRefreshToken.toString());
-
     HapticFeedback.successNotification();
-    // 1. DUPLICATE CHECK: Verify if fund already exists in local state
     bool alreadyInCart =
         cartResponseEntity.value?.items.any(
           (item) =>

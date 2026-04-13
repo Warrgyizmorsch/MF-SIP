@@ -20,6 +20,8 @@ import 'package:my_sip/features/authentication/presentation/controllers/auth/aut
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
+import 'package:my_sip/features/fund_details/presentation/controllers/fund_details_controller.dart';
+import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_calculator.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
@@ -187,7 +189,7 @@ class _WebDashboardLayout extends StatelessWidget {
                             ),
                           ),
                           const Gap(16),
-                          _buildQuickActionsCard(),
+                          _buildQuickActionsCard(context),
                           const Gap(30),
                           const Text(
                             "Explore Categories",
@@ -209,10 +211,10 @@ class _WebDashboardLayout extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              TextButton(
-                                onPressed: () {},
-                                child: const Text("View All"),
-                              ),
+                              // TextButton(
+                              //   onPressed: () {},
+                              //   child: const Text("View All"),
+                              // ),
                             ],
                           ),
                           const Gap(10),
@@ -320,7 +322,7 @@ class _WebDashboardLayout extends StatelessWidget {
 
   Widget _buildHeroBanner() {
     return WebHoverScale(
-      onTap: () => Get.toNamed(AppRoutes.kycScreen),
+      onTap: () => Get.toNamed(AppRoutes.kycScreen, id: 1),
       scale: 1.02, // Subtle scale for the big banner
       child: Container(
         width: double.infinity,
@@ -393,7 +395,7 @@ class _WebDashboardLayout extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickActionsCard() {
+  Widget _buildQuickActionsCard(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -410,25 +412,25 @@ class _WebDashboardLayout extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          _WebQuickActionItem(
-            "SIP",
-            UImages.startsip,
-            () => Get.toNamed(
+          _WebQuickActionItem("SIP", UImages.startsip, () {
+            SipProcessController.navIsLumpsum = false;
+            Get.toNamed(
+              id: 1,
               AppRoutes.startSipScreen,
               arguments: {'isLumpsum': false},
-            ),
-          ),
+            );
+          }),
           const Gap(40),
           // _WebQuickActionItem("Freedom SIP", UImages.freedomsip, () => Get.toNamed(AppRoutes.startSipScreen)),
           const Gap(40),
-          _WebQuickActionItem(
-            "Lumpsum",
-            UImages.glyph,
-            () => Get.toNamed(
+          _WebQuickActionItem("Lumpsum", UImages.glyph, () {
+            SipProcessController.navIsLumpsum = true;
+            Get.toNamed(
+              id: 1,
               AppRoutes.startSipScreen,
               arguments: {'isLumpsum': true},
-            ),
-          ),
+            );
+          }),
         ],
       ),
     );
@@ -472,8 +474,9 @@ class _WebDashboardLayout extends StatelessWidget {
             nav.navigateToExploreWithFilter(() => funds.applyCommodityFilter()),
       },
       {
-        't': 'NFO', 'i': UImages.equity,
-        'onTap': () => Get.toNamed(AppRoutes.nfolist), // <--- NFO ROUTE FIXED
+        't': 'NFO',
+        'i': UImages.equity,
+        'onTap': () => Get.toNamed(AppRoutes.nfolist, id: 1),
       },
     ];
 
@@ -527,14 +530,25 @@ class _WebDashboardLayout extends StatelessWidget {
               isNetwork: true,
               imgPath: img,
               name: name,
-              onTap: () => Get.toNamed(
-                AppRoutes.funddetails,
-                arguments: {
+              onTap: () {
+                Get.delete<FundDetailsController>();
+                FundDetailsScreen.navData = {
                   'scheme': name,
                   'imgUrl': img,
                   'scheme_code': schemeCode,
-                },
-              ),
+                };
+
+                Get.toNamed(AppRoutes.funddetails, id: 1);
+              },
+              // onTap: () => Get.toNamed(
+              //   id: 1,
+              //   AppRoutes.funddetails,
+              //   arguments: {
+              //     'scheme': name,
+              //     'imgUrl': img,
+              //     'scheme_code': schemeCode,
+              //   },
+              // ),
             ),
           );
         },
@@ -603,25 +617,28 @@ class _WebDashboardLayout extends StatelessWidget {
           _buildToolItem(
             "SIP Calculator",
             UImages.sipcalci,
-            () => Get.to(() => const SipCalculatorPage()),
+            // () => Get.to(() => const SipCalculatorPage()),
+            () => Get.toNamed(AppRoutes.sipCalculator, id: 1),
           ),
           const Gap(8),
           _buildToolItem(
             "SWP Calculator",
             UImages.swpcali,
-            () => Get.to(() => const SwpCalciScreen()),
+            // () => Get.to(() => const SwpCalciScreen()),
+            () => Get.toNamed(AppRoutes.swpCalculator, id: 1),
           ),
           const Gap(8),
           _buildToolItem(
             "Step-Up Calculator",
             UImages.siptopcalci,
-            () => Get.to(() => const TopUpCalculatorPage()),
+            // () => Get.to(() => const TopUpCalculatorPage()),
+            () => Get.toNamed(AppRoutes.stepUpCalculator, id: 1),
           ),
           const Gap(8),
           _buildToolItem(
             "Compare Fund",
             UImages.comparefund,
-            () => Get.toNamed(AppRoutes.comparefund),
+            () => Get.toNamed(AppRoutes.comparefund, id: 1),
           ),
         ],
       ),
@@ -740,8 +757,9 @@ class _WebGoalTile extends StatelessWidget {
   Widget build(BuildContext context) {
     // Use WebHoverTile for background highlight effect
     return WebHoverTile(
-      onTap: () =>
-          Get.toNamed(AppRoutes.ihavegoal, arguments: {'goalType': type}),
+      // onTap: () =>
+      //     Get.toNamed(AppRoutes.ihavegoal, arguments: {'goalType': type}),
+      onTap: () => Get.toNamed(AppRoutes.comingSoon, id: 1),
       builder: (isHovered) => AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(12),
@@ -1288,47 +1306,58 @@ class _MobileLayout extends StatelessWidget {
               ),
               delegate: SliverChildListDelegate([
                 GoalBaseSIPCard(
-                  onTap: () => Get.toNamed(
-                    AppRoutes.ihavegoal,
-                    arguments: {'goalType': 'car'},
-                  ),
+                  // onTap: () => Get.toNamed(
+                  //   AppRoutes.ihavegoal,
+                  //   arguments: {'goalType': 'car'},
+                  // ),
+                  onTap: () => Get.toNamed(AppRoutes.comingSoon),
+
                   title: 'Car Goal',
                   iconData: Icons.directions_car_filled_rounded,
                 ),
                 GoalBaseSIPCard(
                   title: 'Bike Goal',
                   iconData: Icons.pedal_bike_rounded,
-                  onTap: () => Get.toNamed(
-                    AppRoutes.ihavegoal,
-                    arguments: {'goalType': 'bike'},
-                  ),
+                  // onTap: () => Get.toNamed(
+                  //   AppRoutes.ihavegoal,
+                  //   arguments: {'goalType': 'bike'},
+                  // ),
+                  onTap: () => Get.toNamed(AppRoutes.comingSoon),
                 ),
                 GoalBaseSIPCard(
-                  onTap: () => Get.toNamed(
-                    AppRoutes.ihavegoal,
-                    arguments: {'goalType': 'marriage'},
-                  ),
+                  // onTap: () => Get.toNamed(
+                  //   AppRoutes.ihavegoal,
+                  //   arguments: {'goalType': 'marriage'},
+                  // ),
+                  onTap: () => Get.toNamed(AppRoutes.comingSoon),
+
                   title: 'Marriage Goal',
                   iconData: Icons.favorite_border_outlined,
                 ),
                 GoalBaseSIPCard(
-                  onTap: () => Get.toNamed(
-                    AppRoutes.ihavegoal,
-                    arguments: {'goalType': 'vacation'},
-                  ),
+                  // onTap: () => Get.toNamed(
+                  //   AppRoutes.ihavegoal,
+                  //   arguments: {'goalType': 'vacation'},
+                  // ),
+                  onTap: () => Get.toNamed(AppRoutes.comingSoon),
+
                   title: 'Vacation Goal',
                   iconData: Icons.flight_takeoff_rounded,
                 ),
                 GoalBaseSIPCard(
-                  onTap: () => Get.toNamed(
-                    AppRoutes.ihavegoal,
-                    arguments: {'goalType': 'home'},
-                  ),
+                  // onTap: () => Get.toNamed(
+                  //   AppRoutes.ihavegoal,
+                  //   arguments: {'goalType': 'home'},
+                  // ),
+                  onTap: () => Get.toNamed(AppRoutes.comingSoon),
+
                   title: 'Home Goal',
                   iconData: Icons.home_rounded,
                 ),
                 GestureDetector(
-                  onTap: () => Get.toNamed(AppRoutes.ihavegoal),
+                  // onTap: () => Get.toNamed(AppRoutes.ihavegoal),
+                  onTap: () => Get.toNamed(AppRoutes.comingSoon),
+
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,

@@ -345,7 +345,8 @@ class RegisterAccountScreen extends GetView<AuthController> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    bool isDesktop = ResponsiveBreakpoints.of(context).isDesktop;
+    // bool isDesktop = ResponsiveBreakpoints.of(context).isDesktop;
+    bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Scaffold(
       backgroundColor: Ucolors.light,
@@ -384,10 +385,9 @@ class RegisterAccountScreen extends GetView<AuthController> {
                                   size: size,
                                   isDesktop: isDesktop,
                                 )
-                              : const SizedBox.shrink(), 
+                              : const SizedBox.shrink(),
                         ),
 
-                       
                         ResponsiveRowColumnItem(
                           rowFlex: 1,
                           child: Container(
@@ -554,7 +554,7 @@ class RegisterAccountScreen extends GetView<AuthController> {
                                     () => UElevatedBUtton(
                                       onPressed:
                                           controller.isRegisterLoading.value
-                                          ? null 
+                                          ? null
                                           : controller.submitRegisterForm,
                                       child: Center(
                                         child:
@@ -607,7 +607,6 @@ class RegisterAccountScreen extends GetView<AuthController> {
     );
   }
 }
-
 
 class LoginTopSection extends StatelessWidget {
   const LoginTopSection({

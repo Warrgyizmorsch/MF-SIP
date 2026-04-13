@@ -12,77 +12,87 @@ class AuthRemoteDataSource {
 
   AuthRemoteDataSource(this._apiService);
 
-
   // model for datasource
-  Future<Either<Result<LoginResponseModel>,ApiError>>loginWithEmailAndPassword(Map<String,dynamic> data) async {
+  Future<Either<Result<LoginResponseModel>, ApiError>>
+  loginWithEmailAndPassword(Map<String, dynamic> data) async {
     try {
-      final resp = await _apiService.postFormData("${Appurl.baseUrl}/api/login", data);
+      final resp = await _apiService.postFormData(
+        "${Appurl.baseUrl}/api/login",
+        data,
+      );
       createLog("[Auth Remote Data Source] Login Response: ${resp}");
 
       // if (resp['success'] == true){
-        final result = LoginResponseModel.fromJson(resp);
+      final result = LoginResponseModel.fromJson(resp);
 
-        return Left(Result.success(result));
+      return Left(Result.success(result));
       // } else {
       //   return Right(ApiError(message: 'Login Failed'));
       // }
-    } catch(e){
+    } catch (e) {
       return Right(ApiError(message: 'Login Failed with Exception $e'));
     }
   }
 
-
-  Future<Either<Result<LoginResponseModel>,ApiError>>verifyOtpForLogin(Map<String,dynamic> data) async {
+  Future<Either<Result<LoginResponseModel>, ApiError>> verifyOtpForLogin(
+    Map<String, dynamic> data,
+  ) async {
     try {
-      final resp = await _apiService.postFormData("${Appurl.baseUrl}/api/auth/verify-otp", data);
+      final resp = await _apiService.postFormData(
+        "${Appurl.baseUrl}/api/auth/verify-otp",
+        data,
+      );
       createLog("[Auth Remote Data Source] Login Response: ${resp}");
 
-      if (resp['success'] == true){
+      if (resp['success'] == true) {
         final result = LoginResponseModel.fromJson(resp);
 
         return Left(Result.success(result));
       } else {
         return Right(ApiError(message: 'Login Failed'));
       }
-    } catch(e){
+    } catch (e) {
       return Right(ApiError(message: 'Login Failed with Exception $e'));
     }
   }
 
-  Future<Either<Result<String>, ApiError>> sendOtpForLogin(Map<String, dynamic> data) async {
+  Future<Either<Result<String>, ApiError>> sendOtpForLogin(
+    Map<String, dynamic> data,
+  ) async {
     try {
-      final resp = await _apiService.postFormData("${Appurl.baseUrl}/api/auth/send-otp", data);
+      final resp = await _apiService.postFormData(
+        "${Appurl.baseUrl}/api/auth/send-otp",
+        data,
+      );
 
       createLog("[Auth Remote Data Source] Send Otp Response: $resp");
-
 
       if (resp['success'] == true) {
         final result = resp['message'];
         return Left(Result.success(result));
-
       } else {
         createLog("Send otp failed based on API response");
         return Right(ApiError(message: resp['message'] ?? 'Send Otp Failed'));
       }
-
     } catch (e) {
       return Right(ApiError(message: 'Send Otp Failed with Exception $e'));
     }
   }
 
-
-
-
-  Future<Either<Result<RegisterResponseModel>,ApiError>>registerUser(Map<String,dynamic> data) async {
+  Future<Either<Result<RegisterResponseModel>, ApiError>> registerUser(
+    Map<String, dynamic> data,
+  ) async {
     try {
-      final resp = await _apiService.postFormData("${Appurl.baseUrl}/api/register", data,);
+      final resp = await _apiService.postFormData(
+        "${Appurl.baseUrl}/api/auth/register",
+        data,
+      );
       createLog("[Auth Remote Data Source] Register Response: ${resp}");
 
-        final result = RegisterResponseModel.fromJson(resp);
+      final result = RegisterResponseModel.fromJson(resp);
 
-        return Left(Result.success(result));
-
-    } catch(e){
+      return Left(Result.success(result));
+    } catch (e) {
       return Right(ApiError(message: 'Register Failed with Exception $e'));
     }
   }

@@ -1213,7 +1213,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
               SizedBox(
                 width: 140,
                 child: UElevatedBUtton(
-                  onPressed: () => Get.back(),
+                  onPressed: () => Get.back(id: 1),
                   outlined: true,
                   child: Center(
                     child: Text(
@@ -1227,6 +1227,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
               SizedBox(
                 width: 200,
                 child: UElevatedBUtton(
+                  
                   onPressed: controller.selectedFunds.isNotEmpty
                       ? controller.proceedToCart
                       : null,

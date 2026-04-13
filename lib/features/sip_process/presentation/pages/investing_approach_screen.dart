@@ -401,14 +401,11 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
     );
   }
 
-
   Widget _buildWebLayout(BuildContext context) {
     final session = SessionManager.instance;
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: 1000,
-        ), 
+        constraints: const BoxConstraints(maxWidth: 1000),
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
           child: Container(
@@ -463,7 +460,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                     SizedBox(
                       width: 140,
                       child: UElevatedBUtton(
-                        onPressed: () => Get.back(), 
+                        onPressed: () => Get.back(id: 1),
                         outlined: true,
                         child: Center(
                           child: Text(
@@ -479,9 +476,8 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                     SizedBox(
                       width: 200,
                       child: UElevatedBUtton(
-                        onPressed: () => Get.toNamed(
-                          AppRoutes.selectFundsScreen,
-                        ), 
+                        onPressed: () =>
+                            Get.toNamed(AppRoutes.selectFundsScreen, id: 1),
                         child: Center(
                           child: Text(
                             'Select Sip Fund',
@@ -502,7 +498,6 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
     );
   }
 
- 
   Widget _buildMobileLayout(BuildContext context) {
     final session = SessionManager.instance;
     return SingleChildScrollView(
@@ -583,9 +578,6 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
     );
   }
 
- 
-
- 
   Widget _buildProfileSection(SessionManager session) {
     return Container(
       width: double.infinity,
@@ -645,7 +637,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
     );
   }
 
-  // Selection Section 
+  // Selection Section
   Widget _buildSelectionSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -699,7 +691,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16.0), 
+        padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
           color: isSelected ? null : Colors.white,
           gradient: isSelected
@@ -718,10 +710,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SvgPicture.asset(
-              iconPath,
-              height: 40,
-            ), 
+            SvgPicture.asset(iconPath, height: 40),
             const SizedBox(width: 16),
             Expanded(
               child: Column(

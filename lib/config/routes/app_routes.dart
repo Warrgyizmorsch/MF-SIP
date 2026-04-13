@@ -40,4 +40,9 @@ class AppRoutes {
   static const nfolist = '/nfolist';
   static const nfodetailsPage = '/nfoDetailsPage';
   static const documentsScreen = '/documentPage';
+  static const sipCalculator = '/sipCalci';
+  static const stepUpCalculator = '/stepupCalci';
+  static const swpCalculator = '/swpCalci';
+  static const comingSoon = '/comingSoon';
+  static const bankDetails = '/bankDetails';
 }

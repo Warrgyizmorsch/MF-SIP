@@ -25,7 +25,8 @@ class LoginPage extends GetView<AuthController> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     // Check if current breakpoint is desktop
-    bool isDesktop = ResponsiveBreakpoints.of(context).isDesktop;
+    // bool isDesktop = ResponsiveBreakpoints.of(context).isDesktop;
+    bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -36,9 +37,9 @@ class LoginPage extends GetView<AuthController> {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
-                  // Enable scrolling on desktop if height is small,
-                  // but keep logic similar to mobile
-                  physics: isDesktop ? const ClampingScrollPhysics() : const NeverScrollableScrollPhysics(),
+                  physics: isDesktop
+                      ? const ClampingScrollPhysics()
+                      : const NeverScrollableScrollPhysics(),
                   padding: UPadding.screenPadding.copyWith(
                     bottom: kBottomNavigationBarHeight,
                   ),
@@ -48,17 +49,24 @@ class LoginPage extends GetView<AuthController> {
                     ),
                     child: ResponsiveRowColumn(
                       // SWITCH LAYOUT HERE: Row for Desktop, Column for Mobile
-                      layout: isDesktop ? ResponsiveRowColumnType.ROW : ResponsiveRowColumnType.COLUMN,
+                      layout: isDesktop
+                          ? ResponsiveRowColumnType.ROW
+                          : ResponsiveRowColumnType.COLUMN,
                       rowMainAxisAlignment: MainAxisAlignment.center,
                       rowCrossAxisAlignment: CrossAxisAlignment.center,
-                      columnMainAxisSize: MainAxisSize.min, // Keep mobile behavior
-                      rowSpacing: 50, // Spacing between Left (Image) and Right (Form) on Desktop
+                      columnMainAxisSize:
+                          MainAxisSize.min, // Keep mobile behavior
+                      rowSpacing:
+                          50, // Spacing between Left (Image) and Right (Form) on Desktop
 
                       children: [
                         // --- LEFT SIDE (Images/Header) ---
                         ResponsiveRowColumnItem(
                           rowFlex: 1,
-                          child: LoginTopSection(size: size, isDesktop: isDesktop),
+                          child: LoginTopSection(
+                            size: size,
+                            isDesktop: isDesktop,
+                          ),
                         ),
 
                         // --- RIGHT SIDE (Form/Inputs) ---
@@ -70,31 +78,36 @@ class LoginPage extends GetView<AuthController> {
                             ),
                             child: Container(
                               // Optional: Limit width on massive screens if needed
-                              constraints: isDesktop ? const BoxConstraints(maxWidth: 500) : null,
+                              constraints: isDesktop
+                                  ? const BoxConstraints(maxWidth: 500)
+                                  : null,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisSize: MainAxisSize.min,
 
-                                children:
-
-                                [
-                                  if(isDesktop)
-                                  ...[
-                                   HeadingText(title: 'Login Account')   ,
-                                       SubtitleText(subtitle: 'Please login into your account')   ,
-                                    SizedBox(height: 20,),
+                                children: [
+                                  if (isDesktop) ...[
+                                    HeadingText(title: 'Login Account'),
+                                    SubtitleText(
+                                      subtitle:
+                                          'Please login into your account',
+                                    ),
+                                    SizedBox(height: 20),
                                   ],
                                   Obx(
-                                        () => CustomTextField(
+                                    () => CustomTextField(
                                       minLength: 10,
-                                      borderColor: controller.isPhoneNotRegistered.value
+                                      borderColor:
+                                          controller.isPhoneNotRegistered.value
                                           ? Colors.red
                                           : Colors.grey.shade300,
-                                      focusedBorderColor: controller.isPhoneNotRegistered.value
+                                      focusedBorderColor:
+                                          controller.isPhoneNotRegistered.value
                                           ? Ucolors.red
                                           : Ucolors.textFormEnabled,
                                       maxLength: 10,
-                                      errorText: controller.isPhoneNotRegistered.value
+                                      errorText:
+                                          controller.isPhoneNotRegistered.value
                                           ? 'Not registered. Please create an account'
                                           : '',
                                       hint: 'Enter Register Number',
@@ -104,9 +117,11 @@ class LoginPage extends GetView<AuthController> {
                                       validationType: ValidationType.phone,
                                       keyboardType: TextInputType.phone,
                                       onChanged: (value) {
-                                        controller.isPhoneNotRegistered.value = false;
+                                        controller.isPhoneNotRegistered.value =
+                                            false;
                                         controller.isNumberValid.value = true;
-                                        controller.isPhoneValidForLogin.value = value.length == 10;
+                                        controller.isPhoneValidForLogin.value =
+                                            value.length == 10;
 
                                         if (value.length == 10) {
                                           FocusScope.of(Get.context!).unfocus();
@@ -127,30 +142,38 @@ class LoginPage extends GetView<AuthController> {
 
                                   /// GET OTP BUTTON
                                   Obx(
-                                        () => controller.isLoginLoading.value
+                                    () => controller.isLoginLoading.value
                                         ? CircularProgressIndicator(
-                                      color: Ucolors.primary,
-                                      strokeWidth: 2,
-                                    )
+                                            color: Ucolors.primary,
+                                            strokeWidth: 2,
+                                          )
                                         : UElevatedBUtton(
-                                      color: controller.isPhoneValidForLogin.value
-                                          ? null
-                                          : Colors.grey.shade300,
-                                      onPressed: controller.isPhoneValidForLogin.value &&
-                                          !controller.isLoginLoading.value
-                                          ? () => controller.sendOtp()
-                                          : null,
-                                      child: Center(
-                                        child: const Text(
-                                          'Login',
-                                          style: TextStyle(
-                                            color: Ucolors.light,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
+                                            color:
+                                                controller
+                                                    .isPhoneValidForLogin
+                                                    .value
+                                                ? null
+                                                : Colors.grey.shade300,
+                                            onPressed:
+                                                controller
+                                                        .isPhoneValidForLogin
+                                                        .value &&
+                                                    !controller
+                                                        .isLoginLoading
+                                                        .value
+                                                ? () => controller.sendOtp()
+                                                : null,
+                                            child: Center(
+                                              child: const Text(
+                                                'Login',
+                                                style: TextStyle(
+                                                  color: Ucolors.light,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
-                                    ),
                                   ),
 
                                   SizedBox(height: Get.height * 0.01),
@@ -186,7 +209,11 @@ class LoginPage extends GetView<AuthController> {
 }
 
 class LoginTopSection extends StatelessWidget {
-  const LoginTopSection({super.key, required this.size, this.isDesktop = false});
+  const LoginTopSection({
+    super.key,
+    required this.size,
+    this.isDesktop = false,
+  });
 
   final Size size;
   final bool isDesktop;
@@ -196,13 +223,15 @@ class LoginTopSection extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Ucolors.primary.withAlpha(20),
-            borderRadius: BorderRadius.circular(25.0)
+        borderRadius: BorderRadius.circular(25.0),
         // gradient: isDesktop ? Ucolors.backgroundGradient.withOpacity(0.5) : null
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         // Center content on desktop, start on mobile (if preferred, or just keep default)
-        crossAxisAlignment: isDesktop ? CrossAxisAlignment.center : CrossAxisAlignment.center,
+        crossAxisAlignment: isDesktop
+            ? CrossAxisAlignment.center
+            : CrossAxisAlignment.center,
         children: [
           SizedBox(height: size.height * 0.07), // Top spacing
           Image.asset(
@@ -214,18 +243,18 @@ class LoginTopSection extends StatelessWidget {
           SizedBox(height: size.height * 0.01),
 
           //title heading
-          isDesktop ? SizedBox.shrink() :    HeadingText(title: 'Login Account'),
+          isDesktop ? SizedBox.shrink() : HeadingText(title: 'Login Account'),
 
           //Subtile Heading
-          isDesktop ? SizedBox.shrink() :       SubtitleText(subtitle: 'Please login into your account'),
+          isDesktop
+              ? SizedBox.shrink()
+              : SubtitleText(subtitle: 'Please login into your account'),
 
           //Image
           Image.asset(
             UImages.signIn,
             // Adjust image size for desktop so it fits nicely in the split view
-            height: isDesktop
-                ? 350
-                : (Get.height * 0.25).clamp(180.0, 280.0),
+            height: isDesktop ? 350 : (Get.height * 0.25).clamp(180.0, 280.0),
             fit: BoxFit.contain,
           ),
         ],

@@ -730,6 +730,8 @@ import 'package:my_sip/features/cart/presentation/controllers/cart_controller.da
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
+import 'package:my_sip/features/fund_details/presentation/controllers/fund_details_controller.dart';
+import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
 import 'package:my_sip/features/fund_details/presentation/widgets/helper.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart'; // Ensure this import exists for Deleteiconwithcontainer
 import 'package:my_sip/features/wishlist/presentation/controller/wishlist_controller.dart';
@@ -1123,12 +1125,17 @@ class _WebExploreLayout extends StatelessWidget {
                     // TABLE LIST
                     Expanded(
                       child: Obx(() {
-                        if (controller.isLoading.value &&
-                            controller.searchFund.isEmpty) {
+                        if (controller.isLoading.value) {
                           return const Center(
                             child: CircularProgressIndicator(),
                           );
                         }
+                        // if (controller.isLoading.value &&
+                        //     controller.searchFund.isEmpty) {
+                        //   return const Center(
+                        //     child: CircularProgressIndicator(),
+                        //   );
+                        // }
                         if (controller.searchFund.isEmpty) {
                           return const Center(child: Text("No funds found."));
                         }
@@ -1178,14 +1185,22 @@ class WebFundTableRow extends StatelessWidget {
 
     return WebHoverRow(
       onTap: () {
-        Get.toNamed(
-          AppRoutes.funddetails,
-          arguments: {
-            'scheme': entity.baseSchemeName,
-            'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
-            'scheme_code': entity.schemeCode.toString(),
-          },
-        );
+        // Get.toNamed(
+        //   AppRoutes.funddetails,
+        //   arguments: {
+        //     'scheme': entity.baseSchemeName,
+        //     'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
+        //     'scheme_code': entity.schemeCode.toString(),
+        //   },
+        // );
+        Get.delete<FundDetailsController>();
+        FundDetailsScreen.navData = {
+          'scheme': entity.baseSchemeName,
+          'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
+          'scheme_code': entity.schemeCode.toString(),
+        };
+
+        Get.toNamed(AppRoutes.funddetails, id: 1);
       },
       builder: (isHovered) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -1326,13 +1341,6 @@ class WebFundTableRow extends StatelessWidget {
                     height: 32,
                     child: ElevatedButton(
                       onPressed: () async {
-                        // controller.addItem(
-                        //   CartItem(
-                        //     fundId: entity.amc?.id?.toString() ?? '',
-                        //     fundName: entity.baseSchemeName ?? '',
-                        //     logoUrl: entity.amc?.amcLogoUrl ?? '',
-                        //   ),
-                        // );
                         // await controller.addToCart(
                         //   entity.schemeCode ?? '',
                         //   entity.baseSchemeName ?? '',
