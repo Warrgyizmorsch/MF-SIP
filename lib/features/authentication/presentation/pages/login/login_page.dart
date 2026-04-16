@@ -77,7 +77,6 @@ class LoginPage extends GetView<AuthController> {
                               bottom: kBottomNavigationBarHeight,
                             ),
                             child: Container(
-                              // Optional: Limit width on massive screens if needed
                               constraints: isDesktop
                                   ? const BoxConstraints(maxWidth: 500)
                                   : null,
@@ -184,9 +183,14 @@ class LoginPage extends GetView<AuthController> {
                                   CreataAccountIfNot(
                                     firstPart: 'Dont have an account? ',
                                     textButton: 'Create Account',
-                                    voidCallback: () => Get.toNamed(
-                                      AppRoutes.registerAccountScreen,
-                                    ),
+                                    voidCallback: () {
+                                        // Get.toNamed(
+                                        //   AppRoutes.registerAccountScreen,
+                                        // ),
+                                        controller.resetAuthForms(); 
+                                        Get.offNamed(
+                                          AppRoutes.registerAccountScreen,
+                                        );}
                                   ),
                                   SizedBox(height: Get.height * 0.02),
                                   TermAndPolicy(),
@@ -224,11 +228,9 @@ class LoginTopSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: Ucolors.primary.withAlpha(20),
         borderRadius: BorderRadius.circular(25.0),
-        // gradient: isDesktop ? Ucolors.backgroundGradient.withOpacity(0.5) : null
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        // Center content on desktop, start on mobile (if preferred, or just keep default)
         crossAxisAlignment: isDesktop
             ? CrossAxisAlignment.center
             : CrossAxisAlignment.center,
@@ -236,7 +238,6 @@ class LoginTopSection extends StatelessWidget {
           SizedBox(height: size.height * 0.07), // Top spacing
           Image.asset(
             UImages.imp,
-            // On desktop, make the logo slightly smaller/fixed so it doesn't look gigantic
             height: isDesktop ? 80 : Get.width * 0.15,
             width: isDesktop ? 100 : Get.width * 0.2,
           ),

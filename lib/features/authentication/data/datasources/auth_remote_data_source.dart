@@ -93,7 +93,7 @@ class AuthRemoteDataSource {
 
       return Left(Result.success(result));
     } catch (e) {
-      return Right(ApiError(message: 'Register Failed with Exception $e'));
+      return Right(ApiError(message: e.toString()));
     }
   }
 }

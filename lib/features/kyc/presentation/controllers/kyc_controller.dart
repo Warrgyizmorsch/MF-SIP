@@ -22,7 +22,6 @@ import 'package:my_sip/features/personalization/domain/usecases/update_profile_u
 import 'package:my_sip/services/session_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../../common/widget/webview/webview.dart';
 import '../../../personalization/domain/entity/bank_entity.dart';
 import '../../domain/entity/bank_verification_entity.dart';
@@ -30,9 +29,14 @@ import '../../domain/entity/execute_poi_step2_entity.dart';
 import 'package:universal_html/html.dart' as html;
 
 class KycController extends GetxController {
+  final session = SessionManager.instance;
+
   @override
   void onInit() {
     super.onInit();
+    final savedPan = session.getUserData?.panCard ?? '';
+    panTextEditingController.text = savedPan;
+
     _initializeApp();
   }
 
@@ -228,8 +232,6 @@ class KycController extends GetxController {
 
   final panKeyboardType = TextInputType.name.obs;
 
-  final session = SessionManager.instance;
-
   KycController(this.kycUseCases);
 
   final updateUserData = Get.find<UpdateProfileUsecases>();
@@ -252,15 +254,29 @@ class KycController extends GetxController {
       case 0:
         // --- STEP 0: IDENTITY (DigiLocker Flow) ---
         if (step1FormKey.currentState!.validate()) {
-          final bool needsKyc = await checkKycStatus();
-          if (needsKyc) {
-            await _handleDigiLockerFlow();
-          } else {
-            Get.snackbar(
-              "KYC Verified",
-              "Your KYC is already completed! You can start investing.",
+          final bool? needsKyc = await checkKycStatus();
+          if (needsKyc == true) {
+            final bool onboardingSuccess = await saveOnboardingData();
+
+            if (onboardingSuccess) {
+              await _handleDigiLockerFlow();
+            }
+          } else if (needsKyc == false) {
+            //AWHPM7811L   testing pan num
+            // Get.snackbar(
+            //   "KYC Verified",
+            //   "Your KYC is already completed! You can start investing.",
+            // );
+            ULoaders.success(
+              title: 'KYC Verified',
+              message:
+                  'Your KYC is already completed! You can start investing.',
             );
-            // Get.offAllNamed(AppRoutes.navMenuBar);
+            session.setKycVerified(true);
+            await Future.delayed(const Duration(seconds: 2));
+            Get.offAllNamed(AppRoutes.navMenuBar);
+          } else {
+            return;
           }
         }
         break;
@@ -419,7 +435,7 @@ class KycController extends GetxController {
     // }
   }
 
-  Future<bool> checkKycStatus() async {
+  Future<bool?> checkKycStatus() async {
     try {
       isLoading.value = true;
       ULoaders.showLoading(message: "Verifying PAN Details...");
@@ -436,11 +452,11 @@ class KycController extends GetxController {
       ULoaders.stopLoading();
 
       // 3. Handle the Fold (Left = Success Result, Right = ApiError)
-      return result.fold(
+      return await result.fold(
         (success) {
           // Extract the entity from your Result class
           final entity = success.data;
-          final currentStatus = entity?.currentStatus?.toLowerCase() ?? "";
+          final currentStatus = entity?.currentStatus ?? "";
 
           if (currentStatus == "Approved") {
             return false; // KYC is done! Do NOT launch Signzy.
@@ -448,19 +464,34 @@ class KycController extends GetxController {
             return true; // KYC is needed (e.g., "timed out" or "pending")
           }
         },
-        (error) {
+        (error) async {
           ULoaders.stopLoading();
-          Get.snackbar(
-            "Error",
-            "Check KYC failed: ${error.message}. Proceeding to verification.",
-          );
-          return true; // Fallback to Signzy flow if the API crashes
+
+          if (errorMessage.contains('invalid') ||
+              errorMessage.contains('pan') ||
+              error.message.contains('User not found') ||
+              errorMessage.contains('400')) {
+            ULoaders.error(
+              title: "Invalid PAN",
+              message:
+                  "The PAN number you entered is incorrect. Please check and try again.",
+            );
+            return null; // Return NULL to stop the flow!
+          }
+          // Get.snackbar("Error", "Check KYC failed Proceeding to verification.");
+          // await Future.delayed(const Duration(seconds: 2));
+          // return true; // Fallback to Signzy flow if the API crashes
         },
       );
     } catch (e) {
       ULoaders.stopLoading();
-      Get.snackbar("Error", "Unexpected error: $e");
-      return true; // Fallback
+      // Get.snackbar("Error", "Unexpected error: ");
+      ULoaders.error(
+        title: "Error",
+        message: "Unexpected error verifying PAN.",
+      );
+      // return true; // Fallback
+      return null;
     } finally {
       isLoading.value = false;
     }
@@ -491,6 +522,8 @@ class KycController extends GetxController {
       Get.snackbar("Error", "URL not found in server response");
       return;
     }
+
+    await Future.delayed(const Duration(milliseconds: 300));
 
     bool isSuccess = false;
 

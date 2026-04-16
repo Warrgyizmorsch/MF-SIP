@@ -780,6 +780,7 @@ class ProfileHeader extends StatelessWidget {
 
       if (!img.startsWith('http') && !img.startsWith('blob:')) {
         fullUrl = "https://sip-backend.londonstreetstore.com/$img";
+        log("Image full url: $fullUrl");
       }
 
       return Image.network(

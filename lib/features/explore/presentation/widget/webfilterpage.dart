@@ -11,9 +11,9 @@ class WebFilterDrawer {
   static void show(BuildContext context) {
     showGeneralDialog(
       context: context,
-      barrierDismissible: true, 
+      barrierDismissible: true,
       barrierLabel: 'WebFilterDrawer',
-      barrierColor: Colors.black.withOpacity(0.2), 
+      barrierColor: Colors.black.withOpacity(0.2),
       transitionDuration: const Duration(milliseconds: 300),
       pageBuilder: (context, animation, secondaryAnimation) {
         return Align(
@@ -23,10 +23,10 @@ class WebFilterDrawer {
             child: Material(
               elevation: 16,
               child: Container(
-                width: 380, 
+                width: 380,
                 height: double.infinity,
                 color: Colors.white,
-                child: const WebFilterContent(), 
+                child: const WebFilterContent(),
               ),
             ),
           ),
@@ -35,12 +35,9 @@ class WebFilterDrawer {
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         return SlideTransition(
           position: Tween<Offset>(
-            begin: const Offset(1.0, 0.0), 
+            begin: const Offset(1.0, 0.0),
             end: Offset.zero,
-          ).animate(CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOut,
-          )),
+          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
           child: child,
         );
       },
@@ -80,7 +77,7 @@ class WebFilterContent extends StatelessWidget {
               IconButton(
                 onPressed: () => Get.back(), // Close Icon
                 icon: const Icon(Icons.close),
-              )
+              ),
             ],
           ),
         ),
@@ -93,27 +90,45 @@ class WebFilterContent extends StatelessWidget {
               // Categories Section
               ExpansionTile(
                 initiallyExpanded: true,
-                title: const Text('Categories', style: TextStyle(fontWeight: FontWeight.w600)),
+                title: const Text(
+                  'Categories',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
                 children: [
-                  SizedBox(height: 300, child: CategoriesPanel()), // Reusing your widget
+                  SizedBox(
+                    height: 300,
+                    child: CategoriesPanel(),
+                  ), // Reusing your widget
                 ],
               ),
-              
+
               // Risk Section
               ExpansionTile(
                 initiallyExpanded: false,
-                title: const Text('Risk Profile', style: TextStyle(fontWeight: FontWeight.w600)),
+                title: const Text(
+                  'Risk Profile',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
                 children: [
-                  SizedBox(height: 250, child: RiskPanel()), // Reusing your widget
+                  SizedBox(
+                    height: 250,
+                    child: RiskPanel(),
+                  ), // Reusing your widget
                 ],
               ),
 
               // Fund House Section
               ExpansionTile(
                 initiallyExpanded: false,
-                title: const Text('Fund House (AMC)', style: TextStyle(fontWeight: FontWeight.w600)),
+                title: const Text(
+                  'Fund House (AMC)',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
                 children: [
-                  SizedBox(height: 400, child: FundHousePanel()), // Reusing your widget
+                  SizedBox(
+                    height: 400,
+                    child: FundHousePanel(),
+                  ), // Reusing your widget
                 ],
               ),
             ],
@@ -127,7 +142,11 @@ class WebFilterContent extends StatelessWidget {
             color: Colors.white,
             border: Border(top: BorderSide(color: Colors.grey.shade200)),
             boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, -5),
+              ),
             ],
           ),
           child: Row(
@@ -142,31 +161,41 @@ class WebFilterContent extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 18),
                     side: const BorderSide(color: Ucolors.primary),
                   ),
-                  child: const Text('Reset All', style: TextStyle(color: Ucolors.primary)),
+                  child: const Text(
+                    'Reset All',
+                    style: TextStyle(color: Ucolors.primary),
+                  ),
                 ),
               ),
               const SizedBox(width: 15),
               // Apply Button
               Expanded(
-                child: Obx(() => ElevatedButton(
-                  onPressed: () {
-                    // Sync params aur close dialog
-                    final params = controller.buildParam();
-                    if (Get.isRegistered<MutualFundController>()) {
-                      Get.find<MutualFundController>().syncFilterPageParams(params);
-                    }
-                    Get.back(); // Close sliding panel
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Ucolors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
+                child: Obx(
+                  () => ElevatedButton(
+                    onPressed: () {
+                      // Sync params aur close dialog
+                      final params = controller.buildParam();
+                      if (Get.isRegistered<MutualFundController>()) {
+                        Get.find<MutualFundController>().syncFilterPageParams(
+                          params,
+                        );
+                      }
+                      Get.back(); // Close sliding panel
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Ucolors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                    ),
+                    child: Text(
+                      'Apply (${controller.selectedFundCount})',
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ),
-                  child: Text('Apply (${controller.selectedFundCount})', style: const TextStyle(color: Colors.white)),
-                )),
+                ),
               ),
             ],
           ),
-        )
+        ),
       ],
     );
   }

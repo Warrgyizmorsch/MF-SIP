@@ -129,6 +129,7 @@ class FundDetailsController extends GetxController
     );
 
     if (Get.isRegistered<NavigationBarController>()) {
+      
       Get.find<NavigationBarController>().selectedIndex.value = 100;
     }
 

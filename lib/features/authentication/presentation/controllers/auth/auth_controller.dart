@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
@@ -75,6 +76,17 @@ class AuthController extends GetxController {
         timer.cancel();
       }
     });
+  }
+
+  void resetAuthForms() {
+    mobileController.clear();
+    nameController.clear();
+    emailController.clear();
+    panController.clear();
+
+    isPhoneValidForLogin.value = false;
+    isPhoneNotRegistered.value = false;
+    isNumberValid.value = true;
   }
 
   String? validatePassword(String? value) {
@@ -158,6 +170,7 @@ class AuthController extends GetxController {
       (success) {
         isOtpSendLoading.value = false;
         isLoginLoading.value = false;
+
         Get.snackbar(
           "Otp sent Successfully",
           "Hey, we just send an otp to ${mobileController.text.trim()}",
@@ -262,12 +275,17 @@ class AuthController extends GetxController {
 
         user.value = success.data!.userModel.toEntity();
 
-        Get.snackbar(
-          "Verify Otp Success",
-          "OTP Verified Successfully",
-          colorText: Colors.white,
-          backgroundColor: Colors.green,
+        // Get.snackbar(
+        //   "Verify Otp Success",
+        //   "OTP Verified Successfully",
+        //   colorText: Colors.white,
+        //   backgroundColor: Colors.green,
+        // );
+        ULoaders.success(
+          title: '"Verify Otp Success',
+          message: 'OTP Verified Successfully',
         );
+        await Future.delayed(const Duration(seconds: 2));
         Get.offAllNamed(AppRoutes.navMenuBar);
       },
       (error) {
@@ -312,11 +330,30 @@ class AuthController extends GetxController {
     result.fold(
       (success) {
         isRegisterLoading.value = false;
-        Get.offAllNamed(AppRoutes.login);
+        startResendTimer();
+        otpController.clear();
+        isOtpError.value = false;
+
+        Get.toNamed(AppRoutes.otpVerificationScreen);
       },
       (error) {
-        Get.snackbar("Registration Failed", error.message);
         isRegisterLoading.value = false;
+        String cleanMessage = error.message;
+        if (cleanMessage.contains('message:')) {
+          final match = RegExp(
+            r'message:\s*(.*?)(?:,|$)',
+          ).firstMatch(cleanMessage);
+          if (match != null) {
+            cleanMessage = match.group(1) ?? cleanMessage;
+          }
+        }
+
+        // 3. Remove the annoying "(and 1 more error)" suffix
+        if (cleanMessage.contains('(and')) {
+          cleanMessage = cleanMessage.split('(and')[0].trim();
+        }
+
+        ULoaders.warning(title: 'Registration Failed', message: cleanMessage);
       },
     );
   }

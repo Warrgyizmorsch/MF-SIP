@@ -228,7 +228,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
 
             // Inner Tab Views
             SizedBox(
-              height: 400,
+              height: 450,
               child: TabBarView(
                 children: [
                   // A. Visual Chart

@@ -875,7 +875,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                 onPressed: () => Get.toNamed(AppRoutes.investingApproachScreen),
                 child: Center(
                   child: Text(
-                    'Select Sip Fund',
+                    controller.isLumpsum.value ? 'Lumpsum' : 'Sip',
                     style: AppTextStyles.bodyMedium(color: Colors.white),
                   ),
                 ),

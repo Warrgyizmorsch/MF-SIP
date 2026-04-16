@@ -327,6 +327,7 @@ import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/common/widget/text/subtitle_section.dart';
 import 'package:my_sip/common/widget/text_form/text_field_component.dart';
 import 'package:my_sip/common/widget/top_bottom_style/top_bottom_style.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/enums/enums.dart';
 import 'package:my_sip/features/authentication/presentation/pages/login/login_page.dart';
@@ -584,8 +585,11 @@ class RegisterAccountScreen extends GetView<AuthController> {
                                     child: CreataAccountIfNot(
                                       firstPart: 'Already have an account?',
                                       textButton: ' Login Account',
-                                      voidCallback: () =>
-                                          Get.to(() => const LoginPage()),
+                                      voidCallback: () {
+                                        // Get.to(() => const LoginPage()),
+                                        controller.resetAuthForms();
+                                        Get.offNamed(AppRoutes.login);
+                                      },
                                     ),
                                   ),
                                   SizedBox(height: Get.height * 0.02),

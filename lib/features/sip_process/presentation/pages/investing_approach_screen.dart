@@ -835,7 +835,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                 },
                 child: Center(
                   child: Text(
-                    'Select Sip Fund',
+                    controller.isLumpsum.value ? 'Lumpsum' : 'Sip',
                     style: AppTextStyles.bodyMedium(color: Colors.white),
                   ),
                 ),

@@ -11,6 +11,7 @@ import 'package:my_sip/features/authentication/data/models/auth_model.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/welcome_page.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 import 'package:my_sip/services/session_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -63,33 +64,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (!mounted) return;
 
-    // 🚀 --- WEB AUTO-LOGIN SYNC LOGIC --- 🚀
-    // Flutter check karega ki local storage mein Next.js ne data rakha hai ya nahi
-    // if (kIsWeb) {
-    //   try {
-    //     final prefs = await SharedPreferences.getInstance();
-
-    //     // Flutter natively reads "flutter.jwtAccessToken" when you ask for "jwtAccessToken"
-    //     final String? webToken = prefs.getString('jwtAccessToken');
-    //     final String? webUserDataString = prefs.getString('userData');
-
-    //     if (webToken != null && webToken.isNotEmpty && webUserDataString != null) {
-    //       createLog("Web Sync: Token found, auto-logging in!");
-
-    //       final Map<String, dynamic> webUserJson = jsonDecode(webUserDataString);
-
-    //       // Force update the SessionManager with Next.js data
-    //       // Ensure UserModel.fromJson() matches your actual model method
-    //       await SessionManager.instance.setSession(
-    //         jwtAccessToken: webToken,
-    //         userData: UserModel.fromJson(webUserJson),
-    //       );
-    //     }
-    //   } catch (e) {
-    //     createLog("Web Auto-Login Sync Error: $e");
-    //   }
-    // }
-
     final bool loggedIn = SessionManager.instance.isAuthenticated();
 
     if (loggedIn) {
@@ -112,11 +86,46 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
+  // Future<void> _checkAuthAndNavigate() async {
+  //   // 1. Initialize Session
+  //   await SessionManager.instance.initialize();
+
+  //   // 2. Only delay on Mobile
+  //   if (!kIsWeb) {
+  //     await Future.delayed(const Duration(seconds: 3));
+  //   }
+
+  //   if (!mounted) return;
+
+  //   final bool loggedIn = SessionManager.instance.isAuthenticated();
+
+  //   if (loggedIn) {
+  //     Get.offAllNamed(AppRoutes.navMenuBar);
+
+  //     if (kIsWeb) {
+  //       Future.delayed(const Duration(milliseconds: 100), () {
+  //         if (Get.isRegistered<NavigationBarController>()) {
+  //           Get.find<NavigationBarController>().selectedIndex.value = 100;
+  //         }
+  //         Get.toNamed(AppRoutes.cart, id: 1);
+  //       });
+  //     }
+  //   } else {
+  //     if (kIsWeb) {
+  //       // --- WEB SPECIFIC LOGIC ---
+  //       Get.offAllNamed(AppRoutes.login);
+  //     } else {
+  //       // --- MOBILE LOGIC ---
+  //       Navigator.pushReplacement(
+  //         context,
+  //         MaterialPageRoute(builder: (context) => const WelcomePageScreen()),
+  //       );
+  //     }
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
-    // 3. CLEANER WEB UI:
-    // If on Web, show a simple spinner to prevent the "Mobile Splash" images
-    // from flashing for a split second before the redirect.
     if (kIsWeb) {
       return const Scaffold(
         body: Center(

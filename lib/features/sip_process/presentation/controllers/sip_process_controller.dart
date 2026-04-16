@@ -119,6 +119,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/utils/calculator/mothlyeffectiverate.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_usecases.dart';
@@ -151,7 +152,7 @@ class SipProcessController extends GetxController
   final RxList<FlSpot> chartInvestedSpots = <FlSpot>[].obs;
   final RxList<FlSpot> chartProjectedSpots = <FlSpot>[].obs;
 
-  final double expectedReturnRate = 18.0;
+  final double expectedReturnRate = 12.0;
   final int durationYears = 5;
 
   // Define the sets of amounts
@@ -165,7 +166,6 @@ class SipProcessController extends GetxController
       <MutualFundListEntity>[].obs;
 
   final RxMap<String, double> fundAmounts = <String, double>{}.obs;
-
 
   static bool? navIsLumpsum;
 
@@ -409,9 +409,8 @@ class SipProcessController extends GetxController
     super.onInit();
     if (navIsLumpsum != null) {
       setInvestmentMode(navIsLumpsum!);
-      navIsLumpsum = null; 
-    }
-    else if (Get.arguments != null && Get.arguments['isLumpsum'] != null) {
+      navIsLumpsum = null;
+    } else if (Get.arguments != null && Get.arguments['isLumpsum'] != null) {
       setInvestmentMode(Get.arguments['isLumpsum']);
     }
 
@@ -481,60 +480,115 @@ class SipProcessController extends GetxController
   }
 
   void _calculateSipProjection() {
-    double annualRate = expectedReturnRate / 100;
-    double monthlyRate = annualRate / 12;
+    double annualRate = expectedReturnRate / 100; // Kept for Lumpsum
     int totalMonths = durationYears * 12;
     double principal = amount.value;
 
-    if (isLumpsum.value) {
-      // --- LUMPSUM CALCULATION ---
-      // Formula: A = P * (1 + r)^t
-      totalInvested.value = principal;
-      totalProjected.value =
-          principal * math.pow((1 + annualRate), durationYears);
-    } else {
-      // --- SIP CALCULATION ---
-      // Formula: P * [((1 + i)^n - 1) / i] * (1 + i)
-      totalInvested.value = principal * totalMonths;
-      totalProjected.value =
-          principal *
-          ((math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate) *
-          (1 + monthlyRate);
-    }
-
-    // Generate Chart Spots
     List<FlSpot> tempInvested = [];
     List<FlSpot> tempProjected = [];
     int startYear = DateTime.now().year;
 
-    for (int i = 0; i <= durationYears; i++) {
-      double xValue = (startYear + i).toDouble();
-      double investedAtThisPoint;
-      double projectedAtThisPoint;
+    if (isLumpsum.value) {
+      // --- LUMPSUM CALCULATION (Unchanged) ---
+      totalInvested.value = principal;
+      totalProjected.value =
+          principal * math.pow((1 + annualRate), durationYears);
 
-      if (isLumpsum.value) {
-        // For Lumpsum, invested stays flat, projected grows exponentially
-        investedAtThisPoint = principal;
-        projectedAtThisPoint = principal * math.pow((1 + annualRate), i);
-      } else {
-        // For SIP, both grow linearly/exponentially over time
-        int months = i * 12;
-        investedAtThisPoint = principal * months;
-        projectedAtThisPoint = i == 0
-            ? 0
-            : principal *
-                  ((math.pow(1 + monthlyRate, months) - 1) / monthlyRate) *
-                  (1 + monthlyRate);
+      for (int i = 0; i <= durationYears; i++) {
+        double xValue = (startYear + i).toDouble();
+        tempInvested.add(FlSpot(xValue, principal));
+        tempProjected.add(
+          FlSpot(xValue, principal * math.pow((1 + annualRate), i)),
+        );
+      }
+    } else {
+      // --- SIP CALCULATION (Using your exact formula) ---
+
+      // Pass the raw percentage (12.0) since your function divides by 100 internally
+      double mRate = effectiveMonthlyRate(expectedReturnRate);
+
+      double invested = 0;
+      double value = 0;
+
+      // Start chart at year 0
+      tempInvested.add(FlSpot(startYear.toDouble(), 0));
+      tempProjected.add(FlSpot(startYear.toDouble(), 0));
+
+      for (int month = 1; month <= totalMonths; month++) {
+        invested += principal;
+        value = (value + principal) * (1 + mRate);
+
+        // Record chart spots at the end of each year (every 12 months)
+        if (month % 12 == 0) {
+          double xValue = (startYear + (month ~/ 12)).toDouble();
+          tempInvested.add(FlSpot(xValue, invested));
+          tempProjected.add(FlSpot(xValue, value));
+        }
       }
 
-      tempInvested.add(FlSpot(xValue, investedAtThisPoint));
-      tempProjected.add(FlSpot(xValue, projectedAtThisPoint));
+      totalInvested.value = invested;
+      totalProjected.value = value;
     }
 
     chartInvestedSpots.assignAll(tempInvested);
     chartProjectedSpots.assignAll(tempProjected);
   }
 
+  // void _calculateSipProjection() {
+  //   double annualRate = expectedReturnRate / 100;
+  //   double monthlyRate = annualRate / 12;
+  //   int totalMonths = durationYears * 12;
+  //   double principal = amount.value;
+
+  //   if (isLumpsum.value) {
+  //     // --- LUMPSUM CALCULATION ---
+  //     // Formula: A = P * (1 + r)^t
+  //     totalInvested.value = principal;
+  //     totalProjected.value =
+  //         principal * math.pow((1 + annualRate), durationYears);
+  //   } else {
+  //     // --- SIP CALCULATION ---
+  //     // Formula: P * [((1 + i)^n - 1) / i] * (1 + i)
+  //     totalInvested.value = principal * totalMonths;
+  //     totalProjected.value =
+  //         principal *
+  //         ((math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate) *
+  //         (1 + monthlyRate);
+  //   }
+
+  //   // Generate Chart Spots
+  //   List<FlSpot> tempInvested = [];
+  //   List<FlSpot> tempProjected = [];
+  //   int startYear = DateTime.now().year;
+
+  //   for (int i = 0; i <= durationYears; i++) {
+  //     double xValue = (startYear + i).toDouble();
+  //     double investedAtThisPoint;
+  //     double projectedAtThisPoint;
+
+  //     if (isLumpsum.value) {
+  //       // For Lumpsum, invested stays flat, projected grows exponentially
+  //       investedAtThisPoint = principal;
+  //       projectedAtThisPoint = principal * math.pow((1 + annualRate), i);
+  //     } else {
+  //       // For SIP, both grow linearly/exponentially over time
+  //       int months = i * 12;
+  //       investedAtThisPoint = principal * months;
+  //       projectedAtThisPoint = i == 0
+  //           ? 0
+  //           : principal *
+  //                 ((math.pow(1 + monthlyRate, months) - 1) / monthlyRate) *
+  //                 (1 + monthlyRate);
+  //     }
+
+  //     tempInvested.add(FlSpot(xValue, investedAtThisPoint));
+  //     tempProjected.add(FlSpot(xValue, projectedAtThisPoint));
+  //   }
+
+  //   chartInvestedSpots.assignAll(tempInvested);
+  //   chartProjectedSpots.assignAll(tempProjected);
+  // }
+  // ----------------- old ------------//
   // void _calculateSipProjection() {
   //   double monthlyRate = expectedReturnRate / 12 / 100;
   //   int totalMonths = durationYears * 12;

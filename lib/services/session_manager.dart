@@ -426,9 +426,13 @@ class SessionManager extends GetxService {
     tokenDataModel.value = null;
     onboardingRespone.value = null;
 
+    isKycVerified.value = false;
+
     if (kIsWeb) {
       await _ensurePrefsInitialized();
-      log("🚨 WEB MODE: Skipped deleting SharedPreferences to protect Next.js session. 🚨");
+      log(
+        "🚨 WEB MODE: Skipped deleting SharedPreferences to protect Next.js session. 🚨",
+      );
       await Future.wait([
         _prefs!.remove('jwtAccessToken'),
         _prefs!.remove('jwtRefreshToken'),
@@ -437,6 +441,7 @@ class SessionManager extends GetxService {
         _prefs!.remove('riskScore'),
         _prefs!.remove('tokenData'),
         _prefs!.remove('onBoardingData'),
+        _prefs!.remove('kyc_verified'),
       ]);
     } else {
       await Future.wait([
@@ -447,6 +452,7 @@ class SessionManager extends GetxService {
         _secureStorage!.delete(key: 'riskScore'),
         _secureStorage!.delete(key: 'tokenData'),
         _secureStorage!.delete(key: 'onBoardingData'),
+        _secureStorage!.delete(key: 'kyc_verified'),
       ]);
     }
 

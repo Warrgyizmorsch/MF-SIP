@@ -1631,19 +1631,53 @@ class NavigationBarController extends GetxController {
     }
   }
 
+  // void navigateToExploreWithFilter(VoidCallback? filterLogic) {
+  //   isProfileExpanded.value = false;
+  //   isHelpExpanded.value = false;
+  //   // changePage(1);
+  //   selectedIndex.value = 1;
+  //   Get.toNamed(AppRoutes.explorePage, id: kIsWeb ? 1 : null);
+  //   // changePage(1, isDesktop: kIsWeb);
+  //   if (filterLogic != null) {
+  //     // filterLogic();
+  //     Future.delayed(const Duration(milliseconds: 100), () {
+  //       filterLogic();
+  //     });
+  //   }
+  // }
+  // void navigateToExploreWithFilter(VoidCallback? filterLogic) {
+  //   isProfileExpanded.value = false;
+  //   isHelpExpanded.value = false;
+
+  //   if (selectedIndex.value == 1) {
+  //     selectedIndex.value = -1; // Dummy index
+  //   }
+
+  //   changePage(1, isDesktop: kIsWeb);
+
+  //   if (filterLogic != null) {
+  //     Future.delayed(const Duration(milliseconds: 150), () {
+  //       filterLogic();
+  //     });
+  //   }
+  // }
   void navigateToExploreWithFilter(VoidCallback? filterLogic) {
-    // isProfileExpanded.value = false;
-    // isHelpExpanded.value = false;
-    // changePage(1);
-    // selectedIndex.value = 1;
-    // Get.toNamed(AppRoutes.explorePage, id: kIsWeb ? 1 : null);
-    changePage(1, isDesktop: kIsWeb);
-    if (filterLogic != null) {
-      // filterLogic();
-      Future.delayed(const Duration(milliseconds: 100), () {
-        filterLogic();
-      });
+    if (kIsWeb) {
+      Get.toNamed(AppRoutes.explorePage, id: 1);
+    } else {
+      changePage(1, isDesktop: false);
     }
+
+    Future.delayed(Duration(milliseconds: kIsWeb ? 100 : 10), () {
+      isProfileExpanded.value = false;
+      isHelpExpanded.value = false;
+
+      selectedIndex.value = 1;
+
+      if (filterLogic != null) {
+        filterLogic();
+      }
+    });
   }
 
   bool get isProfileActive =>
@@ -2133,29 +2167,30 @@ class GlobalTopHeader extends StatelessWidget {
             () => Row(
               children: [
                 if (navController.selectedIndex.value == 1) ...[
-                  // SizedBox(
-                  //   width: 300,
-                  //   height: 40,
-                  //   child: SearchBar(
-                  //     // focusNode: searchFocus,
-                  //     elevation: MaterialStateProperty.all(0),
-                  //     backgroundColor: MaterialStateProperty.all(
-                  //       const Color(0xFFF0F2F5),
-                  //     ),
-                  //     leading: const Icon(
-                  //       Icons.search,
-                  //       size: 20,
-                  //       color: Colors.grey,
-                  //     ),
-                  //     hintText: 'Search funds...',
+                  SizedBox(
+                    width: 300,
+                    height: 40,
+                    child: SearchBar(
+                      
+                      // focusNode: searchFocus,
+                      elevation: MaterialStateProperty.all(0),
+                      backgroundColor: MaterialStateProperty.all(
+                        const Color(0xFFF0F2F5),
+                      ),
+                      leading: const Icon(
+                        Icons.search,
+                        size: 20,
+                        color: Colors.grey,
+                      ),
+                      hintText: 'Search funds...',
 
-                  //     onChanged: (value) =>
-                  //         mutualController.onSearchQueryChanged(value),
-                  //     padding: MaterialStateProperty.all(
-                  //       const EdgeInsets.symmetric(horizontal: 10),
-                  //     ),
-                  //   ),
-                  // ),
+                      onChanged: (value) =>
+                          mutualController.onSearchQueryChanged(value),
+                      padding: MaterialStateProperty.all(
+                        const EdgeInsets.symmetric(horizontal: 10),
+                      ),
+                    ),
+                  ),
                   // SizedBox(
                   //   width: 300,
                   //   height: 40,
@@ -2226,58 +2261,57 @@ class GlobalTopHeader extends StatelessWidget {
                   //         mutualController.onSearchQueryChanged(value),
                   //   ),
                   // ),
-                  SizedBox(
-                    width: 300,
-                    height: 40,
-                    child: TextField(
-                      onChanged: (value) =>
-                          mutualController.onSearchQueryChanged(value),
-                      cursorColor: Ucolors.primary,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: 'Search funds...',
-                        hintStyle: const TextStyle(
-                          color: Color(0xFF9CA3AF),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                        ),
-                        // Search Icon
-                        prefixIcon: const Icon(
-                          Icons.search,
-                          color: Color(0xFF9CA3AF),
-                          size: 20,
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
+                  // SizedBox(
+                  //   width: 300,
+                  //   height: 40,
+                  //   child: TextField(
+                  //     onChanged: (value) =>
+                  //         mutualController.onSearchQueryChanged(value),
+                  //     cursorColor: Ucolors.primary,
+                  //     style: const TextStyle(
+                  //       fontSize: 14,
+                  //       color: Colors.black87,
+                  //       fontWeight: FontWeight.w500,
+                  //     ),
+                  //     decoration: InputDecoration(
+                  //       hintText: 'Search funds...',
+                  //       hintStyle: const TextStyle(
+                  //         color: Color(0xFF9CA3AF),
+                  //         fontSize: 14,
+                  //         fontWeight: FontWeight.w400,
+                  //       ),
+                  //       // Search Icon
+                  //       prefixIcon: const Icon(
+                  //         Icons.search,
+                  //         color: Color(0xFF9CA3AF),
+                  //         size: 20,
+                  //       ),
+                  //       filled: true,
+                  //       fillColor: Colors.white,
 
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 0,
-                          horizontal: 16,
-                        ),
+                  //       contentPadding: const EdgeInsets.symmetric(
+                  //         vertical: 0,
+                  //         horizontal: 16,
+                  //       ),
 
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade300,
-                            width: 1,
-                          ),
-                        ),
+                  //       enabledBorder: OutlineInputBorder(
+                  //         borderRadius: BorderRadius.circular(8),
+                  //         borderSide: BorderSide(
+                  //           color: Colors.grey.shade300,
+                  //           width: 1,
+                  //         ),
+                  //       ),
 
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                            color: Ucolors.primary,
-                            width: 1.5,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-
+                  //       focusedBorder: OutlineInputBorder(
+                  //         borderRadius: BorderRadius.circular(8),
+                  //         borderSide: BorderSide(
+                  //           color: Ucolors.primary,
+                  //           width: 1.5,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                   const SizedBox(width: 15),
                   Obx(() {
                     final activeCount =
@@ -2964,7 +2998,7 @@ class _DesktopSideNav extends StatelessWidget {
   ) {
     final isSelected = controller.selectedIndex.value == index;
     return InkWell(
-      onTap: () => controller.changePage(index), // isDesktop default true hai
+      onTap: () => controller.changePage(index),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),

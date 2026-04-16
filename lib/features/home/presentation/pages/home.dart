@@ -1017,9 +1017,14 @@ class _MobileLayout extends StatelessWidget {
                         onTap: () async {
                           if (!isVerified) {
                             Get.toNamed(AppRoutes.kycScreen);
-                            // await SessionManager.instance.setKycVerified(false);
-                          } else {
-                            Get.toNamed(AppRoutes.kycScreen);
+                          }
+                          //
+                          else {
+                            await SessionManager.instance.setKycVerified(false);
+
+                            Get.toNamed(
+                              AppRoutes.kycScreen,
+                            ); // comment this after testing
                           }
                         },
                         child: Container(
@@ -1311,7 +1316,6 @@ class _MobileLayout extends StatelessWidget {
                   //   arguments: {'goalType': 'car'},
                   // ),
                   onTap: () => Get.toNamed(AppRoutes.comingSoon),
-
                   title: 'Car Goal',
                   iconData: Icons.directions_car_filled_rounded,
                 ),

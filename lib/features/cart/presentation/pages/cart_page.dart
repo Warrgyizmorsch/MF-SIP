@@ -244,9 +244,9 @@ class CartPage extends GetView<CartController> {
       body: Obx(() {
         final items = controller.displayedItems;
 
-        // if (controller.isLoading.value) {
-        //   return Center(child: CircularProgressIndicator());
-        // }
+        if (controller.isLoading.value && items.isEmpty) {
+          return Center(child: CircularProgressIndicator());
+        }
 
         // --- EMPTY STATE ---
         if (items.isEmpty) {
@@ -390,9 +390,6 @@ class CartPage extends GetView<CartController> {
     );
   }
 }
-
-// ⚠️ Yahan aapke baaki ke same widgets rahenge...
-// (CartBottomBar, CartItemCard, FundHeader, InvestmentInputsRow etc... unhe chhedne ki zaroorat nahi hai)
 
 class CartBottomBar extends StatelessWidget {
   const CartBottomBar({
