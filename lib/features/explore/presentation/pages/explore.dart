@@ -730,6 +730,8 @@ import 'package:my_sip/features/cart/presentation/controllers/cart_controller.da
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
+import 'package:my_sip/features/fund_details/presentation/controllers/fund_details_controller.dart';
+import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
 import 'package:my_sip/features/fund_details/presentation/widgets/helper.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart'; // Ensure this import exists for Deleteiconwithcontainer
 import 'package:my_sip/features/wishlist/presentation/controller/wishlist_controller.dart';
@@ -875,9 +877,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 }
 
-// ==========================================
-// 💻 WEB LAYOUT (Professional Table View)
-// ==========================================
 class _WebExploreLayout extends StatelessWidget {
   final ScrollController scrollController;
   final FocusNode searchFocus;
@@ -1011,40 +1010,40 @@ class _WebExploreLayout extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Count & Sort
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Obx(
-                          () => Text(
-                            "${controller.selectedFundCount.value == 0 ? controller.mutualfund.length : controller.selectedFundCount} funds found",
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () => showSelectionBottomSheet(
-                            selectedValue: sortController.text,
-                            search: false,
-                            context: context,
-                            title: 'Sort by',
-                            items: sortItems,
-                            controller: sortController,
-                          ),
-                          child: Row(
-                            children: const [
-                              Text(
-                                "Sort by: Popularity",
-                                style: TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              Icon(Icons.keyboard_arrow_down, size: 16),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Gap(16),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //   children: [
+                    //     Obx(
+                    //       () => Text(
+                    //         "${controller.selectedFundCount.value == 0 ? controller.mutualfund.length : controller.selectedFundCount} funds found",
+                    //         style: TextStyle(
+                    //           color: Colors.grey.shade600,
+                    //           fontWeight: FontWeight.bold,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //     InkWell(
+                    //       onTap: () => showSelectionBottomSheet(
+                    //         selectedValue: sortController.text,
+                    //         search: false,
+                    //         context: context,
+                    //         title: 'Sort by',
+                    //         items: sortItems,
+                    //         controller: sortController,
+                    //       ),
+                    //       child: Row(
+                    //         children: const [
+                    //           Text(
+                    //             "Sort by: Popularity",
+                    //             style: TextStyle(fontWeight: FontWeight.w600),
+                    //           ),
+                    //           Icon(Icons.keyboard_arrow_down, size: 16),
+                    //         ],
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
+                    // const Gap(16),
 
                     // TABLE HEADER
                     Container(
@@ -1126,12 +1125,17 @@ class _WebExploreLayout extends StatelessWidget {
                     // TABLE LIST
                     Expanded(
                       child: Obx(() {
-                        if (controller.isLoading.value &&
-                            controller.searchFund.isEmpty) {
+                        if (controller.isLoading.value) {
                           return const Center(
                             child: CircularProgressIndicator(),
                           );
                         }
+                        // if (controller.isLoading.value &&
+                        //     controller.searchFund.isEmpty) {
+                        //   return const Center(
+                        //     child: CircularProgressIndicator(),
+                        //   );
+                        // }
                         if (controller.searchFund.isEmpty) {
                           return const Center(child: Text("No funds found."));
                         }
@@ -1181,14 +1185,22 @@ class WebFundTableRow extends StatelessWidget {
 
     return WebHoverRow(
       onTap: () {
-        Get.toNamed(
-          AppRoutes.funddetails,
-          arguments: {
-            'scheme': entity.baseSchemeName,
-            'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
-            'scheme_code': entity.schemeCode.toString(),
-          },
-        );
+        // Get.toNamed(
+        //   AppRoutes.funddetails,
+        //   arguments: {
+        //     'scheme': entity.baseSchemeName,
+        //     'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
+        //     'scheme_code': entity.schemeCode.toString(),
+        //   },
+        // );
+        Get.delete<FundDetailsController>();
+        FundDetailsScreen.navData = {
+          'scheme': entity.baseSchemeName,
+          'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
+          'scheme_code': entity.schemeCode.toString(),
+        };
+
+        Get.toNamed(AppRoutes.funddetails, id: 1);
       },
       builder: (isHovered) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -1228,7 +1240,7 @@ class WebFundTableRow extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          "Equity • Growth",
+                          "${entity.amc?.amcName}",
                           style: TextStyle(
                             color: Colors.grey.shade500,
                             fontSize: 11,
@@ -1252,14 +1264,21 @@ class WebFundTableRow extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Ucolors.red.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: Ucolors.red.withOpacity(0.2)),
+                      // color: Colors.blue.shade200,
+                      color: getRiskMeter(
+                        entity.riskLevel,
+                      ).color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(
+                        color: getRiskMeter(
+                          entity.riskLevel,
+                        ).color.withOpacity(0.1),
+                      ),
                     ),
                     child: Text(
-                      "Very High",
+                      "${entity.riskLevel}",
                       style: TextStyle(
-                        color: Ucolors.red,
+                        color: getRiskMeter(entity.riskLevel).color,
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                       ),
@@ -1273,9 +1292,12 @@ class WebFundTableRow extends StatelessWidget {
             Expanded(
               flex: 1,
               child: Text(
-                "15.2%",
+                '${entity.returnsEntity?.oneYear}%',
                 style: TextStyle(
-                  color: Ucolors.success,
+                  // color: Ucolors.success,
+                  color: parseIntSafe(entity.returnsEntity?.oneYear) < 0
+                      ? Colors.red
+                      : Ucolors.success,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -1283,9 +1305,12 @@ class WebFundTableRow extends StatelessWidget {
             Expanded(
               flex: 1,
               child: Text(
-                "18.5%",
+                '${entity.returnsEntity?.threeYear}%',
+
                 style: TextStyle(
-                  color: Ucolors.success,
+                  color: parseIntSafe(entity.returnsEntity?.threeYear) < 0
+                      ? Colors.red
+                      : Ucolors.success,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -1293,9 +1318,12 @@ class WebFundTableRow extends StatelessWidget {
             Expanded(
               flex: 1,
               child: Text(
-                "22.1%",
+                '${entity.returnsEntity?.fiveYear}%',
                 style: TextStyle(
-                  color: Ucolors.success,
+                  // color: Ucolors.success,
+                  color: parseIntSafe(entity.returnsEntity?.fiveYear) < 0
+                      ? Colors.red
+                      : Ucolors.success,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -1313,13 +1341,6 @@ class WebFundTableRow extends StatelessWidget {
                     height: 32,
                     child: ElevatedButton(
                       onPressed: () async {
-                        // controller.addItem(
-                        //   CartItem(
-                        //     fundId: entity.amc?.id?.toString() ?? '',
-                        //     fundName: entity.baseSchemeName ?? '',
-                        //     logoUrl: entity.amc?.amcLogoUrl ?? '',
-                        //   ),
-                        // );
                         // await controller.addToCart(
                         //   entity.schemeCode ?? '',
                         //   entity.baseSchemeName ?? '',
@@ -1859,11 +1880,13 @@ class MutualFundCard extends StatelessWidget {
     this.isDelete = false,
     this.containercolor,
     required this.entity,
+    this.onTapOverride,
   });
 
   final bool isDelete;
   final Color? containercolor;
   final MutualFundListEntity entity;
+  final VoidCallback? onTapOverride;
   final CartController controller = Get.find<CartController>();
   final MutualFundController mutualFundController =
       Get.find<MutualFundController>();
@@ -1873,19 +1896,21 @@ class MutualFundCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Get.toNamed(
-          AppRoutes.funddetails,
-          arguments: {
-            'scheme': entity.baseSchemeName,
-            'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
-            'scheme_code': entity.schemeCode.toString(),
-            'email': entity.amc?.email,
-            'address': entity.amc?.address,
-            'contact': entity.amc?.contact,
+      onTap:
+          onTapOverride ??
+          () {
+            Get.toNamed(
+              AppRoutes.funddetails,
+              arguments: {
+                'scheme': entity.baseSchemeName,
+                'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
+                'scheme_code': entity.schemeCode.toString(),
+                'email': entity.amc?.email,
+                'address': entity.amc?.address,
+                'contact': entity.amc?.contact,
+              },
+            );
           },
-        );
-      },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         padding: const EdgeInsets.all(14),

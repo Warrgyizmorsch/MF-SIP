@@ -308,7 +308,7 @@ class BankDetailsScreen extends StatelessWidget {
                         children: [
                           OutlinedButton(
                             onPressed: () =>
-                                Get.toNamed(AppRoutes.addanotherbank),
+                                Get.toNamed(AppRoutes.addanotherbank, id: 1),
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 24,

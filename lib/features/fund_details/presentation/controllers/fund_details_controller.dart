@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/fund_details/data/models/fund_performance.dart';
 import 'package:my_sip/features/fund_details/data/models/return_model.dart';
 import 'package:my_sip/features/fund_details/domain/entity/fund_detail_entity.dart';
 import 'package:my_sip/features/fund_details/domain/entity/nav_history_entity.dart';
 import 'package:my_sip/features/fund_details/domain/entity/portfolio_analysis_entity.dart';
 import 'package:my_sip/features/fund_details/domain/usecases/fund_details_usecases.dart';
+import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 
 class FundDetailsController extends GetxController
     with GetSingleTickerProviderStateMixin {
@@ -59,19 +63,77 @@ class FundDetailsController extends GetxController
 
   // Constructor to initialize arguments on each instance
   FundDetailsController({required this.fundDetailsUsecases}) {
-    final args = Get.arguments as Map<String, dynamic>? ?? {};
+    // 1. Pehle humara Brahmastra (navData) check karo, agar wo khali hai tab Get.arguments uthao
+    final args =
+        FundDetailsScreen.navData ??
+        Get.arguments as Map<String, dynamic>? ??
+        {};
+
     schemeName = args['scheme'] ?? 'Fund Details';
     imgUrl = args['imgUrl'] ?? '--';
-
     schemeCode = args['scheme_code'] ?? '';
     email = args['email'] ?? '--';
     contact = args['contact'] ?? '--';
     address = args['address'] ?? '--';
 
-    createLog("gggg$schemeName");
-    // createLog("gggg$schemeCode");
-    // getFundDetails(scchemeName: schemeName);
+    // 2. Data nikalne ke baad Brahmastra ko wapas null kar do, taaki agle fund ke liye saaf rahe
+    FundDetailsScreen.navData = null;
+
+    createLog("Loading Fund: $schemeName with code: $schemeCode");
+
+    // 3. Apna API fetch call shuru karo
     fetchAllData(scheme: schemeName, id: schemeCode);
+
+    // final args = Get.arguments as Map<String, dynamic>? ?? {};
+    // schemeName = args['scheme'] ?? 'Fund Details';
+    // imgUrl = args['imgUrl'] ?? '--';
+
+    // schemeCode = args['scheme_code'] ?? '';
+    // email = args['email'] ?? '--';
+    // contact = args['contact'] ?? '--';
+    // address = args['address'] ?? '--';
+
+    // fetchAllData(scheme: schemeName, id: schemeCode);
+  }
+
+  //   Future<void> handleAddToCart() async {
+  //   final fund = fundDetail.value;
+  //   if (fund == null) return;
+
+  //   await Get.find<CartController>().addToCart(
+  //     schemeCode,
+  //     schemeName,
+  //     fund.sipMinimumAmount ?? 500, // Centralized logic
+  //     null,
+
+  //   );
+
+  //   Get.toNamed(AppRoutes.cart, id: 1);
+  // }
+  Future<void> handleAddToCart({bool isLumpsum = false}) async {
+    final fund = fundDetail.value;
+    if (fund == null) return;
+
+    String type = isLumpsum ? 'lumpsum' : 'sip';
+
+    int amount = isLumpsum
+        ? (fund.minimumInvestment.toInt() ?? 5000)
+        : (fund.sipMinimumAmount);
+
+    await Get.find<CartController>().addToCart(
+      schemeCode,
+      schemeName,
+      amount,
+      null, // goalId
+      transType: type,
+    );
+
+    if (Get.isRegistered<NavigationBarController>()) {
+      
+      Get.find<NavigationBarController>().selectedIndex.value = 100;
+    }
+
+    Get.toNamed(AppRoutes.cart, id: 1);
   }
 
   Future<void> fetchAllData({
@@ -166,7 +228,8 @@ class FundDetailsController extends GetxController
     }
   }
 
-  final navHistoryHasError = false.obs; // Use a specific error variable for the chart
+  final navHistoryHasError =
+      false.obs; // Use a specific error variable for the chart
 
   // Get Scheme nav history
   Future<void> getShcemeNavHistory({
@@ -176,8 +239,8 @@ class FundDetailsController extends GetxController
     try {
       selectedPeriod.value = period;
       isNavHistoryLoading.value = true;
-      hasError.value = false;
-      errorMessage.value = '';
+      // hasError.value = false;
+      // errorMessage.value = '';
       navHistoryHasError.value = false; // Reset local error
 
       final now = DateTime.now();
@@ -235,18 +298,18 @@ class FundDetailsController extends GetxController
         },
         (error) {
           navHistorydata.value = null;
-          hasError.value = true;
-          errorMessage.value = error.toString();
+          // hasError.value = true;
+          // errorMessage.value = error.toString();
           isNavHistoryLoading.value = false;
           navHistoryHasError.value = true; // Reset local error
           createLog("Error loading Navhistory details: $error");
         },
       );
     } catch (e) {
-      hasError.value = true;
+      // hasError.value = true;
       navHistoryHasError.value = true; // Reset local error
       navHistorydata.value = null;
-      errorMessage.value = e.toString();
+      // errorMessage.value = e.toString();
       isNavHistoryLoading.value = false;
       createLog("Exception in Portfolio: $e");
     }

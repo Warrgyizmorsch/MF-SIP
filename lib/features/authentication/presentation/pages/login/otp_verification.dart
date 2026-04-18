@@ -13,45 +13,14 @@ import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/sizes.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:pinput/pinput.dart';
-
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:my_sip/common/style/padding.dart';
-import 'package:my_sip/common/widget/button/elevated_button.dart';
-import 'package:my_sip/common/widget/text/heading_section.dart';
-import 'package:my_sip/common/widget/text/small_heading.dart';
-import 'package:my_sip/common/widget/text/subtitle_section.dart';
-import 'package:my_sip/common/widget/top_bottom_style/top_bottom_style.dart';
-import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
-import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/images.dart';
-import 'package:my_sip/core/utils/constant/sizes.dart';
-import 'package:my_sip/core/utils/constant/text_style.dart';
-import 'package:pinput/pinput.dart';
 import 'package:responsive_framework/responsive_framework.dart'; // Import Responsive Framework
-
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:my_sip/common/style/padding.dart';
-import 'package:my_sip/common/widget/button/elevated_button.dart';
-import 'package:my_sip/common/widget/text/heading_section.dart';
-import 'package:my_sip/common/widget/text/small_heading.dart';
-import 'package:my_sip/common/widget/text/subtitle_section.dart';
-import 'package:my_sip/common/widget/top_bottom_style/top_bottom_style.dart';
-import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
-import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/images.dart';
-import 'package:my_sip/core/utils/constant/sizes.dart';
-import 'package:my_sip/core/utils/constant/text_style.dart';
-import 'package:pinput/pinput.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 
 class OtpVerificationScreen extends GetView<AuthController> {
   const OtpVerificationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    bool isDesktop = ResponsiveBreakpoints.of(context).isDesktop;
+    bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Scaffold(
       backgroundColor: Colors.white,

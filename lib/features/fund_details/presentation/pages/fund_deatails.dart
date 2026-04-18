@@ -34,6 +34,8 @@ import '../widgets/stock_allocation_items.dart';
 import '../widgets/timeselecter.dart';
 
 class FundDetailsScreen extends GetView<FundDetailsController> {
+  static Map<String, dynamic>? navData;
+
   FundDetailsScreen({super.key});
 
   final CartController cartController = Get.find<CartController>();
@@ -275,54 +277,56 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fund = controller.fundDetail.value;
+    final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Column(
       children: [
         // Desktop Header
-        Container(
-          height: 80,
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              IconButton(
-                onPressed: () => Get.back(),
-                icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-              ),
-              const Gap(16),
-              Expanded(
-                child: Text(
-                  "Fund Details",
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+        if (!isDesktop)
+          Container(
+            height: 80,
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
-              ),
-              const Gap(16),
-              IconButton(
-                onPressed: () => Get.toNamed(AppRoutes.watchlist),
-                icon: const Icon(Iconsax.archive_tick),
-              ),
-              const Gap(8),
-              IconButton(
-                onPressed: () => Get.toNamed(AppRoutes.cart),
-                icon: const Icon(Iconsax.shopping_cart),
-              ),
-            ],
+              ],
+            ),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: () => Get.back(),
+                  icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+                ),
+                const Gap(16),
+                Expanded(
+                  child: Text(
+                    "Fund Details",
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const Gap(16),
+                IconButton(
+                  onPressed: () => Get.toNamed(AppRoutes.watchlist),
+                  icon: const Icon(Iconsax.archive_tick),
+                ),
+                const Gap(8),
+                IconButton(
+                  onPressed: () => Get.toNamed(AppRoutes.cart),
+                  icon: const Icon(Iconsax.shopping_cart),
+                ),
+              ],
+            ),
           ),
-        ),
 
         // Main Content
         Expanded(
@@ -574,12 +578,110 @@ class _DesktopPerformanceSection extends StatelessWidget {
                   height: 280,
                 );
               }
-              if (navEntity == null || navEntity.data.isEmpty) {
-                return const SizedBox(
-                  height: 280,
-                  child: Center(child: Text('No Data Available')),
+              if (controller.navHistoryHasError.value ||
+                  navEntity == null ||
+                  navEntity.data.isEmpty) {
+                return Container(
+                  height: 220,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // 1. Modern Icon in a circular container
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.04),
+                              blurRadius: 8,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons
+                              .show_chart_rounded, // or Icons.bar_chart_rounded
+                          size: 28,
+                          color: Colors.grey.shade400,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // 2. Clear Title
+                      Text(
+                        'Chart Unavailable',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade800,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+
+                      // 3. Subtle Subtitle
+                      Text(
+                        'We couldn\'t fetch the NAV history right now.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // 4. Actionable Retry Button
+                      TextButton.icon(
+                        onPressed: () {
+                          // Trigger the fetch method again using the existing variables
+                          controller.getShcemeNavHistory(
+                            scchemeCode: controller.schemeCode,
+                            period: controller.selectedPeriod.value,
+                          );
+                        },
+                        icon: Icon(
+                          Icons.refresh_rounded,
+                          size: 16,
+                          color: Colors.blue.shade700,
+                        ),
+                        label: Text(
+                          'Retry',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors
+                                .blue
+                                .shade700, // Change this to Ucolors.primary if you prefer
+                          ),
+                        ),
+                        style: TextButton.styleFrom(
+                          backgroundColor:
+                              Colors.blue.shade50, // Subtle button background
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               }
+              // if (navEntity == null || navEntity.data.isEmpty) {
+              //   return const SizedBox(
+              //     height: 280,
+              //     child: Center(child: Text('No Data Available')),
+              //   );
+              // }
               return SchemeLineChart(navData: navEntity.data);
             }),
             const Gap(16),
@@ -719,7 +821,7 @@ class _DesktopOverviewCard extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            const Gap(6),
+            // const Gap(6),
             Text(
               item['value'],
               style: TextStyle(
@@ -1063,7 +1165,9 @@ class _DesktopRiskCard extends StatelessWidget {
 class _DesktopActionCard extends StatelessWidget {
   final dynamic fund;
 
-  const _DesktopActionCard({required this.fund});
+  _DesktopActionCard({required this.fund});
+
+  final CartController cartController = Get.find<CartController>();
 
   @override
   Widget build(BuildContext context) {
@@ -1125,7 +1229,28 @@ class _DesktopActionCard extends StatelessWidget {
             width: double.infinity,
             height: 52,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () =>
+                  Get.find<FundDetailsController>().handleAddToCart(),
+              // onPressed: () async {
+              //   await cartController.addToCart(
+              //     Get.find<FundDetailsController>().schemeCode,
+              //     Get.find<FundDetailsController>().schemeName,
+              //     Get.find<FundDetailsController>()
+              //             .fundDetail
+              //             .value
+              //             ?.sipMinimumAmount ??
+              //         1000,
+
+              //     // fund.schemeCode ?? '',
+              //     // fund.baseSchemeName ?? '',
+              //     // fund.minSipAmount ?? 0,
+              //     null,
+              //   );
+              //   // await cartController.fetchCart();
+
+              //   Get.toNamed(AppRoutes.cart, id: 1);
+              //   log('start sip');
+              // },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: Ucolors.primary,
@@ -1145,7 +1270,12 @@ class _DesktopActionCard extends StatelessWidget {
             width: double.infinity,
             height: 52,
             child: OutlinedButton(
-              onPressed: () {},
+              // onPressed: () {
+              //   log('lumpsum invest ');
+
+              // },
+              onPressed: () => Get.find<FundDetailsController>()
+                  .handleAddToCart(isLumpsum: true),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Colors.white, width: 2),
                 foregroundColor: Colors.white,
@@ -2019,14 +2149,113 @@ class OverviewScreen extends GetView<FundDetailsController> {
                     );
                   }
 
+                  // // Check if data is loaded
+                  // if (controller.navHistoryHasError.value ||
+                  //     navEntity == null ||
+                  //     navEntity.data.isEmpty) {
+                  //   return SizedBox(
+                  //     height: 220,
+                  //     child: Center(child: Text('Chart Data Unavailable')),
+                  //   );
+                  // }
                   // Check if data is loaded
                   if (controller.navHistoryHasError.value ||
                       navEntity == null ||
-                      navEntity.data.isEmpty ||
-                      controller.hasError.value) {
-                    return SizedBox(
+                      navEntity.data.isEmpty) {
+                    return Container(
                       height: 220,
-                      child: Center(child: Text('No Data Available')),
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // 1. Modern Icon in a circular container
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.04),
+                                  blurRadius: 8,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              Icons
+                                  .show_chart_rounded, // or Icons.bar_chart_rounded
+                              size: 28,
+                              color: Colors.grey.shade400,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // 2. Clear Title
+                          Text(
+                            'Chart Unavailable',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey.shade800,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+
+                          // 3. Subtle Subtitle
+                          Text(
+                            'We couldn\'t fetch the NAV history right now.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          // 4. Actionable Retry Button
+                          TextButton.icon(
+                            onPressed: () {
+                              // Trigger the fetch method again using the existing variables
+                              controller.getShcemeNavHistory(
+                                scchemeCode: controller.schemeCode,
+                                period: controller.selectedPeriod.value,
+                              );
+                            },
+                            icon: Icon(
+                              Icons.refresh_rounded,
+                              size: 16,
+                              color: Colors.blue.shade700,
+                            ),
+                            label: Text(
+                              'Retry',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors
+                                    .blue
+                                    .shade700, // Change this to Ucolors.primary if you prefer
+                              ),
+                            ),
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors
+                                  .blue
+                                  .shade50, // Subtle button background
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   }
 

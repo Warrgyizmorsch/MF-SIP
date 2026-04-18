@@ -1,13 +1,16 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/kyc/data/model/onboarding_login_model.dart';
 import 'package:my_sip/features/kyc/data/model/token_data_model.dart';
@@ -23,11 +26,17 @@ import '../../../../common/widget/webview/webview.dart';
 import '../../../personalization/domain/entity/bank_entity.dart';
 import '../../domain/entity/bank_verification_entity.dart';
 import '../../domain/entity/execute_poi_step2_entity.dart';
+import 'package:universal_html/html.dart' as html;
 
 class KycController extends GetxController {
+  final session = SessionManager.instance;
+
   @override
   void onInit() {
     super.onInit();
+    final savedPan = session.getUserData?.panCard ?? '';
+    panTextEditingController.text = savedPan;
+
     _initializeApp();
   }
 
@@ -39,7 +48,7 @@ class KycController extends GetxController {
     // 2. Await Token Data FIRST
     // final bool tokenSuccess = await getTokenData();
 
-    final bool tokenCred = await saveOnboardingData();
+    // final bool tokenCred = await saveOnboardingData();
 
     // 3. Only proceed if token data was successfully fetched
     // if (tokenSuccess) {
@@ -223,8 +232,6 @@ class KycController extends GetxController {
 
   final panKeyboardType = TextInputType.name.obs;
 
-  final session = SessionManager.instance;
-
   KycController(this.kycUseCases);
 
   final updateUserData = Get.find<UpdateProfileUsecases>();
@@ -247,15 +254,29 @@ class KycController extends GetxController {
       case 0:
         // --- STEP 0: IDENTITY (DigiLocker Flow) ---
         if (step1FormKey.currentState!.validate()) {
-          final bool needsKyc = await checkKycStatus();
-          if (needsKyc) {
-            await _handleDigiLockerFlow();
-          } else {
-            Get.snackbar(
-              "KYC Verified",
-              "Your KYC is already completed! You can start investing.",
+          final bool? needsKyc = await checkKycStatus();
+          if (needsKyc == true) {
+            final bool onboardingSuccess = await saveOnboardingData();
+
+            if (onboardingSuccess) {
+              await _handleDigiLockerFlow();
+            }
+          } else if (needsKyc == false) {
+            //AWHPM7811L   testing pan num
+            // Get.snackbar(
+            //   "KYC Verified",
+            //   "Your KYC is already completed! You can start investing.",
+            // );
+            ULoaders.success(
+              title: 'KYC Verified',
+              message:
+                  'Your KYC is already completed! You can start investing.',
             );
-            // Get.offAllNamed(AppRoutes.navMenuBar);
+            session.setKycVerified(true);
+            await Future.delayed(const Duration(seconds: 2));
+            Get.offAllNamed(AppRoutes.navMenuBar);
+          } else {
+            return;
           }
         }
         break;
@@ -414,7 +435,7 @@ class KycController extends GetxController {
     // }
   }
 
-  Future<bool> checkKycStatus() async {
+  Future<bool?> checkKycStatus() async {
     try {
       isLoading.value = true;
       ULoaders.showLoading(message: "Verifying PAN Details...");
@@ -431,11 +452,11 @@ class KycController extends GetxController {
       ULoaders.stopLoading();
 
       // 3. Handle the Fold (Left = Success Result, Right = ApiError)
-      return result.fold(
+      return await result.fold(
         (success) {
           // Extract the entity from your Result class
           final entity = success.data;
-          final currentStatus = entity?.currentStatus?.toLowerCase() ?? "";
+          final currentStatus = entity?.currentStatus ?? "";
 
           if (currentStatus == "Approved") {
             return false; // KYC is done! Do NOT launch Signzy.
@@ -443,19 +464,34 @@ class KycController extends GetxController {
             return true; // KYC is needed (e.g., "timed out" or "pending")
           }
         },
-        (error) {
+        (error) async {
           ULoaders.stopLoading();
-          Get.snackbar(
-            "Error",
-            "Check KYC failed: ${error.message}. Proceeding to verification.",
-          );
-          return true; // Fallback to Signzy flow if the API crashes
+
+          if (errorMessage.contains('invalid') ||
+              errorMessage.contains('pan') ||
+              error.message.contains('User not found') ||
+              errorMessage.contains('400')) {
+            ULoaders.error(
+              title: "Invalid PAN",
+              message:
+                  "The PAN number you entered is incorrect. Please check and try again.",
+            );
+            return null; // Return NULL to stop the flow!
+          }
+          // Get.snackbar("Error", "Check KYC failed Proceeding to verification.");
+          // await Future.delayed(const Duration(seconds: 2));
+          // return true; // Fallback to Signzy flow if the API crashes
         },
       );
     } catch (e) {
       ULoaders.stopLoading();
-      Get.snackbar("Error", "Unexpected error: $e");
-      return true; // Fallback
+      // Get.snackbar("Error", "Unexpected error: ");
+      ULoaders.error(
+        title: "Error",
+        message: "Unexpected error verifying PAN.",
+      );
+      // return true; // Fallback
+      return null;
     } finally {
       isLoading.value = false;
     }
@@ -468,16 +504,18 @@ class KycController extends GetxController {
     // --- PHASE 1: GENERATE URL ---
     ULoaders.showLoading(message: "Initiating DigiLocker...");
     final bool step1Success = await executePOIStep1();
-    ULoaders.stopLoading(); // Stop before opening the WebView
+    ULoaders.stopLoading(); // Stop before opening WebView or New Tab
 
-    // If failed, the function itself should show a snackbar, so we just return
     if (!step1Success) return;
 
     String? startUrl;
     if (executePOIStep1Data.value?.result?.url != null) {
       startUrl = executePOIStep1Data.value!.result.url;
     } else {
-      startUrl = executePOIStep1Data.value?.result.url;
+      startUrl = executePOIStep1Data
+          .value
+          ?.result
+          .url; // Assuming this logic is correct based on your previous code
     }
 
     if (startUrl == null || startUrl.isEmpty) {
@@ -485,16 +523,127 @@ class KycController extends GetxController {
       return;
     }
 
-    // --- PHASE 2: OPEN WEBVIEW ---
-    final bool? isWebViewSuccess = await Get.to(
-      () => HtmlWebViewPage(title: "Identity Verification", url: startUrl!),
-    );
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    bool isSuccess = false;
+
+    // --- PHASE 2: OPEN WEBVIEW (MOBILE) OR NEW TAB (WEB) ---
+    // if (kIsWeb) {
+    //   // 💻 WEB FLOW
+    //   final Uri authUrl = Uri.parse(startUrl);
+    //   if (await canLaunchUrl(authUrl)) {
+    //     await launchUrl(authUrl, mode: LaunchMode.externalApplication);
+
+    //     // Since it opened in a new tab, we need to ask the user if they completed the process
+    //     isSuccess =
+    //         await Get.dialog<bool>(
+    //           AlertDialog(
+    //             title: const Text('Identity Verification'),
+    //             content: const Text(
+    //               'A new tab was opened for DigiLocker verification. '
+    //               'Please complete the process there. Did you finish the verification successfully?',
+    //             ),
+    //             actions: [
+    //               TextButton(
+    //                 onPressed: () => Get.back(result: false),
+    //                 child: const Text(
+    //                   'No / Cancelled',
+    //                   style: TextStyle(color: Colors.grey),
+    //                 ),
+    //               ),
+    //               ElevatedButton(
+    //                 onPressed: () => Get.back(result: true),
+    //                 style: ElevatedButton.styleFrom(
+    //                   backgroundColor: Ucolors.primary,
+    //                 ), // Replace Ucolors.primary if needed
+    //                 child: const Text(
+    //                   'Yes, Completed',
+    //                   style: TextStyle(color: Colors.white),
+    //                 ),
+    //               ),
+    //             ],
+    //           ),
+    //           barrierDismissible: false, // Force user to tap a button
+    //         ) ??
+    //         false;
+    //   } else {
+    //     Get.snackbar("Error", "Could not open DigiLocker page.");
+    //     return;
+    //   }
+    // } else {
+    //   // 📱 MOBILE FLOW
+    //   final bool? isWebViewSuccess = await Get.to(
+    //     () => HtmlWebViewPage(title: "Identity Verification", url: startUrl!),
+    //   );
+    //   isSuccess = isWebViewSuccess ?? false;
+    // }
+    // --- PHASE 2: OPEN WEBVIEW (MOBILE) OR POPUP (WEB) ---
+    if (kIsWeb) {
+      // 💻 WEB FLOW: Open as a centered popup window
+      final int width = 500;
+      final int height = 700;
+      final int left = (html.window.screen!.width! - width) ~/ 2;
+      final int top = (html.window.screen!.height! - height) ~/ 2;
+
+      // JS command to open popup
+      final popupWindow = html.window.open(
+        startUrl,
+        'DigiLockerPopup',
+        'width=$width,height=$height,top=$top,left=$left,menubar=no,status=no,titlebar=no,toolbar=no',
+      );
+
+      // Ask the user if they completed the process
+      isSuccess =
+          await Get.dialog<bool>(
+            AlertDialog(
+              title: const Text('Identity Verification'),
+              content: const Text(
+                'A secure popup window was opened for DigiLocker verification. '
+                'Please complete the process there, then click "Yes, Completed" below.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    popupWindow
+                        .close(); // Automatically close popup if they cancel
+                    Get.back(result: false);
+                  },
+                  child: const Text(
+                    'No / Cancelled',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    popupWindow.close(); // Automatically close popup on success
+                    Get.back(result: true);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Ucolors.primary,
+                  ),
+                  child: const Text(
+                    'Yes, Completed',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            barrierDismissible: false, // Force user to tap a button
+          ) ??
+          false;
+    } else {
+      // 📱 MOBILE FLOW
+      final bool? isWebViewSuccess = await Get.to(
+        () => HtmlWebViewPage(title: "Identity Verification", url: startUrl!),
+      );
+      isSuccess = isWebViewSuccess ?? false;
+    }
 
     // --- PHASE 3: PROCESS RESULT ---
-    if (isWebViewSuccess == true) {
+    if (isSuccess) {
       try {
         // Start loader for the background data processing
-        ULoaders.showLoading(message: "Verifing Aadhaar Details...");
+        ULoaders.showLoading(message: "Verifying Aadhaar Details...");
 
         final bool step2Success = await executePOIStep2();
 
@@ -563,10 +712,114 @@ class KycController extends GetxController {
         );
       }
     } else {
-      // User cancelled or failed in WebView (pressed back or closed)
+      // User cancelled or failed in WebView/Dialog
       Get.snackbar("Cancelled", "Verification process was cancelled");
     }
   }
+  // Future<void> _handleDigiLockerFlow() async {
+  //   // --- PHASE 1: GENERATE URL ---
+  //   ULoaders.showLoading(message: "Initiating DigiLocker...");
+  //   final bool step1Success = await executePOIStep1();
+  //   ULoaders.stopLoading(); // Stop before opening the WebView
+
+  //   // If failed, the function itself should show a snackbar, so we just return
+  //   if (!step1Success) return;
+
+  //   String? startUrl;
+  //   if (executePOIStep1Data.value?.result?.url != null) {
+  //     startUrl = executePOIStep1Data.value!.result.url;
+  //   } else {
+  //     startUrl = executePOIStep1Data.value?.result.url;
+  //   }
+
+  //   if (startUrl == null || startUrl.isEmpty) {
+  //     Get.snackbar("Error", "URL not found in server response");
+  //     return;
+  //   }
+
+  //   // --- PHASE 2: OPEN WEBVIEW ---
+  //   final bool? isWebViewSuccess = await Get.to(
+  //     () => HtmlWebViewPage(title: "Identity Verification", url: startUrl!),
+  //   );
+
+  //   // --- PHASE 3: PROCESS RESULT ---
+  //   if (isWebViewSuccess == true) {
+  //     try {
+  //       // Start loader for the background data processing
+  //       ULoaders.showLoading(message: "Verifing Aadhaar Details...");
+
+  //       final bool step2Success = await executePOIStep2();
+
+  //       if (step2Success) {
+  //         final requestData = {
+  //           "merchantId": SessionManager
+  //               .instance
+  //               .getOnboardingData
+  //               ?.dbRecord
+  //               ?.signzyUserId,
+  //           "save": "formData",
+  //           "type": 'identityProof',
+  //           "data": {
+  //             "type": "aadhaarDigiLocker",
+  //             "name":
+  //                 nameTextEditingController.text ??
+  //                 executePOIStep2Data.value?.result.output.name,
+  //             "uid": executePOIStep2Data.value?.result.output.uid,
+  //             "dob": executePOIStep2Data.value?.result.output.dob,
+  //             "gender": executePOIStep2Data.value?.result.output.gender,
+  //             "address": executePOIStep2Data.value?.result.output.address,
+  //             "pincode":
+  //                 executePOIStep2Data.value?.result.output.splitAddress.pincode,
+  //             "city":
+  //                 executePOIStep2Data.value?.result.output.splitAddress.city,
+  //             "state":
+  //                 executePOIStep2Data.value?.result.output.splitAddress.state,
+  //             "district": executePOIStep2Data
+  //                 .value
+  //                 ?.result
+  //                 .output
+  //                 .splitAddress
+  //                 .district,
+  //           },
+  //         };
+
+  //         isLoading.value = true;
+  //         final bool poiSaved = await updateForm(data: requestData);
+  //         isLoading.value = false;
+
+  //         if (poiSaved) {
+  //           await _submitUserForensics("identity");
+
+  //           // Stop the loader and show success message
+  //           ULoaders.stopLoading();
+  //           ULoaders.success(
+  //             title: "Verified",
+  //             message: "Identity details saved successfully.",
+  //           );
+
+  //           // Brief pause so the user can read the success message
+  //           await Future.delayed(const Duration(seconds: 1));
+
+  //           _goToNextPage(); // Move to Personal Details page
+  //         } else {
+  //           ULoaders.stopLoading(); // Stop if form update fails
+  //         }
+  //       } else {
+  //         ULoaders.stopLoading(); // Stop if fetching details fails
+  //       }
+  //     } catch (e) {
+  //       ULoaders.stopLoading(); // Failsafe
+  //       Get.snackbar(
+  //         "Error",
+  //         "An unexpected error occurred processing your data.",
+  //       );
+  //     }
+  //   } else {
+  //     // User cancelled or failed in WebView (pressed back or closed)
+  //     Get.snackbar("Cancelled", "Verification process was cancelled");
+  //   }
+  // }
+
   // Future<void> _handleDigiLockerFlow() async {
   //   // 1. Call YOUR existing Step 1 function (Generates URL)
   //   ULoaders.showLoading(message: "Initiating DigiLocker...");
@@ -663,17 +916,13 @@ class KycController extends GetxController {
 
     try {
       ULoaders.showLoading(message: "Generating Contract...");
-      // Fetching dynamic merchant ID (fallback to your hardcoded one if session is null)
-      final currentMerchantId = "69aac24da01541001c853d48";
 
       // ---------------------------------------------------------
       // STEP 1: Generate the Unsigned Contract PDF
       // ---------------------------------------------------------
       final createPdfRequest = {
-        // "merchantId": currentMerchantId,
         "merchantId":
             SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
-
         "inputData": {"service": "esign", "task": "createPdf", "type": ""},
       };
 
@@ -683,7 +932,6 @@ class KycController extends GetxController {
 
       await pdfResult.fold(
         (pdfSuccess) async {
-          // Extracted cleanly using the new Entity!
           final String combinedPdfUrl = pdfSuccess.data?.combinedPdfUrl ?? "";
 
           if (combinedPdfUrl.isEmpty) {
@@ -697,13 +945,11 @@ class KycController extends GetxController {
           // STEP 2: Generate the Aadhaar E-Sign URL
           // ---------------------------------------------------------
           final esignUrlRequest = {
-            // "merchantId": currentMerchantId,
             "merchantId": SessionManager
                 .instance
                 .getOnboardingData
                 ?.dbRecord
                 ?.signzyUserId,
-
             "inputData": {
               "service": "esign",
               "task": "createEsignUrl",
@@ -725,21 +971,129 @@ class KycController extends GetxController {
               ULoaders.stopLoading();
               isLoading.value = false;
 
-              // Extracted cleanly using the new Entity!
               final String esignUrl = esignSuccess.data?.esignUrl ?? "";
 
               if (esignUrl.isNotEmpty) {
-                // STEP 3: Open WebView for User to Sign
-                final bool? isSignSuccess = await Get.to(
-                  () => HtmlWebViewPage(title: "Aadhaar E-Sign", url: esignUrl),
-                );
+                // 🚀 STEP 3: Open safely based on platform
+                if (kIsWeb) {
+                  // 💻 WEB FLOW: Open securely in a Popup Window
+                  final int width = 500;
+                  final int height = 700;
+                  final int left = (html.window.screen!.width! - width) ~/ 2;
+                  final int top = (html.window.screen!.height! - height) ~/ 2;
 
-                // STEP 4: Save & Verify the Signed Document
-                if (isSignSuccess == true) {
-                  await _verifyAndSaveEsign();
+                  final popupWindow = html.window.open(
+                    esignUrl,
+                    'EsignPopup',
+                    'width=$width,height=$height,top=$top,left=$left,menubar=no,status=no,titlebar=no,toolbar=no',
+                  );
+
+                  // Show waiting dialog in the background
+                  Get.dialog(
+                    AlertDialog(
+                      title: const Text('Aadhaar E-Sign'),
+                      content: const Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 20),
+                          Text(
+                            'Please complete your E-Sign in the popup window. '
+                            'This screen will close automatically when done.',
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            popupWindow.close();
+                            Get.back(); // Close dialog
+                            ULoaders.error(
+                              title: "Cancelled",
+                              message: "Verification process was cancelled",
+                            );
+                          },
+                          child: const Text(
+                            'Cancel',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                    barrierDismissible: false,
+                  );
+
+                  // 🚀 BACKGROUND POLLING: Auto-detect when E-sign is complete
+                  Timer.periodic(const Duration(seconds: 10), (timer) async {
+                    try {
+                      final requestData = {
+                        "merchantId": SessionManager
+                            .instance
+                            .getOnboardingData
+                            ?.dbRecord
+                            ?.signzyUserId,
+                        "inputData": {
+                          "service": "esign",
+                          "task": "getEsignData",
+                          "type": "",
+                          "data": {},
+                        },
+                      };
+
+                      final result = await kycUseCases.getEsignDataUseCase.call(
+                        requestData,
+                      );
+
+                      result.fold(
+                        (success) async {
+                          final isSigned = success.data?.isCompleted ?? false;
+
+                          if (isSigned) {
+                            timer.cancel(); // Stop polling
+                            popupWindow.close(); // Close the popup window
+                            Get.back(); // Close the waiting dialog
+
+                            // Automatically proceed to verify and save
+                            await _verifyAndSaveEsign();
+                          }
+                        },
+                        (error) {
+                          // Check if user manually closed the popup window
+                          if (popupWindow.closed == true) {
+                            timer.cancel();
+                            if (Get.isDialogOpen ?? false) {
+                              Get.back(); // Close waiting dialog
+                            }
+                            ULoaders.error(
+                              title: "Cancelled",
+                              message: "E-Sign process was closed.",
+                            );
+                          }
+                        },
+                      );
+                    } catch (e) {
+                      // Ignore polling errors
+                    }
+                  });
+                } else {
+                  // 📱 MOBILE FLOW: Normal In-App WebView
+                  final bool? isSignSuccess = await Get.to(
+                    () =>
+                        HtmlWebViewPage(title: "Aadhaar E-Sign", url: esignUrl),
+                  );
+
+                  // 🚀 STEP 4: Save & Verify the Signed Document
+                  if (isSignSuccess == true) {
+                    await _verifyAndSaveEsign();
+                  } else {
+                    ULoaders.error(
+                      title: "Cancelled",
+                      message: "E-Sign process was cancelled or incomplete.",
+                    );
+                  }
                 }
               } else {
-                // Get.snackbar("Error", "E-Sign URL not found in response");
                 ULoaders.error(
                   title: "Error",
                   message: "E-Sign URL not found in response",
@@ -749,10 +1103,6 @@ class KycController extends GetxController {
             (error) {
               isLoading.value = false;
               ULoaders.stopLoading();
-              // Get.snackbar(
-              //   "Error",
-              //   "Failed to generate E-sign URL: ${error.message}",
-              // );
               ULoaders.error(
                 title: "Error",
                 message: "Failed to generate E-sign URL: ${error.message}",
@@ -763,7 +1113,6 @@ class KycController extends GetxController {
         (error) {
           isLoading.value = false;
           ULoaders.stopLoading();
-          // Get.snackbar("Error", "Failed to create contract: ${error.message}");
           ULoaders.error(
             title: "Error",
             message: "Failed to create contract: ${error.message}",
@@ -772,13 +1121,215 @@ class KycController extends GetxController {
       );
     } catch (e) {
       isLoading.value = false;
-      // Get.snackbar("Error", "Unexpected Error during E-Sign: $e");
       ULoaders.error(
         title: "Error",
         message: "Unexpected Error during E-Sign: $e",
       );
     }
   }
+  // Future<void> startEsignProcess() async {
+  //   isLoading.value = true;
+
+  //   try {
+  //     ULoaders.showLoading(message: "Generating Contract...");
+  //     // Fetching dynamic merchant ID (fallback to your hardcoded one if session is null)
+  //     final currentMerchantId = "69aac24da01541001c853d48";
+
+  //     // ---------------------------------------------------------
+  //     // STEP 1: Generate the Unsigned Contract PDF
+  //     // ---------------------------------------------------------
+  //     final createPdfRequest = {
+  //       // "merchantId": currentMerchantId,
+  //       "merchantId":
+  //           SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
+
+  //       "inputData": {"service": "esign", "task": "createPdf", "type": ""},
+  //     };
+
+  //     final pdfResult = await kycUseCases.createPdfUseCase.call(
+  //       createPdfRequest,
+  //     );
+
+  //     await pdfResult.fold(
+  //       (pdfSuccess) async {
+  //         // Extracted cleanly using the new Entity!
+  //         final String combinedPdfUrl = pdfSuccess.data?.combinedPdfUrl ?? "";
+
+  //         if (combinedPdfUrl.isEmpty) {
+  //           ULoaders.stopLoading();
+  //           isLoading.value = false;
+  //           Get.snackbar("Error", "Failed to generate contract PDF");
+  //           return;
+  //         }
+
+  //         // ---------------------------------------------------------
+  //         // STEP 2: Generate the Aadhaar E-Sign URL
+  //         // ---------------------------------------------------------
+  //         final esignUrlRequest = {
+  //           // "merchantId": currentMerchantId,
+  //           "merchantId": SessionManager
+  //               .instance
+  //               .getOnboardingData
+  //               ?.dbRecord
+  //               ?.signzyUserId,
+
+  //           "inputData": {
+  //             "service": "esign",
+  //             "task": "createEsignUrl",
+  //             "type": "",
+  //             "data": {
+  //               "inputFile": combinedPdfUrl,
+  //               "signatureType": "aadhaaresign",
+  //               "redirectUrl": "https://signzy.com",
+  //             },
+  //           },
+  //         };
+
+  //         final esignResult = await kycUseCases.createEsignUrlUseCase.call(
+  //           esignUrlRequest,
+  //         );
+
+  //         await esignResult.fold(
+  //           (esignSuccess) async {
+  //             ULoaders.stopLoading();
+  //             isLoading.value = false;
+
+  //             ///---------------------------------------------------------------//
+  //             // Extracted cleanly using the new Entity!
+  //             // final String esignUrl = esignSuccess.data?.esignUrl ?? "";
+
+  //             // if (esignUrl.isNotEmpty) {
+  //             //   // STEP 3: Open WebView for User to Sign
+  //             //   final bool? isSignSuccess = await Get.to(
+  //             //     () => HtmlWebViewPage(title: "Aadhaar E-Sign", url: esignUrl),
+  //             //   );
+
+  //             //   // STEP 4: Save & Verify the Signed Document
+  //             //   if (isSignSuccess == true) {
+  //             //     await _verifyAndSaveEsign();
+  //             //   }
+  //             // } else {
+  //             //   // Get.snackbar("Error", "E-Sign URL not found in response");
+  //             //   ULoaders.error(
+  //             //     title: "Error",
+  //             //     message: "E-Sign URL not found in response",
+  //             //   );
+  //             // }
+  //             final String esignUrl = esignSuccess.data?.esignUrl ?? "";
+
+  //             if (esignUrl.isNotEmpty) {
+  //               // 🚀 STEP 3: Open safely based on platform
+  //               bool isSignSuccess = false;
+
+  //               if (kIsWeb) {
+  //                 // 💻 WEB FLOW: Open securely in a New Tab
+  //                 final Uri authUrl = Uri.parse(esignUrl);
+
+  //                 if (await canLaunchUrl(authUrl)) {
+  //                   await launchUrl(
+  //                     authUrl,
+  //                     mode: LaunchMode.externalApplication,
+  //                   );
+
+  //                   // Web par user se puchenge process complete hua ya nahi
+  //                   isSignSuccess =
+  //                       await Get.dialog<bool>(
+  //                         AlertDialog(
+  //                           title: const Text('Aadhaar E-Sign'),
+  //                           content: const Text(
+  //                             'A new tab was opened securely for E-Sign. '
+  //                             'Once you finish signing and see the completion screen, '
+  //                             'close that tab and click "Yes, Completed" below.',
+  //                           ),
+  //                           actions: [
+  //                             TextButton(
+  //                               onPressed: () => Get.back(result: false),
+  //                               child: const Text(
+  //                                 'Cancelled',
+  //                                 style: TextStyle(color: Colors.grey),
+  //                               ),
+  //                             ),
+  //                             ElevatedButton(
+  //                               onPressed: () => Get.back(result: true),
+  //                               style: ElevatedButton.styleFrom(
+  //                                 backgroundColor: Ucolors.primary,
+  //                               ),
+  //                               child: const Text(
+  //                                 'Yes, Completed',
+  //                                 style: TextStyle(color: Colors.white),
+  //                               ),
+  //                             ),
+  //                           ],
+  //                         ),
+  //                         barrierDismissible:
+  //                             false, // User ko tap karna hi padega
+  //                       ) ??
+  //                       false;
+  //                 } else {
+  //                   ULoaders.error(
+  //                     title: "Error",
+  //                     message: "Could not open E-Sign page.",
+  //                   );
+  //                 }
+  //               } else {
+  //                 // 📱 MOBILE FLOW: Purana In-App WebView
+  //                 final bool? webViewResult = await Get.to(
+  //                   () =>
+  //                       HtmlWebViewPage(title: "Aadhaar E-Sign", url: esignUrl),
+  //                 );
+  //                 isSignSuccess = webViewResult ?? false;
+  //               }
+
+  //               // 🚀 STEP 4: Save & Verify the Signed Document
+  //               if (isSignSuccess) {
+  //                 await _verifyAndSaveEsign();
+  //               } else {
+  //                 ULoaders.error(
+  //                   title: "Cancelled",
+  //                   message: "E-Sign process was cancelled or incomplete.",
+  //                 );
+  //               }
+  //             } else {
+  //               ULoaders.error(
+  //                 title: "Error",
+  //                 message: "E-Sign URL not found in response",
+  //               );
+  //             }
+  //             // -------------------------------   ///
+  //           },
+  //           (error) {
+  //             isLoading.value = false;
+  //             ULoaders.stopLoading();
+  //             // Get.snackbar(
+  //             //   "Error",
+  //             //   "Failed to generate E-sign URL: ${error.message}",
+  //             // );
+  //             ULoaders.error(
+  //               title: "Error",
+  //               message: "Failed to generate E-sign URL: ${error.message}",
+  //             );
+  //           },
+  //         );
+  //       },
+  //       (error) {
+  //         isLoading.value = false;
+  //         ULoaders.stopLoading();
+  //         // Get.snackbar("Error", "Failed to create contract: ${error.message}");
+  //         ULoaders.error(
+  //           title: "Error",
+  //           message: "Failed to create contract: ${error.message}",
+  //         );
+  //       },
+  //     );
+  //   } catch (e) {
+  //     isLoading.value = false;
+  //     // Get.snackbar("Error", "Unexpected Error during E-Sign: $e");
+  //     ULoaders.error(
+  //       title: "Error",
+  //       message: "Unexpected Error during E-Sign: $e",
+  //     );
+  //   }
+  // }
 
   // --- Helper to finalize and fetch the signed document status ---
   Future<void> _verifyAndSaveEsign() async {

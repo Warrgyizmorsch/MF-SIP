@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
@@ -195,38 +196,16 @@ import 'package:my_sip/features/personalization/presentation/widgets/bank_detail
 //     );
 //   }
 // }
-import 'dart:developer';
-
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:gap/gap.dart';
-import 'package:get/get.dart';
-import 'package:iconsax/iconsax.dart';
-import 'package:my_sip/common/widget/animated/empty_filled.dart';
-import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
-import 'package:my_sip/common/widget/button/elevated_button.dart';
-import 'package:my_sip/common/widget/images/custom_cached_image.dart';
-import 'package:my_sip/common/widget/text_form/text_field_component.dart';
-import 'package:my_sip/config/routes/app_routes.dart';
-import 'package:my_sip/core/utils/constant/appUrl.dart';
-import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/text_style.dart';
-import 'package:my_sip/core/utils/enums/enums.dart';
-import 'package:my_sip/features/authentication/presentation/widgets/term_policy.dart';
-import 'package:my_sip/features/cart/domain/entities/cart_response_entity.dart';
-import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
-import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
-import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
 
 class CartPage extends GetView<CartController> {
   const CartPage({super.key});
-
-  // 🚀 Common Purchase Logic dono web aur mobile ke liye
   void _handlePurchase() {
     if (!controller.isCartValid1) return;
+    final bool isDesktop = Get.width > 600;
     Get.toNamed(
       AppRoutes.paymentScreen,
-      arguments: {'amount': controller.totolAmount1},
+      // arguments: {'amount': controller.totalAmount},
+      id: isDesktop ? 1 : null,
     );
   }
 
@@ -239,14 +218,12 @@ class CartPage extends GetView<CartController> {
       );
     }
 
-    // 🚀 Check if screen is wide enough for Web Layout
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
     return Scaffold(
       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
-      appBar: const CustomAppBarNormal(title: 'Cart'),
+      appBar: isDesktop ? null : const CustomAppBarNormal(title: 'Cart'),
 
-      // 🚀 MOBILE BOTTOM BAR (Hide on Desktop)
       persistentFooterDecoration: isDesktop ? null : const BoxDecoration(),
       persistentFooterButtons: isDesktop
           ? null
@@ -264,9 +241,12 @@ class CartPage extends GetView<CartController> {
               }),
             ),
 
-      // 🚀 MAIN BODY (Responsive)
       body: Obx(() {
         final items = controller.displayedItems;
+
+        if (controller.isLoading.value && items.isEmpty) {
+          return Center(child: CircularProgressIndicator());
+        }
 
         // --- EMPTY STATE ---
         if (items.isEmpty) {
@@ -297,7 +277,6 @@ class CartPage extends GetView<CartController> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 60% Left Side: Item List
                     Expanded(
                       flex: 6,
                       child: ListView.builder(
@@ -411,9 +390,6 @@ class CartPage extends GetView<CartController> {
     );
   }
 }
-
-// ⚠️ Yahan aapke baaki ke same widgets rahenge...
-// (CartBottomBar, CartItemCard, FundHeader, InvestmentInputsRow etc... unhe chhedne ki zaroorat nahi hai)
 
 class CartBottomBar extends StatelessWidget {
   const CartBottomBar({
@@ -669,7 +645,7 @@ class FundHeader extends StatelessWidget {
                         title: const Text('Are you sure ? '),
                         actions: [
                           TextButton(
-                            onPressed: () => Get.back(),
+                            onPressed: () => Navigator.maybePop(context),
                             child: const Text(
                               'No',
                               style: TextStyle(
@@ -680,7 +656,7 @@ class FundHeader extends StatelessWidget {
                           ),
                           TextButton(
                             onPressed: () {
-                              Get.back();
+                              Navigator.maybePop(context);
                               controller.deleteCartItem(
                                 itemEntity.id ?? 0,
                                 itemEntity.schemeName ?? "",

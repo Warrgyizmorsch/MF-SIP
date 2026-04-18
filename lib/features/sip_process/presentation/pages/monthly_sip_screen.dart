@@ -445,6 +445,8 @@ class MonthlySipScreen extends GetView<SipProcessController> {
   // 💻 WEB / DESKTOP LAYOUT (2-Column Card)
   // =========================================
   Widget _buildWebLayout(BuildContext context) {
+    double width = Get.width * 0.75;
+
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(
@@ -504,7 +506,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                     SizedBox(
                       width: 140,
                       child: UElevatedBUtton(
-                        onPressed: () => Get.back(), // 🚀 Web Nested back
+                        onPressed: () => Get.back(id: 1),
                         outlined: true,
                         child: Center(
                           child: Text(
@@ -523,7 +525,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                         // 🚀 Web Nested Navigation
                         onPressed: () => Get.toNamed(
                           AppRoutes.investingApproachScreen,
-                          // id: 1,
+                          id: 1,
                         ),
                         child: Center(
                           child: Text(
@@ -873,7 +875,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                 onPressed: () => Get.toNamed(AppRoutes.investingApproachScreen),
                 child: Center(
                   child: Text(
-                    'Select Sip Fund',
+                    controller.isLumpsum.value ? 'Lumpsum' : 'Sip',
                     style: AppTextStyles.bodyMedium(color: Colors.white),
                   ),
                 ),

@@ -589,7 +589,11 @@ class NfoListPage extends GetView<NfoController> {
                   closingDate: nfo.nfoCloseDate ?? '--',
                   onInvestTap: () {
                     if (isWeb) {
-                      Get.toNamed(AppRoutes.nfodetailsPage, arguments: nfo);
+                      Get.toNamed(
+                        AppRoutes.nfodetailsPage,
+                        arguments: nfo,
+                        id: 1,
+                      );
                     } else {
                       Get.toNamed(AppRoutes.nfodetailsPage, arguments: nfo);
                     }

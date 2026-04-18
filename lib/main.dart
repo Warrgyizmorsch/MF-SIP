@@ -16,7 +16,7 @@ Future<void> main() async {
       await SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
       ]);
-    } // Initialize SessionManager globally
+    }
     await Get.putAsync<SessionManager>(() async {
       final session = SessionManager.instance;
       await session.initialize();

@@ -300,6 +300,8 @@ class AddAnotherBankPage extends GetView<BankController> {
                 child: SizedBox(
                   width: 200, // Fixed width for web button
                   child: UElevatedBUtton(
+                    onPressed: () => Navigator.maybePop(context),
+
                     child: const Center(
                       child: Text(
                         'Save Details',
@@ -310,6 +312,7 @@ class AddAnotherBankPage extends GetView<BankController> {
                 ),
               )
             : UElevatedBUtton(
+                onPressed: () => Navigator.maybePop(context),
                 child: Center(
                   child: Text('Save Details', style: UTextStyles.buttonText),
                 ),

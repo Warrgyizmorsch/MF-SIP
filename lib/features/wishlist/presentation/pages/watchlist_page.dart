@@ -473,6 +473,7 @@
 // }
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -688,8 +689,9 @@ class WatchlistPage extends StatelessWidget {
 
       return ListView.builder(
         shrinkWrap: true, // Needed for Web nested scroll
-        physics:
-            const NeverScrollableScrollPhysics(), // Let parent handle scroll
+        physics: kIsWeb
+            ? const NeverScrollableScrollPhysics()
+            : null, // Let parent handle scroll
         itemCount: wishlistItems.length,
         itemBuilder: (context, index) {
           final item = wishlistItems[index];
@@ -835,7 +837,7 @@ class MutualFundCard1 extends StatelessWidget {
                           color: const Color(0xff383838),
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      if (!isDelete) const SizedBox(height: 4),
                       RichText(
                         text: TextSpan(
                           children: [
@@ -937,53 +939,52 @@ class MutualFundCard1 extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-
-            // 🚀 THE FIX: Removed dashed line Text and used proper Divider
-            Row(
-              children: [
-                Text(
-                  "Trailing Return",
-                  style: TextStyle(
-                    color: Ucolors.borderside,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+            if (!isDelete) const SizedBox(height: 16),
+            if (!isDelete)
+              Row(
+                children: [
+                  Text(
+                    "Trailing Return",
+                    style: TextStyle(
+                      color: Ucolors.borderside,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Divider(color: Colors.grey.shade200, thickness: 1),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // Returns
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _ReturnItem(
-                  isNegative: double.parse(r1Y) < 0,
-                  title: '1Y',
-                  value: '$r1Y%',
-                ),
-                _ReturnItem(
-                  isNegative: double.parse(r3Y) < 0,
-                  title: '3Y',
-                  value: '$r3Y%',
-                ),
-                _ReturnItem(
-                  isNegative: double.parse(r5Y) < 0,
-                  title: '5Y',
-                  value: '$r5Y%',
-                ),
-                _ReturnItem(
-                  isNegative: double.parse(r10Y) < 0,
-                  title: '10Y',
-                  value: '$r10Y%',
-                ),
-              ],
-            ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Divider(color: Colors.grey.shade200, thickness: 1),
+                  ),
+                ],
+              ),
+            if (!isDelete) const SizedBox(height: 12),
+            if (!isDelete)
+              // Returns
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _ReturnItem(
+                    isNegative: double.parse(r1Y) < 0,
+                    title: '1Y',
+                    value: '$r1Y%',
+                  ),
+                  _ReturnItem(
+                    isNegative: double.parse(r3Y) < 0,
+                    title: '3Y',
+                    value: '$r3Y%',
+                  ),
+                  _ReturnItem(
+                    isNegative: double.parse(r5Y) < 0,
+                    title: '5Y',
+                    value: '$r5Y%',
+                  ),
+                  _ReturnItem(
+                    isNegative: double.parse(r10Y) < 0,
+                    title: '10Y',
+                    value: '$r10Y%',
+                  ),
+                ],
+              ),
           ],
         ),
       ),

@@ -13,12 +13,16 @@ import 'package:my_sip/features/freedom_sip/presentation/pages/freedom_sip_scree
 import 'package:my_sip/features/freedom_sip/presentation/pages/sip_tenure_screen.dart';
 import 'package:my_sip/features/fund_details/presentation/bindings/fund_detail_binding.dart';
 import 'package:my_sip/features/goal/presentation/bindings/goal_binding.dart';
+import 'package:my_sip/features/goal/presentation/pages/coming_soon.dart';
 import 'package:my_sip/features/goal/presentation/pages/goal.dart';
 import 'package:my_sip/features/goal/presentation/pages/goaldetails.dart';
 import 'package:my_sip/features/goal/presentation/pages/goalsuccess.dart';
 import 'package:my_sip/features/goal/presentation/pages/goalviewcard.dart';
 import 'package:my_sip/features/goal/presentation/pages/ihavegoal.dart';
 import 'package:my_sip/features/home/presentation/pages/home.dart';
+import 'package:my_sip/features/home/presentation/widgets/product_tool/sip_calculator.dart';
+import 'package:my_sip/features/home/presentation/widgets/product_tool/swp_calci.dart';
+import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_calculator.dart';
 import 'package:my_sip/features/kyc/presentation/binding/kyc_bindings.dart';
 import 'package:my_sip/features/kyc/presentation/pages/kyc_screen.dart';
 import 'package:my_sip/features/nfo/presentation/bindings/nfo_list_binding.dart';
@@ -30,6 +34,7 @@ import 'package:my_sip/features/personalization/presentation/bindings/personalis
 import 'package:my_sip/features/personalization/presentation/pages/add_another_bank.dart';
 import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:my_sip/features/personalization/presentation/pages/risk_profile.dart';
+import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/document.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/kyc_details.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/nominee_list.dart';
@@ -200,5 +205,15 @@ class AppPages {
     GetPage(name: AppRoutes.nfodetailsPage, page: () => NfoDetailsPage1()),
     GetPage(name: AppRoutes.kycDeatailScreen, page: () => KycDetailsScreen()),
     GetPage(name: AppRoutes.documentsScreen, page: () => DocumentScreen()),
+
+    GetPage(name: AppRoutes.sipCalculator, page: () => SipCalculatorPage()),
+    GetPage(name: AppRoutes.swpCalculator, page: () => SwpCalciScreen()),
+    GetPage(
+      name: AppRoutes.stepUpCalculator,
+      page: () => TopUpCalculatorPage(),
+    ),
+    GetPage(name: AppRoutes.comingSoon, page: () => ComingSoon()),
+    GetPage(name: AppRoutes.bankDetails, page: () => BankDetailsScreen()),
+
   ];
 }

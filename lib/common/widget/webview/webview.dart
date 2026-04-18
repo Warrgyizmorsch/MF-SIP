@@ -375,6 +375,8 @@ class HtmlWebViewPage extends StatefulWidget {
   final String? successUrlTrigger;
   final bool appBar;
 
+  static Map<String, String>? navData;
+
   const HtmlWebViewPage({
     super.key,
     this.appBar = true,
@@ -382,10 +384,12 @@ class HtmlWebViewPage extends StatefulWidget {
     this.htmlContent,
     this.url,
     this.successUrlTrigger = "signzy",
-  }) : assert(
-         htmlContent != null || url != null,
-         'Either htmlContent or url must be provided',
-       );
+    th,
+  });
+  // : assert(
+  //        htmlContent != null || url != null,
+  //        'Either htmlContent or url must be provided',
+  //      );
 
   @override
   State<HtmlWebViewPage> createState() => _HtmlWebViewPageState();
@@ -396,14 +400,39 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
   bool _isLoading = true; // Loader state
   bool result = false;
 
+  late String finalTitle;
+  late String? finalUrl;
+  late String? finalHtmlContent;
+
+  bool finalAppBar = true;
+
   @override
   void initState() {
     super.initState();
 
+    if (HtmlWebViewPage.navData != null &&
+        HtmlWebViewPage.navData!['appBar'] == 'false') {
+      finalAppBar = false;
+    } else {
+      finalAppBar = widget.appBar;
+    }
+
+    finalTitle =
+        HtmlWebViewPage.navData?['title'] ??
+        (widget.title.isNotEmpty ? widget.title : null) ??
+        Get.arguments?['title'] ??
+        '';
+
+    finalUrl =
+        HtmlWebViewPage.navData?['url'] ?? widget.url ?? Get.arguments?['url'];
+    finalHtmlContent = widget.htmlContent ?? Get.arguments?['htmlContent'];
+
+    // 2. Data reset karo
+    HtmlWebViewPage.navData = null;
+
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted);
 
-    // 🚀 FIX: Wrap NavigationDelegate in !kIsWeb to prevent crash on Web
     if (!kIsWeb) {
       _controller.setNavigationDelegate(
         NavigationDelegate(
@@ -428,14 +457,12 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
                 _isLoading = true;
               });
 
-              // Mimic the "Human Delay": Wait 3.5 seconds, then auto-close
               Future.delayed(const Duration(milliseconds: 3500), () {
                 if (mounted) {
                   Get.back(result: true);
                 }
               });
 
-              // CRITICAL: Let the URL load so Signzy gets the code!
               return NavigationDecision.navigate;
             }
 
@@ -458,21 +485,21 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
         ),
       );
     } else {
-      // 🚀 Web doesn't support onPageFinished properly, so turn off loader immediately
       _isLoading = false;
     }
 
-    if (widget.url != null && widget.url!.isNotEmpty) {
-      _controller.loadRequest(Uri.parse(widget.url!));
+    // if (widget.url != null && widget.url!.isNotEmpty) {
+    //   _controller.loadRequest(Uri.parse(widget.url!));
+    // }
+    if (finalUrl != null && finalUrl!.isNotEmpty) {
+      _controller.loadRequest(Uri.parse(finalUrl!));
     } else if (widget.htmlContent != null) {
       final unescape = HtmlUnescape();
 
-      // Decode twice to handle double-escaped HTML
       String decodedHtmlContent = widget.htmlContent!;
       decodedHtmlContent = unescape.convert(decodedHtmlContent);
       decodedHtmlContent = unescape.convert(decodedHtmlContent);
 
-      // Wrap with full HTML for reliable rendering
       final wrappedHtml =
           """
     <!DOCTYPE html>
@@ -612,7 +639,7 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
 
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: !widget.appBar
+        appBar: !finalAppBar
             ? null
             : AppBar(
                 leading: IconButton(
@@ -627,7 +654,8 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
                 backgroundColor: Colors.white,
                 centerTitle: true,
                 title: Text(
-                  widget.title,
+                  // widget.title,
+                  finalTitle,
                   textAlign: TextAlign.start,
                   style: AppTextStyles.h3(color: Ucolors.dark),
                 ),

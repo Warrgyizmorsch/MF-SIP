@@ -57,7 +57,8 @@ class NomineeListScreen extends GetView<PersonalisationController> {
                         if (controller.remainingAllocation <= 0)
                           return const SizedBox.shrink();
                         return ElevatedButton.icon(
-                          onPressed: () => Get.toNamed(AppRoutes.nomineeDetail),
+                          onPressed: () =>
+                              Get.toNamed(AppRoutes.nomineeDetail, id: 1),
                           icon: const Icon(
                             Icons.add,
                             color: Colors.white,
@@ -115,7 +116,7 @@ class NomineeListScreen extends GetView<PersonalisationController> {
                             if (isDesktop)
                               ElevatedButton(
                                 onPressed: () =>
-                                    Get.toNamed(AppRoutes.nomineeDetail),
+                                    Get.toNamed(AppRoutes.nomineeDetail, id: 1),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Ucolors.blue,
                                   padding: const EdgeInsets.symmetric(

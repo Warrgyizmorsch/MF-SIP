@@ -385,14 +385,11 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
 
   @override
   Widget build(BuildContext context) {
-    // 🚀 Check for Web/Desktop
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
     return Scaffold(
-      // Web par transparent background (App shell se white/grey lega), Mobile par primary blue
       backgroundColor: isDesktop ? Colors.transparent : Ucolors.primary,
 
-      // Mobile pe bottom nav dikhega, Web pe null (buttons card ke andar honge)
       bottomNavigationBar: isDesktop ? null : _buildMobileBottomNav(context),
 
       body: SafeArea(
@@ -404,16 +401,11 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
     );
   }
 
-  // =========================================
-  // 💻 WEB / DESKTOP LAYOUT (2-Column Card)
-  // =========================================
   Widget _buildWebLayout(BuildContext context) {
     final session = SessionManager.instance;
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: 1000,
-        ), // Max-width for beautiful web card
+        constraints: const BoxConstraints(maxWidth: 1000),
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
           child: Container(
@@ -468,7 +460,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                     SizedBox(
                       width: 140,
                       child: UElevatedBUtton(
-                        onPressed: () => Get.back(), // 🚀 Nested back
+                        onPressed: () => Get.back(id: 1),
                         outlined: true,
                         child: Center(
                           child: Text(
@@ -484,9 +476,8 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                     SizedBox(
                       width: 200,
                       child: UElevatedBUtton(
-                        onPressed: () => Get.toNamed(
-                          AppRoutes.selectFundsScreen,
-                        ), // 🚀 Nested route
+                        onPressed: () =>
+                            Get.toNamed(AppRoutes.selectFundsScreen, id: 1),
                         child: Center(
                           child: Text(
                             'Select Sip Fund',
@@ -507,9 +498,6 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
     );
   }
 
-  // =========================================
-  // 📱 MOBILE LAYOUT
-  // =========================================
   Widget _buildMobileLayout(BuildContext context) {
     final session = SessionManager.instance;
     return SingleChildScrollView(
@@ -590,11 +578,6 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
     );
   }
 
-  // =========================================
-  // 🧩 REUSABLE WIDGETS
-  // =========================================
-
-  // 1. Profile Section (Blue Gradient Box)
   Widget _buildProfileSection(SessionManager session) {
     return Container(
       width: double.infinity,
@@ -654,7 +637,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
     );
   }
 
-  // 2. Selection Section (The Option Cards)
+  // Selection Section
   Widget _buildSelectionSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -708,7 +691,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16.0), // Slightly more padding
+        padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
           color: isSelected ? null : Colors.white,
           gradient: isSelected
@@ -727,10 +710,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SvgPicture.asset(
-              iconPath,
-              height: 40,
-            ), // Increased icon size slightly
+            SvgPicture.asset(iconPath, height: 40),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -819,7 +799,6 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
     );
   }
 
-  // 3. Mobile Bottom Nav Bar
   Widget _buildMobileBottomNav(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -856,7 +835,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                 },
                 child: Center(
                   child: Text(
-                    'Select Sip Fund',
+                    controller.isLumpsum.value ? 'Lumpsum' : 'Sip',
                     style: AppTextStyles.bodyMedium(color: Colors.white),
                   ),
                 ),

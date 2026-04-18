@@ -60,8 +60,10 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
     );
 
     return Scaffold(
-      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white.withOpacity(0.96),
-      appBar: CustomAppBarNormal(title: 'SIP Calculator', backIcon: true,),
+      backgroundColor: isDesktop
+          ? const Color(0xFFF5F7FA)
+          : Colors.white.withOpacity(0.96),
+      appBar: CustomAppBarNormal(title: 'SIP Calculator', backIcon: true),
       body: SingleChildScrollView(
         padding: isDesktop
             ? const EdgeInsets.symmetric(vertical: 30, horizontal: 24)
@@ -77,7 +79,9 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(25),
-                    border: isDesktop ? Border.all(color: Colors.grey.shade300) : null,
+                    border: isDesktop
+                        ? Border.all(color: Colors.grey.shade300)
+                        : null,
                   ),
                   child: TabBar(
                     indicatorSize: TabBarIndicatorSize.tab,
@@ -91,8 +95,14 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                       color: Ucolors.primary.withOpacity(0.1),
                     ),
                     tabs: const [
-                      Text('SIP', style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text('Lumpsum', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                        'SIP',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        'Lumpsum',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ],
                   ),
                 ),
@@ -102,9 +112,11 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
 
               // --- 2. Content Area ---
               SizedBox(
-                height: 800, // Fixed height for TabBarView to prevent scroll issues
+                height:
+                    800, // Fixed height for TabBarView to prevent scroll issues
                 child: TabBarView(
-                  physics: const NeverScrollableScrollPhysics(), // Handle scrolling in parent
+                  physics:
+                      const NeverScrollableScrollPhysics(), // Handle scrolling in parent
                   children: [
                     // SIP TAB
                     _buildSipTab(isDesktop, returns),
@@ -133,7 +145,11 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (isDesktop) const Text("Input Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          if (isDesktop)
+            const Text(
+              "Input Details",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           if (isDesktop) const Gap(20),
           SipSliderTile2(
             title: 'Monthly Investment',
@@ -171,7 +187,9 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
         color: Ucolors.light,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: Ucolors.borderside),
-        boxShadow: isDesktop ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)] : null,
+        boxShadow: isDesktop
+            ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)]
+            : null,
       ),
       child: DefaultTabController(
         length: 2,
@@ -182,8 +200,8 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
             Container(
               height: 40,
               decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(20)
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(20),
               ),
               child: TabBar(
                 indicatorSize: TabBarIndicatorSize.tab,
@@ -191,9 +209,14 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                 dividerColor: Colors.transparent,
                 labelColor: Ucolors.primary,
                 indicator: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.white,
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)]
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 4,
+                    ),
+                  ],
                 ),
                 tabs: const [
                   Tab(text: 'Visual Rep.'),
@@ -205,7 +228,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
 
             // Inner Tab Views
             SizedBox(
-              height: 400,
+              height: 450,
               child: TabBarView(
                 children: [
                   // A. Visual Chart
@@ -249,11 +272,13 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                           heading4: 'Current Value',
                         ),
                         DashedLine(color: Ucolors.borderColor, dashSpace: 0),
-                        ...returns.map((row) => ReturnsTableRow(
-                          color3: Colors.green.shade600,
-                          data: row as ReturnRow,
-                          percentage: false,
-                        )),
+                        ...returns.map(
+                          (row) => ReturnsTableRow(
+                            color3: Colors.green.shade600,
+                            data: row as ReturnRow,
+                            percentage: false,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -283,12 +308,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
     } else {
       return SingleChildScrollView(
         child: Column(
-          children: [
-            const Gap(18),
-            inputs,
-            const Gap(24),
-            results,
-          ],
+          children: [const Gap(18), inputs, const Gap(24), results],
         ),
       );
     }
@@ -306,7 +326,11 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (isDesktop) const Text("Input Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          if (isDesktop)
+            const Text(
+              "Input Details",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           if (isDesktop) const Gap(20),
           SipSliderTile2(
             title: 'Total Investment',
@@ -314,7 +338,8 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
             min: 100,
             max: 1000000,
             prefix: '',
-            onChanged: (value) => setState(() => totalInvestment = value), suffix: '₹',
+            onChanged: (value) => setState(() => totalInvestment = value),
+            suffix: '₹',
           ),
           SipSliderTile2(
             title: 'Expected return rate (p.a)',
@@ -343,7 +368,9 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
         color: Ucolors.light,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Ucolors.borderside),
-        boxShadow: isDesktop ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)] : null,
+        boxShadow: isDesktop
+            ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)]
+            : null,
       ),
       child: PieChartWithValue(
         title1: 'Returns',
@@ -393,12 +420,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
     } else {
       return SingleChildScrollView(
         child: Column(
-          children: [
-            const Gap(18),
-            inputs,
-            const Gap(24),
-            results,
-          ],
+          children: [const Gap(18), inputs, const Gap(24), results],
         ),
       );
     }
@@ -409,7 +431,11 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
       color: Colors.white,
       borderRadius: BorderRadius.circular(16),
       boxShadow: [
-        BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
       ],
       border: Border.all(color: Colors.grey.shade200),
     );

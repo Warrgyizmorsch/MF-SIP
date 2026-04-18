@@ -424,6 +424,7 @@ import 'package:my_sip/features/personalization/presentation/controllers/persona
 import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 class PersonalDetailsScreen extends GetView<AuthController> {
@@ -608,19 +609,29 @@ class PersonalDetailsScreen extends GetView<AuthController> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      TextButton(
-                        onPressed: () => Get.back(),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 20,
-                          ),
-                        ),
-                        child: const Text(
-                          "Cancel",
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      ),
+                      // TextButton(
+                      //   onPressed: () {
+                      //     // Navigator.pop(context);
+                      //     if (Get.isRegistered<NavigationBarController>()) {
+                      //       Get.find<NavigationBarController>().changePage(
+                      //         0,
+                      //         isDesktop: true,
+                      //       );
+                      //     } else {
+                      //       Get.back(); // Fallback
+                      //     }
+                      //   },
+                      //   style: TextButton.styleFrom(
+                      //     padding: const EdgeInsets.symmetric(
+                      //       horizontal: 24,
+                      //       vertical: 20,
+                      //     ),
+                      //   ),
+                      //   child: const Text(
+                      //     "Cancel",
+                      //     style: TextStyle(color: Colors.grey),
+                      //   ),
+                      // ),
                       const SizedBox(width: 16),
                       Obx(
                         () => ElevatedButton(

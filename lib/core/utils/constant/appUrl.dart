@@ -1,5 +1,5 @@
 class Appurl {
-  static const baseUrl = "https://sip-backend.londonstreetstore.com/public";
+  static const baseUrl = "https://sip-backend.londonstreetstore.com";
 
   static const baseUrl2 = 'https://mfapi.advisorkhoj.com';
 
@@ -7,6 +7,6 @@ class Appurl {
 
   static const navUrl = 'https://api.mfapi.in/mf';
 
-  static const kycUrl = 'https://multi-channel-preproduction.signzy.tech';
-  // static const kycUrl = 'multi-channel.signzy.tech';
+  // static const kycUrl = 'https://multi-channel-preproduction.signzy.tech';
+  static const kycUrl = 'https://multi-channel.signzy.tech';
 }

@@ -148,14 +148,25 @@ class DocumentScreen extends StatelessWidget {
               padding: const EdgeInsets.all(32.0),
               child: Column(
                 children: [
-                  ProfileHeader(
-                    name: user?.name ?? 'Guest User',
-                    img: user?.img ?? '',
-                    subtitle:
-                        'Member since ${user?.createdAt?.split('-')[0] ?? ''}',
-                    icon: Icons.verified,
-                    onTap: () {},
-                  ),
+                  // ProfileHeader(
+                  //   name: user?.name ?? 'Guest User',
+                  //   img: user?.img ?? '',
+                  //   subtitle:
+                  //       'Member since ${user?.createdAt?.split('-')[0] ?? ''}',
+                  //   icon: Icons.verified,
+                  //   onTap: () {},
+                  // ),
+                  Obx(() {
+                    final reactiveUser = SessionManager.instance.userObs.value;
+
+                    return ProfileHeader(
+                      onTap: () {},
+                      img: reactiveUser?.img ?? '',
+                      subtitle:
+                          'Member since ${user?.createdAt?.split('-')[0] ?? ''}',
+                      icon: Iconsax.export,
+                    );
+                  }),
                   const SizedBox(height: 24),
                   const Divider(),
                   const SizedBox(height: 16),

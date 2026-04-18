@@ -22,7 +22,7 @@ RiskMeterConfig getRiskMeter(String? risk) {
     case 'moderate':
       return RiskMeterConfig(
         needleValue: 50,
-        color: Colors.yellow,
+        color: Colors.yellow.shade600,
         label: 'Moderate',
       );
 

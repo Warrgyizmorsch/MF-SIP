@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 
 Future<String?> showSelectionBottomSheet({
   required BuildContext context,
@@ -25,9 +24,14 @@ Future<String?> showSelectionBottomSheet({
     });
   }
 
+  // void selectItem(String value) {
+  //   controller.text = value;
+  //   Navigator.pop(context, value);
+  // }
   void selectItem(String value) {
     controller.text = value;
-    Navigator.pop(context, value);
+    // 🚀 THE MAGIC FIX: rootNavigator: true se sirf BottomSheet band hoga, KYC page nahi hilega!
+    Navigator.of(context, rootNavigator: true).pop(value);
   }
 
   // =========================================
@@ -71,7 +75,11 @@ Future<String?> showSelectionBottomSheet({
                           ),
                           IconButton(
                             icon: const Icon(Icons.close),
-                            onPressed: () => Navigator.pop(context),
+                            // onPressed: () => Navigator.pop(context),
+                            onPressed: () => Navigator.of(
+                              context,
+                              rootNavigator: true,
+                            ).pop(),
                           ),
                         ],
                       ),

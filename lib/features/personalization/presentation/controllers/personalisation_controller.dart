@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart' as dio;
@@ -324,6 +325,7 @@ class PersonalisationController extends GetxController {
   // Observable states
   final isLoadingPU = false.obs;
   final imagePath = ''.obs;
+  XFile? selectedImageFile;
 
   // Form Controllers
   final nameController = TextEditingController();
@@ -342,6 +344,7 @@ class PersonalisationController extends GetxController {
     final XFile? image = await picker.pickImage(source: source);
     if (image != null) {
       imagePath.value = image.path;
+      selectedImageFile = image;
     }
   }
 
@@ -362,8 +365,38 @@ class PersonalisationController extends GetxController {
       'id': session.getUserData?.id, // Matches your Postman test ID
     };
 
-    if (imagePath.isNotEmpty) {
-      // Use Dio's MultipartFile
+    // if (selectedImageFile != null) {
+    //   if (kIsWeb) {
+    //     final bytes = await selectedImageFile!.readAsBytes();
+    //     data['image'] = dio.MultipartFile.fromBytes(
+    //       bytes,
+    //       filename: selectedImageFile!.name,
+    //     );
+    //   }
+    // } else
+    // if (imagePath.isNotEmpty) {
+    //   // Use Dio's MultipartFile
+    //   data['image'] = await dio.MultipartFile.fromFile(
+    //     imagePath.value,
+    //     filename: imagePath.value.split('/').last,
+    //   );
+    // }
+    if (selectedImageFile != null) {
+      if (kIsWeb) {
+        final bytes = await selectedImageFile!.readAsBytes();
+        data['image'] = dio.MultipartFile.fromBytes(
+          bytes,
+          filename: selectedImageFile!.name,
+        );
+      } else {
+        data['image'] = await dio.MultipartFile.fromFile(
+          selectedImageFile!.path,
+          filename: selectedImageFile!.name,
+        );
+      }
+    } else if (!kIsWeb &&
+        imagePath.isNotEmpty &&
+        !imagePath.value.startsWith('http')) {
       data['image'] = await dio.MultipartFile.fromFile(
         imagePath.value,
         filename: imagePath.value.split('/').last,
@@ -386,9 +419,7 @@ class PersonalisationController extends GetxController {
               name: apiData.data?.name,
               email: apiData.data?.email,
               image: apiData.data?.image,
-              panCard: apiData
-                  .data
-                  ?.panCard, // New path: 'storage/profile-images/...'
+              panCard: apiData.data?.panCard,
               // ... map other fields
             );
 
@@ -396,7 +427,8 @@ class PersonalisationController extends GetxController {
             await session.updateUserData(updatedUser);
           }
 
-          imagePath.value = ''; // Reset picker so UI shows network image
+          imagePath.value = '';
+          selectedImageFile = null;
           // Get.snackbar("Success", "Profile Updated");
           Get.back();
           ULoaders.success(title: 'Success', message: 'Profile Updated');
