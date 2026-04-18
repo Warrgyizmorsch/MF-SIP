@@ -836,6 +836,7 @@ class _MobileLayout extends StatelessWidget {
                 bottom: false,
                 child: Center(
                   child: CustomProfileAppbar(
+                    
                     // onProfiletap: () => navController.selectedIndex.value = 4,
                     // onProfiletap: () => navController.changePage(4),
                     onProfiletap: () => Get.toNamed(AppRoutes.personaldetails),

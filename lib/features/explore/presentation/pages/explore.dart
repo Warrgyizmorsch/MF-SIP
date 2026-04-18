@@ -1880,11 +1880,13 @@ class MutualFundCard extends StatelessWidget {
     this.isDelete = false,
     this.containercolor,
     required this.entity,
+    this.onTapOverride,
   });
 
   final bool isDelete;
   final Color? containercolor;
   final MutualFundListEntity entity;
+  final VoidCallback? onTapOverride;
   final CartController controller = Get.find<CartController>();
   final MutualFundController mutualFundController =
       Get.find<MutualFundController>();
@@ -1894,19 +1896,21 @@ class MutualFundCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Get.toNamed(
-          AppRoutes.funddetails,
-          arguments: {
-            'scheme': entity.baseSchemeName,
-            'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
-            'scheme_code': entity.schemeCode.toString(),
-            'email': entity.amc?.email,
-            'address': entity.amc?.address,
-            'contact': entity.amc?.contact,
+      onTap:
+          onTapOverride ??
+          () {
+            Get.toNamed(
+              AppRoutes.funddetails,
+              arguments: {
+                'scheme': entity.baseSchemeName,
+                'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
+                'scheme_code': entity.schemeCode.toString(),
+                'email': entity.amc?.email,
+                'address': entity.amc?.address,
+                'contact': entity.amc?.contact,
+              },
+            );
           },
-        );
-      },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         padding: const EdgeInsets.all(14),

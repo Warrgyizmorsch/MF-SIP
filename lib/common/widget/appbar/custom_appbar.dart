@@ -94,10 +94,10 @@ class CustomProfileAppbar extends StatelessWidget
                           ),
                           const SizedBox(width: 5),
 
-                          Icon(
-                            Icons.keyboard_arrow_down_sharp,
-                            color: iconColor,
-                          ),
+                          // Icon(
+                          //   Icons.keyboard_arrow_down_sharp,
+                          //   color: iconColor,
+                          // ),
                         ],
                       ),
                     ],

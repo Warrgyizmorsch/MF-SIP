@@ -34,6 +34,6 @@ class Fundhousebinding extends Bindings {
     Get.lazyPut(() => GetCategoriesFilterUsecases(Get.find()), fenix: true);
 
     // 5. Finally, register the Controller
-    Get.lazyPut(() => FundhouseController(Get.find(), Get.find()));
+    Get.lazyPut(() => FundhouseController(Get.find(), Get.find()), fenix: true);
   }
 }
