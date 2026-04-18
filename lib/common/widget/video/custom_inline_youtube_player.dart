@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/common/widget/video/full_video_player.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // 1. Alias the imports to avoid conflict
 import 'package:youtube_player_flutter/youtube_player_flutter.dart' as mobile;
@@ -189,6 +190,91 @@ class _InlineYouTubePlayerState extends State<InlineYouTubePlayer> {
           },
         ),
       ],
+    );
+  }
+}
+
+
+
+
+class ClickableYoutubeThumbnail extends StatelessWidget {
+
+  final String videoUrl;
+  final double width;
+
+  const ClickableYoutubeThumbnail({
+    super.key,
+    required this.videoUrl,
+    this.width = 300, 
+  });
+
+  String? _extractVideoId(String url) {
+    final RegExp regExp = RegExp(
+      r'.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*',
+      caseSensitive: false,
+    );
+    final Match? match = regExp.firstMatch(url);
+    return (match != null && match.groupCount >= 1 && match.group(1)!.length == 11) 
+        ? match.group(1) 
+        : null;
+  }
+
+  Future<void> _launchYoutubeVideo() async {
+    final Uri url = Uri.parse(videoUrl);
+    
+    // LaunchMode.externalApplication forces it to try opening the YouTube app first
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      debugPrint('Could not launch $url');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final String? videoId = _extractVideoId(videoUrl);
+    if (videoId == null) {
+      return Container(
+        width: width,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: const Center(child: Icon(Icons.broken_image, color: Colors.grey)),
+      );
+    }
+    return GestureDetector(
+      onTap: _launchYoutubeVideo,
+      child: Container(
+        width: width,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            )
+          ],
+          image: DecorationImage(
+            image: NetworkImage("https://img.youtube.com/vi/$videoId/hqdefault.jpg"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.6), // Dark translucent background
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withOpacity(0.5), width: 1.5),
+            ),
+            child: const Icon(
+              Icons.play_arrow_rounded,
+              color: Colors.white,
+              size: 38,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -22,6 +22,7 @@ import 'package:my_sip/features/explore/presentation/controller/fundhouse_contro
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/fund_details/presentation/controllers/fund_details_controller.dart';
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
+import 'package:my_sip/features/home/presentation/pages/video_list_page.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_calculator.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
@@ -836,7 +837,6 @@ class _MobileLayout extends StatelessWidget {
                 bottom: false,
                 child: Center(
                   child: CustomProfileAppbar(
-                    
                     // onProfiletap: () => navController.selectedIndex.value = 4,
                     // onProfiletap: () => navController.changePage(4),
                     onProfiletap: () => Get.toNamed(AppRoutes.personaldetails),
@@ -859,6 +859,7 @@ class _MobileLayout extends StatelessWidget {
                         onPressed: () => Get.toNamed(AppRoutes.notification),
                         iconColor: Ucolors.light,
                       ),
+                      const SizedBox(width: 2),
                       Obx(
                         () => Stack(
                           children: [
@@ -893,6 +894,8 @@ class _MobileLayout extends StatelessWidget {
                           ],
                         ),
                       ),
+                      const SizedBox(width: 2),
+
                       // Obx(
                       //   () => Stack(
                       //     children: [
@@ -1510,38 +1513,62 @@ class _MobileLayout extends StatelessWidget {
           ),
 
           // Videos
-          const SliverToBoxAdapter(
+          SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.fromLTRB(16, 20, 16, 0),
               child: USectionHeading(
                 title: 'Video’s & Blogs',
-                showActionButton: true,
+                // showActionButton: true,
                 buttonTitle: 'See all',
+                onPressed: () => Get.toNamed(AppRoutes.videoList),
               ),
             ),
           ),
+          // SliverToBoxAdapter(
+          //   child: SizedBox(
+          //     // height: size.height * 0.25,
+          //     height: 220,
+          //     child: ListView(
+          //       scrollDirection: Axis.horizontal,
+          //       padding: const EdgeInsets.symmetric(horizontal: 16),
+          //       children: const [
+          //         InlineYouTubePlayer(
+          //           thumbnailUrl:
+          //               "https://img.youtube.com/vi/yo5aL4Plbso/maxresdefault.jpg",
+          //           videoId: "yo5aL4Plbso",
+          //         ),
+          //         // YoutubeThumbnail(videoId: 'yo5aL4Plbso'),
+          //         SizedBox(width: 16),
+          //         InlineYouTubePlayer(
+          //           thumbnailUrl:
+          //               "https://img.youtube.com/vi/t7lUSiddFd4/maxresdefault.jpg",
+          //           videoId: "t7lUSiddFd4",
+          //         ),
+
+          //         // YoutubeThumbnail(videoId: 't7lUSiddFd4'),
+          //         SizedBox(width: 16),
+          //       ],
+          //     ),
+          //   ),
+          // ),
+          // const SliverToBoxAdapter(child: SizedBox(height: 24)),
           SliverToBoxAdapter(
             child: SizedBox(
-              // height: size.height * 0.25,
-              height: 220,
+              height: 180,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
+                physics: const BouncingScrollPhysics(),
                 children: const [
-                  InlineYouTubePlayer(
-                    thumbnailUrl:
-                        "https://img.youtube.com/vi/yo5aL4Plbso/maxresdefault.jpg",
-                    videoId: "yo5aL4Plbso",
+                  ClickableYoutubeThumbnail(
+                    videoUrl:
+                        "https://youtu.be/GQyWIur03aw?si=in2rtMrwYx3d5EgL",
                   ),
-                  // YoutubeThumbnail(videoId: 'yo5aL4Plbso'),
                   SizedBox(width: 16),
-                  InlineYouTubePlayer(
-                    thumbnailUrl:
-                        "https://img.youtube.com/vi/t7lUSiddFd4/maxresdefault.jpg",
-                    videoId: "t7lUSiddFd4",
+                  ClickableYoutubeThumbnail(
+                    videoUrl:
+                        "https://youtu.be/xuVUGgB3kGE?si=0Kje6W2zqSxEtUuu",
                   ),
-
-                  // YoutubeThumbnail(videoId: 't7lUSiddFd4'),
                   SizedBox(width: 16),
                 ],
               ),

@@ -20,6 +20,7 @@ import 'package:my_sip/features/goal/presentation/pages/goalsuccess.dart';
 import 'package:my_sip/features/goal/presentation/pages/goalviewcard.dart';
 import 'package:my_sip/features/goal/presentation/pages/ihavegoal.dart';
 import 'package:my_sip/features/home/presentation/pages/home.dart';
+import 'package:my_sip/features/home/presentation/pages/video_list_page.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/sip_calculator.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/swp_calci.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_calculator.dart';
@@ -214,6 +215,7 @@ class AppPages {
     ),
     GetPage(name: AppRoutes.comingSoon, page: () => ComingSoon()),
     GetPage(name: AppRoutes.bankDetails, page: () => BankDetailsScreen()),
+    GetPage(name: AppRoutes.videoList, page: () => VideoListScreen()),
 
   ];
 }

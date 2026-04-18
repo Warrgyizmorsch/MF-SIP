@@ -1641,7 +1641,8 @@ class _FilterpageState extends State<Filterpage> {
                 onPressed: () => Get.back(result: controller.buildParam()),
                 child: Center(
                   child: Text(
-                    'View All ${controller.selectedFundCount}',
+                    // 'View All ${controller.selectedFundCount}',
+                    'View All',
                     style: TextStyle(color: Ucolors.light),
                   ),
                 ),

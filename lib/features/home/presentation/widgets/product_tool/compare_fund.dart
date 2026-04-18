@@ -1,552 +1,15 @@
-// import 'dart:developer';
-
-// import 'package:flutter/material.dart';
-// import 'package:gap/gap.dart';
-// import 'package:get/get.dart';
-// import 'package:my_sip/common/widget/images/custom_cached_image.dart';
-// import 'package:my_sip/core/utils/constant/colors.dart';
-// import 'package:my_sip/core/utils/constant/text_style.dart';
-// import 'package:my_sip/features/fund_details/presentation/controllers/fund_details_controller.dart';
-
-// import '../../../../fund_details/presentation/pages/fund_deatails.dart';
-
-// class CompareFundsPage extends GetView<FundDetailsController> {
-//   CompareFundsPage({super.key});
-
-//   final List<Map<String, dynamic>> returns = [
-//     {
-//       "title": "1Y",
-//       "values": ['-', "-"],
-//     },
-//     {
-//       "title": "3Y",
-//       "values": ["-", "-"],
-//     },
-//     {
-//       "title": "5Y",
-//       "values": ["-", "-"],
-//     },
-//     {
-//       "title": "Since Inception",
-//       "values": ["-", "-"],
-//     },
-//   ];
-
-//   final List<Map<String, dynamic>> prosAndCons = [
-//     {
-//       "title": "Pros",
-//       "values": ["-", "-"],
-//     },
-//     {
-//       "title": "Cons",
-//       "values": ["-", "-"],
-//     },
-//   ];
-
-//   final List<Map<String, dynamic>> fundManagers = [
-//     {
-//       "title": "Name",
-//       "values": ["-", "-"],
-//     },
-//     {
-//       "title": "Education",
-//       "values": ["-", "-"],
-//     },
-//     {
-//       "title": "Experience",
-//       "values": ["-", "-"],
-//     },
-//   ];
-
-//   final List<Map<String, dynamic>> aboutFund = [
-//     {
-//       "title": "Description",
-//       "values": ["-", "-"],
-//     },
-//     {
-//       "title": "Launch Date",
-//       "values": ["-", "-"],
-//     },
-//     {
-//       "title": "Custodian",
-//       "values": ["-", "-"],
-//     },
-//     {
-//       "title": "Registrar & Transfer Agent",
-//       "values": ["-", "-"],
-//     },
-//   ];
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final arg = Get.arguments as Map<String, dynamic>?;
-//     final name = arg?['name'];
-//     final name2 = arg?['name2'];
-//     log(arg.toString() + ' No argu');
-//     return Scaffold(
-//       // backgroundColor: Colors.grey,
-//       backgroundColor: Colors.white.withOpacity(0.985),
-//       appBar: AppBar(
-//         leading: const BackButton(),
-//         title: const Text("Compare Funds"),
-//       ),
-//       body: SingleChildScrollView(
-//         child: Column(
-//           children: [
-//             Gap(12),
-//             // _addFundSection(context),
-//             Row(
-//               children: [
-//                 Expanded(
-//                   child: Comparecard(
-//                     isAdd: name ?? true,
-//                     title:
-//                         name ??
-//                         'Nippon India Large Cap Fund- Growth Plan- Growth Option',
-//                     url: controller.imgUrl,
-//                   ),
-//                 ),
-
-//                 Gap(2),
-
-//                 // Expanded(child: headercard1('Add A fund', ' ', false)),
-//                 Expanded(
-//                   child: Comparecard(title: name2 ?? '', url: ''),
-//                 ),
-//               ],
-//             ),
-//             Gap(12),
-//             _compareTitle(),
-//             const SizedBox(height: 12),
-//             DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-
-//             CompareExpansion(title: "FUND DETAILS", child: FundDetailsTable()),
-//             DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-//             CompareExpansion(
-//               title: "RETURNS",
-//               // child: _placeholder("Returns data"
-//               // ),
-//               // child: FundDetailsTable(),
-//               child: CompareTable(data: returns),
-//             ),
-//             DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-
-//             CompareExpansion(
-//               title: "PROS & CONS",
-//               // child: _placeholder("Pros & Cons"),
-//               child: CompareTable(data: prosAndCons),
-//             ),
-//             DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-
-//             CompareExpansion(
-//               title: "TOP 5 HOLDINGS",
-//               child: _placeholder("Holdings"),
-//               // child: CompareTable(data: data),
-//             ),
-//             DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-
-//             CompareExpansion(
-//               title: "FUND MANAGERS",
-//               // child: _placeholder("Managers"),
-//               child: CompareTable(data: fundManagers),
-//             ),
-//             DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-
-//             CompareExpansion(
-//               title: "ABOUT FUND",
-//               // child: _placeholder("About fund"),
-//               child: CompareTable(data: aboutFund),
-//             ),
-//             DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-
-//             CompareExpansion(
-//               title: "POPULAR COMPARISONS",
-//               child: _placeholder("Popular comparisons"),
-//             ),
-//             DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   // Widget headercard1(String title, String url, bool isAdd) {
-//   //   return comparecard();
-//   // }
-
-//   // ---------------- ADD FUND SECTION ----------------
-//   Widget _addFundSection(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.all(12),
-//       child: Row(
-//         children: List.generate(
-//           2,
-//           (index) => Expanded(
-//             child: GestureDetector(
-//               onTap: () => _openSearchBottomSheet(context),
-//               child: Container(
-//                 height: 100,
-//                 margin: EdgeInsets.only(right: index == 0 ? 8 : 0),
-//                 decoration: BoxDecoration(
-//                   border: Border.all(color: Colors.grey.shade300),
-//                   borderRadius: BorderRadius.circular(12),
-//                 ),
-//                 child: Column(
-//                   mainAxisAlignment: MainAxisAlignment.center,
-//                   children: const [
-//                     Icon(
-//                       Icons.add_circle_outline,
-//                       color: Colors.blue,
-//                       size: 30,
-//                     ),
-//                     SizedBox(height: 8),
-//                     Text(
-//                       "Add a fund",
-//                       style: TextStyle(fontWeight: FontWeight.w500),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   // ---------------- TITLE ----------------
-//   Widget _compareTitle() {
-//     return Padding(
-//       padding: const EdgeInsets.symmetric(horizontal: 16),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: const [
-//           Text(
-//             "Compare Funds",
-//             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-//           ),
-//           // SizedBox(height: 6),
-//           Text(
-//             "Detailed comparison on parameters like NAV | Returns | Risk | Rating | Analysis",
-//             style: TextStyle(color: Colors.grey),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   // ---------------- SEARCH BOTTOM SHEET ----------------
-//   void _openSearchBottomSheet(BuildContext context) {
-//     showModalBottomSheet(
-//       context: context,
-//       isScrollControlled: true,
-//       backgroundColor: Colors.transparent,
-//       builder: (_) {
-//         return Container(
-//           height: MediaQuery.of(context).size.height * 0.6,
-//           decoration: const BoxDecoration(
-//             color: Colors.white,
-//             borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-//           ),
-//           child: Column(
-//             children: [
-//               Container(
-//                 padding: const EdgeInsets.all(16),
-//                 color: Ucolors.primary,
-//                 width: double.infinity,
-//                 child: const Center(
-//                   child: Text(
-//                     "SEARCH MUTUAL FUNDS",
-//                     style: TextStyle(
-//                       color: Colors.white,
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//               Padding(
-//                 padding: const EdgeInsets.all(12),
-//                 child: TextField(
-//                   decoration: InputDecoration(
-//                     hintText: "Search fund",
-//                     prefixIcon: const Icon(Icons.search),
-//                     border: OutlineInputBorder(
-//                       borderRadius: BorderRadius.circular(8),
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         );
-//       },
-//     );
-//   }
-
-//   Widget _placeholder(String text) {
-//     return SizedBox(height: 120, child: Center(child: Text(text)));
-//   }
-// }
-
-// class Comparecard extends StatelessWidget {
-//   const Comparecard({
-//     super.key,
-//     required this.title,
-//     required this.url,
-//     this.isAdd = false,
-//   });
-
-//   final String title;
-//   final String url;
-//   final bool isAdd;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       onTap: () => _openSearchBottomSheet(context),
-//       child: Card(
-//         elevation: 5,
-//         color: Colors.white,
-
-//         child: SizedBox(
-//           height: 130,
-//           child: Padding(
-//             padding: const EdgeInsets.all(16.0),
-//             child: !isAdd
-//                 ? Column(
-//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-
-//                     children: [
-//                       Row(
-//                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                         children: [
-//                           CircleAvatar(
-//                             maxRadius: 18,
-//                             // backgroundImage: AssetImage(url),
-//                             child: CustomCachedImage(imageUrl: url),
-//                           ),
-//                           Icon(
-//                             Icons.compare_arrows_outlined,
-//                             color: Ucolors.red,
-//                           ),
-//                         ],
-//                       ),
-//                       // Gap(3),
-//                       Text(
-//                         overflow: TextOverflow.ellipsis,
-//                         maxLines: 3,
-//                         title,
-//                         style: UTextStyles.medium.copyWith(
-//                           color: Ucolors.dark,
-//                           fontWeight: FontWeight.w500,
-//                         ),
-//                       ),
-//                     ],
-//                   )
-//                 : Center(
-//                     child: Column(
-//                       mainAxisAlignment: MainAxisAlignment.center,
-//                       children: [Icon(Icons.add), Text('Add fund')],
-//                     ),
-//                   ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   void _openSearchBottomSheet(BuildContext context) {
-//     showModalBottomSheet(
-//       context: context,
-//       isScrollControlled: true,
-//       backgroundColor: Colors.transparent,
-//       builder: (_) {
-//         return Container(
-//           height: MediaQuery.of(context).size.height * 0.9,
-//           decoration: const BoxDecoration(
-//             color: Colors.white,
-//             borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-//           ),
-//           child: Column(
-//             children: [
-//               Container(
-//                 padding: const EdgeInsets.all(16),
-//                 color: Ucolors.primary,
-//                 width: double.infinity,
-//                 child: const Center(
-//                   child: Text(
-//                     "SEARCH MUTUAL FUNDS",
-//                     style: TextStyle(
-//                       color: Colors.white,
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//               Padding(
-//                 padding: const EdgeInsets.all(12),
-//                 child: TextField(
-//                   decoration: InputDecoration(
-//                     hintText: "Search fund",
-//                     prefixIcon: const Icon(Icons.search),
-//                     border: OutlineInputBorder(
-//                       borderRadius: BorderRadius.circular(8),
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         );
-//       },
-//     );
-//   }
-// }
-
-// // ================= EXPANSION TILE =================
-// class CompareExpansion extends StatelessWidget {
-//   final String title;
-//   final Widget child;
-
-//   const CompareExpansion({super.key, required this.title, required this.child});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return ExpansionTile(
-//       dense: true,
-//       shape: Border.all(color: Colors.black),
-
-//       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-//       // childrenPadding: const EdgeInsets.all(12),
-//       children: [child],
-//     );
-//   }
-// }
-
-// // ================= FUND DETAILS TABLE =================
-// class FundDetailsTable extends StatelessWidget {
-//   FundDetailsTable({super.key});
-
-//   final List<Map<String, String>> rows = [
-//     {"title": "Risk", "left": "-", "right": "-"},
-//     {"title": "Rating", "left": "-", "right": "-"},
-//     {"title": "Min SIP Amount", "left": "-", "right": "-"},
-//     {"title": "Expense Ratio", "left": "-", "right": "-"},
-//     {"title": "Fund Started", "left": "-", "right": "-"},
-//     {"title": "Exit Load", "left": "-", "right": "-"},
-//   ];
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       children: rows.map((row) {
-//         return Column(
-//           children: [
-//             Container(
-//               color: Colors.grey.shade100,
-//               padding: const EdgeInsets.symmetric(vertical: 10),
-//               width: double.infinity,
-//               child: Center(
-//                 child: Text(
-//                   row["title"]!,
-//                   style: const TextStyle(fontWeight: FontWeight.w500),
-//                 ),
-//               ),
-//             ),
-//             Row(
-//               children: [_valueCell(row["left"]!), _valueCell(row["right"]!)],
-//             ),
-//           ],
-//         );
-//       }).toList(),
-//     );
-//   }
-
-//   Widget _valueCell(String value) {
-//     return Expanded(
-//       child: Container(
-//         height: 45,
-//         alignment: Alignment.center,
-//         decoration: BoxDecoration(
-//           border: Border(
-//             right: BorderSide(color: Colors.grey.shade300),
-//             bottom: BorderSide(color: Colors.grey.shade300),
-//           ),
-//         ),
-//         child: Text(value),
-//       ),
-//     );
-//   }
-// }
-
-// class CompareTable extends StatelessWidget {
-//   /// Each item:
-//   /// {
-//   ///   "title": "1Y",
-//   ///   "values": ["-", "-"]
-//   /// }
-//   final List<Map<String, dynamic>> data;
-
-//   const CompareTable({super.key, required this.data});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       children: data.map((row) {
-//         final List<String> values = List<String>.from(row["values"]);
-
-//         return Column(
-//           children: [
-//             // Header row
-//             Container(
-//               width: double.infinity,
-//               padding: const EdgeInsets.symmetric(vertical: 12),
-//               color: Colors.grey.shade100,
-//               child: Center(
-//                 child: Text(
-//                   row["title"],
-//                   style: const TextStyle(fontWeight: FontWeight.w600),
-//                 ),
-//               ),
-//             ),
-
-//             // Value row
-//             Row(
-//               children: values
-//                   .map((value) => Expanded(child: _valueCell(value)))
-//                   .toList(),
-//             ),
-//           ],
-//         );
-//       }).toList(),
-//     );
-//   }
-
-//   Widget _valueCell(String value) {
-//     return Container(
-//       height: 48,
-//       alignment: Alignment.center,
-//       decoration: BoxDecoration(
-//         border: Border(
-//           right: BorderSide(color: Colors.grey.shade300),
-//           bottom: BorderSide(color: Colors.grey.shade300),
-//         ),
-//       ),
-//       child: Text(value, style: const TextStyle(fontSize: 14)),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/fund_details/domain/entity/fund_detail_entity.dart';
@@ -555,12 +18,9 @@ import 'package:my_sip/features/fund_details/presentation/controllers/comparefun
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart'
     hide parseFundManagers;
 
-// Import the new controller
-
 class CompareFundsPage extends GetView<CompareFundController> {
   CompareFundsPage({super.key});
 
-  // We need MutualFundController ONLY for the search list
   final MutualFundController mutualFundController =
       Get.find<MutualFundController>();
 
@@ -613,6 +73,54 @@ class CompareFundsPage extends GetView<CompareFundController> {
                 ),
               ),
 
+              // --- 1. HEADER SELECTION CARDS ---
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(horizontal: 12),
+              //   child: Row(
+              //     children: [
+              //       // FUND 1
+              //       Expanded(
+              //         child: CompareCardOption(
+              //           fund: f1Basic,
+              //           isLoading: controller.isFund1Loading.value,
+              //           onTap: () => _openSearchSheet(context, 1),
+              //           onRemove: () => controller.removeFund(1),
+              //           onAddToCart: () {
+              //             // Get.find<CartController>().addToCart(schemeCode, schemeName, minSipAmount, goalId)
+
+              //             // Get.toNamed(AppRoutes.cart);
+              //           },
+              //           onAddToWishlist: () {
+              //             // Get.snackbar(
+              //             //   "Added",
+              //             //   "${f1Basic?.baseSchemeName} added to Watchlist",
+              //             // );
+              //           },
+              //         ),
+              //       ),
+              //       const Gap(8),
+              //       // FUND 2
+              //       Expanded(
+              //         child: CompareCardOption(
+              //           fund: f2Basic,
+              //           isLoading: controller.isFund2Loading.value,
+              //           onTap: () => _openSearchSheet(context, 2),
+              //           onRemove: () => controller.removeFund(2),
+              //           onAddToCart: () {
+              //             // TODO: Call your cart API here for Fund 2
+              //             // Get.toNamed(AppRoutes.cart);
+              //           },
+              //           onAddToWishlist: () {
+              //             // Get.snackbar(
+              //             //   "Added",
+              //             //   "${f2Basic?.baseSchemeName} added to Watchlist",
+              //             // );
+              //           },
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
               const Gap(12),
               _compareTitle(),
               const SizedBox(height: 12),
@@ -697,28 +205,15 @@ class CompareFundsPage extends GetView<CompareFundController> {
     ];
   }
 
-  // List<Map<String, dynamic>> _getManagerData(
-  //   FundDetailEntity? d1,
-  //   FundDetailEntity? d2,
-  // ) {
-  //   return [
-  //     {
-  //       "title": "Manager",
-  //       "values": [d1?.schemeManager ?? "-", d2?.schemeManager ?? "-"],
-  //     },
-  //   ];
-  // }
   List<Map<String, dynamic>> _getManagerData(
     FundDetailEntity? d1,
     FundDetailEntity? d2,
   ) {
-    // Helper to process the raw string: Parse -> Check Empty -> Join
     String formatManagers(String? raw) {
       final List<String> names = parseFundManagers(raw);
 
       if (names.isEmpty) return "-";
 
-      // Join with a newline ("\n") so names appear one below the other
       return names.join("\n");
     }
 
@@ -733,10 +228,7 @@ class CompareFundsPage extends GetView<CompareFundController> {
     ];
   }
 
-  // --- SEARCH BOTTOM SHEET ---
   void _openSearchSheet(BuildContext context, int slot) {
-    // Clear previous search when opening
-    // mutualFundController.searchFundFn('');
     mutualFundController.onSearchQueryChanged;
 
     showModalBottomSheet(
@@ -1093,80 +585,6 @@ class CompareTable extends StatelessWidget {
   }
 }
 
-// Special Table for Holdings (Just showing top 3 names for brevity)
-// class HoldingsCompareTable extends StatelessWidget {
-//   final SchemeDetailsEntity? p1;
-//   final SchemeDetailsEntity? p2;
-
-//   const HoldingsCompareTable({super.key, this.p1, this.p2});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     // Get top 3 holdings
-//     List<String> getTop(SchemeDetailsEntity? p) {
-//       if (p == null || p.schemePortfolioHoldingsNamesString.isEmpty)
-//         return ["-", "-", "-"];
-//       return p.schemePortfolioHoldingsNamesString.take(5).toList();
-//     }
-
-//     final list1 = getTop(p1);
-//     final list2 = getTop(p2);
-
-//     return Column(
-//       children: List.generate(5, (index) {
-//         return Row(
-//           children: [
-//             Expanded(
-//               child: Container(
-//                 padding: const EdgeInsets.symmetric(
-//                   vertical: 15,
-//                   horizontal: 5,
-//                 ),
-//                 // height: 60,
-//                 alignment: Alignment.center,
-//                 decoration: BoxDecoration(
-//                   border: Border(
-//                     right: BorderSide(color: Colors.grey.shade300),
-//                     bottom: BorderSide(color: Colors.grey.shade300),
-//                   ),
-//                 ),
-//                 child: Text(
-//                   list1.length > index ? list1[index] : "-",
-//                   textAlign: TextAlign.center,
-//                   overflow: TextOverflow.ellipsis,
-//                   maxLines: 1,
-//                   style: const TextStyle(fontSize: 11),
-//                 ),
-//               ),
-//             ),
-//             Expanded(
-//               child: Container(
-//                 padding: const EdgeInsets.symmetric(
-//                   vertical: 15,
-//                   horizontal: 5,
-//                 ),
-//                 // height: 60,
-//                 alignment: Alignment.center,
-//                 decoration: BoxDecoration(
-//                   border: Border(
-//                     bottom: BorderSide(color: Colors.grey.shade300),
-//                   ),
-//                 ),
-//                 child: Text(
-//                   list2.length > index ? list2[index] : "-",
-//                   textAlign: TextAlign.center,
-//                   maxLines: 1,
-//                   overflow: TextOverflow.ellipsis,
-//                   style: const TextStyle(fontSize: 11),
-//                 ),
-//               ),
-//             ),
-//           ],
-//         );
-//       }),
-//     );
-//   }
-// }
 class HoldingsCompareTable extends StatelessWidget {
   final SchemeDetailsEntity? p1;
   final SchemeDetailsEntity? p2;
@@ -1298,4 +716,197 @@ class CompareExpansion extends StatelessWidget {
     title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
     children: [child],
   );
+}
+
+class CompareCardOption extends StatelessWidget {
+  final MutualFundListEntity? fund;
+  final bool isLoading;
+  final VoidCallback onTap;
+  final VoidCallback onRemove;
+  final VoidCallback? onAddToCart; // 👈 NEW
+  final VoidCallback? onAddToWishlist; // 👈 NEW
+
+  const CompareCardOption({
+    super.key,
+    required this.fund,
+    required this.isLoading,
+    required this.onTap,
+    required this.onRemove,
+    this.onAddToCart,
+    this.onAddToWishlist,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Card(
+        color: Colors.white,
+        child: SizedBox(
+          height: 130,
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+
+    if (fund == null) {
+      return GestureDetector(
+        onTap: onTap,
+        child: Card(
+          elevation: 2,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(
+              color: Colors.grey.shade200,
+              style: BorderStyle.solid,
+            ), // Modern dashed/dotted look alternative
+          ),
+          child: SizedBox(
+            height: 130,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.add_circle_outline,
+                  color: Ucolors.primary,
+                  size: 30,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "Add a fund",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Card(
+      elevation: 4,
+      color: Colors.white,
+      shadowColor: Colors.black.withOpacity(0.1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: SizedBox(
+        height: 130,
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ClipOval(
+                    child: Container(
+                      height: 40,
+                      width: 40,
+                      color: Colors.grey.shade50,
+                      child: CustomCachedImage(
+                        imageUrl: '${Appurl.baseUrl}${fund?.amc?.amcLogoUrl}',
+                      ),
+                    ),
+                  ),
+                  const Gap(8),
+                  Text(
+                    fund?.baseSchemeName ?? '',
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: UTextStyles.medium.copyWith(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      height: 1.2,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // --- THE NEW 3-DOT MENU ---
+            Positioned(
+              top: 0,
+              right: 0,
+              child: PopupMenuButton<int>(
+                icon: const Icon(Icons.more_vert, size: 20, color: Colors.grey),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                color: Colors.white,
+                elevation: 4,
+                onSelected: (value) {
+                  if (value == 0 && onAddToCart != null) onAddToCart!();
+                  if (value == 1 && onAddToWishlist != null) onAddToWishlist!();
+                  if (value == 2) onRemove();
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 0,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Iconsax.shopping_cart,
+                          size: 18,
+                          color: Ucolors.primary,
+                        ),
+                        const SizedBox(width: 10),
+                        const Text(
+                          'Add to Cart',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 1,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Iconsax.archive_add,
+                          size: 18,
+                          color: Ucolors.primary,
+                        ),
+                        const SizedBox(width: 10),
+                        const Text(
+                          'Watchlist',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuDivider(),
+                  PopupMenuItem(
+                    value: 2,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.close, size: 18, color: Colors.red),
+                        const SizedBox(width: 10),
+                        const Text(
+                          'Remove',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

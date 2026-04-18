@@ -45,4 +45,5 @@ class AppRoutes {
   static const swpCalculator = '/swpCalci';
   static const comingSoon = '/comingSoon';
   static const bankDetails = '/bankDetails';
+  static const videoList = '/videoList';
 }

@@ -40,7 +40,6 @@ class CompareFundController extends GetxController {
         returnsEntity: ReturnsEntity(),
         schemeCode: '',
         baseSchemeName: args['name'],
-        // Add other fields if passed in args, or leave null
         schemeType: '',
         riskLevel: '',
         isin: '',

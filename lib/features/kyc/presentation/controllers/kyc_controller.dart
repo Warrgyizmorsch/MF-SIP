@@ -467,16 +467,23 @@ class KycController extends GetxController {
         (error) async {
           ULoaders.stopLoading();
 
-          if (errorMessage.contains('invalid') ||
-              errorMessage.contains('pan') ||
-              error.message.contains('User not found') ||
-              errorMessage.contains('400')) {
+          await Future.delayed(const Duration(milliseconds: 300));
+
+          final String safeErrorMessage = error.message.toLowerCase();
+
+          if (safeErrorMessage.contains('invalid') ||
+              safeErrorMessage.contains('pan') ||
+              safeErrorMessage.contains('422') ||
+              safeErrorMessage.contains('no pan details') ||
+              safeErrorMessage.contains('user not found') ||
+              safeErrorMessage.contains('400')) {
             ULoaders.error(
               title: "Invalid PAN",
               message:
-                  "The PAN number you entered is incorrect. Please check and try again.",
+                  "The PAN number you entered is incorrect or not found. Please check and try again.",
             );
-            return null; // Return NULL to stop the flow!
+
+            return null; // Return NULL to safely stop the flow!
           }
           // Get.snackbar("Error", "Check KYC failed Proceeding to verification.");
           // await Future.delayed(const Duration(seconds: 2));

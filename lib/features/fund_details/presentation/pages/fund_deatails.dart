@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/animated/empty_filled.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/wishlist/presentation/controller/wishlist_controller.dart';
 import 'package:readmore/readmore.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
@@ -105,6 +106,94 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                         },
                       )
                     : const SizedBox.shrink(),
+              );
+            }),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: isDesktop
+          ? null
+          : Obx(() {
+              if (controller.isLoading.value || controller.hasError.value) {
+                return const SizedBox.shrink();
+              }
+
+              return Container(
+                height: 48,
+                width: 48,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  border: Border.all(color: Colors.grey.shade300, width: 1),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: PopupMenuButton<int>(
+                  padding: EdgeInsets.zero,
+                  icon: const Icon(Icons.more_horiz, color: Ucolors.primary),
+                  offset: const Offset(0, -115),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  color: Colors.white,
+                  elevation: 4,
+                  onSelected: (value) async {
+                    if (value == 0) {
+                      await Get.find<WishlistController>().addToWishList(
+                        controller.schemeCode.toString(),
+                        controller.schemeName.toString(),
+                      );
+                    } else if (value == 1) {
+                      await cartController.addToCart(
+                        controller.schemeCode,
+                        controller.schemeName,
+                        controller.fundDetail.value?.sipMinimumAmount ?? 1000,
+                        transType: 'sip',
+
+                        null,
+                      );
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 0,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.bookmark_border,
+                            size: 20,
+                            color: Colors.grey.shade800,
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Add to Watchlist',
+                            style: TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 1,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.shopping_cart_outlined,
+                            size: 20,
+                            color: Colors.grey.shade800,
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Add to Cart',
+                            style: TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               );
             }),
     );
@@ -257,10 +346,13 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
             icon: Iconsax.shopping_cart,
             onPressed: () => Get.toNamed(AppRoutes.cart),
           ),
+          const SizedBox(width: 5),
+
           CompactIcon(
             icon: Iconsax.archive_tick,
             onPressed: () => Get.toNamed(AppRoutes.watchlist),
           ),
+          const SizedBox(width: 5),
         ],
       ),
     );
@@ -1997,14 +2089,44 @@ class _MobileFundDetailsLayout extends StatelessWidget {
         actionsPadding: 10,
         title: 'Fund Details',
         action: [
-          CompactIcon(
-            icon: Iconsax.shopping_cart,
-            onPressed: () => Get.toNamed(AppRoutes.cart),
+          Obx(
+            () => Stack(
+              children: [
+                CompactIcon(
+                  icon: Iconsax.shopping_cart,
+                  onPressed: () {
+                    Get.find<CartController>().filterGoalId.value = null;
+                    Get.toNamed(AppRoutes.cart);
+                  },
+                  iconColor: Ucolors.dark,
+                ),
+                if (Get.find<CartController>().generalItemsCount > 0)
+                  Positioned(
+                    right: 0,
+                    top: -5,
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: const BoxDecoration(
+                        color: Ucolors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        Get.find<CartController>().generalItemsCount.toString(),
+                        style: UTextStyles.buttonText.copyWith(fontSize: 10),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
+
+          const SizedBox(width: 8),
+
           CompactIcon(
             icon: Iconsax.archive_tick,
             onPressed: () => Get.toNamed(AppRoutes.watchlist),
           ),
+          const SizedBox(width: 5),
         ],
       ),
     );

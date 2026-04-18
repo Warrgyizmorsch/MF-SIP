@@ -1418,36 +1418,6 @@ class _MobileExploreLayout extends StatelessWidget {
               backgroundColor: Ucolors.light,
               actionsPadding: 15,
               action: [
-                // Obx(() {
-                //   final count = cartController.itemsCount1;
-                //   return Stack(
-                //     children: [
-                //       CompactIcon(
-                //         icon: Iconsax.shopping_cart,
-                //         onPressed: () => Get.toNamed(AppRoutes.cart),
-                //         iconColor: Ucolors.dark,
-                //       ),
-                //       if (count > 0)
-                //         Positioned(
-                //           right: 0,
-                //           top: -5,
-                //           child: Container(
-                //             padding: const EdgeInsets.all(5),
-                //             decoration: const BoxDecoration(
-                //               color: Ucolors.red,
-                //               shape: BoxShape.circle,
-                //             ),
-                //             child: Text(
-                //               count.toString(),
-                //               style: UTextStyles.buttonText.copyWith(
-                //                 fontSize: 10,
-                //               ),
-                //             ),
-                //           ),
-                //         ),
-                //     ],
-                //   );
-                // }),'
                 Obx(
                   () => Stack(
                     children: [
@@ -1456,7 +1426,6 @@ class _MobileExploreLayout extends StatelessWidget {
                         onPressed: () {
                           Get.find<CartController>().filterGoalId.value = null;
                           Get.toNamed(AppRoutes.cart);
-                          // cartController.fetchCart();
                         },
                         iconColor: Ucolors.dark,
                       ),
@@ -1481,6 +1450,7 @@ class _MobileExploreLayout extends StatelessWidget {
                     ],
                   ),
                 ),
+                const SizedBox(width: 5),
                 CompactIcon(
                   icon: Iconsax.archive_tick,
                   onPressed: () => Get.toNamed(AppRoutes.watchlist),
@@ -1998,24 +1968,6 @@ class MutualFundCard extends StatelessWidget {
                               );
                               await controller.fetchCart();
 
-                              // controller.addItem(
-                              //   CartItem(
-                              //     fundId: entity.amc?.id?.toString() ?? '',
-                              //     fundName: entity.baseSchemeName ?? '',
-                              //     logoUrl: entity.amc?.amcLogoUrl ?? '',
-                              //   ),
-                              // );
-                              // Get.snackbar(
-                              //   'Add to cart',
-                              //   entity.baseSchemeName.toString(),
-                              //   margin: const EdgeInsets.symmetric(
-                              //     vertical: 15,
-                              //     horizontal: 15,
-                              //   ),
-                              //   colorText: Ucolors.light,
-                              //   snackPosition: SnackPosition.BOTTOM,
-                              //   backgroundColor: Ucolors.primary,
-                              // );
                               break;
 
                             case FundMenuAction.buySIP:
