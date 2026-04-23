@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
@@ -8,8 +10,10 @@ import '../../../core/utils/enums/enums.dart';
 class CustomTextField extends StatefulWidget {
   final String? label;
   final String? hint;
+  final String? helperText;
   final String? errorText;
   final bool obscureText;
+  final bool readOnly;
   final Widget? trailing;
   final VoidCallback? onTrailingTap;
   final Widget? leading;
@@ -53,6 +57,8 @@ class CustomTextField extends StatefulWidget {
   final double? height;
   final double? borderRadius;
 
+  final VoidCallback? onHelperTap;
+
   const CustomTextField({
     super.key,
     this.label,
@@ -92,6 +98,9 @@ class CustomTextField extends StatefulWidget {
     this.height = 30,
     this.textInputAction,
     this.borderRadius = 14,
+    this.helperText,
+    this.readOnly = false,
+    this.onHelperTap,
   });
 
   @override
@@ -217,6 +226,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   AbsorbPointer(
                     absorbing: !widget.isEnabled,
                     child: TextFormField(
+                      readOnly: widget.readOnly,
                       maxLength: widget.maxLength,
                       focusNode: widget.focusNode,
                       controller: widget.controller,
@@ -253,6 +263,24 @@ class _CustomTextFieldState extends State<CustomTextField> {
                           color: widget.labelColor,
                           fontSize: widget.labelSize,
                         ),
+                        helper: widget.helperText != null
+                            ? InkWell(
+                                onTap: widget.onHelperTap,
+                                child: Text(
+                                  widget.helperText!,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: widget.onHelperTap != null
+                                        ? Colors.blue.shade700
+                                        : Colors.grey.shade600,
+                                    decoration: widget.onHelperTap != null
+                                        ? TextDecoration.underline
+                                        : TextDecoration.none,
+                                  ),
+                                ),
+                              )
+                            : null,
+
                         hintText: widget.hint,
                         hintStyle: TextStyle(
                           color: widget.isEnabled

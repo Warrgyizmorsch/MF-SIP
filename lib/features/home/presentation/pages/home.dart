@@ -1520,7 +1520,7 @@ class _MobileLayout extends StatelessWidget {
                 title: 'Video’s & Blogs',
                 // showActionButton: true,
                 buttonTitle: 'See all',
-                onPressed: () => Get.toNamed(AppRoutes.videoList),
+                onPressed: () => Get.toNamed(AppRoutes.videoList,),
               ),
             ),
           ),
@@ -1562,7 +1562,7 @@ class _MobileLayout extends StatelessWidget {
                 children: const [
                   ClickableYoutubeThumbnail(
                     videoUrl:
-                        "https://youtu.be/GQyWIur03aw?si=in2rtMrwYx3d5EgL",
+                        "https://youtu.be/2B8b2E9JPzk?si=69cT1kC-Er_TNNCB",
                   ),
                   SizedBox(width: 16),
                   ClickableYoutubeThumbnail(

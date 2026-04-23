@@ -821,6 +821,9 @@ class PersonalDetailsScreen extends GetView<AuthController> {
         const SizedBox(height: 5),
         Obx(
           () => CustomTextField(
+            // enabled: personalisationController.canEditPan.value,
+            readOnly: !Get.find<PersonalisationController>().canEditPan.value,
+
             borderColor: Colors.grey.shade200,
             height: MediaQuery.of(context).size.height * 0.065,
             hint: DocumentFormatterFactory.getHint("Pan"),

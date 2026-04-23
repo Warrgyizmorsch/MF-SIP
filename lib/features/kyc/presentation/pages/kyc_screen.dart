@@ -1866,6 +1866,7 @@ import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/common/widget/images/image_picker.dart';
 import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
 import 'package:my_sip/common/widget/text_form/text_field_component.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
@@ -2147,6 +2148,16 @@ class KycScreen extends GetView<KycController> {
                   const SizedBox(height: 24),
                   Obx(
                     () => CustomTextField(
+                      onHelperTap: () async {
+                        await Get.toNamed(AppRoutes.personaldetails);
+                        final updatedPan =
+                            controller.session.getUserData?.panCard ?? '';
+
+                        controller.panTextEditingController.text = updatedPan;
+                      },
+
+                      readOnly: true,
+                      helperText: "Tap here to change PAN from Profile",
                       validationType: ValidationType.required,
                       label: "PAN Number",
                       height: 70,

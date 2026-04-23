@@ -442,6 +442,7 @@ class KycController extends GetxController {
 
       // 1. Translate the UI values for the backend API
       final requestData = {
+        "uid": session.getUserData?.id,
         "pan_card": panTextEditingController.text.toUpperCase(),
         "modeOfHld": getModeOfHldCode(selectedModeOfHolding.value),
         "resdStatus": getResdStatusCode(selectedTaxStatus.value),

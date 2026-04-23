@@ -17,12 +17,16 @@ import 'package:my_sip/features/fund_details/domain/entity/portfolio_analysis_en
 import 'package:my_sip/features/fund_details/presentation/controllers/comparefund_controller.dart';
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart'
     hide parseFundManagers;
+import 'package:my_sip/features/wishlist/presentation/controller/wishlist_controller.dart';
 
 class CompareFundsPage extends GetView<CompareFundController> {
   CompareFundsPage({super.key});
 
   final MutualFundController mutualFundController =
       Get.find<MutualFundController>();
+
+  final CartController cartController = Get.find<CartController>();
+  final WishlistController wishlistController = Get.find<WishlistController>();
 
   @override
   Widget build(BuildContext context) {
@@ -48,79 +52,94 @@ class CompareFundsPage extends GetView<CompareFundController> {
               const Gap(12),
 
               // --- 1. HEADER SELECTION CARDS ---
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: CompareCard(
-                        fund: f1Basic,
-                        isLoading: controller.isFund1Loading.value,
-                        onTap: () => _openSearchSheet(context, 1),
-                        onRemove: () => controller.removeFund(1),
-                      ),
-                    ),
-                    const Gap(8),
-                    Expanded(
-                      child: CompareCard(
-                        fund: f2Basic,
-                        isLoading: controller.isFund2Loading.value,
-                        onTap: () => _openSearchSheet(context, 2),
-                        onRemove: () => controller.removeFund(2),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // --- 1. HEADER SELECTION CARDS ---
               // Padding(
               //   padding: const EdgeInsets.symmetric(horizontal: 12),
               //   child: Row(
               //     children: [
-              //       // FUND 1
               //       Expanded(
-              //         child: CompareCardOption(
+              //         child: CompareCard(
               //           fund: f1Basic,
               //           isLoading: controller.isFund1Loading.value,
               //           onTap: () => _openSearchSheet(context, 1),
               //           onRemove: () => controller.removeFund(1),
-              //           onAddToCart: () {
-              //             // Get.find<CartController>().addToCart(schemeCode, schemeName, minSipAmount, goalId)
-
-              //             // Get.toNamed(AppRoutes.cart);
-              //           },
-              //           onAddToWishlist: () {
-              //             // Get.snackbar(
-              //             //   "Added",
-              //             //   "${f1Basic?.baseSchemeName} added to Watchlist",
-              //             // );
-              //           },
               //         ),
               //       ),
               //       const Gap(8),
-              //       // FUND 2
               //       Expanded(
-              //         child: CompareCardOption(
+              //         child: CompareCard(
               //           fund: f2Basic,
               //           isLoading: controller.isFund2Loading.value,
               //           onTap: () => _openSearchSheet(context, 2),
               //           onRemove: () => controller.removeFund(2),
-              //           onAddToCart: () {
-              //             // TODO: Call your cart API here for Fund 2
-              //             // Get.toNamed(AppRoutes.cart);
-              //           },
-              //           onAddToWishlist: () {
-              //             // Get.snackbar(
-              //             //   "Added",
-              //             //   "${f2Basic?.baseSchemeName} added to Watchlist",
-              //             // );
-              //           },
               //         ),
               //       ),
               //     ],
               //   ),
               // ),
+
+              // --- 1. HEADER SELECTION CARDS ---
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  children: [
+                    // FUND 1
+                    Expanded(
+                      child: CompareCardOption(
+                        fund: f1Basic,
+                        isLoading: controller.isFund1Loading.value,
+                        onTap: () => _openSearchSheet(context, 1),
+                        onRemove: () => controller.removeFund(1),
+                        onAddToCart: () async {
+                          if (f1Basic != null) {
+                            await cartController.addToCart(
+                              f1Basic.schemeCode ?? '',
+                              f1Basic.baseSchemeName ?? '',
+                              f1Basic.minSipAmount ?? 0,
+                              null,
+                            );
+                          }
+                        },
+                        onAddToWishlist: () async {
+                          if (f1Basic != null) {
+                            await wishlistController.addToWishList(
+                              f1Basic.schemeCode ?? '',
+                              f1Basic.baseSchemeName ?? '',
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                    const Gap(8),
+                    // FUND 2
+                    Expanded(
+                      child: CompareCardOption(
+                        fund: f2Basic,
+                        isLoading: controller.isFund2Loading.value,
+                        onTap: () => _openSearchSheet(context, 2),
+                        onRemove: () => controller.removeFund(2),
+                        onAddToCart: () async {
+                          if (f2Basic != null) {
+                            await cartController.addToCart(
+                              f2Basic.schemeCode ?? '',
+                              f2Basic.baseSchemeName ?? '',
+                              f2Basic.minSipAmount ?? 0,
+                              null,
+                            );
+                          }
+                        },
+                        onAddToWishlist: () async {
+                          if (f2Basic != null) {
+                            await wishlistController.addToWishList(
+                              f2Basic.schemeCode ?? '',
+                              f2Basic.baseSchemeName ?? '',
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               const Gap(12),
               _compareTitle(),
               const SizedBox(height: 12),

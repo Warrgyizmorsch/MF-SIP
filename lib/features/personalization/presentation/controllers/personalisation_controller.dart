@@ -273,6 +273,7 @@ class PersonalisationController extends GetxController {
   final analysisText = "Analyzing your profile...".obs;
   final riskResult = Rxn<RiskResultModel>();
   final applock = false.obs;
+  final canEditPan = false.obs;
 
   // --- UI Controllers ---
   final PageController pageController = PageController();
@@ -450,6 +451,24 @@ class PersonalisationController extends GetxController {
 
   // ------------------------ Update Profile End ---------------------------------------///
 
+  /// ------------- edit pan status --- ////////
+
+  void _checkPanEditPermission() {
+    final status = session.getUserData?.kycStatus?.toLowerCase();
+
+    if (status == 'approved' || status == 'pending' || status == 'timed out') {
+      canEditPan.value = false;
+    }
+    // else if (status == 'not started' || status == null || status.isEmpty) {
+    //   canEditPan.value = true;
+    // }
+    else {
+      canEditPan.value = true;
+    }
+  }
+
+  /// ------------- edit pan status --- ////////
+
   double get currentTotalAllocation {
     if (nomineeList.value == null || nomineeList.value!.nominees.isEmpty) {
       return 0.0;
@@ -468,6 +487,7 @@ class PersonalisationController extends GetxController {
     super.onInit();
     panController.addListener(_onPanTextChanged);
     loadRiskQuestions();
+    _checkPanEditPermission();
   }
 
   void _onPanTextChanged() {
