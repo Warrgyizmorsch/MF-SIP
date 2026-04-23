@@ -324,13 +324,18 @@ class MutualFundController extends GetxController {
     selectedReturnYear.value = 3;
     currentSortLabel.value = "1Y,3Y,5Y";
 
-    // if (Get.isRegistered<FundhouseController>()) {
-    //   Get.find<FundhouseController>().clearAllFilters();
-    // }
-    // _resetAndFetch();
     if (Get.isRegistered<FundhouseController>()) {
       Get.find<FundhouseController>().resetUiStatesOnly();
     }
+  }
+
+  Future<void> silentReset() async {
+    currentPage = 1;
+    canLoadMore = true;
+
+    resetToDefaultStateOnly();
+
+    await fetchData(isLoadMore: false);
   }
 
   Future<void> handleRefresh() async {

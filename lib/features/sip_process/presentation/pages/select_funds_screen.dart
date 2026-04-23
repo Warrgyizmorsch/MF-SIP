@@ -1278,7 +1278,10 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
 
                       IconButton(
                         icon: const Icon(Icons.close, color: Colors.grey),
-                        onPressed: () => Get.back(),
+                        onPressed: () {
+                          FocusScope.of(context).unfocus();
+                          Navigator.of(context).pop();
+                        },
                         style: IconButton.styleFrom(
                           backgroundColor: Colors.grey.shade100,
                         ),
@@ -1412,7 +1415,9 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                 Expanded(
                   child: Obx(() {
                     if (mutualController.isLoading.value) {
-                      return const Center(
+                      return const Align(
+                        alignment: Alignment.topCenter,
+
                         child: CircularProgressIndicator(
                           color: Ucolors.primary,
                         ),
@@ -1608,7 +1613,10 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
           },
         );
       },
-    );
+    ).whenComplete(() {
+      mutualController.setSearchFocus(false);
+      mutualController.handleRefresh();
+    });
   }
 
   // void _showExploreMoreBottomSheet(BuildContext context) {

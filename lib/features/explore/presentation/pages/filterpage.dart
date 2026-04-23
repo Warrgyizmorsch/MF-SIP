@@ -1636,15 +1636,13 @@ class _FilterpageState extends State<Filterpage> {
           top: false,
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Obx(
-              () => UElevatedBUtton(
-                onPressed: () => Get.back(result: controller.buildParam()),
-                child: Center(
-                  child: Text(
-                    // 'View All ${controller.selectedFundCount}',
-                    'View All',
-                    style: TextStyle(color: Ucolors.light),
-                  ),
+            child: UElevatedBUtton(
+              onPressed: () => Get.back(result: controller.buildParam()),
+              child: Center(
+                child: Text(
+                  // 'View All ${controller.selectedFundCount}',
+                  'View All',
+                  style: TextStyle(color: Ucolors.light),
                 ),
               ),
             ),

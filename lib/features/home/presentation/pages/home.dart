@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:my_sip/common/widget/animated/popularfundanimation.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
@@ -20,6 +21,7 @@ import 'package:my_sip/features/authentication/presentation/controllers/auth/aut
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
+import 'package:my_sip/features/explore/presentation/pages/explore.dart';
 import 'package:my_sip/features/fund_details/presentation/controllers/fund_details_controller.dart';
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
 import 'package:my_sip/features/home/presentation/pages/video_list_page.dart';
@@ -1471,8 +1473,12 @@ class _MobileLayout extends StatelessWidget {
                 title: 'Popular Funds',
                 showActionButton: true,
                 // onPressed: () => navController.selectedIndex.value = 1,
-                onPressed: () =>
-                    navController.navigateToExploreWithFilter(null),
+                // onPressed: () =>
+                //     navController.navigateToExploreWithFilter(null),
+                onPressed: () {
+                  FocusScope.of(context).unfocus();
+                  _showPopularFundsSheet(context);
+                },
               ),
             ),
           ),
@@ -1520,7 +1526,7 @@ class _MobileLayout extends StatelessWidget {
                 title: 'Video’s & Blogs',
                 // showActionButton: true,
                 buttonTitle: 'See all',
-                onPressed: () => Get.toNamed(AppRoutes.videoList,),
+                onPressed: () => Get.toNamed(AppRoutes.videoList),
               ),
             ),
           ),
@@ -1578,6 +1584,275 @@ class _MobileLayout extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _showPopularFundsSheet(BuildContext context) {
+    final mutualController = Get.find<MutualFundController>();
+    final FocusNode searchFocus = FocusNode();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+      ),
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          minChildSize: 0.5,
+          maxChildSize: 0.96,
+          expand: false,
+          builder: (context, scrollController) {
+            return Column(
+              children: [
+                Center(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 12, bottom: 16),
+                    height: 5,
+                    width: 48,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Explore Funds",
+                            style: AppTextStyles.h2(color: Ucolors.dark),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "Search and discover mutual funds.",
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey.shade500,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.grey),
+                        onPressed: () {
+                          FocusScope.of(context).unfocus();
+
+                          Navigator.of(context).pop();
+                        },
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.grey.shade100,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    children: [
+                      Obx(() {
+                        final fundController = Get.find<FundhouseController>();
+                        final int filterCount =
+                            fundController.activeFilterCount;
+
+                        return Badge(
+                          isLabelVisible: filterCount > 0,
+                          backgroundColor: Ucolors.primary,
+                          label: Text(
+                            '$filterCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          alignment: const Alignment(0.7, -0.7),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade300),
+                              shape: BoxShape.circle,
+                            ),
+                            child: CompactIcon(
+                              icon: Icons.tune,
+                              onPressed: () async {
+                                final result = await Get.toNamed(
+                                  AppRoutes.filterpage,
+                                );
+                                if (result != null &&
+                                    result is Map<String, dynamic>) {
+                                  mutualController.applyFilters(result);
+                                }
+                              },
+                            ),
+                          ),
+                        );
+                      }),
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 12),
+                        height: 30,
+                        width: 1,
+                        color: Colors.grey.shade300,
+                      ),
+                      Expanded(
+                        child: SizedBox(
+                          height: 44,
+                          child: Obx(() {
+                            final bool isSearching =
+                                mutualController.hasSearchFocus.value;
+
+                            return Row(
+                              children: [
+                                Expanded(
+                                  child: SearchBar(
+                                    onTap: () =>
+                                        mutualController.setSearchFocus(true),
+                                    onTapOutside: (event) {
+                                      searchFocus.unfocus();
+                                      mutualController.setSearchFocus(false);
+                                    },
+                                    focusNode: searchFocus,
+                                    backgroundColor: MaterialStateProperty.all(
+                                      Colors.grey.shade50,
+                                    ),
+                                    leading: Icon(
+                                      Icons.search,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                    hintText: 'Search mutual funds...',
+                                    hintStyle: MaterialStateProperty.all(
+                                      TextStyle(
+                                        color: Colors.grey.shade500,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    onChanged: (value) => mutualController
+                                        .onSearchQueryChanged(value),
+                                    elevation: MaterialStateProperty.all(0),
+                                    side: MaterialStateProperty.all(
+                                      BorderSide(color: Colors.grey.shade200),
+                                    ),
+                                  ),
+                                ),
+                                if (!isSearching) ...[
+                                  const SizedBox(width: 8),
+                                  InkWell(
+                                    onTap: () =>
+                                        mutualController.cycleGlobalSort(),
+                                    borderRadius: BorderRadius.circular(14),
+                                    child: FilterChip(
+                                      label: mutualController
+                                          .currentSortLabel
+                                          .value,
+                                      icon: Icons.sort,
+                                      isSelected:
+                                          mutualController
+                                              .currentSortLabel
+                                              .value !=
+                                          "1Y,3Y,5Y",
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            );
+                          }),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Divider(color: Colors.grey.shade200, height: 20),
+
+                Expanded(
+                  child: Obx(() {
+                    if (mutualController.isLoading.value) {
+                      return const Align(
+                        alignment: Alignment.topCenter,
+
+                        child: CircularProgressIndicator(
+                          color: Ucolors.primary,
+                        ),
+                      );
+                    }
+
+                    if (mutualController.searchFund.isEmpty) {
+                      return Center(
+                        child: Text(
+                          "No mutual funds found",
+                          style: TextStyle(color: Colors.grey.shade600),
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      controller: scrollController,
+                      padding: const EdgeInsets.only(bottom: 20),
+                      itemCount:
+                          mutualController.searchFund.length +
+                          (mutualController.isMoreLoading.value ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index == mutualController.searchFund.length) {
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 24),
+                            child: Center(
+                              child: SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  color: Ucolors.primary,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
+                        final fund = mutualController.searchFund[index];
+                        // return ModernStaggeredItem(
+                        //   index: index,
+                        //   child: MutualFundCard(entity: fund),
+                        // );
+
+                        return MutualFundCard(entity: fund);
+                      },
+                    );
+                  }),
+                ),
+              ],
+            );
+          },
+        );
+      },
+      // ).whenComplete(() {
+      //   mutualController.setSearchFocus(false);
+
+      //   mutualController.handleRefresh();
+      // });
+    ).whenComplete(() {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        mutualController.setSearchFocus(false);
+
+        Get.find<FundhouseController>().clearAllFilters();
+
+        mutualController.silentReset();
+      });
+    });
   }
 }
 
@@ -1928,6 +2203,45 @@ class CollectionItem extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class FilterChip extends StatelessWidget {
+  final String label;
+  final IconData? icon;
+  final bool isSelected;
+  const FilterChip({required this.label, this.icon, this.isSelected = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 0),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        margin: const EdgeInsets.only(left: 5),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected ? Ucolors.textFormEnabled : Colors.grey.shade300,
+          ),
+        ),
+        child: Row(
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 16),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              label,
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall!.copyWith(fontSize: 10),
+            ),
+          ],
+        ),
       ),
     );
   }

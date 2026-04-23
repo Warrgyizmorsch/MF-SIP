@@ -1915,8 +1915,8 @@ class NavigationMenuBar extends StatelessWidget {
                               case 2:
                                 return DashboardScreen();
                               case 3:
-                                // return const GoalScreen();
-                                return const ComingSoon();
+                                return const GoalScreen();
+                              // return const ComingSoon();
 
                               // Profile Sub-categories
                               case 40:
@@ -2171,7 +2171,6 @@ class GlobalTopHeader extends StatelessWidget {
                     width: 300,
                     height: 40,
                     child: SearchBar(
-                      
                       // focusNode: searchFocus,
                       elevation: MaterialStateProperty.all(0),
                       backgroundColor: MaterialStateProperty.all(
