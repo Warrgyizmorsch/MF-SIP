@@ -190,7 +190,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                           color: Colors.transparent,
                           child: Container(
                             color: Colors.white,
-                            // color: Colors.transparent,
                             child: Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -205,6 +204,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                                   const Text(
                                     "MF SIP Secured",
                                     style: TextStyle(
+                                      fontFamily: 'Geist',
+
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                     ),

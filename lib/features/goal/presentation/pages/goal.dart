@@ -79,9 +79,7 @@ class GoalScreen extends GetView<GoalSipController> {
                 const SizedBox(height: 4),
                 Text(
                   'You haven\'t set any savings goals yet',
-                  style: UTextStyles.small_heading.copyWith(
-                    color: Ucolors.darkgrey,
-                  ),
+                  style: UTextStyles.bodySmall,
                 ),
                 const SizedBox(height: 25),
                 UElevatedBUtton(
@@ -114,9 +112,7 @@ class GoalScreen extends GetView<GoalSipController> {
                 // Subtitle count
                 Text(
                   '${goals.length} Active Goal${goals.length == 1 ? '' : 's'}',
-                  style: UTextStyles.small_heading.copyWith(
-                    color: Ucolors.darkgrey,
-                  ),
+                  style: UTextStyles.bodySmall,
                 ),
                 const SizedBox(height: 16),
 

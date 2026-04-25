@@ -83,11 +83,11 @@ class KycController extends GetxController {
 
   // --- Gender Data ---
   final genderList = ["MALE", "FEMALE", "OTHER"];
-  final selectedGender = "MALE".obs;
+  final selectedGender = "FEMALE".obs;
 
   // --- Gender Data ---
   final maritalList = ["MARRIED", "UNMARRIED", "OTHERS"];
-  final selectedMaritalStatus = "MARRIED".obs;
+  final selectedMaritalStatus = "".obs;
 
   // Mode of Holding ---
   final modeOfHoldingList = ["Single", "Joint", "Anyone or Survivor"];
@@ -201,6 +201,12 @@ class KycController extends GetxController {
       TextEditingController();
   final TextEditingController occupationOtherTextEditingController =
       TextEditingController();
+  final TextEditingController maritalStatusTextEditingController =
+      TextEditingController();
+  final TextEditingController cityTextEditingController =
+      TextEditingController();
+  final TextEditingController stateTextEditingController =
+      TextEditingController();
 
   bool isMinor = false;
   final TextEditingController nomineeNameTextEditingController =
@@ -218,6 +224,8 @@ class KycController extends GetxController {
   final TextEditingController nomineeAddressTextEditingController =
       TextEditingController();
   final TextEditingController nomineePinCodeTextEditingController =
+      TextEditingController();
+  final TextEditingController spouseNameTextEditingController =
       TextEditingController();
   // --- Nominee Address Checkbox State ---
   final isNomineeAddressSameAsApplicant = false.obs;
@@ -249,7 +257,6 @@ class KycController extends GetxController {
       return;
     }
 
-    // 2. Decide logic based on the current step
     switch (currentStep.value) {
       case 0:
         // --- STEP 0: IDENTITY (DigiLocker Flow) ---
@@ -262,11 +269,6 @@ class KycController extends GetxController {
               await _handleDigiLockerFlow();
             }
           } else if (needsKyc == false) {
-            //AWHPM7811L   testing pan num
-            // Get.snackbar(
-            //   "KYC Verified",
-            //   "Your KYC is already completed! You can start investing.",
-            // );
             ULoaders.success(
               title: 'KYC Verified',
               message:
@@ -282,36 +284,14 @@ class KycController extends GetxController {
         break;
 
       case 1:
-        // --- STEP 1: PERSONAL DETAILS ---
+        // --- STEP 1: PERSONAL DETAILS (MERGED SCREEN) ---
         if (step2FormKey.currentState!.validate()) {
-          _goToNextPage();
-        }
-        break;
-
-      case 2:
-        // --- STEP 2: ADDITIONAL INFO ---
-        if (step3FormKey.currentState!.validate()) {
           _handleAdditionalInfoSubmission();
         }
         break;
 
-      case 3:
-        // --- STEP 3: NOMINEE DETAILS ---
-        if (step4_1FormKey.currentState!.validate()) {
-          _goToNextPage();
-        }
-        break;
-
-      case 4:
-        // --- STEP 4: NOMINEE VERIFICATION ---
-        if (step4_2FormKey.currentState!.validate()) {
-          _updateFormKycDataSubmission(); // This method should call _goToNextPage() on success
-        }
-        break;
-
-      case 5:
-        // --- STEP 5: LIVE PHOTO ONLY (Old Step 6) ---
-        // 🔴 Signature requirement completely removed!
+      case 2:
+        // --- STEP 2: LIVE PHOTO ---
         if (!photoUploadSuccess.value) {
           Get.snackbar("Alert", "Please capture your live photo.");
           return;
@@ -319,14 +299,146 @@ class KycController extends GetxController {
         _goToNextPage();
         break;
 
-      case 6:
-        // --- STEP 6: AADHAAR E-SIGN (Old Step 7) ---
+      case 3:
+        // --- STEP 3: AADHAAR E-SIGN ---
         await startEsignProcess();
         break;
-
-      default:
-        _goToNextPage();
     }
+
+    // switch (currentStep.value) {
+    //   case 0:
+    //     // --- STEP 0: IDENTITY (DigiLocker Flow) ---
+    //     if (step1FormKey.currentState!.validate()) {
+    //       final bool? needsKyc = await checkKycStatus();
+    //       if (needsKyc == true) {
+    //         final bool onboardingSuccess = await saveOnboardingData();
+
+    //         if (onboardingSuccess) {
+    //           await _handleDigiLockerFlow();
+    //         }
+    //       } else if (needsKyc == false) {
+    //         //AWHPM7811L   testing pan num
+    //         // Get.snackbar(
+    //         //   "KYC Verified",
+    //         //   "Your KYC is already completed! You can start investing.",
+    //         // );
+    //         ULoaders.success(
+    //           title: 'KYC Verified',
+    //           message:
+    //               'Your KYC is already completed! You can start investing.',
+    //         );
+    //         session.setKycVerified(true);
+    //         await Future.delayed(const Duration(seconds: 2));
+    //         Get.offAllNamed(AppRoutes.navMenuBar);
+    //       } else {
+    //         return;
+    //       }
+    //     }
+    //     break;
+
+    //   case 1:
+    //     // --- STEP 1: PERSONAL DETAILS ---
+    //     if (step2FormKey.currentState!.validate()) _goToNextPage();
+    //     break;
+    //   case 2:
+    //     // --- STEP 2: ADDITIONAL INFO (Triggers the massive API chain) ---
+    //     if (step3FormKey.currentState!.validate()) {
+    //       _handleAdditionalInfoSubmission();
+    //     }
+    //     break;
+    //   case 3:
+    //     // --- STEP 3: LIVE PHOTO (Old Step 5) ---
+    //     if (!photoUploadSuccess.value) {
+    //       Get.snackbar("Alert", "Please capture your live photo.");
+    //       return;
+    //     }
+    //     _goToNextPage();
+    //     break;
+    //   case 4:
+    //     // --- STEP 4: AADHAAR E-SIGN (Old Step 6) ---
+    //     await startEsignProcess();
+    //     break;
+    // }
+
+    // 2. Decide logic based on the current step
+    // switch (currentStep.value) {
+    //   case 0:
+    //     // --- STEP 0: IDENTITY (DigiLocker Flow) ---
+    //     if (step1FormKey.currentState!.validate()) {
+    //       final bool? needsKyc = await checkKycStatus();
+    //       if (needsKyc == true) {
+    //         final bool onboardingSuccess = await saveOnboardingData();
+
+    //         if (onboardingSuccess) {
+    //           await _handleDigiLockerFlow();
+    //         }
+    //       } else if (needsKyc == false) {
+    //         //AWHPM7811L   testing pan num
+    //         // Get.snackbar(
+    //         //   "KYC Verified",
+    //         //   "Your KYC is already completed! You can start investing.",
+    //         // );
+    //         ULoaders.success(
+    //           title: 'KYC Verified',
+    //           message:
+    //               'Your KYC is already completed! You can start investing.',
+    //         );
+    //         session.setKycVerified(true);
+    //         await Future.delayed(const Duration(seconds: 2));
+    //         Get.offAllNamed(AppRoutes.navMenuBar);
+    //       } else {
+    //         return;
+    //       }
+    //     }
+    //     break;
+
+    //   case 1:
+    //     // --- STEP 1: PERSONAL DETAILS ---
+    //     if (step2FormKey.currentState!.validate()) {
+    //       _goToNextPage();
+    //     }
+    //     break;
+
+    //   case 2:
+    //     // --- STEP 2: ADDITIONAL INFO ---
+    //     if (step3FormKey.currentState!.validate()) {
+    //       _handleAdditionalInfoSubmission();
+    //     }
+    //     break;
+
+    //   case 3:
+    //     // --- STEP 3: NOMINEE DETAILS ---
+    //     if (step4_1FormKey.currentState!.validate()) {
+    //       _goToNextPage();
+    //     }
+    //     break;
+
+    //   case 4:
+    //     // --- STEP 4: NOMINEE VERIFICATION ---
+    //     if (step4_2FormKey.currentState!.validate()) {
+    //       _updateFormKycDataSubmission(); // This method should call _goToNextPage() on success
+    //     }
+    //     break;
+
+    //   case 5:
+    //     // --- STEP 5: LIVE PHOTO ONLY (Old Step 6) ---
+    //     // 🔴 Signature requirement completely removed!
+    //     if (!photoUploadSuccess.value) {
+    //       Get.snackbar("Alert", "Please capture your live photo.");
+    //       return;
+    //     }
+    //     _goToNextPage();
+    //     break;
+
+    //   case 6:
+    //     // --- STEP 6: AADHAAR E-SIGN (Old Step 7) ---
+    //     await startEsignProcess();
+    //     break;
+
+    //   default:
+    //     _goToNextPage();
+    // }
+
     // switch (currentStep.value) {
     //   case 0:
 
@@ -1924,10 +2036,16 @@ class KycController extends GetxController {
           incomeSlabTextEditingController.text,
         ),
         'occupation': occupationTextEditingController.text,
-        'marital_status': materialTextSelectionControls.toString(),
+        'marital_status': selectedMaritalStatus.value,
         'father_name': fatherNameTextEditingController.text,
         'mother_name': motherNameTextEditingController.text,
         'adhar': executePOIStep2Data.value?.result.output.uid,
+        "city": executePOIStep2Data.value?.result.output.splitAddress.district,
+
+        "state": executePOIStep2Data.value?.result.output.splitAddress.state,
+        "pin_code":
+            executePOIStep2Data.value?.result.output.splitAddress.pincode,
+        // "image": executePOIStep2Data.value?.result.output.photo,
       };
 
       final poaExecuteResult = await executePOA(data: poaRequestData);
@@ -1936,34 +2054,60 @@ class KycController extends GetxController {
       // 3. Save to YOUR backend
       await saveUserData(saveData);
 
-      if (poaExecuteResult) {
-        // Send the Address Data as "addressProof"
-        // This saves whatever is currently in your address text controllers
-        final bool formUpdated = await updateForm(data: requestData);
+      // if (poaExecuteResult) {
+      //   // Send the Address Data as "addressProof"
+      //   // This saves whatever is currently in your address text controllers
+      //   final bool formUpdated = await updateForm(data: requestData);
 
-        isLoading.value = false;
+      //   isLoading.value = false;
+
+      //   if (formUpdated) {
+      //     await _submitUserForensics("address");
+      //     ULoaders.stopLoading();
+      //     ULoaders.success(
+      //       title: "Success",
+      //       message: "Additional details saved successfully.",
+      //     );
+      //     await Future.delayed(const Duration(seconds: 1));
+      //     _goToNextPage(); // Move to Additional Info
+      //   } else {
+      //     ULoaders.stopLoading();
+      //     isLoading.value = false;
+      //   }
+      // }
+
+      if (poaExecuteResult) {
+        final bool formUpdated = await updateForm(data: requestData);
 
         if (formUpdated) {
           await _submitUserForensics("address");
-          ULoaders.stopLoading();
-          ULoaders.success(
-            title: "Success",
-            message: "Additional details saved successfully.",
-          );
-          await Future.delayed(const Duration(seconds: 1));
-          _goToNextPage(); // Move to Additional Info
+
+          // 🔴 NEW: Immediately call the automated KYC Data submission!
+          final kycDataSuccess = await _updateFormKycDataSubmission();
+
+          if (kycDataSuccess) {
+            ULoaders.stopLoading();
+            ULoaders.success(
+              title: "Success",
+              message: "Details verified successfully.",
+            );
+            await Future.delayed(const Duration(seconds: 1));
+            _goToNextPage(); // Move straight to Live Photo!
+          } else {
+            ULoaders.stopLoading();
+            isLoading.value = false;
+          }
         } else {
           ULoaders.stopLoading();
           isLoading.value = false;
         }
-      } else {
-        ULoaders.stopLoading();
-        isLoading.value = false;
       }
     } catch (e) {
       ULoaders.stopLoading();
       isLoading.value = false;
       Get.snackbar("Error", "Unexpected error: $e");
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -1971,6 +2115,10 @@ class KycController extends GetxController {
   Future<void> saveUserData(Map<String, dynamic> requestData) async {
     try {
       // Assuming updateProfileUsecases is injected via your constructor/binding
+      log(
+        "✅ User profile successfully synced to our local database ${requestData}",
+      );
+
       final result = await updateUserData.call(requestData);
 
       result.fold(
@@ -2230,141 +2378,227 @@ class KycController extends GetxController {
     }
   }
 
-  Future<void> _updateFormKycDataSubmission() async {
+  Future<bool> _updateFormKycDataSubmission() async {
     try {
-      isLoading.value = true;
-      ULoaders.showLoading(message: "Submitting KYC Data...");
+      final isMarried = selectedMaritalStatus.value.toUpperCase() == "MARRIED";
+      final isFemale = selectedGender.value.toUpperCase() == "FEMALE";
+
+      // 🔴 AUTOMATED NOMINEE LOGIC
+      final relation = isMarried ? "SPOUSE" : "FATHER";
+      final nomineeName = isMarried
+          ? spouseNameTextEditingController.text
+          : fatherNameTextEditingController.text;
+      final nomineeTitle = isMarried
+          ? (isFemale ? "Mr." : "Mrs.") // If applicant is female, spouse is Mr.
+          : "Mr."; // Father is always Mr.
 
       final requestData = {
         "merchantId":
             SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
-
         "save": "formData",
         "type": "kycdata",
         "data": {
           "type": "kycdata",
           "kycData": {
-            "name":
-                nameTextEditingController.text, // Required for PAN verification
-            "dob": dateOfBirthTextEditingController
-                .text, // Required for PAN verification
-            // "panNumber": panTextEditingController.text,
-            "panNumber":
-                // SessionManager.instance.getUserData?.panCard ??
-                panTextEditingController.text,
+            "name": nameTextEditingController.text,
+            "dob": dateOfBirthTextEditingController.text,
+            "panNumber": panTextEditingController.text,
+            // "gender": isFemale ? "F" : "M",
+            "gender": selectedGender.value.toUpperCase().startsWith('F')
+                ? "F"
+                : selectedGender.value.toUpperCase().startsWith('T')
+                ? "T"
+                : "M",
+            "maritalStatus": selectedMaritalStatus.value.toUpperCase(),
 
-            // // 1. NOMINEE DETAILS
-            "nomineeRelationShip": nomineeRelationTextEditingController.text
-                .toUpperCase(), // FATHER, SPOUSE, etc.
-            // 2. APPLICANT DETAILS (MANDATORY RE-SEND)
-            // Personal
-            "gender": selectedGender.value == "MALE" ? "M" : "F",
-            "maritalStatus": selectedMaritalStatus.value, // MARRIED / UNMARRIED
-            "fatherTitle": "Mr.",
-            "fatherName": fatherNameTextEditingController.text, // REQUIRED
+            // 🔴 AUTOMATED ASSIGNMENTS
+            "nomineeRelationShip": relation,
+            "fatherTitle": nomineeTitle,
+            "fatherName": nomineeName,
             "motherTitle": "Mrs.",
-            "motherName": motherNameTextEditingController.text, // REQUIRED
-            // Identity
-            // "panNumber": panTextEditingController.text,
-            // Use raw UID from DigiLocker data if available, else empty string
+            "motherName": motherNameTextEditingController.text,
+
             "aadhaarNumber": executePOIStep2Data.value?.result.output.uid ?? "",
-
-            // Contact (User's info)
-            "mobileNumber": SessionManager
-                .instance
-                .getUserData
-                ?.mobile, // Get from User Profile
-            "emailId": SessionManager
-                .instance
-                .getUserData
-                ?.email, // Get from User Profile
+            "mobileNumber": SessionManager.instance.getUserData?.mobile,
+            "emailId": SessionManager.instance.getUserData?.email,
             "countryCode": 91,
-
-            // Financials (Send CODES, e.g., "01", "32")
             "occupationCode": getOccupationCode(
               occupationTextEditingController.text,
             ),
-
             "occupationDescription": occupationTextEditingController.text,
             "annualIncome": getIncomeCode(incomeSlabTextEditingController.text),
             "occupationOther": occupationOtherTextEditingController.text,
-
-            // Regulatory Flags
-            // "residentForTaxInIndia": "YES",
-            // "rpep": "NO", // Relative of Politically Exposed Person
-            // "pep": "NO",  // Politically Exposed Person
             "residentialStatus": selectedTaxStatus.value,
             "applicationStatusDescription": selectedTaxStatus.value,
             "applicationStatusCode": getApplicationStatusCode(
               selectedTaxStatus.value,
             ),
-            // "citizenshipCountryCode": "IN",
             "citizenshipCountry": "India",
             "placeOfBirth": "India",
             "kycAccountCode": "01",
             "kycAccountDescription": "New",
-
-            // Address Codes (Required defaults)
-            "permanentAddressCode": "01", // Residential
+            "permanentAddressCode": "01",
             "permanentAddressType": "Residential",
-            "communicationAddressCode": "01", // Residential
+            "communicationAddressCode": "01",
             "communicationAddressType": "Residential",
             "citizenshipCountryCode": "101",
           },
         },
       };
 
-      // Send the Address Data as "addressProof"
-      // This saves whatever is currently in your address text controllers
-      final bool nomineeSaved = await updateForm(data: requestData);
-      // final bool nomineeSaved = true;
+      final bool kycSaved = await updateForm(data: requestData);
 
-      final saveRequestData = {
-        "customer_id": session.getUserData?.id,
-        "name": nomineeNameTextEditingController.text,
-        "relation": nomineeRelationTextEditingController.text,
-        "dob": formatToSqlDate(nomineeDateOfBirthTextEditingController.text),
-        "allocation_percent": '100',
-        // Send 1 if minor, 0 if not
-        "is_minor": 0,
-        "guardian_name": '',
-        "email": nomineeEmailTextEditingController.text,
-        "phone_number": nomineeMobileTextEditingController.text,
-        "document_type": selectedNomineeDocument.toString(),
-        "document_number": nomineeSelectedDocumentTextEditingController.text,
-        "address": nomineeAddressTextEditingController.text,
-      };
-
-      await saveNomineeToDatabase(saveRequestData);
-
-      isLoading.value = false;
-
-      if (nomineeSaved) {
+      if (kycSaved) {
+        // Chain the FATCA and Address APIs automatically
         final result = await _submitFatcaData();
         if (result == true) {
           await _submitUserForensics("fatca");
           final corrResult = await _submitCorrespondenceAddress();
-          // _goToNextPage(); // Move to Additional Info
-          if (corrResult == true) {
-            // 2. STOP LOADER & SHOW SUCCESS
-            ULoaders.stopLoading();
-            ULoaders.success(
-              title: "Success",
-              message: "Nominee & FATCA details verified.",
-            );
-            await Future.delayed(const Duration(seconds: 1));
-            _goToNextPage(); // Move to the next screen safely!
-          }
+          if (corrResult == true) return true; // All done!
         }
       }
-      ULoaders.stopLoading();
-      isLoading.value = false;
+      return false;
     } catch (e) {
-      ULoaders.stopLoading();
-      isLoading.value = false;
       Get.snackbar("Error", "Unexpected error: $e");
+      return false;
     }
   }
+
+  // Future<void> _updateFormKycDataSubmission() async {
+  //   try {
+  //     isLoading.value = true;
+  //     ULoaders.showLoading(message: "Submitting KYC Data...");
+
+  //     final requestData = {
+  //       "merchantId":
+  //           SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
+
+  //       "save": "formData",
+  //       "type": "kycdata",
+  //       "data": {
+  //         "type": "kycdata",
+  //         "kycData": {
+  //           "name":
+  //               nameTextEditingController.text, // Required for PAN verification
+  //           "dob": dateOfBirthTextEditingController
+  //               .text, // Required for PAN verification
+  //           // "panNumber": panTextEditingController.text,
+  //           "panNumber":
+  //               // SessionManager.instance.getUserData?.panCard ??
+  //               panTextEditingController.text,
+
+  //           // // 1. NOMINEE DETAILS
+  //           "nomineeRelationShip": nomineeRelationTextEditingController.text
+  //               .toUpperCase(), // FATHER, SPOUSE, etc.
+  //           // 2. APPLICANT DETAILS (MANDATORY RE-SEND)
+  //           // Personal
+  //           "gender": selectedGender.value == "MALE" ? "M" : "F",
+  //           "maritalStatus": selectedMaritalStatus.value, // MARRIED / UNMARRIED
+  //           "fatherTitle": "Mr.",
+  //           "fatherName": fatherNameTextEditingController.text, // REQUIRED
+  //           "motherTitle": "Mrs.",
+  //           "motherName": motherNameTextEditingController.text, // REQUIRED
+  //           // Identity
+  //           // "panNumber": panTextEditingController.text,
+  //           // Use raw UID from DigiLocker data if available, else empty string
+  //           "aadhaarNumber": executePOIStep2Data.value?.result.output.uid ?? "",
+
+  //           // Contact (User's info)
+  //           "mobileNumber": SessionManager
+  //               .instance
+  //               .getUserData
+  //               ?.mobile, // Get from User Profile
+  //           "emailId": SessionManager
+  //               .instance
+  //               .getUserData
+  //               ?.email, // Get from User Profile
+  //           "countryCode": 91,
+
+  //           // Financials (Send CODES, e.g., "01", "32")
+  //           "occupationCode": getOccupationCode(
+  //             occupationTextEditingController.text,
+  //           ),
+
+  //           "occupationDescription": occupationTextEditingController.text,
+  //           "annualIncome": getIncomeCode(incomeSlabTextEditingController.text),
+  //           "occupationOther": occupationOtherTextEditingController.text,
+
+  //           // Regulatory Flags
+  //           // "residentForTaxInIndia": "YES",
+  //           // "rpep": "NO", // Relative of Politically Exposed Person
+  //           // "pep": "NO",  // Politically Exposed Person
+  //           "residentialStatus": selectedTaxStatus.value,
+  //           "applicationStatusDescription": selectedTaxStatus.value,
+  //           "applicationStatusCode": getApplicationStatusCode(
+  //             selectedTaxStatus.value,
+  //           ),
+  //           // "citizenshipCountryCode": "IN",
+  //           "citizenshipCountry": "India",
+  //           "placeOfBirth": "India",
+  //           "kycAccountCode": "01",
+  //           "kycAccountDescription": "New",
+
+  //           // Address Codes (Required defaults)
+  //           "permanentAddressCode": "01", // Residential
+  //           "permanentAddressType": "Residential",
+  //           "communicationAddressCode": "01", // Residential
+  //           "communicationAddressType": "Residential",
+  //           "citizenshipCountryCode": "101",
+  //         },
+  //       },
+  //     };
+
+  //     // Send the Address Data as "addressProof"
+  //     // This saves whatever is currently in your address text controllers
+  //     final bool nomineeSaved = await updateForm(data: requestData);
+  //     // final bool nomineeSaved = true;
+
+  //     final saveRequestData = {
+  //       "customer_id": session.getUserData?.id,
+  //       "name": nomineeNameTextEditingController.text,
+  //       "relation": nomineeRelationTextEditingController.text,
+  //       "dob": formatToSqlDate(nomineeDateOfBirthTextEditingController.text),
+  //       "allocation_percent": '100',
+  //       // Send 1 if minor, 0 if not
+  //       "is_minor": 0,
+  //       "guardian_name": '',
+  //       "email": nomineeEmailTextEditingController.text,
+  //       "phone_number": nomineeMobileTextEditingController.text,
+  //       "document_type": selectedNomineeDocument.toString(),
+  //       "document_number": nomineeSelectedDocumentTextEditingController.text,
+  //       "address": nomineeAddressTextEditingController.text,
+  //     };
+
+  //     await saveNomineeToDatabase(saveRequestData);
+
+  //     isLoading.value = false;
+
+  //     if (nomineeSaved) {
+  //       final result = await _submitFatcaData();
+  //       if (result == true) {
+  //         await _submitUserForensics("fatca");
+  //         final corrResult = await _submitCorrespondenceAddress();
+  //         // _goToNextPage(); // Move to Additional Info
+  //         if (corrResult == true) {
+  //           // 2. STOP LOADER & SHOW SUCCESS
+  //           ULoaders.stopLoading();
+  //           ULoaders.success(
+  //             title: "Success",
+  //             message: "Nominee & FATCA details verified.",
+  //           );
+  //           await Future.delayed(const Duration(seconds: 1));
+  //           _goToNextPage(); // Move to the next screen safely!
+  //         }
+  //       }
+  //     }
+  //     ULoaders.stopLoading();
+  //     isLoading.value = false;
+  //   } catch (e) {
+  //     ULoaders.stopLoading();
+  //     isLoading.value = false;
+  //     Get.snackbar("Error", "Unexpected error: $e");
+  //   }
+  // }
 
   // SILENTLY SAVE NOMINEE TO YOUR OWN BACKEND
   Future<void> saveNomineeToDatabase(Map<String, dynamic> requestData) async {
@@ -2726,8 +2960,7 @@ class KycController extends GetxController {
   // ===========================================================================
   // NAVIGATION HELPERS
   void _goToNextPage() {
-    if (currentStep.value < 6) {
-      // 6 is the max index based on your 7 steps
+    if (currentStep.value < 3) {
       currentStep.value++;
       pageController.nextPage(
         duration: const Duration(milliseconds: 300),
@@ -2963,6 +3196,8 @@ class KycController extends GetxController {
             pinCodeTextEditingController.text =
                 executePOIStep2Data.value?.result.output.splitAddress.pincode ??
                 '';
+            selectedGender.value =
+                executePOIStep2Data.value?.result.output.gender ?? '';
 
             return true;
           } else {
@@ -3003,6 +3238,17 @@ class KycController extends GetxController {
     } finally {
       isLoadingBanks(false);
     }
+  }
+
+  String getDisplayGender(String rawGender) {
+    final gender = rawGender.trim().toUpperCase();
+
+    if (gender.startsWith('M')) return 'MALE';
+    if (gender.startsWith('F')) return 'FEMALE';
+    if (gender.startsWith('T'))
+      return 'TRANSGENDER'; // Handles 'T', 'Trans', 'Transgender'
+
+    return gender.isNotEmpty ? gender : 'OTHER'; // Fallback
   }
 
   int getYearlyIncomeAsInt(String text) {

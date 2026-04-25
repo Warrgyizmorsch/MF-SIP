@@ -75,5 +75,9 @@ class Utheme {
 
     labelLarge:  TextStyle(fontFamily: _font, fontSize: 12.0, fontWeight: FontWeight.normal, color: Ucolors.dark),
     labelMedium: TextStyle(fontFamily: _font, fontSize: 12.0, fontWeight: FontWeight.normal, color: Ucolors.dark.withOpacity(0.5)),
+
+
+
+    
   );
 }

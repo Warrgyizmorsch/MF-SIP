@@ -1852,8 +1852,6 @@
 //   }
 // }
 
-///  KYC UI diffirent for both mobile and web ///
-
 import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
@@ -1862,8 +1860,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
-import 'package:my_sip/common/widget/images/custom_cached_image.dart';
-import 'package:my_sip/common/widget/images/image_picker.dart';
 import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
 import 'package:my_sip/common/widget/text_form/text_field_component.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
@@ -1890,6 +1886,43 @@ const Color kWebTextSecondary = Color(0xFF4B5563);
 class KycScreen extends GetView<KycController> {
   const KycScreen({super.key});
 
+  // String _getStepTitle(int index) {
+  //   switch (index) {
+  //     case 0:
+  //       return "Identity Verification";
+  //     case 1:
+  //       return "Personal Details";
+  //     case 2:
+  //       return "Additional Info";
+  //     case 3:
+  //       return "Nominee Details";
+  //     case 4:
+  //       return "Nominee Verification";
+  //     case 5:
+  //       return "Live Photo";
+  //     case 6:
+  //       return "KYC Contract";
+  //     default:
+  //       return "KYC Process";
+  //   }
+  // }
+  // String _getStepTitle(int index) {
+  //   switch (index) {
+  //     case 0:
+  //       return "Identity Verification";
+  //     case 1:
+  //       return "Personal Details";
+  //     case 2:
+  //       return "Additional Info";
+  //     case 3:
+  //       return "Live Photo"; // Old index 5
+  //     case 4:
+  //       return "KYC Contract"; // Old index 6
+  //     default:
+  //       return "KYC Process";
+  //   }
+  // }
+
   String _getStepTitle(int index) {
     switch (index) {
       case 0:
@@ -1897,14 +1930,8 @@ class KycScreen extends GetView<KycController> {
       case 1:
         return "Personal Details";
       case 2:
-        return "Additional Info";
-      case 3:
-        return "Nominee Details";
-      case 4:
-        return "Nominee Verification";
-      case 5:
         return "Live Photo";
-      case 6:
+      case 3:
         return "KYC Contract";
       default:
         return "KYC Process";
@@ -2078,15 +2105,15 @@ class KycScreen extends GetView<KycController> {
               SingleChildScrollView(
                 child: _buildPage2(controller, context: context),
               ),
-              SingleChildScrollView(
-                child: _buildPage3(controller, context: context),
-              ),
-              SingleChildScrollView(
-                child: _buildPage4_1(controller, context: context),
-              ),
-              SingleChildScrollView(
-                child: _buildPage4_2(controller, context: context),
-              ),
+              // SingleChildScrollView(
+              //   child: _buildPage3(controller, context: context),
+              // ),
+              // SingleChildScrollView(
+              //   child: _buildPage4_1(controller, context: context),
+              // ),
+              // SingleChildScrollView(
+              //   child: _buildPage4_2(controller, context: context),
+              // ),
               SingleChildScrollView(
                 child: _buildPage6(controller, context: context),
               ),
@@ -2195,17 +2222,48 @@ class KycScreen extends GetView<KycController> {
         autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Column(
           children: [
-            const SizedBox(height: 40),
-            SvgPicture.asset(UImages.appLogo, height: 50),
-            const SizedBox(height: 30),
-            Text("Personal Details", style: AppTextStyles.h3()),
-            const SizedBox(height: 8),
+            Obx(() {
+              final String imageUrl =
+                  controller.executePOIStep2Data.value?.result.output.photo ??
+                  '';
+
+              // 2. Check if the string is a valid web URL
+              if (imageUrl.isNotEmpty && imageUrl.startsWith('http')) {
+                return Container(
+                  height: 90,
+                  width: 90,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Ucolors.blue.withOpacity(0.3),
+                      width: 3,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                    image: DecorationImage(
+                      image: NetworkImage(imageUrl),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                );
+              } else {
+                return SvgPicture.asset(UImages.appLogo, height: 50);
+              }
+            }),
+            const SizedBox(height: 15),
+            // Text("Personal Details", style: AppTextStyles.h3()),
+            // const SizedBox(height: 8),
             Text(
               "Ensure these details match your official documents.",
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMediumW500(color: Ucolors.darkgrey),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -2221,59 +2279,272 @@ class KycScreen extends GetView<KycController> {
                 ],
               ),
               child: Column(
+                spacing: 12, // Added a clean 12px gap between all fields
                 children: [
+                  // --- AADHAAR LOCKED DATA ---
                   CustomTextField(
+                    enabled: false,
+                    readOnly: true,
                     validationType: ValidationType.required,
                     height: 60,
-                    label: "Full Name",
-                    hint: "As per PAN Card",
+                    label: "Full Name (As per Aadhaar)",
                     controller: controller.nameTextEditingController,
                   ),
-                  const SizedBox(height: 20),
-                  GestureDetector(
-                    onTap: () async {
-                      await showDOBPickerBottomSheet(
-                        context: context,
-                        controller: controller.dateOfBirthTextEditingController,
-                      );
-                      if (controller
-                          .dateOfBirthTextEditingController
-                          .text
-                          .isNotEmpty)
-                        controller.step2FormKey.currentState?.validate();
-                    },
-                    child: CustomTextField(
+                  CustomTextField(
+                    enabled: false,
+                    readOnly: true,
+                    validationType: ValidationType.required,
+                    height: 60,
+                    controller: controller.dateOfBirthTextEditingController,
+                    label: "Date Of Birth",
+                    hint: "DD/MM/YYYY",
+                  ),
+                  Obx(
+                    () => CustomTextField(
+                      enabled: false,
                       validationType: ValidationType.required,
                       height: 60,
-                      controller: controller.dateOfBirthTextEditingController,
-                      enabled: false,
-                      label: "Date Of Birth",
-                      hint: "DD/MM/YYYY",
-                      trailing: const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Colors.grey,
+                      label: "Gender (As per Aadhaar)",
+                      controller: TextEditingController(
+                        text: controller.getDisplayGender(
+                          controller.selectedGender.value,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  SelectionPickerWidget(
-                    title: "GENDER",
-                    options: controller.genderList,
-                    selectedValue: controller.selectedGender,
+
+                  // --- USER INPUT DATA ---
+                  CustomTextField(
+                    validationType: ValidationType.required,
+                    height: 60,
+                    label: "Father's Name",
+                    controller: controller.fatherNameTextEditingController,
+                  ),
+                  CustomTextField(
+                    validationType: ValidationType.required,
+                    height: 60,
+                    label: "Mother's Name",
+                    controller: controller.motherNameTextEditingController,
+                  ),
+
+                  // Occupation Block
+                  Obx(
+                    () => Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildPicker(
+                          context,
+                          "Occupation",
+                          controller.occupationList,
+                          controller.occupationTextEditingController,
+                          onChanged: (val) =>
+                              controller.selectedOccupation.value = val,
+                          search: false,
+                        ),
+                        if (controller.selectedOccupation.value == "Other")
+                          Padding(
+                            padding: const EdgeInsets.only(top: 12.0),
+                            child: CustomTextField(
+                              validationType: ValidationType.required,
+                              height: 60,
+                              label: "Specify Occupation",
+                              hint: "Enter Your Occupation",
+                              controller: controller
+                                  .occupationOtherTextEditingController,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+
+                  _buildPicker(
+                    search: false,
+                    context,
+                    "Wealth Source",
+                    controller.wealthSourceList,
+                    controller.wealthSourceTextEditingController,
+                  ),
+                  _buildPicker(
+                    context,
+                    "Income Slab",
+                    controller.incomeSlabList,
+                    controller.incomeSlabTextEditingController,
+                    search: false,
+                  ),
+
+                  // Marital Status Block
+                  Obx(
+                    () => Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildPicker(
+                          context,
+                          "Marital Status",
+                          controller.maritalList,
+                          controller.maritalStatusTextEditingController,
+                          onChanged: (val) =>
+                              controller.selectedMaritalStatus.value = val,
+                          search: false,
+                        ),
+                        if (controller.selectedMaritalStatus.value == "MARRIED")
+                          Padding(
+                            padding: const EdgeInsets.only(top: 12.0),
+                            child: CustomTextField(
+                              validationType: ValidationType.required,
+                              height: 60,
+                              label: "Spouse Name",
+                              hint: "Enter Spouse Name",
+                              controller:
+                                  controller.spouseNameTextEditingController,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+
+                  // --- AADHAAR LOCKED ADDRESS ---
+                  CustomTextField(
+                    enabled: false,
+                    height: 60,
+                    label: "PIN Code",
+                    controller: controller.pinCodeTextEditingController,
+                  ),
+                  CustomTextField(
+                    enabled: false,
+                    validationType: ValidationType.required,
+                    height: 60,
+                    label: "Address",
+                    maxLines: 5,
+                    controller: controller.addressTextEditingController,
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
             _buildSecurityFooter(),
+            const SizedBox(height: 30),
           ],
         ),
       ),
     );
   }
+
+  // Widget _buildPage2(
+  //   KycController controller, {
+  //   required BuildContext context,
+  // }) {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(horizontal: 24.0),
+  //     child: Form(
+  //       key: controller.step2FormKey,
+  //       autovalidateMode: AutovalidateMode.onUserInteraction,
+  //       child: Column(
+  //         children: [
+  //           const SizedBox(height: 40),
+  //           SvgPicture.asset(UImages.appLogo, height: 50),
+  //           const SizedBox(height: 30),
+  //           Text("Personal Details", style: AppTextStyles.h3()),
+  //           const SizedBox(height: 8),
+  //           Text(
+  //             "Ensure these details match your official documents.",
+  //             textAlign: TextAlign.center,
+  //             style: AppTextStyles.bodyMediumW500(color: Ucolors.darkgrey),
+  //           ),
+  //           const SizedBox(height: 30),
+  //           Container(
+  //             padding: const EdgeInsets.all(20),
+  //             decoration: BoxDecoration(
+  //               color: Colors.white,
+  //               borderRadius: BorderRadius.circular(20),
+  //               border: Border.all(color: Colors.grey.shade200),
+  //               boxShadow: [
+  //                 BoxShadow(
+  //                   color: Colors.grey.withOpacity(0.08),
+  //                   blurRadius: 20,
+  //                   offset: const Offset(0, 4),
+  //                 ),
+  //               ],
+  //             ),
+  //             child: Column(
+  //               children: [
+  //                 CustomTextField(
+  //                   enabled: false,
+  //                   readOnly: true,
+
+  //                   validationType: ValidationType.required,
+  //                   height: 60,
+  //                   label: "Full Name",
+  //                   hint: "As per PAN Card",
+  //                   controller: controller.nameTextEditingController,
+  //                 ),
+  //                 const SizedBox(height: 20),
+  //                 GestureDetector(
+  //                   // onTap: () async {
+  //                   //   await showDOBPickerBottomSheet(
+  //                   //     context: context,
+  //                   //     controller: controller.dateOfBirthTextEditingController,
+  //                   //   );
+  //                   //   if (controller
+  //                   //       .dateOfBirthTextEditingController
+  //                   //       .text
+  //                   //       .isNotEmpty)
+  //                   //     controller.step2FormKey.currentState?.validate();
+  //                   // },
+  //                   child: CustomTextField(
+  //                     readOnly: true,
+  //                     validationType: ValidationType.required,
+  //                     height: 60,
+  //                     controller: controller.dateOfBirthTextEditingController,
+  //                     enabled: false,
+  //                     label: "Date Of Birth",
+  //                     hint: "DD/MM/YYYY",
+  //                     trailing: const Padding(
+  //                       padding: EdgeInsets.all(8.0),
+  //                       child: Icon(
+  //                         Icons.keyboard_arrow_down,
+  //                         color: Colors.grey,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 const SizedBox(height: 24),
+  //                 Obx(
+  //                   () => CustomTextField(
+  //                     validationType: ValidationType.required,
+  //                     height: 60,
+  //                     label: "Gender (As per Aadhaar)",
+
+  //                     controller: TextEditingController(
+  //                       text:
+  //                           controller.selectedGender.value.toUpperCase() == 'M'
+  //                           ? 'MALE'
+  //                           : controller.selectedGender.value.toUpperCase() ==
+  //                                 'F'
+  //                           ? 'FEMALE'
+  //                           : controller.selectedGender.value.toUpperCase(),
+  //                     ),
+
+  //                     enabled: false,
+  //                   ),
+  //                 ),
+  //                 IgnorePointer(
+  //                   ignoring: true,
+  //                   child: SelectionPickerWidget(
+  //                     title: "GENDER",
+  //                     options: controller.genderList,
+  //                     selectedValue: controller.selectedGender,
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //           const SizedBox(height: 24),
+  //           _buildSecurityFooter(),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildPage3(
     KycController controller, {
@@ -2306,6 +2577,7 @@ class KycScreen extends GetView<KycController> {
                 spacing: 10,
                 children: [
                   CustomTextField(
+                    isEnabled: false,
                     validationType: ValidationType.required,
                     height: 60,
                     label: "Full Name (As Per Pan)",
@@ -2367,26 +2639,74 @@ class KycScreen extends GetView<KycController> {
                     controller.incomeSlabTextEditingController,
                     search: false,
                   ),
-                  _buildPicker(
-                    context,
-                    "Marital Status",
-                    controller.maritalList,
-                    TextEditingController(),
-                    onChanged: (val) {
-                      controller.selectedMaritalStatus.value = val;
-                      log(controller.selectedMaritalStatus.toString());
-                    },
-                    search: false,
+                  // _buildPicker(
+                  //   context,
+                  //   "Marital Status",
+                  //   controller.maritalList,
+                  //   TextEditingController(),
+                  //   onChanged: (val) {
+                  //     controller.selectedMaritalStatus.value = val;
+                  //     log(controller.selectedMaritalStatus.toString());
+                  //   },
+                  //   search: false,
+                  // ),
+                  // _buildPicker(
+                  //   context,
+                  //   "Marital Status",
+                  //   controller.maritalList,
+                  //   controller.maritalStatusTextEditingController,
+                  //   onChanged: (val) {
+                  //     // controller.selectedMaritalStatus.value = val;
+                  //     controller.selectedMaritalStatus.value = val;
+                  //   },
+                  //   search: false,
+                  // ),
+                  // Obx(() {
+                  //   if (controller.selectedMaritalStatus.value == "MARRIED") {
+                  //     return CustomTextField(
+                  //       validationType: ValidationType.required,
+                  //       height: 60,
+                  //       label: "Spouse Name",
+                  //       hint: "Enter Spouse Name",
+                  //       controller: controller.spouseNameTextEditingController,
+                  //     );
+                  //   }
+                  //   return SizedBox.shrink();
+                  // }),
+                  Obx(
+                    () => Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // 1. Marital Status Picker
+                        _buildPicker(
+                          context,
+                          "Marital Status",
+                          controller.maritalList,
+                          controller.maritalStatusTextEditingController,
+                          onChanged: (val) {
+                            controller.selectedMaritalStatus.value = val;
+                          },
+                          search: false,
+                        ),
+
+                        if (controller.selectedMaritalStatus.value ==
+                            "MARRIED") ...[
+                          const SizedBox(height: 10),
+                          CustomTextField(
+                            validationType: ValidationType.required,
+                            height: 60,
+                            label: "Spouse Name",
+                            hint: "Enter Spouse Name",
+                            controller:
+                                controller.spouseNameTextEditingController,
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
+
                   CustomTextField(
-                    validationType: ValidationType.required,
-                    height: 60,
-                    label: "Address",
-                    maxLines: 2,
-                    controller: controller.addressTextEditingController,
-                    textInputAction: TextInputAction.done,
-                  ),
-                  CustomTextField(
+                    enabled: false,
                     height: 60,
                     label: "PIN Code",
                     maxLines: 2,
@@ -2397,6 +2717,16 @@ class KycScreen extends GetView<KycController> {
                       FilteringTextInputFormatter.digitsOnly,
                       LengthLimitingTextInputFormatter(6),
                     ],
+                  ),
+                  CustomTextField(
+                    enabled: false,
+                    validationType: ValidationType.required,
+                    height: 60,
+
+                    label: "Address",
+                    maxLines: 5,
+                    controller: controller.addressTextEditingController,
+                    textInputAction: TextInputAction.done,
                   ),
                 ],
               ),
@@ -4269,21 +4599,22 @@ class KycStepper extends StatelessWidget {
   Widget build(BuildContext context) {
     final steps = [
       {'icon': Icons.fingerprint, 'label': 'ID'},
-      {'icon': Icons.person_outline, 'label': 'Info'},
+      // {'icon': Icons.person_outline, 'label': 'Info'},
       {'icon': Icons.work_outline, 'label': 'Details'},
-      {'icon': Icons.family_restroom, 'label': 'Nominee'},
+      // {'icon': Icons.family_restroom, 'label': 'Nominee'},
       {'icon': Icons.cloud_upload_outlined, 'label': 'Docs'},
       {'icon': Icons.draw, 'label': 'E-Sign'},
     ];
 
-    int visualStep = currentStepIndex;
-    if (currentStepIndex > 4) {
-      visualStep = currentStepIndex - 1;
-    } else if (currentStepIndex == 4) {
-      visualStep = 3;
-    }
+    // int visualStep = currentStepIndex;
+    // if (currentStepIndex > 4) {
+    //   visualStep = currentStepIndex - 1;
+    // } else if (currentStepIndex == 4) {
+    //   visualStep = 3;
+    // }
 
-    double progress = visualStep / (steps.length - 1);
+    // double progress = visualStep / (steps.length - 1);
+    double progress = currentStepIndex / (steps.length - 1);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
@@ -4324,8 +4655,10 @@ class KycStepper extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List.generate(steps.length, (index) {
-                    bool isCompleted = index < visualStep;
-                    bool isActive = index == visualStep;
+                    // bool isCompleted = index < visualStep;
+                    // bool isActive = index == visualStep;
+                    bool isCompleted = index < currentStepIndex;
+                    bool isActive = index == currentStepIndex;
                     return _AnimatedStepBubble(
                       icon: steps[index]['icon'] as IconData,
                       label: steps[index]['label'] as String,

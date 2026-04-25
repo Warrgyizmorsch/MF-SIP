@@ -222,6 +222,9 @@
 //   }
 // }
 
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/style/padding.dart';
@@ -506,10 +509,26 @@ class KycDetailsScreen extends StatelessWidget {
           subtitle: user?.customerDetailsModel?.wealthSource ?? 'Not Available',
         ),
         const SizedBox(height: 10),
-        InfoCard(
-          title: 'Pan Number',
-          subtitle:
-              SessionManager.instance.getUserData?.panCard ?? 'Not Available',
+        InkWell(
+          onTap: () {
+            final responseData =
+                SessionManager.instance.onboardingRespone.value;
+
+            if (responseData != null) {
+              String prettyPrint = const JsonEncoder.withIndent(
+                '  ',
+              ).convert(responseData.toJson());
+              log('✅ Onboarding Response:\n$prettyPrint');
+            } else {
+              log('❌ Onboarding Response is currently NULL');
+            }
+          },
+
+          child: InfoCard(
+            title: 'Pan Number',
+            subtitle:
+                SessionManager.instance.getUserData?.panCard ?? 'Not Available',
+          ),
         ),
       ],
     );
