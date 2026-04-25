@@ -18,8 +18,6 @@ class Ucolors {
   static const Color borderside = Color(0xffD0D0D0);
   static const Color skyblue1 = Color(0xffE8F4FF);
 
-
-
   static const LinearGradient backgroundGradient = LinearGradient(
     begin: Alignment.centerRight,
     end: Alignment.centerLeft,
@@ -30,5 +28,33 @@ class Ucolors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [Color(0xFFB3261E), Color(0xFFD84315)],
+  );
+
+  static const LinearGradient premiumDarkGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFF141E30), // Deep almost-black blue
+      Color(0xFF243B55), // Smooth slate blue
+    ],
+  );
+
+  static const LinearGradient modernFintechGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFF4B6CB7), // Vibrant Indigo
+      Color(0xFF182848), // Dark Navy
+    ],
+  );
+
+  static const LinearGradient deepOceanGradient = LinearGradient(
+    begin: Alignment.topRight,
+    end: Alignment.bottomLeft,
+    colors: [
+      Color(0xFF2C5364), // Muted Teal
+      Color(0xFF203A43), // Mid-transition blue
+      Color(0xFF0F2027), // Very dark charcoal
+    ],
   );
 }

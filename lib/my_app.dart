@@ -171,65 +171,74 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           getPages: AppPages.pages(),
           initialRoute: AppRoutes.splash,
           builder: (context, widget) {
-            return ResponsiveBreakpoints.builder(
-              child: Obx(
-                () => Stack(
-                  children: [
-                    // This is your background app
-                    widget!,
+            return MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: TextScaler.noScaling),
+              child: ResponsiveBreakpoints.builder(
+                child: Obx(
+                  () => Stack(
+                    children: [
+                      // This is your background app
+                      widget!,
 
-                    // The system UI pop-up will appear over this blank screen
-                    // if (!_hasUnlockedThisSession)
-                    if (session.isAppLockEnabled.value &&
-                        !_hasUnlockedThisSession)
-                      Material(
-                        color: Colors.transparent,
-                        child: Container(
-                          color: Colors.white,
-                          // color: Colors.transparent,
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  UImages.imp,
-                                  alignment: Alignment.center,
-                                  height: 100,
-                                  width: 100,
-                                ),
-                                const SizedBox(height: 20),
-                                const Text(
-                                  "MF SIP Secured",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                      // The system UI pop-up will appear over this blank screen
+                      // if (!_hasUnlockedThisSession)
+                      if (session.isAppLockEnabled.value &&
+                          !_hasUnlockedThisSession)
+                        Material(
+                          color: Colors.transparent,
+                          child: Container(
+                            color: Colors.white,
+                            // color: Colors.transparent,
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    UImages.imp,
+                                    alignment: Alignment.center,
+                                    height: 100,
+                                    width: 100,
                                   ),
-                                ),
-                                const SizedBox(height: 30),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Ucolors.blue,
+                                  const SizedBox(height: 20),
+                                  const Text(
+                                    "MF SIP Secured",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                  onPressed: _authenticate,
-                                  child: const Text(
-                                    "Unlock with Biometrics",
-                                    style: TextStyle(color: Colors.white),
+                                  const SizedBox(height: 30),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Ucolors.blue,
+                                    ),
+                                    onPressed: _authenticate,
+                                    child: const Text(
+                                      "Unlock with Biometrics",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
+                breakpoints: [
+                  const Breakpoint(start: 0, end: 450, name: MOBILE),
+                  const Breakpoint(start: 451, end: 800, name: TABLET),
+                  const Breakpoint(start: 801, end: 1920, name: DESKTOP),
+                  const Breakpoint(
+                    start: 1921,
+                    end: double.infinity,
+                    name: '4K',
+                  ),
+                ],
               ),
-              breakpoints: [
-                const Breakpoint(start: 0, end: 450, name: MOBILE),
-                const Breakpoint(start: 451, end: 800, name: TABLET),
-                const Breakpoint(start: 801, end: 1920, name: DESKTOP),
-                const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
-              ],
             );
           },
         );

@@ -66,7 +66,7 @@ class AppPages {
       bindings: [
         UBinding(),
         PersonalisationBinding(),
-        Bankbinding(),
+        // Bankbinding(),
         Fundhousebinding(),
         WishlistBinding(),
         // SipProcessBinding(),
@@ -159,7 +159,7 @@ class AppPages {
     GetPage(
       name: AppRoutes.addanotherbank,
       page: () => AddAnotherBankPage(),
-      binding: Bankbinding(),
+      // binding: Bankbinding(),
     ),
     GetPage(
       name: AppRoutes.riskProfile,
@@ -216,6 +216,5 @@ class AppPages {
     GetPage(name: AppRoutes.comingSoon, page: () => ComingSoon()),
     GetPage(name: AppRoutes.bankDetails, page: () => BankDetailsScreen()),
     GetPage(name: AppRoutes.videoList, page: () => VideoListScreen()),
-
   ];
 }

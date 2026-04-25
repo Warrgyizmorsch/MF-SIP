@@ -877,7 +877,7 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
         const SizedBox(height: 10),
         _buildRelationField(context),
         const SizedBox(height: 10),
-        _buildAddressField(),
+        _buildAddressField1(),
         const SizedBox(height: 40),
       ],
     );
@@ -1144,6 +1144,77 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
               validationType: ValidationType.required,
             ),
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAddressField1() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SmallHeading(
+          smallheading: 'Nominee Address',
+          fontWeight: FontWeight.w600,
+        ),
+        const SizedBox(height: 5),
+
+        // Address Line 1 (MANDATORY - Max 40 Chars)
+        CustomTextField(
+          height: 60,
+          controller: controller.nomineeAddressTextEditingController,
+          validationType: ValidationType.required,
+          hint: 'Flat, House no., Building., etc (Max 40 chars)',
+          inputFormatters: [
+            LengthLimitingTextInputFormatter(40),
+          ],
+        ),
+        const SizedBox(height: 12),
+
+        // Address Line 2 (OPTIONAL - Max 40 Chars)
+        // CustomTextField(
+        //   height: 60,
+        //   controller: controller.nomineeAddress2TextEditingController,
+        //   // Assuming your CustomTextField has a way to bypass required validation
+        //   // or set it to whatever maps to 'optional' in your app
+        //   validationType: ValidationType.none,
+        //   hint: 'Area, Street, Village (Optional)',
+        //   inputFormatters: [LengthLimitingTextInputFormatter(40)],
+        // ),
+        // const SizedBox(height: 12),
+
+        // City and PIN Code Row
+        Row(
+          children: [
+            // City (MANDATORY - Max 30 Chars)
+            Expanded(
+              child: CustomTextField(
+                height: 60,
+                controller: controller.nomineeCityTextEditingController,
+                validationType: ValidationType.required,
+                hint: 'City',
+                inputFormatters: [LengthLimitingTextInputFormatter(30)],
+              ),
+            ),
+            const SizedBox(width: 12),
+
+            // PIN Code (MANDATORY - 6 Digits)
+            Expanded(
+              child: CustomTextField(
+                height: 60,
+                controller: controller.nomineePincodeTextEditingController,
+                validationType: ValidationType.required,
+                keyboardType: TextInputType.number,
+                hint: 'PIN Code',
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(
+                    6,
+                  ), // Standard India PIN length
+                ],
+              ),
+            ),
+          ],
         ),
       ],
     );

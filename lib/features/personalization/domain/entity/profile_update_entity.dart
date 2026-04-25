@@ -42,8 +42,10 @@ class ProfileDataEntity extends Equatable {
   final String? kycVerifiedAt;
   final String? status;
   final int? riskSlabId;
-  final String? riskProfile;
   final CustomerDetailsEntity? customerDetails;
+  final RiskProfileEntity? riskProfile;
+  final NomineeEntity? nominee;
+  final BankAccountEntity? bankAccount;
 
   const ProfileDataEntity({
     required this.id,
@@ -61,8 +63,10 @@ class ProfileDataEntity extends Equatable {
     required this.kycVerifiedAt,
     required this.status,
     required this.riskSlabId,
-    required this.riskProfile,
     required this.customerDetails,
+    required this.riskProfile,
+    required this.nominee,
+    required this.bankAccount,
   });
 
   @override
@@ -82,8 +86,10 @@ class ProfileDataEntity extends Equatable {
     kycVerifiedAt,
     status,
     riskSlabId,
-    riskProfile,
     customerDetails,
+    riskProfile,
+    nominee,
+    bankAccount,
   ];
 }
 
@@ -105,8 +111,10 @@ extension ProfileDataEntityX on ProfileDataModel {
       kycVerifiedAt: kycVerifiedAt,
       status: status,
       riskSlabId: riskSlabId,
-      riskProfile: riskProfile,
       customerDetails: customerDetails?.toEntity(),
+      riskProfile: riskProfile?.toEntity(),
+      nominee: nominee?.toEntity(),
+      bankAccount: bankAccount?.toEntity(),
     );
   }
 }
@@ -121,6 +129,9 @@ class CustomerDetailsEntity extends Equatable {
   final String? yearlyIncome;
   final String? adhar;
   final String? address;
+  final String? city;
+  final String? pincode;
+  final String? state;
   final String? updatedAt;
   final String? createdAt;
 
@@ -134,6 +145,9 @@ class CustomerDetailsEntity extends Equatable {
     required this.yearlyIncome,
     required this.adhar,
     required this.address,
+    required this.city,
+    required this.pincode,
+    required this.state,
     required this.updatedAt,
     required this.createdAt,
   });
@@ -149,6 +163,10 @@ class CustomerDetailsEntity extends Equatable {
     yearlyIncome,
     adhar,
     address,
+    city,
+    state,
+    pincode,
+
     updatedAt,
     createdAt,
   ];
@@ -166,8 +184,166 @@ extension CustomerDetailsEntityX on CustomerDetailsModel {
       yearlyIncome: yearlyIncome,
       adhar: adhar,
       address: address,
+      city: city,
+      pincode: pincode,
+      state: state,
       updatedAt: updatedAt,
       createdAt: createdAt,
+    );
+  }
+}
+
+class RiskProfileEntity extends Equatable {
+  final int? id;
+  final int? minScore;
+  final int? maxScore;
+  final String? profileName;
+  final int? fixedIncomePercent;
+  final int? equityPercent;
+
+  const RiskProfileEntity({
+    required this.id,
+    required this.minScore,
+    required this.maxScore,
+    required this.profileName,
+    required this.fixedIncomePercent,
+    required this.equityPercent,
+  });
+
+  @override
+  List<Object?> get props => [
+    id,
+    minScore,
+    maxScore,
+    profileName,
+    fixedIncomePercent,
+    equityPercent,
+  ];
+}
+
+extension RiskProfileEntityX on RiskProfileModel {
+  RiskProfileEntity toEntity() {
+    return RiskProfileEntity(
+      id: id,
+      minScore: minScore,
+      maxScore: maxScore,
+      profileName: profileName,
+      fixedIncomePercent: fixedIncomePercent,
+      equityPercent: equityPercent,
+    );
+  }
+}
+
+class NomineeEntity extends Equatable {
+  final int? id;
+  final int? customerId;
+  final String? name;
+  final String? relation;
+  final String? dob;
+  final String? allocationPercent;
+  final int? isMinor;
+  final String? guardianName;
+  final String? email;
+  final String? phoneNumber;
+  final String? documentType;
+  final String? documentNumber;
+  final String? address;
+
+  const NomineeEntity({
+    required this.id,
+    required this.customerId,
+    required this.name,
+    required this.relation,
+    required this.dob,
+    required this.allocationPercent,
+    required this.isMinor,
+    required this.guardianName,
+    required this.email,
+    required this.phoneNumber,
+    required this.documentType,
+    required this.documentNumber,
+    required this.address,
+  });
+
+  @override
+  List<Object?> get props => [
+    id,
+    customerId,
+    name,
+    relation,
+    dob,
+    allocationPercent,
+    isMinor,
+    guardianName,
+    email,
+    phoneNumber,
+    documentType,
+    documentNumber,
+    address,
+  ];
+}
+
+extension NomineeEntityX on NomineeModel {
+  NomineeEntity toEntity() {
+    return NomineeEntity(
+      id: id,
+      customerId: customerId,
+      name: name,
+      relation: relation,
+      dob: dob,
+      allocationPercent: allocationPercent,
+      isMinor: isMinor,
+      guardianName: guardianName,
+      email: email,
+      phoneNumber: phoneNumber,
+      documentType: documentType,
+      documentNumber: documentNumber,
+      address: address,
+    );
+  }
+}
+
+class BankAccountEntity extends Equatable {
+  final int? id;
+  final int? userId;
+  final String? accountHolderName;
+  final String? accountNumberEncrypted;
+  final String? ifscCode;
+  final String? bankName;
+  final int? verified;
+
+  const BankAccountEntity({
+    required this.id,
+    required this.userId,
+    required this.accountHolderName,
+    required this.accountNumberEncrypted,
+    required this.ifscCode,
+    required this.bankName,
+    required this.verified,
+  });
+
+  @override
+  List<Object?> get props => [
+    id,
+    userId,
+    accountHolderName,
+    accountNumberEncrypted,
+    ifscCode,
+    bankName,
+    verified,
+  ];
+}
+
+extension BankAccountEntityX on BankAccountModel {
+  BankAccountEntity toEntity() {
+    return BankAccountEntity(
+      id: id,
+      userId: userId,
+      accountHolderName: accountHolderName,
+      accountNumberEncrypted: accountNumberEncrypted,
+      ifscCode: ifscCode,
+      bankName: bankName,
+      verified: verified,
     );
   }
 }

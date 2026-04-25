@@ -7,7 +7,7 @@ import 'package:my_sip/features/personalization/domain/usecases/risk_submit_usec
 import 'package:my_sip/features/personalization/domain/usecases/update_profile_usecases.dart';
 
 class PersonalisationUseCases {
-  final GetBankUseCases _getBankUseCases;
+  final GetBankUseCases getBankUseCases;
   final GetRiskquestionUseCases getRiskquestionUseCases;
   final RiskSubmitUsecases riskSubmitUsecases;
   final AddNomineeUseCase addNomineeUseCase;
@@ -16,5 +16,5 @@ class PersonalisationUseCases {
   final UpdateProfileUsecases updateProfileUsecases;
   
 
-  PersonalisationUseCases(this._getBankUseCases, this.getRiskquestionUseCases, this.riskSubmitUsecases, this.addNomineeUseCase, this.getNomineeUseCase, this.deleteNomineeUseCase, this.updateProfileUsecases);
+  PersonalisationUseCases(this.getBankUseCases, this.getRiskquestionUseCases, this.riskSubmitUsecases, this.addNomineeUseCase, this.getNomineeUseCase, this.deleteNomineeUseCase, this.updateProfileUsecases);
 }

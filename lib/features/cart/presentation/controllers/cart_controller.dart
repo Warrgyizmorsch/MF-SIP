@@ -234,6 +234,7 @@ class CartController extends GetxController {
 
     int? goalId, {
     String transType = 'sip',
+    String title = 'Cart',
   }) async {
     HapticFeedback.successNotification();
     bool alreadyInCart =
@@ -247,7 +248,7 @@ class CartController extends GetxController {
 
     if (alreadyInCart) {
       showCustomToast(
-        title: "Already in Cart",
+        title: "Already in $title",
         message: schemeName,
         backgroundColor: Colors.orange.shade700,
         icon: Icons.info_outline,
@@ -273,7 +274,7 @@ class CartController extends GetxController {
       }
 
       showCustomToast(
-        title: "Added to Cart",
+        title: "Added to $title",
         message: schemeName,
         backgroundColor: Ucolors.primary,
         icon: Icons.check_circle_outline,
@@ -301,7 +302,7 @@ class CartController extends GetxController {
           // Check if the backend also reports a duplicate (Safety Check)
           if (failure.message.toString().contains("already in your cart")) {
             showCustomToast(
-              title: "Already in Cart",
+              title: "Already in $title",
               message: schemeName,
               backgroundColor: Colors.orange.shade700,
               icon: Icons.info_outline,

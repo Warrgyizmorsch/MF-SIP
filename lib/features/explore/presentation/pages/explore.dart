@@ -1851,12 +1851,14 @@ class MutualFundCard extends StatelessWidget {
     this.containercolor,
     required this.entity,
     this.onTapOverride,
+    this.showTrainlings = true,
   });
 
   final bool isDelete;
   final Color? containercolor;
   final MutualFundListEntity entity;
   final VoidCallback? onTapOverride;
+  final bool showTrainlings;
   final CartController controller = Get.find<CartController>();
   final MutualFundController mutualFundController =
       Get.find<MutualFundController>();
@@ -2018,16 +2020,18 @@ class MutualFundCard extends StatelessWidget {
                             text: 'Add to cart',
                             value: FundMenuAction.addToCart,
                           ),
-                          buildFundMenuItem(
-                            icon: Iconsax.edit_2,
-                            text: 'Buy SIP',
-                            value: FundMenuAction.buySIP,
-                          ),
-                          buildFundMenuItem(
-                            icon: Iconsax.pause, // Or Iconsax.convert_card
-                            text: 'Buy Lumpsum',
-                            value: FundMenuAction.buyLumpsum,
-                          ),
+                          if (showTrainlings) ...[
+                            buildFundMenuItem(
+                              icon: Iconsax.edit_2,
+                              text: 'Buy SIP',
+                              value: FundMenuAction.buySIP,
+                            ),
+                            buildFundMenuItem(
+                              icon: Iconsax.pause, // Or Iconsax.convert_card
+                              text: 'Buy Lumpsum',
+                              value: FundMenuAction.buyLumpsum,
+                            ),
+                          ],
                           buildFundMenuItem(
                             icon: Iconsax.add,
                             text: 'Add to watchlist',
@@ -2044,54 +2048,57 @@ class MutualFundCard extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 5),
-            Text(
-              'Trailing Return -------------------------------------------------------------------------------------------------------',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: Ucolors.borderside,
-                fontSize: 10,
-                height: 0,
+            if (showTrainlings) ...[
+              const SizedBox(height: 5),
+              Text(
+                'Trailing Return -------------------------------------------------------------------------------------------------------',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Ucolors.borderside,
+                  fontSize: 10,
+                  height: 0,
+                ),
               ),
-            ),
-            const SizedBox(height: 5),
+              const SizedBox(height: 5),
 
-            /// Returns Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _ReturnItem(
-                  isNegative: parseIntSafe(entity.returnsEntity?.oneMonth) < 0
-                      ? true
-                      : false,
-                  title: '1M',
-                  value: '${entity.returnsEntity?.oneMonth}%',
-                  // isNegative: true,
-                ),
-                _ReturnItem(
-                  isNegative: parseIntSafe(entity.returnsEntity?.oneYear) < 0
-                      ? true
-                      : false,
-                  title: '1Y',
-                  value: '${entity.returnsEntity?.oneYear}%',
-                ),
-                _ReturnItem(
-                  isNegative: parseIntSafe(entity.returnsEntity?.threeYear) < 0
-                      ? true
-                      : false,
-                  title: '3Y',
-                  value: '${entity.returnsEntity?.threeYear}%',
-                ),
-                _ReturnItem(
-                  isNegative: parseIntSafe(entity.returnsEntity?.fiveYear) < 0
-                      ? true
-                      : false,
-                  title: '5Y',
-                  value: '${entity.returnsEntity?.fiveYear}%',
-                ),
-              ],
-            ),
+              /// Returns Row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _ReturnItem(
+                    isNegative: parseIntSafe(entity.returnsEntity?.oneMonth) < 0
+                        ? true
+                        : false,
+                    title: '1M',
+                    value: '${entity.returnsEntity?.oneMonth}%',
+                    // isNegative: true,
+                  ),
+                  _ReturnItem(
+                    isNegative: parseIntSafe(entity.returnsEntity?.oneYear) < 0
+                        ? true
+                        : false,
+                    title: '1Y',
+                    value: '${entity.returnsEntity?.oneYear}%',
+                  ),
+                  _ReturnItem(
+                    isNegative:
+                        parseIntSafe(entity.returnsEntity?.threeYear) < 0
+                        ? true
+                        : false,
+                    title: '3Y',
+                    value: '${entity.returnsEntity?.threeYear}%',
+                  ),
+                  _ReturnItem(
+                    isNegative: parseIntSafe(entity.returnsEntity?.fiveYear) < 0
+                        ? true
+                        : false,
+                    title: '5Y',
+                    value: '${entity.returnsEntity?.fiveYear}%',
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),

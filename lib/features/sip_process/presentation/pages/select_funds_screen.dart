@@ -1508,72 +1508,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                           );
                         });
 
-                        // return Obx(() {
-                        //   // Check if this specific fund is currently selected in your SIP list
-                        //   final isSelected = controller.isSelected(
-                        //     fund.schemeCode ?? "",
-                        //   );
-
-                        //   return Stack(
-                        //     children: [
-                        //       // The actual card UI
-                        //       MutualFundCard(entity: fund),
-
-                        //       // Modern Highlight Overlay
-                        //       Positioned.fill(
-                        //         child: Padding(
-                        //           padding: const EdgeInsets.symmetric(
-                        //             horizontal: 16,
-                        //             vertical: 8,
-                        //           ),
-                        //           child: Material(
-                        //             color: isSelected
-                        //                 ? Ucolors.primary.withOpacity(0.08)
-                        //                 : Colors.transparent,
-                        //             borderRadius: BorderRadius.circular(16),
-                        //             child: InkWell(
-                        //               borderRadius: BorderRadius.circular(16),
-                        //               onTap: () {
-                        //                 FocusScope.of(
-                        //                   context,
-                        //                 ).unfocus(); // Dismiss keyboard
-                        //                 controller.toggleSelection(
-                        //                   fund,
-                        //                 ); // Toggle state
-                        //               },
-                        //               child: Container(
-                        //                 decoration: BoxDecoration(
-                        //                   borderRadius: BorderRadius.circular(
-                        //                     16,
-                        //                   ),
-                        //                   border: Border.all(
-                        //                     color: isSelected
-                        //                         ? Ucolors.primary
-                        //                         : Colors.transparent,
-                        //                     width: 2,
-                        //                   ),
-                        //                 ),
-                        //                 child: isSelected
-                        //                     ? const Align(
-                        //                         alignment: Alignment.topRight,
-                        //                         child: Padding(
-                        //                           padding: EdgeInsets.all(12.0),
-                        //                           child: Icon(
-                        //                             Icons.check_circle,
-                        //                             color: Ucolors.primary,
-                        //                             size: 26,
-                        //                           ),
-                        //                         ),
-                        //                       )
-                        //                     : null,
-                        //               ),
-                        //             ),
-                        //           ),
-                        //         ),
-                        //       ),
-                        //     ],
-                        //   );
-                        // });
+                       
                       },
                     );
                   }),

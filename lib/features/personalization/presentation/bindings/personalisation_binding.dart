@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:get/get_instance/src/bindings_interface.dart';
 import 'package:my_sip/features/personalization/domain/usecases/add_nominee_use_case.dart';
 import 'package:my_sip/features/personalization/domain/usecases/delete_nominee_use_case.dart';
+import 'package:my_sip/features/personalization/domain/usecases/get_bank_use_cases.dart';
 import 'package:my_sip/features/personalization/domain/usecases/get_nominee_use_case.dart';
 import 'package:my_sip/features/personalization/domain/usecases/get_riskQuestion_use_cases.dart';
 import 'package:my_sip/features/personalization/domain/usecases/personalisation_use_cases.dart';
@@ -46,6 +47,7 @@ class PersonalisationBinding extends Bindings {
       ),
       fenix: true
     );
+    Get.lazyPut(() => GetBankUseCases(Get.find()));
     Get.lazyPut(
       () => DeleteNomineeUseCase(
         personalisationRepository: Get.find<PersonalisationRepository>(),
@@ -60,6 +62,7 @@ class PersonalisationBinding extends Bindings {
     );
     Get.lazyPut(
       () => PersonalisationUseCases(
+
         Get.find(),
         Get.find(),
         Get.find(),

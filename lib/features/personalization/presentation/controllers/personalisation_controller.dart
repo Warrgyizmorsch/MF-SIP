@@ -9,6 +9,7 @@ import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_submit_rq.dart';
+import 'package:my_sip/features/personalization/domain/entity/bank_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/nominee_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/risk_question_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/risk_result_entity.dart';
@@ -320,6 +321,10 @@ class PersonalisationController extends GetxController {
   final nomineeAllocationPercentTextEditingController = TextEditingController();
   final nomineeMinorsGuardianTextEditingController = TextEditingController();
   final nomineeAddressTextEditingController = TextEditingController();
+  final nomineeAddress2TextEditingController = TextEditingController();
+  final nomineePincodeTextEditingController = TextEditingController();
+  final nomineeCityTextEditingController = TextEditingController();
+  final nomineeContryTextEditingController = TextEditingController();
 
   // ------------------------ Update Profile ---------------------------------------///
 
@@ -338,6 +343,149 @@ class PersonalisationController extends GetxController {
   final dobController = TextEditingController();
   final wealthSource = TextEditingController();
   final yearlyIncome = TextEditingController();
+
+  // ------------------------ Bank List Fetching State ------------------------///
+  final isBankListLoading = false.obs;
+  final bankList = <BankItemEntity>[].obs;
+  final bankErrorMessage = ''.obs;
+  // --- Linked Bank Account State ---
+  final isLinkedBankLoading = false.obs;
+  // Using dynamic or your specific BankEntity if you have one mapped
+  final linkedBankAccount = Rxn<dynamic>();
+
+  // ------------------------ Add Bank Account State --------------------------///
+  final isBankAdding = false.obs;
+  final bankNameController = TextEditingController();
+  final bankAccountNumberController = TextEditingController();
+  final bankIfscController = TextEditingController();
+  final bankMicrController = TextEditingController();
+  final bankAccountType = 'SB'.obs; // SB = Savings, CA = Current
+
+  void _clearBankFields() {
+    bankNameController.clear();
+    bankAccountNumberController.clear();
+    bankIfscController.clear();
+    bankMicrController.clear();
+    bankAccountType.value = 'SB';
+  }
+
+  Future<void> fetchBanks() async {
+    try {
+      isBankListLoading(true);
+      bankErrorMessage('');
+
+      final result = await _useCases.getBankUseCases.call({});
+
+      result.fold(
+        (success) {
+          if (success.data != null) {
+            bankList.assignAll(success.data!.data);
+            log("Successfully assigned ${bankList.length} banks");
+          }
+        },
+        (error) {
+          bankErrorMessage.value = error.message ?? "Failed to load banks";
+        },
+      );
+    } catch (e) {
+      bankErrorMessage.value = "An unexpected error occurred: $e";
+    } finally {
+      isBankListLoading(false);
+    }
+  }
+
+  // --- Fetch User's Linked Bank ---
+  Future<void> fetchUserBankDetails() async {
+    final userId = session.getUserData?.id;
+    if (userId == null) return;
+
+    isLinkedBankLoading.value = true;
+    try {
+      final data = {'id': userId};
+
+      final result = await _useCases.updateProfileUsecases.call(data);
+
+      result.fold(
+        (success) {
+          if (success.data?.data?.bankAccount != null) {
+            linkedBankAccount.value = success.data!.data?.bankAccount;
+          } else {
+            linkedBankAccount.value = null;
+          }
+        },
+        (error) {
+          log("Error fetching linked bank: ${error.message}");
+        },
+      );
+    } catch (e) {
+      log("Fetch Linked Bank Exception: $e");
+    } finally {
+      isLinkedBankLoading.value = false;
+    }
+  }
+
+  // ------------------------ Add Bank Account ----------------------------------///
+  Future<void> addBankAccount() async {
+    if (bankAccountNumberController.text.isEmpty ||
+        bankIfscController.text.isEmpty ||
+        bankNameController.text.isEmpty) {
+      Get.snackbar("Required", "Please fill all bank details");
+      return;
+    }
+
+    isBankAdding.value = true;
+
+    try {
+      final userName = session.getUserData?.name ?? "User";
+
+      final Map<String, dynamic> data = {
+        "id": session.getUserData?.id,
+        "account_holder_name": userName,
+        "account_number": bankAccountNumberController.text.trim(),
+        "ifsc_code": bankIfscController.text.trim().toUpperCase(),
+        "bank_name": bankNameController.text.trim(),
+        // "micr_code": bankMicrController.text.trim(),
+        "account_type": bankAccountType.value,
+      };
+
+      log("Submitting Bank Data: $data");
+
+      final result = await _useCases.updateProfileUsecases.call(data);
+
+      result.fold(
+        (success) {
+          _clearBankFields();
+          Get.back();
+          // fetchUserBankDetails();
+          if (success.data?.data?.bankAccount != null) {
+            linkedBankAccount.value = success.data!.data?.bankAccount;
+          } else {
+            // Fallback just in case
+            fetchUserBankDetails();
+          }
+          Get.snackbar(
+            "Success",
+            "Bank account added successfully",
+            backgroundColor: Colors.green.shade50,
+            colorText: Colors.green.shade900,
+          );
+        },
+        (error) {
+          Get.snackbar(
+            "Error",
+            error.message ?? "Failed to add bank account",
+            backgroundColor: Colors.red.shade50,
+            colorText: Colors.red.shade900,
+          );
+        },
+      );
+    } catch (e) {
+      log("Bank Addition Error: $e");
+      Get.snackbar("Error", "Something went wrong while adding bank");
+    } finally {
+      isBankAdding.value = false;
+    }
+  }
 
   // Pick Image Logic
   Future<void> pickImage(ImageSource source) async {
@@ -456,7 +604,8 @@ class PersonalisationController extends GetxController {
   void _checkPanEditPermission() {
     final status = session.getUserData?.kycStatus?.toLowerCase();
 
-    if (status == 'approved' || status == 'pending' || status == 'timed out') {
+    if (status == 'approved' || status == 'pending') {
+      //   || status == 'timed out'    add for testing
       canEditPan.value = false;
     }
     // else if (status == 'not started' || status == null || status.isEmpty) {
@@ -488,6 +637,8 @@ class PersonalisationController extends GetxController {
     panController.addListener(_onPanTextChanged);
     loadRiskQuestions();
     _checkPanEditPermission();
+    fetchBanks();
+    fetchUserBankDetails();
   }
 
   void _onPanTextChanged() {
@@ -713,6 +864,8 @@ class PersonalisationController extends GetxController {
         "document_type": nomineeDocumentTypeTextEditingController.text,
         "document_number": nomineeDocumentNumberTextEditingController.text,
         "address": nomineeAddressTextEditingController.text,
+        "pin_code": nomineePincodeTextEditingController.text,
+        "city": nomineeCityTextEditingController.text,
       };
 
       final result = await _useCases.addNomineeUseCase.call(requestData);
