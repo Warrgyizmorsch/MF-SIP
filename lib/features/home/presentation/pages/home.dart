@@ -7,6 +7,7 @@ import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/animated/popularfundanimation.dart';
+import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
@@ -1011,34 +1012,62 @@ class _MobileLayout extends StatelessWidget {
                   ),
                 ),
                 Obx(() {
-                  final isVerified =
-                      SessionManager.instance.isKycVerified.value;
+                  final session = SessionManager.instance;
+                  final isVerified = session.isKycVerified.value;
+                  final isPending = session.isKycPending.value;
 
+                  // --- 1. DEFAULT STATE (Not Started / Incomplete) ---
+                  Color bgColor = Ucolors.light;
+                  Color iconColor = Colors.black;
+                  Color titleColor = Ucolors.dark;
+                  IconData leftIcon = Icons.person;
+                  IconData rightIcon = Icons.arrow_forward_ios;
+                  String titleText = 'Complete KYC & Profile';
+                  String subText = 'Verify your Identity to start Investing';
+                  VoidCallback? onTapAction = () =>
+                      Get.toNamed(AppRoutes.kycScreen);
+
+                  // --- 2. PENDING STATE ---
+                  if (isPending) {
+                    bgColor = Colors.orange.shade50;
+                    iconColor = Colors.orange.shade700;
+                    titleColor = Colors.orange.shade900;
+                    leftIcon = Icons.hourglass_top;
+                    rightIcon = Icons.access_time;
+                    titleText = 'KYC in Progress';
+                    subText = 'CAMS is reviewing your details ⏳';
+                    onTapAction = () {
+                      ULoaders.info(
+                        title: "Processing",
+                        message:
+                            "Your KYC is currently under review by CAMS. Please check back shortly.",
+                      );
+                    };
+                  }
+                  // --- 3. VERIFIED STATE ---
+                  else if (isVerified) {
+                    bgColor = Colors.green.shade50;
+                    iconColor = Colors.green;
+                    titleColor = Colors.green;
+                    leftIcon = Icons.check_circle;
+                    rightIcon = Icons.verified;
+                    titleText = 'KYC Completed';
+                    subText = 'Your account is fully verified 🎉';
+                    onTapAction = null;
+                  }
+
+                  // --- UI RENDER ---
                   return Positioned(
                     left: 20,
                     right: 20,
                     bottom: 0,
                     child: Center(
                       child: GestureDetector(
-                        onTap: () async {
-                          if (!isVerified) {
-                            Get.toNamed(AppRoutes.kycScreen);
-                          }
-                          //
-                          else {
-                            await SessionManager.instance.setKycVerified(false);
-
-                            Get.toNamed(
-                              AppRoutes.kycScreen,
-                            ); // comment this after testing
-                          }
-                        },
+                        onTap: onTapAction,
                         child: Container(
                           height: size.height * 0.13,
                           decoration: BoxDecoration(
-                            color: isVerified
-                                ? Colors.green.shade50
-                                : Ucolors.light,
+                            color: bgColor,
                             borderRadius: BorderRadius.circular(15),
                             boxShadow: [
                               BoxShadow(
@@ -1055,15 +1084,7 @@ class _MobileLayout extends StatelessWidget {
                             ),
                             child: Row(
                               children: [
-                                Icon(
-                                  isVerified
-                                      ? Icons.check_circle
-                                      : Icons.person,
-                                  size: 24,
-                                  color: isVerified
-                                      ? Colors.green
-                                      : Colors.black,
-                                ),
+                                Icon(leftIcon, size: 24, color: iconColor),
                                 const SizedBox(width: 15),
                                 Expanded(
                                   child: Column(
@@ -1077,26 +1098,16 @@ class _MobileLayout extends StatelessWidget {
                                           fontSize: 12,
                                         ),
                                       ),
-
-                                      /// 🔥 MAIN TEXT CHANGE
                                       Text(
-                                        isVerified
-                                            ? 'KYC Completed'
-                                            : 'Complete KYC & Profile',
+                                        titleText,
                                         style: UTextStyles.medium.copyWith(
                                           fontWeight: FontWeight.bold,
-                                          color: isVerified
-                                              ? Colors.green
-                                              : Ucolors.dark,
+                                          color: titleColor,
                                           fontSize: 14,
                                         ),
                                       ),
-
-                                      /// 🔥 SUB TEXT CHANGE
                                       Text(
-                                        isVerified
-                                            ? 'Your account is fully verified 🎉'
-                                            : 'Verify your Identity to start Investing',
+                                        subText,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: UTextStyles.caption.copyWith(
@@ -1106,16 +1117,11 @@ class _MobileLayout extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-
-                                /// 🔥 RIGHT ICON CHANGE
                                 Icon(
-                                  isVerified
-                                      ? Icons.verified
-                                      : Icons.arrow_forward_ios,
-                                  size: 12,
-                                  color: isVerified
-                                      ? Colors.green
-                                      : Colors.black,
+                                  rightIcon,
+                                  size:
+                                      14, // Slightly larger for better visibility
+                                  color: iconColor,
                                 ),
                               ],
                             ),
@@ -1125,6 +1131,122 @@ class _MobileLayout extends StatelessWidget {
                     ),
                   );
                 }),
+                // Obx(() {
+                //   final isVerified =
+                //       SessionManager.instance.isKycVerified.value;
+
+                //   return Positioned(
+                //     left: 20,
+                //     right: 20,
+                //     bottom: 0,
+                //     child: Center(
+                //       child: GestureDetector(
+                //         onTap: () async {
+                //           if (!isVerified) {
+                //             Get.toNamed(AppRoutes.kycScreen);
+                //           }
+                //           //
+                //           // else {
+                //           //   await SessionManager.instance.setKycVerified(false);
+
+                //           //   Get.toNamed(
+                //           //     AppRoutes.kycScreen,
+                //           //   ); // comment this after testing
+                //           // }
+                //         },
+                //         child: Container(
+                //           height: size.height * 0.13,
+                //           decoration: BoxDecoration(
+                //             color: isVerified
+                //                 ? Colors.green.shade50
+                //                 : Ucolors.light,
+                //             borderRadius: BorderRadius.circular(15),
+                //             boxShadow: [
+                //               BoxShadow(
+                //                 color: Colors.black.withOpacity(0.15),
+                //                 blurRadius: 5,
+                //                 offset: const Offset(0, 4),
+                //               ),
+                //             ],
+                //           ),
+                //           child: Padding(
+                //             padding: const EdgeInsets.symmetric(
+                //               horizontal: 15,
+                //               vertical: 10,
+                //             ),
+                //             child: Row(
+                //               children: [
+                //                 Icon(
+                //                   isVerified
+                //                       ? Icons.check_circle
+                //                       : Icons.person,
+                //                   size: 24,
+                //                   color: isVerified
+                //                       ? Colors.green
+                //                       : Colors.black,
+                //                 ),
+                //                 const SizedBox(width: 15),
+                //                 Expanded(
+                //                   child: Column(
+                //                     crossAxisAlignment:
+                //                         CrossAxisAlignment.start,
+                //                     mainAxisAlignment: MainAxisAlignment.center,
+                //                     children: [
+                //                       Text(
+                //                         'Onboarding task',
+                //                         style: UTextStyles.caption.copyWith(
+                //                           fontSize: 12,
+                //                         ),
+                //                       ),
+
+                //                       /// 🔥 MAIN TEXT CHANGE
+                //                       Text(
+                //                         isVerified
+                //                             ? 'KYC Completed'
+                //                             : 'Complete KYC & Profile',
+                //                         style: UTextStyles.medium.copyWith(
+                //                           fontWeight: FontWeight.bold,
+                //                           color: isVerified
+                //                               ? Colors.green
+                //                               : Ucolors.dark,
+                //                           fontSize: 14,
+                //                         ),
+                //                       ),
+
+                //                       /// 🔥 SUB TEXT CHANGE
+                //                       Text(
+                //                         isVerified
+                //                             ? 'Your account is fully verified 🎉'
+                //                             : 'Verify your Identity to start Investing',
+                //                         maxLines: 1,
+                //                         overflow: TextOverflow.ellipsis,
+                //                         style: UTextStyles.caption.copyWith(
+                //                           fontSize: 10,
+                //                         ),
+                //                       ),
+                //                     ],
+                //                   ),
+                //                 ),
+
+                //                 /// 🔥 RIGHT ICON CHANGE
+                //                 Icon(
+                //                   isVerified
+                //                       ? Icons.verified
+                //                       : Icons.arrow_forward_ios,
+                //                   size: 12,
+                //                   color: isVerified
+                //                       ? Colors.green
+                //                       : Colors.black,
+                //                 ),
+                //               ],
+                //             ),
+                //           ),
+                //         ),
+                //       ),
+                //     ),
+                //   );
+                // }),
+
                 // Positioned(
                 //   left: 20,
                 //   right: 20,

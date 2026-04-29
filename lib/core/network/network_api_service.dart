@@ -55,14 +55,12 @@ class NetworkServicesApi implements BaseApiServices {
       final response = await _dio.get(
         url,
         queryParameters: queryParameters,
-        // 🔥 FIX 1: Web par GET request mein body allow nahi hai, isliye ignore kar do.
         data: kIsWeb ? null : data,
         options: Options(
           headers: headers,
           responseType: responseType,
           extra: {'isPublic': isPublic},
           contentType: (kIsWeb && isPublic) ? Headers.jsonContentType : null,
-          // 🔥 FIX 2: Web par GET request (bina body) ke sath sendTimeout warning deta hai, usko hata do.
           sendTimeout: kIsWeb ? null : const Duration(seconds: 30),
         ),
       );
@@ -508,8 +506,17 @@ class _AuthInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
+    final requestUrl = err.requestOptions.uri.toString().toLowerCase();
+    final isSignzyApi =
+        requestUrl.contains('signzy.tech') || requestUrl.contains('signzy.app');
     // Handle 401 - Token expired or invalid
     if (err.response?.statusCode == 401) {
+      if (isSignzyApi) {
+        // Just log it and skip the logout process!
+        createLog("[API] 401 Error from Signzy. Skipping app logout process.");
+        return super.onError(err, handler);
+      }
+
       createLog("[API] 401 Error - Attempting token refresh");
 
       final refreshToken = SessionManager.instance.getRefreshToken;

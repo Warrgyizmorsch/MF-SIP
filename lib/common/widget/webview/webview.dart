@@ -442,15 +442,65 @@ class _HtmlWebViewPageState extends State<HtmlWebViewPage> {
           onPageFinished: (url) {
             setState(() => _isLoading = false);
           },
+          // onNavigationRequest: (NavigationRequest request) {
+          //   final url = request.url.toLowerCase();
+
+          //   // 🔴 1. DIGILOCKER SUCCESS CHECK (Updated for the new Prod URL)
+          //   bool isDigiLockerSuccess =
+          //       url.contains("digilocker-auth-complete") ||
+          //       (url.contains("signzy") && url.endsWith("/success"));
+
+          //   // 🔴 2. E-SIGN SUCCESS CHECK
+          //   bool isEsignSuccess =
+          //       url.startsWith("https://signzy.com") ||
+          //       url.startsWith("http://signzy.com");
+
+          //   if (isDigiLockerSuccess || isEsignSuccess) {
+          //     // Set result to true and show the loading spinner
+          //     setState(() {
+          //       result = true;
+          //       _isLoading = true;
+          //     });
+
+          //     Future.delayed(const Duration(milliseconds: 3500), () {
+          //       if (mounted) {
+          //         Get.back(result: true);
+          //       }
+          //     });
+
+          //     return NavigationDecision.navigate;
+          //   }
+
+          //   // 3. FAILURE CHECK
+          //   if (url.contains("error=access_denied") ||
+          //       url.contains("user_cancelled") ||
+          //       url.contains("failure")) {
+          //     if (mounted) {
+          //       Get.back(result: false);
+          //     }
+          //     return NavigationDecision.prevent;
+          //   }
+
+          //   return NavigationDecision.navigate;
+          // },
           onNavigationRequest: (NavigationRequest request) {
-            final url = request.url;
-            final successBaseUrl =
-                "https://digilocker-preproduction.signzy.tech/digilocker-auth-complete";
-            final esignSuccessUrl = "https://signzy.com";
+            final url = request.url.toLowerCase();
+            final uri = Uri.parse(request.url);
+            // final successBaseUrl =
+            //     "https://digilocker-production.signzy.tech/digilocker-auth-complete";
+            // final esignSuccessUrl = "https://signzy.com";
+            bool isDigiLockerSuccess =
+                uri.host.contains("signzy") &&
+                (uri.path.contains("digilocker-auth-complete") ||
+                    uri.path.endsWith("success"));
+
+            // 2. E-SIGN SUCCESS CHECK
+            bool isEsignSuccess =
+                url.startsWith("https://signzy.com") ||
+                url.startsWith("http://signzy.com");
 
             // 1. SUCCESS CHECK
-            if (url.startsWith(successBaseUrl) ||
-                url.startsWith(esignSuccessUrl)) {
+            if (isEsignSuccess || isDigiLockerSuccess) {
               // Set result to true and show the loading spinner
               setState(() {
                 result = true;

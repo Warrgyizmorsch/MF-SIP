@@ -874,7 +874,121 @@ class NfoDetailsPage1 extends StatelessWidget {
   }
 
   // --- 5. Bottom Action Bar (Responsive) ---
+  // Widget _buildBottomBar(BuildContext context, {required bool isWeb}) {
+  //   return Container(
+  //     padding: EdgeInsets.only(
+  //       left: 16,
+  //       right: 16,
+  //       top: 16,
+  //       bottom: isWeb ? 16 : 32,
+  //     ),
+  //     decoration: BoxDecoration(
+  //       color: isWeb ? Colors.transparent : Colors.white,
+  //       border: isWeb
+  //           ? null
+  //           : const Border(top: BorderSide(color: borderColor)),
+  //       boxShadow: isWeb
+  //           ? null
+  //           : [
+  //               BoxShadow(
+  //                 color: Colors.black.withOpacity(0.05),
+  //                 blurRadius: 10,
+  //                 offset: const Offset(0, -4),
+  //               ),
+  //             ],
+  //     ),
+  //     child: Row(
+  //       mainAxisAlignment: isWeb
+  //           ? MainAxisAlignment.end
+  //           : MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         if (isWeb) ...[
+  //           SizedBox(
+  //             width: 140,
+  //             child: OutlinedButton(
+  //               onPressed: () => Navigator.maybePop(context),
+  //               style: OutlinedButton.styleFrom(
+  //                 foregroundColor: primaryColor,
+  //                 side: const BorderSide(color: primaryColor, width: 1.5),
+  //                 padding: const EdgeInsets.symmetric(vertical: 16),
+  //                 shape: RoundedRectangleBorder(
+  //                   borderRadius: BorderRadius.circular(12),
+  //                 ),
+  //               ),
+  //               child: const Text(
+  //                 'Back',
+  //                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+  //               ),
+  //             ),
+  //           ),
+  //           const SizedBox(width: 16),
+  //         ],
+  //         if (!isWeb) ...[
+  //           Expanded(
+  //             child: OutlinedButton(
+  //               onPressed: () => Get.back(),
+  //               style: OutlinedButton.styleFrom(
+  //                 foregroundColor: primaryColor,
+  //                 side: const BorderSide(color: primaryColor, width: 1.5),
+  //                 padding: const EdgeInsets.symmetric(vertical: 16),
+  //                 shape: RoundedRectangleBorder(
+  //                   borderRadius: BorderRadius.circular(12),
+  //                 ),
+  //               ),
+  //               child: const Text(
+  //                 'Back',
+  //                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+  //               ),
+  //             ),
+  //           ),
+  //           const SizedBox(width: 12),
+  //         ],
+  //         SizedBox(
+  //           width: isWeb ? 180 : null,
+  //           child: Expanded(
+  //             flex: isWeb ? 0 : 1,
+  //             child: ElevatedButton(
+  //               onPressed: () {},
+  //               style: ElevatedButton.styleFrom(
+  //                 backgroundColor: primaryColor,
+  //                 foregroundColor: Colors.white,
+  //                 padding: const EdgeInsets.symmetric(vertical: 16),
+  //                 elevation: 4,
+  //                 shadowColor: primaryColor.withOpacity(0.4),
+  //                 shape: RoundedRectangleBorder(
+  //                   borderRadius: BorderRadius.circular(12),
+  //                 ),
+  //               ),
+  //               child: const Text(
+  //                 'Invest Now',
+  //                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+  // --- 5. Bottom Action Bar (Responsive) ---
   Widget _buildBottomBar(BuildContext context, {required bool isWeb}) {
+    // 🚀 1. Extract the button to keep the code clean and avoid duplication
+    final Widget investButton = ElevatedButton(
+      onPressed: () {},
+      style: ElevatedButton.styleFrom(
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        elevation: 4,
+        shadowColor: primaryColor.withOpacity(0.4),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      child: const Text(
+        'Invest Now',
+        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+      ),
+    );
+
     return Container(
       padding: EdgeInsets.only(
         left: 16,
@@ -943,29 +1057,11 @@ class NfoDetailsPage1 extends StatelessWidget {
             ),
             const SizedBox(width: 12),
           ],
-          SizedBox(
-            width: isWeb ? 180 : null,
-            child: Expanded(
-              flex: isWeb ? 0 : 1,
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  elevation: 4,
-                  shadowColor: primaryColor.withOpacity(0.4),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Invest Now',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-          ),
+
+          // 🚀 2. THE FIX: Conditionally wrap the button properly!
+          isWeb
+              ? SizedBox(width: 180, child: investButton)
+              : Expanded(child: investButton),
         ],
       ),
     );

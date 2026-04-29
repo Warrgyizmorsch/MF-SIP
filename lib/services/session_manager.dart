@@ -29,7 +29,6 @@ class SessionManager extends GetxService {
   String? jwtAccessToken;
   String? jwtRefreshToken;
 
-  // --- REPLACED: _riskScore is now backed by an Rx Variable ---
   final Rxn<RiskResultModel> riskScoreObs = Rxn<RiskResultModel>();
 
   final Rxn<TokenDataModel> tokenDataModel = Rxn<TokenDataModel>();
@@ -44,6 +43,7 @@ class SessionManager extends GetxService {
 
   //kyc check
   final RxBool isKycVerified = false.obs;
+  final RxBool isKycPending = false.obs;
 
   final StreamController<String?> _controller =
       StreamController<String?>.broadcast();
@@ -122,6 +122,9 @@ class SessionManager extends GetxService {
       //kyc
       final kycVal = _prefs?.getBool('kyc_verified');
       isKycVerified.value = kycVal ?? false;
+
+      final kycPendingVal = _prefs?.getBool('kyc_pending');
+      isKycPending.value = kycPendingVal ?? false;
     } else {
       await getSession();
     }
@@ -148,6 +151,16 @@ class SessionManager extends GetxService {
       await _prefs!.setBool('kyc_verified', value);
     } else {
       await _secureStorage!.write(key: 'kyc_verified', value: value.toString());
+    }
+  }
+
+  Future<void> setKycPending(bool value) async {
+    isKycPending.value = value;
+    if (kIsWeb) {
+      await _ensurePrefsInitialized();
+      await _prefs!.setBool('kyc_pending', value);
+    } else {
+      await _secureStorage!.write(key: 'kyc_pending', value: value.toString());
     }
   }
 
@@ -362,6 +375,10 @@ class SessionManager extends GetxService {
       if (kycVal != null) {
         isKycVerified.value = kycVal == 'true';
       }
+      final kycPendingVal = await _secureStorage?.read(key: 'kyc_pending');
+      if (kycPendingVal != null) {
+        isKycPending.value = kycPendingVal == 'true';
+      }
     }
     // 4. Update the Observable
     if (appLockString != null) {
@@ -410,7 +427,6 @@ class SessionManager extends GetxService {
   }
 
   Future<void> clearSession() async {
-    // ADD THIS LINE:
     log("🚨 WARNING: CLEAR SESSION CALLED! Wiping all data! 🚨");
     debugPrint(StackTrace.current.toString());
 
@@ -427,6 +443,7 @@ class SessionManager extends GetxService {
     onboardingRespone.value = null;
 
     isKycVerified.value = false;
+    isKycPending.value = false;
 
     if (kIsWeb) {
       await _ensurePrefsInitialized();
@@ -437,11 +454,12 @@ class SessionManager extends GetxService {
         _prefs!.remove('jwtAccessToken'),
         _prefs!.remove('jwtRefreshToken'),
         _prefs!.remove('userId'),
-        _prefs!.remove('userData'), // Added missing removal
+        _prefs!.remove('userData'), 
         _prefs!.remove('riskScore'),
         _prefs!.remove('tokenData'),
         _prefs!.remove('onBoardingData'),
         _prefs!.remove('kyc_verified'),
+        _prefs!.remove('kyc_pending'),
       ]);
     } else {
       await Future.wait([
@@ -453,6 +471,7 @@ class SessionManager extends GetxService {
         _secureStorage!.delete(key: 'tokenData'),
         _secureStorage!.delete(key: 'onBoardingData'),
         _secureStorage!.delete(key: 'kyc_verified'),
+        _secureStorage!.delete(key: 'kyc_pending'), 
       ]);
     }
 

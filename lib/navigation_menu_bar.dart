@@ -1449,6 +1449,7 @@
 //   }
 // }
 
+import 'dart:async';
 import 'dart:developer';
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
@@ -1472,6 +1473,7 @@ import 'package:my_sip/features/explore/presentation/widget/webfilterpage.dart';
 import 'package:my_sip/features/goal/presentation/pages/coming_soon.dart';
 import 'package:my_sip/features/goal/presentation/pages/goal.dart';
 import 'package:my_sip/features/home/presentation/pages/home.dart';
+import 'package:my_sip/features/kyc/data/datasource/kyc_remote_data_source.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/document.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/personal_details.dart';
@@ -1493,11 +1495,74 @@ class NavigationBarController extends GetxController {
   final RxInt selectedIndex = 0.obs;
   final RxBool isProfileExpanded = false.obs;
   final RxBool isHelpExpanded = false.obs;
+  Timer? _camsPollingTimer;
 
   @override
   void onInit() {
     super.onInit();
     _syncTabWithUrl();
+    if (SessionManager.instance.isKycPending.value) {
+      _startBackgroundCamsCheck();
+    }
+  }
+
+  void _startBackgroundCamsCheck() {
+    _checkCamsStatusSilently();
+    _camsPollingTimer = Timer.periodic(const Duration(minutes: 10), (
+      timer,
+    ) async {
+      await _checkCamsStatusSilently();
+    });
+  }
+
+  Future<void> _checkCamsStatusSilently() async {
+    final onboardingId =
+        SessionManager.instance.getOnboardingData?.onboardingId ??
+        SessionManager.instance.onboardingRespone.value?.onboardingId;
+
+    if (onboardingId == null || onboardingId.isEmpty) {
+      _camsPollingTimer?.cancel();
+      return;
+    }
+
+    try {
+      // Grab the data source safely
+      final kycDataSource = Get.find<KycRemoteDataSource>();
+
+      final String status = await kycDataSource.checkCamsStatus(onboardingId);
+      final statusLower = status.toLowerCase();
+
+      // ✅ SUCCESS
+      if (statusLower == "success" || statusLower == "approved") {
+        _camsPollingTimer?.cancel();
+        await SessionManager.instance.setKycPending(false);
+        await SessionManager.instance.setKycVerified(true);
+
+        Get.snackbar(
+          "KYC Approved! 🎉",
+          "Your account is fully verified. You can now start investing.",
+          backgroundColor: Colors.green.shade50,
+          colorText: Colors.green.shade900,
+        );
+      }
+      // ❌ REJECTED
+      else if (statusLower == "rejected" ||
+          statusLower == "failed" ||
+          statusLower == "fail") {
+        _camsPollingTimer?.cancel();
+        await SessionManager.instance.setKycPending(false);
+        await SessionManager.instance.setKycVerified(false);
+
+        Get.snackbar(
+          "KYC Update",
+          "There was an issue with your verification. Please try again.",
+          backgroundColor: Colors.red.shade50,
+          colorText: Colors.red.shade900,
+        );
+      }
+    } catch (e) {
+      debugPrint("Silent CAMS Check Exception: $e");
+    }
   }
 
   void _syncTabWithUrl() {
@@ -1515,25 +1580,6 @@ class NavigationBarController extends GetxController {
       selectedIndex.value = 0;
     }
   }
-
-  // void changePage(int index, {bool isDesktop = true}) {
-  //   if (index == 4) {
-  //     if (isDesktop) {
-  //       isProfileExpanded.value = !isProfileExpanded.value;
-  //     } else {
-  //       selectedIndex.value = 40;
-  //     }
-  //     return;
-  //   }
-
-  //   if (selectedIndex.value == index) return;
-
-  //   if (index < 4) {
-  //     isProfileExpanded.value = false;
-  //   }
-
-  //   selectedIndex.value = index;
-  // }
 
   void changePage(int index, {bool isDesktop = true}) {
     if (index == 4) {
@@ -1631,36 +1677,6 @@ class NavigationBarController extends GetxController {
     }
   }
 
-  // void navigateToExploreWithFilter(VoidCallback? filterLogic) {
-  //   isProfileExpanded.value = false;
-  //   isHelpExpanded.value = false;
-  //   // changePage(1);
-  //   selectedIndex.value = 1;
-  //   Get.toNamed(AppRoutes.explorePage, id: kIsWeb ? 1 : null);
-  //   // changePage(1, isDesktop: kIsWeb);
-  //   if (filterLogic != null) {
-  //     // filterLogic();
-  //     Future.delayed(const Duration(milliseconds: 100), () {
-  //       filterLogic();
-  //     });
-  //   }
-  // }
-  // void navigateToExploreWithFilter(VoidCallback? filterLogic) {
-  //   isProfileExpanded.value = false;
-  //   isHelpExpanded.value = false;
-
-  //   if (selectedIndex.value == 1) {
-  //     selectedIndex.value = -1; // Dummy index
-  //   }
-
-  //   changePage(1, isDesktop: kIsWeb);
-
-  //   if (filterLogic != null) {
-  //     Future.delayed(const Duration(milliseconds: 150), () {
-  //       filterLogic();
-  //     });
-  //   }
-  // }
   void navigateToExploreWithFilter(VoidCallback? filterLogic) {
     if (kIsWeb) {
       Get.toNamed(AppRoutes.explorePage, id: 1);
@@ -1682,6 +1698,12 @@ class NavigationBarController extends GetxController {
 
   bool get isProfileActive =>
       selectedIndex.value >= 40 && selectedIndex.value < 50;
+
+  @override
+  void onClose() {
+    _camsPollingTimer?.cancel();
+    super.onClose();
+  }
 }
 
 class NavigationMenuBar extends StatelessWidget {

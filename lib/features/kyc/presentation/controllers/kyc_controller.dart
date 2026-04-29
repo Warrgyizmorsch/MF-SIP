@@ -263,7 +263,20 @@ class KycController extends GetxController {
         if (step1FormKey.currentState!.validate()) {
           final bool? needsKyc = await checkKycStatus();
           if (needsKyc == true) {
-            final bool onboardingSuccess = await saveOnboardingData();
+            // final bool onboardingSuccess = await saveOnboardingData();
+
+            // final bool onboardingSuccess = true;
+            final existingOnboardingId =
+                session.getOnboardingData?.onboardingId ??
+                session.onboardingRespone.value?.onboardingId;
+            bool onboardingSuccess = true;
+            if (existingOnboardingId == null || existingOnboardingId.isEmpty) {
+              createLog("No onboarding session found. Creating a new one...");
+              onboardingSuccess = await saveOnboardingData();
+            } else {
+              createLog("Resuming existing KYC session: $existingOnboardingId");
+              onboardingSuccess = true;
+            }
 
             if (onboardingSuccess) {
               await _handleDigiLockerFlow();
@@ -1488,29 +1501,31 @@ class KycController extends GetxController {
 
               // if (gpsSaved) {
               // 🔴 3. RUN FINAL VERIFICATION ENGINE
-              ULoaders.showLoading(
-                message: "Running final compliance checks...",
-              );
+              ULoaders.showLoading(message: "Submitting application...");
               final isFullyVerified = await runVerificationEngine();
 
               ULoaders.stopLoading();
 
               if (isFullyVerified) {
-                await SessionManager.instance.setKycVerified(true);
+                // await SessionManager.instance.setKycVerified(true);
 
-                ULoaders.success(
-                  title: '🎉 KYC COMPLETE',
-                  message: 'Your application is fully verified!',
-                );
+                await SessionManager.instance.setKycPending(true);
 
-                // Get.snackbar(
-                //   "🎉 KYC COMPLETE",
-                //   "Your application is fully verified!",
+                // ULoaders.success(
+                //   title: '🎉 KYC COMPLETE',
+                //   message: 'Your application is fully verified!',
                 // );
+                ULoaders.success(
+                  title: 'Application Submitted!',
+                  message:
+                      'Your KYC is under review by CAMS. We will notify you once it is approved.',
+                );
               } else {
                 ULoaders.stopLoading();
               }
               // }
+
+              await Future.delayed(const Duration(seconds: 2));
 
               // 3. FINAL NAV (Uncomment to go to dashboard)
               Get.offAllNamed(AppRoutes.navMenuBar);
@@ -3119,8 +3134,7 @@ class KycController extends GetxController {
       isExecutingPOIStep1.value = true;
 
       final requestData = {
-        // "merchantId":
-        //     "69aac24da01541001c853d48", // from investor login Response User Id
+        // from investor login Response User Id
         "merchantId":
             SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
 

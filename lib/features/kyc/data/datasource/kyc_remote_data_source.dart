@@ -556,4 +556,43 @@ class KycRemoteDataSource {
       return Right(ApiError(message: 'Onboarding failed with exception:$e'));
     }
   }
+
+
+  // ===========================================================================
+  //  CAMS POLLING
+  // ===========================================================================
+  Future<String> checkCamsStatus(String onboardingId) async {
+    try {
+      final signzyToken = sessionManager.getOnboardingData?.sessionToken ?? 
+                          sessionManager.onboardingRespone.value?.sessionToken;
+
+      if (signzyToken == null) {
+        createLog("[Kyc Remote Data Source] Error: Signzy Token is null");
+        return "error";
+      }
+
+      // Using your custom NetworkServicesApi
+      final resp = await _apiService.postApi(
+        '${Appurl.kycUrl}/api/onboardings/pullCamsResponse',
+        data: {"onboardingId": onboardingId},
+        headers: {
+          'Authorization': 'oQj4VcRu0Ao53aOunK5zXdkVNw2337sMSuMXng7bkGe88KWLZwTtJGUPAlmk2QhR', 
+        },
+      );
+
+      createLog("[Kyc Remote Data Source] CAMS Background Check: $resp");
+
+      if (resp != null && resp['camsResponse'] != null) {
+        return resp['camsResponse']['status']?.toString() ?? "inProgress";
+      }
+      
+      return "inProgress";
+
+    } catch (e) {
+      createLog("[Kyc Remote Data Source] pullCamsResponse API Exception: $e");
+      return "error";
+    }
+  }
+
+
 }
