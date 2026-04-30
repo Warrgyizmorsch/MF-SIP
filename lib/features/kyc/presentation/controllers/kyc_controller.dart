@@ -69,10 +69,10 @@ class KycController extends GetxController {
   final KycUseCases kycUseCases;
 
   // --- Controllers ---
-  final PageController pageController = PageController();
+  final PageController pageController = PageController(initialPage: 2);
 
   // --- State Variables ---
-  final currentStep = 0.obs;
+  final currentStep = 2.obs;
   final isLoading = false.obs;
 
   final taxStatusList = [
@@ -1508,16 +1508,16 @@ class KycController extends GetxController {
               ULoaders.stopLoading();
 
               if (isFullyVerified) {
-
                 await SessionManager.instance.setKycPending(true);
 
                 final userId = SessionManager.instance.getUserData?.id;
                 if (userId != null) {
                   final updateData = {
                     'id': userId,
-                    'kyc_status': 'Pending', // Must match your DB string exactly
+                    'kyc_status':
+                        'Pending', // Must match your DB string exactly
                   };
-                  
+
                   // Call the update usecase (using the controller we set up earlier)
                   if (Get.isRegistered<PersonalisationController>()) {
                     await Get.find<PersonalisationController>()
@@ -1529,14 +1529,11 @@ class KycController extends GetxController {
 
                 if (Get.isRegistered<PersonalisationController>()) {
                   final controller = Get.find<PersonalisationController>();
-                  
+
                   // Turn the banner orange
                   controller.isKycPending.value = true;
                   controller.isKycVerified.value = false;
-                  
-                  
                 }
-                
 
                 // ULoaders.success(
                 //   title: '🎉 KYC COMPLETE',

@@ -427,6 +427,23 @@ int getYearlyIncomeAsInt(String text) {
     }
   }
 
+  // Reverses the SQL date back to UI format
+  String formatToUIDate(String? sqlDate) {
+    if (sqlDate == null || sqlDate.isEmpty) return '';
+    try {
+      List<String> parts = sqlDate.split('-');
+      if (parts.length == 3) {
+        String year = parts[0];
+        String month = parts[1];
+        String day = parts[2];
+        return '$day/$month/$year'; // Returns DD/MM/YYYY
+      }
+    } catch (e) {
+      return sqlDate; // Fallback
+    }
+    return sqlDate;
+  }
+
 String formatToSqlDate(String dateStr) {
   // Converts DD/MM/YYYY to YYYY-MM-DD
   if (dateStr.contains('/')) {

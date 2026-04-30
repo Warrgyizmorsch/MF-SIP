@@ -2410,7 +2410,6 @@ class KycScreen extends GetView<KycController> {
                     controller: controller.pinCodeTextEditingController,
                   ),
                   CustomTextField(
-                    
                     enabled: false,
                     validationType: ValidationType.required,
                     height: 60,
@@ -3113,6 +3112,7 @@ class KycScreen extends GetView<KycController> {
               );
             }),
           ),
+
           const SizedBox(height: 30),
           _buildSecurityFooter(),
           const SizedBox(height: 30),

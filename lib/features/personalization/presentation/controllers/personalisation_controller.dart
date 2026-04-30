@@ -494,6 +494,8 @@ class PersonalisationController extends GetxController {
                 profileData.customerDetails?.motherName != null &&
                 (profileData.customerDetails?.fatherName ?? '').isNotEmpty;
 
+            loadDataIntoProfileScreen(profileData);
+
             log('--- Onboarding Status ---');
             log(
               'KYC Verified: ${isKycVerified.value} | Pending: ${isKycPending.value}',
@@ -761,6 +763,7 @@ class PersonalisationController extends GetxController {
       };
 
       final result = await _useCases.updateProfileUsecases.call(data);
+      fetchUserBankDetails();
 
       result.fold(
         (success) {
@@ -1114,6 +1117,49 @@ class PersonalisationController extends GetxController {
     } finally {
       // 3. Clear loading state
       isDeleteLoading[nominee.id] = false;
+    }
+  }
+
+  // Call this right after you successfully fetch the profile data from your API
+  void loadDataIntoProfileScreen(dynamic userProfileData) {
+    if (userProfileData == null) return;
+
+    // 1. Basic User Info (Usually comes from the main user object)
+    // Assuming userProfileData has fields like name, email, phone, pan
+    nameController.text = userProfileData.name ?? '';
+    emailController.text = userProfileData.email ?? '';
+    mobileController.text = userProfileData.mobile ?? '';
+    panController.text =
+        userProfileData.panCard ?? ''; // Or wherever PAN is stored
+
+    // 2. Customer Details (The new data we just added)
+    final details = userProfileData
+        .customerDetails; // Adjust this to match your actual model
+
+    if (details != null) {
+      // Use the Date reverser we created earlier to format YYYY-MM-DD to DD/MM/YYYY
+      dobController.text = formatToUIDate(details.dob);
+
+      // Inject into the specific controllers used in _buildMobileLayout
+      wealthSource.text = details.wealthSource ?? '';
+      yearlyIncome.text = details.yearlyIncome?.toString() ?? '';
+
+      // The UI hint says "City, State, Pincode", so we format it if it's split in the backend
+      String fullAddress = details.address ?? '';
+      if (details.city != null && details.city!.isNotEmpty) {
+        fullAddress += ', ${details.city}';
+      }
+      if (details.state != null && details.state!.isNotEmpty) {
+        fullAddress += ', ${details.state}';
+      }
+      if (details.pincode != null && details.pincode!.isNotEmpty) {
+        fullAddress += ' - ${details.pincode}';
+      }
+
+      // Clean up leading commas if address was initially null
+      if (fullAddress.startsWith(', ')) fullAddress = fullAddress.substring(2);
+
+      addressController.text = fullAddress;
     }
   }
 

@@ -446,11 +446,12 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
         const Gap(20),
 
         // 🔢 Account Number
-        UTextFormField(
+        CustomTextField(
           controller: controller.bankAccountNumberController,
-          prefixIcon: Icons.numbers,
-          hintText: 'Account Number',
+          leading: Icon(Icons.numbers),
+          hint: 'Account Number',
           keyboardType: TextInputType.number,
+          inputFormatters: [LengthLimitingTextInputFormatter(18)],
         ),
         const Gap(20),
 
@@ -459,7 +460,10 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
           controller: controller.bankIfscController,
           leading: Icon(Icons.account_balance),
           hint: 'IFSC Code',
-          inputFormatters: [UpperCaseTextFormatter()],
+          inputFormatters: [
+            UpperCaseTextFormatter(),
+            LengthLimitingTextInputFormatter(11),
+          ],
         ),
         const Gap(20),
 

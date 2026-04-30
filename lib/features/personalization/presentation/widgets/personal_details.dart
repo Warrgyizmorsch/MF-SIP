@@ -888,10 +888,11 @@ class PersonalDetailsScreen extends GetView<AuthController> {
       children: [
         const SmallHeading(smallheading: 'Address'),
         const SizedBox(height: 5),
-        UTextFormField(
+        CustomTextField(
+          maxLines: 4,
           controller: personalisationController.addressController,
-          prefixIcon: Icons.location_on,
-          hintText: 'City, State, Pincode',
+          leading: Icon(Icons.location_on),
+          hint: 'City, State, Pincode',
         ),
       ],
     );
