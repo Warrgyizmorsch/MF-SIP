@@ -1520,23 +1520,46 @@ class NavigationBarController extends GetxController {
         SessionManager.instance.getOnboardingData?.onboardingId ??
         SessionManager.instance.onboardingRespone.value?.onboardingId;
 
-    if (onboardingId == null || onboardingId.isEmpty) {
+    // Grab the user ID to send to the backend
+    final userId = SessionManager.instance.getUserData?.id;
+
+    // Safety check: Ensure we have both IDs before making calls
+    if (onboardingId == null || onboardingId.isEmpty || userId == null) {
       _camsPollingTimer?.cancel();
       return;
     }
 
     try {
-      // Grab the data source safely
       final kycDataSource = Get.find<KycRemoteDataSource>();
-
       final String status = await kycDataSource.checkCamsStatus(onboardingId);
       final statusLower = status.toLowerCase();
 
       // ✅ SUCCESS
       if (statusLower == "success" || statusLower == "approved") {
         _camsPollingTimer?.cancel();
+
+        // 1. Update Device Storage
         await SessionManager.instance.setKycPending(false);
         await SessionManager.instance.setKycVerified(true);
+
+        // 2. Update UI instantly!
+        if (Get.isRegistered<PersonalisationController>()) {
+          final controller = Get.find<PersonalisationController>();
+          controller.isKycPending.value = false;
+          controller.isKycVerified.value = true;
+        }
+
+        // 🚀 3. SYNC WITH BACKEND
+        final updateData = {
+          'id': userId,
+          'kyc_status':
+              'Approved', // Make sure this matches your DB Enum/String perfectly
+        };
+        // Fire and forget (or await if you want to be totally safe)
+        await Get.find<PersonalisationController>()
+            .useCases
+            .updateProfileUsecases
+            .call(updateData);
 
         Get.snackbar(
           "KYC Approved! 🎉",
@@ -1550,8 +1573,27 @@ class NavigationBarController extends GetxController {
           statusLower == "failed" ||
           statusLower == "fail") {
         _camsPollingTimer?.cancel();
+
+        // 1. Update Device Storage
         await SessionManager.instance.setKycPending(false);
         await SessionManager.instance.setKycVerified(false);
+
+        // 2. Update UI instantly!
+        if (Get.isRegistered<PersonalisationController>()) {
+          final controller = Get.find<PersonalisationController>();
+          controller.isKycPending.value = false;
+          controller.isKycVerified.value = false;
+        }
+
+        // 🚀 3. SYNC WITH BACKEND
+        final updateData = {
+          'id': userId,
+          'kyc_status': 'Rejected', // Or 'Failed', depending on your DB
+        };
+        await Get.find<PersonalisationController>()
+            .useCases
+            .updateProfileUsecases
+            .call(updateData);
 
         Get.snackbar(
           "KYC Update",
@@ -1564,6 +1606,56 @@ class NavigationBarController extends GetxController {
       debugPrint("Silent CAMS Check Exception: $e");
     }
   }
+
+  // Future<void> _checkCamsStatusSilently() async {
+  //   final onboardingId =
+  //       SessionManager.instance.getOnboardingData?.onboardingId ??
+  //       SessionManager.instance.onboardingRespone.value?.onboardingId;
+
+  //   if (onboardingId == null || onboardingId.isEmpty) {
+  //     _camsPollingTimer?.cancel();
+  //     return;
+  //   }
+
+  //   try {
+  //     // Grab the data source safely
+  //     final kycDataSource = Get.find<KycRemoteDataSource>();
+
+  //     final String status = await kycDataSource.checkCamsStatus(onboardingId);
+  //     final statusLower = status.toLowerCase();
+
+  //     // ✅ SUCCESS
+  //     if (statusLower == "success" || statusLower == "approved") {
+  //       _camsPollingTimer?.cancel();
+  //       await SessionManager.instance.setKycPending(false);
+  //       await SessionManager.instance.setKycVerified(true);
+
+  //       Get.snackbar(
+  //         "KYC Approved! 🎉",
+  //         "Your account is fully verified. You can now start investing.",
+  //         backgroundColor: Colors.green.shade50,
+  //         colorText: Colors.green.shade900,
+  //       );
+  //     }
+  //     // ❌ REJECTED
+  //     else if (statusLower == "rejected" ||
+  //         statusLower == "failed" ||
+  //         statusLower == "fail") {
+  //       _camsPollingTimer?.cancel();
+  //       await SessionManager.instance.setKycPending(false);
+  //       await SessionManager.instance.setKycVerified(false);
+
+  //       Get.snackbar(
+  //         "KYC Update",
+  //         "There was an issue with your verification. Please try again.",
+  //         backgroundColor: Colors.red.shade50,
+  //         colorText: Colors.red.shade900,
+  //       );
+  //     }
+  //   } catch (e) {
+  //     debugPrint("Silent CAMS Check Exception: $e");
+  //   }
+  // }
 
   void _syncTabWithUrl() {
     String currentRoute = Get.currentRoute;

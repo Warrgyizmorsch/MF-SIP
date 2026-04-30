@@ -2134,9 +2134,9 @@ class KycScreen extends GetView<KycController> {
         key: controller.step1FormKey,
         child: Column(
           children: [
-            const SizedBox(height: 20),
+            // const SizedBox(height: 20),
             SvgPicture.asset(UImages.appLogo, height: 50),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
             Text("Verify Your Identity", style: AppTextStyles.h3()),
             const SizedBox(height: 8),
             Text(
@@ -2144,7 +2144,7 @@ class KycScreen extends GetView<KycController> {
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMediumW500(color: Ucolors.darkgrey),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -2172,7 +2172,7 @@ class KycScreen extends GetView<KycController> {
                     options: controller.modeOfHoldingList,
                     selectedValue: controller.selectedModeOfHolding,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   Obx(
                     () => CustomTextField(
                       onHelperTap: () async {
@@ -2187,7 +2187,7 @@ class KycScreen extends GetView<KycController> {
                       helperText: "Tap here to change PAN from Profile",
                       validationType: ValidationType.required,
                       label: "PAN Number",
-                      height: 70,
+                      height: 60,
                       controller: controller.panTextEditingController,
                       hint: "Ex: ABCDE1234F",
                       keyboardType: controller.panKeyboardType.value,
@@ -2410,6 +2410,7 @@ class KycScreen extends GetView<KycController> {
                     controller: controller.pinCodeTextEditingController,
                   ),
                   CustomTextField(
+                    
                     enabled: false,
                     validationType: ValidationType.required,
                     height: 60,

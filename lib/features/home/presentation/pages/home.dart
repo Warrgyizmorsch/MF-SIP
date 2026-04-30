@@ -12,6 +12,7 @@ import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/common/widget/images/image_select.dart';
+import 'package:my_sip/common/widget/shimmer/shimmer.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
 import 'package:my_sip/common/widget/video/custom_inline_youtube_player.dart';
@@ -1012,48 +1013,159 @@ class _MobileLayout extends StatelessWidget {
                   ),
                 ),
                 Obx(() {
-                  final session = SessionManager.instance;
-                  final isVerified = session.isKycVerified.value;
-                  final isPending = session.isKycPending.value;
+                  final controller = Get.find<PersonalisationController>();
+                  final size = MediaQuery.of(context).size;
 
-                  // --- 1. DEFAULT STATE (Not Started / Incomplete) ---
+                  final isPending = controller.isKycPending.value;
+                  final isVerified = controller.isKycVerified.value;
+                  final noRiskProfile = !controller.hasRiskProfile.value;
+                  final noNominee = !controller.hasNominee.value;
+                  final noBank = !controller.hasBank.value;
+                  final noPersonalDetails =
+                      !controller.hasPersonalDetails.value;
+
+                  // 🚀 Determine if EVERYTHING is fully done and verified
+                  // final isAllComplete =
+                  //     isVerified && !noRiskProfile && !noNominee && !noBank;
+                  final isAllComplete =
+                      isVerified &&
+                      !noPersonalDetails &&
+                      !noRiskProfile &&
+                      !noNominee &&
+                      !noBank;
+
+                  // --- 1. DEFAULT STATE ---
                   Color bgColor = Ucolors.light;
                   Color iconColor = Colors.black;
                   Color titleColor = Ucolors.dark;
+                  Color subTextColor = Colors.grey;
                   IconData leftIcon = Icons.person;
+                  Widget? customLeftIcon;
                   IconData rightIcon = Icons.arrow_forward_ios;
-                  String titleText = 'Complete KYC & Profile';
-                  String subText = 'Verify your Identity to start Investing';
-                  VoidCallback? onTapAction = () =>
-                      Get.toNamed(AppRoutes.kycScreen);
+                  String titleText = '';
+                  String subText = '';
+                  VoidCallback? onTapAction;
 
-                  // --- 2. PENDING STATE ---
-                  if (isPending) {
+                  if (controller.isProfileLoading.value) {
+                    return Positioned(
+                      bottom: 0,
+                      right: 20,
+                      left: 20,
+                      child: UShimmerEffect(
+                        width: double.infinity,
+                        height: size.height * 0.13,
+                        text: "Fetching your profile...",
+                      ),
+                    );
+                  }
+
+                  // 1. If KYC hasn't even been started or failed
+                  if (!isVerified && !isPending) {
+                    bgColor = Ucolors.light;
+                    iconColor = Colors.black;
+                    titleColor = Ucolors.dark;
+                    subTextColor = Colors.grey;
+                    leftIcon = Icons.person;
+                    rightIcon = Icons.arrow_forward_ios;
+                    titleText = 'Complete KYC & Profile';
+                    subText = 'Verify your Identity to start Investing';
+                    onTapAction = () => Get.toNamed(AppRoutes.kycScreen);
+                  } else if (noPersonalDetails) {
+                    bgColor = Ucolors.blue; // or any color you prefer
+                    iconColor = Ucolors.light;
+                    titleColor = Ucolors.light;
+                    subTextColor = Ucolors.light.withOpacity(0.8);
+                    leftIcon = Icons.assignment_ind_rounded;
+                    rightIcon = Icons.arrow_forward_ios;
+                    titleText = 'Complete Profile Details';
+                    subText = 'Add your income and family details';
+                    onTapAction = () => Get.toNamed(AppRoutes.additionalInfo);
+                  }
+                  // 2. If Risk Profile is missing (even if KYC is pending)
+                  else if (noRiskProfile) {
+                    bgColor = Ucolors.blue;
+                    iconColor = Ucolors.light;
+                    titleColor = Ucolors.light;
+                    subTextColor = Ucolors.light.withOpacity(0.8);
+                    customLeftIcon = CircleAvatar(
+                      backgroundColor: Colors.amber,
+                      backgroundImage: AssetImage(UImages.crown),
+                      radius: 14,
+                    );
+                    rightIcon = Icons.arrow_forward_ios;
+                    titleText = 'Check Your Risk Profile Now!';
+                    subText = 'Discover your investment style';
+                    onTapAction = () => Get.toNamed(AppRoutes.riskProfile);
+                  }
+                  // 3. If Nominee is missing (even if KYC is pending)
+                  else if (noNominee) {
+                    bgColor = Ucolors.light;
+                    iconColor = Ucolors.blue;
+                    titleColor = Ucolors.blue;
+                    subTextColor = Colors.grey;
+                    leftIcon = Icons.family_restroom;
+                    customLeftIcon = null;
+                    rightIcon = Icons.arrow_forward_ios;
+                    titleText = 'Add a Nominee';
+                    subText = 'Secure your investments for your family';
+                    onTapAction = () => Get.toNamed(AppRoutes.nomineeDetail);
+                  }
+                  // 4. If Bank is missing (even if KYC is pending)
+                  else if (noBank) {
+                    bgColor = Ucolors.blue;
+                    iconColor = Ucolors.light;
+                    titleColor = Ucolors.light;
+                    subTextColor = Ucolors.light.withOpacity(0.8);
+                    leftIcon = Icons.account_balance;
+                    customLeftIcon = null;
+                    rightIcon = Icons.arrow_forward_ios;
+                    titleText = 'Add Bank Account';
+                    subText = 'Link your bank for fast transactions';
+                    onTapAction = () => Get.toNamed(AppRoutes.addanotherbank);
+                  }
+                  // 5. If everything else is done, but KYC is STILL pending!
+                  else if (isPending && !isVerified) {
                     bgColor = Colors.orange.shade50;
                     iconColor = Colors.orange.shade700;
                     titleColor = Colors.orange.shade900;
+                    subTextColor = Colors.orange.shade800;
                     leftIcon = Icons.hourglass_top;
+                    customLeftIcon = null;
                     rightIcon = Icons.access_time;
                     titleText = 'KYC in Progress';
                     subText = 'CAMS is reviewing your details ⏳';
-                    onTapAction = () {
-                      ULoaders.info(
-                        title: "Processing",
-                        message:
-                            "Your KYC is currently under review by CAMS. Please check back shortly.",
-                      );
-                    };
+                    onTapAction = () => ULoaders.info(
+                      title: "Processing",
+                      message:
+                          "Your KYC is currently under review by CAMS. Please check back shortly.",
+                    );
                   }
-                  // --- 3. VERIFIED STATE ---
-                  else if (isVerified) {
-                    bgColor = Colors.green.shade50;
-                    iconColor = Colors.green;
-                    titleColor = Colors.green;
-                    leftIcon = Icons.check_circle;
-                    rightIcon = Icons.verified;
-                    titleText = 'KYC Completed';
-                    subText = 'Your account is fully verified 🎉';
-                    onTapAction = null;
+                  // 6. SUCCESS STATE (All Tasks Complete & KYC Verified!)
+                  else if (isAllComplete) {
+                    bgColor = const Color(0xFFE8F5E9); // Very light green
+                    iconColor = const Color(0xFF2E7D32); // Deep premium green
+                    titleColor = const Color(0xFF1B5E20);
+                    subTextColor = const Color(0xFF388E3C);
+                    customLeftIcon = Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade100,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.rocket_launch_rounded,
+                        color: iconColor,
+                        size: 20,
+                      ),
+                    );
+                    rightIcon = Icons.arrow_forward_rounded;
+                    titleText = 'Ready to Invest! 🎉';
+                    subText = 'Your profile is 100% complete.';
+                    onTapAction = () {
+                      // Navigate them to explore funds or start an SIP!
+                    };
+                  } else {
+                    return const SizedBox.shrink(); // Fallback
                   }
 
                   // --- UI RENDER ---
@@ -1084,7 +1196,8 @@ class _MobileLayout extends StatelessWidget {
                             ),
                             child: Row(
                               children: [
-                                Icon(leftIcon, size: 24, color: iconColor),
+                                customLeftIcon ??
+                                    Icon(leftIcon, size: 24, color: iconColor),
                                 const SizedBox(width: 15),
                                 Expanded(
                                   child: Column(
@@ -1096,6 +1209,7 @@ class _MobileLayout extends StatelessWidget {
                                         'Onboarding task',
                                         style: UTextStyles.caption.copyWith(
                                           fontSize: 12,
+                                          color: subTextColor,
                                         ),
                                       ),
                                       Text(
@@ -1112,17 +1226,13 @@ class _MobileLayout extends StatelessWidget {
                                         overflow: TextOverflow.ellipsis,
                                         style: UTextStyles.caption.copyWith(
                                           fontSize: 10,
+                                          color: subTextColor,
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
-                                Icon(
-                                  rightIcon,
-                                  size:
-                                      14, // Slightly larger for better visibility
-                                  color: iconColor,
-                                ),
+                                Icon(rightIcon, size: 14, color: iconColor),
                               ],
                             ),
                           ),
@@ -1131,6 +1241,322 @@ class _MobileLayout extends StatelessWidget {
                     ),
                   );
                 }),
+                // Obx(() {
+                //   final controller = Get.find<PersonalisationController>();
+                //   final size = MediaQuery.of(context).size;
+
+                //   // 🔴 3. Read the individual flags from the controller
+                //   final isPending = controller.isKycPending.value;
+                //   final isVerified = controller.isKycVerified.value;
+                //   final noRiskProfile = !controller.hasRiskProfile.value;
+                //   final noNominee = !controller.hasNominee.value;
+                //   final noBank = !controller.hasBank.value;
+                //   final isAllComplete =
+                //       isVerified && !noRiskProfile && !noNominee && !noBank;
+
+                //   // --- 1. DEFAULT STATE (Not Started / Incomplete) ---
+                //   Color bgColor = Ucolors.light;
+                //   Color iconColor = Colors.black;
+                //   Color titleColor = Ucolors.dark;
+                //   Color subTextColor = Colors.grey;
+                //   IconData leftIcon = Icons.person;
+                //   Widget? customLeftIcon;
+                //   IconData rightIcon = Icons.arrow_forward_ios;
+                //   String titleText = 'Complete KYC & Profile';
+                //   String subText = 'Verify your Identity to start Investing';
+                //   VoidCallback? onTapAction = () =>
+                //       Get.toNamed(AppRoutes.kycScreen);
+
+                //   // ==========================================
+                //   // 🚦 PRIORITY ROUTING
+                //   // ==========================================
+
+                //   if (isPending || !isVerified) {
+                //     bgColor = isPending ? Colors.orange.shade50 : Ucolors.light;
+                //     iconColor = isPending
+                //         ? Colors.orange.shade700
+                //         : Colors.black;
+                //     titleColor = isPending
+                //         ? Colors.orange.shade900
+                //         : Ucolors.dark;
+                //     subTextColor = isPending
+                //         ? Colors.orange.shade800
+                //         : Colors.grey;
+                //     leftIcon = isPending ? Icons.hourglass_top : Icons.person;
+                //     rightIcon = isPending
+                //         ? Icons.access_time
+                //         : Icons.arrow_forward_ios;
+                //     titleText = isPending
+                //         ? 'KYC in Progress'
+                //         : 'Complete KYC & Profile';
+                //     subText = isPending
+                //         ? 'CAMS is reviewing your details ⏳'
+                //         : 'Verify your Identity to start Investing';
+                //     onTapAction = isPending
+                //         ? () => ULoaders.info(
+                //             title: "Processing",
+                //             message:
+                //                 "Your KYC is currently under review by CAMS. Please check back shortly.",
+                //           )
+                //         : () => Get.toNamed(AppRoutes.kycScreen);
+                //   } else if (noRiskProfile) {
+                //     bgColor = Ucolors.blue;
+                //     iconColor = Ucolors.light;
+                //     titleColor = Ucolors.light;
+                //     subTextColor = Ucolors.light.withOpacity(0.8);
+                //     customLeftIcon = const CircleAvatar(
+                //       backgroundColor: Colors.amber,
+                //       backgroundImage: AssetImage(UImages.crown),
+                //       radius: 14,
+                //     );
+                //     rightIcon = Icons.arrow_forward_ios;
+                //     titleText = 'Check Your Risk Profile Now!';
+                //     subText = 'Discover your investment style';
+                //     onTapAction = () => Get.toNamed(AppRoutes.riskProfile);
+                //   } else if (noNominee) {
+                //     bgColor = Ucolors.light;
+                //     iconColor = Ucolors.blue;
+                //     titleColor = Ucolors.blue;
+                //     subTextColor = Colors.grey;
+                //     leftIcon = Icons.family_restroom;
+                //     titleText = 'Add a Nominee';
+                //     subText = 'Secure your investments for your family';
+                //     onTapAction = () => Get.toNamed(AppRoutes.nomineeDetail);
+                //   } else if (noBank) {
+                //     bgColor = Ucolors.blue;
+                //     iconColor = Ucolors.light;
+                //     titleColor = Ucolors.light;
+                //     subTextColor = Ucolors.light.withOpacity(0.8);
+                //     leftIcon = Icons.account_balance;
+                //     titleText = 'Add Bank Account';
+                //     subText = 'Link your bank for fast transactions';
+                //     onTapAction = () => Get.toNamed(AppRoutes.addanotherbank);
+                //   } else if (isAllComplete) {
+                //     // A premium, modern green gradient look
+                //     bgColor = const Color(0xFFE8F5E9); // Very light green
+                //     iconColor = const Color(0xFF2E7D32); // Deep premium green
+                //     titleColor = const Color(0xFF1B5E20);
+                //     subTextColor = const Color(0xFF388E3C);
+
+                //     // We will use a custom Left Icon to make it pop!
+                //     customLeftIcon = Container(
+                //       padding: const EdgeInsets.all(8),
+                //       decoration: BoxDecoration(
+                //         color: Colors.green.shade100,
+                //         shape: BoxShape.circle,
+                //       ),
+                //       child: Icon(
+                //         Icons.rocket_launch_rounded,
+                //         color: iconColor,
+                //         size: 20,
+                //       ),
+                //     );
+
+                //     rightIcon = Icons.arrow_forward_rounded;
+                //     titleText = 'Ready to Invest! 🎉';
+                //     subText =
+                //         'Your profile is 100% complete. Start your first SIP.';
+                //     onTapAction = () {
+                //       // Get.toNamed(AppRoutes.exploreFunds);
+                //     };
+                //   } else {
+                //     return const SizedBox.shrink(); // Fallback
+                //   }
+
+                //   // --- UI RENDER ---
+                //   return Positioned(
+                //     left: 20,
+                //     right: 20,
+                //     bottom: 0,
+                //     child: Center(
+                //       child: GestureDetector(
+                //         onTap: onTapAction,
+                //         child: Container(
+                //           height: size.height * 0.13,
+                //           decoration: BoxDecoration(
+                //             color: bgColor,
+                //             borderRadius: BorderRadius.circular(15),
+                //             boxShadow: [
+                //               BoxShadow(
+                //                 color: Colors.black.withOpacity(0.15),
+                //                 blurRadius: 5,
+                //                 offset: const Offset(0, 4),
+                //               ),
+                //             ],
+                //           ),
+                //           child: Padding(
+                //             padding: const EdgeInsets.symmetric(
+                //               horizontal: 15,
+                //               vertical: 10,
+                //             ),
+                //             child: Row(
+                //               children: [
+                //                 customLeftIcon ??
+                //                     Icon(leftIcon, size: 24, color: iconColor),
+                //                 const SizedBox(width: 15),
+                //                 Expanded(
+                //                   child: Column(
+                //                     crossAxisAlignment:
+                //                         CrossAxisAlignment.start,
+                //                     mainAxisAlignment: MainAxisAlignment.center,
+                //                     children: [
+                //                       Text(
+                //                         'Onboarding task',
+                //                         style: UTextStyles.caption.copyWith(
+                //                           fontSize: 12,
+                //                           color: subTextColor,
+                //                         ),
+                //                       ),
+                //                       Text(
+                //                         titleText,
+                //                         style: UTextStyles.medium.copyWith(
+                //                           fontWeight: FontWeight.bold,
+                //                           color: titleColor,
+                //                           fontSize: 14,
+                //                         ),
+                //                       ),
+                //                       Text(
+                //                         subText,
+                //                         maxLines: 1,
+                //                         overflow: TextOverflow.ellipsis,
+                //                         style: UTextStyles.caption.copyWith(
+                //                           fontSize: 10,
+                //                           color: subTextColor,
+                //                         ),
+                //                       ),
+                //                     ],
+                //                   ),
+                //                 ),
+                //                 Icon(rightIcon, size: 14, color: iconColor),
+                //               ],
+                //             ),
+                //           ),
+                //         ),
+                //       ),
+                //     ),
+                //   );
+                // }),
+
+                // Obx(() {
+                //   final session = SessionManager.instance;
+                //   final isVerified = session.isKycVerified.value;
+                //   final isPending = session.isKycPending.value;
+
+                //   // --- 1. DEFAULT STATE (Not Started / Incomplete) ---
+                //   Color bgColor = Ucolors.light;
+                //   Color iconColor = Colors.black;
+                //   Color titleColor = Ucolors.dark;
+                //   IconData leftIcon = Icons.person;
+                //   IconData rightIcon = Icons.arrow_forward_ios;
+                //   String titleText = 'Complete KYC & Profile';
+                //   String subText = 'Verify your Identity to start Investing';
+                //   VoidCallback? onTapAction = () =>
+                //       Get.toNamed(AppRoutes.kycScreen);
+
+                //   // --- 2. PENDING STATE ---
+                //   if (isPending) {
+                //     bgColor = Colors.orange.shade50;
+                //     iconColor = Colors.orange.shade700;
+                //     titleColor = Colors.orange.shade900;
+                //     leftIcon = Icons.hourglass_top;
+                //     rightIcon = Icons.access_time;
+                //     titleText = 'KYC in Progress';
+                //     subText = 'CAMS is reviewing your details ⏳';
+                //     onTapAction = () {
+                //       ULoaders.info(
+                //         title: "Processing",
+                //         message:
+                //             "Your KYC is currently under review by CAMS. Please check back shortly.",
+                //       );
+                //     };
+                //   }
+                //   // --- 3. VERIFIED STATE ---
+                //   else if (isVerified) {
+                //     bgColor = Colors.green.shade50;
+                //     iconColor = Colors.green;
+                //     titleColor = Colors.green;
+                //     leftIcon = Icons.check_circle;
+                //     rightIcon = Icons.verified;
+                //     titleText = 'KYC Completed';
+                //     subText = 'Your account is fully verified 🎉';
+                //     onTapAction = null;
+                //   }
+
+                //   // --- UI RENDER ---
+                //   return Positioned(
+                //     left: 20,
+                //     right: 20,
+                //     bottom: 0,
+                //     child: Center(
+                //       child: GestureDetector(
+                //         onTap: onTapAction,
+                //         child: Container(
+                //           height: size.height * 0.13,
+                //           decoration: BoxDecoration(
+                //             color: bgColor,
+                //             borderRadius: BorderRadius.circular(15),
+                //             boxShadow: [
+                //               BoxShadow(
+                //                 color: Colors.black.withOpacity(0.15),
+                //                 blurRadius: 5,
+                //                 offset: const Offset(0, 4),
+                //               ),
+                //             ],
+                //           ),
+                //           child: Padding(
+                //             padding: const EdgeInsets.symmetric(
+                //               horizontal: 15,
+                //               vertical: 10,
+                //             ),
+                //             child: Row(
+                //               children: [
+                //                 Icon(leftIcon, size: 24, color: iconColor),
+                //                 const SizedBox(width: 15),
+                //                 Expanded(
+                //                   child: Column(
+                //                     crossAxisAlignment:
+                //                         CrossAxisAlignment.start,
+                //                     mainAxisAlignment: MainAxisAlignment.center,
+                //                     children: [
+                //                       Text(
+                //                         'Onboarding task',
+                //                         style: UTextStyles.caption.copyWith(
+                //                           fontSize: 12,
+                //                         ),
+                //                       ),
+                //                       Text(
+                //                         titleText,
+                //                         style: UTextStyles.medium.copyWith(
+                //                           fontWeight: FontWeight.bold,
+                //                           color: titleColor,
+                //                           fontSize: 14,
+                //                         ),
+                //                       ),
+                //                       Text(
+                //                         subText,
+                //                         maxLines: 1,
+                //                         overflow: TextOverflow.ellipsis,
+                //                         style: UTextStyles.caption.copyWith(
+                //                           fontSize: 10,
+                //                         ),
+                //                       ),
+                //                     ],
+                //                   ),
+                //                 ),
+                //                 Icon(
+                //                   rightIcon,
+                //                   size:
+                //                       14, // Slightly larger for better visibility
+                //                   color: iconColor,
+                //                 ),
+                //               ],
+                //             ),
+                //           ),
+                //         ),
+                //       ),
+                //     ),
+                //   );
+                // }),
                 // Obx(() {
                 //   final isVerified =
                 //       SessionManager.instance.isKycVerified.value;

@@ -30,11 +30,11 @@ import 'package:my_sip/features/nfo/presentation/bindings/nfo_list_binding.dart'
 import 'package:my_sip/features/nfo/presentation/page/nfo_details_page.dart';
 import 'package:my_sip/features/nfo/presentation/page/nfo_list_page.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/splash_screen.dart';
-import 'package:my_sip/features/personalization/presentation/bindings/BankBinding.dart';
 import 'package:my_sip/features/personalization/presentation/bindings/personalisation_binding.dart';
 import 'package:my_sip/features/personalization/presentation/pages/add_another_bank.dart';
 import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:my_sip/features/personalization/presentation/pages/risk_profile.dart';
+import 'package:my_sip/features/personalization/presentation/widgets/additional_info.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/document.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/kyc_details.dart';
@@ -216,5 +216,7 @@ class AppPages {
     GetPage(name: AppRoutes.comingSoon, page: () => ComingSoon()),
     GetPage(name: AppRoutes.bankDetails, page: () => BankDetailsScreen()),
     GetPage(name: AppRoutes.videoList, page: () => VideoListScreen()),
+
+    GetPage(name: AppRoutes.additionalInfo, page: () => AdditionalInfoScreen()),
   ];
 }

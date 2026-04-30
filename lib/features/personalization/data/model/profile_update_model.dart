@@ -36,6 +36,25 @@ class ProfileDataModel {
   final String? status;
   final int? riskSlabId;
 
+  final String? riskScore; // Note: JSON returns "97" as a string
+  final String? modeOfHld;
+  final String? resdStatus;
+  final String? canNumber;
+  final String? canStatus;
+  final String? canStatusLabel;
+  final String? canValidFlag;
+  final String? canValidPan;
+  final String? canValidDob;
+  final String? canValidEmail;
+  final String? canAllowForTrans;
+  final String? canErrorCode;
+  final String? canErrorMessage;
+  final String? canStatusMessage;
+  final String? canProofUploadLink;
+  final String? canBlockRespList;
+  final String? canAccountCategory;
+  final String? canModeOfHolding;
+
   // nested
   final CustomerDetailsModel? customerDetails;
   final RiskProfileModel? riskProfile;
@@ -58,6 +77,26 @@ class ProfileDataModel {
     this.kycVerifiedAt,
     this.status,
     this.riskSlabId,
+
+    this.riskScore,
+    this.modeOfHld,
+    this.resdStatus,
+    this.canNumber,
+    this.canStatus,
+    this.canStatusLabel,
+    this.canValidFlag,
+    this.canValidPan,
+    this.canValidDob,
+    this.canValidEmail,
+    this.canAllowForTrans,
+    this.canErrorCode,
+    this.canErrorMessage,
+    this.canStatusMessage,
+    this.canProofUploadLink,
+    this.canBlockRespList,
+    this.canAccountCategory,
+    this.canModeOfHolding,
+
     this.riskProfile,
     this.customerDetails,
     this.bankAccount,
@@ -81,6 +120,27 @@ class ProfileDataModel {
       kycVerifiedAt: json.parse<String>('kyc_verified_at'),
       status: json.parse<String>('status'),
       riskSlabId: json.parse<int>('risk_slab_id'),
+
+      // --- ADDED PARSING FOR NEW FIELDS ---
+      riskScore: json.parse<String>('risk_score'),
+      modeOfHld: json.parse<String>('modeOfHld'),
+      resdStatus: json.parse<String>('resdStatus'),
+      canNumber: json.parse<String>('can_number'),
+      canStatus: json.parse<String>('can_status'),
+      canStatusLabel: json.parse<String>('can_status_label'),
+      canValidFlag: json.parse<String>('can_valid_flag'),
+      canValidPan: json.parse<String>('can_valid_pan'),
+      canValidDob: json.parse<String>('can_valid_dob'),
+      canValidEmail: json.parse<String>('can_valid_email'),
+      canAllowForTrans: json.parse<String>('can_allow_for_trans'),
+      canErrorCode: json.parse<String>('can_error_code'),
+      canErrorMessage: json.parse<String>('can_error_message'),
+      canStatusMessage: json.parse<String>('can_status_message'),
+      canProofUploadLink: json.parse<String>('can_proof_upload_link'),
+      canBlockRespList: json.parse<String>('can_block_resp_list'),
+      canAccountCategory: json.parse<String>('can_account_category'),
+      canModeOfHolding: json.parse<String>('can_mode_of_holding'),
+
       riskProfile: json.parseNested<RiskProfileModel>(
         'risk_profile',
         (m) => RiskProfileModel.fromJson(m),
@@ -89,14 +149,24 @@ class ProfileDataModel {
         'customer_details',
         (m) => CustomerDetailsModel.fromJson(m),
       ),
-      nominee: json.parseNested<NomineeModel>(
-        'nominee',
-        (m) => NomineeModel.fromJson(m),
-      ),
-      bankAccount: json.parseNested<BankAccountModel>(
-        'bank_account',
-        (m) => BankAccountModel.fromJson(m),
-      ),
+      nominee:
+          (json['nominees'] != null && (json['nominees'] as List).isNotEmpty)
+          ? NomineeModel.fromJson((json['nominees'] as List).first)
+          : null,
+
+      bankAccount:
+          (json['bank_accounts'] != null &&
+              (json['bank_accounts'] as List).isNotEmpty)
+          ? BankAccountModel.fromJson((json['bank_accounts'] as List).first)
+          : null,
+      // nominee: json.parseNested<NomineeModel>(
+      //   'nominees',
+      //   (m) => NomineeModel.fromJson(m),
+      // ),
+      // bankAccount: json.parseNested<BankAccountModel>(
+      //   'bank_accounts',
+      //   (m) => BankAccountModel.fromJson(m),
+      // ),
     );
   }
 }
@@ -105,6 +175,10 @@ class CustomerDetailsModel {
   final int? id;
   final int? userId;
   final String? dob;
+  final String? occupation;
+  final String? maritalStatus;
+  final String? fatherName;
+  final String? motherName;
   final String? wealthSource;
   final String? ageGroup;
   final String? riskAppetite;
@@ -121,6 +195,10 @@ class CustomerDetailsModel {
     this.id,
     this.userId,
     this.dob,
+    this.occupation,
+    this.maritalStatus,
+    this.fatherName,
+    this.motherName,
     this.wealthSource,
     this.ageGroup,
     this.riskAppetite,
@@ -139,6 +217,10 @@ class CustomerDetailsModel {
       id: json.parse<int>('id'),
       userId: json.parse<int>('user_id'),
       dob: json.parse<String>('dob'),
+      occupation: json.parse<String>('occupation'),
+      maritalStatus: json.parse<String>('marital_status'),
+      fatherName: json.parse<String>('father_name'),
+      motherName: json.parse<String>('mother_name'),
       wealthSource: json.parse<String>('wealth_source'),
       ageGroup: json.parse<String>('age_group'),
       riskAppetite: json.parse<String>('risk_appetite'),

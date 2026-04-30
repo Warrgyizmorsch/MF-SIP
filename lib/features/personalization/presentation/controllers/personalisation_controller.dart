@@ -6,17 +6,15 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:image_picker/image_picker.dart';
 import 'package:my_sip/common/widget/animated/popups.dart';
+import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_submit_rq.dart';
 import 'package:my_sip/features/personalization/domain/entity/bank_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/nominee_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/risk_question_entity.dart';
-import 'package:my_sip/features/personalization/domain/entity/risk_result_entity.dart';
 import 'package:my_sip/features/personalization/domain/usecases/personalisation_use_cases.dart';
 import 'package:my_sip/services/session_manager.dart';
-
-import '../../domain/entity/risk_entity.dart';
 
 import 'dart:async';
 
@@ -262,8 +260,11 @@ class PersonalisationController extends GetxController {
   final PersonalisationUseCases _useCases;
   PersonalisationController(this._useCases);
 
+  PersonalisationUseCases get useCases => _useCases;
+
   final panKeyboardType = TextInputType.text.obs;
   final FocusNode panFocusNode = FocusNode();
+  final personalDetailsFormKey = GlobalKey<FormState>();
 
   // --- State Variables ---
   final isLoading = false.obs;
@@ -275,6 +276,15 @@ class PersonalisationController extends GetxController {
   final riskResult = Rxn<RiskResultModel>();
   final applock = false.obs;
   final canEditPan = false.obs;
+
+  // --- Onboarding Status Flags ---
+  final isKycPending = false.obs;
+  final isKycVerified = false.obs;
+  final hasRiskProfile = false.obs;
+  final hasNominee = false.obs;
+  final hasBank = false.obs;
+  final hasPersonalDetails = false.obs;
+  final isProfileLoading = true.obs;
 
   // --- UI Controllers ---
   final PageController pageController = PageController();
@@ -310,6 +320,53 @@ class PersonalisationController extends GetxController {
     'Spouse',
     'Testing',
   ];
+
+  final occupationList = [
+    "Business",
+    "Service",
+    "Retired Professional",
+    "Professional",
+    "Other",
+  ];
+  final selectedOccupation = "".obs;
+  final wealthSourceList = [
+    "Salary",
+    "Business Income",
+    "Gift",
+    "Ancestral Property",
+    "Rental Income",
+    "Prize money",
+    "Royalty",
+    "Other",
+  ];
+  final incomeSlabList = [
+    "Below 1 Lakh",
+    "1 Lacs - 5 Lacs",
+    "5 Lacs - 10 Lacs",
+    "10 Lacs - 25 Lacs",
+    "25 Lacs - 1 Cr.",
+    "Above 1 Cr.",
+  ];
+
+  final TextEditingController occupationTextEditingController =
+      TextEditingController();
+
+  final TextEditingController incomeSlabTextEditingController =
+      TextEditingController();
+
+  final TextEditingController pinCodeTextEditingController =
+      TextEditingController();
+  final TextEditingController fatherNameTextEditingController =
+      TextEditingController();
+  final TextEditingController motherNameTextEditingController =
+      TextEditingController();
+  final TextEditingController occupationOtherTextEditingController =
+      TextEditingController();
+
+  final TextEditingController cityTextEditingController =
+      TextEditingController();
+  final TextEditingController stateTextEditingController =
+      TextEditingController();
 
   final nomineeNameTextEditingController = TextEditingController();
   final nomineeDobTextEditingController = TextEditingController();
@@ -395,9 +452,13 @@ class PersonalisationController extends GetxController {
   }
 
   // --- Fetch User's Linked Bank ---
+  // --- Fetch User Profile & Evaluate Onboarding Status ---
   Future<void> fetchUserBankDetails() async {
+    isProfileLoading.value = true;
     final userId = session.getUserData?.id;
     if (userId == null) return;
+
+    log('Fetching user profile for onboarding status...');
 
     isLinkedBankLoading.value = true;
     try {
@@ -407,22 +468,88 @@ class PersonalisationController extends GetxController {
 
       result.fold(
         (success) {
-          if (success.data?.data?.bankAccount != null) {
-            linkedBankAccount.value = success.data!.data?.bankAccount;
+          final profileData = success.data?.data;
+
+          if (profileData != null) {
+            // 1. Check Bank Account
+            linkedBankAccount.value = profileData.bankAccount;
+            hasBank.value = profileData.bankAccount != null;
+
+            // 2. Check KYC Status (Using toLowerCase to be safe against API text changes)
+            final kyc = profileData.kycStatus?.toLowerCase() ?? '';
+            isKycPending.value = kyc == 'pending' || kyc == 'in progress';
+            isKycVerified.value = kyc == 'approved' || kyc == 'verified';
+
+            // 3. Check Risk Profile (True if riskProfile object exists OR a score exists)
+            hasRiskProfile.value =
+                profileData.riskProfile != null ||
+                (profileData.riskScore != null &&
+                    profileData.riskScore!.isNotEmpty);
+
+            // 4. Check Nominee
+            hasNominee.value = profileData.nominee != null;
+
+            hasPersonalDetails.value =
+                profileData.customerDetails != null &&
+                profileData.customerDetails?.motherName != null &&
+                (profileData.customerDetails?.fatherName ?? '').isNotEmpty;
+
+            log('--- Onboarding Status ---');
+            log(
+              'KYC Verified: ${isKycVerified.value} | Pending: ${isKycPending.value}',
+            );
+            log('Has Bank: ${hasBank.value}');
+            log('Has Nominee: ${hasNominee.value}');
+            log('Has Risk Profile: ${hasRiskProfile.value}');
           } else {
             linkedBankAccount.value = null;
           }
         },
         (error) {
-          log("Error fetching linked bank: ${error.message}");
+          log("Error fetching profile status: ${error.message}");
         },
       );
     } catch (e) {
-      log("Fetch Linked Bank Exception: $e");
+      log("Fetch Profile Status Exception: $e");
     } finally {
       isLinkedBankLoading.value = false;
+      isProfileLoading.value = false;
     }
   }
+  // Future<void> fetchUserBankDetails() async {
+  //   final userId = session.getUserData?.id;
+  //   if (userId == null) return;
+
+  //   log('bank user fetch ');
+
+  //   isLinkedBankLoading.value = true;
+  //   try {
+  //     final data = {'id': userId};
+
+  //     final result = await _useCases.updateProfileUsecases.call(data);
+
+  //     result.fold(
+  //       (success) {
+  //         log('bank user fetch ${success.data?.data?.bankAccount} name ');
+
+  //         if (success.data?.data?.bankAccount != null) {
+  //           linkedBankAccount.value = success.data!.data?.bankAccount;
+
+  //           log('bank user fetch ${linkedBankAccount.value} ');
+  //         } else {
+  //           linkedBankAccount.value = null;
+  //         }
+  //       },
+  //       (error) {
+  //         log("Error fetching linked bank: ${error.message}");
+  //       },
+  //     );
+  //   } catch (e) {
+  //     log("Fetch Linked Bank Exception: $e");
+  //   } finally {
+  //     isLinkedBankLoading.value = false;
+  //   }
+  // }
 
   // ------------------------ Add Bank Account ----------------------------------///
   Future<void> addBankAccount() async {
@@ -451,6 +578,7 @@ class PersonalisationController extends GetxController {
       log("Submitting Bank Data: $data");
 
       final result = await _useCases.updateProfileUsecases.call(data);
+      fetchUserBankDetails();
 
       result.fold(
         (success) {
@@ -490,7 +618,12 @@ class PersonalisationController extends GetxController {
   // Pick Image Logic
   Future<void> pickImage(ImageSource source) async {
     final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: source);
+    final XFile? image = await picker.pickImage(
+      source: source,
+      imageQuality: 50,
+      maxHeight: 1024,
+      maxWidth: 1024,
+    );
     if (image != null) {
       imagePath.value = image.path;
       selectedImageFile = image;
@@ -581,6 +714,8 @@ class PersonalisationController extends GetxController {
           // Get.snackbar("Success", "Profile Updated");
           Get.back();
           ULoaders.success(title: 'Success', message: 'Profile Updated');
+          // fetchUserBankDetails();
+
           Get.back();
         }
 
@@ -595,6 +730,63 @@ class PersonalisationController extends GetxController {
         Get.snackbar("Error", error.message);
       },
     );
+  }
+
+  Future<void> submitAdditionalInfo() async {
+    if (!personalDetailsFormKey.currentState!.validate()) {
+      ULoaders.warning(title: 'Please fill in all required fields');
+      return;
+    }
+
+    try {
+      ULoaders.showLoading(message: "Saving Data...");
+
+      final Map<String, dynamic> data = {
+        'id': SessionManager.instance.getUserData?.id,
+        'adhar': adharController.text,
+        'dob': dobController.text,
+        'father_name': fatherNameTextEditingController.text,
+        'mother_name': motherNameTextEditingController.text,
+
+        'occupation': selectedOccupation.value == "Other"
+            ? occupationOtherTextEditingController.text
+            : selectedOccupation.value,
+        'wealth_source': wealthSource.text,
+        'yearly_income': getYearlyIncomeAsInt(yearlyIncome.text),
+
+        'pin_code': pinCodeTextEditingController.text,
+        "city": cityTextEditingController.text,
+
+        "state": stateTextEditingController.text,
+      };
+
+      final result = await _useCases.updateProfileUsecases.call(data);
+
+      result.fold(
+        (success) {
+          ULoaders.stopLoading(); // Hide loader
+
+          hasPersonalDetails.value = true;
+
+          ULoaders.success(
+            title: "Profile Updated!",
+            message: "Your details have been saved securely.",
+          );
+
+          Get.offAllNamed(AppRoutes.navMenuBar);
+        },
+        (error) {
+          ULoaders.stopLoading();
+          ULoaders.error(title: "Update Failed", message: error.message);
+        },
+      );
+    } catch (e) {
+      ULoaders.stopLoading();
+      ULoaders.error(
+        title: "Error",
+        message: "Something went wrong. Please try again.",
+      );
+    }
   }
 
   // ------------------------ Update Profile End ---------------------------------------///
@@ -773,6 +965,7 @@ class PersonalisationController extends GetxController {
 
     // Call your submit usecase
     final result = await _useCases.riskSubmitUsecases.call(request);
+    fetchUserBankDetails();
 
     result.fold(
       (entity) async {
@@ -869,6 +1062,7 @@ class PersonalisationController extends GetxController {
       };
 
       final result = await _useCases.addNomineeUseCase.call(requestData);
+      fetchUserBankDetails();
 
       result.fold(
         (success) {
@@ -902,6 +1096,7 @@ class PersonalisationController extends GetxController {
       final requestData = {'id': nominee.id};
 
       final result = await _useCases.deleteNomineeUseCase.call(requestData);
+      fetchUserBankDetails();
 
       result.fold(
         (success) {
@@ -934,6 +1129,8 @@ class PersonalisationController extends GetxController {
     nomineeMinorsGuardianTextEditingController.clear();
     nomineeAddressTextEditingController.clear();
     nomineeMinorsGuardianTextEditingController.clear();
+    nomineeCityTextEditingController.clear();
+    nomineePincodeTextEditingController.clear();
     isNomineeMinor.value = false;
   }
 

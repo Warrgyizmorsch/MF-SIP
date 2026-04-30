@@ -331,9 +331,11 @@ import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
+import 'package:my_sip/common/widget/text_form/text_field_component.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/features/authentication/presentation/pages/signup/register_account.dart';
 
 // Ensure this path points to your actual PersonalisationController
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
@@ -453,10 +455,11 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
         const Gap(20),
 
         // 🔠 IFSC Code
-        UTextFormField(
+        CustomTextField(
           controller: controller.bankIfscController,
-          prefixIcon: Icons.account_balance,
-          hintText: 'IFSC Code',
+          leading: Icon(Icons.account_balance),
+          hint: 'IFSC Code',
+          inputFormatters: [UpperCaseTextFormatter()],
         ),
         const Gap(20),
 

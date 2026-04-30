@@ -199,12 +199,12 @@ class PersonalisationRemoteDataSource {
     Map<String, dynamic> data,
   ) async {
     try {
-      // Using postFormData because the API requires 'form-data' for the image file
       final resp = await _apiService.postFormData(
         "${Appurl.baseUrl}/api/v1/profile/update",
         headers: {
           "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
         },
+
         data,
       );
 
@@ -212,7 +212,7 @@ class PersonalisationRemoteDataSource {
         "[Personalisation Remote Data Source] updateProfile Response: $resp",
       );
 
-      // Checking 'status' as per your Postman response JSON
+
       if (resp['status'] == true) {
         final result = ProfileUpdateModel.fromJson(resp);
         return Left(Result.success(result));

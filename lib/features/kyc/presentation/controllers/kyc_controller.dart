@@ -19,6 +19,7 @@ import 'package:my_sip/features/kyc/domain/entity/poi_step_1_entity.dart';
 import 'package:my_sip/features/kyc/domain/usecases/kyc_use_cases.dart';
 import 'package:my_sip/features/personalization/domain/usecases/add_nominee_use_case.dart';
 import 'package:my_sip/features/personalization/domain/usecases/update_profile_usecases.dart';
+import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/services/session_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -1507,9 +1508,35 @@ class KycController extends GetxController {
               ULoaders.stopLoading();
 
               if (isFullyVerified) {
-                // await SessionManager.instance.setKycVerified(true);
 
                 await SessionManager.instance.setKycPending(true);
+
+                final userId = SessionManager.instance.getUserData?.id;
+                if (userId != null) {
+                  final updateData = {
+                    'id': userId,
+                    'kyc_status': 'Pending', // Must match your DB string exactly
+                  };
+                  
+                  // Call the update usecase (using the controller we set up earlier)
+                  if (Get.isRegistered<PersonalisationController>()) {
+                    await Get.find<PersonalisationController>()
+                        .useCases
+                        .updateProfileUsecases
+                        .call(updateData);
+                  }
+                }
+
+                if (Get.isRegistered<PersonalisationController>()) {
+                  final controller = Get.find<PersonalisationController>();
+                  
+                  // Turn the banner orange
+                  controller.isKycPending.value = true;
+                  controller.isKycVerified.value = false;
+                  
+                  
+                }
+                
 
                 // ULoaders.success(
                 //   title: '🎉 KYC COMPLETE',

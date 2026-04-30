@@ -9,6 +9,7 @@ final priceFormatter = NumberFormat.currency(
   symbol: '₹',
   decimalDigits: 0,
 );
+
 void createLog(dynamic message) {
   if (!kDebugMode) return; // Only show in debug mode
 
@@ -148,7 +149,10 @@ class PanCardFormatter extends TextInputFormatter {
 // Aadhaar: Exactly 12 digits, often grouped in 4s (0000 0000 0000)
 class AadhaarFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     String digits = newValue.text.replaceAll(RegExp(r'\D'), '');
     if (digits.length > 12) return oldValue;
 
@@ -171,7 +175,10 @@ class AadhaarFormatter extends TextInputFormatter {
 // Passport: 1 Letter followed by 7 Digits (Indian Standard)
 class PassportFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     String text = newValue.text.toUpperCase();
     if (text.length > 8) return oldValue;
 
@@ -192,10 +199,13 @@ class PassportFormatter extends TextInputFormatter {
 
 class DrivingLicenseFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     String text = newValue.text.toUpperCase();
     String cleanText = text.replaceAll(RegExp(r'[^A-Z0-9]'), '');
-    
+
     if (cleanText.length > 15) return oldValue;
 
     StringBuffer buffer = StringBuffer();
@@ -207,7 +217,7 @@ class DrivingLicenseFormatter extends TextInputFormatter {
         // Remaining 13 must be digits
         if (RegExp(r'[0-9]').hasMatch(cleanText[i])) buffer.write(cleanText[i]);
       }
-      
+
       // Auto-insert hyphen for UX
       if (i == 1 && cleanText.length > 2) buffer.write('-');
     }
@@ -335,8 +345,6 @@ String getRemainingDays(String? closeDateStr) {
   }
 }
 
-
-
 class DocumentFormatterFactory {
   static List<TextInputFormatter> getFormatters(String type) {
     switch (type) {
@@ -360,28 +368,35 @@ class DocumentFormatterFactory {
 
   static String getHint(String type) {
     switch (type) {
-      case "Pan": return "ABCDE1234F";
-      case "Aadhaar": return "0000 0000 0000";
-      case "Passport": return "A1234567";
-      case "Driving License": return "DL-1320230000000";
-      default: return "Enter document number";
+      case "Pan":
+        return "ABCDE1234F";
+      case "Aadhaar":
+        return "0000 0000 0000";
+      case "Passport":
+        return "A1234567";
+      case "Driving License":
+        return "DL-1320230000000";
+      default:
+        return "Enter document number";
     }
   }
 
   static String? validate(String type, String? value) {
     if (value == null || value.isEmpty) return "Document number is required";
-    
+
     final cleanValue = value.replaceAll(' ', '').replaceAll('-', '');
 
     switch (type) {
       case "Pan":
-        return RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$').hasMatch(cleanValue) 
-            ? null : "Invalid PAN format";
+        return RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$').hasMatch(cleanValue)
+            ? null
+            : "Invalid PAN format";
       case "Aadhaar":
         return cleanValue.length == 12 ? null : "Aadhaar must be 12 digits";
       case "Passport":
-        return RegExp(r'^[A-Z]{1}[0-9]{7}$').hasMatch(cleanValue) 
-            ? null : "Invalid Passport format";
+        return RegExp(r'^[A-Z]{1}[0-9]{7}$').hasMatch(cleanValue)
+            ? null
+            : "Invalid Passport format";
       case "Driving License":
         return cleanValue.length == 15 ? null : "DL must be 15 characters";
       default:
@@ -390,6 +405,27 @@ class DocumentFormatterFactory {
   }
 }
 
+int getYearlyIncomeAsInt(String text) {
+    final value = text.trim();
+
+    // Translate the dropdown string into a raw integer for your database
+    switch (value) {
+      case "Below 1 Lakh":
+        return 90000; // Using 90,000 as seen in your success log
+      case "1 Lacs - 5 Lacs":
+        return 500000;
+      case "5 Lacs - 10 Lacs":
+        return 1000000;
+      case "10 Lacs - 25 Lacs":
+        return 2500000;
+      case "25 Lacs - 1 Cr.":
+        return 10000000;
+      case "Above 1 Cr.":
+        return 50000000;
+      default:
+        return 0;
+    }
+  }
 
 String formatToSqlDate(String dateStr) {
   // Converts DD/MM/YYYY to YYYY-MM-DD

@@ -46,4 +46,5 @@ class AppRoutes {
   static const comingSoon = '/comingSoon';
   static const bankDetails = '/bankDetails';
   static const videoList = '/videoList';
+  static const additionalInfo = '/additionalInfo';
 }

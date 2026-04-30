@@ -42,6 +42,27 @@ class ProfileDataEntity extends Equatable {
   final String? kycVerifiedAt;
   final String? status;
   final int? riskSlabId;
+
+  final String? riskScore; // Added
+
+  final String? modeOfHld;
+  final String? resdStatus;
+  final String? canNumber;
+  final String? canStatus;
+  final String? canStatusLabel;
+  final String? canValidFlag;
+  final String? canValidPan;
+  final String? canValidDob;
+  final String? canValidEmail;
+  final String? canAllowForTrans;
+  final String? canErrorCode;
+  final String? canErrorMessage;
+  final String? canStatusMessage;
+  final String? canProofUploadLink;
+  final String? canBlockRespList;
+  final String? canAccountCategory;
+  final String? canModeOfHolding;
+
   final CustomerDetailsEntity? customerDetails;
   final RiskProfileEntity? riskProfile;
   final NomineeEntity? nominee;
@@ -63,6 +84,27 @@ class ProfileDataEntity extends Equatable {
     required this.kycVerifiedAt,
     required this.status,
     required this.riskSlabId,
+
+    required this.riskScore, // Added
+    // --- NEW FIELDS ---
+    required this.modeOfHld,
+    required this.resdStatus,
+    required this.canNumber,
+    required this.canStatus,
+    required this.canStatusLabel,
+    required this.canValidFlag,
+    required this.canValidPan,
+    required this.canValidDob,
+    required this.canValidEmail,
+    required this.canAllowForTrans,
+    required this.canErrorCode,
+    required this.canErrorMessage,
+    required this.canStatusMessage,
+    required this.canProofUploadLink,
+    required this.canBlockRespList,
+    required this.canAccountCategory,
+    required this.canModeOfHolding,
+
     required this.customerDetails,
     required this.riskProfile,
     required this.nominee,
@@ -86,6 +128,28 @@ class ProfileDataEntity extends Equatable {
     kycVerifiedAt,
     status,
     riskSlabId,
+
+    riskScore, // Added
+    // --- NEW FIELDS ---
+    modeOfHld,
+    resdStatus,
+    canNumber,
+    canStatus,
+    canStatusLabel,
+    canValidFlag,
+    canValidPan,
+    canValidDob,
+    canValidEmail,
+    canAllowForTrans,
+    canErrorCode,
+    canErrorMessage,
+    canStatusMessage,
+    canProofUploadLink,
+    canBlockRespList,
+    canAccountCategory,
+    canModeOfHolding,
+
+    // ----------------
     customerDetails,
     riskProfile,
     nominee,
@@ -111,6 +175,27 @@ extension ProfileDataEntityX on ProfileDataModel {
       kycVerifiedAt: kycVerifiedAt,
       status: status,
       riskSlabId: riskSlabId,
+      riskScore: riskScore,
+
+      // --- NEW FIELDS ---
+      modeOfHld: modeOfHld,
+      resdStatus: resdStatus,
+      canNumber: canNumber,
+      canStatus: canStatus,
+      canStatusLabel: canStatusLabel,
+      canValidFlag: canValidFlag,
+      canValidPan: canValidPan,
+      canValidDob: canValidDob,
+      canValidEmail: canValidEmail,
+      canAllowForTrans: canAllowForTrans,
+      canErrorCode: canErrorCode,
+      canErrorMessage: canErrorMessage,
+      canStatusMessage: canStatusMessage,
+      canProofUploadLink: canProofUploadLink,
+      canBlockRespList: canBlockRespList,
+      canAccountCategory: canAccountCategory,
+      canModeOfHolding: canModeOfHolding,
+
       customerDetails: customerDetails?.toEntity(),
       riskProfile: riskProfile?.toEntity(),
       nominee: nominee?.toEntity(),
@@ -123,6 +208,10 @@ class CustomerDetailsEntity extends Equatable {
   final int? id;
   final int? userId;
   final String? dob;
+  final String? occupation;
+  final String? maritalStatus;
+  final String? fatherName;
+  final String? motherName;
   final String? wealthSource;
   final String? ageGroup;
   final String? riskAppetite;
@@ -139,6 +228,10 @@ class CustomerDetailsEntity extends Equatable {
     required this.id,
     required this.userId,
     required this.dob,
+    required this.occupation,
+    required this.maritalStatus,
+    required this.fatherName,
+    required this.motherName,
     required this.wealthSource,
     required this.ageGroup,
     required this.riskAppetite,
@@ -157,6 +250,10 @@ class CustomerDetailsEntity extends Equatable {
     id,
     userId,
     dob,
+    occupation,
+        maritalStatus,
+        fatherName,
+        motherName,
     wealthSource,
     ageGroup,
     riskAppetite,
@@ -178,6 +275,10 @@ extension CustomerDetailsEntityX on CustomerDetailsModel {
       id: id,
       userId: userId,
       dob: dob,
+      occupation: occupation,
+      maritalStatus: maritalStatus,
+      fatherName: fatherName,
+      motherName: motherName,
       wealthSource: wealthSource,
       ageGroup: ageGroup,
       riskAppetite: riskAppetite,

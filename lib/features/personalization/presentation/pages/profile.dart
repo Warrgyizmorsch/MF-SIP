@@ -780,7 +780,7 @@ class ProfileHeader extends StatelessWidget {
 
       if (!img.startsWith('http') && !img.startsWith('blob:')) {
         fullUrl = "https://sip-backend.londonstreetstore.com/$img";
-        log("Image full url: $fullUrl");
+        // log("Image full url: $fullUrl");
       }
 
       return Image.network(
@@ -789,7 +789,7 @@ class ProfileHeader extends StatelessWidget {
         width: 120,
         height: 120,
         errorBuilder: (context, error, stackTrace) {
-          log("Image Blocked by CORS/Network Error: $error");
+          // log("Image Blocked by CORS/Network Error: $error");
           return const Icon(Icons.person, size: 50, color: Colors.grey);
         },
       );
@@ -803,7 +803,7 @@ class ProfileHeader extends StatelessWidget {
           return Image.file(file, fit: BoxFit.cover, width: 120, height: 120);
         }
       } catch (e) {
-        log("File error: $e");
+        // log("File error: $e");
       }
     }
 
