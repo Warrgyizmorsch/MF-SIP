@@ -26,6 +26,7 @@ import 'package:my_sip/features/explore/presentation/controller/mutual_fund_cont
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
 import 'package:my_sip/features/fund_details/presentation/controllers/fund_details_controller.dart';
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
+import 'package:my_sip/features/home/presentation/controllers/home_controller.dart';
 import 'package:my_sip/features/home/presentation/pages/video_list_page.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_calculator.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';

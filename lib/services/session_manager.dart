@@ -12,6 +12,9 @@ import 'package:my_sip/features/kyc/data/model/token_data_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../features/home/data/model/notification_model.dart';
+import '../features/home/domain/entity/notification_entity.dart';
+
 class SessionManager extends GetxService {
   SessionManager._internal();
 
@@ -543,6 +546,31 @@ class SessionManager extends GetxService {
   // but if you do:
   void disposeStream() {
     _controller.close();
+  }
+  static const String notifications = "notifications";
+
+  static Future<void> saveNotifications(
+      List<AppNotificationModel> list) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString(
+      notifications,
+      AppNotificationModel.encode(list),
+    );
+  }
+
+  // Load
+  static Future<List<AppNotificationEntity>> loadNotifications() async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = prefs.getString(notifications);
+
+    if (data == null) return [];
+
+    final decoded = jsonDecode(data) as List;
+
+    return decoded
+        .map((e) => AppNotificationModel.fromJson(e).toEntity())
+        .toList();
   }
 }
 
