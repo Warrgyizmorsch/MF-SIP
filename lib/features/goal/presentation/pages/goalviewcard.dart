@@ -26,14 +26,11 @@ class GoalviewcardPage extends StatelessWidget {
         crossAxisCount: 2,
         childAspectRatio: size.width <= 360 ? 0.59 : 0.7,
         children: [
-          CircularUploadIndicator(),
-          CircularUploadIndicator(),
-          CircularUploadIndicator(),
-          CircularUploadIndicator(),
-          CircularUploadIndicator(),
-          CircularUploadIndicator(),
-          CircularUploadIndicator(),
-          CircularUploadIndicator(),
+          CircularGoalIndicatorDetails(),
+          CircularGoalIndicatorDetails(),
+          CircularGoalIndicatorDetails(),
+          CircularGoalIndicatorDetails(),
+          CircularGoalIndicatorDetails(),
         ],
       ),
       bottomNavigationBar: SafeArea(
@@ -61,8 +58,8 @@ class GoalviewcardPage extends StatelessWidget {
   }
 }
 
-class CircularUploadIndicator extends StatelessWidget {
-  const CircularUploadIndicator({super.key, this.percentage = false});
+class CircularGoalIndicatorDetails extends StatelessWidget {
+  const CircularGoalIndicatorDetails({super.key, this.percentage = false});
 
   final bool percentage;
 

@@ -69,10 +69,10 @@ class KycController extends GetxController {
   final KycUseCases kycUseCases;
 
   // --- Controllers ---
-  final PageController pageController = PageController(initialPage: 2);
+  final PageController pageController = PageController();
 
   // --- State Variables ---
-  final currentStep = 2.obs;
+  final currentStep = 0.obs;
   final isLoading = false.obs;
 
   final taxStatusList = [

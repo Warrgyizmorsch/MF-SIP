@@ -8,6 +8,7 @@ import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 import '../controller/goal_sip_controller.dart';
@@ -144,6 +145,7 @@ class GoalScreen extends GetView<GoalSipController> {
                       final String name = goal.goalName ?? 'Goal ${index + 1}';
 
                       return CircularUploadIndicator(
+                        goalEntity: goal,
                         goalName: name,
                         targetAmount: target,
                         investedAmount: invested,
@@ -174,6 +176,7 @@ class GoalScreen extends GetView<GoalSipController> {
 }
 
 class CircularUploadIndicator extends StatelessWidget {
+  final UserGoalEntity? goalEntity; 
   final String goalName;
   final double targetAmount;
   final double investedAmount;
@@ -185,6 +188,7 @@ class CircularUploadIndicator extends StatelessWidget {
     required this.targetAmount,
     required this.investedAmount,
     this.iconEmoji,
+    this.goalEntity,
   });
 
   @override
@@ -202,7 +206,15 @@ class CircularUploadIndicator extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         // Navigate to details if needed, passing ID or data
-        Get.toNamed(AppRoutes.goaldetails, arguments: {'goalName': goalName});
+        Get.toNamed(AppRoutes.goaldetails,
+        //  arguments: {'goalName': goalName}
+        arguments: {
+          'goal': goalEntity,
+          'emoji': iconEmoji,
+          'target': targetAmount,
+          'invested': investedAmount,
+        }
+         );
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16),

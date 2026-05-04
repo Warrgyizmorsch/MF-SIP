@@ -1865,57 +1865,57 @@ class _MobileLayout extends StatelessWidget {
               ),
               delegate: SliverChildListDelegate([
                 GoalBaseSIPCard(
-                  // onTap: () => Get.toNamed(
-                  //   AppRoutes.ihavegoal,
-                  //   arguments: {'goalType': 'car'},
-                  // ),
-                  onTap: () => Get.toNamed(AppRoutes.comingSoon),
+                  onTap: () => Get.toNamed(
+                    AppRoutes.ihavegoal,
+                    arguments: {'goalType': 'car'},
+                  ),
+                  // onTap: () => Get.toNamed(AppRoutes.comingSoon),
                   title: 'Car Goal',
                   iconData: Icons.directions_car_filled_rounded,
                 ),
                 GoalBaseSIPCard(
                   title: 'Bike Goal',
                   iconData: Icons.pedal_bike_rounded,
-                  // onTap: () => Get.toNamed(
-                  //   AppRoutes.ihavegoal,
-                  //   arguments: {'goalType': 'bike'},
-                  // ),
-                  onTap: () => Get.toNamed(AppRoutes.comingSoon),
+                  onTap: () => Get.toNamed(
+                    AppRoutes.ihavegoal,
+                    arguments: {'goalType': 'bike'},
+                  ),
+                  // onTap: () => Get.toNamed(AppRoutes.comingSoon),
                 ),
                 GoalBaseSIPCard(
-                  // onTap: () => Get.toNamed(
-                  //   AppRoutes.ihavegoal,
-                  //   arguments: {'goalType': 'marriage'},
-                  // ),
-                  onTap: () => Get.toNamed(AppRoutes.comingSoon),
+                  onTap: () => Get.toNamed(
+                    AppRoutes.ihavegoal,
+                    arguments: {'goalType': 'marriage'},
+                  ),
 
+                  // onTap: () => Get.toNamed(AppRoutes.comingSoon),
                   title: 'Marriage Goal',
                   iconData: Icons.favorite_border_outlined,
                 ),
                 GoalBaseSIPCard(
-                  // onTap: () => Get.toNamed(
-                  //   AppRoutes.ihavegoal,
-                  //   arguments: {'goalType': 'vacation'},
-                  // ),
-                  onTap: () => Get.toNamed(AppRoutes.comingSoon),
+                  onTap: () => Get.toNamed(
+                    AppRoutes.ihavegoal,
+                    arguments: {'goalType': 'vacation'},
+                  ),
 
+                  // onTap: () => Get.toNamed(AppRoutes.comingSoon),
                   title: 'Vacation Goal',
                   iconData: Icons.flight_takeoff_rounded,
                 ),
                 GoalBaseSIPCard(
-                  // onTap: () => Get.toNamed(
-                  //   AppRoutes.ihavegoal,
-                  //   arguments: {'goalType': 'home'},
-                  // ),
-                  onTap: () => Get.toNamed(AppRoutes.comingSoon),
+                  onTap: () => Get.toNamed(
+                    AppRoutes.ihavegoal,
+                    arguments: {'goalType': 'home'},
+                  ),
 
+                  // onTap: () => Get.toNamed(AppRoutes.comingSoon),
                   title: 'Home Goal',
                   iconData: Icons.home_rounded,
                 ),
                 GestureDetector(
-                  // onTap: () => Get.toNamed(AppRoutes.ihavegoal),
-                  onTap: () => Get.toNamed(AppRoutes.comingSoon),
+                  onTap: () => Get.toNamed(AppRoutes.ihavegoal),
 
+                  // onTap: () => Get.toNamed(AppRoutes.comingSoon),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,

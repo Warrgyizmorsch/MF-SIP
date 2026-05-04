@@ -52,4 +52,5 @@ class GoalRemoteDataSource {
       return Right(ApiError(message: 'Login Failed with Exception $e'));
     }
   }
+  
 }

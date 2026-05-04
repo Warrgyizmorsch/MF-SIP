@@ -1,26 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
+import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/comparison_screen.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
-import 'package:my_sip/features/goal/presentation/pages/goalviewcard.dart';
+import 'package:my_sip/features/goal/presentation/widget/GoalDetailsIndicator.dart';
+
+import '../../domain/entity/goal_entity.dart';
 
 class GoaldetailsPage extends StatelessWidget {
   const GoaldetailsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final args = Get.arguments as Map<String, dynamic>? ?? {};
+    final UserGoalEntity? goal = args['goal'];
+    final String emoji = args['emoji'] ?? '🎯';
+    final double target = args['target'] ?? 0.0;
+    final double invested = args['invested'] ?? 0.0;
+
+    final String title = goal?.goalName ?? 'Goal Details';
+
     return Scaffold(
       backgroundColor: Color(0xffF3F4F6),
 
       appBar: CustomAppBarNormal(
-        title: 'Car',
+        title: title,
         action: [CompactIcon(icon: Icons.more_vert, onPressed: () {})],
       ),
       body: Padding(
@@ -59,7 +71,12 @@ class GoaldetailsPage extends StatelessWidget {
               Expanded(
                 child: TabBarView(
                   children: [
-                    GoalDetailSection(),
+                    GoalDetailSection(
+                      goal: goal,
+                      target: target,
+                      invested: invested,
+                      emoji: emoji,
+                    ),
                     SingleChildScrollView(
                       child: Column(
                         children: [
@@ -83,15 +100,59 @@ class GoaldetailsPage extends StatelessWidget {
 }
 
 class GoalDetailSection extends StatelessWidget {
-  const GoalDetailSection({super.key});
+  final UserGoalEntity? goal;
+  final double target;
+  final double invested;
+  final String emoji;
+  const GoalDetailSection({
+    super.key,
+    required this.goal,
+    required this.target,
+    required this.invested,
+    required this.emoji,
+  });
+
+  String _fmt(double amount) {
+    return '₹ ${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}';
+  }
 
   @override
   Widget build(BuildContext context) {
+    final double remaining = (target - invested).clamp(0.0, double.infinity);
+    final double monthly = goal?.monthlyInvestment ?? 0.0;
+    final double weekly = (monthly * 12) / 52;
+    final double daily = (monthly * 12) / 365;
+
+    // Calculate deadline year
+    final currentYear = DateTime.now().year;
+    final deadlineYear = currentYear + (goal?.goalTenure ?? 0) / 12;
+
     return SingleChildScrollView(
       child: Column(
         children: [
           Gap(15),
-          CircularUploadIndicator(percentage: true),
+
+          CircularGoalIndicatorDetails(
+            percentage: true, // Uses the large layout
+            goalName: goal?.goalName ?? '',
+            targetAmount: target,
+            investedAmount: invested,
+            emoji: emoji,
+            // If they uploaded a cover image, pass the URL here!
+            // imageUrl: goal?.goalCover != null && goal!.goalCover.isNotEmpty
+            //     ? "${Appurl.baseUrl}${goal!.goalCover}"
+            //     : null,
+          ),
+          // SizedBox(
+          //   height: 200, // Give it constraints
+          //   child: CircularUploadIndicator(
+
+          //     goalName: goal?.goalName ?? '',
+          //     targetAmount: target,
+          //     investedAmount: invested,
+          //     iconEmoji: emoji,
+          //   ),
+          // ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
@@ -105,21 +166,27 @@ class GoalDetailSection extends StatelessWidget {
                 Gap(10),
                 Row(
                   children: [
-                    ValueTitleGoal(value: '₹ 5,000', title: 'Saved'),
-
-                    ValueTitleGoal(value: '₹ 5,000', title: 'Remaining'),
-                    ValueTitleGoal(value: '₹ 5,000', title: 'Goal'),
+                    ValueTitleGoal(value: _fmt(invested), title: 'Saved'),
+                    ValueTitleGoal(value: _fmt(remaining), title: 'Remaining'),
+                    ValueTitleGoal(value: _fmt(target), title: 'Goal'),
                   ],
                 ),
                 Gap(20),
-                SmallHeading(smallheading: 'Deadline (January 01, 2024)'),
+                SmallHeading(
+                  smallheading: 'Deadline (Est. Year ${deadlineYear.floor()})',
+                ),
                 Gap(12),
                 Row(
                   children: [
-                    ValueTitleGoal(value: '₹ 176.78', title: 'Daily Savings'),
-
-                    ValueTitleGoal(value: '₹ 5,000', title: 'Weekly Savings'),
-                    ValueTitleGoal(value: '₹ 5,000', title: 'Monthly Savings'),
+                    ValueTitleGoal(value: _fmt(daily), title: 'Daily Savings'),
+                    ValueTitleGoal(
+                      value: _fmt(weekly),
+                      title: 'Weekly Savings',
+                    ),
+                    ValueTitleGoal(
+                      value: _fmt(monthly),
+                      title: 'Monthly Savings',
+                    ),
                   ],
                 ),
               ],
@@ -138,31 +205,66 @@ class GoalDetailSection extends StatelessWidget {
             ),
             child: Column(
               children: [
-                ...List.generate(
-                  5,
-                  (index) => ListTile(
-                    contentPadding: EdgeInsets.symmetric(vertical: 5),
-                    dense: true,
+                if (goal?.goalFunds.isEmpty ?? true)
+                  const Text(
+                    'No mutual funds linked yet.',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                // ...List.generate(
+                //   5,
+                //   (index) => ListTile(
+                //     contentPadding: EdgeInsets.symmetric(vertical: 5),
+                //     dense: true,
 
+                //     leading: CircleAvatar(
+                //       backgroundImage: AssetImage(UImages.sbi),
+                //     ),
+                //     title: Text(
+                //       'Parag Parikh Flexi Cap Fund',
+                //       style: UTextStyles.medium.copyWith(
+                //         color: Ucolors.dark,
+                //         fontWeight: FontWeight.w500,
+                //       ),
+                //     ),
+                //     trailing: Text(
+                //       '1,500',
+                //       style: UTextStyles.medium.copyWith(
+                //         color: Ucolors.dark,
+                //         fontWeight: FontWeight.w500,
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                ...?goal?.goalFunds.map((fund) {
+                  final String imgUrl =
+                      "${Appurl.baseUrl}${fund.mutualFund?.amc?.amcLogo ?? ''}";
+
+                  return ListTile(
+                    contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                    dense: true,
                     leading: CircleAvatar(
-                      backgroundImage: AssetImage(UImages.sbi),
+                      backgroundColor: Colors.transparent,
+                      // Ensure you have a CachedNetworkImage here in reality for remote images
+                      backgroundImage: NetworkImage(imgUrl),
+                      onBackgroundImageError: (_, __) =>
+                          const Icon(Icons.broken_image),
                     ),
                     title: Text(
-                      'Parag Parikh Flexi Cap Fund',
+                      fund.mutualFund?.schemeName ?? 'Unknown Fund',
                       style: UTextStyles.medium.copyWith(
                         color: Ucolors.dark,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     trailing: Text(
-                      '1,500',
+                      _fmt(fund.sipAmount),
                       style: UTextStyles.medium.copyWith(
                         color: Ucolors.dark,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                  ),
-                ),
+                  );
+                }),
               ],
             ),
           ),
