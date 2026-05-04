@@ -46,6 +46,7 @@ import '../../features/freedom_sip/presentation/pages/accumulationAndDistributio
 import '../../features/freedom_sip/presentation/pages/growth_scheme_screen.dart';
 import '../../features/fund_details/presentation/pages/fund_deatails.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
+import '../../features/home/presentation/binding/home_bindings.dart';
 import '../../features/home/presentation/pages/notification_page.dart';
 import '../../features/wishlist/presentation/pages/watchlist_page.dart';
 import '../../features/home/presentation/widgets/product_tool/compare_fund.dart';
@@ -114,7 +115,7 @@ class AppPages {
       binding: WishlistBinding(),
     ),
     GetPage(name: AppRoutes.cart, page: () => CartPage()),
-    GetPage(name: AppRoutes.notification, page: () => NotificationPage()),
+    GetPage(name: AppRoutes.notification, page: () => NotificationPage(), binding:HomeBindings() ),
     GetPage(
       name: AppRoutes.accumulationanddistributionscreen,
       page: () => const Accumulationanddistributionscreen(),

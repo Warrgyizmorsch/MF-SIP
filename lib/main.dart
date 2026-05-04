@@ -1,17 +1,28 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:my_sip/my_app.dart';
+import 'package:my_sip/services/firebase_services.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 import 'core/utils/helper/helpers.dart';
+import 'features/home/presentation/controllers/home_controller.dart';
+import 'firebase_options.dart';
 
 Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
 
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    // Register dependencies BEFORE runApp
+    Get.put(HomeController());
+    await Get.put(NotificationService()).init();
     if (!kIsWeb) {
       await SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
