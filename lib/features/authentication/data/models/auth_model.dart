@@ -207,6 +207,7 @@ class CustomerDetailsModel1 {
   final int? id;
   final int? userId;
   final String? dob;
+  final String? occupation;
   final String? wealthSource;
   final String? ageGroup;
   final String? riskAppetite;
@@ -222,6 +223,7 @@ class CustomerDetailsModel1 {
     this.dob,
     this.wealthSource,
     this.ageGroup,
+    this.occupation,
     this.riskAppetite,
     this.yearlyIncome,
     this.adhar,
@@ -243,6 +245,7 @@ class CustomerDetailsModel1 {
       address: json.parse<String>('address'),
       updatedAt: json.parse<String>('updated_at'),
       createdAt: json.parse<String>('created_at'),
+      occupation: json.parse<String>('occupation')
     );
   }
   Map<String, dynamic> toJson() {
@@ -258,6 +261,7 @@ class CustomerDetailsModel1 {
       'address': address,
       'updated_at': updatedAt,
       'created_at': createdAt,
+      'occupation': occupation
     };
   }
 }

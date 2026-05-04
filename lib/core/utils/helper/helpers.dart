@@ -229,6 +229,44 @@ class DrivingLicenseFormatter extends TextInputFormatter {
   }
 }
 
+class IfscTextInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    // 1. Instantly convert input to uppercase
+    String newText = newValue.text.toUpperCase();
+
+    // 2. Allow backspace/deletion without restrictions
+    if (newText.length < oldValue.text.length) {
+      return newValue.copyWith(text: newText);
+    }
+
+    // 3. Enforce maximum length of 11 characters
+    if (newText.length > 11) return oldValue;
+
+    // 4. Enforce the strict IFSC Pattern character by character
+    for (int i = 0; i < newText.length; i++) {
+      String char = newText[i];
+      
+      if (i < 4) {
+        // First 4 characters MUST be letters
+        if (!RegExp(r'[A-Z]').hasMatch(char)) return oldValue;
+      } else if (i == 4) {
+        // 5th character MUST be '0' (Zero)
+        if (char != '0') return oldValue;
+      } else {
+        // Last 6 characters can be alphanumeric
+        if (!RegExp(r'[A-Z0-9]').hasMatch(char)) return oldValue;
+      }
+    }
+
+    // If it passes all checks, return the correctly capitalized text
+    return newValue.copyWith(text: newText);
+  }
+}
+
 List<String> getCleanedTopHoldings({
   required List<String>? names,
   required List<dynamic>? values,
@@ -453,4 +491,97 @@ String formatToSqlDate(String dateStr) {
     }
   }
   return dateStr;
+}
+
+// lib/core/utils/profile_utils.dart
+
+class ProfileUtils {
+  // ==========================================
+  // 📋 CENTRALIZED LISTS
+  // ==========================================
+  static const List<String> wealthSources = [
+    "Salary", "Business Income", "Gift", "Ancestral Property", 
+    "Rental Income", "Prize money", "Royalty", "Other"
+  ];
+
+  static const List<String> incomeSlabList = [
+    "Below 1 Lakh", "1 Lacs - 5 Lacs", "5 Lacs - 10 Lacs", 
+    "10 Lacs - 25 Lacs", "25 Lacs - 1 Cr.", "Above 1 Cr."
+  ];
+
+  static const List<String> occupationList = [
+    "Business", "Service", "Retired Professional", "Professional", "Other"
+  ];
+
+  static const List<String> maritalStatusList = [
+    "UNMARRIED", "MARRIED", "DIVORCED", "WIDOWED", "OTHERS"
+  ];
+
+  // ==========================================
+  // 🔄 UI TO BACKEND (String -> ID)
+  // ==========================================
+  static int? getWealthSourceId(String? name) {
+    if (name == null || name.isEmpty) return null;
+    int index = wealthSources.indexOf(name);
+    return index != -1 ? index + 1 : null;
+  }
+
+  static int? getIncomeSlabId(String? name) {
+    if (name == null || name.isEmpty) return null;
+    int index = incomeSlabList.indexOf(name);
+    return index != -1 ? index + 1 : null;
+  }
+
+  static int? getOccupationId(String? name) {
+    if (name == null || name.isEmpty) return null;
+    int index = occupationList.indexOf(name);
+    return index != -1 ? index + 1 : null;
+  }
+
+  // ==========================================
+  // 🔄 BACKEND TO UI (ID -> String)
+  // ==========================================
+  static String getWealthSourceName(int? id) {
+    if (id == null || id <= 0 || id > wealthSources.length) return '';
+    return wealthSources[id - 1]; 
+  }
+
+  static String getIncomeSlabName(int? id) {
+    if (id == null || id <= 0 || id > incomeSlabList.length) return '';
+    return incomeSlabList[id - 1];
+  }
+
+  static String getOccupationName(int? id) {
+    if (id == null || id <= 0 || id > occupationList.length) return '';
+    return occupationList[id - 1];
+  }
+
+  // ==========================================
+  // 📅 DATE FORMATTERS
+  // ==========================================
+  static String formatToSqlDate(String dob) {
+    if (dob.isEmpty) return '';
+    try {
+      List<String> parts = dob.split('/');
+      if (parts.length == 3) {
+        return '${parts[2]}-${parts[1]}-${parts[0]}'; 
+      }
+    } catch (e) {
+      return dob; 
+    }
+    return dob;
+  }
+
+  static String formatToUIDate(String? sqlDate) {
+    if (sqlDate == null || sqlDate.isEmpty) return '';
+    try {
+      List<String> parts = sqlDate.split('-');
+      if (parts.length == 3) {
+        return '${parts[2]}/${parts[1]}/${parts[0]}'; 
+      }
+    } catch (e) {
+      return sqlDate; 
+    }
+    return sqlDate;
+  }
 }

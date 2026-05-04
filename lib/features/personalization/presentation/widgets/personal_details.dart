@@ -447,22 +447,30 @@ class PersonalDetailsScreen extends GetView<AuthController> {
     final user = SessionManager.instance.userObs.value;
 
     // Initialize controllers only if empty
-    if (personalisationController.nameController.text.isEmpty) {
-      personalisationController.nameController.text = user?.name ?? '';
-      personalisationController.emailController.text = user?.email ?? '';
-      personalisationController.mobileController.text = user?.mobile ?? '';
-      personalisationController.panController.text = user?.panCard ?? '';
-      personalisationController.yearlyIncome.text =
-          user?.customerDetailsModel?.yearlyIncome ?? '';
-      personalisationController.wealthSource.text =
-          user?.customerDetailsModel?.wealthSource ?? '';
-      personalisationController.dobController.text =
-          user?.customerDetailsModel?.dob ?? '';
-      personalisationController.addressController.text =
-          user?.customerDetailsModel?.address ?? '';
-      personalisationController.adharController.text =
-          user?.customerDetailsModel?.adhar ?? '';
-    }
+    // if (personalisationController.nameController.text.isEmpty) {
+    personalisationController.nameController.text = user?.name ?? '';
+    personalisationController.emailController.text = user?.email ?? '';
+    personalisationController.mobileController.text = user?.mobile ?? '';
+    personalisationController.panController.text = user?.panCard ?? '';
+    personalisationController.yearlyIncome.text =
+        ProfileUtils.getIncomeSlabName(
+          int.tryParse(user?.customerDetailsModel?.yearlyIncome ?? ''),
+        );
+    personalisationController.wealthSource.text =
+        ProfileUtils.getWealthSourceName(
+          int.tryParse(user?.customerDetailsModel?.wealthSource ?? ''),
+        );
+    personalisationController.dobController.text =
+        user?.customerDetailsModel?.dob ?? '';
+    personalisationController.addressController.text =
+        user?.customerDetailsModel?.address ?? '';
+    personalisationController.adharController.text =
+        user?.customerDetailsModel?.adhar ?? '';
+    personalisationController.occupationTextEditingController.text =
+        ProfileUtils.getOccupationName(
+          int.tryParse(user?.customerDetailsModel?.occupation ?? ''),
+        );
+    // }
 
     // 🚀 Check if Desktop or Mobile
     final bool isDesktop = MediaQuery.of(context).size.width > 850;
@@ -594,7 +602,7 @@ class PersonalDetailsScreen extends GetView<AuthController> {
                   // Row 4: Income & Address
                   Row(
                     children: [
-                      Expanded(child: _buildIncomeField()),
+                      Expanded(child: _buildIncomeField(context)),
                       const SizedBox(width: 20),
                       Expanded(child: _buildAddressField()),
                     ],
@@ -692,9 +700,11 @@ class PersonalDetailsScreen extends GetView<AuthController> {
             const SizedBox(height: 16),
             _buildPanField(context),
             const SizedBox(height: 16),
+            _buildOccupationField(context),
+            const SizedBox(height: 16),
             _buildWealthSourceField(context),
             const SizedBox(height: 16),
-            _buildIncomeField(),
+            _buildIncomeField(context),
             const SizedBox(height: 16),
             _buildAddressField(),
             const SizedBox(height: 40),
@@ -736,7 +746,7 @@ class PersonalDetailsScreen extends GetView<AuthController> {
         const SizedBox(height: 5),
         UTextFormField(
           prefixIcon: null,
-          hintText: 'Pratik Hinger',
+          hintText: 'Name',
           controller: personalisationController.nameController,
         ),
       ],
@@ -849,7 +859,7 @@ class PersonalDetailsScreen extends GetView<AuthController> {
               search: false,
               context: context,
               title: 'Select Wealth Source',
-              items: wealthSources,
+              items: personalisationController.wealthSourceList,
               controller: personalisationController.wealthSource,
             );
           },
@@ -859,6 +869,7 @@ class PersonalDetailsScreen extends GetView<AuthController> {
               controller: personalisationController.wealthSource,
               prefixIcon: Icons.account_balance_wallet,
               hintText: 'Select Source',
+              sufixIcon: Icons.keyboard_arrow_down,
             ),
           ),
         ),
@@ -866,17 +877,85 @@ class PersonalDetailsScreen extends GetView<AuthController> {
     );
   }
 
-  Widget _buildIncomeField() {
+  Widget _buildOccupationField(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SmallHeading(smallheading: 'Occupation'),
+        const SizedBox(height: 5),
+        InkWell(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+            showSelectionBottomSheet(
+              search: false,
+              context: context,
+              title: 'Select Occupation',
+              items: ProfileUtils.occupationList,
+              controller:
+                  personalisationController.occupationTextEditingController,
+            );
+          },
+          child: AbsorbPointer(
+            absorbing: true,
+            child: UTextFormField(
+              controller:
+                  personalisationController.occupationTextEditingController,
+              prefixIcon: Icons.work,
+              hintText: 'Select Occupation',
+              sufixIcon: Icons.keyboard_arrow_down,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Widget _buildIncomeField() {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       const SmallHeading(smallheading: 'Income Yearly'),
+  //       const SizedBox(height: 5),
+  //       UTextFormField(
+  //         keyboardType: TextInputType.number,
+  //         prefixIcon: Icons.currency_rupee,
+  //         hintText: 'e.g. 500000',
+  //         controller: personalisationController.yearlyIncome,
+  //       ),
+  //     ],
+  //   );
+  // }
+  Widget _buildIncomeField(BuildContext context) {
+    // 🚀 ADDED BuildContext here
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SmallHeading(smallheading: 'Income Yearly'),
         const SizedBox(height: 5),
-        UTextFormField(
-          keyboardType: TextInputType.number,
-          prefixIcon: Icons.currency_rupee,
-          hintText: 'e.g. 500000',
-          controller: personalisationController.yearlyIncome,
+        InkWell(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+            showSelectionBottomSheet(
+              search: false,
+              context: context,
+              title: 'Select Yearly Income',
+              // Make sure incomeSlabList is accessible here
+              // (e.g., personalisationController.incomeSlabList if it's in your controller)
+              items: personalisationController.incomeSlabList,
+              controller: personalisationController.yearlyIncome,
+            );
+          },
+          child: AbsorbPointer(
+            absorbing: true,
+            child: UTextFormField(
+              controller: personalisationController.yearlyIncome,
+              prefixIcon: Icons.currency_rupee,
+              // Updated hint text to reflect it's a dropdown now
+              hintText: 'Select Income Slab',
+              // Optional: Adds a dropdown arrow to the right side if your widget supports it!
+              sufixIcon: Icons.keyboard_arrow_down,
+            ),
+          ),
         ),
       ],
     );

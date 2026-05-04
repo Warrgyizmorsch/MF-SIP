@@ -231,6 +231,7 @@ import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/subtitle_section.dart';
+import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
@@ -461,9 +462,11 @@ class KycDetailsScreen extends StatelessWidget {
                 children: [
                   InfoCard(
                     title: 'Tax Status',
-                    subtitle:
-                        user?.customerDetailsModel?.wealthSource ??
-                        'Not Available',
+                    subtitle: ProfileUtils.getWealthSourceName(
+                      int.tryParse(
+                        user?.customerDetailsModel?.wealthSource ?? '',
+                      ),
+                    ),
                   ),
                   InfoCard(
                     title: 'Pan Number',
@@ -506,7 +509,10 @@ class KycDetailsScreen extends StatelessWidget {
         const SizedBox(height: 30),
         InfoCard(
           title: 'Tax Status',
-          subtitle: user?.customerDetailsModel?.wealthSource ?? 'Not Available',
+          // subtitle: user?.customerDetailsModel?.wealthSource ?? 'Not Available',
+          subtitle: ProfileUtils.getWealthSourceName(
+            int.tryParse(user?.customerDetailsModel?.wealthSource ?? ''),
+          ),
         ),
         const SizedBox(height: 10),
         InkWell(
@@ -518,7 +524,7 @@ class KycDetailsScreen extends StatelessWidget {
               String prettyPrint = const JsonEncoder.withIndent(
                 '  ',
               ).convert(responseData.toJson());
-              log('✅ Onboarding Response:\n$prettyPrint');
+              createLog('✅ Onboarding Response:\n$prettyPrint');
             } else {
               log('❌ Onboarding Response is currently NULL');
             }

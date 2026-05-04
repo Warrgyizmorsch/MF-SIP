@@ -2070,11 +2070,19 @@ class KycController extends GetxController {
         'dob': formatToSqlDate(dateOfBirthTextEditingController.text),
         'address': addressTextEditingController.text,
         // 'adhar': adharController.text,
-        'wealth_source': wealthSourceTextEditingController.text,
-        'yearly_income': getYearlyIncomeAsInt(
+        'wealth_source': ProfileUtils.getWealthSourceId(
+          wealthSourceTextEditingController.text,
+        ),
+        'yearly_income': ProfileUtils.getIncomeSlabId(
           incomeSlabTextEditingController.text,
         ),
-        'occupation': occupationTextEditingController.text,
+
+        // 'yearly_income': getYearlyIncomeAsInt(
+        //   incomeSlabTextEditingController.text,
+        // ),
+        'occupation': ProfileUtils.getOccupationId(
+          occupationTextEditingController.text,
+        ),
         'marital_status': selectedMaritalStatus.value,
         'father_name': fatherNameTextEditingController.text,
         'mother_name': motherNameTextEditingController.text,

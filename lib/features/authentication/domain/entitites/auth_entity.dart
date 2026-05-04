@@ -189,6 +189,7 @@ class CustomerDetailsEntity1 extends Equatable {
   final String? ageGroup;
   final String? riskAppetite;
   final String? yearlyIncome;
+  final String? occupation;
   final String? adhar;
   final String? address;
   final String? updatedAt;
@@ -200,6 +201,7 @@ class CustomerDetailsEntity1 extends Equatable {
     required this.dob,
     required this.wealthSource,
     required this.ageGroup,
+    required this.occupation,
     required this.riskAppetite,
     required this.yearlyIncome,
     required this.adhar,
@@ -221,6 +223,7 @@ class CustomerDetailsEntity1 extends Equatable {
     address,
     updatedAt,
     createdAt,
+    occupation,
   ];
 }
 
@@ -234,6 +237,7 @@ extension CustomerDetailsEntityX on CustomerDetailsModel1 {
       ageGroup: ageGroup,
       riskAppetite: riskAppetite,
       yearlyIncome: yearlyIncome,
+      occupation: occupation,
       adhar: adhar,
       address: address,
       updatedAt: updatedAt,

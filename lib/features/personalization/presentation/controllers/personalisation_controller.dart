@@ -644,8 +644,10 @@ class PersonalisationController extends GetxController {
       'dob': formatToSqlDate(dobController.text),
       'address': addressController.text,
       'adhar': adharController.text,
-      'wealth_source': wealthSource.text,
-      'yearly_income': yearlyIncome.text,
+      'wealth_source': getWealthSourceId(wealthSource.text),
+      'yearly_income': getIncomeSlabId(yearlyIncome.text),
+      'occupation': getOccupationId(occupationTextEditingController.text),
+
       'id': session.getUserData?.id, // Matches your Postman test ID
     };
 
@@ -1141,8 +1143,15 @@ class PersonalisationController extends GetxController {
       dobController.text = formatToUIDate(details.dob);
 
       // Inject into the specific controllers used in _buildMobileLayout
-      wealthSource.text = details.wealthSource ?? '';
-      yearlyIncome.text = details.yearlyIncome?.toString() ?? '';
+      // wealthSource.text = details.wealthSource ?? '';
+      wealthSource.text = getWealthSourceName(details.wealthSource);
+      // yearlyIncome.text = details.yearlyIncome?.toString() ?? '';
+      yearlyIncome.text = getIncomeSlabName(details.yearlyIncome);
+      occupationTextEditingController.text = ProfileUtils.getOccupationName(
+        details.occupation,
+        
+      );
+      addressController.text = details.address ?? '';
 
       // The UI hint says "City, State, Pincode", so we format it if it's split in the backend
       String fullAddress = details.address ?? '';
@@ -1196,6 +1205,39 @@ class PersonalisationController extends GetxController {
     if (!isNomineeMinor.value) {
       nomineeMinorsGuardianTextEditingController.clear();
     }
+  }
+
+  int? getWealthSourceId(String? name) {
+    if (name == null || name.isEmpty) return null;
+    int index = wealthSourceList.indexOf(name);
+    return index != -1 ? index + 1 : null;
+  }
+
+  int? getIncomeSlabId(String? name) {
+    if (name == null || name.isEmpty) return null;
+    int index = incomeSlabList.indexOf(name);
+    return index != -1 ? index + 1 : null;
+  }
+
+  int? getOccupationId(String? name) {
+    if (name == null || name.isEmpty) return null;
+    int index = occupationList.indexOf(name);
+    return index != -1 ? index + 1 : null;
+  }
+
+  String getWealthSourceName(int? id) {
+    if (id == null || id <= 0 || id > wealthSourceList.length) return '';
+    return wealthSourceList[id - 1];
+  }
+
+  String getIncomeSlabName(int? id) {
+    if (id == null || id <= 0 || id > incomeSlabList.length) return '';
+    return incomeSlabList[id - 1];
+  }
+
+  String getOccupationName(int? id) {
+    if (id == null || id <= 0 || id > occupationList.length) return '';
+    return occupationList[id - 1];
   }
 
   // On close

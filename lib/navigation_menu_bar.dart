@@ -1553,7 +1553,7 @@ class NavigationBarController extends GetxController {
         final updateData = {
           'id': userId,
           'kyc_status':
-              'Approved', // Make sure this matches your DB Enum/String perfectly
+              'Approved', 
         };
         // Fire and forget (or await if you want to be totally safe)
         await Get.find<PersonalisationController>()
