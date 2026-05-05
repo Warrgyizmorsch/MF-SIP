@@ -9,15 +9,15 @@ class PeriodSelector extends GetView<FundDetailsController> {
 
   @override
   Widget build(BuildContext context) {
-    final periods = ['1W', '1M', '3M', '6M', '1Y', '2Y', '3Y', '5Y', '10Y'];
+    final periods = ['1M', '3M', '6M', '1Y', '2Y', '3Y', '10Y'];
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Container(
       height: isDesktop ? 48 : 40,
-      padding: EdgeInsets.symmetric(horizontal: isDesktop ? 8 : 6),
+      padding: EdgeInsets.symmetric(horizontal: isDesktop ? 8 : 4),
       decoration: BoxDecoration(
         color: isDesktop ? Colors.white : const Color(0xffF3F4F6),
-        borderRadius: BorderRadius.circular(isDesktop ? 24 : 20),
+        borderRadius: BorderRadius.circular(isDesktop ? 24 : 10),
         border: isDesktop ? Border.all(color: Colors.grey.shade200) : null,
         boxShadow: isDesktop
             ? [
@@ -98,18 +98,18 @@ class _PeriodButton extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
         margin: EdgeInsets.symmetric(
-          horizontal: isDesktop ? 4 : 6,
+          horizontal: isDesktop ? 4 : 4,
           vertical: isDesktop ? 6 : 0,
         ),
         padding: EdgeInsets.symmetric(
-          horizontal: isDesktop ? 20 : 14,
+          horizontal: isDesktop ? 20 : 8,
           vertical: isDesktop ? 10 : 8,
         ),
         decoration: BoxDecoration(
           color: isSelected
               ? (isDesktop ? Ucolors.primary : Colors.white)
               : Colors.transparent,
-          borderRadius: BorderRadius.circular(isDesktop ? 18 : 16),
+          borderRadius: BorderRadius.circular(isDesktop ? 18 : 8),
           boxShadow: isSelected && isDesktop
               ? [
             BoxShadow(
@@ -131,7 +131,7 @@ class _PeriodButton extends StatelessWidget {
         child: Text(
           period,
           style: TextStyle(
-            fontSize: isDesktop ? 14 : 13,
+            fontSize: isDesktop ? 14 : 10,
             fontWeight: FontWeight.w600,
             color: isSelected
                 ? (isDesktop ? Colors.white : Ucolors.primary)

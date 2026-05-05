@@ -68,7 +68,7 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                 top: false,
                 child:
                     controller.fundDetail.value!.riskStatisticsList.isNotEmpty
-                    ? BottomBarButton(
+                    ? FundBottomBarButton(
                         firstButton: 'Lumpsum',
                         secondButton: 'Start SIP',
                         firstButtonP: () async {
@@ -109,93 +109,93 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
               );
             }),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: isDesktop
-          ? null
-          : Obx(() {
-              if (controller.isLoading.value || controller.hasError.value) {
-                return const SizedBox.shrink();
-              }
-
-              return Container(
-                height: 48,
-                width: 48,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                  border: Border.all(color: Colors.grey.shade300, width: 1),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: PopupMenuButton<int>(
-                  padding: EdgeInsets.zero,
-                  icon: const Icon(Icons.more_horiz, color: Ucolors.primary),
-                  offset: const Offset(0, -115),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  color: Colors.white,
-                  elevation: 4,
-                  onSelected: (value) async {
-                    if (value == 0) {
-                      await Get.find<WishlistController>().addToWishList(
-                        controller.schemeCode.toString(),
-                        controller.schemeName.toString(),
-                      );
-                    } else if (value == 1) {
-                      await cartController.addToCart(
-                        controller.schemeCode,
-                        controller.schemeName,
-                        controller.fundDetail.value?.sipMinimumAmount ?? 1000,
-                        transType: 'sip',
-
-                        null,
-                      );
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: 0,
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.bookmark_border,
-                            size: 20,
-                            color: Colors.grey.shade800,
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'Add to Watchlist',
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 1,
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.shopping_cart_outlined,
-                            size: 20,
-                            color: Colors.grey.shade800,
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'Add to Cart',
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
+      // floatingActionButton: isDesktop
+      //     ? null
+      //     : Obx(() {
+      //         if (controller.isLoading.value || controller.hasError.value) {
+      //           return const SizedBox.shrink();
+      //         }
+      //
+      //         return Container(
+      //           height: 48,
+      //           width: 48,
+      //           decoration: BoxDecoration(
+      //             shape: BoxShape.circle,
+      //             color: Colors.white,
+      //             border: Border.all(color: Colors.grey.shade300, width: 1),
+      //             boxShadow: [
+      //               BoxShadow(
+      //                 color: Colors.black.withOpacity(0.1),
+      //                 blurRadius: 12,
+      //                 offset: const Offset(0, 4),
+      //               ),
+      //             ],
+      //           ),
+      //           child: PopupMenuButton<int>(
+      //             padding: EdgeInsets.zero,
+      //             icon: const Icon(Icons.more_horiz, color: Ucolors.primary),
+      //             offset: const Offset(0, -115),
+      //             shape: RoundedRectangleBorder(
+      //               borderRadius: BorderRadius.circular(12),
+      //             ),
+      //             color: Colors.white,
+      //             elevation: 4,
+      //             onSelected: (value) async {
+      //               if (value == 0) {
+      //                 await Get.find<WishlistController>().addToWishList(
+      //                   controller.schemeCode.toString(),
+      //                   controller.schemeName.toString(),
+      //                 );
+      //               } else if (value == 1) {
+      //                 await cartController.addToCart(
+      //                   controller.schemeCode,
+      //                   controller.schemeName,
+      //                   controller.fundDetail.value?.sipMinimumAmount ?? 1000,
+      //                   transType: 'sip',
+      //
+      //                   null,
+      //                 );
+      //               }
+      //             },
+      //             itemBuilder: (context) => [
+      //               PopupMenuItem(
+      //                 value: 0,
+      //                 child: Row(
+      //                   children: [
+      //                     Icon(
+      //                       Icons.bookmark_border,
+      //                       size: 20,
+      //                       color: Colors.grey.shade800,
+      //                     ),
+      //                     const SizedBox(width: 12),
+      //                     const Text(
+      //                       'Add to Watchlist',
+      //                       style: TextStyle(fontWeight: FontWeight.w500),
+      //                     ),
+      //                   ],
+      //                 ),
+      //               ),
+      //               PopupMenuItem(
+      //                 value: 1,
+      //                 child: Row(
+      //                   children: [
+      //                     Icon(
+      //                       Icons.shopping_cart_outlined,
+      //                       size: 20,
+      //                       color: Colors.grey.shade800,
+      //                     ),
+      //                     const SizedBox(width: 12),
+      //                     const Text(
+      //                       'Add to Cart',
+      //                       style: TextStyle(fontWeight: FontWeight.w500),
+      //                     ),
+      //                   ],
+      //                 ),
+      //               ),
+      //             ],
+      //           ),
+      //         );
+      //       }),
     );
   }
 
@@ -2131,60 +2131,193 @@ class _MobileFundDetailsLayout extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildFundHeader(BuildContext context) {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
       sliver: SliverToBoxAdapter(
         child: Obx(() {
           final fund = controller.fundDetail.value;
-          return Column(
-            children: [
-              Row(
+          final bool isOpen = fund?.schemeStatus == 'Open Ended Schemes';
+
+          return Card(
+            elevation: 0, // Lower elevation + Border is more modern
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(color: Colors.grey.shade200, width: 1), // Clean border
+            ),
+            color: Ucolors.light,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ClipOval(
-                    child: CustomCachedImage(imageUrl: controller.imgUrl),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      fund?.schemeName ?? '',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                        fontWeight: FontWeight.w600,
+                  // 1. Logo and Name Row
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.grey.shade100, width: 2),
+                        ),
+                        child: ClipOval(
+                          child: CustomCachedImage(
+                            imageUrl: controller.imgUrl,
+                            height: 48,
+                            width: 48,
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              fund?.schemeName ?? 'Loading Fund Name...',
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                                fontWeight: FontWeight.w700,
+                                height: 1.2,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              fund?.schemeCategory ?? 'Mutual Fund',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade600,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                _buildModernBadge(
+                                  label: fund?.riskometerValue ?? 'High Risk',
+                                  color: _getRiskColor(fund?.riskometerValue ?? ''),
+                                  icon: Icons.speed_rounded,
+                                ),
+                                const SizedBox(width: 10),
+                                _buildModernBadge(
+                                  label: isOpen ? 'OPEN' : 'CLOSED',
+                                  color: isOpen ? Ucolors.success : Ucolors.red,
+                                  icon: Icons.lens,
+                                  isDot: true,
+                                ),
+                                const Spacer(),
+
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
+
                 ],
               ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _metaText(fund?.schemeCategory ?? 'Equity'),
-                  _dot(),
-                  _metaText(
-                    fund?.riskometerValue.toUpperCase() ?? 'Very High',
-                    color: _getRiskColor(fund?.riskometerValue ?? ''),
-                  ),
-                  _dot(),
-                  _metaText('STATUS:'),
-                  _metaText(
-                    fund?.schemeStatus.toUpperCase().split(" ")[0] ?? 'Open',
-                    color: (fund?.schemeStatus == 'Open Ended Schemes')
-                        ? Ucolors.success
-                        : Ucolors.red,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ],
-              ),
-            ],
+            ),
           );
         }),
       ),
     );
   }
+  Widget _buildModernBadge({
+    required String label,
+    required Color color,
+    IconData? icon,
+    bool isDot = false,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isDot)
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: Icon(Icons.circle, size: 8, color: color),
+            )
+          else if (icon != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: Icon(icon, size: 14, color: color),
+            ),
+          Text(
+            label.toUpperCase(),
+            style: TextStyle(
+              color: color,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  // Widget _buildFundHeader(BuildContext context) {
+  //   return SliverPadding(
+  //     padding: const EdgeInsets.symmetric(horizontal: 20),
+  //     sliver: SliverToBoxAdapter(
+  //       child: Obx(() {
+  //         final fund = controller.fundDetail.value;
+  //         return Column(
+  //           children: [
+  //             Row(
+  //               children: [
+  //                 ClipOval(
+  //                   child: CustomCachedImage(imageUrl: controller.imgUrl),
+  //                 ),
+  //                 const SizedBox(width: 10),
+  //                 Expanded(
+  //                   child: Text(
+  //                     fund?.schemeName ?? '',
+  //                     maxLines: 2,
+  //                     overflow: TextOverflow.ellipsis,
+  //                     style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+  //                       fontWeight: FontWeight.w600,
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //             const SizedBox(height: 12),
+  //             Row(
+  //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //               children: [
+  //                 _metaText(fund?.schemeCategory ?? 'Equity'),
+  //                 _dot(),
+  //                 _metaText(
+  //                   fund?.riskometerValue.toUpperCase() ?? 'Very High',
+  //                   color: _getRiskColor(fund?.riskometerValue ?? ''),
+  //                 ),
+  //                 _dot(),
+  //                 _metaText('STATUS:'),
+  //                 _metaText(
+  //                   fund?.schemeStatus.toUpperCase().split(" ")[0] ?? 'Open',
+  //                   color: (fund?.schemeStatus == 'Open Ended Schemes')
+  //                       ? Ucolors.success
+  //                       : Ucolors.red,
+  //                   fontWeight: FontWeight.bold,
+  //                 ),
+  //               ],
+  //             ),
+  //           ],
+  //         );
+  //       }),
+  //     ),
+  //   );
+  // }
 
   Color _getRiskColor(String risk) {
     final riskLower = risk.toLowerCase();
@@ -2392,15 +2525,8 @@ class OverviewScreen extends GetView<FundDetailsController> {
           ),
 
           // --- Fund Overview Section ---
-          Padding(
-            key: overViewKey,
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-            child: const USectionHeading(
-              title: 'Fund Overview',
-              showActionButton: false,
-            ),
-          ),
 
+          const Gap(8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Container(
@@ -2413,6 +2539,14 @@ class OverviewScreen extends GetView<FundDetailsController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Padding(
+                    key: overViewKey,
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                    child: const USectionHeading(
+                      title: 'Fund Overview',
+                      showActionButton: false,
+                    ),
+                  ),
                   _twoColumnRow(
                     leftTitle: 'Min SIP',
                     leftValue: '₹ ${fund?.sipMinimumAmount.toString()}',
@@ -2451,35 +2585,33 @@ class OverviewScreen extends GetView<FundDetailsController> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 5),
-            child: const USectionHeading(
-              title: 'Quick look',
-              showActionButton: false,
-            ),
-          ),
+          const Gap(8),
           CustomContainer(
-            bottomPadding: 10,
-            topPadding: 10,
-            child: _twoColumnRow(
-              leftTitle: '5Y CAGR',
-              color: Ucolors.success,
-              leftValue: '20.23%',
-              rightTitle: '5Y SIP Return',
-              rightValue:
-                  '${fund?.schemePerformanceList[0].fiveYearReturn.toString()} %',
-              color2: Ucolors.success,
+            topPadding: 15,
+            bottomPadding: 4,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                  child: const USectionHeading(
+                    title: 'Quick look',
+                    showActionButton: false,
+                  ),
+                ),
+                _twoColumnRow(
+                  leftTitle: '5Y CAGR',
+                  color: Ucolors.success,
+                  leftValue: '20.23%',
+                  rightTitle: '5Y SIP Return',
+                  rightValue:
+                      '${fund?.schemePerformanceList[0].fiveYearReturn.toString()} %',
+                  color2: Ucolors.success,
+                ),
+              ],
             ),
           ),
-          // Gap(10),
-          Padding(
-            key: returnsKey,
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-            child: const USectionHeading(
-              title: 'Trailing Returns',
-              showActionButton: false,
-            ),
-          ),
+          const Gap(8),
+
           // Obx(() {
           //   final fund = controller.fundDetail.value;
           //   if (fund == null) return SizedBox();
@@ -2512,12 +2644,21 @@ class OverviewScreen extends GetView<FundDetailsController> {
             final returnss = controller.buildTrailingReturns(fund);
 
             return CustomContainer(
+              topPadding: 15,
+              bottomPadding: 4,
               child: DefaultTabController(
                 length: 2, // 1. Graph, 2. Table
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 15),
+                    Padding(
+                      key: returnsKey,
+                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                      child: const USectionHeading(
+                        title: 'Trailing Returns',
+                        showActionButton: false,
+                      ),
+                    ),
                     // Pill Tab Bar
                     Container(
                       height: 35,
@@ -2601,43 +2742,53 @@ class OverviewScreen extends GetView<FundDetailsController> {
             );
           }),
 
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 5),
-            child: const USectionHeading(
-              title: 'Fund Performance',
-              showActionButton: false,
-            ),
-          ),
+          const Gap(8),
           CustomContainer(
-            child: SizedBox(
-              height: isDesktop ? 500 : 160,
-              // child: ReturnsBarChart(data: yearlyData),
-              // child: ,
-              child: Obx(() {
-                final data = controller.yearlyReturns;
-                if (data.isEmpty) {
-                  return const CircularProgressIndicator(); // or loader
-                }
-                return YearlyReturnsChart(yearlyData: data);
-              }),
+            topPadding: 15,
+            bottomPadding: 4,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                  child: const USectionHeading(
+                    title: 'Fund Performance',
+                    showActionButton: false,
+                  ),
+                ),
+                SizedBox(
+                  height: isDesktop ? 500 : 160,
+                  // child: ReturnsBarChart(data: yearlyData),
+                  // child: ,
+                  child: Obx(() {
+                    final data = controller.yearlyReturns;
+                    if (data.isEmpty) {
+                      return const CircularProgressIndicator(); // or loader
+                    }
+                    return YearlyReturnsChart(yearlyData: data);
+                  }),
+                ),
+              ],
             ),
           ),
 
           // --- Risk Analysis Section ---
-          Padding(
-            key: riskKey,
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-            child: const USectionHeading(
-              title: 'Risk Analysis',
-              showActionButton: false,
-            ),
-          ),
 
+          const Gap(8),
           CustomContainer(
+            topPadding: 15,
+            bottomPadding: 4,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Gap(15),
+                Padding(
+                  key: riskKey,
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                  child: const USectionHeading(
+                    title: 'Risk Analysis',
+                    showActionButton: false,
+                  ),
+                ),
+                // Gap(15),
                 _twoColumnRow(
                   leftTitle: 'Risk-o-Meter',
                   leftValue: fund?.riskometerValue.toString() ?? '',
@@ -2680,7 +2831,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                     fontWeight: FontWeight.bold,
 
                     color: risk.color,
-                    fontSize: 18,
+                    fontSize: 16,
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -2689,20 +2840,20 @@ class OverviewScreen extends GetView<FundDetailsController> {
                   textAlign: TextAlign.center,
                   style: UTextStyles.small.copyWith(color: Ucolors.darkgrey),
                 ),
-                const Gap(14),
+                const Gap(8),
                 DashedLine(color: Colors.grey.shade400),
-                Gap(12),
+                Gap(8),
 
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: const [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         RiskLegendItem(color: Colors.green, label: 'Very Low'),
-                        SizedBox(height: 14),
+                        SizedBox(height: 8),
                         RiskLegendItem(color: Colors.orange, label: 'Medium'),
-                        SizedBox(height: 14),
+                        SizedBox(height: 8),
                         RiskLegendItem(color: Colors.redAccent, label: 'High'),
                       ],
                     ),
@@ -2710,33 +2861,37 @@ class OverviewScreen extends GetView<FundDetailsController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         RiskLegendItem(color: Colors.lightGreen, label: 'Low'),
-                        SizedBox(height: 14),
+                        SizedBox(height: 8),
                         RiskLegendItem(
                           color: Colors.amber,
                           label: 'Moderate High',
                         ),
-                        SizedBox(height: 14),
+                        SizedBox(height: 8),
                         RiskLegendItem(color: Colors.red, label: 'Very High'),
                       ],
                     ),
                   ],
                 ),
+                Gap(8),
               ],
             ),
           ),
 
-          Padding(
-            key: portfolioKey,
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-            child: const USectionHeading(
-              title: 'Fund Allocation',
-              showActionButton: false,
-            ),
-          ),
 
+          const Gap(8),
           CustomContainer(
+            topPadding: 15,
+            bottomPadding: 4,
             child: Column(
               children: [
+                Padding(
+                  key: portfolioKey,
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                  child: const USectionHeading(
+                    title: 'Fund Allocation',
+                    showActionButton: false,
+                  ),
+                ),
                 Builder(
                   builder: (context) {
                     // 1. Get Data
@@ -3358,15 +3513,9 @@ class OverviewScreen extends GetView<FundDetailsController> {
           ),
 
           // --- Fund Comparison Section ---
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 20, 16, 10),
-            child: USectionHeading(
-              title: 'Fund Comparison',
-              showActionButton: false,
-            ),
-          ),
+          const Gap(8),
           SizedBox(
-            height: MediaQuery.of(context).size.height < 700 ? 182 : 267,
+            height: MediaQuery.of(context).size.height < 700 ? 182 : 300,
 
             child: ListView.builder(
               // itemCount: 10,
@@ -3400,8 +3549,16 @@ class OverviewScreen extends GetView<FundDetailsController> {
                     bottomPadding: 8,
                     topPadding: 15,
                     child: Column(
+
                       // mainAxisSize: MainAxisSize.min,
                       children: [
+                        const Padding(
+                          padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                          child: USectionHeading(
+                            title: 'Fund Comparison',
+                            showActionButton: false,
+                          ),
+                        ),
                         FundComparisonItem(
                           imgUrl: controller.imgUrl,
                           fund1: fund?.schemeName,
@@ -3678,19 +3835,21 @@ class OverviewScreen extends GetView<FundDetailsController> {
               ),
             ),
           ),
-          Padding(
-            key: infoKey,
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-            child: const USectionHeading(
-              title: 'About this Fund',
-              showActionButton: false,
-            ),
-          ),
+
           CustomContainer(
             topPadding: 15,
+            bottomPadding: 4,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Padding(
+                  key: infoKey,
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                  child: const USectionHeading(
+                    title: 'About this Fund',
+                    showActionButton: false,
+                  ),
+                ),
                 ReadMoreText(
                   style: UTextStyles.medium,
                   fund?.schemeObjective.toString() ?? '',
@@ -3701,14 +3860,14 @@ class OverviewScreen extends GetView<FundDetailsController> {
                   trimExpandedText: 'Show Less',
                   colorClickableText: Ucolors.primary,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
                 Text(
                   'Fund Manager',
                   style: UTextStyles.large.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 4),
 
                 if (managers.isNotEmpty)
                   ...managers.asMap().entries.map((entry) {
@@ -3721,10 +3880,10 @@ class OverviewScreen extends GetView<FundDetailsController> {
                         // Show Divider ONLY if it's NOT the first item
                         if (index > 0)
                           Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            padding: const EdgeInsets.symmetric(vertical: 2),
                             child: DashedLine(
                               color: Colors.grey.shade300,
-                              dashSpace: 5, // Adjust styling as needed
+                              dashSpace: 4, // Adjust styling as needed
                             ),
                           ),
 
@@ -3741,138 +3900,302 @@ class OverviewScreen extends GetView<FundDetailsController> {
           ),
 
           ///Investment Details
-          SizedBox(
-            width: double.infinity,
-            child: ExpansionTile(
-              // maintainState: true,
-              shape: Border(),
-              collapsedShape: Border(),
-              // dense: true,
-              title: Text('Invesment Details'),
-              children: [
-                CustomContainer(
-                  bottomPadding: 0,
-                  child: Column(
-                    children: [
-                      investmentDetailSection(
-                        'Fund Size',
-                        '₹${fund?.schemeAssets?.toString()} Cr.' ?? '',
-                        Icons.bar_chart_outlined,
-                      ),
-                      // Divider(height: 0),
-                      DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                      investmentDetailSection(
-                        'Min. Inv',
-                        '₹ ${fund?.minimumInvestment.toString()}',
-                        Icons.circle,
-                      ),
-
-                      DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                      investmentDetailSection(
-                        'Min. Sip Inv',
-                        '₹ ${fund?.sipMinimumAmount.toString()}',
-                        Icons.change_circle_outlined,
-                      ),
-
-                      DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                      investmentDetailSection(
-                        'Min. Topup',
-                        '₹ ${fund?.minimumTopup.toString()}',
-                        Icons.curtains_closed_outlined,
-                      ),
-
-                      DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                      investmentDetailSection(
-                        'Turn over',
-                        '23',
-                        Icons.lightbulb_circle_outlined,
-                      ),
-                      DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                      investmentDetailSection(
-                        'Expense Ratio',
-                        fund?.expenseRatioPercentage.toString() ?? '',
-                        Icons.pie_chart_outline,
-                      ),
-                      DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                      investmentDetailSection(
-                        'Exit Load',
-                        fund?.exitLoad.toString() ?? '',
-                        Icons.logout_outlined,
-                      ),
-                    ],
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12.0,6.0,12.0,0.0),
+            child: Card(
+              elevation: 0, // Lower elevation + Border is more modern
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: Colors.grey.shade200, width: 1), // Clean border
+              ),
+              color: Ucolors.light,
+              child: Theme(
+                // This removes the splash/highlight and the persistent borders ExpansionTile adds
+                data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                child: ExpansionTile(
+                  key: ValueKey(1),
+                  initiallyExpanded: controller.expandedInvestmentIndex.value == 1,
+                  onExpansionChanged: (expanded) {
+                    if (expanded) {
+                      controller.expandedInvestmentIndex.value = 1;
+                      controller.expandedBasicDetailsIndex.value = -1;
+                    }
+                  },
+                  tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                  childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+                  title: Text(
+                    "Investment Details",
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Ucolors.dark,
+                      fontWeight: FontWeight.w600, // Semibold
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
 
-          ///Basic Details
-          ExpansionTile(
-            shape: Border(),
-            collapsedShape: Border(),
-            // dense: true,
-            title: Text('Basic Details'),
-            children: [
-              CustomContainer(
-                bottomPadding: 0,
-                child: Column(
                   children: [
-                    investmentDetailSection(
-                      'Category',
-                      // fund?.schemeCategory.split(':')[0].toString() ?? '',
-                      fund?.schemeCategory ?? '',
-                      Icons.category,
+                    // Clean Divider between Header and Content
+                    Divider(height: 1, color: Colors.grey.shade100),
+                    Container(
+                      // decoration: BoxDecoration(
+                      //   color: Colors.grey.shade50, // Subtle background for detail area
+                      //   borderRadius: BorderRadius.circular(12),
+                      // ),
+                      // padding: const EdgeInsets.all(12),
+                      child: Column(
+                        children: [
+                          _buildDetailRow('Fund Size', '₹${fund?.schemeAssets} Cr.', Icons.bar_chart_outlined),
+                          _buildDashedDivider(),
+                          _buildDetailRow('Min. Inv', '₹${fund?.minimumInvestment}', Icons.circle_outlined),
+                          _buildDashedDivider(),
+                          _buildDetailRow('Min. Sip Inv', '₹${fund?.sipMinimumAmount}', Icons.change_circle_outlined),
+                          _buildDashedDivider(),
+                          _buildDetailRow('Expense Ratio', '${fund?.expenseRatioPercentage}%', Icons.pie_chart_outline),
+                        ],
+                      ),
                     ),
 
-                    // DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                    // investmentDetailSection('KRA', 'KARVY', Icons.circle),
-                    DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                    investmentDetailSection(
-                      'Inv. Plan',
-                      // fund?.schemeName.split('-')[1].toString() ?? '',
-                      fund.schemeName.contains('-') == true
-                          ? fund.schemeName.split('-')[1].trim()
-                          : 'Nil',
-
-                      // fund.schemeName,
-                      Icons.travel_explore_rounded,
-                    ),
-                    DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                    investmentDetailSection(
-                      'Launched IN',
-                      fund?.schemeInceptionDate.toString() ?? '',
-                      Icons.calendar_month_sharp,
-                    ),
-                    DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                    investmentDetailSection(
-                      'Bench Mark',
-
-                      fund?.schemeBenchmark.toString() ?? '',
-                      Icons.track_changes,
-                    ),
-                    DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                    investmentDetailSection(
-                      'Fund Type',
-
-                      fund?.schemeStatus.split(' ')[0].toString() ?? '',
-                      Icons.library_books,
-                    ),
                   ],
                 ),
               ),
-            ],
+            ),
           ),
+          // SizedBox(
+          //   width: double.infinity,
+          //   child: ExpansionTile(
+          //     // maintainState: true,
+          //     shape: Border(),
+          //     collapsedShape: Border(),
+          //     // dense: true,
+          //     title: Text('Invesment Details'),
+          //     children: [
+          //       CustomContainer(
+          //         bottomPadding: 0,
+          //         child: Column(
+          //           children: [
+          //             investmentDetailSection(
+          //               'Fund Size',
+          //               '₹${fund?.schemeAssets?.toString()} Cr.' ?? '',
+          //               Icons.bar_chart_outlined,
+          //             ),
+          //             // Divider(height: 0),
+          //             DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+          //             investmentDetailSection(
+          //               'Min. Inv',
+          //               '₹ ${fund?.minimumInvestment.toString()}',
+          //               Icons.circle,
+          //             ),
+          //
+          //             DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+          //             investmentDetailSection(
+          //               'Min. Sip Inv',
+          //               '₹ ${fund?.sipMinimumAmount.toString()}',
+          //               Icons.change_circle_outlined,
+          //             ),
+          //
+          //             DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+          //             investmentDetailSection(
+          //               'Min. Topup',
+          //               '₹ ${fund?.minimumTopup.toString()}',
+          //               Icons.curtains_closed_outlined,
+          //             ),
+          //
+          //             DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+          //             investmentDetailSection(
+          //               'Turn over',
+          //               '23',
+          //               Icons.lightbulb_circle_outlined,
+          //             ),
+          //             DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+          //             investmentDetailSection(
+          //               'Expense Ratio',
+          //               fund?.expenseRatioPercentage.toString() ?? '',
+          //               Icons.pie_chart_outline,
+          //             ),
+          //             DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+          //             investmentDetailSection(
+          //               'Exit Load',
+          //               fund?.exitLoad.toString() ?? '',
+          //               Icons.logout_outlined,
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
 
+          ///Basic Details
+          // ExpansionTile(
+          //   shape: Border(),
+          //   collapsedShape: Border(),
+          //   // dense: true,
+          //   title: Text('Basic Details'),
+          //   children: [
+          //     CustomContainer(
+          //       bottomPadding: 0,
+          //       child: Column(
+          //         children: [
+          //           investmentDetailSection(
+          //             'Category',
+          //             // fund?.schemeCategory.split(':')[0].toString() ?? '',
+          //             fund?.schemeCategory ?? '',
+          //             Icons.category,
+          //           ),
+          //
+          //           // DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+          //           // investmentDetailSection('KRA', 'KARVY', Icons.circle),
+          //           DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+          //           investmentDetailSection(
+          //             'Inv. Plan',
+          //             // fund?.schemeName.split('-')[1].toString() ?? '',
+          //             fund.schemeName.contains('-') == true
+          //                 ? fund.schemeName.split('-')[1].trim()
+          //                 : 'Nil',
+          //
+          //             // fund.schemeName,
+          //             Icons.travel_explore_rounded,
+          //           ),
+          //           DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+          //           investmentDetailSection(
+          //             'Launched IN',
+          //             fund?.schemeInceptionDate.toString() ?? '',
+          //             Icons.calendar_month_sharp,
+          //           ),
+          //           DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+          //           investmentDetailSection(
+          //             'Bench Mark',
+          //
+          //             fund?.schemeBenchmark.toString() ?? '',
+          //             Icons.track_changes,
+          //           ),
+          //           DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+          //           investmentDetailSection(
+          //             'Fund Type',
+          //
+          //             fund?.schemeStatus.split(' ')[0].toString() ?? '',
+          //             Icons.library_books,
+          //           ),
+          //         ],
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12.0,4.0,12.0,0.0),
+            child: Card(
+              elevation: 0, // Lower elevation + Border is more modern
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: Colors.grey.shade200, width: 1), // Clean border
+              ),
+              color: Ucolors.light,
+              child: Theme(
+                // This removes the splash/highlight and the persistent borders ExpansionTile adds
+                data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                child: ExpansionTile(
+                  key: ValueKey(2),
+                  initiallyExpanded: controller.expandedBasicDetailsIndex.value == 2,
+                  onExpansionChanged: (expanded) {
+                    if (expanded) {
+                      controller.expandedInvestmentIndex.value = -1;
+                      controller.expandedBasicDetailsIndex.value = 2;
+                    }
+                  },
+                  tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                  childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+                  title: Text(
+                    "Basic Details",
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Ucolors.dark,
+                      fontWeight: FontWeight.w600, // Semibold
+                    ),
+                  ),
+
+                  children: [
+                    Column(
+                      children: [
+                        investmentDetailSection(
+                          'Category',
+                          // fund?.schemeCategory.split(':')[0].toString() ?? '',
+                          fund?.schemeCategory ?? '',
+                          Icons.category,
+                        ),
+
+                        // DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                        // investmentDetailSection('KRA', 'KARVY', Icons.circle),
+                        DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                        investmentDetailSection(
+                          'Inv. Plan',
+                          // fund?.schemeName.split('-')[1].toString() ?? '',
+                          fund.schemeName.contains('-') == true
+                              ? fund.schemeName.split('-')[1].trim()
+                              : 'Nil',
+
+                          // fund.schemeName,
+                          Icons.travel_explore_rounded,
+                        ),
+                        DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                        investmentDetailSection(
+                          'Launched IN',
+                          fund?.schemeInceptionDate.toString() ?? '',
+                          Icons.calendar_month_sharp,
+                        ),
+                        DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                        investmentDetailSection(
+                          'Bench Mark',
+
+                          fund?.schemeBenchmark.toString() ?? '',
+                          Icons.track_changes,
+                        ),
+                        DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                        investmentDetailSection(
+                          'Fund Type',
+
+                          fund?.schemeStatus.split(' ')[0].toString() ?? '',
+                          Icons.library_books,
+                        ),
+                      ],
+                    ),
+
+                  ],
+                ),
+              ),
+            ),
+          ),
           //AMC Information
-          ExpansionTile(
-            shape: Border(),
-            collapsedShape: Border(),
-            // dense: true,
-            title: Text('AMC Information'),
-            children: [
-              CustomContainer(
-                bottomPadding: 0,
-                child: Column(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12.0,4.0,12.0,0.0),
+            child: Card(
+              elevation: 0, // Lower elevation + Border is more modern
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: Colors.grey.shade200, width: 1), // Clean border
+              ),
+              color: Ucolors.light,
+              child: Theme(
+                // This removes the splash/highlight and the persistent borders ExpansionTile adds
+                data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                child: ExpansionTile(
+                  key: ValueKey(3),
+                  initiallyExpanded: controller.expandedAMCInformationIndex.value == 3,
+                  onExpansionChanged: (expanded) {
+                    if (expanded) {
+                      controller.expandedInvestmentIndex.value = -1;
+                      controller.expandedAMCInformationIndex.value = 3;
+                    }
+                  },
+                  tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                  childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+                  title: Text(
+                    "AMC Information",
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Ucolors.dark,
+                      fontWeight: FontWeight.w600, // Semibold
+                    ),
+                  ),
+
                   children: [
                     investmentDetailSection(
                       'AMC',
@@ -3907,14 +4230,85 @@ class OverviewScreen extends GetView<FundDetailsController> {
                       controller.address,
                       Icons.location_on_outlined,
                     ),
+
                   ],
                 ),
               ),
-            ],
+            ),
           ),
+          // ExpansionTile(
+          //   shape: Border(),
+          //   collapsedShape: Border(),
+          //   // dense: true,
+          //   title: Text('AMC Information'),
+          //   children: [
+          //     CustomContainer(
+          //       bottomPadding: 0,
+          //       child: Column(
+          //         children: [
+          //           investmentDetailSection(
+          //             'AMC',
+          //             fund?.schemeCompany.toString() ?? '',
+          //             Icons.bar_chart_rounded,
+          //           ),
+          //           DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+          //           investmentDetailSection(
+          //             'Email',
+          //             // 'abc.warrgyizmorch@gmail.com',
+          //             controller.email,
+          //             Icons.mail_outline,
+          //           ),
+          //
+          //           DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+          //           investmentDetailSection(
+          //             'Office No',
+          //             // '1876471871',
+          //             controller.contact,
+          //             Icons.home_work_outlined,
+          //           ),
+          //           // DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+          //           // investmentDetailSection(
+          //           //   'Website',
+          //           //   'http://www.google.com',
+          //           //   Iconsax.global,
+          //           // ),
+          //           DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+          //           investmentDetailSection(
+          //             'Address',
+          //             // '',
+          //             controller.address,
+          //             Icons.location_on_outlined,
+          //           ),
+          //         ],
+          //       ),
+          //     ),
+          //   ],
+          // ),
         ],
       );
     });
+  }
+  // Professional Helper Methods to keep code clean
+  Widget _buildDetailRow(String label, String value, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: Colors.grey.shade600),
+          const SizedBox(width: 10),
+          Text(label, style: TextStyle(color: Colors.grey.shade700, fontSize: 12)),
+          const Spacer(),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDashedDivider() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: DashedLine(dashSpace: 3, color: Colors.grey.shade300),
+    );
   }
 
   Widget marketCapPercentage(String title, String value, Color? color) {
@@ -3971,7 +4365,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: Colors.blue.shade800, size: 18),
+          Icon(icon, color: Colors.blue.shade800, size: 16),
           const SizedBox(width: 10),
 
           /// LEFT TITLE
@@ -3979,7 +4373,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
             flex: 2,
             child: Text(
               title,
-              style: UTextStyles.medium.copyWith(fontWeight: FontWeight.w400),
+              style: UTextStyles.medium.copyWith(fontWeight: FontWeight.w400, fontSize: 12),
             ),
           ),
 
@@ -4007,6 +4401,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
   Widget fundManager(String name) {
     return ListTile(
       dense: true,
+      contentPadding:EdgeInsets.fromLTRB(0, 0, 0, 0),
       leading: CircleAvatar(
         radius: 15,
         backgroundColor: Ucolors.skyblue1,
@@ -4022,7 +4417,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
       trailing: CompactIcon(
         icon: Icons.arrow_forward_ios_rounded,
         iconColor: Ucolors.darkgrey,
-        iconSize: 15,
+        iconSize: 12,
 
         onPressed: () {},
       ),
@@ -4147,7 +4542,6 @@ class FundComparisonItem extends StatelessWidget {
     );
   }
 }
-
 class SpeedometerGauge extends StatelessWidget {
   final double value; // 0–100
 
@@ -4157,8 +4551,11 @@ class SpeedometerGauge extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 130,
-
       child: SfRadialGauge(
+        // Animation enable karne ke liye ye property zaroori hai
+        enableLoadingAnimation: true,
+        animationDuration: 2000, // Needle ko 2 second tak move hote hue dikhayega
+
         axes: [
           RadialAxis(
             minimum: 0,
@@ -4169,173 +4566,246 @@ class SpeedometerGauge extends StatelessWidget {
             radiusFactor: 1,
             showTicks: false,
             showLabels: false,
-
             axisLineStyle: const AxisLineStyle(
               thickness: 0,
               color: Colors.transparent,
             ),
-
             ranges: [
-              GaugeRange(
-                startValue: 0,
-                endValue: 18,
-                color: Colors.green,
-                startWidth: 14,
-                endWidth: 14,
-              ),
-              GaugeRange(
-                startValue: 18,
-                endValue: 20,
-                color: Colors.transparent,
-              ),
-
-              GaugeRange(
-                startValue: 20,
-                endValue: 38,
-                color: Colors.lightGreen,
-                startWidth: 14,
-                endWidth: 14,
-              ),
-              GaugeRange(
-                startValue: 38,
-                endValue: 40,
-                color: Colors.transparent,
-              ),
-
-              GaugeRange(
-                startValue: 40,
-                endValue: 58,
-                color: Colors.amber,
-                startWidth: 14,
-                endWidth: 14,
-              ),
-              GaugeRange(
-                startValue: 58,
-                endValue: 60,
-                color: Colors.transparent,
-              ),
-
-              GaugeRange(
-                startValue: 60,
-                endValue: 78,
-                color: Colors.orange,
-                startWidth: 14,
-                endWidth: 14,
-              ),
-              GaugeRange(
-                startValue: 78,
-                endValue: 80,
-                color: Colors.transparent,
-              ),
-
-              GaugeRange(
-                startValue: 80,
-                endValue: 100,
-                color: Colors.red,
-                startWidth: 14,
-                endWidth: 14,
-              ),
+              _buildRange(0, 18, Colors.green),
+              _buildRange(18, 20, Colors.transparent),
+              _buildRange(20, 38, Colors.lightGreen),
+              _buildRange(38, 40, Colors.transparent),
+              _buildRange(40, 58, Colors.amber),
+              _buildRange(58, 60, Colors.transparent),
+              _buildRange(60, 78, Colors.orange),
+              _buildRange(78, 80, Colors.transparent),
+              _buildRange(80, 100, Colors.red),
             ],
-
             pointers: [
               NeedlePointer(
                 value: value,
-                needleLength: 0.6,
+                // Pointer movement animation
+                enableAnimation: true,
+                animationDuration: 8000, // Needle ki speed 1.5 seconds
+                animationType: AnimationType.easeOutBack, // Thoda bounce effect dega
+
+                needleLength: 0.7,
                 needleStartWidth: 1,
-                needleEndWidth: 4,
+                needleEndWidth: 5,
                 needleColor: Colors.black,
                 knobStyle: const KnobStyle(
                   color: Colors.black,
-                  knobRadius: 0.06,
+                  knobRadius: 0.07,
+                  borderWidth: 0.02,
+                  borderColor: Colors.white, // Knob ko thoda depth dega
                 ),
               ),
             ],
           ),
         ],
       ),
+    );
+  }
 
-      //  SfRadialGauge(
-      //   // backgroundColor: Colors.green,
-      //   axes: [
-      //     RadialAxis(
-      //       // interval: 3,
-      //       radiusFactor: 1,
-      //       centerY: 0.8,
-
-      //       // centerX: 0,
-      //       minimum: 0,
-      //       maximum: 100,
-      //       startAngle: 180,
-      //       endAngle: 0,
-      //       showTicks: false,
-      //       showLabels: false,
-
-      //       axisLineStyle: const AxisLineStyle(
-      //         thickness: 0.15,
-
-      //         thicknessUnit: GaugeSizeUnit.factor,
-      //         color: Colors.transparent,
-      //       ),
-
-      //       // COLOR SEGMENTS
-      //       ranges: [
-      //         GaugeRange(
-      //           startValue: 0,
-      //           endValue: 20,
-      //           color: Colors.green,
-      //           startWidth: 15,
-      //           endWidth: 15,
-      //         ),
-      //         GaugeRange(
-      //           startValue: 20,
-      //           endValue: 40,
-      //           color: Colors.lightGreen,
-      //           startWidth: 15,
-      //           endWidth: 15,
-      //         ),
-      //         GaugeRange(
-      //           startValue: 40,
-      //           endValue: 60,
-      //           color: Colors.yellow,
-      //           startWidth: 15,
-      //           endWidth: 15,
-      //         ),
-      //         GaugeRange(
-      //           startValue: 60,
-      //           endValue: 80,
-      //           color: Colors.orange,
-      //           startWidth: 15,
-      //           endWidth: 15,
-      //         ),
-      //         GaugeRange(
-      //           startValue: 80,
-      //           endValue: 100,
-      //           color: Colors.red,
-      //           startWidth: 15,
-      //           endWidth: 15,
-      //         ),
-      //       ],
-
-      //       // NEEDLE
-      //       pointers: [
-      //         NeedlePointer(
-      //           value: value,
-      //           needleLength: 0.6,
-      //           needleStartWidth: 1,
-      //           needleEndWidth: 4,
-      //           needleColor: Colors.black,
-      //           knobStyle: const KnobStyle(
-      //             color: Colors.black,
-      //             knobRadius: 0.06,
-      //           ),
-      //         ),
-      //       ],
-      //     ),
-      //   ],
-      // ),
+  // Helper method to keep code clean
+  GaugeRange _buildRange(double start, double end, Color color) {
+    return GaugeRange(
+      startValue: start,
+      endValue: end,
+      color: color,
+      startWidth: 14,
+      endWidth: 14,
     );
   }
 }
+// class SpeedometerGauge extends StatelessWidget {
+//   final double value; // 0–100
+//
+//   const SpeedometerGauge({super.key, required this.value});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return SizedBox(
+//       height: 130,
+//
+//       child: SfRadialGauge(
+//         axes: [
+//           RadialAxis(
+//             minimum: 0,
+//             maximum: 100,
+//             startAngle: 180,
+//             endAngle: 0,
+//             centerY: 0.8,
+//             radiusFactor: 1,
+//             showTicks: false,
+//             showLabels: false,
+//
+//             axisLineStyle: const AxisLineStyle(
+//               thickness: 0,
+//               color: Colors.transparent,
+//             ),
+//
+//             ranges: [
+//               GaugeRange(
+//                 startValue: 0,
+//                 endValue: 18,
+//                 color: Colors.green,
+//                 startWidth: 14,
+//                 endWidth: 14,
+//               ),
+//               GaugeRange(
+//                 startValue: 18,
+//                 endValue: 20,
+//                 color: Colors.transparent,
+//               ),
+//
+//               GaugeRange(
+//                 startValue: 20,
+//                 endValue: 38,
+//                 color: Colors.lightGreen,
+//                 startWidth: 14,
+//                 endWidth: 14,
+//               ),
+//               GaugeRange(
+//                 startValue: 38,
+//                 endValue: 40,
+//                 color: Colors.transparent,
+//               ),
+//
+//               GaugeRange(
+//                 startValue: 40,
+//                 endValue: 58,
+//                 color: Colors.amber,
+//                 startWidth: 14,
+//                 endWidth: 14,
+//               ),
+//               GaugeRange(
+//                 startValue: 58,
+//                 endValue: 60,
+//                 color: Colors.transparent,
+//               ),
+//
+//               GaugeRange(
+//                 startValue: 60,
+//                 endValue: 78,
+//                 color: Colors.orange,
+//                 startWidth: 14,
+//                 endWidth: 14,
+//               ),
+//               GaugeRange(
+//                 startValue: 78,
+//                 endValue: 80,
+//                 color: Colors.transparent,
+//               ),
+//
+//               GaugeRange(
+//                 startValue: 80,
+//                 endValue: 100,
+//                 color: Colors.red,
+//                 startWidth: 14,
+//                 endWidth: 14,
+//               ),
+//             ],
+//
+//             pointers: [
+//               NeedlePointer(
+//                 value: value,
+//                 needleLength: 0.6,
+//                 needleStartWidth: 1,
+//                 needleEndWidth: 4,
+//                 needleColor: Colors.black,
+//                 knobStyle: const KnobStyle(
+//                   color: Colors.black,
+//                   knobRadius: 0.06,
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ],
+//       ),
+//
+//       //  SfRadialGauge(
+//       //   // backgroundColor: Colors.green,
+//       //   axes: [
+//       //     RadialAxis(
+//       //       // interval: 3,
+//       //       radiusFactor: 1,
+//       //       centerY: 0.8,
+//
+//       //       // centerX: 0,
+//       //       minimum: 0,
+//       //       maximum: 100,
+//       //       startAngle: 180,
+//       //       endAngle: 0,
+//       //       showTicks: false,
+//       //       showLabels: false,
+//
+//       //       axisLineStyle: const AxisLineStyle(
+//       //         thickness: 0.15,
+//
+//       //         thicknessUnit: GaugeSizeUnit.factor,
+//       //         color: Colors.transparent,
+//       //       ),
+//
+//       //       // COLOR SEGMENTS
+//       //       ranges: [
+//       //         GaugeRange(
+//       //           startValue: 0,
+//       //           endValue: 20,
+//       //           color: Colors.green,
+//       //           startWidth: 15,
+//       //           endWidth: 15,
+//       //         ),
+//       //         GaugeRange(
+//       //           startValue: 20,
+//       //           endValue: 40,
+//       //           color: Colors.lightGreen,
+//       //           startWidth: 15,
+//       //           endWidth: 15,
+//       //         ),
+//       //         GaugeRange(
+//       //           startValue: 40,
+//       //           endValue: 60,
+//       //           color: Colors.yellow,
+//       //           startWidth: 15,
+//       //           endWidth: 15,
+//       //         ),
+//       //         GaugeRange(
+//       //           startValue: 60,
+//       //           endValue: 80,
+//       //           color: Colors.orange,
+//       //           startWidth: 15,
+//       //           endWidth: 15,
+//       //         ),
+//       //         GaugeRange(
+//       //           startValue: 80,
+//       //           endValue: 100,
+//       //           color: Colors.red,
+//       //           startWidth: 15,
+//       //           endWidth: 15,
+//       //         ),
+//       //       ],
+//
+//       //       // NEEDLE
+//       //       pointers: [
+//       //         NeedlePointer(
+//       //           value: value,
+//       //           needleLength: 0.6,
+//       //           needleStartWidth: 1,
+//       //           needleEndWidth: 4,
+//       //           needleColor: Colors.black,
+//       //           knobStyle: const KnobStyle(
+//       //             color: Colors.black,
+//       //             knobRadius: 0.06,
+//       //           ),
+//       //         ),
+//       //       ],
+//       //     ),
+//       //   ],
+//       // ),
+//     );
+//   }
+// }
 
 class CustomContainer extends StatelessWidget {
   const CustomContainer({
@@ -4391,12 +4861,12 @@ Widget _infoItem(String title, String value, Color? color) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(title, style: TextStyle(fontSize: 12, color: Ucolors.darkgrey)),
+      Text(title, style: TextStyle(fontSize: 10, color: Ucolors.darkgrey)),
       const SizedBox(height: 4),
       Text(
         value,
         style: TextStyle(
-          fontSize: 15,
+          fontSize: 12,
           fontWeight: FontWeight.w500,
           color: color,
         ),
@@ -4405,6 +4875,104 @@ Widget _infoItem(String title, String value, Color? color) {
   );
 }
 
+// class SliverPageTabs extends SliverPersistentHeaderDelegate {
+//   final int selectedIndex;
+//   final ValueChanged<int> onTap;
+//   static final ScrollController _scrollController = ScrollController();
+//
+//   SliverPageTabs({required this.selectedIndex, required this.onTap});
+//
+//   final tabs = const [
+//     'Overview',
+//     'Returns',
+//     'Risk',
+//     'Portfolio',
+//     'Information',
+//   ];
+//
+//   void _scrollToActiveTab() {
+//     if (_scrollController.hasClients) {
+//       double offset = selectedIndex * 90.0;
+//       double target = offset.clamp(
+//         0.0,
+//         _scrollController.position.maxScrollExtent,
+//       );
+//
+//       _scrollController.animateTo(
+//         target,
+//         duration: const Duration(milliseconds: 100),
+//         curve: Curves.easeInOut,
+//       );
+//     }
+//   }
+//
+//   @override
+//   bool shouldRebuild(covariant SliverPageTabs oldDelegate) {
+//     return oldDelegate.selectedIndex != selectedIndex;
+//   }
+//
+//   @override
+//   Widget build(
+//     BuildContext context,
+//     double shrinkOffset,
+//     bool overlapsContent,
+//   ) {
+//     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToActiveTab());
+//
+//     return Container(
+//       // ---------------------------------------------------------
+//       // 👇 FIX: Give it a fixed height so the ListView doesn't crash
+//       // ---------------------------------------------------------
+//       height: 50,
+//       decoration: BoxDecoration(
+//         color: Colors.grey[100],
+//         borderRadius: BorderRadius.circular(25),
+//       ),
+//       margin: const EdgeInsets.symmetric(horizontal: 10),
+//       child: ListView.separated(
+//         controller: _scrollController,
+//         scrollDirection: Axis.horizontal,
+//         padding: const EdgeInsets.symmetric(horizontal: 10),
+//         itemCount: tabs.length,
+//         separatorBuilder: (_, __) => const SizedBox(width: 8),
+//         itemBuilder: (context, index) {
+//           final isSelected = index == selectedIndex;
+//
+//           return GestureDetector(
+//             onTap: () => onTap(index),
+//             child: Center(
+//               child: AnimatedContainer(
+//                 duration: const Duration(milliseconds: 200),
+//                 padding: const EdgeInsets.symmetric(
+//                   horizontal: 16,
+//                   vertical: 10,
+//                 ),
+//                 decoration: BoxDecoration(
+//                   color: isSelected ? Colors.white : Colors.transparent,
+//                   borderRadius: BorderRadius.circular(20),
+//                 ),
+//                 child: Text(
+//                   tabs[index],
+//                   style: TextStyle(
+//                     fontSize: 12,
+//                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+//                     color: isSelected ? Ucolors.primary : Colors.grey.shade700,
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           );
+//         },
+//       ),
+//     );
+//   }
+//
+//   @override
+//   double get maxExtent => 50;
+//
+//   @override
+//   double get minExtent => 50;
+// }
 class SliverPageTabs extends SliverPersistentHeaderDelegate {
   final int selectedIndex;
   final ValueChanged<int> onTap;
@@ -4443,56 +5011,61 @@ class SliverPageTabs extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
+      BuildContext context,
+      double shrinkOffset,
+      bool overlapsContent,
+      ) {
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToActiveTab());
 
-    return Container(
-      // ---------------------------------------------------------
-      // 👇 FIX: Give it a fixed height so the ListView doesn't crash
-      // ---------------------------------------------------------
-      height: 50,
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(25),
-      ),
-      margin: const EdgeInsets.symmetric(horizontal: 10),
-      child: ListView.separated(
-        controller: _scrollController,
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        itemCount: tabs.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (context, index) {
-          final isSelected = index == selectedIndex;
+    // 1. Wrap with Material or Container with a solid color
+    return Material(
+      color: Ucolors.light,
+      elevation: overlapsContent ? 2 : 0, // Option: Jab scroll ho toh thodi shadow aaye
+      child: Container(
+        height: 50,
+        padding: const EdgeInsets.symmetric(vertical: 4), // Margin ki jagah padding use karein
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: ListView.separated(
+            controller: _scrollController,
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            itemCount: tabs.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            itemBuilder: (context, index) {
+              final isSelected = index == selectedIndex;
 
-          return GestureDetector(
-            onTap: () => onTap(index),
-            child: Center(
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: isSelected ? Colors.white : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  tabs[index],
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected ? Ucolors.primary : Colors.grey.shade700,
+              return GestureDetector(
+                onTap: () => onTap(index),
+                child: Center(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.white : Colors.transparent,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      tabs[index],
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                        color: isSelected ? Ucolors.primary : Colors.grey.shade700,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          );
-        },
+              );
+            },
+          ),
+        ),
       ),
     );
   }
@@ -4503,7 +5076,6 @@ class SliverPageTabs extends SliverPersistentHeaderDelegate {
   @override
   double get minExtent => 50;
 }
-
 Widget _dot() {
   return const Text('•', style: TextStyle(fontSize: 12, color: Colors.grey));
 }
@@ -4515,6 +5087,6 @@ Widget _metaText(
 }) {
   return Text(
     text,
-    style: TextStyle(fontSize: 12, color: color, fontWeight: fontWeight),
+    style: TextStyle(fontSize: 10, color: color, fontWeight: fontWeight),
   );
 }

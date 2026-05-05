@@ -16,6 +16,9 @@ class FundDetailsController extends GetxController
     with GetSingleTickerProviderStateMixin {
   // final GetFundDetailUseCase getFundDetailUseCase;
   final FundDetailsUsecases fundDetailsUsecases;
+  RxInt expandedInvestmentIndex = 0.obs;
+  RxInt expandedBasicDetailsIndex = 0.obs;
+  RxInt expandedAMCInformationIndex = 0.obs;
 
   // Arguments - initialized in constructor
   late String schemeName;

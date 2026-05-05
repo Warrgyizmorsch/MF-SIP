@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:my_sip/features/fund_details/data/models/fund_performance.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
@@ -17,7 +18,7 @@ class YearlyReturnsChart extends StatelessWidget {
 
     return Container(
       height: height ?? (isDesktop ? 290 : 180),
-      padding: isDesktop ? const EdgeInsets.all(20) : const EdgeInsets.all(12),
+      padding: isDesktop ? const EdgeInsets.all(20) : const EdgeInsets.all(8),
       decoration: isDesktop
           ? BoxDecoration(
         color: Colors.white,
@@ -109,11 +110,11 @@ class YearlyReturnsChart extends StatelessWidget {
                   barRods: [
                     BarChartRodData(
                       toY: yearlyData[index].value,
-                      width: isDesktop ? 32 : 20,
+                      width: isDesktop ? 32 : Get.width * 0.07,
                       gradient: LinearGradient(
                         colors: [
                           const Color(0xFF1B7A3A),
-                          const Color(0xFF2D9F52),
+                          const Color(0xFFFFF176),
                         ],
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,

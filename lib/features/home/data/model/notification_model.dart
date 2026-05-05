@@ -17,7 +17,7 @@ class AppNotificationModel {
     );
   }
 
-  // 🔥 ADD THIS
+  //  ADD THIS
   Map<String, dynamic> toJson() {
     return {
       "result": result?.toJson(),
@@ -34,7 +34,7 @@ class AppNotificationModel {
     );
   }
 
-  // 🔥 ADD THIS (Entity → Model)
+  // ADD THIS (Entity → Model)
   factory AppNotificationModel.fromEntity(AppNotificationEntity entity) {
     return AppNotificationModel(
       result: _NotificationResultModel(
@@ -47,12 +47,12 @@ class AppNotificationModel {
     );
   }
 
-  // 🔥 Encode list
+  // Encode list
   static String encode(List<AppNotificationModel> list) {
     return jsonEncode(list.map((e) => e.toJson()).toList());
   }
 
-  // 🔥 Decode list
+  // Decode list
   static List<AppNotificationModel> decode(String data) {
     final decoded = jsonDecode(data) as List;
     return decoded.map((e) => AppNotificationModel.fromJson(e)).toList();
@@ -85,7 +85,7 @@ class _NotificationResultModel {
     );
   }
 
-  // 🔥 ADD THIS
+  // ADD THIS
   Map<String, dynamic> toJson() {
     return {
       "id": id,

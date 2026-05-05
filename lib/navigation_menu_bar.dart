@@ -3215,8 +3215,8 @@ class _MobileBottomNavBar extends StatelessWidget {
       top: false,
       bottom: true,
       child: Container(
-        height: kBottomNavigationBarHeight + 20,
-        padding: const EdgeInsets.only(top: 6, bottom: 12),
+        height: kBottomNavigationBarHeight + 4,
+        padding: const EdgeInsets.only(top: 0, bottom: 2),
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -3281,17 +3281,17 @@ class _MobileNavItem extends StatelessWidget {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 2),
               Icon(
                 icon,
-                size: 24,
+                size: 18,
                 color: isSelected ? Ucolors.blue : Ucolors.darkgrey,
               ),
               const SizedBox(height: 4),
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                   color: isSelected ? Ucolors.blue : Ucolors.darkgrey,
                 ),

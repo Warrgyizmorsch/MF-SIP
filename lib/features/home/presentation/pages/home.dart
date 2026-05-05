@@ -1752,7 +1752,8 @@ class _MobileLayout extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(16, 20, 16, 0),
               child: SectionHeading(
                 sectionTitle: 'Collection',
-                fontWeight: FontWeight.w500,
+                fontWeight:   FontWeight.w600,
+
               ),
             ),
           ),
@@ -1936,24 +1937,30 @@ class _MobileLayout extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFEEF5FF),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(
-                            Icons.add,
-                            size: 20,
-                            color: Ucolors.blue,
-                          ),
+                        Icon(
+                          Icons.add,
+                          size: 20,
+                          color: Ucolors.blue,
                         ),
-                        const SizedBox(width: 12),
+                        // Container(
+                        //   padding: const EdgeInsets.all(8),
+                        //   decoration: BoxDecoration(
+                        //     color: const Color(0xFFEEF5FF),
+                        //     borderRadius: BorderRadius.circular(8),
+                        //   ),
+                        //   child: const Icon(
+                        //     Icons.add,
+                        //     size: 20,
+                        //     color: Ucolors.blue,
+                        //   ),
+                        // ),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             'Custom Goal',
                             style: UTextStyles.small.copyWith(
                               color: Ucolors.dark,
+                              fontSize: 11,
                               fontWeight: FontWeight.w500,
                             ),
                             maxLines: 1,
@@ -2109,22 +2116,21 @@ class _MobileLayout extends StatelessWidget {
           // const SliverToBoxAdapter(child: SizedBox(height: 24)),
           SliverToBoxAdapter(
             child: SizedBox(
-              height: 180,
+              height: 160,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.only(left: 24, right: 12),                physics: const BouncingScrollPhysics(),
                 children: const [
                   ClickableYoutubeThumbnail(
                     videoUrl:
                         "https://youtu.be/2B8b2E9JPzk?si=69cT1kC-Er_TNNCB",
                   ),
-                  SizedBox(width: 16),
+                  SizedBox(width: 8),
                   ClickableYoutubeThumbnail(
                     videoUrl:
                         "https://youtu.be/xuVUGgB3kGE?si=0Kje6W2zqSxEtUuu",
                   ),
-                  SizedBox(width: 16),
+                  SizedBox(width: 8),
                 ],
               ),
             ),
@@ -2523,49 +2529,62 @@ class PopularFundCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: borderColor),
+          border: Border.all(color: Colors.grey.shade100),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.04),
-              blurRadius: 10,
+              blurRadius: 6,
               offset: const Offset(0, 3),
-            ),
+            )
           ],
         ),
+        // decoration: BoxDecoration(
+        //   color: Colors.white,
+        //   borderRadius: BorderRadius.circular(10),
+        //   border: Border.all(color: borderColor),
+        //   boxShadow: [
+        //     BoxShadow(
+        //       color: Colors.black.withOpacity(0.04),
+        //       blurRadius: 10,
+        //       offset: const Offset(0, 3),
+        //     ),
+        //   ],
+        // ),
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(4),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  // crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ClipOval(
                       child: Container(
-                        height: 40,
-                        width: 40,
+                        height: 30,
+                        width: 30,
                         color: Colors.grey.shade50,
                         child: isNetwork
                             ? CustomCachedImage(imageUrl: imgPath, size: 40)
                             : Image.asset(imgPath, fit: BoxFit.cover),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         name,
-                        maxLines: 2,
+                        maxLines: 4,
                         overflow: TextOverflow.ellipsis,
                         style: UTextStyles.medium.copyWith(
                           color: Colors.black,
                           fontWeight: FontWeight.w500,
-                          fontSize: 14,
-                          height: 1.2,
+                          fontSize: 11,
+                          height: 1.1,
                         ),
                       ),
                     ),
@@ -2643,20 +2662,22 @@ class GoalBaseSIPCard extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEEF5FF),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(iconData, size: 20, color: Ucolors.blue),
-              ),
-              const SizedBox(width: 12),
+              Icon(iconData, size: 20, color: Ucolors.blue),
+              // Container(
+              //   padding: const EdgeInsets.all(8),
+              //   decoration: BoxDecoration(
+              //     color: const Color(0xFFEEF5FF),
+              //     borderRadius: BorderRadius.circular(8),
+              //   ),
+              //   child: Icon(iconData, size: 20, color: Ucolors.blue),
+              // ),
+              const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   title,
                   style: UTextStyles.small.copyWith(
                     color: Ucolors.dark,
+                    fontSize: 11,
                     fontWeight: FontWeight.w500,
                   ),
                   maxLines: 1,
@@ -2705,8 +2726,8 @@ class ToolsItem extends StatelessWidget {
             child: Text(
               title,
               style: UTextStyles.small.copyWith(
-                color: Colors.grey[600],
-                fontSize: 14,
+                color: Ucolors.secondary,
+                fontSize: 11,
               ),
             ),
           ),
@@ -2716,47 +2737,167 @@ class ToolsItem extends StatelessWidget {
   }
 }
 
-class CollectionItem extends StatelessWidget {
-  const CollectionItem({
-    super.key,
-    required this.title,
-    required this.iconImg,
-    this.onTap,
-  });
-  final String title;
+// class CollectionItem extends StatelessWidget {
+//   const CollectionItem({
+//     super.key,
+//     required this.title,
+//     required this.iconImg,
+//     this.onTap,
+//   });
+//   final String title;
+//   final String iconImg;
+//   final VoidCallback? onTap;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return GestureDetector(
+//       onTap: onTap,
+//       child: Column(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         mainAxisSize: MainAxisSize.min,
+//         children: [
+//           SizedBox(
+//             height: 40,
+//             width: 40,
+//             child: Image.asset(iconImg, fit: BoxFit.contain),
+//           ),
+//           const SizedBox(height: 6),
+//           Text(
+//             title,
+//             textAlign: TextAlign.center,
+//             maxLines: 2,
+//             overflow: TextOverflow.ellipsis,
+//             style: UTextStyles.small.copyWith(
+//               color:Ucolors.secondary,
+//               fontSize: 11,
+//               height: 1.1,
+//               fontWeight: FontWeight.w500,
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+class CollectionItem extends StatefulWidget {
   final String iconImg;
+  final String title;
   final VoidCallback? onTap;
+
+  const CollectionItem({
+    required this.iconImg,
+    required this.title,
+     this.onTap,
+  });
+
+  @override
+  State<CollectionItem> createState() => _CollectionTileState();
+}
+
+class _CollectionTileState extends State<CollectionItem> {
+  double scale = 1.0;
+  bool isPressed = false;
+
+  void _onTapDown(_) {
+    setState(() {
+      scale = 0.92;
+      isPressed = true;
+    });
+  }
+
+  void _onTapUp(_) {
+    setState(() {
+      scale = 1.0;
+      isPressed = false;
+    });
+  }
+
+  void _onCancel() {
+    setState(() {
+      scale = 1.0;
+      isPressed = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            height: 45,
-            width: 45,
-            child: Image.asset(iconImg, fit: BoxFit.contain),
+      onTap: widget.onTap,
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onTapCancel: _onCancel,
+      child: AnimatedScale(
+        scale: scale,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOut,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+
+            gradient: isPressed
+                ? RadialGradient(
+              colors: [
+                Colors.blue.withOpacity(0.15),
+                Colors.transparent,
+              ],
+              radius: 0.8,
+              center: Alignment.center,
+            )
+                : null,
+
+            boxShadow: isPressed
+                ? [
+              BoxShadow(
+                color: Colors.blue.withOpacity(0.25),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              )
+            ]
+                : [],
           ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: UTextStyles.small.copyWith(
-              color: Colors.grey[600],
-              fontSize: 12,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+
+              splashColor: Colors.blue.withOpacity(0.25),
+              highlightColor: Colors.blue.withOpacity(0.05),
+
+              onTap: widget.onTap,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 6),
+
+                  Image.asset(
+                    widget.iconImg,
+                    height: 48,
+                    width: 48,
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  Text(
+                    widget.title,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      height: 1.1,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xff2A7BBF),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 }
-
 class FilterChip extends StatelessWidget {
   final String label;
   final IconData? icon;

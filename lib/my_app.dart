@@ -204,7 +204,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                                   const Text(
                                     "MF SIP Secured",
                                     style: TextStyle(
-                                      fontFamily: 'Geist',
+                                      // fontFamily: 'Geist',
 
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
