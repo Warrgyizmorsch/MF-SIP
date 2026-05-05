@@ -52,5 +52,33 @@ class GoalRemoteDataSource {
       return Right(ApiError(message: 'Login Failed with Exception $e'));
     }
   }
-  
+
+  Future<Either<Result<String>, ApiError>> saveGoalToFund(
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final result = await apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/goal-orders/save",
+        data: data,
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
+      );
+
+      createLog("[Goal Remote Data Source] Goal Fund Save Response: $result");
+
+      if (result['status'] == true) {
+        return Left(Result.success(result['message'].toString()));
+        // return Left(Result.success(result['data']['id'].toString()));
+      } else {
+        return Right(
+          ApiError(message: result['message'] ?? 'Goal Fund Save Failed'),
+        );
+      }
+    } catch (e) {
+      return Right(
+        ApiError(message: 'Goal Fund Save Failed with Exception $e'),
+      );
+    }
+  }
 }

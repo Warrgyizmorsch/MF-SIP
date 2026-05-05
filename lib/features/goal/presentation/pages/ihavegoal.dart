@@ -790,8 +790,6 @@ class _MobileLayout extends StatelessWidget {
       });
     });
   }
-
-  
 }
 
 // ==========================================
@@ -850,7 +848,9 @@ class PopularFund extends StatelessWidget {
                   title: 'Goal',
                   fund.schemeCode ?? '',
                   fund.baseSchemeName ?? '',
-                  fund.minSipAmount ?? 0,
+                  // fund.minSipAmount ?? 0,
+                  goalSipController.monthlySip.toInt(),
+
                   currentGoalId,
                 );
               } else {

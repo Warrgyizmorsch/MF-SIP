@@ -41,5 +41,22 @@ class GoalRepositoryImpl extends GoalRepository{
     }
   }
 
+  @override
+  Future<Either<Result<String>, ApiError>> saveGoalFund(Map<String, dynamic> data) async {
+    try {
+      final result = await goalRemoteDataSource.saveGoalToFund(data);
+      return result.fold(
+        (success) {
+          return Left(Result.success(success.data));
+        }, 
+        (error) {
+          return Right(ApiError(message: error.message));
+        }
+      );
+    } catch(e) {
+      return Right(ApiError(message: e.toString()));
+    }
+  }
+
   // Future<Either<Result<String>,ApiError>>saveGoal(Map<String,dynamic> data)async {}
 }

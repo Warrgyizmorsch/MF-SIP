@@ -777,7 +777,11 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                   Obx(() {
                     if (controller.linkedBankAccount.value != null) {
                       return UElevatedBUtton(
-                        onPressed: () => Get.toNamed(AppRoutes.addanotherbank),
+                        onPressed: () {
+                          Get.find<PersonalisationController>()
+                              .clearBankFields();
+                          Get.toNamed(AppRoutes.addanotherbank);
+                        },
                         outlined: true,
                         child: const Center(
                           child: Text(

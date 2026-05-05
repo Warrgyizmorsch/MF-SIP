@@ -557,14 +557,14 @@ class KycRemoteDataSource {
     }
   }
 
-
   // ===========================================================================
   //  CAMS POLLING
   // ===========================================================================
   Future<String> checkCamsStatus(String onboardingId) async {
     try {
-      final signzyToken = sessionManager.getOnboardingData?.sessionToken ?? 
-                          sessionManager.onboardingRespone.value?.sessionToken;
+      final signzyToken =
+          sessionManager.getOnboardingData?.sessionToken ??
+          sessionManager.onboardingRespone.value?.sessionToken;
 
       if (signzyToken == null) {
         createLog("[Kyc Remote Data Source] Error: Signzy Token is null");
@@ -576,7 +576,8 @@ class KycRemoteDataSource {
         '${Appurl.kycUrl}/api/onboardings/pullCamsResponse',
         data: {"onboardingId": onboardingId},
         headers: {
-          'Authorization': 'oQj4VcRu0Ao53aOunK5zXdkVNw2337sMSuMXng7bkGe88KWLZwTtJGUPAlmk2QhR', 
+          'Authorization':
+              'KRez5eYAnjnakPeuGiaBxbVjCyaosEBxBFMoGVYwQXFIsFngc4N3MQbxlyNCcCwB',
         },
       );
 
@@ -585,14 +586,11 @@ class KycRemoteDataSource {
       if (resp != null && resp['camsResponse'] != null) {
         return resp['camsResponse']['status']?.toString() ?? "inProgress";
       }
-      
-      return "inProgress";
 
+      return "inProgress";
     } catch (e) {
       createLog("[Kyc Remote Data Source] pullCamsResponse API Exception: $e");
       return "error";
     }
   }
-
-
 }

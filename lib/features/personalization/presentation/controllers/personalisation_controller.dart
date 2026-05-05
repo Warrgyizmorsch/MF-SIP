@@ -407,8 +407,11 @@ class PersonalisationController extends GetxController {
   final bankErrorMessage = ''.obs;
   // --- Linked Bank Account State ---
   final isLinkedBankLoading = false.obs;
-  // Using dynamic or your specific BankEntity if you have one mapped
   final linkedBankAccount = Rxn<dynamic>();
+
+  final RxBool isFetchingIFSC = false.obs;
+  final RxString resolvedBranch = ''.obs;
+  final RxString autoFetchedBank = ''.obs;
 
   // ------------------------ Add Bank Account State --------------------------///
   final isBankAdding = false.obs;
@@ -416,14 +419,18 @@ class PersonalisationController extends GetxController {
   final bankAccountNumberController = TextEditingController();
   final bankIfscController = TextEditingController();
   final bankMicrController = TextEditingController();
+  final bankAccHdNameController = TextEditingController();
   final bankAccountType = 'SB'.obs; // SB = Savings, CA = Current
 
-  void _clearBankFields() {
+  void clearBankFields() {
     bankNameController.clear();
     bankAccountNumberController.clear();
     bankIfscController.clear();
     bankMicrController.clear();
     bankAccountType.value = 'SB';
+    autoFetchedBank.value = '';
+    resolvedBranch.value = '';
+    isFetchingIFSC.value = false;
   }
 
   Future<void> fetchBanks() async {
@@ -518,6 +525,7 @@ class PersonalisationController extends GetxController {
       isProfileLoading.value = false;
     }
   }
+
   // Future<void> fetchUserBankDetails() async {
   //   final userId = session.getUserData?.id;
   //   if (userId == null) return;
@@ -557,6 +565,7 @@ class PersonalisationController extends GetxController {
   Future<void> addBankAccount() async {
     if (bankAccountNumberController.text.isEmpty ||
         bankIfscController.text.isEmpty ||
+        bankAccHdNameController.text.isEmpty ||
         bankNameController.text.isEmpty) {
       Get.snackbar("Required", "Please fill all bank details");
       return;
@@ -565,15 +574,13 @@ class PersonalisationController extends GetxController {
     isBankAdding.value = true;
 
     try {
-      final userName = session.getUserData?.name ?? "User";
-
       final Map<String, dynamic> data = {
         "id": session.getUserData?.id,
-        "account_holder_name": userName,
+        "account_holder_name": bankAccHdNameController.text,
         "account_number": bankAccountNumberController.text.trim(),
         "ifsc_code": bankIfscController.text.trim().toUpperCase(),
         "bank_name": bankNameController.text.trim(),
-        // "micr_code": bankMicrController.text.trim(),
+        "micr_code": bankMicrController.text.trim(),
         "account_type": bankAccountType.value,
       };
 
@@ -584,7 +591,7 @@ class PersonalisationController extends GetxController {
 
       result.fold(
         (success) {
-          _clearBankFields();
+          clearBankFields();
           Get.back();
           // fetchUserBankDetails();
           if (success.data?.data?.bankAccount != null) {
@@ -614,6 +621,38 @@ class PersonalisationController extends GetxController {
       Get.snackbar("Error", "Something went wrong while adding bank");
     } finally {
       isBankAdding.value = false;
+    }
+  }
+
+  Future<void> _fetchBankDetailsFromIFSC(String ifsc) async {
+    try {
+      isFetchingIFSC.value = true;
+      resolvedBranch.value = '';
+
+      // Using GetConnect (or you can use http/dio)
+      final response = await GetConnect().get(
+        'https://ifsc.razorpay.com/$ifsc',
+      );
+
+      if (response.statusCode == 200 && response.body != null) {
+        // Auto-fill the Bank Name
+        autoFetchedBank.value = response.body['BANK'];
+        // bankNameController.text = response.body['BANK'];
+        bankNameController.text = response.body['BANK'];
+        bankMicrController.text = response.body['MICR'];
+
+        // Show a helpful success message with the branch location
+        resolvedBranch.value =
+            "${response.body['BRANCH']}, ${response.body['STATE']}";
+      } else {
+        resolvedBranch.value = 'Invalid IFSC Code';
+        bankNameController.clear();
+        autoFetchedBank.value = '';
+      }
+    } catch (e) {
+      resolvedBranch.value = 'Failed to fetch details. Enter manually.';
+    } finally {
+      isFetchingIFSC.value = false;
     }
   }
 
@@ -836,6 +875,52 @@ class PersonalisationController extends GetxController {
     _checkPanEditPermission();
     fetchBanks();
     fetchUserBankDetails();
+    bankIfscController.addListener(() {
+      final text = bankIfscController.text;
+      if (text.length == 11) {
+        _fetchBankDetailsFromIFSC(text);
+      } else {
+        resolvedBranch.value = '';
+      }
+    });
+    // bankNameController.addListener(() {
+    //   if (bankNameController.text.isNotEmpty &&
+    //       bankNameController.text != autoFetchedBank.value) {
+
+    //     bankIfscController.clear();
+    //     resolvedBranch.value = '';
+    //     autoFetchedBank.value = '';
+
+    //     ULoaders.warning(
+    //       title: "Bank Changed",
+    //       message: "Please enter the IFSC code for your newly selected bank.",
+    //     );
+    //   }
+    // });
+    bankNameController.addListener(() {
+      if (bankNameController.text.isNotEmpty) {
+        if (bankIfscController.text.isNotEmpty &&
+            bankNameController.text != autoFetchedBank.value) {
+          bankIfscController.clear();
+          resolvedBranch.value = '';
+          autoFetchedBank.value = '';
+
+          Future.delayed(const Duration(milliseconds: 600), () {
+            Get.closeAllSnackbars();
+
+            ULoaders.warning(
+              title: "Bank Changed",
+              message:
+                  "Please enter the IFSC code for your newly selected bank.",
+            );
+          });
+        } else {
+          print(
+            "❌ Conditions not met. Either IFSC is empty, or the bank names match.",
+          );
+        }
+      }
+    });
   }
 
   void _onPanTextChanged() {
@@ -1149,7 +1234,6 @@ class PersonalisationController extends GetxController {
       yearlyIncome.text = getIncomeSlabName(details.yearlyIncome);
       occupationTextEditingController.text = ProfileUtils.getOccupationName(
         details.occupation,
-        
       );
       addressController.text = details.address ?? '';
 

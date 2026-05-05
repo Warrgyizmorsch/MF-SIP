@@ -3118,191 +3118,190 @@ class KycScreen extends GetView<KycController> {
           const SizedBox(height: 20),
 
           // --- UPLOAD AREA START ---
-          Material(
-            color: Colors.transparent,
-            child: Obx(() {
-              // 1. LOADING STATE
-              if (controller.isUploadingSignature.value) {
-                return Container(
-                  width: double.infinity,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    color: Ucolors.blue.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: Ucolors.blue.withOpacity(0.4),
-                      width: 1.5,
-                    ),
-                  ),
-                  child: const Center(child: CircularProgressIndicator()),
-                );
-              }
+          // Material(
+          //   color: Colors.transparent,
+          //   child: Obx(() {
+          //     // 1. LOADING STATE
+          //     if (controller.isUploadingSignature.value) {
+          //       return Container(
+          //         width: double.infinity,
+          //         height: 200,
+          //         decoration: BoxDecoration(
+          //           color: Ucolors.blue.withOpacity(0.05),
+          //           borderRadius: BorderRadius.circular(20),
+          //           border: Border.all(
+          //             color: Ucolors.blue.withOpacity(0.4),
+          //             width: 1.5,
+          //           ),
+          //         ),
+          //         child: const Center(child: CircularProgressIndicator()),
+          //       );
+          //     }
 
-              // 2. SUCCESS STATE (Show Image)
-              if (controller.signatureUploadSuccess.value &&
-                  controller.signatureUploadResponse.value != null) {
-                return InkWell(
-                  // Optional: Allow re-upload on tap
-                  // onTap: () => controller.pickAndUploadSignature(),
-                  onTap: () {
-                    UImagePicker.showImageSourceOptions(
-                      context: context,
-                      title: "Upload Signature",
-                      onImageSelected: (source) {
-                        controller.pickAndUploadSignature(source);
-                      },
-                    );
-                  },
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    width: double.infinity,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.green, width: 2),
-                    ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(18),
+          //     // 2. SUCCESS STATE (Show Image)
+          //     if (controller.signatureUploadSuccess.value &&
+          //         controller.signatureUploadResponse.value != null) {
+          //       return InkWell(
+          //         // Optional: Allow re-upload on tap
+          //         // onTap: () => controller.pickAndUploadSignature(),
+          //         onTap: () {
+          //           UImagePicker.showImageSourceOptions(
+          //             context: context,
+          //             title: "Upload Signature",
+          //             onImageSelected: (source) {
+          //               controller.pickAndUploadSignature(source);
+          //             },
+          //           );
+          //         },
+          //         borderRadius: BorderRadius.circular(20),
+          //         child: Container(
+          //           width: double.infinity,
+          //           height: 200,
+          //           decoration: BoxDecoration(
+          //             color: Colors.white,
+          //             borderRadius: BorderRadius.circular(20),
+          //             border: Border.all(color: Colors.green, width: 2),
+          //           ),
+          //           child: Stack(
+          //             alignment: Alignment.center,
+          //             children: [
+          //               ClipRRect(
+          //                 borderRadius: BorderRadius.circular(18),
 
-                          child: SizedBox(
-                            width: double.infinity,
-                            height: double.infinity,
-                            child: CustomCachedImage(
-                              // fit: BoxFit.cover,
-                              fit: BoxFit.contain,
-                              imageUrl: controller
-                                  .signatureUploadResponse
-                                  .value!
-                                  .directURL,
-                            ),
-                          ),
-                        ),
-                        // Display Image from URL
-                        // ClipRRect(
-                        //   borderRadius: BorderRadius.circular(18),
-                        //   child: Image.network(
-                        //     // REPLACE 'directUrl' with your actual model property
-                        //     controller.signatureUploadResponse.value!.directURL,
-                        //     width: double.infinity,
-                        //     height: double.infinity,
-                        //     fit: BoxFit.cover,
-                        //     loadingBuilder: (ctx, child, loadingProgress) {
-                        //       if (loadingProgress == null) return child;
-                        //       return const Center(child: CupertinoActivityIndicator());
-                        //     },
-                        //     errorBuilder: (context, error, stackTrace) =>
-                        //     const Icon(Icons.broken_image, color: Colors.grey, size: 50),
-                        //   ),
-                        // ),
-                        // Success Overlay
-                        Container(
-                          color: Colors.black.withOpacity(0.3),
-                          child: const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green,
-                                  size: 50,
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  "Signature Verified",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  "(Tap to change)",
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }
+          //                 child: SizedBox(
+          //                   width: double.infinity,
+          //                   height: double.infinity,
+          //                   child: CustomCachedImage(
+          //                     // fit: BoxFit.cover,
+          //                     fit: BoxFit.contain,
+          //                     imageUrl: controller
+          //                         .signatureUploadResponse
+          //                         .value!
+          //                         .directURL,
+          //                   ),
+          //                 ),
+          //               ),
+          //               // Display Image from URL
+          //               // ClipRRect(
+          //               //   borderRadius: BorderRadius.circular(18),
+          //               //   child: Image.network(
+          //               //     // REPLACE 'directUrl' with your actual model property
+          //               //     controller.signatureUploadResponse.value!.directURL,
+          //               //     width: double.infinity,
+          //               //     height: double.infinity,
+          //               //     fit: BoxFit.cover,
+          //               //     loadingBuilder: (ctx, child, loadingProgress) {
+          //               //       if (loadingProgress == null) return child;
+          //               //       return const Center(child: CupertinoActivityIndicator());
+          //               //     },
+          //               //     errorBuilder: (context, error, stackTrace) =>
+          //               //     const Icon(Icons.broken_image, color: Colors.grey, size: 50),
+          //               //   ),
+          //               // ),
+          //               // Success Overlay
+          //               Container(
+          //                 color: Colors.black.withOpacity(0.3),
+          //                 child: const Center(
+          //                   child: Column(
+          //                     mainAxisAlignment: MainAxisAlignment.center,
+          //                     children: [
+          //                       Icon(
+          //                         Icons.check_circle,
+          //                         color: Colors.green,
+          //                         size: 50,
+          //                       ),
+          //                       SizedBox(height: 8),
+          //                       Text(
+          //                         "Signature Verified",
+          //                         style: TextStyle(
+          //                           color: Colors.white,
+          //                           fontWeight: FontWeight.bold,
+          //                         ),
+          //                       ),
+          //                       Text(
+          //                         "(Tap to change)",
+          //                         style: TextStyle(
+          //                           color: Colors.white70,
+          //                           fontSize: 10,
+          //                         ),
+          //                       ),
+          //                     ],
+          //                   ),
+          //                 ),
+          //               ),
+          //             ],
+          //           ),
+          //         ),
+          //       );
+          //     }
 
-              // 3. DEFAULT STATE (Upload Button)
-              return InkWell(
-                // onTap: () => controller.pickAndUploadSignature(),
-                onTap: () {
-                  UImagePicker.showImageSourceOptions(
-                    context: context,
-                    title: "Upload Signature",
-                    onImageSelected: (source) {
-                      controller.pickAndUploadSignature(source);
-                    },
-                  );
-                },
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  width: double.infinity,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    color: Ucolors.blue.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: Ucolors.blue.withOpacity(0.4),
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Ucolors.blue.withOpacity(0.1),
-                              blurRadius: 10,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.cloud_upload_outlined,
-                          size: 40,
-                          color: Ucolors.blue,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        "Upload Signature",
-                        style: AppTextStyles.bodyMediumW500(
-                          color: Ucolors.blue,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "Supports: JPG, PNG (Max 5MB)",
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }),
-          ),
-
+          //     // 3. DEFAULT STATE (Upload Button)
+          //     return InkWell(
+          //       // onTap: () => controller.pickAndUploadSignature(),
+          //       onTap: () {
+          //         UImagePicker.showImageSourceOptions(
+          //           context: context,
+          //           title: "Upload Signature",
+          //           onImageSelected: (source) {
+          //             controller.pickAndUploadSignature(source);
+          //           },
+          //         );
+          //       },
+          //       borderRadius: BorderRadius.circular(20),
+          //       child: Container(
+          //         width: double.infinity,
+          //         height: 200,
+          //         decoration: BoxDecoration(
+          //           color: Ucolors.blue.withOpacity(0.05),
+          //           borderRadius: BorderRadius.circular(20),
+          //           border: Border.all(
+          //             color: Ucolors.blue.withOpacity(0.4),
+          //             width: 1.5,
+          //           ),
+          //         ),
+          //         child: Column(
+          //           mainAxisAlignment: MainAxisAlignment.center,
+          //           children: [
+          //             Container(
+          //               padding: const EdgeInsets.all(16),
+          //               decoration: BoxDecoration(
+          //                 color: Colors.white,
+          //                 shape: BoxShape.circle,
+          //                 boxShadow: [
+          //                   BoxShadow(
+          //                     color: Ucolors.blue.withOpacity(0.1),
+          //                     blurRadius: 10,
+          //                     spreadRadius: 2,
+          //                   ),
+          //                 ],
+          //               ),
+          //               child: const Icon(
+          //                 Icons.cloud_upload_outlined,
+          //                 size: 40,
+          //                 color: Ucolors.blue,
+          //               ),
+          //             ),
+          //             const SizedBox(height: 16),
+          //             Text(
+          //               "Upload Signature",
+          //               style: AppTextStyles.bodyMediumW500(
+          //                 color: Ucolors.blue,
+          //               ),
+          //             ),
+          //             const SizedBox(height: 8),
+          //             Text(
+          //               "Supports: JPG, PNG (Max 5MB)",
+          //               style: TextStyle(
+          //                 color: Colors.grey.shade600,
+          //                 fontSize: 12,
+          //               ),
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //     );
+          //   }),
+          // ),
           const SizedBox(height: 30),
           _buildSecurityFooter(),
           const SizedBox(height: 30),

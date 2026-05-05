@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 
 import 'package:my_sip/features/fund_details/data/models/return_model.dart';
 import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
@@ -123,7 +124,50 @@ class GoalSipController extends GetxController {
     );
   }
 
-  // Add this inside GoalSipController
+  Future<void> saveFundToGoal({
+    required int goalId,
+    required String schemeCode,
+    required String fundName,
+  }) async {
+    // if (savedDatabaseId.value == null) {
+    //   Get.snackbar("Wait!", "Please save your goal first before adding funds.");
+    //   return;
+    // }
+
+    final String formattedDate = DateTime.now().toIso8601String().split('T')[0];
+
+    final fundData = {
+      "goal_id": goalId,
+      "user_id": SessionManager.instance.getUserData?.id ?? 7,
+      "scheme_code": int.tryParse(schemeCode ?? '') ?? 0,
+      "order_date": formattedDate,
+    };
+
+    // 1. Call the new Use Case
+    final result = await goalUseCases.saveGoalFundUseCase.call(fundData);
+
+    result.fold(
+      (success) async {
+        // 2. Highlight the card in the UI
+        toggleFund(fundName);
+
+        // 3. Add to Cart Controller for Checkout
+        // cartController.addToCart(
+        //   fund.schemeCode ?? '',
+        //   fundName,
+        //   fund.minSipAmount ?? 0,
+        //   savedDatabaseId.value,
+        // );
+
+        Get.snackbar("Success", "$fundName linked to your goal!");
+        await getAllGoals();
+      },
+      (error) {
+        Get.snackbar("Error", "${error.message}");
+      },
+    );
+  }
+
   Future<void> pickCoverImage(ImageSource source) async {
     try {
       final ImagePicker picker = ImagePicker();

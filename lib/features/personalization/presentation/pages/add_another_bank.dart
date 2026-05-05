@@ -335,6 +335,7 @@ import 'package:my_sip/common/widget/text_form/text_field_component.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/enums/enums.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/authentication/presentation/pages/signup/register_account.dart';
 
@@ -407,6 +408,53 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
           style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
         ),
         const Gap(30),
+        // 🔠 IFSC Code
+        Obx(
+          () => CustomTextField(
+            controller: controller.bankIfscController,
+            leading: const Icon(Icons.account_balance),
+            hint: 'IFSC Code',
+            inputFormatters: [IfscTextInputFormatter()],
+            // Show a loading spinner inside the text field while fetching
+            trailing: controller.isFetchingIFSC.value
+                ? const Padding(
+                    padding: EdgeInsets.all(14.0),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  )
+                : (controller.resolvedBranch.value.isNotEmpty &&
+                      controller.resolvedBranch.value != 'Invalid IFSC Code')
+                ? Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: const Icon(Icons.check_circle, color: Colors.green),
+                  ) // Show green checkmark on success
+                : null,
+          ),
+        ),
+
+        // Show the Branch Address or Error underneath the field
+        Obx(() {
+          if (controller.resolvedBranch.value.isEmpty) return const Gap(20);
+
+          final isError =
+              controller.resolvedBranch.value.contains('Invalid') ||
+              controller.resolvedBranch.value.contains('Failed');
+
+          return Padding(
+            padding: const EdgeInsets.only(top: 6.0, bottom: 14.0, left: 4.0),
+            child: Text(
+              controller.resolvedBranch.value,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: isError ? Colors.red.shade600 : Colors.green.shade700,
+              ),
+            ),
+          );
+        }),
 
         // 🏦 Bank Selection Dropdown
         Obx(() {
@@ -456,14 +504,23 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
         ),
         const Gap(20),
 
-        // 🔠 IFSC Code
         CustomTextField(
-          controller: controller.bankIfscController,
-          leading: Icon(Icons.account_balance),
-          hint: 'IFSC Code',
-          inputFormatters: [IfscTextInputFormatter()],
+          controller: controller.bankAccHdNameController,
+          leading: Icon(Icons.person),
+          hint: 'Account Holder Name ',
+          keyboardType: TextInputType.name,
+          inputFormatters: [UpperCaseTextFormatter()],
         ),
         const Gap(20),
+
+        // 🔠 IFSC Code
+        // CustomTextField(
+        //   controller: controller.bankIfscController,
+        //   leading: Icon(Icons.account_balance),
+        //   hint: 'IFSC Code',
+        //   inputFormatters: [IfscTextInputFormatter()],
+        // ),
+        // const Gap(20),
 
         // // 🔠 MICR Code (MANDATORY FOR MFU)
         // UTextFormField(
