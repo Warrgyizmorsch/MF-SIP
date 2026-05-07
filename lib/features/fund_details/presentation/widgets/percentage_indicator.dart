@@ -114,7 +114,7 @@ class PercentageBar extends StatelessWidget {
               child: Text(
                 title,
                 style: TextStyle(
-                  fontSize: isDesktop ? 15 : 14,
+                  fontSize: isDesktop ? 15 : 12,
                   fontWeight: FontWeight.w500,
                   color: Colors.grey.shade800,
                 ),
@@ -123,7 +123,7 @@ class PercentageBar extends StatelessWidget {
             Text(
               '${percentage.toStringAsFixed(2)}%',
               style: TextStyle(
-                fontSize: isDesktop ? 15 : 14,
+                fontSize: isDesktop ? 15 : 12,
                 fontWeight: FontWeight.w600,
                 color: color,
               ),

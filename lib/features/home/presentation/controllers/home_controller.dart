@@ -58,4 +58,22 @@ class HomeController extends GetxController {
 
     SessionManager.saveNotifications(modelList);
   }
+
+  void markSingleRead(String id) {
+    final updated = notifications.map((e) {
+      if (e.id == id) {
+        return AppNotificationEntity(
+          id: e.id,
+          title: e.title,
+          body: e.body,
+          time: e.time,
+          isRead: true,
+        );
+      }
+      return e;
+    }).toList();
+
+    notifications.assignAll(updated);
+    _saveToLocal();
+  }
 }

@@ -737,6 +737,8 @@ import 'package:my_sip/features/personalization/presentation/widgets/bank_detail
 import 'package:my_sip/features/wishlist/presentation/controller/wishlist_controller.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
+import '../../../../common/widget/shimmer/shimmer.dart';
+
 enum FundMenuAction {
   addToCart,
   buySIP,
@@ -1786,14 +1788,10 @@ class _MobileExploreLayout extends StatelessWidget {
           //   ),
           // ),
           Obx(() {
-            if (controller.isLoading.value
-            //  || controller.searchFund.isEmpty
-            ) {
+            if (controller.isLoading.value) {
               return const SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(
-                  child: CircularProgressIndicator(color: Ucolors.primary),
-                ),
+                hasScrollBody: true,
+                child: ShimmerListView(),
               );
             }
             if (controller.searchFund.isEmpty) {
@@ -1905,7 +1903,7 @@ class MutualFundCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CircleAvatar(
-                  maxRadius: 20,
+                  maxRadius: 18,
                   backgroundColor: Colors.transparent,
                   child: ClipOval(
                     child: CustomCachedImage(
@@ -1923,6 +1921,7 @@ class MutualFundCard extends StatelessWidget {
                         entity.baseSchemeName ?? 'Unknown Fund',
                         style: Theme.of(context).textTheme.titleSmall!.copyWith(
                           fontWeight: FontWeight.w600,
+                          fontSize:12,
                           color: const Color(0xff383838),
                         ),
                       ),
@@ -1933,13 +1932,14 @@ class MutualFundCard extends StatelessWidget {
                               text: 'Risk: ',
                               // text: entity.riskLevel,
                               style: Theme.of(context).textTheme.labelSmall!
-                                  .copyWith(fontWeight: FontWeight.normal),
+                                  .copyWith(fontWeight: FontWeight.normal, fontSize:11,),
                             ),
                             TextSpan(
                               text: entity.riskLevel,
                               style: Theme.of(context).textTheme.labelMedium!
                                   .copyWith(
                                     fontWeight: FontWeight.w600,
+                                fontSize:12,
                                     color: getRiskMeter(entity.riskLevel).color,
                                   ),
                             ),
@@ -2123,12 +2123,12 @@ class _ReturnItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(title, style: Theme.of(context).textTheme.labelMedium),
-        const SizedBox(height: 4),
+        Text(title, style: Theme.of(context).textTheme.labelSmall),
+        const SizedBox(height: 2),
         Text(
           value,
           style: Theme.of(context).textTheme.labelMedium!.copyWith(
-            color: isNegative ? Colors.red : Colors.green,
+            color: isNegative ? Colors.red : Colors.green, fontSize:11,
           ),
         ),
       ],

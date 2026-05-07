@@ -36,6 +36,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shimmer/shimmer.dart';
 
 class UShimmerEffect extends StatelessWidget {
@@ -86,6 +87,165 @@ class UShimmerEffect extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+
+class SchemeChartShimmer extends StatelessWidget {
+  const SchemeChartShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+
+    // Exact heights used in your SchemeLineChart
+    final double chartHeight = isDesktop ? 280 : 220;
+
+    return Container(
+      height: chartHeight,
+      width: double.infinity,
+      padding: isDesktop ? const EdgeInsets.all(20) : const EdgeInsets.all(12),
+      decoration: isDesktop
+          ? BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        // border: Border.all(color: Colors.grey.shade200),
+      )
+          : null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Mimic the Chart Title/Header area if any
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _BaseShimmer(width: 80, height: 15, radius: 4),
+              _BaseShimmer(width: 60, height: 15, radius: 4),
+            ],
+          ),
+          const Spacer(),
+          // Mimic the Line Chart drawing area
+          _BaseShimmer(
+              width: double.infinity,
+              height: chartHeight * 0.6,
+              radius: 8
+          ),
+          const Spacer(),
+          // Mimic the Bottom Labels (Dates)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(5, (index) =>
+                _BaseShimmer(width: 40, height: 10, radius: 2)
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+// Simple wrapper for your existing UShimmerEffect or a basic Shimmer box
+class _BaseShimmer extends StatelessWidget {
+  final double width;
+  final double height;
+  final double radius;
+
+  const _BaseShimmer({required this.width, required this.height, required this.radius});
+
+  @override
+  Widget build(BuildContext context) {
+    // Replace this with your actual UShimmerEffect widget
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(radius),
+      ),
+    );
+  }
+}
+
+
+
+class ShimmerListView extends StatelessWidget {
+  const ShimmerListView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: 8, // Jitne items dikhane hain
+      padding: const EdgeInsets.all(16),
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
+          child: Row(
+            children: [
+              // 1. Icon/Image Placeholder
+              const CustomShimmer.rectangular(
+                height: 50,
+                width: 50,
+              ),
+              const SizedBox(width: 12),
+
+              // 2. Text Column Placeholder
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const CustomShimmer.rectangular(height: 14, width: 120), // Title
+                    const SizedBox(height: 8),
+                    const CustomShimmer.rectangular(height: 10), // Subtitle
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+
+class CustomShimmer extends StatelessWidget {
+  final double width;
+  final double height;
+  final ShapeBorder shapeBorder;
+
+  // Rectangular Shimmer
+  const CustomShimmer.rectangular({
+    super.key,
+    this.width = double.infinity,
+    required this.height,
+    this.shapeBorder = const RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(8)),
+    ),
+  });
+
+  // Circular Shimmer
+  const CustomShimmer.circular({
+    super.key,
+    required this.width,
+    required this.height,
+    this.shapeBorder = const CircleBorder(),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      period: const Duration(milliseconds: 1500),
+      child: Container(
+        width: width,
+        height: height,
+        decoration: ShapeDecoration(
+          color: Colors.grey[400]!, // Base color for the shape
+          shape: shapeBorder,
+        ),
+      ),
     );
   }
 }

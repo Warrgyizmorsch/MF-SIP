@@ -19,8 +19,8 @@ class RiskLegendItem extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: isDesktop ? 16 : 12,
-          height: isDesktop ? 16 : 12,
+          width: isDesktop ? 16 : 9,
+          height: isDesktop ? 16 : 9,
           decoration: BoxDecoration(
             color: color,
             shape: BoxShape.circle,
@@ -35,11 +35,11 @@ class RiskLegendItem extends StatelessWidget {
                 : null,
           ),
         ),
-        SizedBox(width: isDesktop ? 10 : 8),
+        SizedBox(width: isDesktop ? 10 : 4),
         Text(
           label,
           style: TextStyle(
-            fontSize: isDesktop ? 14 : 14,
+            fontSize: isDesktop ? 14 : 11,
             color: isDesktop ? Colors.grey.shade700 : Colors.grey,
             fontWeight: isDesktop ? FontWeight.w500 : FontWeight.w500,
           ),

@@ -816,7 +816,7 @@ class _MobileDashboardLayout extends StatelessWidget {
                         Text(
                           'Current Value',
                           style: Theme.of(context).textTheme.titleMedium!
-                              .copyWith(color: Ucolors.skyblue),
+                              .copyWith(color: Ucolors.skyblue,fontSize: 15,),
                         ),
                         const SizedBox(height: 6),
                         Row(
@@ -826,8 +826,8 @@ class _MobileDashboardLayout extends StatelessWidget {
                               '₹32,580',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                             CompactIcon(
@@ -848,7 +848,7 @@ class _MobileDashboardLayout extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 18),
                       ],
                     ),
                   ),
@@ -887,7 +887,7 @@ class _MobileDashboardLayout extends StatelessWidget {
                       child: GestureDetector(
                         onTap: () => controller.changeTab(0),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          padding: const EdgeInsets.symmetric(vertical: 6),
                           decoration: BoxDecoration(
                             color: controller.selectedIndex.value == 0
                                 ? Ucolors.light
@@ -901,6 +901,7 @@ class _MobileDashboardLayout extends StatelessWidget {
                               color: controller.selectedIndex.value == 0
                                   ? Ucolors.primary
                                   : Colors.grey,
+                              fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -911,7 +912,7 @@ class _MobileDashboardLayout extends StatelessWidget {
                       child: GestureDetector(
                         onTap: () => controller.changeTab(1),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          padding: const EdgeInsets.symmetric(vertical: 6),
                           decoration: BoxDecoration(
                             color: controller.selectedIndex.value == 1
                                 ? Ucolors.light
@@ -925,6 +926,7 @@ class _MobileDashboardLayout extends StatelessWidget {
                               color: controller.selectedIndex.value == 1
                                   ? Ucolors.primary
                                   : Colors.grey,
+                              fontSize: 14,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -951,7 +953,7 @@ class _MobileDashboardLayout extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                   child: SectionHeading(
                     sectionTitle: 'My Portfolio',
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     fontSize: 14,
                     textcolor: const Color(0xff787878),
                   ),
@@ -1105,8 +1107,8 @@ class PortfolioCard extends StatelessWidget {
               children: [
                 // / Fund Icon
                 Container(
-                  height: 40,
-                  width: 40,
+                  height: 30,
+                  width: 30,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.grey.shade100,
@@ -1127,13 +1129,13 @@ class PortfolioCard extends StatelessWidget {
                       const Text(
                         'Nippon India Large Cap Fund- Growth Plan- Growth Option',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.w600,
                           height: 1.3,
                         ),
                       ),
                       if (subtitle) ...[
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 4),
                         Row(
                           children: const [
                             Text(
@@ -1231,7 +1233,7 @@ class PortfolioCard extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 4),
 
             /// 🔹 Bottom Stats
             Row(
@@ -1279,7 +1281,7 @@ class StatItem1 extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        Text(title, style: const TextStyle(fontSize: 11, color: Colors.grey)),
         const SizedBox(height: 4),
         RichText(
           text: TextSpan(
@@ -1326,13 +1328,14 @@ class SummaryItem extends StatelessWidget {
           //  style: const TextStyle(color: Colors.white70)
           style: Theme.of(
             context,
-          ).textTheme.titleMedium!.copyWith(color: Ucolors.skyblue),
+          ).textTheme.titleMedium!.copyWith(color: Ucolors.skyblue,fontSize: 14,),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Text(
           value,
           style: const TextStyle(
             color: Colors.white,
+            fontSize: 14,
             fontWeight: FontWeight.w400,
           ),
         ),

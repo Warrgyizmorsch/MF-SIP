@@ -27,8 +27,10 @@ class USectionHeading extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            fontSize: fontSize ?? (Get.width * 0.045).clamp(16, 20),
-            fontWeight: fontWeight ?? FontWeight.w500,
+            fontSize: fontSize ?? 15,
+
+            // fontSize: fontSize ?? (Get.width * 0.045).clamp(16, 20),
+            fontWeight: fontWeight ?? FontWeight.w600,
             color: textcolor ?? Ucolors.dark,
           ),
           maxLines: 1,
