@@ -166,3 +166,86 @@ class _BaseShimmer extends StatelessWidget {
     );
   }
 }
+
+
+
+class ShimmerListView extends StatelessWidget {
+  const ShimmerListView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: 8, // Jitne items dikhane hain
+      padding: const EdgeInsets.all(16),
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
+          child: Row(
+            children: [
+              // 1. Icon/Image Placeholder
+              const CustomShimmer.rectangular(
+                height: 50,
+                width: 50,
+              ),
+              const SizedBox(width: 12),
+
+              // 2. Text Column Placeholder
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const CustomShimmer.rectangular(height: 14, width: 120), // Title
+                    const SizedBox(height: 8),
+                    const CustomShimmer.rectangular(height: 10), // Subtitle
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+
+class CustomShimmer extends StatelessWidget {
+  final double width;
+  final double height;
+  final ShapeBorder shapeBorder;
+
+  // Rectangular Shimmer
+  const CustomShimmer.rectangular({
+    super.key,
+    this.width = double.infinity,
+    required this.height,
+    this.shapeBorder = const RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(8)),
+    ),
+  });
+
+  // Circular Shimmer
+  const CustomShimmer.circular({
+    super.key,
+    required this.width,
+    required this.height,
+    this.shapeBorder = const CircleBorder(),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      period: const Duration(milliseconds: 1500),
+      child: Container(
+        width: width,
+        height: height,
+        decoration: ShapeDecoration(
+          color: Colors.grey[400]!, // Base color for the shape
+          shape: shapeBorder,
+        ),
+      ),
+    );
+  }
+}

@@ -26,7 +26,7 @@ class _GroupedPerformanceBarChartState
         : 12.0; // Increased width slightly for desktop
 
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(isDesktop ? 16 : 12),
@@ -41,7 +41,7 @@ class _GroupedPerformanceBarChartState
               ]
             : [],
       ),
-      padding: isDesktop ? const EdgeInsets.all(24) : const EdgeInsets.all(16),
+      padding: isDesktop ? const EdgeInsets.all(24) : const EdgeInsets.all(0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min, // Important for Column
@@ -61,7 +61,7 @@ class _GroupedPerformanceBarChartState
                 _buildLegend(isDesktop: true, width: width),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 8),
           ],
 
           // ---------------------------------------------------------
@@ -70,7 +70,7 @@ class _GroupedPerformanceBarChartState
           SizedBox(
             height: isDesktop
                 ? 300
-                : 250, // Fixed height prevents overflow on wide screens
+                : 200, // Fixed height prevents overflow on wide screens
             child: BarChart(
               BarChartData(
                 // alignment: BarChartAlignment.spaceAround,
@@ -201,7 +201,7 @@ class _GroupedPerformanceBarChartState
             ),
           ),
           if (!isDesktop) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             _buildLegend(isDesktop: false, width: width),
           ],
         ],

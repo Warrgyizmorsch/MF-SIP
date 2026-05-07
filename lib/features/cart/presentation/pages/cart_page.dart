@@ -431,7 +431,7 @@ class CartBottomBar extends StatelessWidget {
                   Text(
                     title ?? 'Amount Payable ',
                     style: UTextStyles.small.copyWith(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: Colors.grey,
                     ),
                   ),
@@ -440,7 +440,8 @@ class CartBottomBar extends StatelessWidget {
                       Text(
                         amount ?? '₹ 5,000',
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                           color: amountColor ?? Ucolors.success,
                         ),
                       ),
@@ -538,7 +539,7 @@ class FundHeader extends StatelessWidget {
         ClipOval(
           child: CustomCachedImage(
             imageUrl: '${Appurl.baseUrl}${itemEntity.amcLogo}',
-            radius: 22,
+            radius: 16,
           ),
         ),
         const SizedBox(width: 12),
@@ -549,7 +550,7 @@ class FundHeader extends StatelessWidget {
             children: [
               Text(
                 itemEntity.schemeName ?? '',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
               ),
               SizedBox(height: 4),
               // RichText(
@@ -785,12 +786,12 @@ class InvestmentInputsRow extends StatelessWidget {
                     isExpanded: true,
                     underline: const SizedBox(),
                     items: const [
-                      DropdownMenuItem(value: 'sip', child: Text('SIP')),
+                      DropdownMenuItem(value: 'sip', child: Text('SIP',style: TextStyle(fontSize: 12),)),
                       DropdownMenuItem(
                         value: 'lumpsum',
-                        child: Text('Lumpsum'),
+                        child: Text('Lumpsum',style: TextStyle(fontSize: 12)),
                       ),
-                      DropdownMenuItem(value: 'stepup', child: Text('Step Up')),
+                      DropdownMenuItem(value: 'stepup', child: Text('Step Up',style: TextStyle(fontSize: 12))),
                     ],
                     onChanged: (val) {
                       if (val != null && val != currentType) {
@@ -841,7 +842,7 @@ class InvestmentInputsRow extends StatelessWidget {
                         28,
                         (i) => DropdownMenuItem(
                           value: '${i + 1}',
-                          child: Text('${i + 1}'),
+                          child: Text('${i + 1}',style: TextStyle(fontSize: 12)),
                         ),
                       ),
                       onChanged: (val) {
@@ -866,6 +867,7 @@ class InvestmentInputsRow extends StatelessWidget {
                       'Inv Amount',
                       style: UTextStyles.small.copyWith(
                         color: Color(0xff5B5B5B),
+                        
                       ),
                     ),
                     const SizedBox(height: 6),

@@ -58,7 +58,7 @@ class CustomAppBarNormal extends StatelessWidget
         style: UTextStyles.subtitle1.copyWith(
           color: Ucolors.dark,
           fontWeight: FontWeight.w600,
-          fontSize: 16,
+          fontSize: 15,
         ),
       ),
       centerTitle: true,

@@ -4,6 +4,9 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/fund_details/presentation/controllers/fund_details_controller.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
+import '../../data/models/fund_performance.dart';
+import '../controllers/chartInvestment_controller.dart';
+
 class PeriodSelector extends GetView<FundDetailsController> {
   const PeriodSelector({super.key});
 
@@ -30,26 +33,30 @@ class PeriodSelector extends GetView<FundDetailsController> {
             : null,
       ),
       child: isDesktop
-          ? Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: List.generate(periods.length, (index) {
-          final period = periods[index];
-          return Obx(() {
-            final isSelected = controller.selectedPeriod.value == period;
-            return _PeriodButton(
-              period: period,
-              isSelected: isSelected,
-              isDesktop: isDesktop,
-              onTap: () {
-                controller.getShcemeNavHistory(
-                  scchemeCode: controller.schemeCode,
-                  period: period,
-                );
-              },
-            );
-          });
-        }),
-      )
+          ? Container(
+              alignment: Alignment.center,
+              width: Get.width,
+            child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(periods.length, (index) {
+            final period = periods[index];
+            return Obx(() {
+              final isSelected = controller.selectedPeriod.value == period;
+              return _PeriodButton(
+                period: period,
+                isSelected: isSelected,
+                isDesktop: isDesktop,
+                onTap: () {
+                  controller.getShcemeNavHistory(
+                    scchemeCode: controller.schemeCode,
+                    period: period,
+                  );
+                },
+              );
+            });
+                    }),
+                  ),
+          )
           : SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -71,6 +78,167 @@ class PeriodSelector extends GetView<FundDetailsController> {
               );
             });
           }),
+        ),
+      ),
+    );
+  }
+}
+
+class PeriodSelectorBarChart extends GetView<ChartInvestmentController> {
+  final List<YearlyReturn> yearlyData;
+
+  const PeriodSelectorBarChart({super.key, required this.yearlyData});
+
+  @override
+  Widget build(BuildContext context) {
+    final periods = yearlyData
+        .map((e) => e.year)
+        .toList();
+
+    final isDesktop =
+    ResponsiveBreakpoints.of(context).largerThan(TABLET);
+
+    return Container(
+      height: isDesktop ? 52 : 42,
+      padding: EdgeInsets.symmetric(
+        horizontal: isDesktop ? 8 : 4,
+        vertical: 4,
+      ),
+      decoration: BoxDecoration(
+        color: isDesktop
+            ? Colors.white
+            : const Color(0xffF3F4F6),
+        borderRadius:
+        BorderRadius.circular(isDesktop ? 26 : 12),
+        border: isDesktop
+            ? Border.all(
+          color: Colors.grey.shade200,
+        )
+            : null,
+        boxShadow: isDesktop
+            ? [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ]
+            : null,
+      ),
+
+      /// 🔥 FIX OVERFLOW
+      child: isDesktop
+          ? Row(
+        children: List.generate(
+          periods.length,
+              (index) {
+            final period = periods[index];
+
+            return Expanded(
+              child: Obx(() {
+                final isSelected =
+                    controller.selectedPeriod.value ==
+                        period;
+
+                return _PeriodButton(
+                  period: period,
+                  isSelected: isSelected,
+                  isDesktop: isDesktop,
+
+                  ///  PERIOD CHANGE
+                  ///  PeriodSelectorBarChart
+
+                  onTap: () {
+
+                    /// SELECT PERIOD
+                    controller.selectedPeriod.value = period;
+
+                    ///  FIND SELECTED YEAR DATA
+                    final selectedData = yearlyData
+                        .firstWhere(
+                          (e) => e.year == period,
+                    );
+
+                    ///  CALL METHOD
+                    final gain = controller.getGainAmount(
+                      selectedData.value,
+                      selectedData.year,
+                    );
+
+                    debugPrint(
+                      "Year: ${selectedData.year} "
+                          "Gain: $gain",
+                    );
+
+                    /// OPTIONAL STORE
+                    controller.selectedGain.value = gain;
+
+                    controller.update();
+                  },
+                );
+              }),
+            );
+          },
+        ),
+      )
+
+          : SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics:
+        const BouncingScrollPhysics(),
+        child: Row(
+          children: List.generate(
+            periods.length,
+                (index) {
+              final period = periods[index];
+
+              return Padding(
+                padding:
+                const EdgeInsets.only(right: 6),
+                child: Obx(() {
+                  final isSelected =
+                      controller.selectedPeriod.value ==
+                          period;
+
+                  return _PeriodButton(
+                    period: period,
+                    isSelected: isSelected,
+                    isDesktop: isDesktop,
+
+                    ///  PERIOD CHANGE
+
+                    onTap: () {
+
+                      /// SELECT PERIOD
+                      controller.selectedPeriod.value = period;
+
+                      ///  FIND SELECTED YEAR DATA
+                      final selectedData =yearlyData
+                          .firstWhere(
+                            (e) => e.year == period,
+                      );
+
+                      ///  CALL METHOD
+                      final gain = controller.getGainAmount(
+                        selectedData.value,
+                        selectedData.year,
+                      );
+
+                      debugPrint(
+                        "Year: ${selectedData.year} "
+                            "Gain: $gain",
+                      );
+
+                      /// OPTIONAL STORE
+                      controller.selectedGain.value = gain;
+
+                      controller.update();
+                    },
+                  );
+                }),
+              );
+            },
+          ),
         ),
       ),
     );

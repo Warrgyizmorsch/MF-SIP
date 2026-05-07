@@ -70,7 +70,7 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                     controller.fundDetail.value!.riskStatisticsList.isNotEmpty
                     ? FundBottomBarButton(
                         firstButton: 'Lumpsum',
-                        secondButton: 'Start SIP',
+                        secondButton: 'Add to Cart',
                         firstButtonP: () async {
                           // await controller.addToCart(
                           //     entity.schemeCode ?? '',
@@ -2396,13 +2396,13 @@ class OverviewScreen extends GetView<FundDetailsController> {
                 Obx(() {
                   final navEntity = controller.navHistorydata.value;
 
-                  if (controller.isNavHistoryLoading.value) {
-                    return UShimmerEffect(
-                      radius: 0,
-                      width: double.infinity,
-                      height: 220,
-                    );
-                  }
+                  // if (controller.isNavHistoryLoading.value) {
+                  //   return UShimmerEffect(
+                  //     radius: 0,
+                  //     width: double.infinity,
+                  //     height: 220,
+                  //   );
+                  // }
 
                   // // Check if data is loaded
                   // if (controller.navHistoryHasError.value ||
@@ -2588,7 +2588,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
           const Gap(8),
           CustomContainer(
             topPadding: 15,
-            bottomPadding: 4,
+            bottomPadding: 15,
             child: Column(
               children: [
                 Padding(
@@ -2645,7 +2645,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
 
             return CustomContainer(
               topPadding: 15,
-              bottomPadding: 4,
+              bottomPadding: 15,
               child: DefaultTabController(
                 length: 2, // 1. Graph, 2. Table
                 child: Column(
@@ -2690,12 +2690,12 @@ class OverviewScreen extends GetView<FundDetailsController> {
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 8),
 
                     // --- TAB VIEW CONTENT ---
                     SizedBox(
                       height:
-                          400, // Fixed height to accommodate the larger view (Table)
+                          300, // Fixed height to accommodate the larger view (Table)
                       child: TabBarView(
                         children: [
                           // TAB 2: Graph VIEW
@@ -2717,12 +2717,12 @@ class OverviewScreen extends GetView<FundDetailsController> {
                           ),
                           // TAB 1: Table VIEW
                           Padding(
-                            padding: const EdgeInsets.only(bottom: 20),
+                            padding: const EdgeInsets.only(bottom: 0),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 GroupedPerformanceBarChart(data: returnss),
-                                const SizedBox(height: 10),
+                                const SizedBox(height: 4),
                                 Text(
                                   "Returns vs Benchmark",
                                   style: TextStyle(
@@ -2756,7 +2756,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                   ),
                 ),
                 SizedBox(
-                  height: isDesktop ? 500 : 160,
+                  height: isDesktop ? 500 : 330,
                   // child: ReturnsBarChart(data: yearlyData),
                   // child: ,
                   child: Obx(() {
@@ -2817,6 +2817,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
 
                 SpeedometerGauge(
                   value: risk.needleValue.toDouble(),
+                    scrollController: controller.scrollController
                 ), // Updated to show high risk
                 Text(
                   'Your Principle Will be at:',
@@ -2886,7 +2887,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
               children: [
                 Padding(
                   key: portfolioKey,
-                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
                   child: const USectionHeading(
                     title: 'Fund Allocation',
                     showActionButton: false,
@@ -2941,7 +2942,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                       }
 
                       final List<Color> colors = [
-                        Colors.indigo.shade900,
+                        Colors.indigo.shade600,
                         Colors.blue.shade600,
                         Colors.greenAccent.shade700,
                         Colors.orangeAccent,
@@ -2950,7 +2951,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                       ];
 
                       return SingleChildScrollView(
-                        padding: const EdgeInsets.only(top: 20, bottom: 20),
+                        padding: const EdgeInsets.only(top: 20, bottom: 10),
                         child: Column(
                           children: [
                             // --- PIE CHART ---
@@ -2994,11 +2995,11 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                 ),
                               ],
                             ),
-                            const Gap(20),
+                            const Gap(8),
                             // --- LEGEND LIST ---
                             ...List.generate(data.length, (index) {
                               return Padding(
-                                padding: const EdgeInsets.only(bottom: 8.0),
+                                padding: const EdgeInsets.only(bottom: 4.0),
                                 child: marketCapPercentage(
                                   data[index].key,
                                   '${data[index].value.toStringAsFixed(2)}%',
@@ -3016,7 +3017,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                       length: 2, // Two Tabs
                       child: Column(
                         children: [
-                          const Gap(10),
+                          // const Gap(4),
                           // --- TAB BAR ---
                           // Container(
                           //   height: 35,
@@ -3079,7 +3080,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
 
                           // --- TAB VIEWS ---
                           SizedBox(
-                            height: 400, // Fixed height for the content area
+                            height: 340, // Fixed height for the content area
                             child: TabBarView(
                               children: [
                                 // Tab 1: Asset Allocation
@@ -3163,7 +3164,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
 
                       /// Tab bar for top 5 sector and top 5 stock
                       SizedBox(
-                        height: 450,
+                        height: 340,
                         child: TabBarView(
                           children: [
                             // Top 5 sector
@@ -3323,185 +3324,190 @@ class OverviewScreen extends GetView<FundDetailsController> {
                             ),
 
                             /// Top 5 stock
-                            Builder(
-                              builder: (context) {
-                                // 1. Get Data from Lists
-                                final entity =
-                                    controller.portfolioAnalysis.value;
-                                final names =
-                                    entity
-                                        ?.schemePortfolioHoldingsNamesString ??
-                                    [];
-                                final values =
-                                    entity
-                                        ?.schemePortfolioHoldingsValuesString ??
-                                    [];
-
-                                // 2. Loading State
-                                if (controller.isPortfolioLoading.value) {
-                                  return const SizedBox(
-                                    height: 200,
-                                    child: Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                  );
-                                }
-
-                                // 3. Empty State Check
-                                // if (entity == null ||
-                                //     names.isEmpty ||
-                                //     values.isEmpty) {
-                                //   return Container(
-                                //     height: 200,
-                                //     alignment: Alignment.center,
-                                //     child: const Text(
-                                //       "No Holdings Data Available",
-                                //       style: TextStyle(color: Colors.grey),
-                                //     ),
-                                //   );
-                                // }
-                                if (entity == null ||
-                                    names.isEmpty ||
-                                    values.isEmpty) {
-                                  return AnimatedEmptyState(
-                                    title: 'No Sector Data',
-                                    message:
-                                        'The AMC hasnt disclosed the holdings for this fund, or it may not be applicable to this scheme',
-                                  ); // <-- So much cleaner!
-                                }
-
-                                // 4. CLEAN, COMBINE & SORT
-                                int count = names.length < values.length
-                                    ? names.length
-                                    : values.length;
-
-                                // Regex 1: Matches Dates like (22/04/2024)
-                                // Define Regex Patterns
-                                final dateRegex = RegExp(
-                                  r'\d{1,2}[/-]\d{1,2}[/-]\d{2,4}',
-                                );
-                                final percentageRegex = RegExp(
-                                  r'\d+(\.\d+)?\s*%',
-                                ); // Matches "7.44%" or "7.5 %"
-                                final faceValueRegex = RegExp(
-                                  r'\s+(EQ|NEW|FV|RS\.?|RE\.?|Rs\.?|Re\.?)\b.*$',
-                                  caseSensitive: false,
-                                );
-
-                                // Matches Punctuation to remove: Brackets ( ) and Hyphens -
-                                final punctuationRegex = RegExp(r'[()\[\]\-]');
-
-                                List<MapEntry<String, double>> holdings = [];
-
-                                for (int i = 0; i < count; i++) {
-                                  String rawName = names[i];
-
-                                  // Apply Cleaning:
-                                  // 1. Remove Dates
-                                  // 2. Remove "EQ/FV/RS" suffix
-                                  // 3. Trim extra spaces
-                                  String cleanName = rawName
-                                      .replaceAll(
-                                        dateRegex,
-                                        '',
-                                      ) // 1. Remove Dates
-                                      .replaceAll(
-                                        percentageRegex,
-                                        '',
-                                      ) // 2. Remove Percentages (ALL occurrences)
-                                      .replaceAll(
-                                        faceValueRegex,
-                                        '',
-                                      ) // 3. Remove Face Value junk
-                                      .replaceAll(
-                                        punctuationRegex,
-                                        ' ',
-                                      ) // 4. Replace Brackets & Hyphens with SPACE
-                                      .replaceAll(
-                                        RegExp(r'\s+'),
-                                        ' ',
-                                      ) // 5. Collapse multiple spaces into one
-                                      .trim();
-
-                                  // Only add if the name isn't empty (handles cases like just "EQ" which is unlikely)
-                                  if (cleanName.isNotEmpty) {
-                                    holdings.add(
-                                      MapEntry(cleanName, values[i]),
-                                    );
-                                  }
-                                }
-
-                                // Sort High to Low
-                                holdings.sort(
-                                  (a, b) => b.value.compareTo(a.value),
-                                );
-
-                                // Take Top 5
-                                final top10Items = holdings.take(10).toList();
-
-                                // 5. Render
-                                return SingleChildScrollView(
-                                  physics: BouncingScrollPhysics(),
-                                  child: Column(
-                                    children: [
-                                      const Gap(10),
-                                      const Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            'Stock Allocation',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w400,
-                                              color: Ucolors.darkgrey,
-                                            ),
-                                          ),
-                                          Text(
-                                            'Holding %',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w400,
-                                              color: Ucolors.darkgrey,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const Gap(10),
-
-                                      const DashedLine(
-                                        dashSpace: 0,
-
-                                        color: Ucolors.borderColor,
-                                      ),
-                                      const Gap(10),
-                                      ...top10Items.map((item) {
-                                        return
-                                        // StockAllocationItem(
-                                        //   name: item.key, // Clean Name
-                                        //   category: '', // Placeholder
-                                        //   sector: '', // Placeholder
-                                        //   percentage: item.value,
-                                        // );
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            bottom: 10,
-                                          ),
-                                          child: PercentageBar(
-                                            title: item
-                                                .key, // Name (e.g., Financial Services)
-                                            percentage: item
-                                                .value, // Value (e.g., 30.62)
-                                            color: Colors
-                                                .blue, // Replace with Ucolors.primary
-                                          ),
-                                        );
-                                      }).toList(),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
+                            Obx(() => AnimatedPortfolioAllocation(
+                              entity: controller.portfolioAnalysis.value,
+                              isLoading: controller.isPortfolioLoading.value,
+                              scrollController: controller.scrollController,
+                            )),
+                            // Builder(
+                            //   builder: (context) {
+                            //     // 1. Get Data from Lists
+                            //     final entity =
+                            //         controller.portfolioAnalysis.value;
+                            //     final names =
+                            //         entity
+                            //             ?.schemePortfolioHoldingsNamesString ??
+                            //         [];
+                            //     final values =
+                            //         entity
+                            //             ?.schemePortfolioHoldingsValuesString ??
+                            //         [];
+                            //
+                            //     // 2. Loading State
+                            //     if (controller.isPortfolioLoading.value) {
+                            //       return const SizedBox(
+                            //         height: 200,
+                            //         child: Center(
+                            //           child: CircularProgressIndicator(),
+                            //         ),
+                            //       );
+                            //     }
+                            //
+                            //     // 3. Empty State Check
+                            //     // if (entity == null ||
+                            //     //     names.isEmpty ||
+                            //     //     values.isEmpty) {
+                            //     //   return Container(
+                            //     //     height: 200,
+                            //     //     alignment: Alignment.center,
+                            //     //     child: const Text(
+                            //     //       "No Holdings Data Available",
+                            //     //       style: TextStyle(color: Colors.grey),
+                            //     //     ),
+                            //     //   );
+                            //     // }
+                            //     if (entity == null ||
+                            //         names.isEmpty ||
+                            //         values.isEmpty) {
+                            //       return AnimatedEmptyState(
+                            //         title: 'No Sector Data',
+                            //         message:
+                            //             'The AMC hasnt disclosed the holdings for this fund, or it may not be applicable to this scheme',
+                            //       ); // <-- So much cleaner!
+                            //     }
+                            //
+                            //     // 4. CLEAN, COMBINE & SORT
+                            //     int count = names.length < values.length
+                            //         ? names.length
+                            //         : values.length;
+                            //
+                            //     // Regex 1: Matches Dates like (22/04/2024)
+                            //     // Define Regex Patterns
+                            //     final dateRegex = RegExp(
+                            //       r'\d{1,2}[/-]\d{1,2}[/-]\d{2,4}',
+                            //     );
+                            //     final percentageRegex = RegExp(
+                            //       r'\d+(\.\d+)?\s*%',
+                            //     ); // Matches "7.44%" or "7.5 %"
+                            //     final faceValueRegex = RegExp(
+                            //       r'\s+(EQ|NEW|FV|RS\.?|RE\.?|Rs\.?|Re\.?)\b.*$',
+                            //       caseSensitive: false,
+                            //     );
+                            //
+                            //     // Matches Punctuation to remove: Brackets ( ) and Hyphens -
+                            //     final punctuationRegex = RegExp(r'[()\[\]\-]');
+                            //
+                            //     List<MapEntry<String, double>> holdings = [];
+                            //
+                            //     for (int i = 0; i < count; i++) {
+                            //       String rawName = names[i];
+                            //
+                            //       // Apply Cleaning:
+                            //       // 1. Remove Dates
+                            //       // 2. Remove "EQ/FV/RS" suffix
+                            //       // 3. Trim extra spaces
+                            //       String cleanName = rawName
+                            //           .replaceAll(
+                            //             dateRegex,
+                            //             '',
+                            //           ) // 1. Remove Dates
+                            //           .replaceAll(
+                            //             percentageRegex,
+                            //             '',
+                            //           ) // 2. Remove Percentages (ALL occurrences)
+                            //           .replaceAll(
+                            //             faceValueRegex,
+                            //             '',
+                            //           ) // 3. Remove Face Value junk
+                            //           .replaceAll(
+                            //             punctuationRegex,
+                            //             ' ',
+                            //           ) // 4. Replace Brackets & Hyphens with SPACE
+                            //           .replaceAll(
+                            //             RegExp(r'\s+'),
+                            //             ' ',
+                            //           ) // 5. Collapse multiple spaces into one
+                            //           .trim();
+                            //
+                            //       // Only add if the name isn't empty (handles cases like just "EQ" which is unlikely)
+                            //       if (cleanName.isNotEmpty) {
+                            //         holdings.add(
+                            //           MapEntry(cleanName, values[i]),
+                            //         );
+                            //       }
+                            //     }
+                            //
+                            //     // Sort High to Low
+                            //     holdings.sort(
+                            //       (a, b) => b.value.compareTo(a.value),
+                            //     );
+                            //
+                            //     // Take Top 5
+                            //     final top10Items = holdings.take(10).toList();
+                            //
+                            //     // 5. Render
+                            //     return SingleChildScrollView(
+                            //       physics: BouncingScrollPhysics(),
+                            //       child: Column(
+                            //         children: [
+                            //           const Gap(10),
+                            //           const Row(
+                            //             mainAxisAlignment:
+                            //                 MainAxisAlignment.spaceBetween,
+                            //             children: [
+                            //               Text(
+                            //                 'Stock Allocation',
+                            //                 style: TextStyle(
+                            //                   fontSize: 12,
+                            //                   fontWeight: FontWeight.w400,
+                            //                   color: Ucolors.darkgrey,
+                            //                 ),
+                            //               ),
+                            //               Text(
+                            //                 'Holding %',
+                            //                 style: TextStyle(
+                            //                   fontSize: 12,
+                            //                   fontWeight: FontWeight.w400,
+                            //                   color: Ucolors.darkgrey,
+                            //                 ),
+                            //               ),
+                            //             ],
+                            //           ),
+                            //           const Gap(10),
+                            //
+                            //           const DashedLine(
+                            //             dashSpace: 0,
+                            //
+                            //             color: Ucolors.borderColor,
+                            //           ),
+                            //           const Gap(10),
+                            //           ...top10Items.map((item) {
+                            //             return
+                            //             // StockAllocationItem(
+                            //             //   name: item.key, // Clean Name
+                            //             //   category: '', // Placeholder
+                            //             //   sector: '', // Placeholder
+                            //             //   percentage: item.value,
+                            //             // );
+                            //             Padding(
+                            //               padding: const EdgeInsets.only(
+                            //                 bottom: 10,
+                            //               ),
+                            //               child: PercentageBar(
+                            //                 title: item
+                            //                     .key, // Name (e.g., Financial Services)
+                            //                 percentage: item
+                            //                     .value, // Value (e.g., 30.62)
+                            //                 color: Colors
+                            //                     .blue, // Replace with Ucolors.primary
+                            //               ),
+                            //             );
+                            //           }).toList(),
+                            //         ],
+                            //       ),
+                            //     );
+                            //   },
+                            // ),
                           ],
                         ),
                       ),
@@ -3515,7 +3521,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
           // --- Fund Comparison Section ---
           const Gap(8),
           SizedBox(
-            height: MediaQuery.of(context).size.height < 700 ? 182 : 300,
+            height: MediaQuery.of(context).size.height < 700 ? 182 : 260,
 
             child: ListView.builder(
               // itemCount: 10,
@@ -3546,11 +3552,11 @@ class OverviewScreen extends GetView<FundDetailsController> {
                     );
                   },
                   child: CustomContainer(
-                    bottomPadding: 8,
+                    bottomPadding: 0,
                     topPadding: 15,
                     child: Column(
 
-                      // mainAxisSize: MainAxisSize.min,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         const Padding(
                           padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
@@ -3565,7 +3571,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                           year: fund?.schemePerformanceList[0].threeYearReturn
                               .toString(),
                         ),
-                        SizedBox(height: 5),
+                        SizedBox(height: 3),
                         Row(
                           children: [
                             // Left dashed line
@@ -3575,19 +3581,20 @@ class OverviewScreen extends GetView<FundDetailsController> {
 
                             // VS circlef
                             Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 8),
-                              padding: const EdgeInsets.all(8),
+                              margin: const EdgeInsets.symmetric(horizontal: 6),
+                              padding: const EdgeInsets.all(5),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 border: Border.all(
                                   color: Colors.blue,
-                                  width: 1.5,
+                                  width: 1.2,
                                 ),
                               ),
                               child: const Text(
                                 'VS',
                                 style: TextStyle(
                                   color: Colors.grey,
+                                  fontSize: 10,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -3615,7 +3622,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                         Padding(
                           padding: const EdgeInsets.symmetric(
                             // horizontal: 60.0,
-                            vertical: 15,
+                            vertical: 8,
                           ),
                           child: OutlinedButton(
                             style: OutlinedButton.styleFrom(
@@ -3679,162 +3686,247 @@ class OverviewScreen extends GetView<FundDetailsController> {
           // ),
 
           // --- Related Funds Section ---
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-            child: const USectionHeading(
-              title: 'Related Funds',
-              showActionButton: false,
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
+          //   child: const USectionHeading(
+          //     title: 'Related Funds',
+          //     showActionButton: false,
+          //   ),
+          // ),
+          //
+          // // Add your Related Funds list here
+          // SizedBox(
+          //   height: 150,
+          //   child: ListView.separated(
+          //     scrollDirection: Axis.horizontal,
+          //     itemCount: fund.schemePeerComparisonList.length - 1,
+          //     separatorBuilder: (context, index) => SizedBox(width: 0),
+          //     itemBuilder: (context, index) => SizedBox(
+          //       width: MediaQuery.of(context).size.width * 0.9,
+          //
+          //       child: GestureDetector(
+          //         // onTap: () => Get.toNamed(AppRoutes.funddetails),
+          //         onTap: () {
+          //           final scheme = fund
+          //               .schemePeerComparisonList[index + 1]
+          //               .schemeName
+          //               .toString();
+          //           final schemeCode = fund.schemeAmfiCode;
+          //           final controller = Get.find<FundDetailsController>();
+          //
+          //           controller.loadNewFund(scheme, schemeCode);
+          //
+          //           // Get.offNamed(
+          //           //   AppRoutes.funddetails,
+          //
+          //           //   arguments: {'scheme': scheme, 'imgUrl': Appurl.baseUrl2},
+          //           // );
+          //           debugPrint("Opening ${fund.schemeName}");
+          //         },
+          //
+          //         child: Container(
+          //           margin: const EdgeInsets.symmetric(
+          //             horizontal: 16,
+          //             vertical: 8,
+          //           ),
+          //           padding: const EdgeInsets.all(14),
+          //           decoration: BoxDecoration(
+          //             color: Colors.white,
+          //             borderRadius: BorderRadius.circular(16),
+          //             boxShadow: [
+          //               BoxShadow(
+          //                 color: Colors.black.withOpacity(0.15),
+          //                 blurRadius: 10,
+          //                 offset: const Offset(0, 4),
+          //               ),
+          //             ],
+          //           ),
+          //           child: Column(
+          //             children: [
+          //               /// 🔹 Top Row (Icon + Title + Menu)
+          //               Row(
+          //                 crossAxisAlignment: CrossAxisAlignment.start,
+          //                 children: [
+          //                   // / Fund Icon
+          //                   Container(
+          //                     height: 40,
+          //                     width: 40,
+          //                     decoration: BoxDecoration(
+          //                       shape: BoxShape.circle,
+          //                       color: Colors.grey.shade100,
+          //                     ),
+          //                     child: ClipOval(
+          //                       child: Image.asset(
+          //                         UImages.imp,
+          //                         fit: BoxFit.contain,
+          //                       ),
+          //                     ),
+          //                   ),
+          //
+          //                   // CircleAvatar(backgroundImage: AssetImage(UImages.sbi)),
+          //                   const SizedBox(width: 12),
+          //
+          //                   /// Title + Subtitle
+          //                   Expanded(
+          //                     child: Column(
+          //                       crossAxisAlignment: CrossAxisAlignment.start,
+          //                       children: [
+          //                         Text(
+          //                           maxLines: 2,
+          //                           fund
+          //                               .schemePeerComparisonList[index + 1]
+          //                               .schemeName,
+          //                           // 'Nippon India Large Cap Fund- Growth Plan- Growth Option',
+          //                           style: TextStyle(
+          //                             fontSize: 14,
+          //                             fontWeight: FontWeight.w600,
+          //                             height: 1.3,
+          //                           ),
+          //                         ),
+          //                       ],
+          //                     ),
+          //                   ),
+          //
+          //                   /// Menu
+          //                   // const Icon(Icons.more_vert, color: Colors.grey),
+          //                 ],
+          //               ),
+          //
+          //               const SizedBox(height: 10),
+          //
+          //               /// 🔹 Bottom Stats
+          //               Row(
+          //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //                 children: [
+          //                   StatItem1(
+          //                     title: '1Y Returns',
+          //                     amount:
+          //                         '${fund.schemePeerComparisonList[index].oneYearReturn.toString()}%',
+          //                     //  fund
+          //                     //     .schemePeerComparisonList[index]
+          //                     //     .oneYearReturn
+          //                     //     .toString(),
+          //                     percentage: '',
+          //                     amountColor: Colors.green.shade800,
+          //
+          //                     percentageColor: Ucolors.success,
+          //                   ),
+          //                   StatItem1(
+          //                     percentage: '',
+          //                     title: '3Y Returns',
+          //                     // amount: '43%',
+          //                     amount:
+          //                         '${fund.schemePeerComparisonList[index].threeYearReturn.toString()}%',
+          //                     amountColor: Colors.green.shade800,
+          //                     percentageColor: Ucolors.success,
+          //                   ),
+          //
+          //                   StatItem1(
+          //                     percentage: '',
+          //                     title: '5Y Returns',
+          //                     amountColor: Colors.green.shade800,
+          //
+          //                     percentageColor: Ucolors.success,
+          //
+          //                     amount:
+          //                         '${fund.schemePeerComparisonList[index].fiveYearReturn.toString()}%',
+          //
+          //                     // '35%',
+          //                   ),
+          //                 ],
+          //               ),
+          //             ],
+          //           ),
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          const Gap(8),
 
-          // Add your Related Funds list here
-          SizedBox(
-            height: 150,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: fund.schemePeerComparisonList.length - 1,
-              separatorBuilder: (context, index) => SizedBox(width: 0),
-              itemBuilder: (context, index) => SizedBox(
-                width: MediaQuery.of(context).size.width * 0.9,
-
-                child: GestureDetector(
-                  // onTap: () => Get.toNamed(AppRoutes.funddetails),
-                  onTap: () {
-                    final scheme = fund
-                        .schemePeerComparisonList[index + 1]
-                        .schemeName
-                        .toString();
-                    final schemeCode = fund.schemeAmfiCode;
-                    final controller = Get.find<FundDetailsController>();
-
-                    controller.loadNewFund(scheme, schemeCode);
-
-                    // Get.offNamed(
-                    //   AppRoutes.funddetails,
-
-                    //   arguments: {'scheme': scheme, 'imgUrl': Appurl.baseUrl2},
-                    // );
-                    debugPrint("Opening ${fund.schemeName}");
-                  },
-
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        /// 🔹 Top Row (Icon + Title + Menu)
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // / Fund Icon
-                            Container(
-                              height: 40,
-                              width: 40,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.grey.shade100,
-                              ),
-                              child: ClipOval(
-                                child: Image.asset(
-                                  UImages.imp,
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                            ),
-
-                            // CircleAvatar(backgroundImage: AssetImage(UImages.sbi)),
-                            const SizedBox(width: 12),
-
-                            /// Title + Subtitle
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    maxLines: 2,
-                                    fund
-                                        .schemePeerComparisonList[index + 1]
-                                        .schemeName,
-                                    // 'Nippon India Large Cap Fund- Growth Plan- Growth Option',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      height: 1.3,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            /// Menu
-                            // const Icon(Icons.more_vert, color: Colors.grey),
-                          ],
-                        ),
-
-                        const SizedBox(height: 10),
-
-                        /// 🔹 Bottom Stats
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            StatItem1(
-                              title: '1Y Returns',
-                              amount:
-                                  '${fund.schemePeerComparisonList[index].oneYearReturn.toString()}%',
-                              //  fund
-                              //     .schemePeerComparisonList[index]
-                              //     .oneYearReturn
-                              //     .toString(),
-                              percentage: '',
-                              amountColor: Colors.green.shade800,
-
-                              percentageColor: Ucolors.success,
-                            ),
-                            StatItem1(
-                              percentage: '',
-                              title: '3Y Returns',
-                              // amount: '43%',
-                              amount:
-                                  '${fund.schemePeerComparisonList[index].threeYearReturn.toString()}%',
-                              amountColor: Colors.green.shade800,
-                              percentageColor: Ucolors.success,
-                            ),
-
-                            StatItem1(
-                              percentage: '',
-                              title: '5Y Returns',
-                              amountColor: Colors.green.shade800,
-
-                              percentageColor: Ucolors.success,
-
-                              amount:
-                                  '${fund.schemePeerComparisonList[index].fiveYearReturn.toString()}%',
-
-                              // '35%',
-                            ),
-                          ],
-                        ),
-                      ],
+          CustomContainer(
+            topPadding: 15,
+            bottomPadding: 15,
+            child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+                    child: const USectionHeading(
+                      title: 'Related Funds',
+                      showActionButton: false,
                     ),
                   ),
-                ),
+                  /// 📜 The Horizontal List inside the card
+                  SizedBox(
+                    height: 100, // Adjusted height
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      // padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      itemCount: fund.schemePeerComparisonList.length - 1,
+                      separatorBuilder: (context, index) => const SizedBox(width: 16),
+                      itemBuilder: (context, index) {
+                        final item = fund.schemePeerComparisonList[index + 1];
+
+                        return GestureDetector(
+                          onTap: () {
+                            final controller = Get.find<FundDetailsController>();
+                            controller.loadNewFund(item.schemeName, fund.schemeAmfiCode);
+                            debugPrint("Opening ${item.schemeName}");
+                          },
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.75,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade50, // Subtle contrast from parent
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.grey.shade200),
+                            ),
+                            child: Column(
+                              children: [
+                                /// Top Row (Icon + Title)
+                                Row(
+                                  children: [
+                                    Container(
+                                      height: 32,
+                                      width: 32,
+                                      decoration: const BoxDecoration(shape: BoxShape.circle),
+                                      child: ClipOval(child: Image.asset(UImages.imp)),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        item.schemeName,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const Spacer(),
+                                /// Stats Row
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    _buildMiniStat('1Y', '${item.oneYearReturn}%'),
+                                    _buildMiniStat('3Y', '${item.threeYearReturn}%'),
+                                    _buildMiniStat('5Y', '${item.fiveYearReturn}%'),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
+          const Gap(8),
 
           CustomContainer(
             topPadding: 15,
@@ -4288,6 +4380,30 @@ class OverviewScreen extends GetView<FundDetailsController> {
       );
     });
   }
+  Widget _buildMiniStat(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 10,
+            color: Colors.grey.shade600,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.green.shade800,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
   // Professional Helper Methods to keep code clean
   Widget _buildDetailRow(String label, String value, IconData icon) {
     return Padding(
@@ -4479,8 +4595,8 @@ class FundComparisonItem extends StatelessWidget {
           children: [
             // / Fund Icon
             Container(
-              height: 40,
-              width: 40,
+              height: 25,
+              width: 25,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.grey.shade100,
@@ -4504,7 +4620,7 @@ class FundComparisonItem extends StatelessWidget {
                 fund1 ??
                     'Nippon India Large Cap Fund- Growth Plan- Growth Option',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                   height: 1.3,
                 ),
@@ -4542,20 +4658,65 @@ class FundComparisonItem extends StatelessWidget {
     );
   }
 }
-class SpeedometerGauge extends StatelessWidget {
-  final double value; // 0–100
 
-  const SpeedometerGauge({super.key, required this.value});
+
+class SpeedometerGauge extends StatefulWidget {
+  final double value; // 0–100
+  final ScrollController scrollController; // Parent ka controller
+
+  const SpeedometerGauge({
+    super.key,
+    required this.value,
+    required this.scrollController
+  });
+
+  @override
+  State<SpeedometerGauge> createState() => _SpeedometerGaugeState();
+}
+
+class _SpeedometerGaugeState extends State<SpeedometerGauge> {
+  double currentPointerValue = 0;
+  bool hasAnimated = false;
+  final GlobalKey _gaugeKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    // Scroll listener add karein
+    widget.scrollController.addListener(_checkVisibility);
+  }
+
+  @override
+  void dispose() {
+    widget.scrollController.removeListener(_checkVisibility);
+    super.dispose();
+  }
+
+  void _checkVisibility() {
+    if (hasAnimated) return;
+
+    // Widget ki position nikalne ke liye
+    final RenderObject? renderObject = _gaugeKey.currentContext?.findRenderObject();
+    if (renderObject is RenderBox) {
+      final position = renderObject.localToGlobal(Offset.zero);
+      final screenHeight = MediaQuery.of(context).size.height;
+
+      // Agar widget screen ke bottom se upar aa gaya hai
+      if (position.dy < screenHeight - 100) {
+        setState(() {
+          currentPointerValue = widget.value;
+          hasAnimated = true;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
+      key: _gaugeKey, // Key zaroori hai position track karne ke liye
       height: 130,
       child: SfRadialGauge(
-        // Animation enable karne ke liye ye property zaroori hai
-        enableLoadingAnimation: true,
-        animationDuration: 2000, // Needle ko 2 second tak move hote hue dikhayega
-
         axes: [
           RadialAxis(
             minimum: 0,
@@ -4583,12 +4744,10 @@ class SpeedometerGauge extends StatelessWidget {
             ],
             pointers: [
               NeedlePointer(
-                value: value,
-                // Pointer movement animation
+                value: currentPointerValue,
                 enableAnimation: true,
-                animationDuration: 8000, // Needle ki speed 1.5 seconds
-                animationType: AnimationType.easeOutBack, // Thoda bounce effect dega
-
+                animationDuration: 2000,
+                animationType: AnimationType.easeOutBack,
                 needleLength: 0.7,
                 needleStartWidth: 1,
                 needleEndWidth: 5,
@@ -4597,7 +4756,7 @@ class SpeedometerGauge extends StatelessWidget {
                   color: Colors.black,
                   knobRadius: 0.07,
                   borderWidth: 0.02,
-                  borderColor: Colors.white, // Knob ko thoda depth dega
+                  borderColor: Colors.white,
                 ),
               ),
             ],
@@ -4607,7 +4766,6 @@ class SpeedometerGauge extends StatelessWidget {
     );
   }
 
-  // Helper method to keep code clean
   GaugeRange _buildRange(double start, double end, Color color) {
     return GaugeRange(
       startValue: start,
@@ -5017,25 +5175,28 @@ class SliverPageTabs extends SliverPersistentHeaderDelegate {
       ) {
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToActiveTab());
 
-    // 1. Wrap with Material or Container with a solid color
     return Material(
       color: Ucolors.light,
-      elevation: overlapsContent ? 2 : 0, // Option: Jab scroll ho toh thodi shadow aaye
+      elevation: overlapsContent ? 2 : 0,
       child: Container(
         height: 50,
-        padding: const EdgeInsets.symmetric(vertical: 4), // Margin ki jagah padding use karein
+        color: Colors.transparent,
+
+        padding: const EdgeInsets.symmetric(vertical: 4), // Outer spacing from screen edges
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 10),
+          padding: const EdgeInsets.symmetric( horizontal: 8), // Outer spacing from screen edges
+          margin: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             color: Colors.grey[100],
-            borderRadius: BorderRadius.circular(25),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: ListView.separated(
             controller: _scrollController,
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+
+            padding: const EdgeInsets.symmetric(horizontal: 2),
             itemCount: tabs.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            separatorBuilder: (_, __) => const SizedBox(width: 4),
             itemBuilder: (context, index) {
               final isSelected = index == selectedIndex;
 
@@ -5045,8 +5206,8 @@ class SliverPageTabs extends SliverPersistentHeaderDelegate {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
+                      horizontal: 8,
+                      vertical: 8,
                     ),
                     decoration: BoxDecoration(
                       color: isSelected ? Colors.white : Colors.transparent,
@@ -5089,4 +5250,284 @@ Widget _metaText(
     text,
     style: TextStyle(fontSize: 10, color: color, fontWeight: fontWeight),
   );
+}
+
+
+class AnimatedPortfolioAllocation extends StatefulWidget {
+  final dynamic entity;
+  final bool isLoading;
+  final ScrollController scrollController;
+
+  const AnimatedPortfolioAllocation({
+    super.key,
+    required this.entity,
+    required this.isLoading,
+    required this.scrollController,
+  });
+
+  @override
+  State<AnimatedPortfolioAllocation> createState() => _AnimatedPortfolioAllocationState();
+}
+
+class _AnimatedPortfolioAllocationState extends State<AnimatedPortfolioAllocation> {
+  final GlobalKey _chartKey = GlobalKey();
+  bool _hasAnimated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Scroll listener attach karna
+    widget.scrollController.addListener(_checkVisibility);
+  }
+
+  @override
+  void dispose() {
+    widget.scrollController.removeListener(_checkVisibility);
+    super.dispose();
+  }
+
+  void _checkVisibility() {
+    if (_hasAnimated) return;
+
+    // Widget ki screen position check karna
+    final RenderObject? renderObject = _chartKey.currentContext?.findRenderObject();
+    if (renderObject is RenderBox) {
+      final position = renderObject.localToGlobal(Offset.zero);
+      final screenHeight = MediaQuery.of(context).size.height;
+
+      // Jab widget screen ke bottom se 100px andar aa jaye
+      if (position.dy < screenHeight - 100) {
+        setState(() {
+          _hasAnimated = true; // Isse animation trigger hogi
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.isLoading) {
+      return const SizedBox(
+        height: 250,
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // --- Data Extraction Logic ---
+    final assetMap = widget.entity?.assetAllocation ?? {};
+    final assetList = assetMap.entries.where((e) => (e.value as num) > 0).toList()
+      ..sort((a, b) => (b.value as num).compareTo(a.value as num));
+
+    final mcap = widget.entity?.mcapAllocation;
+    final mcapList = [
+      if ((mcap?.marketCapLargecapPercent ?? 0) > 0) MapEntry('Large Cap', mcap!.marketCapLargecapPercent),
+      if ((mcap?.marketCapMidcapPercent ?? 0) > 0) MapEntry('Mid Cap', mcap!.marketCapMidcapPercent),
+      if ((mcap?.marketCapSmallcapPercent ?? 0) > 0) MapEntry('Small Cap', mcap!.marketCapSmallcapPercent),
+    ];
+
+    return DefaultTabController(
+      length: 2,
+      child: Column(
+        key: _chartKey, // Is key se hum scroll position track karte hain
+        children: [
+          _buildTabBarUI(),
+          const Gap(10),
+          Divider(color: Colors.grey.shade200),
+          SizedBox(
+            height: 340,
+            child: TabBarView(
+              children: [
+                // Agar _hasAnimated false hai, toh empty list [] bhejenge
+                _buildAllocationTab(_hasAnimated ? assetList : [], "Assets"),
+                _buildAllocationTab(_hasAnimated ? mcapList : [], "Market\nCap"),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAllocationTab(List<MapEntry<String, dynamic>> data, String centerText) {
+    // 1. Agar abhi tak scroll nahi hua ya data sach mein khali hai
+    // Hum Sizedbox dikhayenge taki layout jump na kare
+    if (!_hasAnimated) {
+      return const SizedBox(
+        height: 300,
+        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      );
+    }
+
+    // 2. Agar scroll ho gaya aur data sach mein empty hai (API error/No data)
+    if (data.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Iconsax.ghost, size: 40, color: Colors.grey.shade400),
+            const Gap(10),
+            const Text("No data available", style: TextStyle(color: Colors.grey)),
+          ],
+        ),
+      );
+    }
+
+    // Chart ke colors ki list
+    final List<Color> colors = [
+      const Color(0xff0280C0), // Aapka Primary Blue
+      Colors.indigo.shade600,
+      Colors.greenAccent.shade700,
+      Colors.orangeAccent,
+      Colors.purpleAccent,
+      Colors.teal,
+    ];
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(top: 20, bottom: 10),
+      physics: const NeverScrollableScrollPhysics(), // Parent handle karega scroll
+      child: Column(
+        children: [
+          // --- PIE CHART WITH STACK ---
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                height: 200,
+                width: 200,
+                child: PieChart(
+                  // Key badalne se animation force-start hoti hai
+                  key: ValueKey(data.length + (_hasAnimated ? 1 : 0)),
+
+                  duration: const Duration(milliseconds: 1200), // Animation speed
+                  curve: Curves.easeInOutBack, // Smooth bounce effect
+
+                  PieChartData(
+                    centerSpaceRadius: 50,
+                    sectionsSpace: 2,
+                    centerSpaceColor: Colors.white,
+                    sections: List.generate(data.length, (index) {
+                      final value = (data[index].value as num).toDouble();
+                      return PieChartSectionData(
+                        showTitle: false,
+                        value: value,
+                        color: colors[index % colors.length],
+                        radius: 40,
+                        // Animation ke liye initial state handle karna zaroori nahi
+                        // kyunki empty list se data list par aate hi fl_chart animate karta hai
+                      );
+                    }),
+                  ),
+                ),
+              ),
+              // Center Text
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    centerText,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          const Gap(24),
+
+          // --- LEGEND LIST (NEECHE KI DETAILS) ---
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: List.generate(data.length, (index) {
+                final String title = data[index].key;
+                final String percentage = '${(data[index].value as num).toStringAsFixed(2)}%';
+                final Color color = colors[index % colors.length];
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: color,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const Gap(10),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Text(
+                        percentage,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildTabBarUI() {
+    return Container(
+      height: 35,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: TabBar(
+        indicator: BoxDecoration(
+          color: const Color(0xff0280C0),
+          borderRadius: BorderRadius.circular(25),
+        ),
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.grey.shade600,
+        labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+        dividerColor: Colors.transparent,
+        indicatorSize: TabBarIndicatorSize.tab,
+        tabs: const [
+          Tab(text: "Asset Allocation"),
+          Tab(text: "Market Cap"),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegendRow(String title, String value, Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Row(
+        children: [
+          Container(width: 12, height: 12, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+          const Gap(8),
+          Text(title, style: const TextStyle(fontSize: 12)),
+          const Spacer(),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+        ],
+      ),
+    );
+  }
 }

@@ -1771,10 +1771,11 @@ class _MobileLayout extends StatelessWidget {
                   title: 'Best SIP Funds',
                   iconImg: UImages.savingbank,
 
-                  onTap: () {
+                  onTap: () async{
                     // // navController.changePage(1);
                     // Get.find<NavigationBarController>().changePage(1);
                     // Get.find<FundhouseController>().applyBestSipFilter(1);
+                    await Future.delayed(const Duration(milliseconds: 100));
                     final nav = Get.find<NavigationBarController>();
                     final funds = Get.find<FundhouseController>();
                     nav.navigateToExploreWithFilter(() {
@@ -1785,9 +1786,11 @@ class _MobileLayout extends StatelessWidget {
                 CollectionItem(
                   title: 'High Returns',
                   iconImg: UImages.highreturn,
-                  onTap: () {
+                  onTap: () async{
                     // navController.changePage(1);
                     // Get.find<FundhouseController>().applyHighReturnFilter();
+                    await Future.delayed(const Duration(milliseconds: 100));
+
                     final nav = Get.find<NavigationBarController>();
                     final funds = Get.find<FundhouseController>();
                     nav.navigateToExploreWithFilter(() {
@@ -1796,11 +1799,13 @@ class _MobileLayout extends StatelessWidget {
                   },
                 ),
                 CollectionItem(
-                  onTap: () {
+                  onTap: ()async {
                     // navController.changePage(1);
                     // Get.find<FundhouseController>().applyCustomSearch(
                     //   'international',
                     // );
+                    await Future.delayed(const Duration(milliseconds: 100));
+
                     final nav = Get.find<NavigationBarController>();
                     final funds = Get.find<FundhouseController>();
                     nav.navigateToExploreWithFilter(() {
@@ -1811,9 +1816,11 @@ class _MobileLayout extends StatelessWidget {
                   iconImg: UImages.interfund,
                 ),
                 CollectionItem(
-                  onTap: () {
+                  onTap: () async{
                     // navController.changePage(1);
                     // Get.find<FundhouseController>().applyCustomSearch('index');
+                    await Future.delayed(const Duration(milliseconds: 100));
+
                     final nav = Get.find<NavigationBarController>();
                     final funds = Get.find<FundhouseController>();
                     nav.navigateToExploreWithFilter(() {
@@ -1825,9 +1832,10 @@ class _MobileLayout extends StatelessWidget {
                   iconImg: UImages.indexfund,
                 ),
                 CollectionItem(
-                  onTap: () {
+                  onTap: () async {
                     // navController.changePage(1);
                     // Get.find<FundhouseController>().applyCommodityFilter();
+                    await Future.delayed(const Duration(milliseconds: 100));
                     final nav = Get.find<NavigationBarController>();
                     final funds = Get.find<FundhouseController>();
                     nav.navigateToExploreWithFilter(() {
@@ -1838,7 +1846,9 @@ class _MobileLayout extends StatelessWidget {
                   iconImg: UImages.moneygold,
                 ),
                 CollectionItem(
-                  onTap: () => Get.toNamed(AppRoutes.nfolist),
+                  onTap: () async {
+                    await Future.delayed(const Duration(milliseconds: 100));
+                    Get.toNamed(AppRoutes.nfolist);},
                   title: 'NFO',
                   iconImg: UImages.equity,
                 ),
@@ -2647,7 +2657,7 @@ class GoalBaseSIPCard extends StatelessWidget {
         onTap: onTap ?? () {},
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
@@ -2785,99 +2795,85 @@ class CollectionItem extends StatefulWidget {
   final VoidCallback? onTap;
 
   const CollectionItem({
+    super.key, // Use super parameters for cleaner code
     required this.iconImg,
     required this.title,
-     this.onTap,
+    this.onTap,
   });
 
   @override
-  State<CollectionItem> createState() => _CollectionTileState();
+  State<CollectionItem> createState() => _CollectionItemState();
 }
 
-class _CollectionTileState extends State<CollectionItem> {
+class _CollectionItemState extends State<CollectionItem> {
   double scale = 1.0;
   bool isPressed = false;
 
-  void _onTapDown(_) {
+  // Helper to handle the animation state
+  void _updateState(bool pressed) {
     setState(() {
-      scale = 0.92;
-      isPressed = true;
-    });
-  }
-
-  void _onTapUp(_) {
-    setState(() {
-      scale = 1.0;
-      isPressed = false;
-    });
-  }
-
-  void _onCancel() {
-    setState(() {
-      scale = 1.0;
-      isPressed = false;
+      isPressed = pressed;
+      scale = pressed ? 0.92 : 1.0;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      onTapDown: _onTapDown,
-      onTapUp: _onTapUp,
-      onTapCancel: _onCancel,
-      child: AnimatedScale(
-        scale: scale,
-        duration: const Duration(milliseconds: 120),
-        curve: Curves.easeOut,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-
-            gradient: isPressed
-                ? RadialGradient(
-              colors: [
-                Colors.blue.withOpacity(0.15),
-                Colors.transparent,
-              ],
-              radius: 0.8,
-              center: Alignment.center,
+    return AnimatedScale(
+      scale: scale,
+      duration: const Duration(milliseconds: 120),
+      curve: Curves.easeOut,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          gradient: isPressed
+              ? RadialGradient(
+            colors: [Colors.blue.withOpacity(0.15), Colors.transparent],
+            radius: 0.8,
+          )
+              : null,
+          boxShadow: isPressed
+              ? [
+            BoxShadow(
+              color: Colors.blue.withOpacity(0.25),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             )
-                : null,
+          ]
+              : [],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            splashColor: Colors.blue.withOpacity(0.2),
+            highlightColor: Colors.transparent, // Hide default highlight to see your custom animation
 
-            boxShadow: isPressed
-                ? [
-              BoxShadow(
-                color: Colors.blue.withOpacity(0.25),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              )
-            ]
-                : [],
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(14),
+            // Trigger animation on press
+            onTapDown: (_) => _updateState(true),
+            onTapCancel: () => _updateState(false),
 
-              splashColor: Colors.blue.withOpacity(0.25),
-              highlightColor: Colors.blue.withOpacity(0.05),
+            onTap: () async {
+              // 1. Brief delay to let the user see the "pressed" state
+              _updateState(true);
+              await Future.delayed(const Duration(milliseconds: 100));
 
-              onTap: widget.onTap,
+              // 2. Reset state
+              _updateState(false);
+
+              // 3. Execute navigation
+              if (widget.onTap != null) {
+                widget.onTap!();
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const SizedBox(height: 6),
-
-                  Image.asset(
-                    widget.iconImg,
-                    height: 48,
-                    width: 48,
-                  ),
-
+                  Image.asset(widget.iconImg, height: 48, width: 48),
                   const SizedBox(height: 4),
-
                   Text(
                     widget.title,
                     textAlign: TextAlign.center,
