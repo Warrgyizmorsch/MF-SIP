@@ -1,11 +1,16 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/core/utils/helper/helpers.dart';
+import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
+import 'package:my_sip/services/session_manager.dart';
 
 class CustomProfileAppbar extends StatelessWidget
     implements PreferredSizeWidget {
-  const CustomProfileAppbar({
+  CustomProfileAppbar({
     super.key,
     required this.greetingName,
     this.action,
@@ -18,6 +23,7 @@ class CustomProfileAppbar extends StatelessWidget
     this.iconColor,
     this.actionsPadding,
     this.actionIconcolor,
+    this.img,
   });
 
   final String greetingName;
@@ -31,63 +37,74 @@ class CustomProfileAppbar extends StatelessWidget
   final Color? iconColor;
   final EdgeInsetsGeometry? actionsPadding;
   final Color? actionIconcolor;
+  final AuthController controller = Get.find<AuthController>();
+  final Widget? img;
 
   @override
   Widget build(BuildContext context) {
+    final user = SessionManager.instance.getUserData;
     return AppBar(
       actionsPadding: actionsPadding,
 
       automaticallyImplyLeading: false,
-      backgroundColor: backgroundColor,
+      backgroundColor: kIsWeb ? Colors.transparent : backgroundColor,
 
       // elevation: 10,
       actions: action,
 
       //Profile Details
-      title: Row(
-        children: [
-          InkWell(
-            onTap: onProfiletap,
-
-            //avatar
-            child: CircleAvatar(
-              // backgroundColor: Colors.pink,
-              backgroundImage: avatar ?? AssetImage(UImages.imp),
-            ),
-          ),
-          const SizedBox(width: 5),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              //role
-              Text(
-                role,
-                textAlign: TextAlign.start,
-                style: UTextStyles.subtitle1.copyWith(
-                  color: roleColor ?? Ucolors.dark,
-                  fontSize: 10,
-                ),
-              ),
-              Row(
+      title: kIsWeb
+          ? SizedBox.shrink()
+          : InkWell(
+              onTap: onProfiletap,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  //Name
-                  Text(
-                    'Hi, $greetingName',
-                    style: UTextStyles.heading1.copyWith(
-                      fontSize: 14,
-                      color: greetingNameColor,
-                    ),
+                  CircleAvatar(
+                    // backgroundColor: Colors.pink,
+                    backgroundImage: avatar ?? AssetImage(UImages.imp),
+
+                    child: img,
                   ),
                   const SizedBox(width: 5),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      //Greeting
+                      Text(
+                        UHelperFunction.getGreetingMsg(),
 
-                  Icon(Icons.keyboard_arrow_down_sharp, color: iconColor),
+                        textAlign: TextAlign.start,
+                        style: UTextStyles.subtitle1.copyWith(
+                          color: roleColor ?? Ucolors.dark,
+                          fontSize: 10,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          //Name
+                          Text(
+                            // greetingName,
+                            user?.name ?? '',
+                            style: UTextStyles.heading1.copyWith(
+                              fontSize: 14,
+                              color: greetingNameColor,
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+
+                          // Icon(
+                          //   Icons.keyboard_arrow_down_sharp,
+                          //   color: iconColor,
+                          // ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ],
               ),
-            ],
-          ),
-        ],
-      ),
+            ),
     );
   }
 

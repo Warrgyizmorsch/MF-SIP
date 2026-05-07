@@ -1,299 +1,710 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mime/mime.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-
 import '../../services/session_manager.dart';
-import '../utils/api/api_result.dart';
-import '../exceptions/app_exceptions.dart';
 import '../utils/helper/helpers.dart';
 import 'base_api_service.dart';
 
 class NetworkServicesApi implements BaseApiServices {
-  final client = http.Client();
+  late final Dio _dio;
 
-  @override
-  Future<http.Response> getApi(
-      String url, {
-        Map<String, dynamic>? queryParameters,
-        Map<String, String>? headers,
-        Object? body,
-      }) async {
-    return await _sendRequest((requestHeaders) async {
-      Uri uri = Uri.parse(url);
-      if (queryParameters != null && queryParameters.isNotEmpty) {
-        uri = uri.replace(queryParameters: queryParameters);
-      }
-
-      var request = http.Request("GET", uri);
-      request.headers.addAll(requestHeaders);
-      if (body != null) {
-        request.body = body is String ? body : jsonEncode(body);
-        request.headers.putIfAbsent('Content-Type', () => 'application/json');
-      }
-
-      var streamedResponse = await client.send(request);
-      return await http.Response.fromStream(streamedResponse);
-    });
-  }
-
-  @override
-  Future<http.Response> postApi(String url, data) async {
-    return await _sendRequest((headers) {
-      return client.post(
-        Uri.parse(url),
-        headers: headers,
-        body: _safeJsonEncode(data),
-      );
-    });
-  }
-
-  @override
-  Future<http.Response> postFormData(String url, Map<String, dynamic> data) async {
-    final formHeaders = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    };
-
-    String encodeValue(dynamic value) {
-      if (value == null) return '';
-      if (value is String) return value;
-      if (value is int || value is double || value is bool) return value.toString();
-      if (value is List || value is Map) return jsonEncode(value); // nested objects/lists as JSON string
-      return value.toString();
-    }
-
-    final formBody = data.entries
-        .map((e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(encodeValue(e.value))}')
-        .join('&');
-
-    createLog("[API] POST FormData to $url");
-    createLog("[API] Headers: $formHeaders");
-    createLog("[API] Body: $formBody");
-
-    return await _sendRequest(
-      timeoutSeconds: 60,
-          (headers) => client.post(
-        Uri.parse(url),
-        headers: headers,
-        body: formBody,
-        encoding: Encoding.getByName('utf-8'),
+  NetworkServicesApi({String? baseUrl}) {
+    _dio = Dio(
+      BaseOptions(
+        baseUrl: baseUrl ?? 'https://your-api-url.com/api',
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+        sendTimeout: const Duration(seconds: 30),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        // Automatically follow redirects
+        followRedirects: true,
+        maxRedirects: 5,
       ),
-      customHeaders: formHeaders,
     );
+
+    // Add interceptors
+    _dio.interceptors.addAll([
+      _HeadersInterceptor(),
+      _AuthInterceptor(),
+      _LoggingInterceptor(),
+      _ErrorInterceptor(),
+    ]);
   }
 
+  // Expose dio instance for direct access if needed
+  Dio get dio => _dio;
+
+  // ---------------------------------------------------------------------------
+  // BASIC REQUESTS
+  // ---------------------------------------------------------------------------
   @override
-  Future<http.Response> postMultipart(
-      String url,
-      Map<String, String> fields,
-      List<Uint8List> files,
-      List<String> fileNames,
-      ) async {
-
-    final multipartHeaders = {
-      'Content-Type': 'multipart/form-data',
-    };
-
-    createLog("[API] POST Multipart to $url");
-    createLog("[API] Headers: $multipartHeaders");
-    createLog("[API] Fields: $fields");
-    createLog("[API] File count: ${files.length}");
-
-    return await _sendRequest(
-          (headers) async {
-        final request = http.MultipartRequest('POST', Uri.parse(url));
-
-        // Merge headers (base headers + custom headers)
-        request.headers.addAll({...headers, ...multipartHeaders});
-
-        // Add form fields
-        request.fields.addAll(fields);
-
-        // Add files (ANY type)
-        for (int i = 0; i < files.length; i++) {
-          final fileName = fileNames[i];
-
-          // Detect MIME
-          final mime = lookupMimeType(fileName) ?? 'application/octet-stream';
-
-          final mediaType = http.MediaType.parse(mime);
-
-          request.files.add(
-            http.MultipartFile.fromBytes(
-              'attachments',
-              files[i],
-              filename: fileName,
-              contentType: mediaType,
-            ),
-          );
-
-          createLog("[API] Added file: $fileName ($mime)");
-        }
-
-        // Send and convert the streamed response
-        final streamedResponse = await request.send();
-        return await http.Response.fromStream(streamedResponse);
-      },
-      customHeaders: multipartHeaders,
-    );
-  }
-
-
-
-
-  @override
-  Future<http.Response> putApi(String url, data) async {
-    return await _sendRequest((headers) {
-      return client.put(
-        Uri.parse(url),
-        headers: headers,
-        body: _safeJsonEncode(data),
-      );
-    });
-  }
-
-  @override
-  Future<http.Response> patchApi(String url, data) async {
-    return await _sendRequest((headers) {
-      return client.patch(
-        Uri.parse(url),
-        headers: headers,
-        body: _safeJsonEncode(data),
-      );
-    });
-  }
-
-  @override
-  Future<http.Response> deleteApi(String url, data) async {
-    return await _sendRequest((headers) {
-      return client.delete(
-        Uri.parse(url),
-        headers: headers,
-        body: _safeJsonEncode(data),
-      );
-    });
-  }
-
-  Future<http.StreamedResponse> uploadImageToS3(String uploadUrl, File imageFile) async {
+  Future<dynamic> getApi(
+    String url, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Map<String, String>? headers,
+    bool isPublic = false,
+    ResponseType? responseType,
+  }) async {
     try {
-      final request = http.MultipartRequest('PUT', Uri.parse(uploadUrl))
-        ..files.add(await http.MultipartFile.fromPath('file', imageFile.path));
+      final response = await _dio.get(
+        url,
+        queryParameters: queryParameters,
+        data: kIsWeb ? null : data,
+        options: Options(
+          headers: headers,
+          responseType: responseType,
+          extra: {'isPublic': isPublic},
+          contentType: (kIsWeb && isPublic) ? Headers.jsonContentType : null,
+          sendTimeout: kIsWeb ? null : const Duration(seconds: 30),
+        ),
+      );
 
-      final response = await request.send();
+      if (responseType == ResponseType.bytes) {
+        return response.data;
+      }
 
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        return response;
-      } else {
-        final responseBody = await response.stream.bytesToString();
-        createLog("S3 Upload Error Response Body: $responseBody");
-        throw FetchDataException(
-          'Error uploading image to S3: ${response.statusCode}\n$responseBody',
+      return _handleResponse(response);
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  // @override
+  // Future<dynamic> getApi(
+  //     String url, {
+  //       dynamic data,
+  //       Map<String, dynamic>? queryParameters,
+  //       Map<String, String>? headers,
+  //       bool isPublic = false,
+  //       ResponseType? responseType, // <--- NEW PARAMETER
+  //     }) async {
+  //   try {
+  //     final response = await _dio.get(
+  //       url,
+  //       queryParameters: queryParameters,
+  //       data: data, // Note: GET requests usually don't have body data, but if your API needs it, this is fine.
+  //       options: Options(
+  //         headers: headers,
+  //         responseType: responseType, // <--- PASS IT HERE
+  //         extra: {'isPublic': isPublic},
+  //         contentType: (kIsWeb && isPublic) ? Headers.jsonContentType : null,
+  //       ),
+  //     );
+
+  //     // If we requested bytes, return the data directly (don't run it through JSON parsers)
+  //     if (responseType == ResponseType.bytes) {
+  //       return response.data;
+  //     }
+
+  //     return _handleResponse(response);
+  //   } on DioException catch (e) {
+  //     throw _handleDioError(e);
+  //   }
+  // }
+
+  @override
+  Future<dynamic> postApi(
+    String url, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Map<String, String>? headers,
+    bool isPublic = false, // Added
+  }) async {
+    try {
+      final response = await _dio.post(
+        url,
+        data: data,
+        queryParameters: queryParameters,
+        options: Options(headers: headers, extra: {'isPublic': isPublic}),
+      );
+      return _handleResponse(response);
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  @override
+  Future<dynamic> putApi(
+    String url,
+    dynamic data, {
+    Map<String, String>? headers,
+    bool isPublic = false, // Added
+  }) async {
+    try {
+      final response = await _dio.put(
+        url,
+        data: data,
+        options: Options(headers: headers, extra: {'isPublic': isPublic}),
+      );
+      return _handleResponse(response);
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  @override
+  Future<dynamic> patchApi(
+    String url,
+    dynamic data, {
+    Map<String, String>? headers,
+    bool isPublic = false, // Added
+  }) async {
+    try {
+      final response = await _dio.patch(
+        url,
+        data: data,
+        options: Options(headers: headers, extra: {'isPublic': isPublic}),
+      );
+      return _handleResponse(response);
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  @override
+  Future<dynamic> deleteApi(
+    String url,
+    dynamic data, {
+    Map<String, String>? headers,
+    bool isPublic = false, // Added
+  }) async {
+    try {
+      final response = await _dio.delete(
+        url,
+        data: data,
+        options: Options(headers: headers, extra: {'isPublic': isPublic}),
+      );
+      return _handleResponse(response);
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // FORM DATA (URL ENCODED)
+  // ---------------------------------------------------------------------------
+
+  @override
+  Future<dynamic> postFormData(
+    String url,
+    Map<String, dynamic> data, {
+    Map<String, String>? headers,
+    bool isPublic = false, // Added
+  }) async {
+    try {
+      final response = await _dio.post(
+        url,
+        data: FormData.fromMap(data),
+        options: Options(
+          contentType: 'application/x-www-form-urlencoded',
+          headers: headers,
+          extra: {'isPublic': isPublic},
+        ),
+      );
+      return _handleResponse(response);
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // MULTIPART (FILE UPLOAD)
+  // ---------------------------------------------------------------------------
+
+  @override
+  Future<dynamic> postMultipart({
+    required String url,
+    required Map<String, dynamic> fields,
+    required List<Uint8List> files,
+    required List<String> fileNames,
+    Map<String, String>? headers,
+    String? fileFieldName,
+    String? contentType,
+  }) async {
+    final actualFileField = fileFieldName ?? 'attachments';
+    final actualContentType = contentType ?? 'multipart/form-data';
+
+    assert(
+      files.length == fileNames.length,
+      'files and fileNames length must match',
+    );
+
+    try {
+      final formData = FormData();
+
+      fields.forEach((key, value) {
+        formData.fields.add(MapEntry(key, value));
+      });
+
+      for (int i = 0; i < files.length; i++) {
+        final mime = lookupMimeType(fileNames[i]) ?? 'application/octet-stream';
+        final mimeType = mime.split('/');
+
+        formData.files.add(
+          MapEntry(
+            actualFileField,
+            MultipartFile.fromBytes(
+              files[i],
+              filename: fileNames[i],
+              contentType: DioMediaType(
+                mimeType[0],
+                mimeType.length > 1 ? mimeType[1] : 'octet-stream',
+              ),
+            ),
+          ),
         );
       }
-    } catch (e) {
-      throw FetchDataException('Exception during image upload: $e');
-    }
-  }
-  Future<http.Response> _sendRequest(
-      Future<http.Response> Function(Map<String, String>) requestFn,
-      {Map<String, String>? customHeaders,
-        // NEW: Optional parameter for timeout duration, defaults to 30 seconds
-        int timeoutSeconds = 30}) async {
-    try {
-      final accessToken = SessionManager.instance.jwtAccessToken;
-      final packageInfo = await PackageInfo.fromPlatform();
 
-      // Default headers
-      final defaultHeaders = <String, String>{
-        'Content-Type': 'application/json',
-        'app': 'true',
-        'platform' : Platform.isIOS ? "IOS App" : "Android App",
-        'version' : '${packageInfo.version}+${packageInfo.buildNumber}',
-        if (accessToken != null && accessToken.isNotEmpty)
-          'Authorization': 'Bearer $accessToken',
-      };
-
-      // Merge with custom headers (customHeaders take precedence)
-      final headers = {...defaultHeaders, if (customHeaders != null) ...customHeaders};
-
-      createLog("[API] Request Headers: $headers");
-      createLog("[API] Timeout set to: $timeoutSeconds seconds");
-
-      // APPLYING THE CONFIGURABLE TIMEOUT DURATION
-      http.Response response = await requestFn(headers)
-          .timeout(Duration(seconds: timeoutSeconds));
-
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        return response;
-      }
-
-      // Explicitly returning response for specific error codes for caller handling
-      if (response.statusCode == 404 ||
-          response.statusCode == 400 ||
-          response.statusCode == 500) {
-        return response;
-      }
-
-      createLog("[API] Response Status: ${response.statusCode}");
-      createLog("[API] Response Body: ${response.body}");
-
-      if (response.statusCode == 403) {
-        throw UnauthorizedException('Permission denied: ${response.body}');
-      }
-
-      throw FetchDataException(
-          'Error with status code: ${response.statusCode}\n${response.body}');
-    } on SocketException {
-      throw NoInternetException("Please check your Internet Connection");
-    } on TimeoutException {
-      // This now catches the timeout from the .timeout() call
-      throw RequestTimeoutException("Request TimedOut after $timeoutSeconds seconds");
-    } on AuthenticationFailedException {
-      rethrow;
-    } catch (e, stackTrace) {
-      createLog("[API] Unexpected exception: $e\n$stackTrace");
-      throw FetchDataException('Unexpected error: ${e.toString()}');
-    }
-  }
-
-// --- EXAMPLE USAGE ---
-
-  Future<void> main() async {
-    // 1. Example using the default 30-second timeout
-    try {
-      await _sendRequest((headers) async {
-        // Simulate a fast, successful request
-        return http.Response('{"status": "ok"}', 200);
-      });
-      print("\n--- Request 1 (Default Timeout) Successful ---");
-    } catch (e) {
-      print("Request 1 Failed: $e");
-    }
-
-    // 2. Example setting a custom 10-second timeout
-    try {
-      await _sendRequest(
-            (headers) async {
-          // Simulate a request that is fast
-          return http.Response('{"status": "custom timeout applied"}', 200);
-        },
-        timeoutSeconds: 10,
+      final response = await _dio.post(
+        url,
+        data: formData,
+        options: Options(contentType: actualContentType, headers: headers),
       );
-      print("\n--- Request 2 (Custom 10s Timeout) Successful ---");
-    } catch (e) {
-      print("Request 2 Failed: $e");
+
+      return _handleResponse(response);
+    } on DioException catch (e) {
+      throw _handleDioError(e);
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // S3 UPLOAD (DIRECT PUT)
+  // ---------------------------------------------------------------------------
 
+  Future<Response> uploadToS3({
+    required String uploadUrl,
+    required Uint8List bytes,
+    String? contentType,
+  }) async {
+    try {
+      // Create a separate Dio instance for S3 uploads (no interceptors)
+      final s3Dio = Dio(
+        BaseOptions(
+          connectTimeout: const Duration(seconds: 60),
+          sendTimeout: const Duration(seconds: 60),
+          receiveTimeout: const Duration(seconds: 60),
+        ),
+      );
 
-  String _safeJsonEncode(dynamic data) {
-    return jsonEncode(data, toEncodable: (nonEncodable) {
-      if (nonEncodable is Result) return nonEncodable.toString();
-      return nonEncodable.toString();
-    });
+      // Different approach for web vs mobile
+      final response = await s3Dio.put(
+        uploadUrl,
+        data: kIsWeb
+            ? bytes // Web: Direct bytes
+            : Stream.fromIterable(bytes.map((e) => [e])), // Mobile: Stream
+        options: Options(
+          headers: {
+            'Content-Type': contentType ?? 'application/octet-stream',
+            if (!kIsWeb) 'Content-Length': bytes.length.toString(),
+          },
+          followRedirects: false,
+          validateStatus: (status) => status! < 500,
+        ),
+      );
+
+      createLog("[S3] Upload Status: ${response.statusCode}");
+
+      if (response.statusCode == 200) {
+        return response;
+      } else {
+        throw Exception('S3 upload failed with status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      createLog("[S3] Upload Error: ${e.type} - ${e.message}");
+      throw _handleDioError(e);
+    } catch (e) {
+      createLog("[S3] Unexpected Error: $e");
+      throw FetchDataException('Failed to upload to S3: $e');
+    }
   }
+
+  // ---------------------------------------------------------------------------
+  // RESPONSE & ERROR HANDLING
+  // ---------------------------------------------------------------------------
+
+  dynamic _handleResponse(Response response) {
+    createLog("[API] Response Status: ${response.statusCode}");
+    createLog("[API] Response Data: ${response.data}");
+
+    if (response.statusCode! >= 200 && response.statusCode! < 300) {
+      return response.data;
+    } else {
+      throw FetchDataException(
+        'Error occurred with status code: ${response.statusCode}',
+      );
+    }
+  }
+
+  Exception _handleDioError(DioException error) {
+    createLog("[API] DioError Type: ${error.type}");
+    createLog("[API] DioError Message: ${error.message}");
+    createLog("[API] DioError Response: ${error.response?.data}");
+
+    switch (error.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return RequestTimeoutException(
+          'Connection timeout. Please check your internet connection.',
+        );
+
+      case DioExceptionType.badResponse:
+        return _handleStatusCode(error.response!);
+
+      case DioExceptionType.cancel:
+        return FetchDataException('Request cancelled');
+
+      case DioExceptionType.connectionError:
+        if (kIsWeb) {
+          return NoInternetException(
+            "Network error on web. Check:\n"
+            "1. Your internet connection\n"
+            "2. CORS configuration on your backend\n"
+            "3. Backend URL is correct and accessible",
+          );
+        }
+        return NoInternetException('No internet connection');
+
+      default:
+        return FetchDataException(error.message ?? 'Unexpected error occurred');
+    }
+  }
+
+  Exception _handleStatusCode(Response response) {
+    final statusCode = response.statusCode;
+    final message = response.data?['message'] ?? response.statusMessage;
+
+    switch (statusCode) {
+      case 400:
+        return BadRequestException(message ?? 'Bad request');
+      case 401:
+        return UnauthorizedException(message ?? 'Unauthorized access');
+      case 403:
+        return ForbiddenException(message ?? 'Forbidden');
+      case 404:
+        return NotFoundException(message ?? 'Resource not found');
+      case 500:
+      case 502:
+      case 503:
+        return ServerException(message ?? 'Server error');
+      default:
+        return FetchDataException(
+          message ?? 'Error with status code: $statusCode',
+        );
+    }
+  }
+}
+
+// =============================================================================
+// INTERCEPTORS
+// =============================================================================
+
+/// 1. Headers Interceptor - Adds platform and version info
+class _HeadersInterceptor extends Interceptor {
+  @override
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    // UPDATED: Skip adding headers on Web if it is a public request
+    // This helps avoid CORS issues with unnecessary headers
+    if (kIsWeb && options.extra['isPublic'] == true) {
+      return super.onRequest(options, handler);
+    }
+
+    // skips interceptor [for s3 uploads]
+    if (options.extra['skipAuthInterceptor'] == true) {
+      createLog("[API] Request: ${options.method} ${options.uri}");
+      return super.onRequest(options, handler);
+    }
+    final version = await _getAppVersion();
+    final platform = _getPlatformHeader();
+
+    // options.headers.addAll({
+    //   'app': 'true',
+    //   'platform': platform,
+    //   'version': version,
+    // });
+
+    createLog("[API] Request: ${options.method} ${options.uri}");
+    createLog("[API] Headers: ${options.headers}");
+
+    super.onRequest(options, handler);
+  }
+
+  Future<String> _getAppVersion() async {
+    if (kIsWeb) return "web";
+    try {
+      final info = await PackageInfo.fromPlatform();
+      return "${info.version}+${info.buildNumber}";
+    } catch (_) {
+      return "unknown";
+    }
+  }
+
+  String _getPlatformHeader() {
+    if (kIsWeb) return "Web App";
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        return "Android App";
+      case TargetPlatform.iOS:
+        return "iOS App";
+      case TargetPlatform.macOS:
+        return "macOS App";
+      case TargetPlatform.windows:
+        return "Windows App";
+      case TargetPlatform.linux:
+        return "Linux App";
+      default:
+        return "Unknown";
+    }
+  }
+}
+
+/// 2. Auth Interceptor - Adds Bearer token and handles token refresh
+class _AuthInterceptor extends Interceptor {
+  @override
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    // 1. Skip if explicitly disabled
+    if (options.extra['skipAuthInterceptor'] == true) {
+      return super.onRequest(options, handler);
+    }
+
+    // UPDATED: Skip adding Bearer token on Web if 'isPublic' is true
+    // This is crucial for public APIs that don't support CORS Preflight for custom headers
+    if (kIsWeb && options.extra['isPublic'] == true) {
+      return super.onRequest(options, handler);
+    }
+
+    // 2. CHECK: If Authorization header is ALREADY present, do not overwrite it.
+    // This allows you to pass custom tokens (like Signzy) manually.
+    if (options.headers.containsKey('Authorization')) {
+      createLog(
+        "[API] specific Authorization header found, skipping default Bearer token",
+      );
+      return super.onRequest(options, handler);
+    }
+
+    // 3. Otherwise, add the default App Session Bearer token
+    final accessToken = SessionManager.instance.getAccessToken;
+    if (accessToken != null && accessToken.isNotEmpty) {
+      options.headers['Authorization'] = 'Bearer $accessToken';
+      createLog("[API] Added Bearer token to request");
+    }
+
+    super.onRequest(options, handler);
+  }
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
+    final requestUrl = err.requestOptions.uri.toString().toLowerCase();
+    final isSignzyApi =
+        requestUrl.contains('signzy.tech') || requestUrl.contains('signzy.app');
+    // Handle 401 - Token expired or invalid
+    if (err.response?.statusCode == 401) {
+      if (isSignzyApi) {
+        // Just log it and skip the logout process!
+        createLog("[API] 401 Error from Signzy. Skipping app logout process.");
+        return super.onError(err, handler);
+      }
+
+      createLog("[API] 401 Error - Attempting token refresh");
+
+      final refreshToken = SessionManager.instance.getRefreshToken;
+
+      if (refreshToken != null && refreshToken.isNotEmpty) {
+        try {
+          // Create new Dio instance for refresh (to avoid interceptor loop)
+          final dio = Dio();
+          final response = await dio.post(
+            '${err.requestOptions.baseUrl}/auth/refresh',
+            data: {'refreshToken': refreshToken},
+          );
+
+          if (response.statusCode == 200) {
+            final newAccessToken = response.data['accessToken'] as String?;
+            final newRefreshToken = response.data['refreshToken'] as String?;
+
+            // Update tokens in SessionManager
+            await SessionManager.instance.setSession(
+              jwtAccessToken: newAccessToken,
+              jwtRefreshToken: newRefreshToken ?? refreshToken,
+              userId: SessionManager.instance.getUserId,
+            );
+
+            createLog("[API] Token refreshed successfully");
+
+            // Retry the original request with new token
+            final opts = err.requestOptions;
+            opts.headers['Authorization'] = 'Bearer $newAccessToken';
+
+            final retryResponse = await Dio().fetch(opts);
+            return handler.resolve(retryResponse);
+          }
+        } catch (e) {
+          createLog("[API] Token refresh failed: $e");
+          // Clear session and let error propagate
+          await SessionManager.instance.clearSession();
+        }
+      } else {
+        createLog("[API] No refresh token available");
+        // Clear session if no refresh token
+        await SessionManager.instance.clearSession();
+      }
+    }
+
+    super.onError(err, handler);
+  }
+}
+
+/// 3. Logging Interceptor - Logs all requests and responses
+class _LoggingInterceptor extends Interceptor {
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    createLog('│ REQUEST: ${options.method} ${options.uri}');
+    createLog('│ Headers: ${options.headers}');
+    if (options.data != null) {
+      createLog('│ Body: ${options.data}');
+    }
+
+    super.onRequest(options, handler);
+  }
+
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    createLog(
+      '│ RESPONSE: ${response.statusCode} ${response.requestOptions.uri}',
+    );
+    createLog('│ Data: ${response.data}');
+
+    super.onResponse(response, handler);
+  }
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    createLog(
+      '│ ERROR: ${err.requestOptions.method} ${err.requestOptions.uri}',
+    );
+    createLog('│ Type: ${err.type}');
+    createLog('│ Message: ${err.message}');
+    if (err.response != null) {
+      createLog('│ Status: ${err.response?.statusCode}');
+      createLog('│ Data: ${err.response?.data}');
+    }
+
+    super.onError(err, handler);
+  }
+}
+
+/// 4. Error Interceptor - Global error handling
+class _ErrorInterceptor extends Interceptor {
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    // You can add global error handling here
+    // For example, show a toast for certain errors
+
+    super.onError(err, handler);
+  }
+}
+
+// lib/core/exceptions/app_exceptions.dart
+
+/// Base exception class for all app exceptions
+class AppException implements Exception {
+  final String message;
+  final String? prefix;
+  final int? statusCode;
+
+  AppException({required this.message, this.prefix, this.statusCode});
+
+  @override
+  String toString() {
+    return '${prefix ?? "Error"}: $message';
+  }
+}
+
+/// Exception for network connectivity issues
+class NoInternetException extends AppException {
+  NoInternetException([String? message])
+    : super(
+        message: message ?? 'No internet connection',
+        prefix: 'No Internet',
+      );
+}
+
+/// Exception for request timeout
+class RequestTimeoutException extends AppException {
+  RequestTimeoutException([String? message])
+    : super(message: message ?? 'Request timeout', prefix: 'Timeout');
+}
+
+/// Exception for bad requests (400)
+class BadRequestException extends AppException {
+  BadRequestException([String? message])
+    : super(
+        message: message ?? 'Bad request',
+        prefix: 'Bad Request',
+        statusCode: 400,
+      );
+}
+
+/// Exception for unauthorized access (401)
+class UnauthorizedException extends AppException {
+  UnauthorizedException([String? message])
+    : super(
+        message: message ?? 'Unauthorized access',
+        prefix: 'Unauthorized',
+        statusCode: 401,
+      );
+}
+
+/// Exception for forbidden access (403)
+class ForbiddenException extends AppException {
+  ForbiddenException([String? message])
+    : super(
+        message: message ?? 'Access forbidden',
+        prefix: 'Forbidden',
+        statusCode: 403,
+      );
+}
+
+/// Exception for not found (404)
+class NotFoundException extends AppException {
+  NotFoundException([String? message])
+    : super(
+        message: message ?? 'Resource not found',
+        prefix: 'Not Found',
+        statusCode: 404,
+      );
+}
+
+/// Exception for server errors (500+)
+class ServerException extends AppException {
+  ServerException([String? message])
+    : super(
+        message: message ?? 'Internal server error',
+        prefix: 'Server Error',
+        statusCode: 500,
+      );
+}
+
+/// Exception for data fetching errors
+class FetchDataException extends AppException {
+  FetchDataException([String? message])
+    : super(message: message ?? 'Error fetching data', prefix: 'Fetch Error');
+}
+
+/// Exception for data parsing errors
+class InvalidInputException extends AppException {
+  InvalidInputException([String? message])
+    : super(message: message ?? 'Invalid input', prefix: 'Invalid Input');
 }

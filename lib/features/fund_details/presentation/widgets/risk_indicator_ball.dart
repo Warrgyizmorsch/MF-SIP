@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 class RiskLegendItem extends StatelessWidget {
   final Color color;
@@ -12,24 +13,35 @@ class RiskLegendItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 12,
-          height: 12,
+          width: isDesktop ? 16 : 12,
+          height: isDesktop ? 16 : 12,
           decoration: BoxDecoration(
             color: color,
             shape: BoxShape.circle,
+            boxShadow: isDesktop
+                ? [
+              BoxShadow(
+                color: color.withOpacity(0.3),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              )
+            ]
+                : null,
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: isDesktop ? 10 : 8),
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
-            fontWeight: FontWeight.w500,
+          style: TextStyle(
+            fontSize: isDesktop ? 14 : 14,
+            color: isDesktop ? Colors.grey.shade700 : Colors.grey,
+            fontWeight: isDesktop ? FontWeight.w500 : FontWeight.w500,
           ),
         ),
       ],

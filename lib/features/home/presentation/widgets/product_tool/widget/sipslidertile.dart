@@ -79,7 +79,7 @@ class _SipSliderTileState extends State<SipSliderTile2> {
 
             /// Editable Value Box
             Container(
-              width: 100,
+              width: 110,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
                 // Use effectiveColor for background tint

@@ -1,6 +1,42 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:my_sip/my_app.dart';
+import 'package:my_sip/services/firebase_services.dart';
+import 'package:my_sip/services/session_manager.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'core/utils/helper/helpers.dart';
+import 'features/home/presentation/controllers/home_controller.dart';
+import 'firebase_options.dart';
+
+Future<void> main() async {
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    // Register dependencies BEFORE runApp
+    Get.put(HomeController());
+    await Get.put(NotificationService()).init();
+    if (!kIsWeb) {
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+      ]);
+    }
+    await Get.putAsync<SessionManager>(() async {
+      final session = SessionManager.instance;
+      await session.initialize();
+      return session;
+    });
+    runApp(const MyApp());
+  } catch (e, stackTrace) {
+    createLog("Error in main initialization: $e");
+    createLog("Stack trace: $stackTrace");
+    runApp(const MyApp());
+  }
 }

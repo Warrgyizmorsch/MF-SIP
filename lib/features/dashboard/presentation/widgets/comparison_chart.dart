@@ -1,317 +1,194 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart'; // Assuming you use GetX for size/utils
 import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:responsive_framework/responsive_framework.dart'; // Import Responsive Framework
 
 class FundComparisonChartWidget extends StatelessWidget {
-  const FundComparisonChartWidget({super.key});
+  final bool showLegend;
+  final bool showLeftTitles;
+  final bool showRightTitles;
+  final bool showTopTitles;
+  final bool showBottomTitles;
+  final bool showGrid;
+
+  const FundComparisonChartWidget({
+    super.key,
+    this.showLegend = true,
+    this.showLeftTitles = true,
+    this.showRightTitles = false,
+    this.showTopTitles = false,
+    this.showBottomTitles = true,
+    this.showGrid = true,
+  });
 
   @override
   Widget build(BuildContext context) {
+    // Detect Desktop
+    final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+
     return Container(
-      height: 260,
-      padding: const EdgeInsets.all(16),
+      // Responsive Height: Taller on desktop for better visibility
+      height: isDesktop ? 400 : 300,
+      padding: EdgeInsets.all(isDesktop ? 24 : 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Ucolors.darkgrey),
         boxShadow: [
           BoxShadow(
-            color: Colors.black,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.05), // Softer shadow for web
+            blurRadius: 15,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Fund Comparison",
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Expanded(child: _buildChart()),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildChart() {
-    // Sample data - replace with your real data
-    // X-axis: months (Jan to Jun)
-    // Two lines: your portfolio vs suggested/benchmark
-    final List<FlSpot> yourSpots = [
-      FlSpot(0, 50000), // Jan
-      FlSpot(1, 62000), // Feb
-      FlSpot(2, 45000), // Mar (dip)
-      FlSpot(3, 77768), // Apr - current value
-      FlSpot(4, 95000), // May
-      FlSpot(5, 82000), // Jun
-    ];
-
-    final List<FlSpot> suggestedSpots = [
-      FlSpot(0, 82000),
-      FlSpot(1, 75000),
-      FlSpot(2, 68000),
-      FlSpot(3, 82300),
-      FlSpot(4, 88000),
-      FlSpot(5, 90000),
-    ];
-
-    return LineChart(
-      LineChartData(
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: true,
-          horizontalInterval: 20000,
-          getDrawingHorizontalLine: (value) =>
-              FlLine(color: Colors.grey.shade200, strokeWidth: 1),
-          getDrawingVerticalLine: (value) =>
-              FlLine(color: Colors.grey.shade200, strokeWidth: 1),
-        ),
-        titlesData: FlTitlesData(
-          show: true,
-          rightTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          topTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 30,
-              getTitlesWidget: (value, meta) {
-                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-                if (value.toInt() >= 0 && value.toInt() < months.length) {
-                  return Text(
-                    months[value.toInt()],
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                  );
-                }
-                return const Text('');
-              },
-            ),
-          ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 40,
-              interval: 20000,
-              getTitlesWidget: (value, meta) {
-                if (value.toInt() % 20000 == 0) {
-                  return Text(
-                    '₹${(value / 1000).toStringAsFixed(0)}k',
-                    style: const TextStyle(fontSize: 11, color: Colors.grey),
-                  );
-                }
-                return const Text('');
-              },
-            ),
-          ),
-        ),
-        borderData: FlBorderData(show: false),
-        minX: 0,
-        maxX: 6,
-        minY: 30000,
-        maxY: 100000,
-        lineBarsData: [
-          // Your portfolio (green)
-          LineChartBarData(
-            spots: yourSpots,
-            isCurved: true,
-            curveSmoothness: 0.35,
-            color: Colors.green.shade50,
-            barWidth: 2.8,
-            dotData: FlDotData(
-              show: true,
-              getDotPainter: (spot, percent, bar, index) {
-                if (index == 3) {
-                  // Highlight current point
-                  return FlDotCirclePainter(
-                    radius: 6,
-                    color: Colors.green.shade700,
-                    strokeColor: Colors.white,
-                    strokeWidth: 3,
-                  );
-                }
-                return FlDotCirclePainter(radius: 0, color: Colors.transparent);
-              },
-            ),
-            belowBarData: BarAreaData(
-              show: true,
-              color: Colors.green,
-              // color: Ucolors.light,
-            ),
-          ),
-          // Suggested / benchmark (blue/teal)
-          LineChartBarData(
-            spots: suggestedSpots,
-            isCurved: true,
-            curveSmoothness: 0.35,
-            color: Colors.blue.shade400,
-            barWidth: 2.2,
-            dotData: const FlDotData(show: false),
-            belowBarData: BarAreaData(show: true, color: Colors.blue),
-          ),
-        ],
-        lineTouchData: LineTouchData(
-          enabled: true,
-          touchTooltipData: LineTouchTooltipData(
-            getTooltipColor: (touchedSpots) => Colors.black,
-            tooltipBorderRadius: BorderRadius.circular(8),
-            tooltipPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-            fitInsideHorizontally: true,
-            getTooltipItems: (touchedSpots) {
-              return touchedSpots.map((spot) {
-                final value = spot.y.toStringAsFixed(0);
-                final monthIndex = spot.x.toInt();
-                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-
-                return LineTooltipItem(
-                  '$value\n${months[monthIndex]}',
-                  const TextStyle(color: Colors.white, fontSize: 13),
-                );
-              }).toList();
-            },
-          ),
-          getTouchedSpotIndicator: (barData, spotIndexes) {
-            return spotIndexes.map((index) {
-              return TouchedSpotIndicatorData(
-                FlLine(color: Colors.grey, strokeWidth: 1),
-                FlDotData(
-                  getDotPainter: (spot, percent, bar, index) =>
-                      FlDotCirclePainter(
-                        radius: 6,
-                        color: Colors.white,
-                        strokeColor: barData.color!,
-                        strokeWidth: 3,
-                      ),
+          // Header Row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Fund Comparison",
+                style: TextStyle(
+                  fontSize: isDesktop ? 18 : 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
                 ),
-              );
-            }).toList();
-          },
-          handleBuiltInTouches: true,
+              ),
+              if (showLegend) _buildLegend(isDesktop),
+            ],
+          ),
+          SizedBox(height: isDesktop ? 24 : 16),
+
+          // Chart
+          Expanded(child: _buildChart(isDesktop)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegend(bool isDesktop) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _legendItem("Portfolio", Colors.green.shade600, isDesktop),
+        SizedBox(width: isDesktop ? 16 : 10),
+        _legendItem("Benchmark", Colors.blue.shade400, isDesktop),
+      ],
+    );
+  }
+
+  Widget _legendItem(String label, Color color, bool isDesktop) {
+    return Row(
+      children: [
+        Container(
+          width: isDesktop ? 10 : 8,
+          height: isDesktop ? 10 : 8,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
         ),
-      ),
-    );
-  }
-}
-
-class FundComparisonChartWidget1 extends StatelessWidget {
-  const FundComparisonChartWidget1({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      // height: 260,
-      height: Get.height * 0.3,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Ucolors.darkgrey),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: isDesktop ? 13 : 11,
+            color: Colors.grey.shade700,
+            fontWeight: FontWeight.w500,
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Fund Comparison",
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Expanded(child: _buildChart()),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  Widget _buildChart() {
-    // Sample data - replace with your real data
-    // X-axis: months (Jan to Jun)
-    // Two lines: your portfolio vs suggested/benchmark
+  Widget _buildChart(bool isDesktop) {
+    // Sample Data
     final List<FlSpot> yourSpots = [
-      FlSpot(0, 50000), // Jan
-      FlSpot(1, 62000), // Feb
-      FlSpot(2, 45000), // Mar (dip)
-      FlSpot(3, 77768), // Apr - current value
-      FlSpot(4, 95000), // May
-      FlSpot(5, 82000), // Jun
+      const FlSpot(0, 50000),
+      const FlSpot(1, 62000),
+      const FlSpot(2, 45000),
+      const FlSpot(3, 77768),
+      const FlSpot(4, 95000),
+      const FlSpot(5, 82000),
     ];
 
     final List<FlSpot> suggestedSpots = [
-      FlSpot(0, 82000),
-      FlSpot(1, 75000),
-      FlSpot(2, 68000),
-      FlSpot(3, 82300),
-      FlSpot(4, 88000),
-      FlSpot(5, 90000),
+      const FlSpot(0, 82000),
+      const FlSpot(1, 75000),
+      const FlSpot(2, 68000),
+      const FlSpot(3, 82300),
+      const FlSpot(4, 88000),
+      const FlSpot(5, 90000),
     ];
 
     return LineChart(
       LineChartData(
         gridData: FlGridData(
-          show: true,
+          show: showGrid,
           drawVerticalLine: true,
           horizontalInterval: 20000,
-          getDrawingHorizontalLine: (value) =>
-              FlLine(color: Colors.grey.shade200, strokeWidth: 1),
-          getDrawingVerticalLine: (value) =>
-              FlLine(color: Colors.grey.shade200, strokeWidth: 1),
+          getDrawingHorizontalLine: (value) => FlLine(
+            color: Colors.grey.shade100,
+            strokeWidth: 1,
+          ),
+          getDrawingVerticalLine: (value) => FlLine(
+            color: Colors.grey.shade100,
+            strokeWidth: 1,
+          ),
         ),
         titlesData: FlTitlesData(
           show: true,
-          rightTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
+          // Right Titles (Toggleable)
+          rightTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: showRightTitles),
           ),
-          topTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
+          // Top Titles (Toggleable)
+          topTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: showTopTitles),
           ),
+          // Bottom Titles (Dynamic)
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 30,
+              showTitles: showBottomTitles,
+              reservedSize: 32,
+              interval: 1,
               getTitlesWidget: (value, meta) {
                 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
                 if (value.toInt() >= 0 && value.toInt() < months.length) {
-                  return Text(
-                    months[value.toInt()],
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      months[value.toInt()],
+                      style: TextStyle(
+                        fontSize: isDesktop ? 12 : 10,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   );
                 }
                 return const Text('');
               },
             ),
           ),
+          // Left Titles (Dynamic)
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 40,
+              showTitles: showLeftTitles,
+              reservedSize: isDesktop ? 50 : 40,
               interval: 20000,
               getTitlesWidget: (value, meta) {
                 if (value.toInt() % 20000 == 0) {
                   return Text(
                     '₹${(value / 1000).toStringAsFixed(0)}k',
-                    style: const TextStyle(fontSize: 11, color: Colors.grey),
+                    style: TextStyle(
+                      fontSize: isDesktop ? 11 : 10,
+                      color: Colors.grey.shade600,
+                    ),
                   );
                 }
                 return const Text('');
@@ -325,20 +202,20 @@ class FundComparisonChartWidget1 extends StatelessWidget {
         minY: 30000,
         maxY: 100000,
         lineBarsData: [
-          // Your portfolio (green)
+          // Your Portfolio (Green)
           LineChartBarData(
             spots: yourSpots,
             isCurved: true,
             curveSmoothness: 0.35,
             color: Colors.green.shade600,
-            barWidth: 2.8,
+            barWidth: isDesktop ? 3.5 : 2.8, // Thicker line on desktop
             dotData: FlDotData(
               show: true,
               getDotPainter: (spot, percent, bar, index) {
+                // Highlight specific point (e.g., current month)
                 if (index == 3) {
-                  // Highlight current point
                   return FlDotCirclePainter(
-                    radius: 6,
+                    radius: isDesktop ? 8 : 6,
                     color: Colors.green.shade700,
                     strokeColor: Colors.white,
                     strokeWidth: 3,
@@ -352,29 +229,26 @@ class FundComparisonChartWidget1 extends StatelessWidget {
               color: Colors.green.withOpacity(0.12),
             ),
           ),
-          // Suggested / benchmark (blue/teal)
+          // Benchmark (Blue)
           LineChartBarData(
             spots: suggestedSpots,
             isCurved: true,
             curveSmoothness: 0.35,
             color: Colors.blue.shade400,
-            barWidth: 2.2,
+            barWidth: isDesktop ? 2.5 : 2.0,
             dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
-              color: Colors.blue.withOpacity(0.08),
+              color: Colors.blue.withOpacity(0.05),
             ),
           ),
         ],
         lineTouchData: LineTouchData(
           enabled: true,
           touchTooltipData: LineTouchTooltipData(
-            getTooltipColor: (touchedSpots) => Colors.black.withOpacity(0.75),
+            getTooltipColor: (touchedSpots) => Colors.black.withOpacity(0.8),
             tooltipBorderRadius: BorderRadius.circular(8),
-            tooltipPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
+            tooltipPadding: const EdgeInsets.all(12),
             fitInsideHorizontally: true,
             getTooltipItems: (touchedSpots) {
               return touchedSpots.map((spot) {
@@ -384,7 +258,11 @@ class FundComparisonChartWidget1 extends StatelessWidget {
 
                 return LineTooltipItem(
                   '$value\n${months[monthIndex]}',
-                  const TextStyle(color: Colors.white, fontSize: 13),
+                  const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold
+                  ),
                 );
               }).toList();
             },
@@ -392,7 +270,11 @@ class FundComparisonChartWidget1 extends StatelessWidget {
           getTouchedSpotIndicator: (barData, spotIndexes) {
             return spotIndexes.map((index) {
               return TouchedSpotIndicatorData(
-                FlLine(color: Colors.grey.withOpacity(0.5), strokeWidth: 1),
+                FlLine(
+                    color: Colors.grey.withOpacity(0.5),
+                    strokeWidth: 1,
+                    dashArray: [5, 5]
+                ),
                 FlDotData(
                   getDotPainter: (spot, percent, bar, index) =>
                       FlDotCirclePainter(

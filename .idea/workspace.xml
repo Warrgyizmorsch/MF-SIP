@@ -1,10 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AndroidLayouts">
+    <shared>
+      <config />
+    </shared>
+  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="" />
+    <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="add web updates">
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_02_26,_6_04 pm_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_02_26__6_04pm__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/config/routes/app_routes.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/routes/app_routes.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/core/bindings/bindings.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/bindings/bindings.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/authentication/presentation/controllers/auth/auth_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/authentication/presentation/controllers/auth/auth_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/controller/goal_sip_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/controller/goal_sip_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/pages/goal.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/pages/goal.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/pages/goalviewcard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/pages/goalviewcard.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/pages/ihavegoal.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/pages/ihavegoal.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/data/datasource/personalisation_remote_data_source.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/data/datasource/personalisation_remote_data_source.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/data/repository/personalisation_repository_impl.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/data/repository/personalisation_repository_impl.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/domain/repository/personalisation_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/domain/repository/personalisation_repository.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/domain/usecases/personalisation_use_cases.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/domain/usecases/personalisation_use_cases.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/presentation/bindings/personalisation_binding.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/bindings/personalisation_binding.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/presentation/controllers/personalisation_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/controllers/personalisation_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/presentation/pages/profile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/pages/profile.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/presentation/widgets/nominee_details.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/widgets/nominee_details.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/personalization/presentation/widgets/nominee_list.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/personalization/presentation/widgets/nominee_list.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/navigation_menu_bar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/navigation_menu_bar.dart" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -34,6 +61,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="kyc-new" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectColorInfo">{
@@ -63,26 +95,28 @@
     "cidr.known.project.marker": "true",
     "com.google.services.firebase.aqiPopupShown": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "nithik-branch",
+    "git-widget-placeholder": "kyc-new",
     "io.flutter.project.isFirstOpen": "true",
     "io.flutter.reload.alreadyRun": "true",
-    "last_opened_file_path": "/Users/nithikmali/StudioProjects/MF-SIP/lib/features/mf/screen/goal",
+    "last_opened_file_path": "/Users/nithikmali/StudioProjects/MF-SIP/assets/logo",
     "settings.editor.selected.configurable": "AndroidSdkUpdater",
     "show.migrate.to.gradle.popup": "false"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/lib/features/mf/screen/goal" />
-      <recent name="$PROJECT_DIR$/lib/features/mf/screen/fund_details" />
-      <recent name="$PROJECT_DIR$/lib/features/mf/screen/explore" />
+      <recent name="$PROJECT_DIR$/assets/logo" />
+      <recent name="$PROJECT_DIR$/lib/features/fund_details/domain/usecases" />
+      <recent name="$PROJECT_DIR$/assets/icon" />
+      <recent name="$PROJECT_DIR$/lib/core/utils/enums" />
+      <recent name="$PROJECT_DIR$/lib/common/widget/text_form" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/assets/icon" />
+      <recent name="$PROJECT_DIR$/lib/features/personalization/presentation/pages" />
+      <recent name="$PROJECT_DIR$/lib/features/personalization/presentation/widgets" />
       <recent name="$PROJECT_DIR$/lib/features/home/presentation/pages" />
       <recent name="$PROJECT_DIR$/lib/features/cart/presentation/pages" />
-      <recent name="$PROJECT_DIR$/lib/features/dashboard/presentation/widgets" />
-      <recent name="$PROJECT_DIR$/lib/features/dashboard/presentation/pages" />
-      <recent name="$PROJECT_DIR$/lib/features/mf/screen/dashboard/presentation/controllers" />
     </key>
   </component>
   <component name="TaskManager">
@@ -93,6 +127,15 @@
       <option name="presentableId" value="Default" />
       <updated>1767623341860</updated>
     </task>
+    <task id="LOCAL-00001" summary="add web updates">
+      <option name="closed" value="true" />
+      <created>1770697287899</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1770697287900</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -112,7 +155,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="nithik-branch" />
+                        <option value="kyc-new" />
                       </list>
                     </value>
                   </entry>
@@ -123,5 +166,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="add web updates" />
+    <option name="LAST_COMMIT_MESSAGE" value="add web updates" />
   </component>
 </project>

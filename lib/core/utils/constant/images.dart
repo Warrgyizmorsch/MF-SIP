@@ -9,13 +9,17 @@ class UImages {
   static const String topRight2 = 'assets/logo/Vector 28.png';
   static const String topRight3 = 'assets/logo/Vector 29.png';
   static const String topRight4 = 'assets/logo/Ellipse 265.png';
+  static const String mfsiplogo = 'assets/logo/mfsiplogo.svg';
 
   //Onboarding
-  static const String onboarding1 = 'assets/images/onboarding/Illustration.png';
+  // static const String onboarding1 = 'assets/images/onboarding/Illustration.png';
+  static const String onboarding1 = 'assets/images/onboarding/onboarding1.png';
   static const String onboarding2 =
-      'assets/images/onboarding/Illustration2.png';
+      // 'assets/images/onboarding/Illustration2.png';
+      'assets/images/onboarding/onboarding2.png';
   static const String onboarding3 =
-      'assets/images/onboarding/Illustration3.png';
+      // 'assets/images/onboarding/Illustration3.png';
+      'assets/images/onboarding/onboarding3.png';
   static const String onboarding4 =
       'assets/images/onboarding/Illustration4.png';
 
@@ -76,4 +80,25 @@ class UImages {
   static const String mfLogoLight = 'assets/icon/logo_mf_light.svg';
   static const String freedomSipCard1 = 'assets/icon/freedom_sip_card_1.svg';
   static const String freedomSipCard2 = 'assets/icon/freedom_sip_card_2.svg';
+  static const String tickInCircle = "assets/icon/logo_tick_in_circle.svg";
+  static const String logoAccount = "assets/icon/logo_account.svg";
+  static const String logoShield = "assets/icon/logo_shield.svg";
+  static const String logoCurrency = "assets/icon/logo_currency.svg";
+  static const String logoHighGrowthFunds =
+      "assets/icon/logo_high_growth_funds.svg";
+  static const String logoSuggestedPortfolio =
+      "assets/icon/logo_suggested_portfolio.svg";
+  static const String card = "assets/icon/logo_card.svg";
+  static const String email = "assets/icon/logo_email.svg";
+  static const String key = "assets/icon/logo_key.svg";
+  static const String user = "assets/icon/logo_user.svg";
+  static const String mobile = "assets/icon/logo_mobile.svg";
+
+  //Payment
+  static const String paytm = "assets/icon/paytm.png";
+  static const String phonepe = "assets/icon/phonepe.png";
+  static const String gpat = "assets/icon/gpay.png";
+  static const String amazon = "assets/icon/amazon.png";
+  static const String appLogo = "assets/logo/app_logo.svg";
+  static const String messageLogo = "assets/icon/logo_message.svg";
 }

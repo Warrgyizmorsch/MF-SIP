@@ -1,5 +1,90 @@
+// import 'package:flutter/material.dart';
+// import 'package:gap/gap.dart';
+// import 'package:responsive_framework/responsive_framework.dart';
+
+// class PercentageBar extends StatelessWidget {
+//   final String title;
+//   final double percentage; // 0–100
+//   final Color color;
+
+//   const PercentageBar({
+//     super.key,
+//     required this.title,
+//     required this.percentage,
+//     required this.color,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Row(
+//           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//           children: [
+//             Expanded(
+//               child: Text(
+//                 title,
+//                 style: TextStyle(
+//                   fontSize: isDesktop ? 15 : 14,
+//                   fontWeight: isDesktop ? FontWeight.w500 : FontWeight.w500,
+//                   color: Colors.grey.shade800,
+//                 ),
+//               ),
+//             ),
+//             Text(
+//               '${percentage.toStringAsFixed(2)}%',
+//               style: TextStyle(
+//                 fontSize: isDesktop ? 15 : 14,
+//                 fontWeight: FontWeight.w600,
+//                 color: color,
+//               ),
+//             ),
+//           ],
+//         ),
+//         SizedBox(height: isDesktop ? 12 : 8),
+//         Container(
+//           height: isDesktop ? 10 : 8,
+//           decoration: BoxDecoration(
+//             borderRadius: BorderRadius.circular(isDesktop ? 12 : 10),
+//             color: color.withOpacity(0.1),
+//           ),
+//           child: ClipRRect(
+//             borderRadius: BorderRadius.circular(isDesktop ? 12 : 10),
+//             child: Stack(
+//               children: [
+//                 // Background
+//                 Container(width: double.infinity, color: Colors.grey.shade100),
+//                 // Progress with gradient
+//                 FractionallySizedBox(
+//                   // widthFactor: percentage / 100,
+//                   widthFactor: ((percentage ?? 0) / 100).clamp(0.0, 1.0),
+
+//                   child: Container(
+//                     decoration: BoxDecoration(
+//                       gradient: LinearGradient(
+//                         colors: [color, color.withOpacity(0.8)],
+//                         begin: Alignment.centerLeft,
+//                         end: Alignment.centerRight,
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ),
+//         Gap(isDesktop ? 16 : 10),
+//       ],
+//     );
+//   }
+// }
+
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 class PercentageBar extends StatelessWidget {
   final String title;
@@ -15,33 +100,78 @@ class PercentageBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+
+    final progress = (percentage / 100).clamp(0.0, 1.0);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: isDesktop ? 15 : 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey.shade800,
+                ),
+              ),
             ),
             Text(
               '${percentage.toStringAsFixed(2)}%',
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: isDesktop ? 15 : 14,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 8),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: LinearProgressIndicator(
-            value: percentage / 100,
-            minHeight: 8,
-            backgroundColor: Colors.blue.shade50,
-            valueColor: AlwaysStoppedAnimation(color),
+
+        SizedBox(height: isDesktop ? 12 : 8),
+
+        Container(
+          height: isDesktop ? 10 : 8,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(isDesktop ? 12 : 10),
+            color: color.withOpacity(0.1),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(isDesktop ? 12 : 10),
+            child: Stack(
+              children: [
+                Container(width: double.infinity, color: Colors.grey.shade100),
+
+                /// Animated Progress
+                TweenAnimationBuilder<double>(
+                  duration: const Duration(milliseconds: 900),
+                  curve: Curves.easeOutCubic,
+                  tween: Tween(begin: 0, end: progress),
+                  builder: (context, value, child) {
+                    return FractionallySizedBox(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: value,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [color, color.withOpacity(0.8)],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
-        Gap(10),
+
+        Gap(isDesktop ? 16 : 10),
       ],
     );
   }

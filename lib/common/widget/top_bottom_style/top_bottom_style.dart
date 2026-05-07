@@ -7,11 +7,13 @@ class TopBottomDecoration extends StatelessWidget {
     super.key,
     required this.child,
     this.design = false,
+    this.opacity,
   });
 
   final Widget child;
 
   final bool design;
+  final double? opacity;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,7 @@ class TopBottomDecoration extends StatelessWidget {
           child: Transform.translate(
             offset: Offset(20, -20),
             child: Opacity(
-              opacity: 0.5,
+              opacity: opacity ?? 0.5,
               child: Image.asset(
                 UImages.topright,
 
@@ -98,7 +100,10 @@ class TopBottomDecoration extends StatelessWidget {
         Positioned(
           left: -10,
           bottom: -5,
-          child: Opacity(opacity: 0.5, child: Image.asset(UImages.buttomleft)),
+          child: Opacity(
+            opacity: opacity ?? 0.5,
+            child: Image.asset(UImages.buttomleft),
+          ),
         ),
 
         child,

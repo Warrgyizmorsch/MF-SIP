@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "623862851986",
+    "project_id": "mf-sip-7f078",
+    "storage_bucket": "mf-sip-7f078.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:623862851986:android:d21c3e4403fca39310794b",
+        "android_client_info": {
+          "package_name": "com.example.my_sip"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVJ9uoW_vXxs_PMeBX-2J_420INZWGOdE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -3,18 +3,24 @@ import 'package:get/get.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 
 class TermAndPolicy extends StatelessWidget {
-  const TermAndPolicy({super.key});
+  const TermAndPolicy({super.key, this.term});
+
+  final String? term;
 
   @override
   Widget build(BuildContext context) {
+    final bool isDesktop = MediaQuery.of(context).size.width > 800;
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: Get.width * 0.1),
+      // padding: EdgeInsets.symmetric(horizontal: Get.width * 0.1),
+      padding: EdgeInsets.symmetric(
+        horizontal: isDesktop ? 10.0 : Get.width * 0.1,
+      ),
       child: RichText(
         textAlign: TextAlign.center,
         text: TextSpan(
           style: TextStyle(fontSize: 14, color: Ucolors.darkgrey),
           children: [
-            const TextSpan(text: 'By "Login Account", you agree to the '),
+            TextSpan(text: term ?? 'By "Login Account", you agree to the '),
             TextSpan(
               text: 'Terms of Use',
               style: const TextStyle(
