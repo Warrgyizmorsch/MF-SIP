@@ -311,123 +311,140 @@ class GoaldetailsPage extends StatelessWidget {
                       );
                     }
 
-                    return ListView.builder(
-                      controller: scrollController,
-                      padding: const EdgeInsets.only(bottom: 20),
-                      itemCount:
-                          mutualController.searchFund.length +
-                          (mutualController.isMoreLoading.value ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index == mutualController.searchFund.length) {
-                          return const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 24),
-                            child: Center(
-                              child: SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.5,
-                                  color: Ucolors.primary,
-                                ),
-                              ),
-                            ),
-                          );
+                    return NotificationListener<ScrollNotification>(
+                      onNotification: (ScrollNotification scrollInfo) {
+                        // Check if we scrolled near the bottom (within 200 pixels)
+                        if (scrollInfo.metrics.pixels >=
+                            scrollInfo.metrics.maxScrollExtent - 200) {
+                          // Prevent spamming the API if it's already loading or has no more data
+                          if (!mutualController.isMoreLoading.value &&
+                              mutualController.canLoadMore) {
+                            mutualController
+                                .loadNextPage(); // Triggers your pagination API!
+                          }
                         }
-
-                        final fund = mutualController.searchFund[index];
-                        final name = fund.baseSchemeName ?? 'Unknown Name';
-                        final schemeCodeStr = fund.schemeCode.toString();
-
-                        return Obx(() {
-                          // ✅ 1. Use GoalSipController to check selection status
-                          final isSelected = goalSipController.isSelectedFund(
-                            name,
-                          );
-
-                          return Stack(
-                            children: [
-                              Container(
-                                //  2. Removed horizontal margins so it sits flush
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 0,
-                                  vertical: 6,
-                                ),
-                                child: MutualFundCard(
-                                  entity: fund,
-                                  showTrainlings:
-                                      false, //  3. Hides trailing returns
-                                  // 4. Replaced generic toggle with Cart + Goal logic
-                                  onTapOverride: () {
-                                    FocusScope.of(context).unfocus();
-                                    // final int? currentGoalId =
-                                    //     goalSipController.savedDatabaseId.value;
-
-                                    if (!isSelected) {
-                                      // Add to Goal Cart
-                                      // goalSipController.toggleFund(name);
-                                      // cartController.addToCart(
-                                      //   title: 'Goal',
-                                      //   fund.schemeCode ?? '',
-                                      //   name,
-                                      //   fund.minSipAmount ?? 0,
-                                      //   currentGoalId,
-                                      // );
-                                      goalSipController.saveFundToGoal(
-                                        goalId: goal,
-                                        schemeCode: schemeCodeStr,
-                                        fundName: name,
-                                      );
-                                    } else {
-                                      // Remove from Goal Cart
-                                      // final cartItem = cartController
-                                      //     .cartResponseEntity
-                                      //     .value
-                                      //     ?.items
-                                      //     .firstWhereOrNull(
-                                      //       (item) =>
-                                      //           item.schemeCode.toString() ==
-                                      //           schemeCodeStr,
-                                      //     );
-
-                                      // if (cartItem != null &&
-                                      //     cartItem.id != null) {
-                                      //   cartController.deleteCartItem(
-                                      //     cartItem.id!,
-                                      //     name,
-                                      //   );
-                                      //   goalSipController.toggleFund(name);
-                                      // }
-                                      goalSipController.toggleFund(name);
-                                    }
-                                  },
+                        return false; // Return false so the sheet can still drag up/down normally
+                      },
+                      child: ListView.builder(
+                        controller: scrollController,
+                        padding: const EdgeInsets.only(bottom: 20),
+                        itemCount:
+                            mutualController.searchFund.length +
+                            (mutualController.isMoreLoading.value ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index == mutualController.searchFund.length) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 24),
+                              child: Center(
+                                child: SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                    color: Ucolors.primary,
+                                  ),
                                 ),
                               ),
+                            );
+                          }
 
-                              if (isSelected)
-                                Positioned.fill(
-                                  child: IgnorePointer(
-                                    child: Container(
-                                      margin: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 10,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Ucolors.primary.withOpacity(
-                                          0.05,
+                          final fund = mutualController.searchFund[index];
+                          final name = fund.baseSchemeName ?? 'Unknown Name';
+                          final schemeCodeStr = fund.schemeCode.toString();
+
+                          return Obx(() {
+                            // ✅ 1. Use GoalSipController to check selection status
+                            final isSelected = goalSipController.isSelectedFund(
+                              name,
+                            );
+
+                            return Stack(
+                              children: [
+                                Container(
+                                  //  2. Removed horizontal margins so it sits flush
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 0,
+                                    vertical: 6,
+                                  ),
+                                  child: MutualFundCard(
+                                    entity: fund,
+                                    showTrainlings:
+                                        false, //  3. Hides trailing returns
+                                    // 4. Replaced generic toggle with Cart + Goal logic
+                                    onTapOverride: () {
+                                      FocusScope.of(context).unfocus();
+                                      // final int? currentGoalId =
+                                      //     goalSipController.savedDatabaseId.value;
+
+                                      if (!isSelected) {
+                                        // Add to Goal Cart
+                                        // goalSipController.toggleFund(name);
+                                        // cartController.addToCart(
+                                        //   title: 'Goal',
+                                        //   fund.schemeCode ?? '',
+                                        //   name,
+                                        //   fund.minSipAmount ?? 0,
+                                        //   currentGoalId,
+                                        // );
+                                        goalSipController.saveFundToGoal(
+                                          goalId: goal,
+                                          schemeCode: schemeCodeStr,
+                                          fundName: name,
+                                        );
+                                      } else {
+                                        // Remove from Goal Cart
+                                        // final cartItem = cartController
+                                        //     .cartResponseEntity
+                                        //     .value
+                                        //     ?.items
+                                        //     .firstWhereOrNull(
+                                        //       (item) =>
+                                        //           item.schemeCode.toString() ==
+                                        //           schemeCodeStr,
+                                        //     );
+
+                                        // if (cartItem != null &&
+                                        //     cartItem.id != null) {
+                                        //   cartController.deleteCartItem(
+                                        //     cartItem.id!,
+                                        //     name,
+                                        //   );
+                                        //   goalSipController.toggleFund(name);
+                                        // }
+                                        goalSipController.toggleFund(name);
+                                      }
+                                    },
+                                  ),
+                                ),
+
+                                if (isSelected)
+                                  Positioned.fill(
+                                    child: IgnorePointer(
+                                      child: Container(
+                                        margin: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 10,
                                         ),
-                                        borderRadius: BorderRadius.circular(16),
-                                        border: Border.all(
-                                          color: Ucolors.primary,
-                                          width: 2,
+                                        decoration: BoxDecoration(
+                                          color: Ucolors.primary.withOpacity(
+                                            0.05,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          border: Border.all(
+                                            color: Ucolors.primary,
+                                            width: 2,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                            ],
-                          );
-                        });
-                      },
+                              ],
+                            );
+                          });
+                        },
+                      ),
                     );
                   }),
                 ),

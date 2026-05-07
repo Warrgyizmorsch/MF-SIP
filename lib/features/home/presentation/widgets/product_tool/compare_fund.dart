@@ -312,41 +312,83 @@ class CompareFundsPage extends GetView<CompareFundController> {
                         child: CircularProgressIndicator(),
                       );
                     }
+
                     if (list.isEmpty)
                       return const Center(child: Text("No funds found"));
 
-                    return ListView.separated(
-                      controller: scrollController,
-                      itemCount: list.length,
-                      separatorBuilder: (_, __) => const Divider(height: 1),
-                      itemBuilder: (ctx, index) {
-                        final item = list[index];
-                        return ListTile(
-                          leading: CircleAvatar(
-                            radius: 18,
-                            backgroundColor: Colors.grey.shade100,
-                            // Placeholder icon since list entity doesn't have image
-                            // child: const Icon(Icons.show_chart, size: 18),
-                            child: CustomCachedImage(
-                              imageUrl:
-                                  '${Appurl.baseUrl}${item.amc?.amcLogoUrl}',
-                            ),
-                          ),
-                          title: Text(
-                            item.baseSchemeName ?? '',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          onTap: () {
-                            // 1. Update Controller
-                            controller.setFund(slot, item);
-                            // 2. Close Sheet
-                            Navigator.maybePop(context);
-                          },
-                        );
+                    return NotificationListener<ScrollNotification>(
+                      onNotification: (ScrollNotification scrollInfo) {
+                        // Check if we scrolled near the bottom (within 200 pixels)
+                        if (scrollInfo.metrics.pixels >=
+                            scrollInfo.metrics.maxScrollExtent - 200) {
+                          // Prevent spamming the API if it's already loading or has no more data
+                          if (!mutualFundController.isMoreLoading.value &&
+                              mutualFundController.canLoadMore) {
+                            mutualFundController
+                                .loadNextPage(); // Triggers your pagination API!
+                          }
+                        }
+                        return false; // Return false so the sheet can still drag up/down normally
                       },
+                      child: ListView.separated(
+                        padding: const EdgeInsets.only(bottom: 40),
+                        controller: scrollController,
+                        // itemCount: list.length,
+                        itemCount:
+                            list.length +
+                            (mutualFundController.isMoreLoading.value ? 1 : 0),
+                        // separatorBuilder: (_, __) => const Divider(height: 1),
+                        separatorBuilder: (_, index) {
+                          if (index == list.length - 1 &&
+                              mutualFundController.isMoreLoading.value) {
+                            return const SizedBox.shrink();
+                          }
+                          return const Divider(height: 1);
+                        },
+
+                        itemBuilder: (ctx, index) {
+                          if (index == list.length) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 24.0),
+                              child: Center(
+                                child: SizedBox(
+                                  height: 28,
+                                  width: 28,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 3.0,
+                                    color: Ucolors.primary,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+                          final item = list[index];
+                          return ListTile(
+                            leading: CircleAvatar(
+                              radius: 18,
+                              backgroundColor: Colors.grey.shade100,
+
+                              child: CustomCachedImage(
+                                imageUrl:
+                                    '${Appurl.baseUrl}${item.amc?.amcLogoUrl}',
+                              ),
+                            ),
+                            title: Text(
+                              item.baseSchemeName ?? '',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            onTap: () {
+                              // 1. Update Controller
+                              controller.setFund(slot, item);
+                              // 2. Close Sheet
+                              Navigator.maybePop(context);
+                            },
+                          );
+                        },
+                      ),
                     );
                   }),
                 ),

@@ -44,6 +44,7 @@ class UserModel {
   final String? riskSlabId;
   final String? riskScore;
   final String? canNumber;
+  final String?  canStatus;
   final RiskProfileModel? riskProfileModel;
   final CustomerDetailsModel1? customerDetailsModel;
 
@@ -67,6 +68,7 @@ class UserModel {
     this.customerDetailsModel,
     this.riskScore,
     this.canNumber,
+    this.canStatus,
   });
 
   UserModel copyWith({
@@ -76,6 +78,7 @@ class UserModel {
     String? mobile,
     String? image,
     String? panCard,
+    String? canNumber,
 
     CustomerDetailsModel1? customerDetails,
   }) {
@@ -86,6 +89,8 @@ class UserModel {
       mobile: mobile ?? this.mobile,
       img: image ?? this.img,
       panCard: panCard ?? this.panCard,
+      canNumber: canNumber ?? this.canNumber,
+      canStatus: canStatus ?? this.canStatus,
       customerDetailsModel: customerDetails ?? this.customerDetailsModel,
     );
   }
@@ -112,6 +117,7 @@ class UserModel {
       riskSlabId: userData.parse<String>('risk_slab_id'),
       riskScore: userData.parse<String>('risk_score'),
       canNumber: userData.parse<String>('can_number'),
+      canStatus: userData.parse<String>('can_status'),
       riskProfileModel: userData.parseNested(
         'risk_profile',
         (e) => RiskProfileModel.fromJson(e),
@@ -141,8 +147,10 @@ class UserModel {
       'status': status,
       'risk_slab_id': riskSlabId,
       'can_number':canNumber,
+      'can_status':canStatus,
       'risk_profile': riskProfileModel,
       'customer_details': customerDetailsModel,
+      
     };
   }
 }

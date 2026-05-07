@@ -1433,83 +1433,99 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                       );
                     }
 
-                    return ListView.builder(
-                      controller: scrollController,
-                      padding: const EdgeInsets.only(bottom: 20),
-                      itemCount:
-                          mutualController.searchFund.length +
-                          (mutualController.isMoreLoading.value ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index == mutualController.searchFund.length) {
-                          return const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 24),
-                            child: Center(
-                              child: SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.5,
-                                  color: Ucolors.primary,
+                    return NotificationListener<ScrollNotification>(
+                      onNotification: (ScrollNotification scrollInfo) {
+                        // Check if we scrolled near the bottom (within 200 pixels)
+                        if (scrollInfo.metrics.pixels >=
+                            scrollInfo.metrics.maxScrollExtent - 200) {
+                          // Prevent spamming the API if it's already loading or has no more data
+                          if (!mutualController.isMoreLoading.value &&
+                              mutualController.canLoadMore) {
+                            mutualController
+                                .loadNextPage(); // Triggers your pagination API!
+                          }
+                        }
+                        return false; // Return false so the sheet can still drag up/down normally
+                      },
+
+                      child: ListView.builder(
+                        controller: scrollController,
+                        padding: const EdgeInsets.only(bottom: 20),
+                        itemCount:
+                            mutualController.searchFund.length +
+                            (mutualController.isMoreLoading.value ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index == mutualController.searchFund.length) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 24),
+                              child: Center(
+                                child: SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                    color: Ucolors.primary,
+                                  ),
                                 ),
                               ),
-                            ),
-                          );
-                        }
+                            );
+                          }
 
-                        final fund = mutualController.searchFund[index];
-                        return Obx(() {
-                          final isSelected = controller.isSelected(
-                            fund.schemeCode ?? "",
-                          );
+                          final fund = mutualController.searchFund[index];
+                          return Obx(() {
+                            final isSelected = controller.isSelected(
+                              fund.schemeCode ?? "",
+                            );
 
-                          return Stack(
-                            children: [
-                              MutualFundCard(
-                                entity: fund,
-                                onTapOverride: () {
-                                  FocusScope.of(context).unfocus();
-                                  controller.toggleSelection(fund);
-                                },
-                              ),
+                            return Stack(
+                              children: [
+                                MutualFundCard(
+                                  entity: fund,
+                                  onTapOverride: () {
+                                    FocusScope.of(context).unfocus();
+                                    controller.toggleSelection(fund);
+                                  },
+                                ),
 
-                              if (isSelected)
-                                Positioned.fill(
-                                  child: IgnorePointer(
-                                    child: Container(
-                                      margin: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 8,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Ucolors.primary.withOpacity(
-                                          0.05,
+                                if (isSelected)
+                                  Positioned.fill(
+                                    child: IgnorePointer(
+                                      child: Container(
+                                        margin: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 8,
                                         ),
-                                        borderRadius: BorderRadius.circular(16),
-                                        border: Border.all(
-                                          color: Ucolors.primary,
-                                          width: 2,
-                                        ),
-                                      ),
-                                      child: const Align(
-                                        alignment: Alignment.topRight,
-                                        child: Padding(
-                                          padding: EdgeInsets.all(12.0),
-                                          child: Icon(
-                                            Icons.check_circle,
+                                        decoration: BoxDecoration(
+                                          color: Ucolors.primary.withOpacity(
+                                            0.05,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          border: Border.all(
                                             color: Ucolors.primary,
-                                            size: 26,
+                                            width: 2,
+                                          ),
+                                        ),
+                                        child: const Align(
+                                          alignment: Alignment.topRight,
+                                          child: Padding(
+                                            padding: EdgeInsets.all(12.0),
+                                            child: Icon(
+                                              Icons.check_circle,
+                                              color: Ucolors.primary,
+                                              size: 26,
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                            ],
-                          );
-                        });
-
-                       
-                      },
+                              ],
+                            );
+                          });
+                        },
+                      ),
                     );
                   }),
                 ),

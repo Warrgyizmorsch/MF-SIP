@@ -2349,37 +2349,53 @@ class _MobileLayout extends StatelessWidget {
                       );
                     }
 
-                    return ListView.builder(
-                      controller: scrollController,
-                      padding: const EdgeInsets.only(bottom: 20),
-                      itemCount:
-                          mutualController.searchFund.length +
-                          (mutualController.isMoreLoading.value ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index == mutualController.searchFund.length) {
-                          return const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 24),
-                            child: Center(
-                              child: SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.5,
-                                  color: Ucolors.primary,
+                    return NotificationListener<ScrollNotification>(
+                      onNotification: (ScrollNotification scrollInfo) {
+                        // Check if we scrolled near the bottom (within 200 pixels)
+                        if (scrollInfo.metrics.pixels >=
+                            scrollInfo.metrics.maxScrollExtent - 200) {
+                          // Prevent spamming the API if it's already loading or has no more data
+                          if (!mutualController.isMoreLoading.value &&
+                              mutualController.canLoadMore) {
+                            mutualController
+                                .loadNextPage(); // Triggers your pagination API!
+                          }
+                        }
+                        return false; // Return false so the sheet can still drag up/down normally
+                      },
+
+                      child: ListView.builder(
+                        controller: scrollController,
+                        padding: const EdgeInsets.only(bottom: 20),
+                        itemCount:
+                            mutualController.searchFund.length +
+                            (mutualController.isMoreLoading.value ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index == mutualController.searchFund.length) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 24),
+                              child: Center(
+                                child: SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                    color: Ucolors.primary,
+                                  ),
                                 ),
                               ),
-                            ),
-                          );
-                        }
+                            );
+                          }
 
-                        final fund = mutualController.searchFund[index];
-                        // return ModernStaggeredItem(
-                        //   index: index,
-                        //   child: MutualFundCard(entity: fund),
-                        // );
+                          final fund = mutualController.searchFund[index];
+                          // return ModernStaggeredItem(
+                          //   index: index,
+                          //   child: MutualFundCard(entity: fund),
+                          // );
 
-                        return MutualFundCard(entity: fund);
-                      },
+                          return MutualFundCard(entity: fund);
+                        },
+                      ),
                     );
                   }),
                 ),

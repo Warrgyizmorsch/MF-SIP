@@ -515,6 +515,8 @@ class PersonalisationController extends GetxController {
             log('Has Risk Profile: ${hasRiskProfile.value}');
 
             _checkAndTriggerCanRegistration();
+            final mfuController = Get.find<MfuController>();
+            mfuController.resumePollingIfNeeded();
           } else {
             linkedBankAccount.value = null;
           }
@@ -569,8 +571,20 @@ class PersonalisationController extends GetxController {
       if (mfuController.errorMessage.value.isEmpty) {
         // ✅ Refresh session so canNumber is populated from server
         // await session.refreshUserData();
+        final canNumber = mfuController.mfuCanResponse.value?.can ?? '';
+        if (canNumber.isNotEmpty) {
+          final currentUser = session.getUserData;
+          if (currentUser != null) {
+            await session.updateUserData(
+              currentUser.copyWith(canNumber: canNumber),
+            );
+          }
+        }
+
+        log("[CAN] ✅ Registered — CAN: $canNumber");
+
         await fetchUserDetails();
-        log("[CAN] ✅ Registered successfully");
+        Get.find<MfuController>().resumePollingIfNeeded();
       } else {
         log("[CAN] ❌ Failed: ${mfuController.errorMessage.value}");
       }
@@ -1190,8 +1204,8 @@ class PersonalisationController extends GetxController {
         "name": nomineeNameTextEditingController.text,
         "relation": nomineeRelationTextEditingController.text,
         "dob": nomineeDobTextEditingController.text,
-        "allocation_percent":
-            nomineeAllocationPercentTextEditingController.text,
+        "allocation_percent": 100,
+        // nomineeAllocationPercentTextEditingController.text,
         // Send 1 if minor, 0 if not
         "is_minor": isNomineeMinor.value ? 1 : 0,
         "guardian_name": nomineeMinorsGuardianTextEditingController.text,

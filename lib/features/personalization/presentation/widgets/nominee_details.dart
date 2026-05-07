@@ -865,8 +865,8 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
               : const SizedBox.shrink(),
         ),
 
-        _buildAllocationField(),
-        const SizedBox(height: 10),
+        // _buildAllocationField(),
+        // const SizedBox(height: 10),
         _buildEmailField(),
         const SizedBox(height: 10),
         _buildPhoneField(),
@@ -1165,9 +1165,7 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
           controller: controller.nomineeAddressTextEditingController,
           validationType: ValidationType.required,
           hint: 'Flat, House no., Building., etc (Max 40 chars)',
-          inputFormatters: [
-            LengthLimitingTextInputFormatter(40),
-          ],
+          inputFormatters: [LengthLimitingTextInputFormatter(40)],
         ),
         const SizedBox(height: 12),
 

@@ -49,6 +49,7 @@ class UserEntity extends Equatable {
   final String? riskSlabId;
   final String? riskScore;
   final String? canNumber;
+  final String? canStatus;
   final RiskProfileEntity? riskProfileEntity;
   final CustomerDetailsEntity1? customerDetailsEntity;
 
@@ -70,6 +71,7 @@ class UserEntity extends Equatable {
     this.riskSlabId,
     this.riskScore,
     this.canNumber,
+    this.canStatus,
     this.riskProfileEntity,
     this.customerDetailsEntity,
   });
@@ -92,6 +94,7 @@ class UserEntity extends Equatable {
     status,
     riskSlabId,
     canNumber,
+    canStatus,
     riskScore,
     riskProfileEntity,
     customerDetailsEntity,
@@ -178,6 +181,7 @@ extension UserModelx on UserModel {
       status: status ?? 'inactive',
       riskSlabId: riskSlabId ?? '',
       canNumber: canNumber,
+      canStatus: canStatus,
 
       riskProfileEntity: riskProfileModel?.toEntity(),
       customerDetailsEntity: customerDetailsModel?.toEntity(),

@@ -5,6 +5,7 @@ import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/mfu/data/model/can_register_model.dart';
+import 'package:my_sip/features/mfu/data/model/can_status_model.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 
@@ -56,4 +57,47 @@ class MfuRemoteDataSource {
       );
     }
   }
+
+  // Add inside MfuRemoteDataSource
+
+/// POST /api/v1/mfu/call
+/// Body: { "endpoint": "ApiFintechCanStatusService", "apiType": "CAN-STATUS", "body": { "can": "..." } }
+Future<Either<Result<MfuCanStatusModel>, ApiError>> getCanStatus({
+  required String can,
+}) async {
+  try {
+    final body = {
+      "endpoint": "ApiFintechCanStatusService",
+      "apiType": "CAN-STATUS",
+      "body": {"can": can},
+    };
+
+    createLog("[MfuRemoteDataSource] getCanStatus Request: $body");
+
+    final resp = await _apiService.postApi(
+      "${Appurl.baseUrl}/api/v1/mfu/call",
+      data: body,
+    );
+
+    createLog("[MfuRemoteDataSource] getCanStatus Response: $resp");
+
+    if (resp != null) {
+      final result = MfuCanStatusModel.fromJson(resp);
+
+      if (result.success == true) {
+        return Left(Result.success(result));
+      } else {
+        return Right(
+          ApiError(message: result.response?.respHeader?.errorMsg ?? 'CAN Status Failed'),
+        );
+      }
+    } else {
+      return Right(ApiError(message: 'getCanStatus: Invalid response structure'));
+    }
+  } catch (e) {
+    return Right(ApiError(message: 'getCanStatus Exception: $e'));
+  }
+}
+
+
 }
