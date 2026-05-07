@@ -444,32 +444,32 @@ class PersonalDetailsScreen extends GetView<AuthController> {
 
   @override
   Widget build(BuildContext context) {
-    final user = SessionManager.instance.userObs.value;
+    // final user = SessionManager.instance.userObs.value;
 
     // Initialize controllers only if empty
     // if (personalisationController.nameController.text.isEmpty) {
-    personalisationController.nameController.text = user?.name ?? '';
-    personalisationController.emailController.text = user?.email ?? '';
-    personalisationController.mobileController.text = user?.mobile ?? '';
-    personalisationController.panController.text = user?.panCard ?? '';
-    personalisationController.yearlyIncome.text =
-        ProfileUtils.getIncomeSlabName(
-          int.tryParse(user?.customerDetailsModel?.yearlyIncome ?? ''),
-        );
-    personalisationController.wealthSource.text =
-        ProfileUtils.getWealthSourceName(
-          int.tryParse(user?.customerDetailsModel?.wealthSource ?? ''),
-        );
-    personalisationController.dobController.text =
-        user?.customerDetailsModel?.dob ?? '';
-    personalisationController.addressController.text =
-        user?.customerDetailsModel?.address ?? '';
-    personalisationController.adharController.text =
-        user?.customerDetailsModel?.adhar ?? '';
-    personalisationController.occupationTextEditingController.text =
-        ProfileUtils.getOccupationName(
-          int.tryParse(user?.customerDetailsModel?.occupation ?? ''),
-        );
+    // personalisationController.nameController.text = user?.name ?? '';
+    // personalisationController.emailController.text = user?.email ?? '';
+    // personalisationController.mobileController.text = user?.mobile ?? '';
+    // personalisationController.panController.text = user?.panCard ?? '';
+    // personalisationController.yearlyIncome.text =
+    //     ProfileUtils.getIncomeSlabName(
+    //       int.tryParse(user?.customerDetailsModel?.yearlyIncome ?? ''),
+    //     );
+    // personalisationController.wealthSource.text =
+    //     ProfileUtils.getWealthSourceName(
+    //       int.tryParse(user?.customerDetailsModel?.wealthSource ?? ''),
+    //     );
+    // personalisationController.dobController.text =
+    //     user?.customerDetailsModel?.dob ?? '';
+    // personalisationController.addressController.text =
+    //     user?.customerDetailsModel?.address ?? '';
+    // personalisationController.adharController.text =
+    //     user?.customerDetailsModel?.adhar ?? '';
+    // personalisationController.occupationTextEditingController.text =
+    //     ProfileUtils.getOccupationName(
+    //       int.tryParse(user?.customerDetailsModel?.occupation ?? ''),
+    //     );
     // }
 
     // 🚀 Check if Desktop or Mobile

@@ -26,6 +26,7 @@ import 'package:my_sip/features/home/presentation/widgets/product_tool/swp_calci
 import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_calculator.dart';
 import 'package:my_sip/features/kyc/presentation/binding/kyc_bindings.dart';
 import 'package:my_sip/features/kyc/presentation/pages/kyc_screen.dart';
+import 'package:my_sip/features/mfu/presentation/Binding/mfu_binding.dart';
 import 'package:my_sip/features/nfo/presentation/bindings/nfo_list_binding.dart';
 import 'package:my_sip/features/nfo/presentation/page/nfo_details_page.dart';
 import 'package:my_sip/features/nfo/presentation/page/nfo_list_page.dart';
@@ -72,6 +73,7 @@ class AppPages {
         WishlistBinding(),
         // SipProcessBinding(),
         GoalBinding(),
+        MfuBindings(),
       ],
       name: AppRoutes.navMenuBar,
       page: () => const NavigationMenuBar(),
@@ -115,7 +117,11 @@ class AppPages {
       binding: WishlistBinding(),
     ),
     GetPage(name: AppRoutes.cart, page: () => CartPage()),
-    GetPage(name: AppRoutes.notification, page: () => NotificationPage(), binding:HomeBindings() ),
+    GetPage(
+      name: AppRoutes.notification,
+      page: () => NotificationPage(),
+      binding: HomeBindings(),
+    ),
     GetPage(
       name: AppRoutes.accumulationanddistributionscreen,
       page: () => const Accumulationanddistributionscreen(),

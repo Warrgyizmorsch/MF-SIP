@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
+import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_submit_rq.dart';
 import 'package:my_sip/features/personalization/domain/entity/bank_entity.dart';
@@ -255,6 +256,8 @@ import 'dart:async';
 //     );
 //   }
 // }
+import 'package:my_sip/features/personalization/domain/entity/profile_update_entity.dart'
+    as profileEntity;
 
 class PersonalisationController extends GetxController {
   final PersonalisationUseCases _useCases;
@@ -460,7 +463,7 @@ class PersonalisationController extends GetxController {
 
   // --- Fetch User's Linked Bank ---
   // --- Fetch User Profile & Evaluate Onboarding Status ---
-  Future<void> fetchUserBankDetails() async {
+  Future<void> fetchUserDetails() async {
     isProfileLoading.value = true;
     final userId = session.getUserData?.id;
     if (userId == null) return;
@@ -510,6 +513,8 @@ class PersonalisationController extends GetxController {
             log('Has Bank: ${hasBank.value}');
             log('Has Nominee: ${hasNominee.value}');
             log('Has Risk Profile: ${hasRiskProfile.value}');
+
+            _checkAndTriggerCanRegistration();
           } else {
             linkedBankAccount.value = null;
           }
@@ -526,7 +531,55 @@ class PersonalisationController extends GetxController {
     }
   }
 
-  // Future<void> fetchUserBankDetails() async {
+  // ------------ Can Check and Create -------------  //
+  void _checkAndTriggerCanRegistration() {
+    // ✅ CAN already exists on server → skip forever
+    final existingCan = session.getUserData?.canNumber ?? '';
+    if (existingCan.isNotEmpty) {
+      log("[CAN] Already exists ($existingCan) — skipping registration");
+      return;
+    }
+
+    final kycDone = isKycVerified.value;
+    final bankDone = hasBank.value;
+    final personalDetailsDone = hasPersonalDetails.value;
+
+    log(
+      "[CAN] Check → KYC: $kycDone | Bank: $bankDone | PersonalDetails: $personalDetailsDone",
+    );
+
+    if (kycDone && bankDone && personalDetailsDone) {
+      log("[CAN] ✅ All conditions met — triggering CAN registration");
+      _triggerCanRegistration();
+    } else {
+      final missing = [
+        if (!kycDone) 'KYC',
+        if (!bankDone) 'Bank',
+        if (!personalDetailsDone) 'Personal Details',
+      ].join(', ');
+      log("[CAN] ⏳ Skipped — missing: $missing");
+    }
+  }
+
+  Future<void> _triggerCanRegistration() async {
+    try {
+      final mfuController = Get.find<MfuController>();
+      await mfuController.canRegister(reqEvent: "CR");
+
+      if (mfuController.errorMessage.value.isEmpty) {
+        // ✅ Refresh session so canNumber is populated from server
+        // await session.refreshUserData();
+        await fetchUserDetails();
+        log("[CAN] ✅ Registered successfully");
+      } else {
+        log("[CAN] ❌ Failed: ${mfuController.errorMessage.value}");
+      }
+    } catch (e) {
+      log("[CAN] ❌ Exception: $e");
+    }
+  }
+
+  // Future<void> fetchUserDetails() async {
   //   final userId = session.getUserData?.id;
   //   if (userId == null) return;
 
@@ -587,18 +640,18 @@ class PersonalisationController extends GetxController {
       log("Submitting Bank Data: $data");
 
       final result = await _useCases.updateProfileUsecases.call(data);
-      fetchUserBankDetails();
+      fetchUserDetails();
 
       result.fold(
         (success) {
           clearBankFields();
           Get.back();
-          // fetchUserBankDetails();
+          // fetchUserDetails();
           if (success.data?.data?.bankAccount != null) {
             linkedBankAccount.value = success.data!.data?.bankAccount;
           } else {
             // Fallback just in case
-            fetchUserBankDetails();
+            fetchUserDetails();
           }
           Get.snackbar(
             "Success",
@@ -757,7 +810,7 @@ class PersonalisationController extends GetxController {
           // Get.snackbar("Success", "Profile Updated");
           Get.back();
           ULoaders.success(title: 'Success', message: 'Profile Updated');
-          // fetchUserBankDetails();
+          // fetchUserDetails();
 
           Get.back();
         }
@@ -804,7 +857,7 @@ class PersonalisationController extends GetxController {
       };
 
       final result = await _useCases.updateProfileUsecases.call(data);
-      fetchUserBankDetails();
+      fetchUserDetails();
 
       result.fold(
         (success) {
@@ -874,7 +927,7 @@ class PersonalisationController extends GetxController {
     loadRiskQuestions();
     _checkPanEditPermission();
     fetchBanks();
-    fetchUserBankDetails();
+    fetchUserDetails();
     bankIfscController.addListener(() {
       final text = bankIfscController.text;
       if (text.length == 11) {
@@ -1055,7 +1108,7 @@ class PersonalisationController extends GetxController {
 
     // Call your submit usecase
     final result = await _useCases.riskSubmitUsecases.call(request);
-    fetchUserBankDetails();
+    fetchUserDetails();
 
     result.fold(
       (entity) async {
@@ -1152,7 +1205,7 @@ class PersonalisationController extends GetxController {
       };
 
       final result = await _useCases.addNomineeUseCase.call(requestData);
-      fetchUserBankDetails();
+      fetchUserDetails();
 
       result.fold(
         (success) {
@@ -1186,7 +1239,7 @@ class PersonalisationController extends GetxController {
       final requestData = {'id': nominee.id};
 
       final result = await _useCases.deleteNomineeUseCase.call(requestData);
-      fetchUserBankDetails();
+      fetchUserDetails();
 
       result.fold(
         (success) {
@@ -1208,9 +1261,9 @@ class PersonalisationController extends GetxController {
   }
 
   // Call this right after you successfully fetch the profile data from your API
-  void loadDataIntoProfileScreen(dynamic userProfileData) {
-    if (userProfileData == null) return;
-
+  void loadDataIntoProfileScreen(
+    profileEntity.ProfileDataEntity userProfileData,
+  ) {
     // 1. Basic User Info (Usually comes from the main user object)
     // Assuming userProfileData has fields like name, email, phone, pan
     nameController.text = userProfileData.name ?? '';
@@ -1229,28 +1282,35 @@ class PersonalisationController extends GetxController {
 
       // Inject into the specific controllers used in _buildMobileLayout
       // wealthSource.text = details.wealthSource ?? '';
-      wealthSource.text = getWealthSourceName(details.wealthSource);
+      wealthSource.text = getWealthSourceName(
+        int.tryParse(details.wealthSource ?? ''),
+      );
+      log(
+        "${details.wealthSource}   --------------------- Wealth Source ${wealthSource.text}",
+      );
       // yearlyIncome.text = details.yearlyIncome?.toString() ?? '';
-      yearlyIncome.text = getIncomeSlabName(details.yearlyIncome);
-      occupationTextEditingController.text = ProfileUtils.getOccupationName(
-        details.occupation,
+      yearlyIncome.text = getIncomeSlabName(
+        int.tryParse(details.yearlyIncome ?? ''),
+      );
+      occupationTextEditingController.text = getOccupationName(
+        int.tryParse(details.occupation ?? ''),
       );
       addressController.text = details.address ?? '';
 
       // The UI hint says "City, State, Pincode", so we format it if it's split in the backend
       String fullAddress = details.address ?? '';
-      if (details.city != null && details.city!.isNotEmpty) {
-        fullAddress += ', ${details.city}';
-      }
-      if (details.state != null && details.state!.isNotEmpty) {
-        fullAddress += ', ${details.state}';
-      }
-      if (details.pincode != null && details.pincode!.isNotEmpty) {
-        fullAddress += ' - ${details.pincode}';
-      }
+      // if (details.city != null && details.city!.isNotEmpty) {
+      //   fullAddress += ', ${details.city}';
+      // }
+      // if (details.state != null && details.state!.isNotEmpty) {
+      //   fullAddress += ', ${details.state}';
+      // }
+      // if (details.pincode != null && details.pincode!.isNotEmpty) {
+      //   fullAddress += ' - ${details.pincode}';
+      // }
 
       // Clean up leading commas if address was initially null
-      if (fullAddress.startsWith(', ')) fullAddress = fullAddress.substring(2);
+      // if (fullAddress.startsWith(', ')) fullAddress = fullAddress.substring(2);
 
       addressController.text = fullAddress;
     }

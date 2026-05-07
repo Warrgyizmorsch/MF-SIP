@@ -580,12 +580,33 @@ class KycController extends GetxController {
 
       // 3. Handle the Fold (Left = Success Result, Right = ApiError)
       return await result.fold(
-        (success) {
+        (success) async {
           // Extract the entity from your Result class
           final entity = success.data;
           final currentStatus = entity?.currentStatus ?? "";
 
           if (currentStatus == "Approved") {
+            final userId = session.getUserData?.id;
+
+            if (userId != null) {
+              // 1. Update Device Storage
+              await SessionManager.instance.setKycPending(false);
+              await SessionManager.instance.setKycVerified(true);
+
+              // 2. Update UI instantly & Sync with Backend
+              if (Get.isRegistered<PersonalisationController>()) {
+                final controller = Get.find<PersonalisationController>();
+                controller.isKycPending.value = false;
+                controller.isKycVerified.value = true;
+
+                final updateData = {'id': userId, 'kyc_status': 'Approved'};
+
+                await controller.useCases.updateProfileUsecases.call(
+                  updateData,
+                );
+              }
+            }
+
             return false; // KYC is done! Do NOT launch Signzy.
           } else {
             return true; // KYC is needed (e.g., "timed out" or "pending")
