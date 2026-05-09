@@ -161,12 +161,11 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
             suffix: '₹',
             onChanged: (value) => setState(() => monthlyInvestment = value),
           ),
-          SipSliderTile2(
+          SipSliderTile3(
             title: 'Expected return rate (p.a)',
             value: returnRate,
-            min: 1,
-            max: 30,
-            suffix: '%',
+            pMin: 1, pMax: 30,      // % Range
+            rMin: 500, rMax: 50000,
             onChanged: (val) => setState(() => returnRate = val),
           ),
           SipSliderTile2(
