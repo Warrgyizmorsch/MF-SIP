@@ -248,7 +248,7 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
             /// Title + Switch Row
             Row(
               children: [
-                Expanded(flex:3,child: Text(widget.title, style: const TextStyle(fontSize: 12,))),
+                Text(widget.title, style: const TextStyle(fontSize: 12,)),
                 const SizedBox(width: 4),
                 Transform.scale(
                   scale: 0.8,
