@@ -524,9 +524,12 @@ class KycDetailsScreen extends StatelessWidget {
               String prettyPrint = const JsonEncoder.withIndent(
                 '  ',
               ).convert(responseData.toJson());
-              createLog('✅ Onboarding Response:\n$prettyPrint');
+              log('✅ Onboarding Response:\n$prettyPrint');
             } else {
               log('❌ Onboarding Response is currently NULL');
+              log(
+                '${SessionManager.instance.tokenDataModel.value?.id}----------${SessionManager.instance.getTokenData?.id}',
+              );
             }
           },
 

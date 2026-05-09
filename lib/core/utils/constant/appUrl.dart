@@ -1,5 +1,5 @@
 class Appurl {
-  static const bool isProduction = false;
+  static const bool isProduction = true;
   static const baseUrl = "https://sip-backend.londonstreetstore.com";
 
   static const baseUrl2 = 'https://mfapi.advisorkhoj.com';

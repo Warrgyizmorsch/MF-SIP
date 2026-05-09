@@ -429,6 +429,37 @@ class SessionManager extends GetxService {
     }
   }
 
+  Future<void> handleKycApproved() async {
+    log(
+      "🎉 KYC Approved! Updating session and clearing temporary Signzy data...",
+    );
+
+    isKycVerified.value = true;
+    isKycPending.value = false;
+
+    tokenDataModel.value = null;
+    onboardingRespone.value = null;
+
+    if (kIsWeb) {
+      await _ensurePrefsInitialized();
+      await Future.wait([
+        _prefs!.setBool('kyc_verified', true),
+        _prefs!.setBool('kyc_pending', false),
+
+        _prefs!.remove('tokenData'),
+        _prefs!.remove('onBoardingData'),
+      ]);
+    } else {
+      await Future.wait([
+        _secureStorage!.write(key: 'kyc_verified', value: 'true'),
+        _secureStorage!.write(key: 'kyc_pending', value: 'false'),
+
+        _secureStorage!.delete(key: 'tokenData'),
+        _secureStorage!.delete(key: 'onBoardingData'),
+      ]);
+    }
+  }
+
   Future<void> clearSession() async {
     log("🚨 WARNING: CLEAR SESSION CALLED! Wiping all data! 🚨");
     debugPrint(StackTrace.current.toString());
@@ -457,7 +488,7 @@ class SessionManager extends GetxService {
         _prefs!.remove('jwtAccessToken'),
         _prefs!.remove('jwtRefreshToken'),
         _prefs!.remove('userId'),
-        _prefs!.remove('userData'), 
+        _prefs!.remove('userData'),
         _prefs!.remove('riskScore'),
         _prefs!.remove('tokenData'),
         _prefs!.remove('onBoardingData'),
@@ -474,7 +505,7 @@ class SessionManager extends GetxService {
         _secureStorage!.delete(key: 'tokenData'),
         _secureStorage!.delete(key: 'onBoardingData'),
         _secureStorage!.delete(key: 'kyc_verified'),
-        _secureStorage!.delete(key: 'kyc_pending'), 
+        _secureStorage!.delete(key: 'kyc_pending'),
       ]);
     }
 
@@ -547,16 +578,13 @@ class SessionManager extends GetxService {
   void disposeStream() {
     _controller.close();
   }
+
   static const String notifications = "notifications";
 
-  static Future<void> saveNotifications(
-      List<AppNotificationModel> list) async {
+  static Future<void> saveNotifications(List<AppNotificationModel> list) async {
     final prefs = await SharedPreferences.getInstance();
 
-    await prefs.setString(
-      notifications,
-      AppNotificationModel.encode(list),
-    );
+    await prefs.setString(notifications, AppNotificationModel.encode(list));
   }
 
   // Load

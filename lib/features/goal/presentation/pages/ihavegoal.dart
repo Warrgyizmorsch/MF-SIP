@@ -841,151 +841,240 @@ class PopularFund extends StatelessWidget {
         mainAxisSpacing: 16,
         crossAxisSpacing: 16,
       ),
+      // Inside PopularFund class -> GridView.builder -> itemBuilder
       itemBuilder: (context, index) {
         final fund = controller.searchFund[index];
-        final id = fund.amc?.id;
-        if (id == null) return const SizedBox();
-        final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
-        final img1 = fund.amc?.amcLogoUrl ?? '';
         final name = fund.baseSchemeName ?? 'Unknown Name';
+        final schemeCodeStr = fund.schemeCode.toString();
+        final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
         final returns = fund.returnsEntity?.threeYear ?? "";
 
-        return Obx(
-          () => GestureDetector(
-            onTap: () {
-              final isSelected = goalSipController.isSelectedFund(name);
-              final schemeCodeStr = fund.schemeCode.toString();
-              final int? currentGoalId =
-                  goalSipController.savedDatabaseId.value;
+        return Obx(() {
+          // ✅ 1. Check selection status
+          final isSelected = goalSipController.isSelectedFund(name);
+          final int? currentGoalId = goalSipController.savedDatabaseId.value;
 
-              if (!isSelected) {
-                // Check if goal is saved first
+          return Stack(
+            children: [
+              Container(
+                // ✅ 2. Margin settings from your history
+                margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 6),
+                child: PopularFundCard(
+                  // Or MutualFundCard depending on your grid design
+                  borderColor: isSelected
+                      ? Colors.transparent
+                      : Ucolors.borderColor,
+                  isNetwork: true,
+                  imgPath: img,
+                  name: name,
+                  threeYear: returns,
+                  // If using MutualFundCard, use onTapOverride.
+                  // If using PopularFundCard with a GestureDetector:
+                ),
+              ),
 
-                goalSipController.toggleFund(name);
+              // Transparent tap layer
+              Positioned.fill(
+                child: GestureDetector(
+                  onTap: () {
+                    FocusScope.of(context).unfocus();
+                    if (!isSelected) {
+                      // ✅ 3. Add to Cart Logic
+                      goalSipController.toggleFund(name);
+                      cartController.addToCart(
+                        title: 'Goal',
+                        fund.schemeCode ?? '',
+                        name,
+                        goalSipController.monthlySip.value,
+                        currentGoalId,
+                      );
+                    } else {
+                      // ✅ 4. Remove from Cart Logic
+                      final cartItem = cartController
+                          .cartResponseEntity
+                          .value
+                          ?.items
+                          .firstWhereOrNull(
+                            (item) =>
+                                item.schemeCode.toString() == schemeCodeStr,
+                          );
 
-                cartController.addToCart(
-                  title: 'Goal',
-                  fund.schemeCode ?? '',
-                  fund.baseSchemeName ?? '',
-                  // fund.minSipAmount ?? 0,
-                  goalSipController.monthlySip.toInt(),
+                      if (cartItem != null && cartItem.id != null) {
+                        cartController.deleteCartItem(cartItem.id!, name);
+                        goalSipController.toggleFund(name);
+                      }
+                    }
+                  },
+                ),
+              ),
 
-                  currentGoalId,
-                );
-              } else {
-                // REMOVE LOGIC
-                final cartItem = cartController.cartResponseEntity.value?.items
-                    .firstWhereOrNull(
-                      (item) => item.schemeCode.toString() == schemeCodeStr,
-                    );
-
-                if (cartItem != null && cartItem.id != null) {
-                  cartController.deleteCartItem(cartItem.id!, name);
-                  goalSipController.toggleFund(name);
-                }
-              }
-            },
-            // onTap: () {
-            //   final isSelected = goalSipController.isSelectedFund(name);
-            //   final schemeCodeStr = fund.schemeCode.toString();
-
-            //   if (!isSelected) {
-            //     // ADD TO CART
-            //     goalSipController.toggleFund(name);
-            //     cartController.addToCart(
-            //       fund.schemeCode ?? '',
-            //       fund.baseSchemeName ?? '',
-            //       fund.minSipAmount ?? 0,
-            //       1
-            //     );
-            //   } else {
-            //     // REMOVE FROM CART
-            //     // 1. Find the item in the cart that matches this scheme code
-            //     final cartItem = cartController.cartResponseEntity.value?.items
-            //         .firstWhereOrNull(
-            //           (item) => item.schemeCode.toString() == schemeCodeStr,
-            //         );
-
-            //     if (cartItem != null && cartItem.id != null) {
-            //       // 2. Use the actual cart item ID to delete
-            //       cartController.deleteCartItem(cartItem.id!, name);
-            //       // 3. Untoggle the UI state
-            //       goalSipController.toggleFund(name);
-            //     } else {
-            //       // Fallback: If not found in cart list, just untoggle UI
-            //       goalSipController.toggleFund(name);
-            //       log(
-            //         "Item not found in cart response, couldn't delete from server.",
-            //       );
-            //     }
-            //   }
-            // },
-            // onTap: () async {
-            //   final isSelected = goalSipController.isSelectedFund(name);
-            //   goalSipController.toggleFund(name);
-
-            //   // !isSelected
-            //   //     ?
-            //   //       //  cartController.addItem(
-            //   //       //     CartItem(
-            //   //       //       fundId: id.toString(),
-            //   //       //       fundName: name,
-            //   //       //       logoUrl: img1,
-            //   //       //     ),
-            //   //       //   )
-            //   //       await cartController.addToCart(
-            //   //         fund.schemeCode ?? '',
-            //   //         fund.baseSchemeName ?? '',
-            //   //         fund.minSipAmount ?? 0,
-            //   //         1
-            //   //       )
-            //   //     :
-            //   //       // cartController.removeItemByName(name);
-            //   //       await cartController.deleteCartItem(
-            //   //         cartController
-            //   //                 .cartResponseEntity
-            //   //                 .value
-            //   //                 ?.items[index]
-            //   //                 .id ??
-            //   //             0,
-            //   //         fund.baseSchemeName ?? '',
-            //   //       );
-            //   if (!isSelected) {
-            //     cartController.addItem(
-            //       CartItem(
-            //         fundId: id.toString(),
-            //         fundName: name,
-            //         logoUrl: img1,
-            //       ),
-            //     );
-            //     // PASS THE GOAL ID HERE
-            //     cartController.addToCart(
-            //       fund.schemeCode ?? '',
-            //       fund.baseSchemeName ?? '',
-            //       fund.minSipAmount ?? 0,
-            //       1, // Use the dynamic ID from your saved goal if available
-            //     );
-            //   } else {
-            //     // cartController.deleteCartItem(
-            //     //   // fund.amc?.id ?? 0,
-            //     //   cartController.cartResponseEntity.value.items.indexWhere(fund.schemeCode.toString())
-            //     //   fund.baseSchemeName ?? '',
-            //     // );
-            //     cartController.removeItemByName(name);
-            //   }
-            // },
-            child: PopularFundCard(
-              borderColor: goalSipController.isSelectedFund(name)
-                  ? Ucolors.primary
-                  : Ucolors.borderColor,
-              isNetwork: true,
-              imgPath: img,
-              name: name,
-              threeYear: returns,
-            ),
-          ),
-        );
+              // ✅ 5. THE SELECTION OVERLAY (From your Github Diff)
+              if (isSelected)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: Container(
+                      // margin: const EdgeInsets.symmetric(
+                      //   horizontal: 16,
+                      //   vertical: 10,
+                      // ),
+                      decoration: BoxDecoration(
+                        color: Ucolors.primary.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Ucolors.primary, width: 2),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        });
       },
+
+      // itemBuilder: (context, index) {
+      //   final fund = controller.searchFund[index];
+      //   final id = fund.amc?.id;
+      //   if (id == null) return const SizedBox();
+      //   final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
+      //   final img1 = fund.amc?.amcLogoUrl ?? '';
+      //   final name = fund.baseSchemeName ?? 'Unknown Name';
+      //   final returns = fund.returnsEntity?.threeYear ?? "";
+
+      //   return Obx(
+      //     () => GestureDetector(
+      //       onTap: () {
+      //         final isSelected = goalSipController.isSelectedFund(name);
+      //         final schemeCodeStr = fund.schemeCode.toString();
+      //         final int? currentGoalId =
+      //             goalSipController.savedDatabaseId.value;
+
+      //         if (!isSelected) {
+      //           // Check if goal is saved first
+
+      //           goalSipController.toggleFund(name);
+
+      //           cartController.addToCart(
+      //             title: 'Goal',
+      //             fund.schemeCode ?? '',
+      //             fund.baseSchemeName ?? '',
+      //             // fund.minSipAmount ?? 0,
+      //             goalSipController.monthlySip.toInt(),
+
+      //             currentGoalId,
+      //           );
+      //         } else {
+      //           // REMOVE LOGIC
+      //           final cartItem = cartController.cartResponseEntity.value?.items
+      //               .firstWhereOrNull(
+      //                 (item) => item.schemeCode.toString() == schemeCodeStr,
+      //               );
+
+      //           if (cartItem != null && cartItem.id != null) {
+      //             cartController.deleteCartItem(cartItem.id!, name);
+      //             goalSipController.toggleFund(name);
+      //           }
+      //         }
+      //       },
+      //       // onTap: () {
+      //       //   final isSelected = goalSipController.isSelectedFund(name);
+      //       //   final schemeCodeStr = fund.schemeCode.toString();
+
+      //       //   if (!isSelected) {
+      //       //     // ADD TO CART
+      //       //     goalSipController.toggleFund(name);
+      //       //     cartController.addToCart(
+      //       //       fund.schemeCode ?? '',
+      //       //       fund.baseSchemeName ?? '',
+      //       //       fund.minSipAmount ?? 0,
+      //       //       1
+      //       //     );
+      //       //   } else {
+      //       //     // REMOVE FROM CART
+      //       //     // 1. Find the item in the cart that matches this scheme code
+      //       //     final cartItem = cartController.cartResponseEntity.value?.items
+      //       //         .firstWhereOrNull(
+      //       //           (item) => item.schemeCode.toString() == schemeCodeStr,
+      //       //         );
+
+      //       //     if (cartItem != null && cartItem.id != null) {
+      //       //       // 2. Use the actual cart item ID to delete
+      //       //       cartController.deleteCartItem(cartItem.id!, name);
+      //       //       // 3. Untoggle the UI state
+      //       //       goalSipController.toggleFund(name);
+      //       //     } else {
+      //       //       // Fallback: If not found in cart list, just untoggle UI
+      //       //       goalSipController.toggleFund(name);
+      //       //       log(
+      //       //         "Item not found in cart response, couldn't delete from server.",
+      //       //       );
+      //       //     }
+      //       //   }
+      //       // },
+      //       // onTap: () async {
+      //       //   final isSelected = goalSipController.isSelectedFund(name);
+      //       //   goalSipController.toggleFund(name);
+
+      //       //   // !isSelected
+      //       //   //     ?
+      //       //   //       //  cartController.addItem(
+      //       //   //       //     CartItem(
+      //       //   //       //       fundId: id.toString(),
+      //       //   //       //       fundName: name,
+      //       //   //       //       logoUrl: img1,
+      //       //   //       //     ),
+      //       //   //       //   )
+      //       //   //       await cartController.addToCart(
+      //       //   //         fund.schemeCode ?? '',
+      //       //   //         fund.baseSchemeName ?? '',
+      //       //   //         fund.minSipAmount ?? 0,
+      //       //   //         1
+      //       //   //       )
+      //       //   //     :
+      //       //   //       // cartController.removeItemByName(name);
+      //       //   //       await cartController.deleteCartItem(
+      //       //   //         cartController
+      //       //   //                 .cartResponseEntity
+      //       //   //                 .value
+      //       //   //                 ?.items[index]
+      //       //   //                 .id ??
+      //       //   //             0,
+      //       //   //         fund.baseSchemeName ?? '',
+      //       //   //       );
+      //       //   if (!isSelected) {
+      //       //     cartController.addItem(
+      //       //       CartItem(
+      //       //         fundId: id.toString(),
+      //       //         fundName: name,
+      //       //         logoUrl: img1,
+      //       //       ),
+      //       //     );
+      //       //     // PASS THE GOAL ID HERE
+      //       //     cartController.addToCart(
+      //       //       fund.schemeCode ?? '',
+      //       //       fund.baseSchemeName ?? '',
+      //       //       fund.minSipAmount ?? 0,
+      //       //       1, // Use the dynamic ID from your saved goal if available
+      //       //     );
+      //       //   } else {
+      //       //     // cartController.deleteCartItem(
+      //       //     //   // fund.amc?.id ?? 0,
+      //       //     //   cartController.cartResponseEntity.value.items.indexWhere(fund.schemeCode.toString())
+      //       //     //   fund.baseSchemeName ?? '',
+      //       //     // );
+      //       //     cartController.removeItemByName(name);
+      //       //   }
+      //       // },
+      //       child: PopularFundCard(
+      //         borderColor: goalSipController.isSelectedFund(name)
+      //             ? Ucolors.primary
+      //             : Ucolors.borderColor,
+      //         isNetwork: true,
+      //         imgPath: img,
+      //         name: name,
+      //         threeYear: returns,
+      //       ),
+      //     ),
+      //   );
+      // },
     );
   }
 }

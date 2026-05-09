@@ -592,7 +592,7 @@ class Upgradebanner extends StatelessWidget {
           : UElevatedBUtton(
               // Allow users to re-take the test/refresh if they wish
               onPressed: () => Get.toNamed(AppRoutes.riskProfile),
-              height: isDesktop ? 80 : sz.height * 0.08,
+              height: isDesktop ? 80 : sz.height * 0.1,
               color: Ucolors.blue, // 'Completed' state color
               child: Center(
                 child: ListTile(

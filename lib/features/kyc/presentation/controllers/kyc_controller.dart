@@ -38,7 +38,7 @@ class KycController extends GetxController {
     final savedPan = session.getUserData?.panCard ?? '';
     panTextEditingController.text = savedPan;
 
-    _initializeApp();
+    // _initializeApp();
   }
 
   /// Wrapper to ensure sequential execution
@@ -164,7 +164,15 @@ class KycController extends GetxController {
     "Royalty",
     "Other",
   ];
-  final incomeSlabList = [
+  // final incomeSlabList = [
+  //   "Below 1 Lakh",
+  //   "1 Lacs - 5 Lacs",
+  //   "5 Lacs - 10 Lacs",
+  //   "10 Lacs - 25 Lacs",
+  //   "25 Lacs - 1 Cr.",
+  //   "Above 1 Cr.",
+  // ];
+  final List<String> incomeSlabList = [
     "Below 1 Lakh",
     "1 Lacs - 5 Lacs",
     "5 Lacs - 10 Lacs",
@@ -308,6 +316,10 @@ class KycController extends GetxController {
         // --- STEP 2: LIVE PHOTO ---
         if (!photoUploadSuccess.value) {
           Get.snackbar("Alert", "Please capture your live photo.");
+          return;
+        }
+        if (!signatureUploadSuccess.value) {
+          Get.snackbar("Alert", "Please upload your signature.");
           return;
         }
         _goToNextPage();
@@ -1530,6 +1542,7 @@ class KycController extends GetxController {
 
               if (isFullyVerified) {
                 await SessionManager.instance.setKycPending(true);
+                await SessionManager.instance.setKycVerified(false);
 
                 final userId = SessionManager.instance.getUserData?.id;
                 if (userId != null) {
@@ -1770,6 +1783,7 @@ class KycController extends GetxController {
 
         "type": "photo",
         "fileType": extension,
+        "ttl": "infinity",
       };
 
       final files = [imageBytes];
@@ -1811,9 +1825,7 @@ class KycController extends GetxController {
   // UPDATE FORM WITH USER PHOTO
   Future<void> _savePhotoToForm(String photoUrl, String merchantId) async {
     try {
-      // Strictly matching the Signzy Document payload
       final requestData = {
-        // "merchantId": merchantId,
         "merchantId":
             SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
 
@@ -1881,6 +1893,7 @@ class KycController extends GetxController {
 
         "type": "signature",
         "fileType": extension,
+        "ttl": "infinity",
       };
 
       final files = [imageBytes];
@@ -1903,8 +1916,6 @@ class KycController extends GetxController {
           }
 
           signatureUploadResponse.value = success.data;
-
-          // Get.snackbar("Success", "Signature Uploaded Successfully");
 
           // Save signature to KYC form
           log("image url ------------${imageUrl}");
@@ -2120,7 +2131,10 @@ class KycController extends GetxController {
 
       // final saveData = updateUserData(data);
       // 3. Save to YOUR backend
+
       await saveUserData(saveData);
+
+      ///comment for the test
 
       // if (poaExecuteResult) {
       //   // Send the Address Data as "addressProof"
@@ -2386,7 +2400,8 @@ class KycController extends GetxController {
   Future<bool> runVerificationEngine() async {
     try {
       isLoading.value = true;
-      // Get.snackbar("Verifying", "Running final compliance checks...");
+      debugPrint("[Verification Engine] Attempting to fetch token...");
+      await getTokenData();
 
       final merchantId =
           SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId ??
@@ -3049,10 +3064,32 @@ class KycController extends GetxController {
     }
   }
 
+  // String getIncomeCode(String text) {
+  //   final value = text.trim();
+
+  //   // Exact string matching based on your incomeSlabList
+  //   switch (value) {
+  //     case "Below 1 Lakh":
+  //       return "31";
+  //     case "1 Lacs - 5 Lacs":
+  //       return "32";
+  //     case "5 Lacs - 10 Lacs":
+  //       return "33";
+  //     case "10 Lacs - 25 Lacs":
+  //       return "34";
+  //     case "25 Lacs - 1 Cr.":
+  //       return "35";
+  //     case "Above 1 Cr.":
+  //       return "36";
+  //     default:
+  //       // Default fallback just in case
+  //       return "31";
+  //   }
+  // }
   String getIncomeCode(String text) {
+    // .trim() is a great safety measure to remove accidental spaces!
     final value = text.trim();
 
-    // Exact string matching based on your incomeSlabList
     switch (value) {
       case "Below 1 Lakh":
         return "31";
@@ -3067,7 +3104,7 @@ class KycController extends GetxController {
       case "Above 1 Cr.":
         return "36";
       default:
-        // Default fallback just in case
+        // Safest fallback: If something goes wrong, default to lowest income slab
         return "31";
     }
   }

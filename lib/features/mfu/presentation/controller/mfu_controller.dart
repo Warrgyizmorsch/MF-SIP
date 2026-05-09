@@ -40,7 +40,7 @@ class MfuController extends GetxController {
       mfuCanResponse.value?.canRegistrationResponse?.respHeader?.errorMsg ?? '';
 
   Timer? _canStatusTimer;
-  static const _pollInterval = Duration(minutes: 5);
+  static const _pollInterval = Duration(hours: 2);
 
   // ─── Actions ─────────────────────────────────────────────────────────────────
 

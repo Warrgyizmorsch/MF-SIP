@@ -1474,6 +1474,7 @@ import 'package:my_sip/features/goal/presentation/pages/coming_soon.dart';
 import 'package:my_sip/features/goal/presentation/pages/goal.dart';
 import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/kyc/data/datasource/kyc_remote_data_source.dart';
+import 'package:my_sip/features/kyc/presentation/controllers/kyc_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/document.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/personal_details.dart';
@@ -1508,7 +1509,7 @@ class NavigationBarController extends GetxController {
 
   void _startBackgroundCamsCheck() {
     _checkCamsStatusSilently();
-    _camsPollingTimer = Timer.periodic(const Duration(minutes: 10), (
+    _camsPollingTimer = Timer.periodic(const Duration(seconds: 15), (
       timer,
     ) async {
       await _checkCamsStatusSilently();
@@ -1530,17 +1531,32 @@ class NavigationBarController extends GetxController {
     }
 
     try {
+      final currentToken = SessionManager.instance.tokenDataModel.value?.id;
+      if (currentToken == null || currentToken.isEmpty) {
+        debugPrint("[CAMS Check] Token missing. Fetching now...");
+        if (Get.isRegistered<KycController>()) {
+          final bool gotToken = await Get.find<KycController>().getTokenData();
+
+          // If it STILL fails here, we abort the silent check and try again later.
+          if (!gotToken) {
+            debugPrint("[CAMS Check] Failed to get token. Aborting check.");
+            return;
+          }
+        }
+      }
       final kycDataSource = Get.find<KycRemoteDataSource>();
       final String status = await kycDataSource.checkCamsStatus(onboardingId);
       final statusLower = status.toLowerCase();
 
-      // ✅ SUCCESS
+      //  SUCCESS
       if (statusLower == "success" || statusLower == "approved") {
         _camsPollingTimer?.cancel();
 
+        await SessionManager.instance.handleKycApproved();
+
         // 1. Update Device Storage
-        await SessionManager.instance.setKycPending(false);
-        await SessionManager.instance.setKycVerified(true);
+        // await SessionManager.instance.setKycPending(false);
+        // await SessionManager.instance.setKycVerified(true);
 
         // 2. Update UI instantly!
         if (Get.isRegistered<PersonalisationController>()) {
@@ -1550,11 +1566,7 @@ class NavigationBarController extends GetxController {
         }
 
         // 🚀 3. SYNC WITH BACKEND
-        final updateData = {
-          'id': userId,
-          'kyc_status':
-              'Approved', 
-        };
+        final updateData = {'id': userId, 'kyc_status': 'Approved'};
         // Fire and forget (or await if you want to be totally safe)
         await Get.find<PersonalisationController>()
             .useCases
