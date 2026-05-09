@@ -15,6 +15,7 @@ import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/si
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/piechart_with_value.dart';
 import 'package:responsive_framework/responsive_framework.dart'; // Import Responsive Framework
 
+import '../../../../../core/utils/helper/helpers.dart';
 import '../../../../fund_details/presentation/pages/fund_deatails.dart';
 
 class SipCalculatorPage extends StatefulWidget {
@@ -67,7 +68,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
       body: SingleChildScrollView(
         padding: isDesktop
             ? const EdgeInsets.symmetric(vertical: 30, horizontal: 24)
-            : UPadding.screenPadding,
+            :const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
         child: DefaultTabController(
           length: 2,
           child: Column(
@@ -238,20 +239,20 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                     list: [
                       InvestValue(
                         title: 'Investment amount',
-                        value: formatIndianNumber(sipResult.invested),
+                        value: formatCurrency(sipResult.invested),
                         inrFomat: false,
                         color: Colors.grey.shade800,
                       ),
                       InvestValue(
                         title: 'Est Returns',
-                        value: formatIndianNumber(sipResult.returns),
+                        value: formatCurrency(sipResult.returns),
                         inrFomat: false,
                         color: Colors.grey.shade800,
                       ),
                       InvestValue(
                         title: 'Total Value',
                         inrFomat: false,
-                        value: formatIndianNumber(sipResult.totalValue),
+                        value: formatCurrency(sipResult.totalValue),
                         color: Ucolors.dark,
                       ),
                     ],
@@ -285,6 +286,8 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
                 ],
               ),
             ),
+
+
           ],
         ),
       ),
@@ -308,7 +311,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
     } else {
       return SingleChildScrollView(
         child: Column(
-          children: [const Gap(18), inputs, const Gap(24), results],
+          children: [const Gap(18), inputs, const Gap(18), results, const Gap(200),],
         ),
       );
     }
@@ -341,13 +344,12 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
             onChanged: (value) => setState(() => totalInvestment = value),
             suffix: '₹',
           ),
-          SipSliderTile2(
+          SipSliderTile3(
             title: 'Expected return rate (p.a)',
-            value: returnRatelumpsum,
-            min: 1,
-            max: 30,
-            suffix: '%',
-            onChanged: (val) => setState(() => returnRatelumpsum = val),
+            value: returnRate,
+            pMin: 1, pMax: 30,      // % Range
+            rMin: 500, rMax: 50000,
+            onChanged: (val) => setState(() => returnRate = val),
           ),
           SipSliderTile2(
             title: 'Total period',
@@ -379,19 +381,19 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
           InvestValue(
             title: 'Investment amount',
             inrFomat: false,
-            value: formatIndianNumber(lumpsumResult.invested),
+            value: formatCurrency(lumpsumResult.invested),
             color: Colors.grey.shade800,
           ),
           InvestValue(
             title: 'Est Returns',
             inrFomat: false,
-            value: formatIndianNumber(lumpsumResult.returns),
+            value: formatCurrency(lumpsumResult.returns),
             color: Colors.grey.shade800,
           ),
           InvestValue(
             inrFomat: false,
             title: 'Total Value',
-            value: formatIndianNumber(lumpsumResult.totalValue),
+            value: formatCurrency(lumpsumResult.totalValue),
             color: Ucolors.dark,
           ),
         ],

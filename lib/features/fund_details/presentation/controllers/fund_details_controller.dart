@@ -412,7 +412,6 @@ class FundDetailsController extends GetxController
       // YearlyReturn('Since\nLaunch', p.inceptionYearReturn ?? 0),
     ];
   }
-
   //Funds Trainlings Returns
   List<ReturnRow> buildTrailingReturns(FundDetailEntity fund) {
     final list = fund.schemePerformanceList;

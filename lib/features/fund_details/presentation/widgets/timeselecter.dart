@@ -5,6 +5,7 @@ import 'package:my_sip/features/fund_details/presentation/controllers/fund_detai
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../data/models/fund_performance.dart';
+import '../../data/models/return_model.dart';
 import '../controllers/chartInvestment_controller.dart';
 
 class PeriodSelector extends GetView<FundDetailsController> {
@@ -85,14 +86,14 @@ class PeriodSelector extends GetView<FundDetailsController> {
 }
 
 class PeriodSelectorBarChart extends GetView<ChartInvestmentController> {
-  final List<YearlyReturn> yearlyData;
+  final List<ReturnRow> yearlyData;
 
   const PeriodSelectorBarChart({super.key, required this.yearlyData});
 
   @override
   Widget build(BuildContext context) {
     final periods = yearlyData
-        .map((e) => e.year)
+        .map((e) => e.period)
         .toList();
 
     final isDesktop =
@@ -156,22 +157,10 @@ class PeriodSelectorBarChart extends GetView<ChartInvestmentController> {
                     ///  FIND SELECTED YEAR DATA
                     final selectedData = yearlyData
                         .firstWhere(
-                          (e) => e.year == period,
+                          (e) => e.period == period,
                     );
 
-                    ///  CALL METHOD
-                    final gain = controller.getGainAmount(
-                      selectedData.value,
-                      selectedData.year,
-                    );
 
-                    debugPrint(
-                      "Year: ${selectedData.year} "
-                          "Gain: $gain",
-                    );
-
-                    /// OPTIONAL STORE
-                    controller.selectedGain.value = gain;
 
                     controller.update();
                   },
@@ -215,22 +204,10 @@ class PeriodSelectorBarChart extends GetView<ChartInvestmentController> {
                       ///  FIND SELECTED YEAR DATA
                       final selectedData =yearlyData
                           .firstWhere(
-                            (e) => e.year == period,
+                            (e) => e.period == period,
                       );
 
                       ///  CALL METHOD
-                      final gain = controller.getGainAmount(
-                        selectedData.value,
-                        selectedData.year,
-                      );
-
-                      debugPrint(
-                        "Year: ${selectedData.year} "
-                            "Gain: $gain",
-                      );
-
-                      /// OPTIONAL STORE
-                      controller.selectedGain.value = gain;
 
                       controller.update();
                     },

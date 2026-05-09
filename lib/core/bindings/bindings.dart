@@ -28,6 +28,8 @@ import '../../features/authentication/domain/usecases/login_use_case.dart';
 import '../../features/authentication/domain/usecases/register_use_case.dart';
 import '../../features/authentication/domain/usecases/send_otp_use_case.dart';
 import '../../features/authentication/domain/usecases/verify_otp_use_case.dart';
+import '../../features/home/presentation/controllers/home_controller.dart';
+import '../../services/firebase_services.dart';
 import '../network/network_api_service.dart';
 
 class UBinding extends Bindings {
@@ -65,6 +67,12 @@ class UBinding extends Bindings {
     Get.lazyPut(
       () => VerifyOtpUseCase(authRepository: Get.find<AuthRepository>()),
     );
+    // Register dependencies BEFORE runApp
+
+    Get.lazyPut(
+      () => HomeController(),
+    );
+     Get.put(NotificationService()).init();
 
    
     Get.put<AuthUseCases>(

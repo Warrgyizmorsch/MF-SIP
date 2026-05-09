@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:my_sip/features/fund_details/data/models/return_model.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
+import '../../../../core/utils/helper/helpers.dart';
 import '../pages/fund_deatails.dart';
 
 class ReturnsTableRow extends StatelessWidget {
@@ -64,7 +65,7 @@ class ReturnsTableRow extends StatelessWidget {
                 child: Text(
                   percentage
                       ? '${data.scheme.toStringAsFixed(2)}%'
-                      : formatIndianNumber(data.scheme.toDouble()),
+                      : formatCurrency(data.scheme.toDouble()),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: fontSize ?? (isDesktop ? 14 : 12),
@@ -79,7 +80,7 @@ class ReturnsTableRow extends StatelessWidget {
                 child: Text(
                   percentage
                       ? '${data.category.toStringAsFixed(2)}%'
-                      : formatIndianNumber(data.category.toDouble()),
+                      : formatCurrency(data.category.toDouble()),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: fontSize ?? (isDesktop ? 14 : 12),
@@ -94,7 +95,7 @@ class ReturnsTableRow extends StatelessWidget {
                 child: Text(
                   percentage
                       ? '${data.benchmark.toStringAsFixed(2)}%'
-                      : formatIndianNumber(data.benchmark.toDouble()),
+                      : formatCurrency(data.benchmark.toDouble()),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: fontSize ?? (isDesktop ? 14 : 12),
