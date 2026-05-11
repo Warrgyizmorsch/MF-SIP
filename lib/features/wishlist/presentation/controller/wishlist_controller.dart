@@ -50,9 +50,7 @@ class WishlistController extends GetxController {
         },
         (failure) {
           // Check if the backend also reports a duplicate (Safety Check)
-          if (failure.message.toString().contains(
-            "Already added to wishlist",
-          )) {
+          if (failure.message.toString().contains("already added")) {
             showCustomToast(
               title: "Already in Wishlist",
               message: schemeName,
@@ -61,7 +59,8 @@ class WishlistController extends GetxController {
             );
           } else {
             showCustomToast(
-              title: "Error",
+              title: "Something went wrong}",
+
               message: failure.message.toString(),
               backgroundColor: Colors.red.shade700,
               icon: Icons.error_outline,

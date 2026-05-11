@@ -250,15 +250,45 @@ class CartPage extends GetView<CartController> {
 
         // --- EMPTY STATE ---
         if (items.isEmpty) {
-          return Center(
-            child: controller.filterGoalId.value != null
-                ? const Text("No funds for this goal")
-                : const AnimatedEmptyState(
-                    title: "Your Cart is Empty",
-                    message:
-                        "Looks like you haven't added any funds yet. Go explore!",
-                    icon: Icons.shopping_cart_outlined,
-                  ),
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Center(
+                child: controller.filterGoalId.value != null
+                    ? const Text("No funds for this goal")
+                    : const AnimatedEmptyState(
+                        title: "Your Cart is Empty",
+                        message:
+                            "Looks like you haven't added any funds yet. Go explore!",
+                        icon: Icons.shopping_cart_outlined,
+                      ),
+              ),
+
+              InkWell(
+                onTap: () {
+                  Get.toNamed(AppRoutes.explorePage);
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Explore more funds',
+                      style: AppTextStyles.bodyMediumBold().copyWith(
+                        color: Ucolors.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    const Icon(
+                      Icons.arrow_forward_rounded,
+                      size: 18,
+                      color: Ucolors.primary,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           );
         }
 
@@ -786,12 +816,18 @@ class InvestmentInputsRow extends StatelessWidget {
                     isExpanded: true,
                     underline: const SizedBox(),
                     items: const [
-                      DropdownMenuItem(value: 'sip', child: Text('SIP',style: TextStyle(fontSize: 12),)),
+                      DropdownMenuItem(
+                        value: 'sip',
+                        child: Text('SIP', style: TextStyle(fontSize: 12)),
+                      ),
                       DropdownMenuItem(
                         value: 'lumpsum',
-                        child: Text('Lumpsum',style: TextStyle(fontSize: 12)),
+                        child: Text('Lumpsum', style: TextStyle(fontSize: 12)),
                       ),
-                      DropdownMenuItem(value: 'stepup', child: Text('Step Up',style: TextStyle(fontSize: 12))),
+                      DropdownMenuItem(
+                        value: 'stepup',
+                        child: Text('Step Up', style: TextStyle(fontSize: 12)),
+                      ),
                     ],
                     onChanged: (val) {
                       if (val != null && val != currentType) {
@@ -842,7 +878,10 @@ class InvestmentInputsRow extends StatelessWidget {
                         28,
                         (i) => DropdownMenuItem(
                           value: '${i + 1}',
-                          child: Text('${i + 1}',style: TextStyle(fontSize: 12)),
+                          child: Text(
+                            '${i + 1}',
+                            style: TextStyle(fontSize: 12),
+                          ),
                         ),
                       ),
                       onChanged: (val) {
@@ -867,7 +906,6 @@ class InvestmentInputsRow extends StatelessWidget {
                       'Inv Amount',
                       style: UTextStyles.small.copyWith(
                         color: Color(0xff5B5B5B),
-                        
                       ),
                     ),
                     const SizedBox(height: 6),

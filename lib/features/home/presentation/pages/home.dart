@@ -1752,8 +1752,7 @@ class _MobileLayout extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(16, 20, 16, 0),
               child: SectionHeading(
                 sectionTitle: 'Collection',
-                fontWeight:   FontWeight.w600,
-
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -1771,7 +1770,7 @@ class _MobileLayout extends StatelessWidget {
                   title: 'Best SIP Funds',
                   iconImg: UImages.savingbank,
 
-                  onTap: () async{
+                  onTap: () async {
                     // // navController.changePage(1);
                     // Get.find<NavigationBarController>().changePage(1);
                     // Get.find<FundhouseController>().applyBestSipFilter(1);
@@ -1786,7 +1785,7 @@ class _MobileLayout extends StatelessWidget {
                 CollectionItem(
                   title: 'High Returns',
                   iconImg: UImages.highreturn,
-                  onTap: () async{
+                  onTap: () async {
                     // navController.changePage(1);
                     // Get.find<FundhouseController>().applyHighReturnFilter();
                     await Future.delayed(const Duration(milliseconds: 100));
@@ -1799,7 +1798,7 @@ class _MobileLayout extends StatelessWidget {
                   },
                 ),
                 CollectionItem(
-                  onTap: ()async {
+                  onTap: () async {
                     // navController.changePage(1);
                     // Get.find<FundhouseController>().applyCustomSearch(
                     //   'international',
@@ -1816,7 +1815,7 @@ class _MobileLayout extends StatelessWidget {
                   iconImg: UImages.interfund,
                 ),
                 CollectionItem(
-                  onTap: () async{
+                  onTap: () async {
                     // navController.changePage(1);
                     // Get.find<FundhouseController>().applyCustomSearch('index');
                     await Future.delayed(const Duration(milliseconds: 100));
@@ -1848,7 +1847,8 @@ class _MobileLayout extends StatelessWidget {
                 CollectionItem(
                   onTap: () async {
                     await Future.delayed(const Duration(milliseconds: 100));
-                    Get.toNamed(AppRoutes.nfolist);},
+                    Get.toNamed(AppRoutes.nfolist);
+                  },
                   title: 'NFO',
                   iconImg: UImages.equity,
                 ),
@@ -1947,11 +1947,7 @@ class _MobileLayout extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.add,
-                          size: 20,
-                          color: Ucolors.blue,
-                        ),
+                        Icon(Icons.add, size: 20, color: Ucolors.blue),
                         // Container(
                         //   padding: const EdgeInsets.all(8),
                         //   decoration: BoxDecoration(
@@ -2032,27 +2028,94 @@ class _MobileLayout extends StatelessWidget {
           ),
 
           // Popular Funds
+          // SliverToBoxAdapter(
+          //   child: Padding(
+          //     padding: EdgeInsets.fromLTRB(16, 20, 16, 0),
+          //     child: USectionHeading(
+          //       title: 'Popular Funds',
+          //       showActionButton: true,
+          //       // onPressed: () => navController.selectedIndex.value = 1,
+          //       // onPressed: () =>
+          //       //     navController.navigateToExploreWithFilter(null),
+          //       onPressed: () {
+          //         FocusScope.of(context).unfocus();
+          //         _showPopularFundsSheet(context);
+          //       },
+          //     ),
+          //   ),
+          // ),
+          // SliverPadding(
+          //   padding: const EdgeInsets.symmetric(horizontal: 16),
+          //   sliver: Obx(() {
+          //     return SliverGrid.builder(
+          //       itemCount: mutualController.searchFund.length.clamp(0, 4),
+          //       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          //         crossAxisCount: 2,
+          //         childAspectRatio: 1.55,
+          //         crossAxisSpacing: 16,
+          //         mainAxisSpacing: 16,
+          //       ),
+          //       itemBuilder: (context, index) {
+          //         final fund = mutualController.searchFund[index];
+          //         final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
+          //         final name = fund.baseSchemeName ?? 'Unknown Name';
+          //         final threeyear = fund.returnsEntity?.threeYear ?? '';
+          //         final schemeCode = fund.schemeCode.toString();
+          //         return PopularFundCard(
+          //           onTap: () => Get.toNamed(
+          //             AppRoutes.funddetails,
+          //             arguments: {
+          //               'scheme': name,
+          //               'imgUrl': img,
+          //               'scheme_code': schemeCode,
+          //             },
+          //           ),
+          //           isNetwork: true,
+          //           imgPath: img,
+          //           name: name,
+          //           threeYear: threeyear,
+          //         );
+          //       },
+          //     );
+          //   }),
+          // ),
           SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(16, 20, 16, 0),
-              child: USectionHeading(
-                title: 'Popular Funds',
-                showActionButton: true,
-                // onPressed: () => navController.selectedIndex.value = 1,
-                // onPressed: () =>
-                //     navController.navigateToExploreWithFilter(null),
-                onPressed: () {
-                  FocusScope.of(context).unfocus();
-                  _showPopularFundsSheet(context);
-                },
-              ),
-            ),
+            child: Obx(() {
+              // 🚀 Check if they have viewed 4 or more funds
+              final hasEnoughHistory =
+                  mutualController.recentlyViewedFunds.length >= 4;
+
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+                child: USectionHeading(
+                  title: hasEnoughHistory ? 'Recently Viewed' : 'Popular Funds',
+                  // Only show the Action button for Popular Funds (optional)
+                  showActionButton: !hasEnoughHistory,
+                  onPressed: () {
+                    FocusScope.of(context).unfocus();
+                    _showPopularFundsSheet(context);
+                  },
+                ),
+              );
+            }),
           ),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             sliver: Obx(() {
+              final hasEnoughHistory =
+                  mutualController.recentlyViewedFunds.length >= 4;
+
+              // 🚀 Swap the data source based on history length
+              final displayList = hasEnoughHistory
+                  ? mutualController.recentlyViewedFunds
+                  : mutualController.searchFund;
+
+              if (displayList.isEmpty) {
+                return const SliverToBoxAdapter(child: SizedBox.shrink());
+              }
+
               return SliverGrid.builder(
-                itemCount: mutualController.searchFund.length.clamp(0, 4),
+                itemCount: displayList.length.clamp(0, 4),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   childAspectRatio: 1.55,
@@ -2060,20 +2123,26 @@ class _MobileLayout extends StatelessWidget {
                   mainAxisSpacing: 16,
                 ),
                 itemBuilder: (context, index) {
-                  final fund = mutualController.searchFund[index];
+                  final fund = displayList[index];
                   final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
                   final name = fund.baseSchemeName ?? 'Unknown Name';
                   final threeyear = fund.returnsEntity?.threeYear ?? '';
                   final schemeCode = fund.schemeCode.toString();
+
                   return PopularFundCard(
-                    onTap: () => Get.toNamed(
-                      AppRoutes.funddetails,
-                      arguments: {
-                        'scheme': name,
-                        'imgUrl': img,
-                        'scheme_code': schemeCode,
-                      },
-                    ),
+                    onTap: () {
+                      // 🚀 Track this fund when tapped!
+                      mutualController.addToRecentlyViewed(fund);
+
+                      Get.toNamed(
+                        AppRoutes.funddetails,
+                        arguments: {
+                          'scheme': name,
+                          'imgUrl': img,
+                          'scheme_code': schemeCode,
+                        },
+                      );
+                    },
                     isNetwork: true,
                     imgPath: img,
                     name: name,
@@ -2083,7 +2152,6 @@ class _MobileLayout extends StatelessWidget {
               );
             }),
           ),
-
           // Videos
           SliverToBoxAdapter(
             child: Padding(
@@ -2129,7 +2197,8 @@ class _MobileLayout extends StatelessWidget {
               height: 160,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.only(left: 24, right: 12),                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.only(left: 24, right: 12),
+                physics: const BouncingScrollPhysics(),
                 children: const [
                   ClickableYoutubeThumbnail(
                     videoUrl:
@@ -2565,7 +2634,7 @@ class PopularFundCard extends StatelessWidget {
               color: Colors.black.withOpacity(0.04),
               blurRadius: 6,
               offset: const Offset(0, 3),
-            )
+            ),
           ],
         ),
         // decoration: BoxDecoration(
@@ -2845,18 +2914,18 @@ class _CollectionItemState extends State<CollectionItem> {
           borderRadius: BorderRadius.circular(14),
           gradient: isPressed
               ? RadialGradient(
-            colors: [Colors.blue.withOpacity(0.15), Colors.transparent],
-            radius: 0.8,
-          )
+                  colors: [Colors.blue.withOpacity(0.15), Colors.transparent],
+                  radius: 0.8,
+                )
               : null,
           boxShadow: isPressed
               ? [
-            BoxShadow(
-              color: Colors.blue.withOpacity(0.25),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            )
-          ]
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.25),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
               : [],
         ),
         child: Material(
@@ -2864,8 +2933,8 @@ class _CollectionItemState extends State<CollectionItem> {
           child: InkWell(
             borderRadius: BorderRadius.circular(14),
             splashColor: Colors.blue.withOpacity(0.2),
-            highlightColor: Colors.transparent, // Hide default highlight to see your custom animation
-
+            highlightColor: Colors
+                .transparent, // Hide default highlight to see your custom animation
             // Trigger animation on press
             onTapDown: (_) => _updateState(true),
             onTapCancel: () => _updateState(false),
@@ -2910,6 +2979,7 @@ class _CollectionItemState extends State<CollectionItem> {
     );
   }
 }
+
 class FilterChip extends StatelessWidget {
   final String label;
   final IconData? icon;

@@ -1,19 +1,19 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_usecases.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
+import 'package:my_sip/services/session_manager.dart';
 
 class MutualFundController extends GetxController {
   final GetMutualFundListUsecases _getMutualFundListUsecases;
 
   MutualFundController(this._getMutualFundListUsecases);
 
-  // =========================================================
-  //  1. OBSERVABLE STATE (For UI)
-  // =========================================================
   RxBool isLoading = false.obs; // Full screen loader (Initial/Search/Filter)
   RxBool isMoreLoading = false.obs; // Bottom loader (Pagination)
   RxString errorMessage = ''.obs;
@@ -75,30 +75,6 @@ class MutualFundController extends GetxController {
     });
   }
 
-  /// ACTION B: User applies Filters from Filter Page
-  /// Usage: controller.applyFilters(resultMap)
-  // void applyFilters(Map<String, dynamic> newFilters) {
-
-  //   if (newFilters.containsKey('return_year')) {
-  //     selectedReturnYear.value = newFilters['return_year'];
-  //   }
-  //   _currentFilters = newFilters; // Save filters
-  //   _resetAndFetch(); // Start over from Page 1
-  // }
-  // void applyFilters(Map<String, dynamic> newFilters) {
-  //   // 1. Update UI state if return_year is changed
-  //   if (newFilters.containsKey('return_year')) {
-  //     selectedReturnYear.value = newFilters['return_year'];
-  //     // Sync the Sort Chip label based on the year
-  //     currentSortLabel.value = "${newFilters['return_year']}Y Returns";
-
-  //   }
-
-  //   // 2. MERGE: This is the key. Use addAll so it doesn't delete existing AMC/Category filters
-  //   _currentFilters.addAll(newFilters);
-
-  //   _resetAndFetch();
-  // }
   void applyFilters(Map<String, dynamic> newFilters) {
     // Update internal memory with cumulative filters
     _currentFilters.addAll(newFilters);
@@ -178,18 +154,6 @@ class MutualFundController extends GetxController {
     _resetAndFetch();
   }
 
-  // void resetToDefault() {
-  //   _currentSearchQuery = "";
-  //   _currentFilters
-  //       .clear(); // Wipes the filter map for {{baseURL}}/api/v1/mutual-funds
-  //   selectedReturnYear.value = 3;
-
-  //   // Synchronize with FundhouseController to uncheck all checkboxes
-  //   if (Get.isRegistered<FundhouseController>()) {
-  //     Get.find<FundhouseController>().clearAllFilters();
-  //   }
-  //   _resetAndFetch();
-  // }
   void resetToDefault() {
     _currentSearchQuery = "";
     _currentFilters
@@ -298,10 +262,6 @@ class MutualFundController extends GetxController {
     }
   }
 
-  // =========================================================
-  //  5. HELPERS
-  // =========================================================
-
   /// Resets pagination variables and triggers a fresh fetch
   void _resetAndFetch() {
     currentPage = 1;
@@ -345,6 +305,104 @@ class MutualFundController extends GetxController {
     canLoadMore = true;
     resetToDefaultStateOnly();
     await fetchData(isLoadMore: false);
+  }
+
+  /// Recently Viewed
+  final recentlyViewedFunds = <MutualFundListEntity>[].obs;
+
+  void addToRecentlyViewed(MutualFundListEntity fund) {
+    // 1. Remove the fund if it's already in the list to avoid duplicates
+    recentlyViewedFunds.removeWhere(
+      (item) => item.schemeCode == fund.schemeCode,
+    );
+
+    // 2. Insert it at the top (most recent first)
+    recentlyViewedFunds.insert(0, fund);
+
+    // 3. Optional: Cap the list at 10 items to save memory
+    if (recentlyViewedFunds.length > 10) {
+      recentlyViewedFunds.removeLast();
+    }
+  }
+
+  // 1. Convert Entity -> Minimal Map -> JSON String -> Save
+  Future<void> _saveRecentlyViewed() async {
+    try {
+      final List<Map<String, dynamic>> simplifiedList = recentlyViewedFunds.map(
+        (fund) {
+          return {
+            'schemeCode': fund.schemeCode,
+            'baseSchemeName': fund.baseSchemeName,
+            'amcLogoUrl': fund.amc?.amcLogoUrl,
+            'email': fund.amc?.email,
+            'contact': fund.amc?.contact,
+            'address': fund.amc?.address,
+            'threeYear': fund.returnsEntity?.threeYear,
+          };
+        },
+      ).toList();
+
+      final String jsonString = jsonEncode(simplifiedList);
+      await SessionManager.instance.saveRecentFunds(jsonString);
+    } catch (e) {
+      debugPrint("Error saving recently viewed funds: $e");
+    }
+  }
+
+  // 2. Load -> Parse JSON -> Map -> Rebuild Minimal Entity
+  Future<void> _loadRecentlyViewed() async {
+    final String? jsonString = await SessionManager.instance.getRecentFunds();
+
+    if (jsonString != null && jsonString.isNotEmpty) {
+      try {
+        final List<dynamic> decodedList = jsonDecode(jsonString);
+
+        recentlyViewedFunds.value = decodedList.map((item) {
+          // Rebuild the Entity with ONLY the data the UI needs
+          // Everything else is left as null or empty to save memory
+          return MutualFundListEntity(
+            schemeCode: item['schemeCode'],
+            baseSchemeName: item['baseSchemeName'],
+            schemeType: null,
+            riskLevel: null,
+            isin: null,
+            minSipAmount: null,
+            minLumpsum: null,
+            variants: const [], // Empty list for required field
+            amc: AmcEntity(
+              id: null,
+              amcName: null,
+              amcLogoUrl: item['amcLogoUrl'],
+              email: item['email'],
+              contact: item['contact'],
+              address: item['address'],
+            ),
+            returnsEntity: ReturnsEntity(threeYear: item['threeYear']),
+          );
+        }).toList();
+      } catch (e) {
+        debugPrint("Error loading recently viewed funds: $e");
+      }
+    }
+  }
+
+  // 3. User taps a fund -> Add to list and Save
+  void addToLocalRecentlyViewed(MutualFundListEntity fund) {
+    // Remove if already exists to avoid duplicates
+    recentlyViewedFunds.removeWhere(
+      (item) => item.schemeCode == fund.schemeCode,
+    );
+
+    // Insert at the top (most recent first)
+    recentlyViewedFunds.insert(0, fund);
+
+    // Cap the list at 10 items to save memory
+    if (recentlyViewedFunds.length > 10) {
+      recentlyViewedFunds.removeLast();
+    }
+
+    // 🚀 Save the optimized list locally
+    _saveRecentlyViewed();
   }
 
   @override

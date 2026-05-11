@@ -460,6 +460,23 @@ class SessionManager extends GetxService {
     }
   }
 
+  Future<void> saveRecentFunds(String jsonString) async {
+    if (kIsWeb) {
+      await _ensurePrefsInitialized();
+      await _prefs!.setString('recent_viewed_list', jsonString);
+    } else {
+      await _secureStorage!.write(key: 'recent_viewed_list', value: jsonString);
+    }
+  }
+  Future<String?> getRecentFunds() async {
+    if (kIsWeb) {
+      await _ensurePrefsInitialized();
+      return _prefs!.getString('recent_viewed_list');
+    } else {
+      return await _secureStorage!.read(key: 'recent_viewed_list');
+    }
+  }
+
   Future<void> clearSession() async {
     log("🚨 WARNING: CLEAR SESSION CALLED! Wiping all data! 🚨");
     debugPrint(StackTrace.current.toString());

@@ -1869,6 +1869,7 @@ class MutualFundCard extends StatelessWidget {
       onTap:
           onTapOverride ??
           () {
+            mutualFundController.addToRecentlyViewed(entity);
             Get.toNamed(
               AppRoutes.funddetails,
               arguments: {
@@ -1921,7 +1922,7 @@ class MutualFundCard extends StatelessWidget {
                         entity.baseSchemeName ?? 'Unknown Fund',
                         style: Theme.of(context).textTheme.titleSmall!.copyWith(
                           fontWeight: FontWeight.w600,
-                          fontSize:12,
+                          fontSize: 12,
                           color: const Color(0xff383838),
                         ),
                       ),
@@ -1932,14 +1933,17 @@ class MutualFundCard extends StatelessWidget {
                               text: 'Risk: ',
                               // text: entity.riskLevel,
                               style: Theme.of(context).textTheme.labelSmall!
-                                  .copyWith(fontWeight: FontWeight.normal, fontSize:11,),
+                                  .copyWith(
+                                    fontWeight: FontWeight.normal,
+                                    fontSize: 11,
+                                  ),
                             ),
                             TextSpan(
                               text: entity.riskLevel,
                               style: Theme.of(context).textTheme.labelMedium!
                                   .copyWith(
                                     fontWeight: FontWeight.w600,
-                                fontSize:12,
+                                    fontSize: 12,
                                     color: getRiskMeter(entity.riskLevel).color,
                                   ),
                             ),
@@ -2128,7 +2132,8 @@ class _ReturnItem extends StatelessWidget {
         Text(
           value,
           style: Theme.of(context).textTheme.labelMedium!.copyWith(
-            color: isNegative ? Colors.red : Colors.green, fontSize:11,
+            color: isNegative ? Colors.red : Colors.green,
+            fontSize: 11,
           ),
         ),
       ],
