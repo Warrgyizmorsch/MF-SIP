@@ -1128,7 +1128,7 @@ class InvestmentInputsRow extends StatelessWidget {
             itemEntity.topUpAmount != '')
         ? _parseAmount(itemEntity.topUpAmount).toString()
         : minTopUp.toString();
-
+    debugPrint("frequency: ${itemEntity.frequency}");
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -1146,10 +1146,10 @@ class InvestmentInputsRow extends StatelessWidget {
                 isDense: true,
                 underline: const SizedBox(),
                 items: const [
-                  DropdownMenuItem(value: '1', child: Text('Monthly')),
-                  DropdownMenuItem(value: '3', child: Text('Quarterly')),
-                  DropdownMenuItem(value: '6', child: Text('6 Months')),
-                  DropdownMenuItem(value: '12', child: Text('Yearly')),
+                  DropdownMenuItem(value: '1', child: Text('Monthly', style: TextStyle(fontSize: 12))),
+                  DropdownMenuItem(value: '3', child: Text('Quarterly', style: TextStyle(fontSize: 12))),
+                  DropdownMenuItem(value: '6', child: Text('6 Months', style: TextStyle(fontSize: 12))),
+                  DropdownMenuItem(value: '12', child: Text('Yearly', style: TextStyle(fontSize: 12))),
                 ],
                 onChanged: (val) {
                   // if (val != null) {

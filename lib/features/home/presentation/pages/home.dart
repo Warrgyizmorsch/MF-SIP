@@ -2691,7 +2691,7 @@ class PopularFundCard extends StatelessWidget {
                 children: [
                   Text(
                     '3Y',
-                    style: UTextStyles.caption.copyWith(
+                    style: UTextStyles.bodySmallW500.copyWith(
                       fontWeight: FontWeight.w500,
                       color: Colors.grey.shade600,
                     ),
@@ -2706,7 +2706,7 @@ class PopularFundCard extends StatelessWidget {
                       ),
                       Text(
                         '${threeYear}%',
-                        style: UTextStyles.caption.copyWith(
+                        style: UTextStyles.bodySmallW500.copyWith(
                           color: Ucolors.success,
                           fontWeight: FontWeight.bold,
                         ),

@@ -17,12 +17,19 @@ import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.da
 class PaymentScreen extends StatelessWidget {
   PaymentScreen({super.key});
 
-  CartController cartController = Get.find<CartController>();
 
   @override
   Widget build(BuildContext context) {
-    final arg = Get.arguments as Map<String, dynamic>?;
-    final amount = arg?['amount'] ?? 0;
+    final CartController cartController = Get.find<CartController>();
+
+    // Safely extract arguments
+    final Map<String, dynamic>? arg = Get.arguments as Map<String, dynamic>?;
+
+    // Logic: Priority to arguments, fallback to controller, fallback to '0'
+    final String amount = arg?['amount']?.toString() ??
+        cartController.totalAmount.toString();
+
+    debugPrint('Amount to pay: $amount');
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.grey.shade50,
@@ -144,7 +151,7 @@ class PaymentScreen extends StatelessWidget {
       bottomNavigationBar: SafeArea(
         top: false,
         child: CartBottomBar(
-          amount: cartController.totalAmount.toString(),
+          amount: amount.toString() ?? cartController.totalAmount.toString(),
           title: 'Amount Payable',
           ontap: () {},
           // ontap: () => Get.toNamed(

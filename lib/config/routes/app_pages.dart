@@ -43,6 +43,7 @@ import 'package:my_sip/features/personalization/presentation/widgets/nominee_lis
 import 'package:my_sip/features/sip_process/presentation/pages/payment_screen.dart';
 import 'package:my_sip/features/wishlist/presentation/bindings/wishlist_binding.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
+import '../../features/cart/presentation/pages/invest_now_page.dart';
 import '../../features/freedom_sip/presentation/pages/accumulationAndDistributionScreen.dart';
 import '../../features/freedom_sip/presentation/pages/growth_scheme_screen.dart';
 import '../../features/fund_details/presentation/pages/fund_deatails.dart';
@@ -225,5 +226,6 @@ class AppPages {
     GetPage(name: AppRoutes.videoList, page: () => VideoListScreen()),
 
     GetPage(name: AppRoutes.additionalInfo, page: () => AdditionalInfoScreen()),
+    GetPage(name: AppRoutes.investNow, page: () => InvestNowPage()),
   ];
 }
