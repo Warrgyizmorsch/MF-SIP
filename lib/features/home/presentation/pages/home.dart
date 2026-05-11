@@ -2820,7 +2820,7 @@ class ToolsItem extends StatelessWidget {
           Flexible(
             child: Text(
               title,
-              style: UTextStyles.small.copyWith(
+              style: UTextStyles.medium.copyWith(
                 color: Ucolors.secondary,
                 fontSize: 11,
               ),

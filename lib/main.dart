@@ -20,9 +20,9 @@ Future<void> main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
 
-    // Register dependencies BEFORE runApp
-    Get.put(HomeController());
-    await Get.put(NotificationService()).init();
+    // // Register dependencies BEFORE runApp
+    // Get.put(HomeController());
+    // await Get.put(NotificationService()).init();
     if (!kIsWeb) {
       await SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,

@@ -5,31 +5,52 @@ import '../features/home/presentation/controllers/home_controller.dart';
 
 class NotificationService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-
   Future<void> init() async {
-    // Permission
+    // Permission mangna
     await _firebaseMessaging.requestPermission();
 
-    // Token
+    // Token lena
     String? token = await _firebaseMessaging.getToken();
-    print("FCM Token: $token");
+
+    if (token != null) {
+      print("--- COPY THIS JSON FOR TESTING ---");
+      print({
+        "message": {
+          "token": token,
+          "notification": {
+            "title": "MF SIP",
+            "body": "Dear Customer, this is a reminder to complete your monthly mutual fund investment."
+          },
+          "data": {
+            "click_action": "FLUTTER_NOTIFICATION_CLICK",
+            "screen": "home",
+            "id": "123"
+          }
+        }
+      });
+      print("----------------------------------");
+    }
 
     final controller = Get.find<HomeController>();
 
-    // Foreground message
+    // Foreground listener
+    // Foreground listener update
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      final title = message.notification?.title ?? "No Title";
-      final body = message.notification?.body ?? "No Body";
+      // 1. JSON ke notification block se data lena
+      String title = message.notification?.title ?? "No Title";
+      String body = message.notification?.body ?? "No Body";
 
-      print("Foreground Message: $title");
+      // 2. Agar aapne notification block nahi bheja, sirf DATA bheja hai:
+      if (message.notification == null && message.data.isNotEmpty) {
+        title = message.data['title'] ?? title;
+        body = message.data['body'] ?? body;
+      }
 
-      // 🔥 Send data to controller
+      print("Received JSON - Title: $title, Body: $body");
+
+      // Controller mein add karein
+      final controller = Get.find<HomeController>();
       controller.addNotification(title, body);
-    });
-
-    // Background click
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print("Notification Clicked");
     });
   }
 }

@@ -1141,7 +1141,7 @@ class InvestmentInputsRow extends StatelessWidget {
             child: _buildColumn(
               'Step up Frequency',
               DropdownButton<String>(
-                value: itemEntity.frequency ?? '1',
+                value: itemEntity.frequency ?? '6',
                 isExpanded: true,
                 isDense: true,
                 underline: const SizedBox(),

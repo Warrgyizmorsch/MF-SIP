@@ -1061,6 +1061,8 @@ class _DesktopRiskCard extends StatelessWidget {
       final risk = getRiskMeter(fund?.riskometerValue);
       final hasReturns = controller.yearlyReturns.isNotEmpty;
 
+      if (fund == null) return const SizedBox();
+      final data =  controller.buildTrailingReturns(fund);
       return _DesktopCard(
         title: 'Risk Analysis',
         child: Row(
@@ -1086,7 +1088,7 @@ class _DesktopRiskCard extends StatelessWidget {
                     SizedBox(
                       height: 300,
                       child: YearlyReturnsChart(
-                        yearlyData: controller.yearlyReturns,
+                        yearlyData:data,
                       ),
                     ),
                   ],
@@ -2756,11 +2758,13 @@ class OverviewScreen extends GetView<FundDetailsController> {
                   ),
                 ),
                 SizedBox(
-                  height: isDesktop ? 500 : 330,
+                  height: isDesktop ? 500 : 400,
                   // child: ReturnsBarChart(data: yearlyData),
                   // child: ,
                   child: Obx(() {
-                    final data = controller.yearlyReturns;
+                    final fund = controller.fundDetail.value;
+                    if (fund == null) return const SizedBox();
+                    final data =  controller.buildTrailingReturns(fund);
                     if (data.isEmpty) {
                       return const CircularProgressIndicator(); // or loader
                     }

@@ -67,7 +67,22 @@ class UHelperFunction {
     }
   }
 }
+String formatCurrency(double amount) {
+  final absAmount = amount.abs();
 
+  if (absAmount >= 10000000) {
+    // Crore
+    return "₹${(amount / 10000000).toStringAsFixed(2)}Cr";
+  } else if (absAmount >= 100000) {
+    // Lakh
+    return "₹${(amount / 100000).toStringAsFixed(2)}L";
+  } else if (absAmount >= 1000) {
+    // Thousand
+    return "₹${(amount / 1000).toStringAsFixed(1)}K";
+  } else {
+    return "₹${amount.toStringAsFixed(0)}";
+  }
+}
 ///////////////// -------------- Extract Fund Manager ----------- //////////////////
 List<String> parseFundManagers(String? raw) {
   if (raw == null || raw.trim().isEmpty) {

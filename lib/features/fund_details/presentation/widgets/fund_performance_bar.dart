@@ -1,14 +1,13 @@
+import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/features/fund_details/data/models/fund_performance.dart';
 import 'package:my_sip/features/fund_details/presentation/widgets/timeselecter.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 
+import '../../../../core/utils/helper/helpers.dart';
+import '../../data/models/return_model.dart';
 import '../controllers/chartInvestment_controller.dart';
-
-import 'dart:math';
 
 
 class YearlyReturnsChart extends StatelessWidget {
@@ -19,374 +18,205 @@ class YearlyReturnsChart extends StatelessWidget {
   });
 
   final double? height;
-  final List<YearlyReturn> yearlyData;
+  final List<ReturnRow> yearlyData;
 
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(ChartInvestmentController(), permanent: false);
-    final isDesktop =
-    ResponsiveBreakpoints.of(context).largerThan(TABLET);
+    final isDesktop = MediaQuery.of(context).size.width > 900;
 
-    final allValues = yearlyData.expand((e) {
-      final gainPercent = controller.getGainPercent(
-        e.value,
-        e.year,
-      );
-
-      return [
-        e.value,
-        gainPercent,
-      ];
-    }).toList();
-
-    final maxValue = allValues.reduce(max);
-    final minValue = allValues.reduce(min);
-
-    debugPrint("Max Value: $maxValue, Min Value: $minValue");
+    // X-axis labels for the 3 comparative bars
+    final List<String> xLabels = ["Scheme", "Category", "Benchmark"];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        /// CHART
+        /// 1. STACKED BAR CHART (AMOUNT-BASED Y-AXIS)
         Container(
-          height: height ?? (isDesktop ? 290 : 180),
-          padding:
-          isDesktop ? const EdgeInsets.all(20) : const EdgeInsets.all(8),
-          decoration: isDesktop
-              ? BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.shade200),
-          )
-              : null,
-          child: Stack(
-            children: [
-              /// IMPORTANT: Wrap with Obx
-              Obx(() => BarChart(
-                BarChartData(
-                  maxY: maxValue + 20,
-                  minY: minValue < 0 ? minValue - 5 : 0,
+          height: height ?? (isDesktop ? 290 : 200),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Obx(() {
+            // Access observables inside Obx
+            final currentInv = controller.investment.value;
+            final selectedPeriod = controller.selectedPeriod.value;
 
-                  ///  ZERO LINE
-                  extraLinesData: ExtraLinesData(
-                    horizontalLines: [
-                      HorizontalLine(
-                        y: 0,
-                        color: Colors.grey,
-                        strokeWidth: 1,
-                      ),
-                    ],
-                  ),
+            // Get the data for the active period
+            final selectedData = yearlyData.firstWhere(
+                  (e) => e.period == selectedPeriod,
+              orElse: () => yearlyData.first,
+            );
 
-                  gridData: FlGridData(
-                    show: isDesktop,
-                    drawVerticalLine: false,
-                    getDrawingHorizontalLine: (value) => FlLine(
-                      color: Colors.grey.shade200,
-                      strokeWidth: 1,
-                    ),
-                  ),
+            // Calculate the actual currency amounts for each bar
+            final List<double> returnPercents = [
+              selectedData.scheme,
+              selectedData.category,
+              selectedData.benchmark,
+            ];
 
-                  borderData: FlBorderData(show: false),
+            // List of actual total amounts (Investment + Gain Amount)
+            final List<double> totalAmounts = returnPercents.map((p) {
+              final gainAmount = (currentInv * p) / 100;
+              return currentInv + gainAmount;
+            }).toList();
 
-                  ///  TOUCH
-                  barTouchData: BarTouchData(
-                    enabled: true,
-                    touchCallback: (event, response) {
-                      if (response?.spot != null) {
-                        controller.selectedIndex.value =
-                            response!.spot!.touchedBarGroupIndex;
-                      }
-                    },
-                    touchTooltipData: BarTouchTooltipData(
-                      getTooltipColor: (_) => Colors.black87,
-                      getTooltipItem:
-                          (group, groupIndex, rod, rodIndex) {
-                        final data =
-                        yearlyData[group.x.toInt()];
-                        final gainAmount = controller.getGainPercent(
-                          data.value,
-                          data.year,
-                        );
+            // Find max for Y-axis scaling (in Rupees)
+            final maxAmount = totalAmounts.reduce(max);
 
-                        return BarTooltipItem(
-                              '${data.value.toStringAsFixed(2)}%\n'
-                              '${gainAmount.toStringAsFixed(2)}%',
-                          const TextStyle(color: Colors.white,fontSize: 8),
+            return BarChart(
+              BarChartData(
+                // Y-AXIS SCALE IN AMOUNT (₹)
+                maxY: maxAmount > 0 ? maxAmount * 1.2 : (currentInv * 1.2),
+                minY: 0,
+
+                gridData: const FlGridData(show: false),
+                borderData: FlBorderData(show: false),
+
+                titlesData: FlTitlesData(
+                  leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 60,
+                      getTitlesWidget: (value, _) {
+                        int index = value.toInt();
+                        if (index < 0 || index >= xLabels.length) return const SizedBox.shrink();
+
+                        final percent = returnPercents[index];
+                        final totalAmount = currentInv + (currentInv * percent / 100);
+
+                        // Helper function to format 120000 to 1.2L
+
+
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 10.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                formatCurrency(totalAmount),
+                                style: const TextStyle(
+                                  color: Colors.green,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ), Text(
+                        "${returnPercents[index].toStringAsFixed(2)}%",
+                                style: const TextStyle(
+                                  color: Colors.green,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                xLabels[index],
+                                style: TextStyle(color: Colors.grey.shade600, fontSize: 10),
+                              ),
+                            ],
+                          ),
                         );
                       },
                     ),
                   ),
+                ),
 
-                  /// TITLES
-                  titlesData: FlTitlesData(
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: isDesktop,
-                        getTitlesWidget: (value, meta) {
-                          return Text(
-                            '${value.toInt()}%',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey.shade600,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        getTitlesWidget: (value, _) {
-                          return Text(
-                            yearlyData[value.toInt()].year,
-                            style: const TextStyle(fontSize: 10),
-                          );
-                        },
-                      ),
-                    ),
-                    rightTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    topTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                  ),
+                barGroups: List.generate(xLabels.length, (index) {
+                  final totalValueInRupees = totalAmounts[index];
 
-                  /// BARS
-                  barGroups: List.generate(
-                    yearlyData.length,
-                        (index) {
-                      final data = yearlyData[index];
-                      final gainAmount = controller.getGainPercent(data.value, data.year);
-
-                      final totalHeight = data.value + gainAmount;
-
-                      return BarChartGroupData(
-                        x: index,
-                        barRods: [
-                          BarChartRodData(
-                            toY: totalHeight,
-                            width: isDesktop ? 16 : 12,
-                            borderRadius: BorderRadius.circular(4),
-                            rodStackItems: [
-
-                              BarChartRodStackItem(
-                                0,
-                                data.value,
-                                Ucolors.blue,
-                              ),
-
-                              BarChartRodStackItem(
-                                data.value,
-                                totalHeight,
-                                Ucolors.primary,
-                              ),
-                            ],
-                          ),
+                  return BarChartGroupData(
+                    x: index,
+                    barRods: [
+                      BarChartRodData(
+                        // THE ROD HEIGHT IS NOW THE TOTAL AMOUNT (₹)
+                        toY: totalValueInRupees,
+                        width: isDesktop ? 28 : 22,
+                        borderRadius: BorderRadius.circular(4),
+                        rodStackItems: [
+                          // Investment Base (Yellow Segment)
+                          BarChartRodStackItem(0, currentInv, Ucolors.primary),
+                          // Gain Segment (Green Segment)
+                          BarChartRodStackItem(currentInv, totalValueInRupees, Ucolors.blue),
                         ],
-                      );
-                    },
-                  ),
-                ),
-              )),
-
-              ///  SAFE LABELS (NO CRASH)
-              if (!isDesktop)
-                Positioned.fill(
-                  child: Row(
-                    children: List.generate(yearlyData.length, (index) {
-                      final value = yearlyData[index].value;
-
-                      return Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (value >= 0)
-                              Text(
-                                '${value.toStringAsFixed(1)}%',
-                                style: const TextStyle(
-                                  fontSize: 8,
-                                  color: Colors.green,
-                                ),
-                              ),
-                            const Spacer(),
-                            if (value < 0)
-                              Text(
-                                '${value.toStringAsFixed(1)}%',
-                                style: const TextStyle(
-                                  fontSize: 8,
-                                  color: Colors.red,
-                                ),
-                              ),
-                          ],
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-            ],
-          ),
+                      ),
+                    ],
+                  );
+                }),
+              ),
+            );
+          }),
         ),
-        PeriodSelectorBarChart(yearlyData: yearlyData,),
-        const SizedBox(height: 8),
 
+        /// 2. PERIOD SELECTOR
+        PeriodSelectorBarChart(yearlyData: yearlyData),
 
+        const SizedBox(height: 20),
+
+        /// 3. NUMERIC DATA DISPLAY
         Obx(() {
+          final currentInv = controller.investment.value;
           final selectedData = yearlyData.firstWhere(
-                (e) => e.year == controller.selectedPeriod.value,
+                (e) => e.period == controller.selectedPeriod.value,
             orElse: () => yearlyData.first,
           );
 
-          final gainAmount = controller.selectedGain.value;
-
-          final gainPercent = controller.getGainPercent(
-            selectedData.value,
-            selectedData.year,
-          );
-
+          final gainAmount = (currentInv * selectedData.scheme) / 100;
           final isLoss = gainAmount < 0;
 
-          return Column(
-            children: [
-
-              Row(
-                mainAxisAlignment:
-                MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "Invested Amount",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 10,
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Invested", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                    Text(isLoss ? "Loss" : "Gain", style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("₹${currentInv.toStringAsFixed(0)}",
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text("₹${gainAmount.toStringAsFixed(2)}",
+                            style: TextStyle(
+                                color: isLoss ? Colors.red : Colors.green,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18
+                            )),
+                        Text("(${selectedData.scheme.toStringAsFixed(2)}%)",
+                            style: TextStyle(color: isLoss ? Colors.red : Colors.green, fontSize: 12)),
+                      ],
                     ),
-                  ),
-
-                  Text(
-                    isLoss
-                        ? "Loss Amount"
-                        : "Gain Amount",
-                    style: TextStyle(
-                      color: isLoss
-                          ? Colors.red
-                          : Colors.green,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 10,
-                    ),
-                  ),
-                ],
-              ),
-
-              Row(
-                mainAxisAlignment:
-                MainAxisAlignment.spaceBetween,
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
-                children: [
-
-                  /// INVESTMENT
-                  Text(
-                    "₹${controller.investment.value.toStringAsFixed(0)}",
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  /// GAIN
-                  Column(
-                    crossAxisAlignment:
-                    CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        "₹${gainAmount.toStringAsFixed(2)}",
-                        style: TextStyle(
-                          color: isLoss
-                              ? Colors.red
-                              : Colors.green,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-
-                      Text(
-                        "(${gainPercent.toStringAsFixed(2)}%)",
-                        style: TextStyle(
-                          color: isLoss
-                              ? Colors.red
-                              : Colors.green,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           );
         }),
-        const SizedBox(height: 4),
 
+        const SizedBox(height: 10),
+
+        /// 4. SLIDER
         Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 4,
-          ),
-          child: Obx(
-                () => SliderTheme(
-              data: SliderTheme.of(context)
-                  .copyWith(
-                activeTrackColor: Ucolors.primary,
-                inactiveTrackColor:
-                Colors.grey.shade300,
-                thumbColor: Ucolors.secondary,
-                trackHeight: 5,
-
-                thumbShape:
-                const RoundSliderThumbShape(
-                  enabledThumbRadius: 8,
-                ),
-
-                overlayShape:
-                const RoundSliderOverlayShape(
-                  overlayRadius: 16,
-                ),
-              ),
-
-              child: Slider(
-                value: controller.investment.value,
-                activeColor: Ucolors.primary,
-                min: controller.minInvestment,
-                max: controller.maxInvestment,
-
-                divisions:
-                ((controller.maxInvestment -
-                    controller
-                        .minInvestment) ~/
-                    1000)
-                    .toInt(),
-
-                label:
-                "₹${controller.investment.value.toStringAsFixed(0)}",
-
-                onChanged: (value) {
-
-                  controller.investment.value =
-                      value;
-
-                  final selectedData =
-                  yearlyData[
-                  controller.selectedIndex
-                      .value];
-
-                  controller.selectedGain.value =
-                      controller.getGainAmount(
-                        selectedData.value,
-                        selectedData.year,
-                      );
-                },
-              ),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Obx(() => SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: const Color(0xFF66BB6A),
+              thumbColor: Colors.orange,
+              trackHeight: 4,
             ),
-          ),
+            child: Slider(
+              value: controller.investment.value,
+              min: controller.minInvestment,
+              max: controller.maxInvestment,
+              onChanged: (val) => controller.investment.value = val,
+            ),
+          )),
         ),
       ],
     );

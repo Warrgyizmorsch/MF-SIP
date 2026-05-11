@@ -193,7 +193,7 @@ class FundBottomBarButton extends StatelessWidget {
               outlined: true,
               width: double.infinity,
               // height: 50, // Standardize height for both
-              child: Icon(Icons.add),
+              child: Icon(Icons.shopping_cart),
               // child: Text(
               //   firstButton,
               //   style: const TextStyle(

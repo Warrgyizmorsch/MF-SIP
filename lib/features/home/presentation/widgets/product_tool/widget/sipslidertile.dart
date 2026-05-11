@@ -170,3 +170,164 @@ class _SipSliderTileState extends State<SipSliderTile2> {
     );
   }
 }
+
+class SipSliderTile3 extends StatefulWidget {
+  final String title;
+  final double value;
+  final ValueChanged<double> onChanged;
+
+  // Percent Ranges
+  final double pMin;
+  final double pMax;
+
+  // Rupee Ranges
+  final double rMin;
+  final double rMax;
+
+  final Color? activeColor;
+  final SliderComponentShape? customThumb; // Added this
+
+  const SipSliderTile3({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.onChanged,
+    this.pMin = 1,
+    this.pMax = 30,
+    this.rMin = 500,
+    this.rMax = 100000,
+    this.activeColor,
+    this.customThumb, // Initialize
+  });
+
+  @override
+  State<SipSliderTile3> createState() => _SipSliderTile3State();
+}
+
+class _SipSliderTile3State extends State<SipSliderTile3> {
+  late TextEditingController _controller;
+  late double _currentValue;
+  bool isRupeeActive = false;
+
+  double get currentMin => isRupeeActive ? widget.rMin : widget.pMin;
+  double get currentMax => isRupeeActive ? widget.rMax : widget.pMax;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentValue = widget.value;
+    _controller = TextEditingController(text: _currentValue.toInt().toString());
+  }
+
+  void _updateValue(double val) {
+    final clamped = val.clamp(currentMin, currentMax);
+    setState(() {
+      _currentValue = clamped;
+      _controller.text = clamped.toInt().toString();
+    });
+    widget.onChanged(clamped);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final effectiveColor = widget.activeColor ?? Colors.blue;
+    final WidgetStateProperty<Icon?> thumbIcon = WidgetStateProperty.resolveWith<Icon?>(
+          (Set<WidgetState> states) {
+        if (states.contains(WidgetState.selected)) {
+          return const Icon(Icons.currency_rupee, size: 16, color: Colors.white);
+        }
+        return const Icon(Icons.percent, size: 16, color: Colors.grey);
+      },
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            /// Title + Switch Row
+            Row(
+              children: [
+                Expanded(flex:3,child: Text(widget.title, style: const TextStyle(fontSize: 12,))),
+                const SizedBox(width: 4),
+                Transform.scale(
+                  scale: 0.8,
+                  child: Switch(
+                    thumbIcon: thumbIcon, // Text/Icon inside the thumb
+                    value: isRupeeActive,
+                    activeColor: effectiveColor,
+                    onChanged: (bool value) {
+                      setState(() {
+                        isRupeeActive = value;
+                        _updateValue(currentMin);
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+
+            /// Editable Box
+            Container(
+              width: 115,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: effectiveColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Row(
+                children: [
+                  if (isRupeeActive)
+                    Text("₹", style: TextStyle(color: effectiveColor, fontWeight: FontWeight.bold)),
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      keyboardType: TextInputType.number,
+                      textAlign: TextAlign.right,
+                      style: TextStyle(color: effectiveColor, fontWeight: FontWeight.bold, fontSize: 15),
+                      decoration: const InputDecoration(border: InputBorder.none, isDense: true),
+                      onChanged: (text) {
+                        final val = double.tryParse(text) ?? currentMin;
+                        _updateValue(val);
+                      },
+                    ),
+                  ),
+                  if (!isRupeeActive)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 2),
+                      child: Text("%", style: TextStyle(color: effectiveColor, fontWeight: FontWeight.bold)),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+
+        /// Slider with Custom Thumb
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            activeTrackColor: effectiveColor,
+            inactiveTrackColor: Colors.grey.shade300,
+            trackHeight: 3,
+            thumbColor: Colors.white,
+            // Uses your customThumb if provided, otherwise standard round thumb
+            thumbShape: widget.customThumb ??  ImageSliderThumb(
+    thumbRadius: 15,
+    image: AssetImage(UImages.imp),
+    ),
+            overlayColor: effectiveColor.withOpacity(0.2),
+          ),
+          child: Slider(
+            value: _currentValue,
+            min: currentMin,
+            max: currentMax,
+            // Logic to keep divisions clean
+            divisions: isRupeeActive ? null : (widget.pMax - widget.pMin).toInt(),
+            onChanged: (val) => _updateValue(val),
+          ),
+        ),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+}
