@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/features/explore/domain/entities/categories_filter_entity.dart';
@@ -38,8 +36,12 @@ class FundhouseController extends GetxController {
   final filteredFundlist = <FundHouseItemEntity>[].obs;
   final categoryList = <FundCategoryEntity>[].obs;
   RxString searchQuery = ''.obs;
-  final returnRange = const RangeValues(0, 100).obs; 
+
+  final returnRange = const RangeValues(0, 100).obs;
   final isReturnRangeActive = false.obs;
+  final selectedReturnFilterYear = 1.obs;
+  final minReturnController = TextEditingController(text: '0');
+  final maxReturnController = TextEditingController(text: '100');
 
   @override
   void onInit() {
@@ -100,6 +102,18 @@ class FundhouseController extends GetxController {
     // 6. Sorting Logic
     final mutualController = Get.find<MutualFundController>();
 
+    params['sort_order'] = 'desc';
+
+    bool isSortActive = mutualController.currentSortLabel.value != "1Y,3Y,5Y";
+
+    final riskType = mutualController.dynamicRiskType;
+    // if (riskType != null) {
+    //   params['risk_type'] = riskType;
+    // }
+    if (riskType != null && !isFilterActive && !isSortActive) {
+      params['risk_type'] = riskType;
+    }
+
     if (mutualController.currentSortLabel.value != "1Y,3Y,5Y") {
       params['sort_order'] = 'desc';
       params['return_year'] = mutualController.selectedReturnYear.value;
@@ -108,9 +122,73 @@ class FundhouseController extends GetxController {
     if (isReturnRangeActive.value) {
       params['return_min'] = returnRange.value.start.toInt();
       params['return_max'] = returnRange.value.end.toInt();
+      params['return_year'] = selectedReturnFilterYear.value;
     }
 
     return params;
+  }
+
+  void setFilterReturnYear(int year) {
+    selectedReturnFilterYear.value = year;
+    if (isReturnRangeActive.value) fetchCount();
+  }
+
+  void updateRangeFromSlider(RangeValues values) {
+    returnRange.value = values;
+    isReturnRangeActive.value = true;
+    // Sync text fields
+    minReturnController.text = values.start.round().toString();
+    maxReturnController.text = values.end.round().toString();
+    fetchCount();
+  }
+
+  // void updateRangeFromText() {
+  //   double min = double.tryParse(minReturnController.text) ?? 0;
+  //   double max = double.tryParse(maxReturnController.text) ?? 100;
+
+  //   // Validation
+  //   if (min < 0) min = 0;
+  //   if (max > 100) max = 100;
+  //   if (min > max) min = max;
+
+  //   returnRange.value = RangeValues(min, max);
+  //   isReturnRangeActive.value = true;
+
+  //   // Refresh text to show validated numbers
+  //   minReturnController.text = min.round().toString();
+  //   maxReturnController.text = max.round().toString();
+  //   fetchCount();
+  // }
+  void updateSliderWithoutTextReset() {
+    double min = double.tryParse(minReturnController.text) ?? 0;
+    double max = double.tryParse(maxReturnController.text) ?? 100;
+
+    if (min < 0) min = 0;
+    if (max > 100) max = 100;
+
+    // Prevent the slider from crashing if user is halfway through typing (e.g., min is 50, but max is currently '2' as they try to type '200')
+    double sliderMin = min > max ? max : min;
+
+    returnRange.value = RangeValues(sliderMin, max);
+    isReturnRangeActive.value = true;
+    fetchCount();
+  }
+
+  void formatAndApplyText() {
+    double min = double.tryParse(minReturnController.text) ?? 0;
+    double max = double.tryParse(maxReturnController.text) ?? 100;
+
+    if (min < 0) min = 0;
+    if (max > 100) max = 100;
+    if (min > max) min = max;
+
+    returnRange.value = RangeValues(min, max);
+
+    // Clean up the text fields visually
+    minReturnController.text = min.round().toString();
+    maxReturnController.text = max.round().toString();
+
+    fetchCount();
   }
 
   void setReturnRange(RangeValues values) {
@@ -118,7 +196,6 @@ class FundhouseController extends GetxController {
     isReturnRangeActive.value = true;
     fetchCount();
   }
-
 
   // ---------- Multi-Select Toggle Methods ----------
 
@@ -306,8 +383,10 @@ class FundhouseController extends GetxController {
     bestSipValue.value = null;
     commodityFilter.value = false;
     highReturnFilter.value = false;
-    returnRange.value = const RangeValues(0, 100); 
+    returnRange.value = const RangeValues(0, 100);
     isReturnRangeActive.value = false;
+    minReturnController.text = '0';
+    maxReturnController.text = '100';
   }
 
   void resetUiStatesOnly() {

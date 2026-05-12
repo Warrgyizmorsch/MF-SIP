@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_usecases.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
+import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 class MutualFundController extends GetxController {
@@ -153,6 +154,7 @@ class MutualFundController extends GetxController {
     _currentFilters.remove('search'); // Used for index funds only
     _currentFilters.remove('return_min'); // ADD THIS
     _currentFilters.remove('return_max');
+    _currentFilters.remove('return_year');
 
     // 2. Merge the newly selected parameters from FundhouseController
     _currentFilters.addAll(newParams);
@@ -224,6 +226,20 @@ class MutualFundController extends GetxController {
 
       // Add Filters if exist
       apiParams.addAll(_currentFilters);
+
+      apiParams['sort_order'] ??= 'desc';
+
+      bool hasActiveFilters = _currentSearchQuery.isNotEmpty || _currentFilters.isNotEmpty;
+
+      // final riskType = dynamicRiskType;
+      // if (riskType != null) {
+      //   apiParams['risk_type'] = riskType;
+      // }
+      final riskType = dynamicRiskType;
+      if (riskType != null && !hasActiveFilters) {
+        apiParams['risk_type'] = riskType;
+      }
+
 
       // 4. Call API
       final result = await _getMutualFundListUsecases.call(apiParams);
@@ -429,6 +445,25 @@ class MutualFundController extends GetxController {
     if (maxGroups <= 1) return;
 
     currentPopularIndex.value = (currentPopularIndex.value + 1) % maxGroups;
+  }
+
+  String? get dynamicRiskType {
+    // 1. Try to get it from the Controller
+    if (Get.isRegistered<PersonalisationController>()) {
+      final controllerRisk = Get.find<PersonalisationController>().riskResult.value?.profileName;
+      if (controllerRisk != null && controllerRisk.isNotEmpty) {
+        return controllerRisk;
+      }
+    }
+    
+    // 2. Try to get it from Local Session
+    final sessionRisk = SessionManager.instance.getUserData?.riskProfileModel?.profileName;
+    if (sessionRisk != null && sessionRisk.isNotEmpty) {
+      return sessionRisk;
+    }
+
+    // 3. Not available - Return null instead of 'Balanced'
+    return null;
   }
 
   @override

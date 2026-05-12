@@ -613,50 +613,177 @@ class ReturnRangePanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // --- Year Selection ---
           const Text(
-            'Select Return Range (%)',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            "Time Horizon",
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 30),
-          Obx(() {
-            return Column(
-              children: [
-                RangeSlider(
-                  activeColor: Ucolors.primary,
-                  inactiveColor: Colors.grey.shade300,
-                  values: controller.returnRange.value,
-                  min: 0, // Customize your minimum possible return
-                  max: 100, // Customize your maximum possible return
-                  divisions: 100, // Allows stepping by 1%
-                  labels: RangeLabels(
-                    '${controller.returnRange.value.start.round()}%',
-                    '${controller.returnRange.value.end.round()}%',
+          const SizedBox(height: 10),
+          Obx(
+            () => Wrap(
+              spacing: 8,
+              children: [1, 3, 5, 10].map((year) {
+                final isSelected =
+                    controller.selectedReturnFilterYear.value == year;
+                return ChoiceChip(
+                  label: Text("${year}Y"),
+                  selected: isSelected,
+                  onSelected: (_) => controller.setFilterReturnYear(year),
+                  selectedColor: Ucolors.primary.withOpacity(0.2),
+                  labelStyle: TextStyle(
+                    color: isSelected ? Ucolors.primary : Colors.black,
                   ),
-                  onChanged: (RangeValues values) {
-                    controller.setReturnRange(values);
+                );
+              }).toList(),
+            ),
+          ),
+
+          const SizedBox(height: 25),
+          const Text(
+            "Returns Range (%)",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 20),
+
+          // --- Manual Text Input ---
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: controller.minReturnController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Min',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                  ),
+                  // onSubmitted: (_) => controller.updateRangeFromText(),
+                  // onChanged: (_) => controller.updateRangeFromText(),
+                  onChanged: (_) => controller.updateSliderWithoutTextReset(),
+                  onTapOutside: (_) {
+                    FocusScope.of(context).unfocus();
+                    controller.formatAndApplyText();
                   },
+                  onSubmitted: (_) => controller.formatAndApplyText(),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Min: ${controller.returnRange.value.start.round()}%',
-                        style: TextStyle(color: Colors.grey.shade700),
-                      ),
-                      Text(
-                        'Max: ${controller.returnRange.value.end.round()}%',
-                        style: TextStyle(color: Colors.grey.shade700),
-                      ),
-                    ],
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: Text("to"),
+              ),
+              Expanded(
+                child: TextField(
+                  controller: controller.maxReturnController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Max',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                   ),
+
+                  // onSubmitted: (_) => controller.updateRangeFromText(),
+                  // onChanged: (_) => controller.updateRangeFromText(),
+                  onChanged: (_) => controller.updateSliderWithoutTextReset(),
+                  onTapOutside: (_) {
+                    FocusScope.of(context).unfocus();
+                    controller.formatAndApplyText();
+                  },
+                  onSubmitted: (_) => controller.formatAndApplyText(),
                 ),
-              ],
-            );
-          }),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 30),
+
+          // --- Range Slider ---
+          Obx(
+            () => RangeSlider(
+              values: controller.returnRange.value,
+              min: 0,
+              max: 100,
+              divisions: 100,
+              activeColor: Ucolors.primary,
+              labels: RangeLabels(
+                "${controller.returnRange.value.start.round()}%",
+                "${controller.returnRange.value.end.round()}%",
+              ),
+              onChanged: (values) => controller.updateRangeFromSlider(values),
+            ),
+          ),
+
+          const SizedBox(height: 10),
+          const Center(
+            child: Text(
+              "Tip: Enter values or drag the slider",
+              style: TextStyle(fontSize: 10, color: Colors.grey),
+            ),
+          ),
         ],
       ),
     );
   }
 }
+
+// class ReturnRangePanel extends StatelessWidget {
+//   ReturnRangePanel({super.key});
+//   final FundhouseController controller = Get.find();
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: const EdgeInsets.all(20.0),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           const Text(
+//             'Select Return Range (%)',
+//             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+//           ),
+//           const SizedBox(height: 30),
+//           Obx(() {
+//             return Column(
+//               children: [
+//                 RangeSlider(
+//                   activeColor: Ucolors.primary,
+//                   inactiveColor: Colors.grey.shade300,
+//                   values: controller.returnRange.value,
+//                   min: 0, // Customize your minimum possible return
+//                   max: 100, // Customize your maximum possible return
+//                   divisions: 100, // Allows stepping by 1%
+//                   labels: RangeLabels(
+//                     '${controller.returnRange.value.start.round()}%',
+//                     '${controller.returnRange.value.end.round()}%',
+//                   ),
+//                   onChanged: (RangeValues values) {
+//                     controller.setReturnRange(values);
+//                   },
+//                 ),
+//                 Padding(
+//                   padding: const EdgeInsets.symmetric(horizontal: 15.0),
+//                   child: Row(
+//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                     children: [
+//                       Text(
+//                         'Min: ${controller.returnRange.value.start.round()}%',
+//                         style: TextStyle(color: Colors.grey.shade700),
+//                       ),
+//                       Text(
+//                         'Max: ${controller.returnRange.value.end.round()}%',
+//                         style: TextStyle(color: Colors.grey.shade700),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               ],
+//             );
+//           }),
+//         ],
+//       ),
+//     );
+//   }
+// }

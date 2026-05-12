@@ -101,7 +101,8 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                             name: controller.schemeName,
                             minAmount:
                                 controller.fundDetail.value!.sipMinimumAmount,
-                            fundDetailEntity: controller.fundDetail.value!, amcLogo:  controller.imgUrl,
+                            fundDetailEntity: controller.fundDetail.value!,
+                            amcLogo: controller.imgUrl,
                           );
                           Get.toNamed(
                             AppRoutes.investNow,
@@ -375,7 +376,9 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
 
             return CompactIcon(
               icon: isFav ? Iconsax.heart5 : Iconsax.heart,
-              iconColor: isFav ? Colors.red : Ucolors.darkgrey, // Using your Ucolors constant
+              iconColor: isFav
+                  ? Colors.red
+                  : Ucolors.darkgrey, // Using your Ucolors constant
               onPressed: () => wishlistController.toggleWishlist(code, name),
             );
           }),
@@ -2151,7 +2154,6 @@ class _MobileFundDetailsLayout extends StatelessWidget {
           //     ],
           //   ),
           // ),
-
           const SizedBox(width: 8),
 
           Obx(() {
@@ -2165,7 +2167,9 @@ class _MobileFundDetailsLayout extends StatelessWidget {
 
             return CompactIcon(
               icon: isFav ? Iconsax.heart5 : Iconsax.heart,
-              iconColor: isFav ? Colors.red : Ucolors.darkgrey, // Using your Ucolors constant
+              iconColor: isFav
+                  ? Colors.red
+                  : Ucolors.darkgrey, // Using your Ucolors constant
               onPressed: () => wishlistController.toggleWishlist(code, name),
             );
           }),
@@ -3378,192 +3382,192 @@ class OverviewScreen extends GetView<FundDetailsController> {
                             ),
 
                             /// Top 5 stock
-                            Obx(
-                              () => AnimatedPortfolioAllocation(
-                                entity: controller.portfolioAnalysis.value,
-                                isLoading: controller.isPortfolioLoading.value,
-                                scrollController: controller.scrollController,
-                              ),
-                            ),
-                            // Builder(
-                            //   builder: (context) {
-                            //     // 1. Get Data from Lists
-                            //     final entity =
-                            //         controller.portfolioAnalysis.value;
-                            //     final names =
-                            //         entity
-                            //             ?.schemePortfolioHoldingsNamesString ??
-                            //         [];
-                            //     final values =
-                            //         entity
-                            //             ?.schemePortfolioHoldingsValuesString ??
-                            //         [];
-                            //
-                            //     // 2. Loading State
-                            //     if (controller.isPortfolioLoading.value) {
-                            //       return const SizedBox(
-                            //         height: 200,
-                            //         child: Center(
-                            //           child: CircularProgressIndicator(),
-                            //         ),
-                            //       );
-                            //     }
-                            //
-                            //     // 3. Empty State Check
-                            //     // if (entity == null ||
-                            //     //     names.isEmpty ||
-                            //     //     values.isEmpty) {
-                            //     //   return Container(
-                            //     //     height: 200,
-                            //     //     alignment: Alignment.center,
-                            //     //     child: const Text(
-                            //     //       "No Holdings Data Available",
-                            //     //       style: TextStyle(color: Colors.grey),
-                            //     //     ),
-                            //     //   );
-                            //     // }
-                            //     if (entity == null ||
-                            //         names.isEmpty ||
-                            //         values.isEmpty) {
-                            //       return AnimatedEmptyState(
-                            //         title: 'No Sector Data',
-                            //         message:
-                            //             'The AMC hasnt disclosed the holdings for this fund, or it may not be applicable to this scheme',
-                            //       ); // <-- So much cleaner!
-                            //     }
-                            //
-                            //     // 4. CLEAN, COMBINE & SORT
-                            //     int count = names.length < values.length
-                            //         ? names.length
-                            //         : values.length;
-                            //
-                            //     // Regex 1: Matches Dates like (22/04/2024)
-                            //     // Define Regex Patterns
-                            //     final dateRegex = RegExp(
-                            //       r'\d{1,2}[/-]\d{1,2}[/-]\d{2,4}',
-                            //     );
-                            //     final percentageRegex = RegExp(
-                            //       r'\d+(\.\d+)?\s*%',
-                            //     ); // Matches "7.44%" or "7.5 %"
-                            //     final faceValueRegex = RegExp(
-                            //       r'\s+(EQ|NEW|FV|RS\.?|RE\.?|Rs\.?|Re\.?)\b.*$',
-                            //       caseSensitive: false,
-                            //     );
-                            //
-                            //     // Matches Punctuation to remove: Brackets ( ) and Hyphens -
-                            //     final punctuationRegex = RegExp(r'[()\[\]\-]');
-                            //
-                            //     List<MapEntry<String, double>> holdings = [];
-                            //
-                            //     for (int i = 0; i < count; i++) {
-                            //       String rawName = names[i];
-                            //
-                            //       // Apply Cleaning:
-                            //       // 1. Remove Dates
-                            //       // 2. Remove "EQ/FV/RS" suffix
-                            //       // 3. Trim extra spaces
-                            //       String cleanName = rawName
-                            //           .replaceAll(
-                            //             dateRegex,
-                            //             '',
-                            //           ) // 1. Remove Dates
-                            //           .replaceAll(
-                            //             percentageRegex,
-                            //             '',
-                            //           ) // 2. Remove Percentages (ALL occurrences)
-                            //           .replaceAll(
-                            //             faceValueRegex,
-                            //             '',
-                            //           ) // 3. Remove Face Value junk
-                            //           .replaceAll(
-                            //             punctuationRegex,
-                            //             ' ',
-                            //           ) // 4. Replace Brackets & Hyphens with SPACE
-                            //           .replaceAll(
-                            //             RegExp(r'\s+'),
-                            //             ' ',
-                            //           ) // 5. Collapse multiple spaces into one
-                            //           .trim();
-                            //
-                            //       // Only add if the name isn't empty (handles cases like just "EQ" which is unlikely)
-                            //       if (cleanName.isNotEmpty) {
-                            //         holdings.add(
-                            //           MapEntry(cleanName, values[i]),
-                            //         );
-                            //       }
-                            //     }
-                            //
-                            //     // Sort High to Low
-                            //     holdings.sort(
-                            //       (a, b) => b.value.compareTo(a.value),
-                            //     );
-                            //
-                            //     // Take Top 5
-                            //     final top10Items = holdings.take(10).toList();
-                            //
-                            //     // 5. Render
-                            //     return SingleChildScrollView(
-                            //       physics: BouncingScrollPhysics(),
-                            //       child: Column(
-                            //         children: [
-                            //           const Gap(10),
-                            //           const Row(
-                            //             mainAxisAlignment:
-                            //                 MainAxisAlignment.spaceBetween,
-                            //             children: [
-                            //               Text(
-                            //                 'Stock Allocation',
-                            //                 style: TextStyle(
-                            //                   fontSize: 12,
-                            //                   fontWeight: FontWeight.w400,
-                            //                   color: Ucolors.darkgrey,
-                            //                 ),
-                            //               ),
-                            //               Text(
-                            //                 'Holding %',
-                            //                 style: TextStyle(
-                            //                   fontSize: 12,
-                            //                   fontWeight: FontWeight.w400,
-                            //                   color: Ucolors.darkgrey,
-                            //                 ),
-                            //               ),
-                            //             ],
-                            //           ),
-                            //           const Gap(10),
-                            //
-                            //           const DashedLine(
-                            //             dashSpace: 0,
-                            //
-                            //             color: Ucolors.borderColor,
-                            //           ),
-                            //           const Gap(10),
-                            //           ...top10Items.map((item) {
-                            //             return
-                            //             // StockAllocationItem(
-                            //             //   name: item.key, // Clean Name
-                            //             //   category: '', // Placeholder
-                            //             //   sector: '', // Placeholder
-                            //             //   percentage: item.value,
-                            //             // );
-                            //             Padding(
-                            //               padding: const EdgeInsets.only(
-                            //                 bottom: 10,
-                            //               ),
-                            //               child: PercentageBar(
-                            //                 title: item
-                            //                     .key, // Name (e.g., Financial Services)
-                            //                 percentage: item
-                            //                     .value, // Value (e.g., 30.62)
-                            //                 color: Colors
-                            //                     .blue, // Replace with Ucolors.primary
-                            //               ),
-                            //             );
-                            //           }).toList(),
-                            //         ],
-                            //       ),
-                            //     );
-                            //   },
+                            // Obx(
+                            //   () => AnimatedPortfolioAllocation(
+                            //     entity: controller.portfolioAnalysis.value,
+                            //     isLoading: controller.isPortfolioLoading.value,
+                            //     scrollController: controller.scrollController,
+                            //   ),
                             // ),
+                            Builder(
+                              builder: (context) {
+                                // 1. Get Data from Lists
+                                final entity =
+                                    controller.portfolioAnalysis.value;
+                                final names =
+                                    entity
+                                        ?.schemePortfolioHoldingsNamesString ??
+                                    [];
+                                final values =
+                                    entity
+                                        ?.schemePortfolioHoldingsValuesString ??
+                                    [];
+
+                                // 2. Loading State
+                                if (controller.isPortfolioLoading.value) {
+                                  return const SizedBox(
+                                    height: 200,
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  );
+                                }
+
+                                // 3. Empty State Check
+                                // if (entity == null ||
+                                //     names.isEmpty ||
+                                //     values.isEmpty) {
+                                //   return Container(
+                                //     height: 200,
+                                //     alignment: Alignment.center,
+                                //     child: const Text(
+                                //       "No Holdings Data Available",
+                                //       style: TextStyle(color: Colors.grey),
+                                //     ),
+                                //   );
+                                // }
+                                if (entity == null ||
+                                    names.isEmpty ||
+                                    values.isEmpty) {
+                                  return AnimatedEmptyState(
+                                    title: 'No Sector Data',
+                                    message:
+                                        'The AMC hasnt disclosed the holdings for this fund, or it may not be applicable to this scheme',
+                                  ); // <-- So much cleaner!
+                                }
+
+                                // 4. CLEAN, COMBINE & SORT
+                                int count = names.length < values.length
+                                    ? names.length
+                                    : values.length;
+
+                                // Regex 1: Matches Dates like (22/04/2024)
+                                // Define Regex Patterns
+                                final dateRegex = RegExp(
+                                  r'\d{1,2}[/-]\d{1,2}[/-]\d{2,4}',
+                                );
+                                final percentageRegex = RegExp(
+                                  r'\d+(\.\d+)?\s*%',
+                                ); // Matches "7.44%" or "7.5 %"
+                                final faceValueRegex = RegExp(
+                                  r'\s+(EQ|NEW|FV|RS\.?|RE\.?|Rs\.?|Re\.?)\b.*$',
+                                  caseSensitive: false,
+                                );
+
+                                // Matches Punctuation to remove: Brackets ( ) and Hyphens -
+                                final punctuationRegex = RegExp(r'[()\[\]\-]');
+
+                                List<MapEntry<String, double>> holdings = [];
+
+                                for (int i = 0; i < count; i++) {
+                                  String rawName = names[i];
+
+                                  // Apply Cleaning:
+                                  // 1. Remove Dates
+                                  // 2. Remove "EQ/FV/RS" suffix
+                                  // 3. Trim extra spaces
+                                  String cleanName = rawName
+                                      .replaceAll(
+                                        dateRegex,
+                                        '',
+                                      ) // 1. Remove Dates
+                                      .replaceAll(
+                                        percentageRegex,
+                                        '',
+                                      ) // 2. Remove Percentages (ALL occurrences)
+                                      .replaceAll(
+                                        faceValueRegex,
+                                        '',
+                                      ) // 3. Remove Face Value junk
+                                      .replaceAll(
+                                        punctuationRegex,
+                                        ' ',
+                                      ) // 4. Replace Brackets & Hyphens with SPACE
+                                      .replaceAll(
+                                        RegExp(r'\s+'),
+                                        ' ',
+                                      ) // 5. Collapse multiple spaces into one
+                                      .trim();
+
+                                  // Only add if the name isn't empty (handles cases like just "EQ" which is unlikely)
+                                  if (cleanName.isNotEmpty) {
+                                    holdings.add(
+                                      MapEntry(cleanName, values[i]),
+                                    );
+                                  }
+                                }
+
+                                // Sort High to Low
+                                holdings.sort(
+                                  (a, b) => b.value.compareTo(a.value),
+                                );
+
+                                // Take Top 5
+                                final top10Items = holdings.take(10).toList();
+
+                                // 5. Render
+                                return SingleChildScrollView(
+                                  physics: BouncingScrollPhysics(),
+                                  child: Column(
+                                    children: [
+                                      const Gap(10),
+                                      const Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Stock Allocation',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w400,
+                                              color: Ucolors.darkgrey,
+                                            ),
+                                          ),
+                                          Text(
+                                            'Holding %',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w400,
+                                              color: Ucolors.darkgrey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const Gap(10),
+
+                                      const DashedLine(
+                                        dashSpace: 0,
+
+                                        color: Ucolors.borderColor,
+                                      ),
+                                      const Gap(10),
+                                      ...top10Items.map((item) {
+                                        return
+                                        // StockAllocationItem(
+                                        //   name: item.key, // Clean Name
+                                        //   category: '', // Placeholder
+                                        //   sector: '', // Placeholder
+                                        //   percentage: item.value,
+                                        // );
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            bottom: 10,
+                                          ),
+                                          child: PercentageBar(
+                                            title: item
+                                                .key, // Name (e.g., Financial Services)
+                                            percentage: item
+                                                .value, // Value (e.g., 30.62)
+                                            color: Colors
+                                                .blue, // Replace with Ucolors.primary
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
                           ],
                         ),
                       ),
@@ -4821,13 +4825,14 @@ class _SpeedometerGaugeState extends State<SpeedometerGauge> {
   void _checkVisibility() {
     if (!mounted) return;
 
-    final RenderObject? renderObject = _gaugeKey.currentContext?.findRenderObject();
+    final RenderObject? renderObject = _gaugeKey.currentContext
+        ?.findRenderObject();
     if (renderObject is RenderBox) {
       final position = renderObject.localToGlobal(Offset.zero);
       final screenHeight = MediaQuery.of(context).size.height;
 
-
-      bool currentlyVisible = position.dy < screenHeight - 50 && position.dy > -100;
+      bool currentlyVisible =
+          position.dy < screenHeight - 50 && position.dy > -100;
 
       if (currentlyVisible && !_isOnScreen) {
         setState(() {
