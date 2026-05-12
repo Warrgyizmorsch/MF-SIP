@@ -10,7 +10,43 @@ import 'package:my_sip/features/cart/domain/entities/cart_response_entity.dart';
 import 'package:my_sip/features/cart/domain/usecases/cart_usecases.dart';
 import 'package:my_sip/services/session_manager.dart';
 
+import '../../../fund_details/domain/entity/fund_detail_entity.dart';
+
 class CartController extends GetxController {
+  RxString schemeCode = ''.obs;
+  RxString schemeName = ''.obs;
+  RxString amcImage = ''.obs;
+  RxString invType = 'sip'.obs;
+  RxInt minSipAmount = 0.obs;
+  var selectedSipDay = 1.obs; // Default to the 1st of the month
+  var stepUpFrequency = '6'.obs; // Default to 6 months
+  var stepUpAmount = 0.0.obs;
+  Rx<FundDetailEntity?> fundDetail = Rx<FundDetailEntity?>(null);
+  var goalId = RxnInt(); // Nullable reactive int
+
+  var investmentAmount = 0.0.obs;
+   setInvestmentDetails({
+    required String code,
+    required String name,
+    required int minAmount,
+    required String amcLogo,
+     required FundDetailEntity fundDetailEntity,
+
+  }) {
+    schemeCode.value = code;
+    schemeName.value = name;
+    minSipAmount.value = minAmount;
+    fundDetail.value =fundDetailEntity;
+    amcImage.value= amcLogo;
+    debugPrint("amcLogo: ${amcImage.value} ,$amcLogo");
+    // goalId.value = gId;
+
+    // Default the input amount to the minimum allowed
+    investmentAmount.value = minAmount.toDouble();
+    stepUpAmount.value = minAmount.toDouble();
+    update();
+  }
+  bool get isStepUpValid => stepUpAmount.value >= minSipAmount.value;
   @override
   void onInit() {
     super.onInit();
@@ -89,9 +125,14 @@ class CartController extends GetxController {
     // Check if we have arguments and specifically look for goal_id
     if (Get.arguments != null && Get.arguments is Map) {
       filterGoalId.value = Get.arguments['goal_id'];
+      investmentAmount.value = Get.arguments['investNow'];
+      debugPrint("investNow:${ investmentAmount.value}");
     } else {
       filterGoalId.value = null; // Explicitly clear if no argument is passed
+      investmentAmount.value = 0.0; // Explicitly clear if no argument is passed
     }
+    debugPrint("investNow: ${ investmentAmount.value}");
+
   }
 
   // Inside CartController

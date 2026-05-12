@@ -25,9 +25,9 @@ class SipCalculatorPage extends StatefulWidget {
   State<SipCalculatorPage> createState() => _SipCalculatorPageState();
 }
 
-class _SipCalculatorPageState extends State<SipCalculatorPage> {
+class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTickerProviderStateMixin{
   final ScrollController horizontalCtrl = ScrollController();
-
+  late TabController _tabController;
   SipResult get sipResult => calculateSip(
     monthlyInvestment: monthlyInvestment,
     annualRate: returnRate,
@@ -48,7 +48,39 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
   double totalInvestment = 100000;
   double returnRatelumpsum = 12;
   double yearslumpsum = 5;
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
 
+    // 🔹 Listen for tab switches
+    _tabController.addListener(() {
+      // indexIsChanging is true when the user taps, preventing double-firing
+      if (_tabController.indexIsChanging) {
+        _resetData();
+      }
+    });
+  }
+
+  void _resetData() {
+    setState(() {
+      // Reset SIP values
+      monthlyInvestment = 5000;
+      returnRate = 12;
+      years = 5;
+
+      // Reset Lumpsum values
+      totalInvestment = 100000;
+      returnRatelumpsum = 12;
+      yearslumpsum = 5;
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
@@ -69,66 +101,65 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
         padding: isDesktop
             ? const EdgeInsets.symmetric(vertical: 30, horizontal: 24)
             :const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-        child: DefaultTabController(
-          length: 2,
-          child: Column(
-            children: [
-              // --- 1. Tab Bar (Centered on Web) ---
-              Center(
-                child: Container(
-                  width: isDesktop ? 400 : double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(25),
-                    border: isDesktop
-                        ? Border.all(color: Colors.grey.shade300)
-                        : null,
-                  ),
-                  child: TabBar(
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    unselectedLabelColor: Colors.grey,
-                    dividerColor: Colors.transparent,
-                    labelColor: Ucolors.primary,
-                    indicatorColor: Colors.transparent,
-                    labelPadding: const EdgeInsets.symmetric(vertical: 8),
-                    indicator: BoxDecoration(
-                      borderRadius: BorderRadius.circular(25),
-                      color: Ucolors.primary.withOpacity(0.1),
-                    ),
-                    tabs: const [
-                      Text(
-                        'SIP',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        'Lumpsum',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
+        child: Column(
+          children: [
+            // --- 1. Tab Bar (Centered on Web) ---
+            Center(
+              child: Container(
+                width: isDesktop ? 400 : double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(25),
+                  border: isDesktop
+                      ? Border.all(color: Colors.grey.shade300)
+                      : null,
                 ),
-              ),
-
-              const Gap(24),
-
-              // --- 2. Content Area ---
-              SizedBox(
-                height:
-                    800, // Fixed height for TabBarView to prevent scroll issues
-                child: TabBarView(
-                  physics:
-                      const NeverScrollableScrollPhysics(), // Handle scrolling in parent
-                  children: [
-                    // SIP TAB
-                    _buildSipTab(isDesktop, returns),
-
-                    // LUMPSUM TAB
-                    _buildLumpsumTab(isDesktop),
+                child: TabBar(
+                  controller: _tabController,
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  unselectedLabelColor: Colors.grey,
+                  dividerColor: Colors.transparent,
+                  labelColor: Ucolors.primary,
+                  indicatorColor: Colors.transparent,
+                  labelPadding: const EdgeInsets.symmetric(vertical: 8),
+                  indicator: BoxDecoration(
+                    borderRadius: BorderRadius.circular(25),
+                    color: Ucolors.primary.withOpacity(0.1),
+                  ),
+                  tabs: const [
+                    Text(
+                      'SIP',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      'Lumpsum',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+
+            const Gap(24),
+
+            // --- 2. Content Area ---
+            SizedBox(
+              height:
+                  800, // Fixed height for TabBarView to prevent scroll issues
+              child: TabBarView(
+                controller: _tabController,
+                physics:
+                    const NeverScrollableScrollPhysics(), // Handle scrolling in parent
+                children: [
+                  // SIP TAB
+                  _buildSipTab(isDesktop, returns),
+
+                  // LUMPSUM TAB
+                  _buildLumpsumTab(isDesktop),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -162,6 +193,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
             onChanged: (value) => setState(() => monthlyInvestment = value),
           ),
           SipSliderTile3(
+            key: const ValueKey('sip_return_rate'),
             title: 'Expected return rate (p.a)',
             value: returnRate,
             pMin: 1, pMax: 30,      // % Range
@@ -344,11 +376,12 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> {
             suffix: '₹',
           ),
           SipSliderTile3(
+            key: const ValueKey('lumpsum_return_rate'),
             title: 'Expected return rate (p.a)',
-            value: returnRate,
+            value: returnRatelumpsum,
             pMin: 1, pMax: 30,      // % Range
             rMin: 500, rMax: 50000,
-            onChanged: (val) => setState(() => returnRate = val),
+            onChanged: (val) => setState(() => returnRatelumpsum = val),
           ),
           SipSliderTile2(
             title: 'Total period',

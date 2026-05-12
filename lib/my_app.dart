@@ -182,63 +182,63 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             }
           },
           builder: (context, widget) {
+            final mediaQueryData = MediaQuery.of(context);
             return MediaQuery(
-              data: MediaQuery.of(
-                context,
-              ).copyWith(textScaler: TextScaler.noScaling),
+              data: mediaQueryData.copyWith(
+                textScaler: TextScaler.noScaling,
+              ),
               child: ResponsiveBreakpoints.builder(
                 child: Obx(
-                  () => SafeArea(
-                    child: Stack(
-                      children: [
-                        // This is your background app
-                        widget!,
+                  () => Stack(
+                    children: [
+                      // This is your background app
+                      widget!,
 
-                        // The system UI pop-up will appear over this blank screen
-                        // if (!_hasUnlockedThisSession)
-                        if (session.isAppLockEnabled.value &&
-                            !_hasUnlockedThisSession)
-                          Material(
-                            color: Colors.transparent,
-                            child: Container(
-                              color: Colors.white,
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image.asset(
-                                      UImages.imp,
-                                      alignment: Alignment.center,
-                                      height: 100,
-                                      width: 100,
+                      // The system UI pop-up will appear over this blank screen
+                      // if (!_hasUnlockedThisSession)
+                      if (session.isAppLockEnabled.value &&
+                          !_hasUnlockedThisSession)
+                        Material(
+                          color: Colors.transparent,
+                          child: Container(
+                            color: Colors.white,
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    UImages.imp,
+                                    alignment: Alignment.center,
+                                    height: 100,
+                                    width: 100,
+                                  ),
+                                  const SizedBox(height: 20),
+                                  const Text(
+                                    "MF SIP Secured",
+                                    style: TextStyle(
+
+
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    const SizedBox(height: 20),
-                                    const Text(
-                                      "MF SIP Secured",
-                                      style: TextStyle(
-                                        // fontFamily: 'Geist',
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  ),
+                                  const SizedBox(height: 30),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Ucolors.blue,
                                     ),
-                                    const SizedBox(height: 30),
-                                    ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Ucolors.blue,
-                                      ),
-                                      onPressed: _authenticate,
-                                      child: const Text(
-                                        "Unlock with Biometrics",
-                                        style: TextStyle(color: Colors.white),
-                                      ),
+                                    onPressed: _authenticate,
+                                    child: const Text(
+                                      "Unlock with Biometrics",
+                                      style: TextStyle(color: Colors.white),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                      ],
-                    ),
+                        ),
+                    ],
                   ),
                 ),
                 breakpoints: [

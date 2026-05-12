@@ -93,6 +93,7 @@ class LoginPage extends GetView<AuthController> {
                                     ),
                                     SizedBox(height: 20),
                                   ],
+                                  SizedBox(height: 20),
                                   Obx(
                                     () => CustomTextField(
                                       minLength: 10,

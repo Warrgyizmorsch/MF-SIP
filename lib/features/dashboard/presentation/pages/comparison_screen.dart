@@ -188,7 +188,7 @@ class FundBottomBarButton extends StatelessWidget {
           // Secondary Button (Outlined)
           Expanded(
             flex: 2,
-            child: UElevatedBUtton(
+            child: UElevatedButton2(
               onPressed: isLoading ? null : firstButtonP,
               outlined: true,
               width: double.infinity,
@@ -210,7 +210,7 @@ class FundBottomBarButton extends StatelessWidget {
           // Primary Button (Gradient/Solid)
           Expanded(
             flex: 8,
-            child: UElevatedBUtton(
+            child: UElevatedButton2(
               onPressed: isLoading ? null : secondButtonP,
               // height: 50,
               child: AnimatedSwitcher(

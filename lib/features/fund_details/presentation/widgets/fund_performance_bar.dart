@@ -33,7 +33,7 @@ class YearlyReturnsChart extends StatelessWidget {
       children: [
         /// 1. STACKED BAR CHART (AMOUNT-BASED Y-AXIS)
         Container(
-          height: height ?? (isDesktop ? 290 : 200),
+          height: height ?? (isDesktop ? 290 : 150),
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Obx(() {
             // Access observables inside Obx
@@ -150,7 +150,7 @@ class YearlyReturnsChart extends StatelessWidget {
         /// 2. PERIOD SELECTOR
         PeriodSelectorBarChart(yearlyData: yearlyData),
 
-        const SizedBox(height: 20),
+        const SizedBox(height: 4),
 
         /// 3. NUMERIC DATA DISPLAY
         Obx(() {
@@ -166,19 +166,21 @@ class YearlyReturnsChart extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("Invested", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                    Text(isLoss ? "Loss" : "Gain", style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                    const Text("Invested", style: TextStyle(color: Colors.grey, fontSize: 10)),
+                    Text(isLoss ? "Loss" : "Gain", style: const TextStyle(color: Colors.grey, fontSize: 10)),
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text("₹${currentInv.toStringAsFixed(0)}",
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
@@ -186,7 +188,7 @@ class YearlyReturnsChart extends StatelessWidget {
                             style: TextStyle(
                                 color: isLoss ? Colors.red : Colors.green,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 18
+                                fontSize: 14
                             )),
                         Text("(${selectedData.scheme.toStringAsFixed(2)}%)",
                             style: TextStyle(color: isLoss ? Colors.red : Colors.green, fontSize: 12)),
@@ -199,16 +201,16 @@ class YearlyReturnsChart extends StatelessWidget {
           );
         }),
 
-        const SizedBox(height: 10),
+
 
         /// 4. SLIDER
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Obx(() => SliderTheme(
             data: SliderTheme.of(context).copyWith(
               activeTrackColor: const Color(0xFF66BB6A),
               thumbColor: Colors.orange,
-              trackHeight: 4,
+              trackHeight: 2,
             ),
             child: Slider(
               value: controller.investment.value,

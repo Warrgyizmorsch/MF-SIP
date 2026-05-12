@@ -175,17 +175,12 @@ class SipSliderTile3 extends StatefulWidget {
   final String title;
   final double value;
   final ValueChanged<double> onChanged;
-
-  // Percent Ranges
   final double pMin;
   final double pMax;
-
-  // Rupee Ranges
   final double rMin;
   final double rMax;
-
   final Color? activeColor;
-  final SliderComponentShape? customThumb; // Added this
+  final SliderComponentShape? customThumb;
 
   const SipSliderTile3({
     super.key,
@@ -197,7 +192,7 @@ class SipSliderTile3 extends StatefulWidget {
     this.rMin = 500,
     this.rMax = 100000,
     this.activeColor,
-    this.customThumb, // Initialize
+    this.customThumb,
   });
 
   @override
@@ -219,6 +214,21 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
     _controller = TextEditingController(text: _currentValue.toInt().toString());
   }
 
+  // 🔹 CRITICAL: This updates the internal UI when parent data is cleared/changed
+  @override
+  void didUpdateWidget(covariant SipSliderTile3 oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.value != oldWidget.value) {
+      setState(() {
+        _currentValue = widget.value;
+        // Update text controller only if not currently typing to avoid cursor jumps
+        if (_controller.text != widget.value.toInt().toString()) {
+          _controller.text = widget.value.toInt().toString();
+        }
+      });
+    }
+  }
+
   void _updateValue(double val) {
     final clamped = val.clamp(currentMin, currentMax);
     setState(() {
@@ -229,26 +239,31 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final effectiveColor = widget.activeColor ?? Colors.blue;
-    final WidgetStateProperty<Icon?> thumbIcon =
-        WidgetStateProperty.resolveWith<Icon?>((Set<WidgetState> states) {
-          if (states.contains(WidgetState.selected)) {
-            return const Icon(
-              Icons.currency_rupee,
-              size: 16,
-              color: Colors.white,
-            );
-          }
-          return const Icon(Icons.percent, size: 16, color: Colors.grey);
-        });
+
+    // Thumb icon logic
+    final WidgetStateProperty<Icon?> thumbIcon = WidgetStateProperty.resolveWith<Icon?>(
+          (Set<WidgetState> states) {
+        if (isRupeeActive) {
+          return const Icon(Icons.currency_rupee, size: 16, color: Colors.white);
+        }
+        return const Icon(Icons.percent, size: 16, color: Colors.grey);
+      },
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            /// Title + Switch Row
             Row(
               children: [
                 Text(widget.title, style: const TextStyle(fontSize: 12)),
@@ -256,12 +271,13 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
                 Transform.scale(
                   scale: 0.8,
                   child: Switch(
-                    thumbIcon: thumbIcon, // Text/Icon inside the thumb
+                    thumbIcon: thumbIcon,
                     value: isRupeeActive,
                     activeColor: effectiveColor,
                     onChanged: (bool value) {
                       setState(() {
                         isRupeeActive = value;
+                        // When switching modes, clamp existing value or reset to min
                         _updateValue(currentMin);
                       });
                     },
@@ -270,7 +286,7 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
               ],
             ),
 
-            /// Editable Box
+            // Editable Box
             Container(
               width: 115,
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -325,30 +341,23 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
           ],
         ),
 
-        /// Slider with Custom Thumb
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
             activeTrackColor: effectiveColor,
             inactiveTrackColor: Colors.grey.shade300,
             trackHeight: 3,
             thumbColor: Colors.white,
-            // Uses your customThumb if provided, otherwise standard round thumb
-            thumbShape:
-                widget.customThumb ??
-                ImageSliderThumb(
-                  thumbRadius: 15,
-                  image: AssetImage(UImages.imp),
-                ),
+            thumbShape: widget.customThumb ?? ImageSliderThumb(
+              thumbRadius: 15,
+              image: AssetImage(UImages.imp),
+            ),
             overlayColor: effectiveColor.withOpacity(0.2),
           ),
           child: Slider(
-            value: _currentValue,
+            value: _currentValue.clamp(currentMin, currentMax),
             min: currentMin,
             max: currentMax,
-            // Logic to keep divisions clean
-            divisions: isRupeeActive
-                ? null
-                : (widget.pMax - widget.pMin).toInt(),
+            divisions: isRupeeActive ? null : (widget.pMax - widget.pMin).toInt(),
             onChanged: (val) => _updateValue(val),
           ),
         ),
