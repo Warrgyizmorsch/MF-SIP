@@ -151,6 +151,8 @@ class MutualFundController extends GetxController {
     _currentFilters.remove('risk_level');
     _currentFilters.remove('rating');
     _currentFilters.remove('search'); // Used for index funds only
+    _currentFilters.remove('return_min'); // ADD THIS
+    _currentFilters.remove('return_max');
 
     // 2. Merge the newly selected parameters from FundhouseController
     _currentFilters.addAll(newParams);
