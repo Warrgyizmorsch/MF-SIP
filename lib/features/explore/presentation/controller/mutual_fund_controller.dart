@@ -212,12 +212,15 @@ class MutualFundController extends GetxController {
       if (isLoadMore) isMoreLoading.value = true;
 
       // 2. Prepare Page Number
-      final int pageToFetch = isLoadMore ? currentPage + 1 : 1;
+      // final int pageToFetch = isLoadMore ? currentPage + 1 : 1;
 
       // 3. MERGE PARAMETERS (Page + Search + Filters)
       final Map<String, dynamic> apiParams = {};
 
-      apiParams['page'] = pageToFetch;
+      // apiParams['page'] = pageToFetch;
+      if (isLoadMore) {
+        apiParams['page'] = currentPage + 1;
+      }
 
       // Add Search if exists
       if (_currentSearchQuery.isNotEmpty) {
@@ -229,7 +232,8 @@ class MutualFundController extends GetxController {
 
       apiParams['sort_order'] ??= 'desc';
 
-      bool hasActiveFilters = _currentSearchQuery.isNotEmpty || _currentFilters.isNotEmpty;
+      bool hasActiveFilters =
+          _currentSearchQuery.isNotEmpty || _currentFilters.isNotEmpty;
 
       // final riskType = dynamicRiskType;
       // if (riskType != null) {
@@ -239,7 +243,6 @@ class MutualFundController extends GetxController {
       if (riskType != null && !hasActiveFilters) {
         apiParams['risk_type'] = riskType;
       }
-
 
       // 4. Call API
       final result = await _getMutualFundListUsecases.call(apiParams);
@@ -450,14 +453,16 @@ class MutualFundController extends GetxController {
   String? get dynamicRiskType {
     // 1. Try to get it from the Controller
     if (Get.isRegistered<PersonalisationController>()) {
-      final controllerRisk = Get.find<PersonalisationController>().riskResult.value?.profileName;
+      final controllerRisk =
+          Get.find<PersonalisationController>().riskResult.value?.profileName;
       if (controllerRisk != null && controllerRisk.isNotEmpty) {
         return controllerRisk;
       }
     }
-    
+
     // 2. Try to get it from Local Session
-    final sessionRisk = SessionManager.instance.getUserData?.riskProfileModel?.profileName;
+    final sessionRisk =
+        SessionManager.instance.getUserData?.riskProfileModel?.profileName;
     if (sessionRisk != null && sessionRisk.isNotEmpty) {
       return sessionRisk;
     }

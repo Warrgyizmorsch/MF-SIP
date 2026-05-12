@@ -107,8 +107,7 @@ class FundhouseController extends GetxController {
     bool isSortActive = mutualController.currentSortLabel.value != "1Y,3Y,5Y";
 
     final riskType = mutualController.dynamicRiskType;
-    // if (riskType != null) {
-    //   params['risk_type'] = riskType;
+    
     // }
     if (riskType != null && !isFilterActive && !isSortActive) {
       params['risk_type'] = riskType;
