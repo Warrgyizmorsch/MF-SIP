@@ -1703,6 +1703,15 @@ class NavigationBarController extends GetxController {
 
     selectedIndex.value = index;
 
+    // if (Get.isRegistered<MutualFundController>()) {
+    //   Get.find<MutualFundController>().nextPopularGroup();
+    // }
+    if (index == 0) {
+      if (Get.isRegistered<MutualFundController>()) {
+        Get.find<MutualFundController>().nextPopularGroup();
+      }
+    }
+
     if (isDesktop) {
       String route = AppRoutes.home;
       String? webUrl;
@@ -1793,6 +1802,9 @@ class NavigationBarController extends GetxController {
       isHelpExpanded.value = false;
 
       selectedIndex.value = 1;
+      if (Get.isRegistered<MutualFundController>()) {
+        Get.find<MutualFundController>().nextPopularGroup();
+      }
 
       if (filterLogic != null) {
         filterLogic();

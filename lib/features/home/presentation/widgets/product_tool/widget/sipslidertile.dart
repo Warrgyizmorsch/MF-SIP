@@ -231,14 +231,17 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
   @override
   Widget build(BuildContext context) {
     final effectiveColor = widget.activeColor ?? Colors.blue;
-    final WidgetStateProperty<Icon?> thumbIcon = WidgetStateProperty.resolveWith<Icon?>(
-          (Set<WidgetState> states) {
-        if (states.contains(WidgetState.selected)) {
-          return const Icon(Icons.currency_rupee, size: 16, color: Colors.white);
-        }
-        return const Icon(Icons.percent, size: 16, color: Colors.grey);
-      },
-    );
+    final WidgetStateProperty<Icon?> thumbIcon =
+        WidgetStateProperty.resolveWith<Icon?>((Set<WidgetState> states) {
+          if (states.contains(WidgetState.selected)) {
+            return const Icon(
+              Icons.currency_rupee,
+              size: 16,
+              color: Colors.white,
+            );
+          }
+          return const Icon(Icons.percent, size: 16, color: Colors.grey);
+        });
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -248,7 +251,7 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
             /// Title + Switch Row
             Row(
               children: [
-                Expanded(flex:3,child: Text(widget.title, style: const TextStyle(fontSize: 12,))),
+                Text(widget.title, style: const TextStyle(fontSize: 12)),
                 const SizedBox(width: 4),
                 Transform.scale(
                   scale: 0.8,
@@ -278,14 +281,27 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
               child: Row(
                 children: [
                   if (isRupeeActive)
-                    Text("₹", style: TextStyle(color: effectiveColor, fontWeight: FontWeight.bold)),
+                    Text(
+                      "₹",
+                      style: TextStyle(
+                        color: effectiveColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   Expanded(
                     child: TextField(
                       controller: _controller,
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.right,
-                      style: TextStyle(color: effectiveColor, fontWeight: FontWeight.bold, fontSize: 15),
-                      decoration: const InputDecoration(border: InputBorder.none, isDense: true),
+                      style: TextStyle(
+                        color: effectiveColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        isDense: true,
+                      ),
                       onChanged: (text) {
                         final val = double.tryParse(text) ?? currentMin;
                         _updateValue(val);
@@ -295,7 +311,13 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
                   if (!isRupeeActive)
                     Padding(
                       padding: const EdgeInsets.only(left: 2),
-                      child: Text("%", style: TextStyle(color: effectiveColor, fontWeight: FontWeight.bold)),
+                      child: Text(
+                        "%",
+                        style: TextStyle(
+                          color: effectiveColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                 ],
               ),
@@ -311,10 +333,12 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
             trackHeight: 3,
             thumbColor: Colors.white,
             // Uses your customThumb if provided, otherwise standard round thumb
-            thumbShape: widget.customThumb ??  ImageSliderThumb(
-    thumbRadius: 15,
-    image: AssetImage(UImages.imp),
-    ),
+            thumbShape:
+                widget.customThumb ??
+                ImageSliderThumb(
+                  thumbRadius: 15,
+                  image: AssetImage(UImages.imp),
+                ),
             overlayColor: effectiveColor.withOpacity(0.2),
           ),
           child: Slider(
@@ -322,7 +346,9 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
             min: currentMin,
             max: currentMax,
             // Logic to keep divisions clean
-            divisions: isRupeeActive ? null : (widget.pMax - widget.pMin).toInt(),
+            divisions: isRupeeActive
+                ? null
+                : (widget.pMax - widget.pMin).toInt(),
             onChanged: (val) => _updateValue(val),
           ),
         ),

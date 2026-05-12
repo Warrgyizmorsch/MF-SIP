@@ -35,6 +35,9 @@ class MutualFundController extends GetxController {
   bool canLoadMore = true;
   Timer? _debounce;
 
+  final currentPopularIndex = 0.obs;
+  Timer? _carouselTimer;
+
   // ✅ CRITICAL: These variables "remember" what the user is looking at
   String _currentSearchQuery = "";
   Map<String, dynamic> _currentFilters = {};
@@ -44,6 +47,8 @@ class MutualFundController extends GetxController {
     super.onInit();
     // resetToDefaultStateOnly(); // Wipes memory without calling API
     fetchData();
+    _loadRecentlyViewed();
+    // _startPopularFundsCarousel();
   }
 
   void setSearchFocus(bool focus) {
@@ -237,6 +242,7 @@ class MutualFundController extends GetxController {
             // Replace Mode (New Search/Filter)
             searchFund.assignAll(newData);
             currentPage = 1;
+            currentPopularIndex.value = 0;
           }
 
           // 5. Update "Can Load More" flag
@@ -405,8 +411,28 @@ class MutualFundController extends GetxController {
     _saveRecentlyViewed();
   }
 
+  void removeFromRecentlyViewed(String schemeCode) {
+    recentlyViewedFunds.removeWhere(
+      (fund) => fund.schemeCode.toString() == schemeCode,
+    );
+
+    _saveRecentlyViewed();
+  }
+
+  // 🚀 Call this to instantly move to the next group of 4
+  void nextPopularGroup() {
+    if (searchFund.isEmpty) return;
+
+    final maxGroups = (searchFund.length / 4).ceil();
+    if (maxGroups <= 1) return;
+
+    currentPopularIndex.value = (currentPopularIndex.value + 1) % maxGroups;
+  }
+
   @override
   void onClose() {
+    // _carouselTimer?.cancel();
+    // _debounce?.cancel();
     _debounce?.cancel();
     super.onClose();
   }

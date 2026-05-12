@@ -52,12 +52,15 @@
 //   }
 // }
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
+import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/services/session_manager.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'config/routes/app_pages.dart';
@@ -170,6 +173,14 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           initialBinding: UBinding(),
           getPages: AppPages.pages(),
           initialRoute: AppRoutes.splash,
+          routingCallback: (routing) {
+            if (routing?.current == AppRoutes.navMenuBar &&
+                routing?.isBack == true) {
+              if (Get.isRegistered<MutualFundController>()) {
+                Get.find<MutualFundController>().nextPopularGroup();
+              }
+            }
+          },
           builder: (context, widget) {
             return MediaQuery(
               data: MediaQuery.of(
@@ -182,7 +193,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                       children: [
                         // This is your background app
                         widget!,
-                    
+
                         // The system UI pop-up will appear over this blank screen
                         // if (!_hasUnlockedThisSession)
                         if (session.isAppLockEnabled.value &&
@@ -206,7 +217,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                                       "MF SIP Secured",
                                       style: TextStyle(
                                         // fontFamily: 'Geist',
-                    
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                       ),

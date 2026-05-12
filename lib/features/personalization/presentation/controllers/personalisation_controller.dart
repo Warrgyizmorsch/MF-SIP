@@ -647,7 +647,7 @@ class PersonalisationController extends GetxController {
         "account_number": bankAccountNumberController.text.trim(),
         "ifsc_code": bankIfscController.text.trim().toUpperCase(),
         "bank_name": bankNameController.text.trim(),
-        "micr_code": bankMicrController.text.trim(),
+        // "micr_code": bankMicrController.text.trim(),
         "account_type": bankAccountType.value,
       };
 

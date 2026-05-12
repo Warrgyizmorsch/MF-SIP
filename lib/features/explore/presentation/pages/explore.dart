@@ -1869,7 +1869,8 @@ class MutualFundCard extends StatelessWidget {
       onTap:
           onTapOverride ??
           () {
-            mutualFundController.addToRecentlyViewed(entity);
+            // mutualFundController.addToRecentlyViewed(entity);
+            mutualFundController.addToLocalRecentlyViewed(entity);
             Get.toNamed(
               AppRoutes.funddetails,
               arguments: {
@@ -2014,6 +2015,9 @@ class MutualFundCard extends StatelessWidget {
                                       "${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}",
                                   'scheme_code': entity.schemeCode.toString(),
                                 },
+                              );
+                              mutualFundController.addToLocalRecentlyViewed(
+                                entity,
                               );
                               break;
                           }

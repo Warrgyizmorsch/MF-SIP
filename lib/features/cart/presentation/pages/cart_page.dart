@@ -19,7 +19,9 @@ import 'package:my_sip/core/utils/enums/enums.dart';
 import 'package:my_sip/features/authentication/presentation/widgets/term_policy.dart';
 import 'package:my_sip/features/cart/domain/entities/cart_response_entity.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
+import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
 
 // class CartPage extends GetView<CartController> {
@@ -250,45 +252,49 @@ class CartPage extends GetView<CartController> {
 
         // --- EMPTY STATE ---
         if (items.isEmpty) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Center(
-                child: controller.filterGoalId.value != null
-                    ? const Text("No funds for this goal")
-                    : const AnimatedEmptyState(
-                        title: "Your Cart is Empty",
-                        message:
-                            "Looks like you haven't added any funds yet. Go explore!",
-                        icon: Icons.shopping_cart_outlined,
-                      ),
-              ),
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Center(
+                  child: controller.filterGoalId.value != null
+                      ? const Text("No funds for this goal")
+                      : const AnimatedEmptyState(
+                          title: "Your Cart is Empty",
+                          message:
+                              "Looks like you haven't added any funds yet. Go explore!",
+                          icon: Icons.shopping_cart_outlined,
+                        ),
+                ),
 
-              InkWell(
-                onTap: () {
-                  Get.toNamed(AppRoutes.explorePage);
-                },
-                borderRadius: BorderRadius.circular(8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Explore more funds',
-                      style: AppTextStyles.bodyMediumBold().copyWith(
+                InkWell(
+                  onTap: () {
+                    Get.toNamed(AppRoutes.explorePage);
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Explore more funds',
+                        style: AppTextStyles.bodyMediumBold().copyWith(
+                          color: Ucolors.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const Icon(
+                        Icons.arrow_forward_rounded,
+                        size: 18,
                         color: Ucolors.primary,
                       ),
-                    ),
-                    const SizedBox(width: 6),
-                    const Icon(
-                      Icons.arrow_forward_rounded,
-                      size: 18,
-                      color: Ucolors.primary,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 60),
+                _buildRecentlyViewed(),
+              ],
+            ),
           );
         }
 
@@ -328,17 +334,187 @@ class CartPage extends GetView<CartController> {
             ),
           );
         }
+        // --- MOBILE LAYOUT ---
+        return CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // 1. Your Cart Items (Scrolls normally)
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  return CartItemCard(index: index, itemEntity: items[index]);
+                }, childCount: items.length),
+              ),
+            ),
+
+            if (items.length <= 2)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    const SizedBox(height: 20),
+                    _buildRecentlyViewed(),
+                  ],
+                ),
+              ),
+          ],
+        );
 
         // --- MOBILE LAYOUT ---
-        return ListView.builder(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          itemCount: items.length,
-          itemBuilder: (context, index) {
-            return CartItemCard(index: index, itemEntity: items[index]);
-          },
-        );
+        // return SingleChildScrollView(
+        //   child: Column(
+        //     children: [
+        //       ListView.builder(
+        //         physics: const NeverScrollableScrollPhysics(), // 🚀 3. ADD THIS
+        //         shrinkWrap: true,
+        //         padding: const EdgeInsets.symmetric(vertical: 8),
+        //         itemCount: items.length,
+        //         itemBuilder: (context, index) {
+        //           return CartItemCard(index: index, itemEntity: items[index]);
+        //         },
+        //       ),
+        //       // if (items.length <= 2) _buildRecentlyViewed(),
+        //       if (items.length <= 2) ...[
+        //         // const SizedBox(height: 32),
+        //         _buildRecentlyViewed(),
+        //         // const SizedBox(height: 12),
+        //       ],
+        //     ],
+        //   ),
+        // );
       }),
     );
+  }
+
+  // =========================================
+  // 🧩 RECENTLY VIEWED HELPER
+  // =========================================
+  Widget _buildRecentlyViewed() {
+    return Obx(() {
+      // Safely fetch the recently viewed funds
+      final recentFunds = Get.find<MutualFundController>().recentlyViewedFunds;
+
+      if (recentFunds.isEmpty) return const SizedBox.shrink();
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: Ucolors.primary,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  "Recently Viewed",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 140,
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              clipBehavior: Clip.none,
+              physics: const BouncingScrollPhysics(),
+              scrollDirection: Axis.horizontal,
+              itemCount: recentFunds.length,
+              separatorBuilder: (context, index) => const SizedBox(width: 16),
+              itemBuilder: (context, index) {
+                final fund = recentFunds[index];
+                final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
+                final name = fund.baseSchemeName ?? 'Unknown Name';
+                final threeyear = fund.returnsEntity?.threeYear ?? '';
+                final schemeCode = fund.schemeCode.toString();
+
+                return SizedBox(
+                  width: Get.width * 0.45,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: PopularFundCard(
+                          onTap: () {
+                            Get.find<MutualFundController>()
+                                .addToLocalRecentlyViewed(fund);
+                            Get.toNamed(
+                              AppRoutes.funddetails,
+                              arguments: {
+                                'scheme': name,
+                                'imgUrl': img,
+                                'scheme_code': schemeCode,
+                              },
+                            );
+                          },
+                          isNetwork: true,
+                          imgPath: img,
+                          name: name,
+                          threeYear: threeyear,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 32, // Compact button height
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Get.find<CartController>().addToCart(
+                              schemeCode,
+                              name,
+                              fund.minSipAmount ?? 1000,
+                              null,
+                            );
+                            Get.find<MutualFundController>()
+                                .removeFromRecentlyViewed(schemeCode);
+                          },
+                          icon: const Icon(
+                            Icons.add_shopping_cart,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                          label: const Text(
+                            "Add to Cart",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                Ucolors.primary, // Using your theme color
+                            padding: EdgeInsets.zero,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 10),
+        ],
+      );
+    });
   }
 
   // =========================================
