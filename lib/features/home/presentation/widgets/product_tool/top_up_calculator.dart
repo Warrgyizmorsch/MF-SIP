@@ -10,6 +10,7 @@ import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/si
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/piechart_with_value.dart';
 import 'package:responsive_framework/responsive_framework.dart'; // Import Responsive
 
+import '../../../../../core/utils/helper/helpers.dart';
 import '../../../../fund_details/data/models/return_model.dart';
 import '../../../../fund_details/presentation/pages/fund_deatails.dart';
 import '../../../../fund_details/presentation/widgets/return.dart';
@@ -124,7 +125,7 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
             title: 'Increase SIP every year',
             value: stepUpValue,
             pMin: 1, pMax: 30,      // % Range
-            rMin: 100, rMax: 50000,
+            rMin: 500, rMax: 50000,
             onChanged: (value) => setState(() => stepUpValue = value),
           ),
           SipSliderTile2(
@@ -256,19 +257,19 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
                               inrFomat: false,
                               color: Colors.black87,
                               title: 'Step-up Invested',
-                              value: formatIndianNumber(result.stepUp.invested),
+                              value: formatCurrency(result.stepUp.invested),
                             ),
                             InvestValue(
                               color: Colors.black87,
                               title: 'Step-up Future Value',
                               inrFomat: false,
-                              value: formatIndianNumber(result.stepUp.value),
+                              value: formatCurrency(result.stepUp.value),
                             ),
                             InvestValue(
                               color: Colors.black87,
                               title: 'Step-up Profit',
                               inrFomat: false,
-                              value: formatIndianNumber(result.stepUp.profit),
+                              value: formatCurrency(result.stepUp.profit),
                             ),
                           ],
                           piechartvalue1: result.stepUp.invested,

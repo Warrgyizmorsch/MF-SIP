@@ -11,6 +11,7 @@ import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/pi
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/sipslidertile.dart';
 import 'package:responsive_framework/responsive_framework.dart'; // Import Responsive
 
+import '../../../../../core/utils/helper/helpers.dart';
 import '../../../../fund_details/data/models/return_model.dart';
 import '../../../../fund_details/presentation/pages/fund_deatails.dart';
 import '../../../../fund_details/presentation/widgets/return.dart';
@@ -190,22 +191,22 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
                         InvestValue(
                           inrFomat: false,
                           title: 'Invest Amount',
-                          value: formatIndianNumber(initialInvestment),
+                          value: formatCurrency(initialInvestment),
                         ),
                         InvestValue(
                           title: 'Total Withdrawn',
                           inrFomat: false,
-                          value: formatIndianNumber(swp.totalWithdrawn),
+                          value: formatCurrency(swp.totalWithdrawn),
                         ),
                         InvestValue(
                           inrFomat: false,
                           title: 'Remaining Value',
-                          value: formatIndianNumber(swp.remainingValue),
+                          value: formatCurrency(swp.remainingValue),
                         ),
                         InvestValue(
                           inrFomat: false,
                           title: 'Total Profit',
-                          value: formatIndianNumber(swp.totalProfit),
+                          value: formatCurrency(swp.totalProfit),
                         ),
                       ],
                       piechartcolor1: Ucolors.primary,

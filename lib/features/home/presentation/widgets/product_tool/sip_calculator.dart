@@ -145,7 +145,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
             // --- 2. Content Area ---
             SizedBox(
               height:
-                  800, // Fixed height for TabBarView to prevent scroll issues
+                  560, // Fixed height for TabBarView to prevent scroll issues
               child: TabBarView(
                 controller: _tabController,
                 physics:
@@ -156,9 +156,11 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
 
                   // LUMPSUM TAB
                   _buildLumpsumTab(isDesktop),
+
                 ],
               ),
             ),
+
           ],
         ),
       ),
@@ -260,7 +262,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
 
             // Inner Tab Views
             SizedBox(
-              height: 450,
+              height: 400,
               child: TabBarView(
                 children: [
                   // A. Visual Chart
@@ -342,7 +344,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
     } else {
       return SingleChildScrollView(
         child: Column(
-          children: [const Gap(18), inputs, const Gap(18), results, const Gap(200),],
+          children: [const Gap(18), inputs, const Gap(18), results],
         ),
       );
     }
@@ -397,7 +399,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
 
     // 2. Results
     Widget results = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 25),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
       decoration: BoxDecoration(
         color: Ucolors.light,
         borderRadius: BorderRadius.circular(12),
