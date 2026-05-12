@@ -192,12 +192,12 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
             suffix: '₹',
             onChanged: (value) => setState(() => monthlyInvestment = value),
           ),
-          SipSliderTile3(
-            key: const ValueKey('sip_return_rate'),
+          SipSliderTile2(
             title: 'Expected return rate (p.a)',
             value: returnRate,
-            pMin: 1, pMax: 30,      // % Range
-            rMin: 500, rMax: 50000,
+            min: 1,
+            max: 30,
+            suffix: '%',
             onChanged: (val) => setState(() => returnRate = val),
           ),
           SipSliderTile2(
@@ -375,12 +375,12 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
             onChanged: (value) => setState(() => totalInvestment = value),
             suffix: '₹',
           ),
-          SipSliderTile3(
-            key: const ValueKey('lumpsum_return_rate'),
+          SipSliderTile2(
             title: 'Expected return rate (p.a)',
             value: returnRatelumpsum,
-            pMin: 1, pMax: 30,      // % Range
-            rMin: 500, rMax: 50000,
+            min: 1,
+            max: 30,
+            suffix: '%',
             onChanged: (val) => setState(() => returnRatelumpsum = val),
           ),
           SipSliderTile2(

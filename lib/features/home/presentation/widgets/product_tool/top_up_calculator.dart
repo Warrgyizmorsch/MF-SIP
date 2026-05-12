@@ -119,13 +119,12 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
             prefix: '₹',
             onChanged: (value) => setState(() => baseAmount = value),
           ),
-          SipSliderTile2(
+          SipSliderTile3(
+            key: const ValueKey('sip_stepup_rate'),
             title: 'Increase SIP every year',
             value: stepUpValue,
-            min: 500,
-            max: 20000,
-            suffix: null,
-            prefix: '₹',
+            pMin: 1, pMax: 30,      // % Range
+            rMin: 100, rMax: 50000,
             onChanged: (value) => setState(() => stepUpValue = value),
           ),
           SipSliderTile2(

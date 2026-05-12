@@ -202,7 +202,7 @@ class SipSliderTile3 extends StatefulWidget {
 class _SipSliderTile3State extends State<SipSliderTile3> {
   late TextEditingController _controller;
   late double _currentValue;
-  bool isRupeeActive = false;
+  bool isRupeeActive = true;
 
   double get currentMin => isRupeeActive ? widget.rMin : widget.pMin;
   double get currentMax => isRupeeActive ? widget.rMax : widget.pMax;
@@ -210,8 +210,14 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
   @override
   void initState() {
     super.initState();
-    _currentValue = widget.value;
-    _controller = TextEditingController(text: _currentValue.toInt().toString());
+
+    isRupeeActive = true;
+
+    _currentValue = widget.value.clamp(widget.rMin, widget.rMax);
+
+    _controller = TextEditingController(
+      text: _currentValue.toInt().toString(),
+    );
   }
 
   // 🔹 CRITICAL: This updates the internal UI when parent data is cleared/changed
@@ -343,15 +349,20 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
 
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
-            activeTrackColor: effectiveColor,
-            inactiveTrackColor: Colors.grey.shade300,
             trackHeight: 3,
+            activeTrackColor: effectiveColor, // Use effectiveColor
+            inactiveTrackColor: Colors.grey.shade300,
             thumbColor: Colors.white,
-            thumbShape: widget.customThumb ?? ImageSliderThumb(
-              thumbRadius: 15,
-              image: AssetImage(UImages.imp),
-            ),
-            overlayColor: effectiveColor.withOpacity(0.2),
+            overlayColor: Colors.transparent,
+            tickMarkShape: SliderTickMarkShape.noTickMark,
+
+            // Use customThumb if provided, otherwise default to ImageSliderThumb
+            thumbShape:
+            widget.customThumb ??
+                ImageSliderThumb(
+                  thumbRadius: 15,
+                  image: AssetImage(UImages.imp),
+                ),
           ),
           child: Slider(
             value: _currentValue.clamp(currentMin, currentMax),
