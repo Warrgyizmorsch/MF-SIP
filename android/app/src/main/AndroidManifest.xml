@@ -8,6 +8,8 @@
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+<uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
     <application
         android:label="MF SIP"
         android:name="${applicationName}"
@@ -15,7 +17,8 @@
         android:resource="@mipmap/ic_launcher"
         android:hardwareAccelerated="true"
         android:enableOnBackInvokedCallback="true"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        android:networkSecurityConfig="@xml/network_security_config">
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_notification" />
