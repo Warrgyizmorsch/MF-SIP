@@ -37,6 +37,7 @@ import 'package:my_sip/features/sip_process/presentation/controllers/sip_process
 import 'package:my_sip/navigation_menu_bar.dart';
 import 'package:my_sip/services/session_manager.dart';
 import 'package:responsive_framework/responsive_framework.dart'; // Import Responsive Framework
+import 'package:shimmer/shimmer.dart';
 
 import '../widgets/product_tool/sip_calculator.dart';
 import '../widgets/product_tool/swp_calci.dart';
@@ -166,183 +167,897 @@ class _WebDashboardLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(vertical: 30),
-      child: Center(
-        child: MaxWidthBox(
-          maxWidth: 1200,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+
+        final width = constraints.maxWidth;
+
+        final bool isTablet = width < 800;
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: SizedBox(
+            width: double.infinity,
+
+            child: isTablet
+
+            /// TABLET LAYOUT
+                ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // --- LEFT COLUMN ---
-                    Expanded(
-                      flex: 8,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildHeroBanner(),
-                          const Gap(30),
-                          const Text(
-                            "Quick Actions",
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Gap(16),
-                          _buildQuickActionsCard(context),
-                          const Gap(30),
-                          const Text(
-                            "Explore Categories",
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Gap(16),
-                          _buildWebCollectionGrid(),
-                          const Gap(30),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                "Popular Funds",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              // TextButton(
-                              //   onPressed: () {},
-                              //   child: const Text("View All"),
-                              // ),
-                            ],
-                          ),
-                          const Gap(10),
-                          _buildWebFundGrid(),
-                          const Gap(30),
-                        ],
-                      ),
-                    ),
-                    const Gap(30),
-                    // --- RIGHT COLUMN ---
-                    Expanded(
-                      flex: 4,
-                      child: Column(
-                        children: [
-                          _buildWebGoalSection(),
-                          const Gap(24),
-                          _buildWebToolsSection(),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const Text(
-                  "Learn & Grow",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.start,
-                ),
-                const Gap(16),
 
-                _buildWebVideoRow(),
+                _buildLeftSection(context),
+                const Gap(24),
+                _buildRightSection(context),
+
+
+              ],
+            )
+
+            /// DESKTOP LAYOUT
+                : Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+                /// LEFT SECTION
+                Expanded(
+                  flex: 6,
+                  child: _buildLeftSection(context),
+                ),
+
+                const SizedBox(width: 30),
+
+                /// RIGHT SECTION
+                Expanded(
+                  flex: 4,
+                  child: _buildRightSection(context),
+                ),
               ],
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  // ... (Header and Banner widgets remain similar, add hover to icons if desired)
-  Widget _buildWebHeader() {
-    return Container(
-      height: 80,
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Center(
-        child: MaxWidthBox(
-          maxWidth: 1200,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Iconsax.notification),
-                hoverColor: Ucolors.primary.withOpacity(0.1),
-              ),
-              const Gap(10),
-              Obx(
-                () => Stack(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Iconsax.shopping_cart),
-                      onPressed: () {
-                        Get.find<CartController>().filterGoalId.value = null;
-                        Get.toNamed(
-                          AppRoutes.cart,
-                          // arguments: {'goal_id': null},
-                        );
-                      },
-                      hoverColor: Ucolors.primary.withOpacity(0.1),
+  // =========================================================
+  // LEFT SECTION
+  // =========================================================
+
+  Widget _buildLeftSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+
+        /// HERO
+        _buildHeroBanner(),
+
+        const Gap(24),
+
+        _buildWebCollectionGrid(),
+        const Gap(24),
+
+        _buildWebFundGrid(),
+
+        const Gap(24),
+        _buildWebGoalSection(),
+        const Gap(24),
+
+        _buildWebToolsSection(),
+        /// FUNDS
+
+
+        const Gap(30),
+
+        /// VIDEOS
+
+
+        _buildWebVideoRow(),
+      ],
+    );
+  }
+
+  // =========================================================
+  // RIGHT SECTION
+  // =========================================================
+
+  Widget _buildRightSection(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+
+
+        _buildQuickActionsCard(context),
+
+
+        const Gap(24),
+
+
+
+        _buildRecentCard(),
+      ],
+    );
+  }
+  Widget _buildRecentCard() {
+    return Obx(() {
+      // CRITICAL: GetX listeners ko start mein hi initialize karein
+      // Taaki Screenshot 2026-05-13 165551.png wala error na aaye
+      final bool isLoading = mutualController.isLoading.value;
+      final List recentList = mutualController.recentlyViewedFunds;
+
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
+          final bool isMobile = width < 700;
+          final bool isTablet = width >= 700 && width < 1100;
+
+          final int crossAxisCount = isMobile ? 1 : isTablet ? 2 : 3;
+
+          return Container(
+            width: double.infinity,
+            margin: const EdgeInsets.only(top: 20, bottom: 10),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: Colors.grey.shade100),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.02),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                )
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Section Heading hamesha dikhegi
+                const USectionHeading(
+                  title: 'Recently Viewed',
+                  showActionButton: false,
+                ),
+                const SizedBox(height: 16),
+
+                /// 1. LOADING STATE (Custom Shimmer Class)
+                if (isLoading)
+                  FundShimmerLoading(crossAxisCount: crossAxisCount)
+
+                /// 2. EMPTY STATE (Card ke andar sub-container)
+                else if (recentList.isEmpty)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 40),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                    if (cartController.generalItemsCount > 0)
-                      Positioned(
-                        right: 5,
-                        top: 5,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: Ucolors.red,
-                            shape: BoxShape.circle,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Iconsax.clock, size: 44, color: Colors.grey.shade300),
+                        const SizedBox(height: 12),
+                        Text(
+                          "No recently viewed funds",
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
                           ),
-                          child: Text(
-                            cartController.generalItemsCount.toString(),
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: Colors.white,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "Your history will appear here.",
+                          style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  )
+
+                /// 3. DATA LOADED (Sub-cards in Grid)
+                else
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: recentList.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      mainAxisExtent: 160,
+                      crossAxisSpacing: 18,
+                      mainAxisSpacing: 18,
+                    ),
+                    itemBuilder: (context, index) {
+                      final fund = recentList[index];
+
+                      // Logo Image handling
+                      final rawLogo = fund.amc?.amcLogoUrl ?? '';
+                      final img = rawLogo.startsWith('http')
+                          ? rawLogo
+                          : "${Appurl.baseUrl}$rawLogo";
+
+                      final name = fund.baseSchemeName ?? 'Unknown Name';
+                      final schemeCode = fund.schemeCode.toString();
+
+                      return PopularFundCard(
+                        onTap: () {
+                          // Navigation Logic
+                          mutualController.addToLocalRecentlyViewed(fund);
+                          Get.toNamed(
+                            AppRoutes.funddetails,
+                            arguments: {
+                              'scheme': name,
+                              'imgUrl': img,
+                              'scheme_code': schemeCode,
+                            },
+                          );
+                        },
+                        isNetwork: true,
+                        imgPath: img,
+                        name: name,
+                        threeYear: fund.returnsEntity?.threeYear ?? '--',
+                      );
+                    },
+                  ),
+              ],
+            ),
+          );
+        },
+      );
+    });
+  }
+
+// =========================================================
+// VIDEO SECTION
+// =========================================================
+
+  Widget _buildWebVideoRow() {
+    final videos = [
+      {
+        "thumbnail": "https://img.youtube.com/vi/yo5aL4Plbso/maxresdefault.jpg",
+        "videoId": "yo5aL4Plbso",
+      },
+      {
+        "thumbnail": "https://img.youtube.com/vi/t7lUSiddFd4/maxresdefault.jpg",
+        "videoId": "t7lUSiddFd4",
+      },
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final bool isMobile = width < 700;
+
+        // Sabse bahar wala Main Parent Card
+        return Container(
+          width: double.infinity,
+          margin: const EdgeInsets.symmetric(vertical: 20),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.grey.shade100),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Title inside the card
+              const Text(
+                "Learn & Grow",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Flex use kiya hai taaki Mobile par Column aur Web par Row bane
+              Flex(
+                direction: isMobile ? Axis.vertical : Axis.horizontal,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: List.generate(videos.length, (index) {
+                  final item = videos[index];
+
+                  return Expanded(
+                    flex: isMobile ? 0 : 1, // Mobile par fixed height, Web par equal width
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        // Desktop par beech mein space, Mobile par niche space
+                        right: (!isMobile && index == 0) ? 20 : 0,
+                        bottom: (isMobile && index != videos.length - 1) ? 20 : 0,
+                      ),
+                      child: SizedBox(
+                        height: isMobile ? 200 : 260, // Fixed height for videos
+                        child: WebHoverScale(
+                          scale: 1.02,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              // Sub-card border effect
+                              border: Border.all(color: Colors.grey.shade50),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: InlineYouTubePlayer(
+                                thumbnailUrl: item['thumbnail'] as String,
+                                videoId: item['videoId'] as String,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                  ],
-                ),
-              ),
-              const Gap(10),
-              CompactIcon(
-                icon: Iconsax.archive_tick,
-                onPressed: () => Get.toNamed(AppRoutes.watchlist),
-                iconColor: Ucolors.dark,
+                    ),
+                  );
+                }),
               ),
             ],
           ),
-        ),
+        );
+      },
+    );
+  }
+
+// =========================================================
+// GOAL SECTION
+// =========================================================
+
+  Widget _buildWebGoalSection() {
+
+    final goals = [
+      {
+        "title": "Car Goal",
+        "icon": Icons.directions_car_filled_rounded,
+        "goalType": "car",
+      },
+      {
+        "title": "Marriage Goal",
+        "icon": Icons.favorite_border_outlined,
+        "goalType": "marriage",
+      },
+      {
+        "title": "Home Goal",
+        "icon": Icons.home_rounded,
+        "goalType": "home",
+      },
+      {
+        "title": "Vacation Goal",
+        "icon": Icons.flight_takeoff_rounded,
+        "goalType": "vacation",
+      },
+    ];
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          /// TITLE
+          const Text(
+            "Plan Your Goals",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const Gap(20),
+
+          /// ROW BUTTONS
+          LayoutBuilder(
+            builder: (context, constraints) {
+
+              final width = constraints.maxWidth;
+
+              /// MOBILE = 2
+              /// WEB = 4
+
+              final int crossAxisCount =
+              width < 1200 ? 2 : 4;
+
+              return GridView.builder(
+                shrinkWrap: true,
+                physics:
+                const NeverScrollableScrollPhysics(),
+
+                itemCount: goals.length,
+
+                gridDelegate:
+                SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+
+                  mainAxisExtent: 72,
+
+                  crossAxisSpacing: 14,
+                  mainAxisSpacing: 14,
+                ),
+
+                itemBuilder: (context, index) {
+
+                  final item = goals[index];
+
+                  return _buildGoalTile(
+                    title: item['title'] as String,
+                    icon: item['icon'] as IconData,
+                    goalType: item['goalType'] as String,
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
     );
   }
 
+// =========================================================
+// GOAL TILE
+// =========================================================
+
+  Widget _buildGoalTile({
+    required String title,
+    required IconData icon,
+    required String goalType,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+
+        final width = MediaQuery.of(context).size.width;
+
+        /// RESPONSIVE FONT
+        final bool isMobile = width < 400;
+        final bool isTablet = width >= 400 && width < 1800;
+
+        final double titleFontSize = isMobile
+            ? 12
+            : isTablet
+            ? 20
+            : 18;
+
+        final double iconBoxSize = isMobile
+            ? 38
+            : 44;
+
+        final double arrowSize = isMobile
+            ? 13
+            : 16;
+        final double iconSize = isMobile
+            ? 18
+            : 20;
+
+
+
+        return WebHoverTile(
+          onTap: () {
+            // Get.toNamed(
+            //   AppRoutes.goalPlanner,
+            //   id: 1,
+            //   arguments: {
+            //     'goal_type': goalType,
+            //   },
+            // );
+          },
+
+          builder: (isHovered) {
+
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 10 : 14,
+                vertical: isMobile ? 10 : 14,
+              ),
+
+              decoration: BoxDecoration(
+                color: isHovered
+                    ? Ucolors.primary.withOpacity(0.06)
+                    : Colors.grey.shade50,
+
+                borderRadius: BorderRadius.circular(14),
+
+                border: Border.all(
+                  color: isHovered
+                      ? Ucolors.primary.withOpacity(0.15)
+                      : Colors.grey.shade200,
+                ),
+              ),
+
+              child: Row(
+                children: [
+
+                  /// ICON
+                  Container(
+                    height: iconBoxSize,
+                    width: iconBoxSize,
+                    decoration: BoxDecoration(
+                      color: isHovered
+                          ? Ucolors.primary.withOpacity(0.12)
+                          : Colors.white,
+
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+
+                    child: Icon(
+                      icon,
+                      size: iconSize,
+                      color: isHovered
+                          ? Ucolors.primary
+                          : Colors.grey.shade700,
+                    ),
+                  ),
+
+                  SizedBox(
+                    width: isMobile ? 10 : 14,
+                  ),
+
+                  /// TITLE
+                  Expanded(
+                    child: Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: titleFontSize,
+                        height: 1.2,
+                        fontWeight: isHovered
+                            ? FontWeight.w600
+                            : FontWeight.w500,
+                        color: isHovered
+                            ? Ucolors.primary
+                            : Colors.black87,
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(
+                    width: isMobile ? 6 : 10,
+                  ),
+
+                  /// ARROW
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: arrowSize,
+                    color: isHovered
+                        ? Ucolors.primary
+                        : Colors.grey.shade400,
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+// =========================================================
+// TOOLS SECTION
+// =========================================================
+
+  Widget _buildWebToolsSection() {
+
+    final tools = [
+      {
+        "title": "SIP Calculator",
+        "img": UImages.sipcalci,
+        "onTap": () => Get.toNamed(
+          AppRoutes.sipCalculator,
+          id: 1,
+        ),
+      },
+      {
+        "title": "SWP Calculator",
+        "img": UImages.swpcali,
+        "onTap": () => Get.toNamed(
+          AppRoutes.swpCalculator,
+          id: 1,
+        ),
+      },
+      {
+        "title": "Step-Up Calculator",
+        "img": UImages.siptopcalci,
+        "onTap": () => Get.toNamed(
+          AppRoutes.stepUpCalculator,
+          id: 1,
+        ),
+      },
+      {
+        "title": "Compare Fund",
+        "img": UImages.comparefund,
+        "onTap": () => Get.toNamed(
+          AppRoutes.comparefund,
+          id: 1,
+        ),
+      },
+    ];
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          /// TITLE
+          const Text(
+            "Financial Tools",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const Gap(20),
+
+          /// GRID
+          LayoutBuilder(
+            builder: (context, constraints) {
+
+              final width = constraints.maxWidth;
+
+              /// MOBILE = 1
+              /// TABLET/WEB = 2
+
+              final int crossAxisCount =
+              width < 1200 ? 2 : 4;
+
+
+              return GridView.builder(
+                shrinkWrap: true,
+                physics:
+                const NeverScrollableScrollPhysics(),
+
+                itemCount: tools.length,
+
+                gridDelegate:
+                SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+
+                  mainAxisExtent: 72,
+
+                  crossAxisSpacing: 14,
+                  mainAxisSpacing: 14,
+                ),
+
+                itemBuilder: (context, index) {
+
+                  final item = tools[index];
+
+                  return _buildToolItem(
+                    item['title'] as String,
+                    item['img'] as String,
+                    item['onTap'] as VoidCallback,
+                  );
+                },
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+// =========================================================
+// TOOL ITEM
+// =========================================================
+
+  Widget _buildToolItem(
+      String title,
+      String img,
+      VoidCallback onTap,
+      ) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+
+        final width = MediaQuery.of(context).size.width;
+
+        /// RESPONSIVE FONT
+        final bool isMobile = width < 400;
+        final bool isTablet = width >= 400 && width < 1800;
+
+        final double titleFontSize = isMobile
+            ? 12
+            : isTablet
+            ? 20
+            : 18;
+
+        final double iconBoxSize = isMobile
+            ? 38
+            : 44;
+
+        final double arrowSize = isMobile
+            ? 13
+            : 16;
+
+        return WebHoverTile(
+          onTap: onTap,
+          builder: (isHovered) {
+
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 10 : 14,
+                vertical: isMobile ? 10 : 14,
+              ),
+              decoration: BoxDecoration(
+                color: isHovered
+                    ? Ucolors.primary.withOpacity(0.06)
+                    : Colors.grey.shade50,
+
+                borderRadius: BorderRadius.circular(14),
+
+                border: Border.all(
+                  color: isHovered
+                      ? Ucolors.primary.withOpacity(0.15)
+                      : Colors.grey.shade200,
+                ),
+              ),
+
+              child: Row(
+                children: [
+
+                  /// IMAGE
+                  Container(
+                    height: iconBoxSize,
+                    width: iconBoxSize,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Image.asset(
+                      img,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+
+                  SizedBox(
+                    width: isMobile ? 10 : 14,
+                  ),
+
+                  /// TITLE
+                  Expanded(
+                    child: Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: titleFontSize,
+                        height: 1.2,
+                        fontWeight: isHovered
+                            ? FontWeight.w600
+                            : FontWeight.w500,
+                        color: isHovered
+                            ? Ucolors.primary
+                            : Colors.black87,
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(
+                    width: isMobile ? 6 : 10,
+                  ),
+
+                  /// ARROW
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: arrowSize,
+                    color: isHovered
+                        ? Ucolors.primary
+                        : Colors.grey.shade400,
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+  // =========================================================
+  // HERO BANNER
+  // =========================================================
+
   Widget _buildHeroBanner() {
     return WebHoverScale(
-      onTap: () => Get.toNamed(AppRoutes.kycScreen, id: 1),
-      scale: 1.02, // Subtle scale for the big banner
+      scale: 1.01,
+      onTap: () {
+        if (kIsWeb) {
+          // Show Dialog for Web Users
+          Get.dialog(
+            AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: Row(
+                children: [
+                  Icon(Icons.smartphone, color: Ucolors.primary),
+                  const SizedBox(width: 10),
+                  const Text("Mobile App Required"),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "For security and verification purposes, the KYC process can only be completed via our Mobile Application.",
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  const SizedBox(height: 15),
+                  Text(
+                    "Please download the app from the Play Store or App Store to continue.",
+                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Get.back(),
+                  child: const Text(
+                    "Got it",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+          );
+        } else {
+          // Navigate for Mobile Users
+          Get.toNamed(
+            AppRoutes.kycScreen,
+            id: 1,
+          );
+        }
+        },
       child: Container(
         width: double.infinity,
+        constraints: const BoxConstraints(
+          minHeight: 180,
+        ),
         padding: const EdgeInsets.all(30),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFF07315C), Color(0xff0280C0)],
+            colors: [
+              Color(0xFF07315C),
+              Color(0xff0280C0),
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(22),
           boxShadow: [
             BoxShadow(
-              color: Ucolors.primary.withOpacity(0.3),
+              color: Ucolors.primary.withOpacity(0.2),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -350,40 +1065,70 @@ class _WebDashboardLayout extends StatelessWidget {
         ),
         child: Row(
           children: [
+
+            /// LEFT
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+
                   Text(
                     "Welcome Back, ${authController.user.value?.name ?? 'Investor'}!",
-                    style: UTextStyles.heading2.copyWith(color: Colors.white),
+                    style: UTextStyles.heading2.copyWith(
+                      color: Colors.white,
+                    ),
                   ),
+
                   const Gap(10),
+
                   Text(
                     "Track your investments and achieve your financial freedom.",
-                    style: UTextStyles.medium.copyWith(color: Colors.white70),
+                    style: UTextStyles.medium.copyWith(
+                      color: Colors.white70,
+                    ),
                   ),
                 ],
               ),
             ),
+
+            const Gap(20),
+
+            /// KYC CARD
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 14,
+              ),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white30),
+                color: Colors.white.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Colors.white24,
+                ),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.verified_user_outlined, color: Colors.white),
+
+                  const Icon(
+                    Icons.verified_user_outlined,
+                    color: Colors.white,
+                  ),
+
                   const Gap(10),
+
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+
                       const Text(
                         "KYC Status",
-                        style: TextStyle(color: Colors.white70, fontSize: 12),
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
                       ),
+
                       Text(
                         "Pending Action",
                         style: UTextStyles.subtitle1.copyWith(
@@ -401,83 +1146,89 @@ class _WebDashboardLayout extends StatelessWidget {
     );
   }
 
+  // =========================================================
+  // QUICK ACTIONS
+  // =========================================================
+
   Widget _buildQuickActionsCard(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+
+      Expanded(
+        flex: 5,
+        child: _WebQuickActionItem(
+              "SIP",
+              UImages.startsip,
+                  () {
+                SipProcessController.navIsLumpsum = false;
+
+                Get.toNamed(
+                  id: 1,
+                  AppRoutes.startSipScreen,
+                  arguments: {
+                    'isLumpsum': false,
+                  },
+                );
+              },
+            ),
+      ),
+        Gap(20),
+        Expanded(
+          flex: 5,
+          child: _WebQuickActionItem(
+            "Lumpsum",
+            UImages.glyph,
+                () {
+              SipProcessController.navIsLumpsum = true;
+
+              Get.toNamed(
+                id: 1,
+                AppRoutes.startSipScreen,
+                arguments: {
+                  'isLumpsum': true,
+                },
+              );
+            },
           ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          _WebQuickActionItem("SIP", UImages.startsip, () {
-            SipProcessController.navIsLumpsum = false;
-            Get.toNamed(
-              id: 1,
-              AppRoutes.startSipScreen,
-              arguments: {'isLumpsum': false},
-            );
-          }),
-          const Gap(40),
-          // _WebQuickActionItem("Freedom SIP", UImages.freedomsip, () => Get.toNamed(AppRoutes.startSipScreen)),
-          const Gap(40),
-          _WebQuickActionItem("Lumpsum", UImages.glyph, () {
-            SipProcessController.navIsLumpsum = true;
-            Get.toNamed(
-              id: 1,
-              AppRoutes.startSipScreen,
-              arguments: {'isLumpsum': true},
-            );
-          }),
-        ],
-      ),
+        ),
+      ],
     );
   }
+
+  // =========================================================
+  // COLLECTION GRID
+  // =========================================================
 
   Widget _buildWebCollectionGrid() {
     final nav = Get.find<NavigationBarController>();
     final funds = Get.find<FundhouseController>();
+
     final items = [
       {
         't': 'Best SIP',
         'i': UImages.savingbank,
-        'onTap': () =>
-            nav.navigateToExploreWithFilter(() => funds.applyBestSipFilter(1)),
+        'onTap': () => nav.navigateToExploreWithFilter(() => funds.applyBestSipFilter(1)),
       },
       {
         't': 'High Return',
         'i': UImages.highreturn,
-        'onTap': () => nav.navigateToExploreWithFilter(
-          () => funds.applyHighReturnFilter(),
-        ),
+        'onTap': () => nav.navigateToExploreWithFilter(() => funds.applyHighReturnFilter()),
       },
       {
         't': 'International',
         'i': UImages.interfund,
-        'onTap': () => nav.navigateToExploreWithFilter(
-          () => funds.applyCustomSearch('international'),
-        ),
+        'onTap': () => nav.navigateToExploreWithFilter(() => funds.applyCustomSearch('international')),
       },
       {
         't': 'Index Funds',
         'i': UImages.indexfund,
-        'onTap': () => nav.navigateToExploreWithFilter(
-          () => funds.applyCustomSearch('index'),
-        ),
+        'onTap': () => nav.navigateToExploreWithFilter(() => funds.applyCustomSearch('index')),
       },
       {
         't': 'Commodities',
         'i': UImages.moneygold,
-        'onTap': () =>
-            nav.navigateToExploreWithFilter(() => funds.applyCommodityFilter()),
+        'onTap': () => nav.navigateToExploreWithFilter(() => funds.applyCommodityFilter()),
       },
       {
         't': 'NFO',
@@ -486,268 +1237,399 @@ class _WebDashboardLayout extends StatelessWidget {
       },
     ];
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 6,
-        childAspectRatio: 1.1,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-      ),
-      itemCount: items.length,
-      itemBuilder: (ctx, i) => WebHoverScale(
-        scale: 1.1, // Higher scale for small icons
-        // onTap: () => Get.to(() => ExploreScreen()),
-        onTap: items[i]['onTap'] as VoidCallback,
-        child: CollectionItem(
-          title: items[i]['t']! as String,
-          iconImg: items[i]['i']! as String,
-        ),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final bool isMobile = width < 600;
+        final int crossAxisCount = isMobile ? 2 : 3;
+
+        // Sabse bahar wala Main Parent Card
+        return Container(
+          width: double.infinity,
+          margin: const EdgeInsets.symmetric(vertical: 20),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.grey.shade100),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Section Title Card ke andar
+              const Text(
+                "Explore Categories",
+                style: TextStyle(
+                  fontSize: 22, // Slightly adjusted for card look
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Categories Grid (Buttons as Sub-cards)
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: items.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  // Dynamic height based on screen size
+                  mainAxisExtent: isMobile ? 130 : 160,
+                  crossAxisSpacing: 18,
+                  mainAxisSpacing: 18,
+                ),
+                itemBuilder: (ctx, i) {
+                  return CollectionItem(
+                    title: items[i]['t']! as String,
+                    iconImg: items[i]['i']! as String,
+                    onTap: items[i]['onTap'] as VoidCallback,
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
+  // =========================================================
+  // FUND GRID
+  // =========================================================
+
   Widget _buildWebFundGrid() {
     return Obx(() {
-      final funds = mutualController.searchFund;
-      final int count = funds.length > 8 ? 8 : funds.length;
+      // Error Fix: Ensure an observable is always accessed
+      final bool isLoading = mutualController.isLoading.value;
+      final List funds = mutualController.searchFund;
 
-      return GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: count,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          childAspectRatio: 1.8,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-        ),
-        itemBuilder: (context, index) {
-          final fund = funds[index];
-          final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
-          final name = fund.baseSchemeName ?? 'Unknown Name';
-          final schemeCode = fund.schemeCode.toString();
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final bool isMobile = constraints.maxWidth < 700;
+          final int crossAxisCount = isMobile ? 2 : 4;
 
-          // Wrap Fund Card with Hover Scale
-          return WebHoverScale(
-            child: PopularFundCard(
-              threeYear: fund.returnsEntity?.threeYear ?? '--',
-              isNetwork: true,
-              imgPath: img,
-              name: name,
-              onTap: () {
-                Get.delete<FundDetailsController>();
-                FundDetailsScreen.navData = {
-                  'scheme': name,
-                  'imgUrl': img,
-                  'scheme_code': schemeCode,
-                };
+          // Sabse bahar wala Main Card
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Popular Funds",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 20),
 
-                Get.toNamed(AppRoutes.funddetails, id: 1);
-              },
-              // onTap: () => Get.toNamed(
-              //   id: 1,
-              //   AppRoutes.funddetails,
-              //   arguments: {
-              //     'scheme': name,
-              //     'imgUrl': img,
-              //     'scheme_code': schemeCode,
-              //   },
-              // ),
+                /// Loading State
+                if (isLoading)
+                  FundShimmerLoading(crossAxisCount: crossAxisCount)
+
+                /// No Data State (Ab ye bhi main card ke andar hi aayega)
+                else if (funds.isEmpty)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 40),
+                      child: Column(
+                        children: [
+                          Icon(Iconsax.folder_open, size: 52, color: Colors.grey.shade400),
+                          const SizedBox(height: 14),
+                          const Text("No Funds Found", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                          Text("Try exploring other funds or check back later.",
+                              style: TextStyle(fontSize: 14, color: Colors.grey.shade500)),
+                        ],
+                      ),
+                    ),
+                  )
+
+                /// Data Loaded State
+                else
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: funds.length > 8 ? 8 : funds.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      mainAxisExtent: 160,
+                      crossAxisSpacing: 18,
+                      mainAxisSpacing: 18,
+                    ),
+                    itemBuilder: (context, index) {
+                      final fund = funds[index];
+                      final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
+                      final name = fund.baseSchemeName ?? 'Unknown Name';
+
+                      return PopularFundCard(
+                        threeYear: fund.returnsEntity?.threeYear ?? '--',
+                        isNetwork: true,
+                        imgPath: img,
+                        name: name,
+                        onTap: () {
+                          Get.delete<FundDetailsController>();
+                          FundDetailsScreen.navData = {
+                            'scheme': name,
+                            'imgUrl': img,
+                            'scheme_code': fund.schemeCode.toString(),
+                          };
+                          Get.toNamed(AppRoutes.funddetails, id: 1);
+                        },
+                      );
+                    },
+                  ),
+              ],
             ),
           );
         },
       );
     });
   }
-
-  Widget _buildWebGoalSection() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Plan Your Goals",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          const Gap(16),
-          _WebGoalTile("Car Goal", Icons.directions_car_filled_rounded, 'car'),
-          const Gap(10),
-          _WebGoalTile(
-            "Marriage Goal",
-            Icons.favorite_border_outlined,
-            'marriage',
-          ),
-          const Gap(10),
-          _WebGoalTile("Home Goal", Icons.home_rounded, 'home'),
-          const Gap(10),
-          _WebGoalTile(
-            "Vacation Goal",
-            Icons.flight_takeoff_rounded,
-            'vacation',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWebToolsSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Financial Tools",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          const Gap(16),
-          // Wrap Tools in HoverTile logic for background change
-          _buildToolItem(
-            "SIP Calculator",
-            UImages.sipcalci,
-            // () => Get.to(() => const SipCalculatorPage()),
-            () => Get.toNamed(AppRoutes.sipCalculator, id: 1),
-          ),
-          const Gap(8),
-          _buildToolItem(
-            "SWP Calculator",
-            UImages.swpcali,
-            // () => Get.to(() => const SwpCalciScreen()),
-            () => Get.toNamed(AppRoutes.swpCalculator, id: 1),
-          ),
-          const Gap(8),
-          _buildToolItem(
-            "Step-Up Calculator",
-            UImages.siptopcalci,
-            // () => Get.to(() => const TopUpCalculatorPage()),
-            () => Get.toNamed(AppRoutes.stepUpCalculator, id: 1),
-          ),
-          const Gap(8),
-          _buildToolItem(
-            "Compare Fund",
-            UImages.comparefund,
-            () => Get.toNamed(AppRoutes.comparefund, id: 1),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Custom builder for Tool Items with Hover
-  Widget _buildToolItem(String title, String img, VoidCallback onTap) {
-    return WebHoverTile(
-      onTap: onTap,
-      builder: (isHovered) => AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: isHovered
-              ? Ucolors.primary.withOpacity(0.05)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          children: [
-            SizedBox(height: 30, width: 30, child: Image.asset(img)),
-            const Gap(15),
-            Text(
-              title,
-              style: TextStyle(
-                color: isHovered ? Ucolors.primary : Colors.grey[700],
-                fontWeight: isHovered ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildWebVideoRow() {
-    return SizedBox(
-      height: 220,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: const [
-          WebHoverScale(
-            child: InlineYouTubePlayer(
-              thumbnailUrl:
-                  "https://img.youtube.com/vi/yo5aL4Plbso/maxresdefault.jpg",
-              videoId: "yo5aL4Plbso",
-            ),
-          ),
-          SizedBox(width: 20),
-          WebHoverScale(
-            child: InlineYouTubePlayer(
-              thumbnailUrl:
-                  "https://img.youtube.com/vi/t7lUSiddFd4/maxresdefault.jpg",
-              videoId: "t7lUSiddFd4",
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
-
-class _WebQuickActionItem extends StatelessWidget {
+class _WebQuickActionItem extends StatefulWidget {
   final String label;
   final String icon;
   final VoidCallback onTap;
-  const _WebQuickActionItem(this.label, this.icon, this.onTap);
+
+  const _WebQuickActionItem(
+      this.label,
+      this.icon,
+      this.onTap, {
+        super.key,
+      });
+
+  @override
+  State<_WebQuickActionItem> createState() =>
+      _WebQuickActionItemState();
+}
+
+class _WebQuickActionItemState
+    extends State<_WebQuickActionItem> {
+
+  bool isHovered = false;
+  bool isPressed = false;
+
+  void _setHover(bool value) {
+    setState(() {
+      isHovered = value;
+    });
+  }
+
+  void _setPressed(bool value) {
+    setState(() {
+      isPressed = value;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Use WebHoverScale for the "Pop" effect
-    return WebHoverScale(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            height: 60,
-            width: 60,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Ucolors.primary,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Ucolors.primary.withOpacity(0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+
+    final width = MediaQuery.of(context).size.width;
+
+    /// RESPONSIVE
+    final bool isMobile = width < 600;
+    final bool isTablet = width >= 600 && width < 1100;
+    final bool isWeb = width >= 1100;
+
+    final double cardWidth = isMobile
+        ? 90
+        : isTablet
+        ? 110
+        : 130;
+
+    final double iconBoxSize = isMobile
+        ? 56
+        : isTablet
+        ? 64
+        : 74;
+
+    final double iconSize = isMobile
+        ? 24
+        : isTablet
+        ? 28
+        : 32;
+
+    final double fontSize = isMobile
+        ? 12
+        : isTablet
+        ? 13
+        : 15;
+
+    final double padding = isMobile
+        ? 12
+        : 16;
+
+    return MouseRegion(
+      onEnter: (_) => _setHover(true),
+      onExit: (_) => _setHover(false),
+      child: AnimatedScale(
+        scale: isPressed
+            ? 0.96
+            : isHovered
+            ? 1.03
+            : 1.0,
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(22),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(22),
+
+            splashColor: Ucolors.primary.withOpacity(0.08),
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+
+            onTapDown: (_) => _setPressed(true),
+
+            onTapCancel: () => _setPressed(false),
+
+            onTap: () async {
+
+              _setPressed(true);
+
+              await Future.delayed(
+                const Duration(milliseconds: 90),
+              );
+
+              _setPressed(false);
+
+              widget.onTap();
+            },
+
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              constraints: const BoxConstraints(
+                minHeight: 180,
+              ),
+              width: cardWidth,
+              padding: EdgeInsets.symmetric(
+                horizontal: padding,
+                vertical: padding,
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(22),
+
+                /// BACKGROUND
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: isHovered
+                      ? [
+                    Colors.white,
+                    Ucolors.primary.withOpacity(0.04),
+                  ]
+                      : [
+                    Colors.white,
+                    Colors.white,
+                  ],
                 ),
-              ],
+
+                /// BORDER
+                border: Border.all(
+                  color: isHovered
+                      ? Ucolors.primary.withOpacity(0.15)
+                      : Colors.grey.shade200,
+                ),
+
+                /// SHADOW
+                boxShadow: [
+                  BoxShadow(
+                    color: isHovered
+                        ? Ucolors.primary.withOpacity(0.14)
+                        : Colors.black.withOpacity(0.04),
+                    blurRadius: isHovered ? 18 : 8,
+                    spreadRadius: isHovered ? 1 : 0,
+                    offset: Offset(
+                      0,
+                      isHovered ? 8 : 4,
+                    ),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+
+                  /// ICON BOX
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 220),
+                    height: iconBoxSize,
+                    width: iconBoxSize,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: isHovered
+                            ? [
+                          Ucolors.primary,
+                          Ucolors.primary.withOpacity(0.85),
+                        ]
+                            : [
+                          Ucolors.primary,
+                          Ucolors.primary.withOpacity(0.92),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Ucolors.primary.withOpacity(
+                            isHovered ? 0.30 : 0.18,
+                          ),
+                          blurRadius: isHovered ? 18 : 10,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: SvgPicture.asset(
+                      widget.icon,
+                      width: iconSize,
+                      height: iconSize,
+                      colorFilter: const ColorFilter.mode(
+                        Colors.white,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(
+                    height: isMobile ? 10 : 14,
+                  ),
+
+                  /// LABEL
+                  Text(
+                    widget.label,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.w600,
+                      height: 1.3,
+                      color: isHovered
+                          ? Ucolors.primary
+                          : Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            child: SvgPicture.asset(icon, width: 28, height: 28),
           ),
-          const Gap(10),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -774,7 +1656,7 @@ class _WebGoalTile extends StatelessWidget {
               ? Ucolors.blue.withOpacity(0.05)
               : Colors.transparent,
           border: Border.all(
-            color: isHovered ? Ucolors.blue : Colors.grey.shade200,
+            color: isHovered ? Ucolors.blue : Colors.transparent,
           ),
           borderRadius: BorderRadius.circular(8),
         ),
@@ -1207,17 +2089,17 @@ class _MobileLayout extends StatelessWidget {
                                     children: [
                                       Text(
                                         'Onboarding task',
-                                        style: UTextStyles.caption.copyWith(
-                                          fontSize: 12,
+                                        style: UTextStyles.medium.copyWith(
+                                          // fontSize: 12,
                                           color: subTextColor,
                                         ),
                                       ),
                                       Text(
                                         titleText,
                                         style: UTextStyles.medium.copyWith(
-                                          fontWeight: FontWeight.bold,
+                                          fontWeight: FontWeight.w500,
                                           color: titleColor,
-                                          fontSize: 14,
+                                          // fontSize: 14,
                                         ),
                                       ),
                                       Text(
@@ -1765,7 +2647,7 @@ class _MobileLayout extends StatelessWidget {
                 crossAxisSpacing: 12,
               ),
               delegate: SliverChildListDelegate([
-                CollectionItem(
+                CollectionItemMob(
                   title: 'Best SIP Funds',
                   iconImg: UImages.savingbank,
 
@@ -1781,7 +2663,7 @@ class _MobileLayout extends StatelessWidget {
                     });
                   },
                 ),
-                CollectionItem(
+                CollectionItemMob(
                   title: 'High Returns',
                   iconImg: UImages.highreturn,
                   onTap: () async {
@@ -1796,7 +2678,7 @@ class _MobileLayout extends StatelessWidget {
                     });
                   },
                 ),
-                CollectionItem(
+                CollectionItemMob(
                   onTap: () async {
                     // navController.changePage(1);
                     // Get.find<FundhouseController>().applyCustomSearch(
@@ -1813,7 +2695,7 @@ class _MobileLayout extends StatelessWidget {
                   title: 'International Funds',
                   iconImg: UImages.interfund,
                 ),
-                CollectionItem(
+                CollectionItemMob(
                   onTap: () async {
                     // navController.changePage(1);
                     // Get.find<FundhouseController>().applyCustomSearch('index');
@@ -1829,7 +2711,7 @@ class _MobileLayout extends StatelessWidget {
                   title: 'Index Funds',
                   iconImg: UImages.indexfund,
                 ),
-                CollectionItem(
+                CollectionItemMob(
                   onTap: () async {
                     // navController.changePage(1);
                     // Get.find<FundhouseController>().applyCommodityFilter();
@@ -1843,7 +2725,7 @@ class _MobileLayout extends StatelessWidget {
                   title: 'Commodities',
                   iconImg: UImages.moneygold,
                 ),
-                CollectionItem(
+                CollectionItemMob(
                   onTap: () async {
                     await Future.delayed(const Duration(milliseconds: 100));
                     Get.toNamed(AppRoutes.nfolist);
@@ -1965,7 +2847,7 @@ class _MobileLayout extends StatelessWidget {
                             'Custom Goal',
                             style: UTextStyles.small.copyWith(
                               color: Ucolors.dark,
-                              fontSize: 11,
+                              fontSize: 13,
                               fontWeight: FontWeight.w500,
                             ),
                             maxLines: 1,
@@ -2089,7 +2971,7 @@ class _MobileLayout extends StatelessWidget {
 
                           return SizedBox(
                             width: MediaQuery.of(context).size.width * 0.42,
-                            child: PopularFundCard(
+                            child: PopularFundCardMob(
                               onTap: () {
                                 mutualController.addToLocalRecentlyViewed(fund);
                                 Get.toNamed(
@@ -2234,7 +3116,7 @@ class _MobileLayout extends StatelessWidget {
 
                         return SizedBox(
                           width: MediaQuery.of(context).size.width * 0.42,
-                          child: PopularFundCard(
+                          child: PopularFundCardMob(
                             onTap: () {
                               mutualController.addToLocalRecentlyViewed(fund);
                               Get.toNamed(
@@ -2546,7 +3428,7 @@ class _MobileLayout extends StatelessWidget {
                             '$filterCount',
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 10,
+                              fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -2608,7 +3490,7 @@ class _MobileLayout extends StatelessWidget {
                                     hintStyle: MaterialStateProperty.all(
                                       TextStyle(
                                         color: Colors.grey.shade500,
-                                        fontSize: 14,
+                                        fontSize: 15,
                                       ),
                                     ),
                                     onChanged: (value) => mutualController
@@ -2836,7 +3718,7 @@ class YoutubeThumbnail extends StatelessWidget {
   }
 }
 
-class PopularFundCard extends StatelessWidget {
+class PopularFundCard extends StatefulWidget {
   const PopularFundCard({
     super.key,
     required this.imgPath,
@@ -2853,13 +3735,300 @@ class PopularFundCard extends StatelessWidget {
   final bool isNetwork;
   final Color borderColor;
   final String? threeYear;
-  
+
+  @override
+  State<PopularFundCard> createState() => _PopularFundCardState();
+}
+
+class _PopularFundCardState extends State<PopularFundCard> {
+
+  bool isHovered = false;
+  bool isPressed = false;
+
+  void _setHover(bool value) {
+    setState(() {
+      isHovered = value;
+    });
+  }
+
+  void _setPressed(bool value) {
+    setState(() {
+      isPressed = value;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    final width = MediaQuery.of(context).size.width;
+
+    /// RESPONSIVE
+    final bool isMobile = width < 600;
+    final bool isTablet = width >= 600 && width < 1100;
+    final bool isWeb = width >= 1100;
+
+    final double logoSize = isMobile
+        ? 38
+        : isTablet
+        ? 42
+        : 48;
+
+    final double titleSize = isMobile
+        ? 12
+        : isTablet
+        ? 13
+        : 14;
+
+    final double cardPadding = isMobile
+        ? 12
+        : 16;
+
+    final double borderRadius = isMobile
+        ? 16
+        : 20;
+
+    return MouseRegion(
+      onEnter: (_) => _setHover(true),
+      onExit: (_) => _setHover(false),
+      child: AnimatedScale(
+        scale: isPressed
+            ? 0.98
+            : isHovered
+            ? 1.01
+            : 1.0,
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(borderRadius),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(borderRadius),
+
+            splashColor: Ucolors.primary.withOpacity(0.08),
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+
+            onTapDown: (_) => _setPressed(true),
+
+            onTapCancel: () => _setPressed(false),
+
+            onTap: () async {
+
+              _setPressed(true);
+
+              await Future.delayed(
+                const Duration(milliseconds: 90),
+              );
+
+              _setPressed(false);
+
+              widget.onTap?.call();
+            },
+
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              padding: EdgeInsets.all(cardPadding),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(borderRadius),
+
+                /// BORDER
+                border: Border.all(
+                  color: isHovered
+                      ? Ucolors.primary.withOpacity(0.18)
+                      : Colors.grey.shade200,
+                ),
+
+                /// SHADOW
+                boxShadow: [
+                  BoxShadow(
+                    color: isHovered
+                        ? Ucolors.primary.withOpacity(0.12)
+                        : Colors.black.withOpacity(0.04),
+                    blurRadius: isHovered ? 18 : 8,
+                    spreadRadius: isHovered ? 1 : 0,
+                    offset: Offset(
+                      0,
+                      isHovered ? 8 : 4,
+                    ),
+                  ),
+                ],
+              ),
+
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+
+                  /// TOP
+                  Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+
+                        /// LOGO
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 220),
+                          height: logoSize,
+                          width: logoSize,
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: isHovered
+                                ? Ucolors.primary.withOpacity(0.06)
+                                : Colors.grey.shade50,
+                            shape: BoxShape.circle,
+                          ),
+                          child: widget.isNetwork
+                              ? CustomCachedImage(
+                            imageUrl: widget.imgPath,
+                            size: logoSize,
+                          )
+                              : Image.asset(
+                            widget.imgPath,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+
+                        SizedBox(
+                          width: isMobile ? 10 : 14,
+                        ),
+
+                        /// TITLE
+                        Expanded(
+                          child: Text(
+                            widget.name,
+                            maxLines: isMobile ? 3 : 4,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: titleSize,
+                              height: 1.35,
+                              fontWeight: FontWeight.w600,
+                              color: isHovered
+                                  ? Ucolors.primary
+                                  : Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(
+                    height: isMobile ? 10 : 14,
+                  ),
+
+                  /// BOTTOM
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+
+                        /// LABEL
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+
+                            Text(
+                              '3Y Return',
+                              style: TextStyle(
+                                fontSize: isMobile ? 10 : 11,
+                                color: Colors.grey.shade600,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+
+                            const SizedBox(height: 2),
+
+                            Text(
+                              'Performance',
+                              style: TextStyle(
+                                fontSize: isMobile ? 9 : 10,
+                                color: Colors.grey.shade500,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        /// VALUE
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+
+                            Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Ucolors.success.withOpacity(0.12),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.arrow_upward_rounded,
+                                color: Ucolors.success,
+                                size: 14,
+                              ),
+                            ),
+
+                            const SizedBox(width: 6),
+
+                            Text(
+                              '${widget.threeYear ?? '--'}%',
+                              style: TextStyle(
+                                fontSize: isMobile ? 13 : 15,
+                                fontWeight: FontWeight.bold,
+                                color: Ucolors.success,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+
+
+class PopularFundCardMob extends StatelessWidget {
+  const PopularFundCardMob({
+    super.key,
+    required this.imgPath,
+    required this.name,
+    this.onTap,
+    this.isNetwork = false,
+    this.borderColor = Ucolors.borderColor,
+    this.threeYear,
+  });
+
+  final String imgPath;
+  final String name;
+  final VoidCallback? onTap;
+  final bool isNetwork;
+  final Color borderColor;
+  final String? threeYear;
+
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -2959,6 +4128,7 @@ class PopularFundCard extends StatelessWidget {
   }
 }
 
+
 class GoalBaseSIPCard extends StatelessWidget {
   const GoalBaseSIPCard({
     super.key,
@@ -3008,7 +4178,7 @@ class GoalBaseSIPCard extends StatelessWidget {
                   title,
                   style: UTextStyles.small.copyWith(
                     color: Ucolors.dark,
-                    fontSize: 11,
+                    fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
                   maxLines: 1,
@@ -3058,7 +4228,7 @@ class ToolsItem extends StatelessWidget {
               title,
               style: UTextStyles.medium.copyWith(
                 color: Ucolors.secondary,
-                fontSize: 11,
+                fontSize: 13,
               ),
             ),
           ),
@@ -3110,12 +4280,13 @@ class ToolsItem extends StatelessWidget {
 //     );
 //   }
 // }
-class CollectionItem extends StatefulWidget {
+
+class CollectionItemMob extends StatefulWidget {
   final String iconImg;
   final String title;
   final VoidCallback? onTap;
 
-  const CollectionItem({
+  const CollectionItemMob({
     super.key, // Use super parameters for cleaner code
     required this.iconImg,
     required this.title,
@@ -3123,10 +4294,10 @@ class CollectionItem extends StatefulWidget {
   });
 
   @override
-  State<CollectionItem> createState() => _CollectionItemState();
+  State<CollectionItemMob> createState() => _CollectionItemMobState();
 }
 
-class _CollectionItemState extends State<CollectionItem> {
+class _CollectionItemMobState extends State<CollectionItemMob> {
   double scale = 1.0;
   bool isPressed = false;
 
@@ -3150,18 +4321,18 @@ class _CollectionItemState extends State<CollectionItem> {
           borderRadius: BorderRadius.circular(14),
           gradient: isPressed
               ? RadialGradient(
-                  colors: [Colors.blue.withOpacity(0.15), Colors.transparent],
-                  radius: 0.8,
-                )
+            colors: [Colors.blue.withOpacity(0.15), Colors.transparent],
+            radius: 0.8,
+          )
               : null,
           boxShadow: isPressed
               ? [
-                  BoxShadow(
-                    color: Colors.blue.withOpacity(0.25),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
+            BoxShadow(
+              color: Colors.blue.withOpacity(0.25),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ]
               : [],
         ),
         child: Material(
@@ -3216,6 +4387,204 @@ class _CollectionItemState extends State<CollectionItem> {
   }
 }
 
+class CollectionItem extends StatefulWidget {
+  final String iconImg;
+  final String title;
+  final VoidCallback? onTap;
+
+  const CollectionItem({
+    super.key,
+    required this.iconImg,
+    required this.title,
+    this.onTap,
+  });
+
+  @override
+  State<CollectionItem> createState() => _CollectionItemState();
+}
+
+class _CollectionItemState extends State<CollectionItem> {
+  double scale = 1.0;
+
+  bool isPressed = false;
+  bool isHovered = false;
+
+  void _updatePressed(bool value) {
+    setState(() {
+      isPressed = value;
+      scale = value ? 0.96 : 1.0;
+    });
+  }
+
+  void _updateHover(bool value) {
+    setState(() {
+      isHovered = value;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    final width = MediaQuery.of(context).size.width;
+
+    /// RESPONSIVE
+    final bool isMobile = width < 600;
+    final bool isTablet = width >= 600 && width < 1200;
+    final bool isWeb = width >= 1200;
+
+    final double iconSize = isMobile
+        ? 38
+        : isTablet
+        ? 48
+        : 60;
+
+    final double fontSize = isMobile
+        ? 11
+        : isTablet
+        ? 12
+        : 18;
+
+    final double containerPadding = isMobile
+        ? 10
+        : 14;
+
+    final double borderRadius = isMobile
+        ? 14
+        : 18;
+
+    return MouseRegion(
+      onEnter: (_) => _updateHover(true),
+      onExit: (_) => _updateHover(false),
+      child: AnimatedScale(
+        scale: scale,
+        duration: const Duration(milliseconds: 140),
+        curve: Curves.easeOut,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOut,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(borderRadius),
+
+            /// BACKGROUND
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: isHovered
+                  ? [
+                Colors.white,
+                Ucolors.primary.withOpacity(0.04),
+              ]
+                  : [
+                Colors.white,
+                Colors.grey.shade50,
+              ],
+            ),
+
+            /// BORDER
+            border: Border.all(
+              color: isHovered
+                  ? Ucolors.primary.withOpacity(0.18)
+                  : Colors.grey.shade200,
+            ),
+
+            /// SHADOW
+            boxShadow: [
+              BoxShadow(
+                color: isHovered
+                    ? Ucolors.primary.withOpacity(0.12)
+                    : Colors.black.withOpacity(0.03),
+                blurRadius: isHovered ? 18 : 8,
+                spreadRadius: isHovered ? 1 : 0,
+                offset: Offset(
+                  0,
+                  isHovered ? 8 : 4,
+                ),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(borderRadius),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(borderRadius),
+
+              splashColor: Ucolors.primary.withOpacity(0.10),
+              hoverColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+
+              onTapDown: (_) => _updatePressed(true),
+
+              onTapCancel: () => _updatePressed(false),
+
+              onTap: () async {
+
+                _updatePressed(true);
+
+                await Future.delayed(
+                  const Duration(milliseconds: 90),
+                );
+
+                _updatePressed(false);
+
+                widget.onTap?.call();
+              },
+
+              child: Padding(
+                padding: EdgeInsets.all(containerPadding),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+
+                    /// ICON CONTAINER
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 220),
+                      height: isWeb ? 74 : 64,
+                      width: isWeb ? 74 : 64,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: isHovered
+                            ? Ucolors.primary.withOpacity(0.08)
+                            : Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Image.asset(
+                        widget.iconImg,
+                        height: iconSize,
+                        width: iconSize,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+
+                    SizedBox(
+                      height: isMobile ? 10 : 14,
+                    ),
+
+                    /// TITLE
+                    Text(
+                      widget.title,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: fontSize,
+                        height: 1.3,
+                        fontWeight: FontWeight.w600,
+                        color: isHovered
+                            ? Ucolors.primary
+                            : const Color(0xff2A2A2A),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class FilterChip extends StatelessWidget {
   final String label;
   final IconData? icon;
@@ -3246,7 +4615,7 @@ class FilterChip extends StatelessWidget {
               label,
               style: Theme.of(
                 context,
-              ).textTheme.labelSmall!.copyWith(fontSize: 10),
+              ).textTheme.labelSmall!.copyWith(fontSize: 12),
             ),
           ],
         ),
@@ -3286,7 +4655,7 @@ class FeatureSection extends StatelessWidget {
           style: UTextStyles.medium.copyWith(
             color: Ucolors.light,
             fontWeight: FontWeight.w500,
-            fontSize: 14,
+            fontSize: 15,
           ),
         ),
       ],

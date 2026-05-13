@@ -1,6 +1,8 @@
 import 'dart:async';
-
+import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
@@ -50,6 +52,130 @@ class AuthController extends GetxController {
   AuthController({required AuthUseCases authUseCases})
     : _authUseCases = authUseCases;
 
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  final GoogleSignIn _googleSignIn =
+  GoogleSignIn.standard();
+
+  /// GOOGLE SIGN IN
+  Future<void> signInWithGoogle() async {
+
+    try {
+
+      debugPrint(
+        "========== GOOGLE SIGN IN START ==========",
+      );
+
+      /// CLEAR PREVIOUS ACCOUNT
+      await _googleSignIn.disconnect();
+
+      await _googleSignIn.signOut();
+
+      debugPrint(
+        "OLD GOOGLE SESSION CLEARED",
+      );
+
+      /// OPEN GOOGLE ACCOUNT PICKER
+      final GoogleSignInAccount? googleUser =
+      await _googleSignIn.signIn();
+
+      /// USER CANCELLED
+      if (googleUser == null) {
+
+        debugPrint(
+          "USER CANCELLED LOGIN",
+        );
+
+        return;
+      }
+
+      debugPrint(
+        "SELECTED EMAIL : ${googleUser.email}",
+      );
+
+      /// AUTH
+      final GoogleSignInAuthentication googleAuth =
+      await googleUser.authentication;
+
+      /// CREDENTIAL
+      final credential =
+      GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      /// FIREBASE LOGIN
+      final UserCredential userCredential =
+      await _auth.signInWithCredential(
+        credential,
+      );
+
+      /// USER
+      final User? user =
+          userCredential.user;
+
+      if (user != null) {
+
+        debugPrint(
+          "LOGIN SUCCESS : ${user.email}",
+        );
+
+        final bool isNewUser =
+            userCredential.additionalUserInfo
+                ?.isNewUser ?? false;
+
+        /// NEW USER
+        if (isNewUser) {
+
+          nameController.text =
+              user.displayName ?? "";
+
+          emailController.text =
+              user.email ?? "";
+
+          Get.offNamed(
+            AppRoutes.registerAccountScreen,
+          );
+
+        } else {
+
+          /// OLD USER
+          // Get.offAllNamed(AppRoutes.bottomBar);
+        }
+      }
+
+    } catch (e) {
+
+      debugPrint(
+        "GOOGLE LOGIN ERROR : $e",
+      );
+    }
+  }
+
+
+  /// LOGOUT
+  Future<void> signOutGoogle() async {
+
+    try {
+
+      await _googleSignIn.signOut();
+
+      await _auth.signOut();
+
+      debugPrint("LOGOUT SUCCESS");
+
+      Get.snackbar(
+        "Logout",
+        "User logged out successfully",
+      );
+
+    } catch (e) {
+
+      debugPrint(
+        "LOGOUT ERROR : $e",
+      );
+    }
+  }
   @override
   void onClose() {
     _timer?.cancel();

@@ -21,6 +21,8 @@ class Ucolors {
   static const Color borderside = Color(0xffD0D0D0);
   static const Color skyblue1 = Color(0xffE8F4FF);
   static const Color secondary =Color(0xff2A7BBF);
+  static const Color black =Color(0xff000000);
+  static const Color white =Color(0xffFFFFFF);
 
   static const LinearGradient backgroundGradient = LinearGradient(
     begin: Alignment.centerRight,
