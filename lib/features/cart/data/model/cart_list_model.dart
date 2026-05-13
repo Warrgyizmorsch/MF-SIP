@@ -117,6 +117,8 @@ class CartItemModel {
   final int? amount;
   final String? frequency;
   final String? topUpAmount;
+  final String? capingDate;
+  final String? capingAmount;
   final int? sipDay;
   final int? tenureMonths;
   final String? startDate;
@@ -149,6 +151,8 @@ class CartItemModel {
     this.amount,
     this.frequency,
     this.topUpAmount,
+    this.capingDate,
+    this.capingAmount,
     this.sipDay,
     this.tenureMonths,
     this.startDate,
@@ -180,6 +184,8 @@ class CartItemModel {
       amount: json.parse<int>('amount'),
       frequency: json.parse<String>('frequency'),
       topUpAmount: json.parse<String>('top_up_amount'),
+      capingDate: json.parse<String>('caping_date'),
+      capingAmount: json.parse<String>('caping_amount'),
       sipDay: json.parse<int>('sip_day'),
       tenureMonths: json.parse<int>('tenure_months'),
       startDate: json.parse<String>('start_date'),

@@ -23,6 +23,7 @@ class CartController extends GetxController {
   var stepUpAmount = 0.0.obs;
   Rx<FundDetailEntity?> fundDetail = Rx<FundDetailEntity?>(null);
   var goalId = RxnInt(); // Nullable reactive int
+  
 
   var investmentAmount = 0.0.obs;
    setInvestmentDetails({
@@ -50,47 +51,19 @@ class CartController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Capture the argument if it exists
-    // if (Get.arguments != null && Get.arguments['goal_id'] != null) {
-    //   filterGoalId.value = Get.arguments['goal_id'];
-    // }
-    // Try to capture from Get.arguments
-    // if (Get.arguments != null) {
-    //   if (Get.arguments is Map) {
-    //     filterGoalId.value = Get.arguments['goal_id'];
-    //   } else if (Get.arguments is int) {
-    //     filterGoalId.value = Get.arguments;
-    //   }
-    // }
-
-    // // Fallback: If arguments are null, check Get.parameters (for web/named routes)
-    // if (filterGoalId.value == null && Get.parameters['goal_id'] != null) {
-    //   filterGoalId.value = int.tryParse(Get.parameters['goal_id']!);
-    // }
+   
     _loadArgs();
 
     log("Captured Filter ID: ${filterGoalId.value}");
     fetchCart();
   }
 
-  // int get totalAmount => cartResponseEntity.value?.cart?.totalAmount ?? 0;
 
-  // Getters
-  // int get totalAmount {
-  //   if (cartResponseEntity.value == null) return 0;
-  //   // Calculate total locally for instant UI updates
-  //   return cartResponseEntity.value!.items.fold(
-  //     0,
-  //     (sum, item) => sum + (item.amount ?? 0),
-  //   );
-  // }
-  // Getters
+ 
   int get totalAmount {
     if (cartResponseEntity.value == null) return 0;
 
-    // Instead of summing ALL items, we sum only the items currently displayed.
-    // If filterGoalId is set, this sums the Goal items.
-    // If filterGoalId is null, this sums the General items.
+   
     return displayedItems.fold(0, (sum, item) => sum + (item.amount ?? 0));
   }
 
@@ -117,9 +90,7 @@ class CartController extends GetxController {
   //Tracks which specific item is currently being deleted
   final RxInt deletingItemId = (-1).obs;
 
-  // This is what the UI above is now listening to
-  // This is the data source for your Cart Page ListView
-  // Use this specific getter for your ListView
+  
 
   void _loadArgs() {
     // Check if we have arguments and specifically look for goal_id
@@ -202,42 +173,6 @@ class CartController extends GetxController {
   /// 🔥 TOTAL AMOUNT (auto reactive)
   int get totolAmount1 => items.fold(0, (sum, item) => sum + item.amount.value);
 
-  /*// Add to cart
-  Future<void> addToCart(String schemeCode) async {
-    log(SessionManager.instance.getUserData!.id.toString());
-
-    // 1. DUPLICATE CHECK: Verify if fund already exists in local state
-    bool alreadyInCart =
-        cartResponseEntity.value?.items.any(
-          (item) => item.schemeCode.toString() == schemeCode,
-        ) ??
-        false;
-
-    if (alreadyInCart) {
-      showCustomToast(
-        title: "Already in Cart",
-        message: 'schemeName',
-        backgroundColor: Colors.orange.shade700,
-        icon: Icons.info_outline,
-      );
-      return; // Stop execution here
-    }
-
-    try {
-      optimisticBadgeCount.value++;
-      await cartUsecases.addToCartUsecases.call({
-        "user_id": SessionManager.instance.getUserData!.id,
-        "scheme_code": schemeCode,
-        "trans_type": "sip",
-        "amount": 500,
-        "sip_day": 2,
-      });
-    } catch (e) {
-      log("Add to Cart Error: $e");
-    }
-  }
-   */
-  // Map to track timers for each cart item
   final Map<int, Timer> _debounceTimers = {};
 
   // Debounce Method
@@ -387,60 +322,6 @@ class CartController extends GetxController {
     }
   }
 
-  /*
-  Future<void> updateCartItem({
-    required int itemId,
-    String? transType,
-    int? sipDay,
-    int? amount,
-    String? frequency,
-    int? topUpAmount,
-  }) async {
-    // --- STEP 1: INSTANT LOCAL UPDATE (Optimistic) ---
-    if (cartResponseEntity.value != null) {
-      // Create a local copy of the items to modify
-      final updatedItems = cartResponseEntity.value!.items.map((item) {
-        if (item.id == itemId) {
-          // Return a new copy of the item with the updated field immediately
-          return item.copyWith(
-            transType: transType ?? item.transType,
-            sipDay: sipDay ?? item.sipDay,
-            amount: amount ?? item.amount,
-            frequency: frequency ?? item.frequency,
-            topUpAmount: topUpAmount.toString() ?? item.topUpAmount,
-          );
-        }
-        return item;
-      }).toList();
-
-      // Update the Rx variable instantly. This makes the UI change IMMEDIATELY.
-      cartResponseEntity.value = cartResponseEntity.value!.copyWith(items: updatedItems);
-      cartResponseEntity.refresh(); // Force GetX to notify all listeners
-    }
-
-    // --- STEP 2: BACKGROUND API CALL ---
-    final result = await cartUsecases.updateCartUsecases.call({
-      "item_id": itemId,
-      if (transType != null) "trans_type": transType,
-      if (sipDay != null) "sip_day": sipDay,
-      if (amount != null) "amount": amount,
-      if (frequency != null) "frequency": frequency,
-      if (topUpAmount != null) "top_up_amount": topUpAmount,
-    });
-
-    result.fold(
-      (failure) {
-        // Revert or show error if the background sync failed
-        Get.snackbar("Sync Error", "Failed to save changes to server.");
-        fetchCart(); // Re-fetch to get the "truth" from server
-      },
-      (success) {
-        // Just refresh the totals/summary from server quietly
-        fetchCart(); 
-      },
-    );
-  }
-*/
 
   // --- REFACTORED UPDATE (Optimistic UI) ---
   Future<void> updateCartItem({
@@ -450,6 +331,8 @@ class CartController extends GetxController {
     int? amount,
     String? frequency,
     int? topUpAmount,
+    String? capingDate,
+    String? capingAmount
   }) async {
     // 1. Save original state in case we need to revert on failure
     final originalState = cartResponseEntity.value;
@@ -465,6 +348,8 @@ class CartController extends GetxController {
             amount: amount ?? item.amount,
             frequency: frequency ?? item.frequency,
             topUpAmount: topUpAmount.toString() ?? item.topUpAmount,
+            capingAmount: capingAmount ?? item.capingAmount,
+            capingDate: capingDate ?? item.capingDate
           );
         }
         return item;
@@ -484,6 +369,8 @@ class CartController extends GetxController {
       if (amount != null) "amount": amount,
       if (frequency != null) "frequency": frequency,
       if (topUpAmount != null) "top_up_amount": topUpAmount,
+      if (capingDate != null) "caping_date": capingDate,
+      if (capingAmount != null) "caping_amount": capingAmount,
     });
 
     result.fold(
@@ -519,7 +406,6 @@ class CartController extends GetxController {
 
       result.fold(
         (success) async {
-          log("🟢 API DELETE SUCCESS");
 
           // 3. Remove item from local list instantly
           if (cartResponseEntity.value != null) {
@@ -551,8 +437,8 @@ class CartController extends GetxController {
       );
     } catch (e) {
       // If the API throws a raw exception, it lands here
-      log("🔴 RAW EXCEPTION DURING DELETE: $e");
-      Get.snackbar("Error", "Something went wrong: $e");
+      log("🔴 RAW EXCEPTION DURING DELETE: e");
+      Get.snackbar("Error", "Something went wrong: e");
     } finally {
       // 6. THIS IS CRUCIAL: Always stop the spinner, even on error!
       log("⚪ END DELETING STATE");

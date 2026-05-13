@@ -452,11 +452,11 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
             title: 'Nominee Details',
             images: UImages.verify,
           ),
-          Listtilecustom(
-            onTap: () => Get.to(() => const DocumentScreen()),
-            title: 'Documents',
-            images: UImages.cardtick,
-          ),
+          // Listtilecustom(
+          //   onTap: () => Get.to(() => const DocumentScreen()),
+          //   title: 'Documents',
+          //   images: UImages.cardtick,
+          // ),
           const Row(
             children: [
               SizedBox(width: 16),

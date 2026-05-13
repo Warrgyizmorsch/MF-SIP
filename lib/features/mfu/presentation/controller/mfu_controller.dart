@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/features/mfu/domain/entity/can_register_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/can_status_entity.dart';
@@ -18,6 +19,8 @@ class MfuController extends GetxController {
   final isLoading = false.obs;
   final mfuCanResponse = Rxn<MfuCanResponseEntity>();
   final errorMessage = ''.obs;
+
+
 
   final isLoadingCanStatus = false.obs;
   final canStatusResponse = Rxn<MfuCanStatusEntity>();
@@ -41,6 +44,13 @@ class MfuController extends GetxController {
 
   Timer? _canStatusTimer;
   static const _pollInterval = Duration(hours: 2);
+
+  /// -------   Bank  -----------  //
+  final selectedMethod = 'upi'.obs;
+  final upiIdController = TextEditingController();
+  void selectMethod(String method) {
+    selectedMethod.value = method;
+  }
 
   // ─── Actions ─────────────────────────────────────────────────────────────────
 
@@ -162,6 +172,7 @@ class MfuController extends GetxController {
   @override
   void onClose() {
     _stopCanStatusPolling();
+    upiIdController.dispose();
     super.onClose();
   }
 }
