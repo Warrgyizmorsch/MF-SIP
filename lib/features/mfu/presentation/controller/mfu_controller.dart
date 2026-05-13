@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/features/mfu/domain/entity/can_register_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/can_status_entity.dart';
+import 'package:my_sip/features/mfu/domain/entity/mandate_entity.dart';
 import 'package:my_sip/features/mfu/domain/usecases/mfu_usecases.dart';
 import 'package:my_sip/services/session_manager.dart';
 
@@ -19,8 +19,6 @@ class MfuController extends GetxController {
   final isLoading = false.obs;
   final mfuCanResponse = Rxn<MfuCanResponseEntity>();
   final errorMessage = ''.obs;
-
-
 
   final isLoadingCanStatus = false.obs;
   final canStatusResponse = Rxn<MfuCanStatusEntity>();
@@ -46,10 +44,23 @@ class MfuController extends GetxController {
   static const _pollInterval = Duration(hours: 2);
 
   /// -------   Bank  -----------  //
-  final selectedMethod = 'upi'.obs;
-  final upiIdController = TextEditingController();
+  final selectedMethod = 'upi'.obs; // 'upi' | 'netbanking'
+  final upiId = ''.obs;
+  final isVerified = false.obs;
+  final isVerifying = false.obs;
+
   void selectMethod(String method) {
     selectedMethod.value = method;
+    isVerified.value = false;
+    upiId.value = '';
+  }
+
+  Future<void> verifyUpi() async {
+    if (upiId.value.isEmpty) return;
+    isVerifying.value = true;
+    await Future.delayed(const Duration(seconds: 2));
+    isVerified.value = true;
+    isVerifying.value = false;
   }
 
   // ─── Actions ─────────────────────────────────────────────────────────────────
@@ -169,10 +180,40 @@ class MfuController extends GetxController {
     }
   }
 
+  /// ------   Mandate ----   ///
+  final isCreatingMandate = false.obs;
+  final mandateCreateResponse = Rxn<MfuMandateCreateEntity>();
+
+  Future<void> createMandate({required String mandateType}) async {
+    isCreatingMandate.value = true;
+    errorMessage.value = '';
+
+    final uid = session.getUserData?.id ?? 0;
+
+    final result = await mfuUseCases.mfuMandateCreateUseCase(
+      uid: uid,
+      mandateType: mandateType,
+    );
+
+    result.fold(
+      (success) {
+        mandateCreateResponse.value = success.data;
+        log(
+          "[MfuController] Mandate created — type: $mandateType | mmrn: ${success.data?.mmrn}",
+        );
+      },
+      (error) {
+        errorMessage.value = error.message;
+        Get.snackbar('Mandate Error', errorMessage.value);
+      },
+    );
+
+    isCreatingMandate.value = false;
+  }
+
   @override
   void onClose() {
     _stopCanStatusPolling();
-    upiIdController.dispose();
     super.onClose();
   }
 }

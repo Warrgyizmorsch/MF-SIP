@@ -596,6 +596,7 @@ import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 
 // Ensure this imports your actual PersonalisationController
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
@@ -759,7 +760,12 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                         children: [
                           UElevatedBUtton(
                             outlined: true,
-                            onPressed: () {},
+                            onPressed: () {
+                              log('e-mandate ');
+                              Get.find<MfuController>().createMandate(
+                                mandateType: 'enach',
+                              );
+                            },
                             child: const Center(
                               child: Text(
                                 'Set Up Auto Pay',

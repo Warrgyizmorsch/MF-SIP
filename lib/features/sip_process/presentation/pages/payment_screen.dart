@@ -1,15 +1,211 @@
+// import 'package:flutter/material.dart';
+// import 'package:gap/gap.dart';
+// import 'package:get/get.dart';
+// import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
+// import 'package:my_sip/common/widget/button/elevated_button.dart';
+// import 'package:my_sip/common/widget/text/small_heading.dart';
+// import 'package:my_sip/common/widget/text_form/text_form_field.dart';
+// import 'package:my_sip/core/utils/constant/colors.dart';
+// import 'package:my_sip/core/utils/constant/text_style.dart';
+// import 'package:my_sip/features/authentication/presentation/widgets/term_policy.dart';
+// import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+// import 'package:my_sip/features/cart/presentation/pages/cart_page.dart';
+// import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
+
+// class PaymentScreen extends StatelessWidget {
+//   PaymentScreen({super.key});
+
+//   final CartController cartController = Get.find<CartController>();
+//   final PersonalisationController personalisationController =
+//       Get.find<PersonalisationController>();
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final Map<String, dynamic>? arg = Get.arguments as Map<String, dynamic>?;
+
+//     final String amount =
+//         arg?['amount']?.toString() ?? cartController.totalAmount.toString();
+
+//     debugPrint('Amount to pay: $amount');
+//     return Scaffold(
+//       resizeToAvoidBottomInset: false,
+//       backgroundColor: Colors.grey.shade50,
+//       appBar: CustomAppBarNormal(title: 'Payment'),
+//       body: Padding(
+//         padding: EdgeInsets.all(16.0),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Text(
+//               'Select Payment Method',
+//               style: UTextStyles.small.copyWith(color: Color(0xff333333)),
+//             ),
+//             Gap(25),
+//             Container(
+//               padding: EdgeInsets.symmetric(horizontal: 10),
+//               decoration: BoxDecoration(
+//                 color: Ucolors.light,
+//                 borderRadius: BorderRadius.circular(12),
+//               ),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   CardMethod(
+//                     title:
+//                         '${personalisationController.userData.value?.bankAccount?.bankName}',
+//                     icon: Icons.credit_card,
+//                     subtitle:
+//                         '${personalisationController.userData.value?.bankAccount?.accountNumberEncrypted}',
+//                   ),
+//                   Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       Gap(10),
+
+//                       const SmallHeading(
+//                         smallheading: 'Enter UPI ID',
+//                         color: Ucolors.dark,
+//                         fontWeight: FontWeight.w600,
+//                       ),
+//                       Gap(10),
+//                       Row(
+//                         children: [
+//                           Expanded(
+//                             flex: 3,
+//                             child: UTextFormField(
+//                               prefixIcon: null,
+//                               hintText: 'Name',
+//                             ),
+//                           ),
+//                           Gap(10),
+//                           Expanded(
+//                             child: UElevatedBUtton(
+//                               color: Ucolors.darkgrey,
+//                               width: 40,
+//                               height: 52,
+//                               child: Center(
+//                                 child: Text(
+//                                   'Verify',
+//                                   style: UTextStyles.buttonText,
+//                                 ),
+//                               ),
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                       Gap(10),
+//                     ],
+//                   ),
+//                 ],
+//               ),
+//             ),
+
+//             Gap(5),
+//             Card(
+//               color: Colors.white,
+//               child: CardMethod(title: 'Net Banking', icon: Icons.home),
+//             ),
+//           ],
+//         ),
+//       ),
+//       persistentFooterButtons: [
+//         TermAndPolicy(term: 'By Proceeding, I accept the '),
+//       ],
+//       persistentFooterDecoration: BoxDecoration(color: Colors.transparent),
+//       bottomNavigationBar: SafeArea(
+//         top: false,
+//         child: CartBottomBar(
+//           amount: amount.toString(),
+//           title: 'Amount Payable',
+//           ontap: () {},
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// class CardMethod extends StatelessWidget {
+//   const CardMethod({
+//     super.key,
+//     required this.title,
+//     this.subtitle,
+//     required this.icon,
+//   });
+
+//   final String title;
+//   final String? subtitle;
+//   final IconData icon;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return ListTile(
+//       dense: true,
+
+//       // isThreeLine: true,
+//       leading: Icon(icon, size: 30),
+//       title: Text(
+//         title,
+//         style: UTextStyles.medium.copyWith(
+//           fontWeight: FontWeight.w600,
+//           color: Ucolors.dark,
+//         ),
+//       ),
+//       subtitle: subtitle != null
+//           ? Text(subtitle!, style: UTextStyles.small)
+//           : null,
+//       // subtitle: ,
+//       trailing: CircleAvatar(
+//         backgroundColor: Ucolors.primary.withOpacity(0.1),
+//         maxRadius: 15,
+//         child: Icon(Icons.keyboard_arrow_up),
+//       ),
+//     );
+//   }
+// }
+
+// class PaymentMethod extends StatelessWidget {
+//   const PaymentMethod({super.key, required this.icon});
+
+//   final String icon;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       margin: EdgeInsets.all(10),
+
+//       padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+//       decoration: BoxDecoration(
+//         borderRadius: BorderRadius.circular(5),
+//         border: Border.all(color: Ucolors.borderColor),
+//       ),
+//       child: SizedBox(height: 40, width: 40, child: Image.asset(icon)),
+//     );
+//   }
+// }
+// payment_controller.dart — add this to your controllers folder
+// ─────────────────────────────────────────────────────────────
+// class PaymentController extends GetxController {
+//   final selectedMethod = 'upi'.obs;   // 'upi' | 'netbanking'
+//   final upiId = ''.obs;
+//   final isVerified = false.obs;
+//   final isVerifying = false.obs;
+//
+//   Future<void> verifyUpi() async {
+//     if (upiId.value.isEmpty) return;
+//     isVerifying.value = true;
+//     await Future.delayed(const Duration(seconds: 2)); // replace with real API
+//     isVerified.value = true;
+//     isVerifying.value = false;
+//   }
+// }
+
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
+import 'package:gap/gap.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
-import 'package:my_sip/common/widget/text/small_heading.dart';
-import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/text_style.dart';
-import 'package:my_sip/features/authentication/presentation/widgets/term_policy.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
-import 'package:my_sip/features/cart/presentation/pages/cart_page.dart';
+import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 
 class PaymentScreen extends StatelessWidget {
@@ -18,167 +214,855 @@ class PaymentScreen extends StatelessWidget {
   final CartController cartController = Get.find<CartController>();
   final PersonalisationController personalisationController =
       Get.find<PersonalisationController>();
+  final MfuController paymentController = Get.find<MfuController>();
+
+  final TextEditingController upiController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic>? arg = Get.arguments as Map<String, dynamic>?;
-
     final String amount =
         arg?['amount']?.toString() ?? cartController.totalAmount.toString();
 
-    debugPrint('Amount to pay: $amount');
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.grey.shade50,
-      appBar: CustomAppBarNormal(title: 'Payment'),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
+      resizeToAvoidBottomInset: true,
+      backgroundColor: const Color(0xFFF6F7FB),
+      appBar: _buildAppBar(context),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Select Payment Method',
-              style: UTextStyles.small.copyWith(color: Color(0xff333333)),
-            ),
-            Gap(25),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                color: Ucolors.light,
-                borderRadius: BorderRadius.circular(12),
+            // ── Section Label ────────────────────────────────
+            const Text(
+              'Choose Payment Method',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF8A8FA8),
+                letterSpacing: 0.6,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CardMethod(
-                    title:
-                        '${personalisationController.userData.value?.bankAccount?.bankName}',
-                    icon: Icons.credit_card,
-                    subtitle:
-                        '${personalisationController.userData.value?.bankAccount?.accountNumberEncrypted}',
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Gap(10),
+            ),
+            const Gap(14),
 
-                      const SmallHeading(
-                        smallheading: 'Enter UPI ID',
-                        color: Ucolors.dark,
-                        fontWeight: FontWeight.w600,
+            Obx(
+              () => _MethodSelectorRow(
+                selected: paymentController.selectedMethod.value,
+                onSelect: paymentController.selectMethod,
+              ),
+            ),
+            const Gap(20),
+
+            Obx(() {
+              final method = paymentController.selectedMethod.value;
+              return AnimatedSwitcher(
+                duration: const Duration(milliseconds: 280),
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0.06),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  ),
+                ),
+                child: method == 'upi'
+                    ? _UpiPanel(
+                        key: const ValueKey('upi'),
+                        controller: paymentController,
+                        textController: upiController,
+                        bankName:
+                            personalisationController
+                                .userData
+                                .value
+                                ?.bankAccount
+                                ?.bankName ??
+                            'Saved Bank',
+                        maskedAccount:
+                            personalisationController
+                                .userData
+                                .value
+                                ?.bankAccount
+                                ?.accountNumberEncrypted ??
+                            '••••  ••••  1234',
+                      )
+                    : _NetBankingPanel(
+                        key: const ValueKey('netbanking'),
+                        bankName:
+                            personalisationController
+                                .userData
+                                .value
+                                ?.bankAccount
+                                ?.bankName ??
+                            'Saved Bank',
+                        maskedAccount:
+                            personalisationController
+                                .userData
+                                .value
+                                ?.bankAccount
+                                ?.accountNumberEncrypted ??
+                            '••••  ••••  1234',
                       ),
-                      Gap(10),
-                      Row(
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: UTextFormField(
-                              prefixIcon: null,
-                              hintText: 'Name',
-                            ),
-                          ),
-                          Gap(10),
-                          Expanded(
-                            child: UElevatedBUtton(
-                              color: Ucolors.darkgrey,
-                              width: 40,
-                              height: 52,
-                              child: Center(
-                                child: Text(
-                                  'Verify',
-                                  style: UTextStyles.buttonText,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Gap(10),
-                    ],
+              );
+            }),
+
+            const Gap(24),
+          ],
+        ),
+      ),
+      bottomNavigationBar: _BottomBar(amount: amount),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: const Color(0xFFF6F7FB),
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      leading: GestureDetector(
+        onTap: () => Get.back(),
+        child: Container(
+          margin: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.06),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 16,
+            color: Color(0xFF1A1D2E),
+          ),
+        ),
+      ),
+      title: const Text(
+        'Payment',
+        style: TextStyle(
+          color: Color(0xFF1A1D2E),
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      centerTitle: true,
+    );
+  }
+}
+
+class _MethodSelectorRow extends StatelessWidget {
+  const _MethodSelectorRow({required this.selected, required this.onSelect});
+  final String selected;
+  final void Function(String) onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _MethodTab(
+            label: 'UPI',
+            icon: Icons.qr_code_2_rounded,
+            isSelected: selected == 'upi',
+            onTap: () => onSelect('upi'),
+          ),
+        ),
+        const Gap(12),
+        Expanded(
+          child: _MethodTab(
+            label: 'Net Banking',
+            icon: Icons.account_balance_rounded,
+            isSelected: selected == 'netbanking',
+            onTap: () => onSelect('netbanking'),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MethodTab extends StatelessWidget {
+  const _MethodTab({
+    required this.label,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+  final String label;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOut,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          // color: isSelected ? const Color(0xFF4F46E5) : Colors.white,
+          gradient: isSelected ? Ucolors.backgroundGradient : null,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? Ucolors.primary : const Color(0xFFE8EAF0),
+            width: 1.5,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF4F46E5).withOpacity(0.28),
+                    blurRadius: 14,
+                    offset: const Offset(0, 5),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
                 ],
-              ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              size: 26,
+              color: isSelected ? Colors.white : const Color(0xFF8A8FA8),
             ),
-
-            Gap(5),
-            Card(
-              color: Colors.white,
-              child: CardMethod(title: 'Net Banking', icon: Icons.home),
+            const Gap(6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.white : const Color(0xFF4A4E6A),
+              ),
             ),
           ],
         ),
       ),
-      persistentFooterButtons: [
-        TermAndPolicy(term: 'By Proceeding, I accept the '),
-      ],
-      persistentFooterDecoration: BoxDecoration(color: Colors.transparent),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: CartBottomBar(
-          amount: amount.toString(),
-          title: 'Amount Payable',
-          ontap: () {},
-        ),
-      ),
     );
   }
 }
 
-class CardMethod extends StatelessWidget {
-  const CardMethod({
+// ─────────────────────────────────────────────────────────────
+// UPI Panel
+// ─────────────────────────────────────────────────────────────
+class _UpiPanel extends StatelessWidget {
+  const _UpiPanel({
     super.key,
-    required this.title,
-    this.subtitle,
-    required this.icon,
+    required this.controller,
+    required this.textController,
+    required this.bankName,
+    required this.maskedAccount,
   });
 
-  final String title;
-  final String? subtitle;
-  final IconData icon;
+  final MfuController controller;
+  final TextEditingController textController;
+  final String bankName;
+  final String maskedAccount;
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      dense: true,
-
-      // isThreeLine: true,
-      leading: Icon(icon, size: 30),
-      title: Text(
-        title,
-        style: UTextStyles.medium.copyWith(
-          fontWeight: FontWeight.w600,
-          color: Ucolors.dark,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ── Saved Bank Account ──────────────────────────────
+        _PanelCard(
+          child: Row(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4F46E5).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.credit_card_rounded,
+                  color: Color(0xFF4F46E5),
+                  size: 22,
+                ),
+              ),
+              const Gap(14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      bankName,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1A1D2E),
+                      ),
+                    ),
+                    const Gap(2),
+                    Text(
+                      maskedAccount,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF8A8FA8),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'Linked',
+                  style: TextStyle(
+                    color: Color(0xFF10B981),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-      subtitle: subtitle != null
-          ? Text(subtitle!, style: UTextStyles.small)
-          : null,
-      // subtitle: ,
-      trailing: CircleAvatar(
-        backgroundColor: Ucolors.primary.withOpacity(0.1),
-        maxRadius: 15,
-        child: Icon(Icons.keyboard_arrow_up),
+        const Gap(16),
+
+        // ── Manual UPI Entry ────────────────────────────────
+        _PanelCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Or enter UPI ID manually',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF4A4E6A),
+                ),
+              ),
+              const Gap(12),
+              Obx(
+                () => Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: textController,
+                        onChanged: (v) {
+                          controller.upiId.value = v;
+                          controller.isVerified.value = false;
+                        },
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: Color(0xFF1A1D2E),
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'yourname@upi',
+                          hintStyle: const TextStyle(
+                            color: Color(0xFFBCC0D0),
+                            fontSize: 14,
+                          ),
+                          filled: true,
+                          fillColor: const Color(0xFFF6F7FB),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          suffixIcon: controller.isVerified.value
+                              ? const Icon(
+                                  Icons.check_circle_rounded,
+                                  color: Color(0xFF10B981),
+                                )
+                              : null,
+                        ),
+                      ),
+                    ),
+                    const Gap(10),
+                    Obx(
+                      () => GestureDetector(
+                        onTap: controller.isVerifying.value
+                            ? null
+                            : controller.verifyUpi,
+                        child: controller.isVerified.value
+                            ? SizedBox.shrink()
+                            : AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                height: 52,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 18,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: controller.isVerified.value
+                                      ? const Color(0xFF10B981)
+                                      : const Color(0xFF4F46E5),
+                                  gradient: controller.isVerified.value
+                                      ? Ucolors.modernFintechGradient
+                                      : Ucolors.backgroundGradient,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Center(
+                                  child: controller.isVerifying.value
+                                      ? const SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : Text(
+                                          controller.isVerified.value
+                                              ? 'Verified ✓'
+                                              : 'Verify',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Gap(4),
+              const Text(
+                'e.g. mobilenumber@upi, name@oksbi',
+                style: TextStyle(fontSize: 11, color: Color(0xFFBCC0D0)),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _NetBankingPanel extends StatelessWidget {
+  const _NetBankingPanel({
+    super.key,
+    required this.bankName,
+    required this.maskedAccount,
+  });
+
+  final String bankName;
+  final String maskedAccount;
+
+  @override
+  Widget build(BuildContext context) {
+    return _PanelCard(
+      child: Row(
+        children: [
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: const Color(0xFF4F46E5).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.account_balance_rounded,
+              color: Color(0xFF4F46E5),
+              size: 22,
+            ),
+          ),
+          const Gap(14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  bankName,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1A1D2E),
+                  ),
+                ),
+                const Gap(2),
+                Text(
+                  maskedAccount,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF8A8FA8),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: const Color(0xFF10B981).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Text(
+              'Linked',
+              style: TextStyle(
+                color: Color(0xFF10B981),
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class PaymentMethod extends StatelessWidget {
-  const PaymentMethod({super.key, required this.icon});
-
-  final String icon;
+class _PanelCard extends StatelessWidget {
+  const _PanelCard({required this.child});
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.all(10),
-
-      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        border: Border.all(color: Ucolors.borderColor),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: SizedBox(height: 40, width: 40, child: Image.asset(icon)),
+      child: child,
     );
   }
+}
+
+class _BottomBar extends StatelessWidget {
+  const _BottomBar({required this.amount});
+  final String amount;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      top: false,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 16,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Icon(Icons.lock_rounded, size: 12, color: Color(0xFF8A8FA8)),
+                Gap(4),
+                Text(
+                  'Payments are encrypted & secured',
+                  style: TextStyle(fontSize: 11, color: Color(0xFF8A8FA8)),
+                ),
+              ],
+            ),
+            const Gap(12),
+            UElevatedBUtton(
+              height: 54,
+              onPressed: () {
+                // hook your payment logic here
+                _showMandateSheet(context, amount);
+              },
+
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Pay  ',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    '₹$amount',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+void _showMandateSheet(BuildContext context, String amount) {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (_) => Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Gap(12),
+          // Drag handle
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE2E5F0),
+              borderRadius: BorderRadius.circular(100),
+            ),
+          ),
+          const Gap(28),
+
+          // Shield icon
+          Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              gradient: Ucolors.backgroundGradient,
+              borderRadius: BorderRadius.circular(22),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF4F46E5).withOpacity(0.30),
+                  blurRadius: 18,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.verified_user_rounded,
+              color: Colors.white,
+              size: 34,
+            ),
+          ),
+          const Gap(20),
+
+          // Title & subtitle
+          const Text(
+            'Setup Bank Mandate',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF1A1D2E),
+              letterSpacing: -0.3,
+            ),
+          ),
+          const Gap(8),
+          const Text(
+            'Authorise a one-time mandate to enable\nautomatic payments from your bank account.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              color: Color(0xFF8A8FA8),
+              height: 1.55,
+            ),
+          ),
+          const Gap(28),
+
+          // Info rows
+          _mandateRow(
+            Icons.currency_rupee_rounded,
+            'Mandate Amount',
+            '₹$amount',
+            // valueColor: const Color(0xFF4F46E5),
+            valueColor: Ucolors.darkBlue,
+          ),
+          const Divider(height: 1, thickness: 1, color: Color(0xFFF0F2F8)),
+          _mandateRow(Icons.repeat_rounded, 'Frequency', 'As & when presented'),
+          const Divider(height: 1, thickness: 1, color: Color(0xFFF0F2F8)),
+          _mandateRow(
+            Icons.account_balance_rounded,
+            'Debit type',
+            'Auto-debit (e-NACH)',
+          ),
+          const Divider(height: 1, thickness: 1, color: Color(0xFFF0F2F8)),
+          _mandateRow(
+            Icons.calendar_today_rounded,
+            'Valid until',
+            'Until cancelled',
+          ),
+          const Gap(24),
+
+          // Warning notice
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF8ED),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFFFE0A3)),
+            ),
+            child: const Row(
+              children: [
+                Icon(
+                  Icons.info_outline_rounded,
+                  size: 16,
+                  color: Color(0xFFE5941A),
+                ),
+                Gap(8),
+                Expanded(
+                  child: Text(
+                    'You can revoke this mandate anytime from your bank or app settings.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFFB06A00),
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Gap(28),
+
+          // Buttons
+          Row(
+            children: [
+              // Close
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => Get.back(),
+                  child: Container(
+                    height: 54,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF6F7FB),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFE2E5F0)),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'Close',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF4A4E6A),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const Gap(12),
+
+              // Auto Pay
+              Expanded(
+                flex: 2,
+                child: GestureDetector(
+                  onTap: () {
+                    final method =
+                        Get.find<MfuController>().selectedMethod.value;
+                    Get.find<MfuController>().createMandate(
+                      mandateType: method == 'upi' ? 'upi' : 'enach',
+                    );
+                  },
+                  child: Container(
+                    height: 54,
+                    decoration: BoxDecoration(
+                      gradient: Ucolors.backgroundGradient,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.bolt_rounded, color: Colors.white, size: 18),
+                        Gap(6),
+                        Text(
+                          'Enable Auto Pay',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+// Helper — info row
+Widget _mandateRow(
+  IconData icon,
+  String label,
+  String value, {
+  Color valueColor = const Color(0xFF1A1D2E),
+}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 13),
+    child: Row(
+      children: [
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            // color: const Color(0xFF4F46E5).withOpacity(0.08),
+            color: Ucolors.skyblue,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, size: 18, color: Ucolors.darkBlue),
+        ),
+        const Gap(14),
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              color: Color(0xFF8A8FA8),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: valueColor,
+          ),
+        ),
+      ],
+    ),
+  );
 }
