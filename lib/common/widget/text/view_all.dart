@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/text_style.dart';
 class USectionHeading extends StatelessWidget {
   const USectionHeading({
     super.key,
@@ -32,6 +33,7 @@ class USectionHeading extends StatelessWidget {
             // fontSize: fontSize ?? (Get.width * 0.045).clamp(16, 20),
             fontWeight: fontWeight ?? FontWeight.w600,
             color: textcolor ?? Ucolors.dark,
+            fontFamily: UTextStyles.font
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,

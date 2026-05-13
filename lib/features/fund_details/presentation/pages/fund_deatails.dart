@@ -1090,25 +1090,63 @@ class _DesktopRiskCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final fund = controller.fundDetail.value;
-      final risk = getRiskMeter(fund?.riskometerValue);
-      final hasReturns = controller.yearlyReturns.isNotEmpty;
-
       if (fund == null) return const SizedBox();
+
+      final risk = getRiskMeter(fund.riskometerValue);
+      final hasReturns = controller.yearlyReturns.isNotEmpty;
       final data = controller.buildTrailingReturns(fund);
+
       return _DesktopCard(
         title: 'Risk Analysis',
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 1. LEFT SIDE: Yearly Returns (Only if data exists)
-            if (hasReturns) ...[
+        child: IntrinsicHeight( // Taaki left aur right side ki height same rahe
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch, // Dynamic height stretch
+            children: [
+              // 1. LEFT SIDE: Yearly Returns
+              if (hasReturns) ...[
+                Expanded(
+                  flex: 1,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Yearly Returns',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade800,
+                        ),
+                      ),
+                      const Gap(24),
+                      // Web par chart ko expand karne ke liye Expanded use kiya
+                      Expanded(
+                        child: Container(
+                          constraints: const BoxConstraints(minHeight: 300),
+                          child: YearlyReturnsChart(yearlyData: data),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Visual Separation
+                const Gap(40),
+                VerticalDivider(
+                  color: Colors.grey.shade200,
+                  thickness: 1,
+                  indent: 40,
+                  endIndent: 0,
+                ),
+                const Gap(40),
+              ],
+
+              // 2. RIGHT SIDE: Risk Meter
               Expanded(
                 flex: 1,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Yearly Returns',
+                      'Risk Level',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -1116,169 +1154,102 @@ class _DesktopRiskCard extends StatelessWidget {
                       ),
                     ),
                     const Gap(24),
-                    // Give chart a fixed height or aspect ratio
-                    SizedBox(
-                      height: 300,
-                      child: YearlyReturnsChart(yearlyData: data),
+                    // Main Risk Card
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [risk.color.withOpacity(0.08), Colors.white],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: risk.color.withOpacity(0.3)),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Gauge Container
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxHeight: 200),
+                            child: SfRadialGauge(
+                              axes: [
+                                RadialAxis(
+                                  minimum: 0,
+                                  maximum: 100,
+                                  showLabels: false,
+                                  showTicks: false,
+                                  startAngle: 180,
+                                  endAngle: 0,
+                                  radiusFactor: 0.9,
+                                  canScaleToFit: true,
+                                  axisLineStyle: const AxisLineStyle(
+                                    thickness: 0.15,
+                                    thicknessUnit: GaugeSizeUnit.factor,
+                                    color: Colors.transparent,
+                                  ),
+                                  ranges: [
+                                    GaugeRange(startValue: 0, endValue: 20, color: Colors.green, startWidth: 15, endWidth: 15),
+                                    GaugeRange(startValue: 20, endValue: 40, color: Colors.lightGreen, startWidth: 15, endWidth: 15),
+                                    GaugeRange(startValue: 40, endValue: 60, color: Colors.yellow, startWidth: 15, endWidth: 15),
+                                    GaugeRange(startValue: 60, endValue: 80, color: Colors.orange, startWidth: 15, endWidth: 15),
+                                    GaugeRange(startValue: 80, endValue: 100, color: Colors.red, startWidth: 15, endWidth: 15),
+                                  ],
+                                  pointers: [
+                                    NeedlePointer(
+                                      value: risk.needleValue.toDouble(),
+                                      needleLength: 0.6,
+                                      needleStartWidth: 1,
+                                      needleEndWidth: 4,
+                                      needleColor: Colors.black87,
+                                      knobStyle: const KnobStyle(color: Colors.black87, knobRadius: 0.06),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            risk.label,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w800,
+                              color: risk.color,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const Gap(8),
+                          Text(
+                            "Investors with high risk appetite",
+                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Gap(24),
+                    // Legend
+                    Center(
+                      child: Wrap(
+                        spacing: 16,
+                        runSpacing: 12,
+                        alignment: WrapAlignment.center,
+                        children: const [
+                          RiskLegendItem(color: Colors.green, label: 'Very Low'),
+                          RiskLegendItem(color: Colors.lightGreen, label: 'Low'),
+                          RiskLegendItem(color: Colors.yellow, label: 'Moderate'),
+                          RiskLegendItem(color: Colors.orange, label: 'Medium'),
+                          RiskLegendItem(color: Colors.redAccent, label: 'High'),
+                          RiskLegendItem(color: Colors.red, label: 'Very High'),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-              // Spacer between the two columns
-              const Gap(40),
-              // Vertical Divider for visual separation (Optional)
-              Container(width: 1, height: 300, color: Colors.grey.shade200),
-              const Gap(40),
             ],
-
-            // 2. RIGHT SIDE: Risk Meter
-            Expanded(
-              flex: 1,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Risk Level',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade800,
-                    ),
-                  ),
-                  const Gap(24),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [risk.color.withOpacity(0.08), Colors.white],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: risk.color.withOpacity(0.3)),
-                    ),
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: 180, // Slightly reduced height for better fit
-                          child: SfRadialGauge(
-                            axes: [
-                              RadialAxis(
-                                minimum: 0,
-                                maximum: 100,
-                                showLabels: false,
-                                showTicks: false,
-                                startAngle: 180,
-                                endAngle: 0,
-                                radiusFactor: 0.9,
-                                canScaleToFit: true,
-                                axisLineStyle: const AxisLineStyle(
-                                  thickness: 0.15,
-                                  thicknessUnit: GaugeSizeUnit.factor,
-                                  color: Colors.transparent,
-                                ),
-                                ranges: [
-                                  GaugeRange(
-                                    startValue: 0,
-                                    endValue: 20,
-                                    color: Colors.green,
-                                    startWidth: 15,
-                                    endWidth: 15,
-                                  ),
-                                  GaugeRange(
-                                    startValue: 20,
-                                    endValue: 40,
-                                    color: Colors.lightGreen,
-                                    startWidth: 15,
-                                    endWidth: 15,
-                                  ),
-                                  GaugeRange(
-                                    startValue: 40,
-                                    endValue: 60,
-                                    color: Colors.yellow,
-                                    startWidth: 15,
-                                    endWidth: 15,
-                                  ),
-                                  GaugeRange(
-                                    startValue: 60,
-                                    endValue: 80,
-                                    color: Colors.orange,
-                                    startWidth: 15,
-                                    endWidth: 15,
-                                  ),
-                                  GaugeRange(
-                                    startValue: 80,
-                                    endValue: 100,
-                                    color: Colors.red,
-                                    startWidth: 15,
-                                    endWidth: 15,
-                                  ),
-                                ],
-                                pointers: [
-                                  NeedlePointer(
-                                    value: risk.needleValue.toDouble(),
-                                    needleLength: 0.6,
-                                    needleStartWidth: 1,
-                                    needleEndWidth: 4,
-                                    needleColor: Colors.black87,
-                                    knobStyle: const KnobStyle(
-                                      color: Colors.black87,
-                                      knobRadius: 0.06,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        Text(
-                          risk.label,
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w800,
-                            color: risk.color,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        const Gap(8),
-                        Text(
-                          "Investors with high risk appetite",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Gap(24),
-                  // Legend
-                  Center(
-                    child: Wrap(
-                      spacing: 16,
-                      runSpacing: 12,
-                      alignment: WrapAlignment.center,
-                      children: const [
-                        RiskLegendItem(color: Colors.green, label: 'Very Low'),
-                        RiskLegendItem(color: Colors.lightGreen, label: 'Low'),
-                        RiskLegendItem(
-                          color: Colors.yellow,
-                          label: 'Moderate',
-                        ), // Added Moderate for completeness
-                        RiskLegendItem(
-                          color: Colors.orange,
-                          label: 'Medium',
-                        ), // "Medium" often maps to "Moderately High" or distinct category
-                        RiskLegendItem(color: Colors.redAccent, label: 'High'),
-                        RiskLegendItem(color: Colors.red, label: 'Very High'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
       );
     });

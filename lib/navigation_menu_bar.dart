@@ -2649,7 +2649,7 @@ class _DesktopSideNav extends StatelessWidget {
         final width = constraints.maxWidth;
 
         /// RESPONSIVE
-        final bool isSmallDesktop = width < 1200;
+        final bool isSmallDesktop = width < 900;
 
         final double sideWidth = isDesktop
             ? (isSmallDesktop ? 240 : 280)
@@ -2661,7 +2661,7 @@ class _DesktopSideNav extends StatelessWidget {
 
         final double navFontSize = isDesktop
             ? (isSmallDesktop ? 14 : 15)
-            : 13;
+            : 18;
 
         final double iconSize = isDesktop
             ? 22

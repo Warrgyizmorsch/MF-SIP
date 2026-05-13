@@ -315,6 +315,7 @@ class _WebDashboardLayout extends StatelessWidget {
                 // Section Heading hamesha dikhegi
                 const USectionHeading(
                   title: 'Recently Viewed',
+                  fontSize: 22,
                   showActionButton: false,
                 ),
                 const SizedBox(height: 16),
@@ -327,6 +328,7 @@ class _WebDashboardLayout extends StatelessWidget {
                 else if (recentList.isEmpty)
                   Container(
                     width: double.infinity,
+                    height: 340,
                     padding: const EdgeInsets.symmetric(vertical: 40),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade50,
@@ -425,7 +427,7 @@ class _WebDashboardLayout extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final bool isMobile = width < 700;
+        final bool isMobile = width < 600;
 
         // Sabse bahar wala Main Parent Card
         return Container(
@@ -457,7 +459,6 @@ class _WebDashboardLayout extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // Flex use kiya hai taaki Mobile par Column aur Web par Row bane
               Flex(
                 direction: isMobile ? Axis.vertical : Axis.horizontal,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -465,7 +466,7 @@ class _WebDashboardLayout extends StatelessWidget {
                   final item = videos[index];
 
                   return Expanded(
-                    flex: isMobile ? 0 : 1, // Mobile par fixed height, Web par equal width
+                    flex: isMobile ? 2 : videos.length, // Mobile par fixed height, Web par equal width
                     child: Padding(
                       padding: EdgeInsets.only(
                         // Desktop par beech mein space, Mobile par niche space
@@ -473,7 +474,7 @@ class _WebDashboardLayout extends StatelessWidget {
                         bottom: (isMobile && index != videos.length - 1) ? 20 : 0,
                       ),
                       child: SizedBox(
-                        height: isMobile ? 200 : 260, // Fixed height for videos
+                        height: isMobile ? 180 : 220, // Fixed height for videos
                         child: WebHoverScale(
                           scale: 1.02,
                           child: Container(
@@ -555,7 +556,7 @@ class _WebDashboardLayout extends StatelessWidget {
           const Text(
             "Plan Your Goals",
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -813,7 +814,7 @@ class _WebDashboardLayout extends StatelessWidget {
           const Text(
             "Financial Tools",
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -1331,7 +1332,7 @@ class _WebDashboardLayout extends StatelessWidget {
               children: [
                 const Text(
                   "Popular Funds",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 20),
 
@@ -4475,8 +4476,8 @@ class _CollectionItemState extends State<CollectionItem> {
                 Ucolors.primary.withOpacity(0.04),
               ]
                   : [
-                Colors.white,
                 Colors.grey.shade50,
+                Colors.grey.shade200,
               ],
             ),
 
