@@ -526,9 +526,11 @@ class Listtilecustom extends StatelessWidget {
       leading: images != null ? Image.asset(images!) : null,
       title: Text(
         title,
-        style: UTextStyles.subtitle2.copyWith(
+        style: UTextStyles.bodyMedium.copyWith(
           color: Ucolors.dark,
-          fontWeight: FontWeight.w500,
+          fontSize: 12,
+          // fontWeight: FontWeight.w500,
+          fontFamily: UTextStyles.font,
         ),
       ),
       trailing: !isLock

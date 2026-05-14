@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 
+import '../../../core/utils/constant/text_style.dart';
+
 class SectionHeading extends StatelessWidget {
   const SectionHeading({
     super.key,
@@ -38,6 +40,7 @@ class SectionHeading extends StatelessWidget {
                   fontSize: fontSize ?? (Get.width * 0.045).clamp(16, 20),
                   fontWeight: fontWeight ?? FontWeight.w500,
                   color: textcolor ?? Ucolors.dark,
+                  fontFamily: UTextStyles.font,
                 ),
               ),
         // Spacer(),

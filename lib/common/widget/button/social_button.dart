@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 
+import '../../../features/authentication/presentation/controllers/auth/auth_controller.dart';
+
 class USocialButton extends StatelessWidget {
-  const USocialButton({super.key});
+  AuthController authController = Get.find<AuthController>();
+   USocialButton({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: _socialButton(UImages.google, () {})),
+        Expanded(child: _socialButton(UImages.google, () async => await authController.signInWithGoogle())),
         SizedBox(width: 15),
         Expanded(child: _socialButton(UImages.apple, () {})),
       ],
