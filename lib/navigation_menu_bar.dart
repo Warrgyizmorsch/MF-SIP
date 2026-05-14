@@ -2652,7 +2652,7 @@ class _DesktopSideNav extends StatelessWidget {
         final bool isSmallDesktop = width < 900;
 
         final double sideWidth = isDesktop
-            ? (isSmallDesktop ? 240 : 280)
+            ? (isSmallDesktop ? 150 : 280)
             : 82;
 
         final double logoSize = isDesktop

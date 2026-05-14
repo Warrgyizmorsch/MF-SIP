@@ -35,6 +35,7 @@
 // }
 
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shimmer/shimmer.dart';
@@ -312,6 +313,267 @@ class FundShimmerLoading extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+/// =========================================================
+
+class FundShimmerCard extends StatelessWidget {
+  const FundShimmerCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isMobile =
+        MediaQuery.of(context).size.width < 700;
+
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade200,
+      highlightColor: Colors.grey.shade100,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+        ),
+        child: isMobile
+            ? _mobileShimmer()
+            : _desktopShimmer(),
+      ),
+    );
+  }
+
+  // =========================================================
+  // DESKTOP SHIMMER
+  // =========================================================
+
+  Widget _desktopShimmer() {
+    return Row(
+      children: [
+        // LOGO + TITLE
+        Expanded(
+          flex: 4,
+          child: Row(
+            children: [
+              Container(
+                width: 54,
+                height: 54,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+
+              const Gap(16),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment:
+                  CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      height: 14,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius:
+                        BorderRadius.circular(8),
+                      ),
+                    ),
+
+                    const Gap(10),
+
+                    Container(
+                      height: 12,
+                      width: 140,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius:
+                        BorderRadius.circular(8),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // RISK
+        Expanded(
+          flex: 2,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              height: 34,
+              width: 90,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+          ),
+        ),
+
+        // RETURNS
+        Expanded(child: _returnBox()),
+        Expanded(child: _returnBox()),
+        Expanded(child: _returnBox()),
+
+        // BUTTON
+        Expanded(
+          flex: 2,
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Container(
+              height: 42,
+              width: 120,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // =========================================================
+  // MOBILE SHIMMER
+  // =========================================================
+
+  Widget _mobileShimmer() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 54,
+              height: 54,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+
+            const Gap(14),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 14,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius:
+                      BorderRadius.circular(8),
+                    ),
+                  ),
+
+                  const Gap(10),
+
+                  Container(
+                    height: 12,
+                    width: 140,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius:
+                      BorderRadius.circular(8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+
+        const Gap(20),
+
+        Row(
+          mainAxisAlignment:
+          MainAxisAlignment.spaceBetween,
+          children: [
+            _miniBox(),
+            _miniBox(),
+            _miniBox(),
+          ],
+        ),
+
+        const Gap(18),
+
+        Row(
+          children: [
+            Expanded(
+              child: Container(
+                height: 38,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius:
+                  BorderRadius.circular(30),
+                ),
+              ),
+            ),
+
+            const Gap(12),
+
+            Expanded(
+              child: Container(
+                height: 42,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius:
+                  BorderRadius.circular(14),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // =========================================================
+  // COMMON BOXES
+  // =========================================================
+
+  Widget _returnBox() {
+    return Container(
+      height: 14,
+      width: 45,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+      ),
+    );
+  }
+
+  Widget _miniBox() {
+    return Column(
+      children: [
+        Container(
+          height: 10,
+          width: 30,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+
+        const Gap(8),
+
+        Container(
+          height: 14,
+          width: 50,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ],
     );
   }
 }

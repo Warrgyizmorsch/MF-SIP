@@ -1,12 +1,9 @@
-import 'dart:developer';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:my_sip/common/widget/animated/popularfundanimation.dart';
 import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
@@ -26,8 +23,7 @@ import 'package:my_sip/features/explore/presentation/controller/mutual_fund_cont
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
 import 'package:my_sip/features/fund_details/presentation/controllers/fund_details_controller.dart';
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
-import 'package:my_sip/features/home/presentation/controllers/home_controller.dart';
-import 'package:my_sip/features/home/presentation/pages/video_list_page.dart';
+
 import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_calculator.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
@@ -36,8 +32,7 @@ import 'package:my_sip/features/personalization/presentation/controllers/persona
 import 'package:my_sip/features/sip_process/presentation/controllers/sip_process_controller.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
 import 'package:my_sip/services/session_manager.dart';
-import 'package:responsive_framework/responsive_framework.dart'; // Import Responsive Framework
-import 'package:shimmer/shimmer.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 import '../widgets/product_tool/sip_calculator.dart';
 import '../widgets/product_tool/swp_calci.dart';
@@ -167,9 +162,11 @@ class _WebDashboardLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<PersonalisationController>();
+
+    final isPending = controller.isKycPending.value;
     return LayoutBuilder(
       builder: (context, constraints) {
-
         final width = constraints.maxWidth;
 
         final bool isTablet = width < 800;
@@ -180,43 +177,70 @@ class _WebDashboardLayout extends StatelessWidget {
             width: double.infinity,
 
             child: isTablet
-
-            /// TABLET LAYOUT
+                /// TABLET LAYOUT
                 ? Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-
-                _buildLeftSection(context),
-                const Gap(24),
-                _buildRightSection(context),
-
-
-              ],
-            )
-
-            /// DESKTOP LAYOUT
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [_buildLeftSectionTable(context,isPending)],
+                  )
+                /// DESKTOP LAYOUT
                 : Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      /// LEFT SECTION
+                      Expanded(flex: 6, child: _buildLeftSection(context, isPending)),
 
-                /// LEFT SECTION
-                Expanded(
-                  flex: 6,
-                  child: _buildLeftSection(context),
-                ),
+                      const SizedBox(width: 30),
 
-                const SizedBox(width: 30),
-
-                /// RIGHT SECTION
-                Expanded(
-                  flex: 4,
-                  child: _buildRightSection(context),
-                ),
-              ],
-            ),
+                      /// RIGHT SECTION
+                      Expanded(flex: 4, child: _buildRightSection(context)),
+                    ],
+                  ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildLeftSectionTable(BuildContext context, bool isPending) {
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+
+      children: [
+        /// HERo
+        isPending?
+         _buildHeroBanner():_buildKycIsComplete(),
+
+        const Gap(24),
+
+        _buildQuickActionsCard(context),
+
+        const Gap(24),
+
+        _buildWebCollectionGrid(),
+
+        const Gap(24),
+
+        _buildRecentCard(),
+
+        const Gap(24),
+
+        _buildWebFundGrid(),
+
+        const Gap(24),
+
+        _buildWebGoalSection(),
+
+        const Gap(24),
+
+        _buildWebToolsSection(),
+
+        /// FUNDS
+        const Gap(30),
+
+        /// VIDEOS
+        _buildWebVideoRow(),
+      ],
     );
   }
 
@@ -224,13 +248,14 @@ class _WebDashboardLayout extends StatelessWidget {
   // LEFT SECTION
   // =========================================================
 
-  Widget _buildLeftSection(BuildContext context) {
+  Widget _buildLeftSection(BuildContext context,bool isPending) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         /// HERO
-        _buildHeroBanner(),
+        ///
+        isPending?
+        _buildHeroBanner():_buildKycIsComplete(),
 
         const Gap(24),
 
@@ -244,14 +269,11 @@ class _WebDashboardLayout extends StatelessWidget {
         const Gap(24),
 
         _buildWebToolsSection(),
+
         /// FUNDS
-
-
         const Gap(30),
 
         /// VIDEOS
-
-
         _buildWebVideoRow(),
       ],
     );
@@ -265,23 +287,18 @@ class _WebDashboardLayout extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-
-
         _buildQuickActionsCard(context),
 
-
         const Gap(24),
-
-
 
         _buildRecentCard(),
       ],
     );
   }
+
   Widget _buildRecentCard() {
     return Obx(() {
-      // CRITICAL: GetX listeners ko start mein hi initialize karein
-      // Taaki Screenshot 2026-05-13 165551.png wala error na aaye
+
       final bool isLoading = mutualController.isLoading.value;
       final List recentList = mutualController.recentlyViewedFunds;
 
@@ -291,7 +308,11 @@ class _WebDashboardLayout extends StatelessWidget {
           final bool isMobile = width < 700;
           final bool isTablet = width >= 700 && width < 1100;
 
-          final int crossAxisCount = isMobile ? 1 : isTablet ? 2 : 3;
+          final int crossAxisCount = isMobile
+              ? 2
+              : isTablet
+              ? 3
+              : 4;
 
           return Container(
             width: double.infinity,
@@ -306,13 +327,13 @@ class _WebDashboardLayout extends StatelessWidget {
                   color: Colors.black.withOpacity(0.02),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
-                )
+                ),
               ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Section Heading hamesha dikhegi
+
                 const USectionHeading(
                   title: 'Recently Viewed',
                   fontSize: 22,
@@ -320,11 +341,10 @@ class _WebDashboardLayout extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                /// 1. LOADING STATE (Custom Shimmer Class)
+                /// 1. LOADING STATE
                 if (isLoading)
                   FundShimmerLoading(crossAxisCount: crossAxisCount)
-
-                /// 2. EMPTY STATE (Card ke andar sub-container)
+                /// 2. EMPTY STATE
                 else if (recentList.isEmpty)
                   Container(
                     width: double.infinity,
@@ -337,7 +357,11 @@ class _WebDashboardLayout extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Iconsax.clock, size: 44, color: Colors.grey.shade300),
+                        Icon(
+                          Iconsax.clock,
+                          size: 44,
+                          color: Colors.grey.shade300,
+                        ),
                         const SizedBox(height: 12),
                         Text(
                           "No recently viewed funds",
@@ -350,12 +374,14 @@ class _WebDashboardLayout extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           "Your history will appear here.",
-                          style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                          style: TextStyle(
+                            color: Colors.grey.shade400,
+                            fontSize: 13,
+                          ),
                         ),
                       ],
                     ),
                   )
-
                 /// 3. DATA LOADED (Sub-cards in Grid)
                 else
                   GridView.builder(
@@ -408,9 +434,9 @@ class _WebDashboardLayout extends StatelessWidget {
     });
   }
 
-// =========================================================
-// VIDEO SECTION
-// =========================================================
+  // =========================================================
+  // VIDEO SECTION
+  // =========================================================
 
   Widget _buildWebVideoRow() {
     final videos = [
@@ -429,7 +455,6 @@ class _WebDashboardLayout extends StatelessWidget {
         final width = constraints.maxWidth;
         final bool isMobile = width < 600;
 
-        // Sabse bahar wala Main Parent Card
         return Container(
           width: double.infinity,
           margin: const EdgeInsets.symmetric(vertical: 20),
@@ -452,10 +477,7 @@ class _WebDashboardLayout extends StatelessWidget {
               // Title inside the card
               const Text(
                 "Learn & Grow",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
 
@@ -466,12 +488,17 @@ class _WebDashboardLayout extends StatelessWidget {
                   final item = videos[index];
 
                   return Expanded(
-                    flex: isMobile ? 2 : videos.length, // Mobile par fixed height, Web par equal width
+                    flex: isMobile
+                        ? 2
+                        : videos
+                              .length, // Mobile par fixed height, Web par equal width
                     child: Padding(
                       padding: EdgeInsets.only(
                         // Desktop par beech mein space, Mobile par niche space
                         right: (!isMobile && index == 0) ? 20 : 0,
-                        bottom: (isMobile && index != videos.length - 1) ? 20 : 0,
+                        bottom: (isMobile && index != videos.length - 1)
+                            ? 20
+                            : 0,
                       ),
                       child: SizedBox(
                         height: isMobile ? 180 : 220, // Fixed height for videos
@@ -504,12 +531,11 @@ class _WebDashboardLayout extends StatelessWidget {
     );
   }
 
-// =========================================================
-// GOAL SECTION
-// =========================================================
+  // =========================================================
+  // GOAL SECTION
+  // =========================================================
 
   Widget _buildWebGoalSection() {
-
     final goals = [
       {
         "title": "Car Goal",
@@ -521,11 +547,7 @@ class _WebDashboardLayout extends StatelessWidget {
         "icon": Icons.favorite_border_outlined,
         "goalType": "marriage",
       },
-      {
-        "title": "Home Goal",
-        "icon": Icons.home_rounded,
-        "goalType": "home",
-      },
+      {"title": "Home Goal", "icon": Icons.home_rounded, "goalType": "home"},
       {
         "title": "Vacation Goal",
         "icon": Icons.flight_takeoff_rounded,
@@ -551,14 +573,10 @@ class _WebDashboardLayout extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           /// TITLE
           const Text(
             "Plan Your Goals",
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
 
           const Gap(20),
@@ -566,24 +584,20 @@ class _WebDashboardLayout extends StatelessWidget {
           /// ROW BUTTONS
           LayoutBuilder(
             builder: (context, constraints) {
-
               final width = constraints.maxWidth;
 
               /// MOBILE = 2
               /// WEB = 4
 
-              final int crossAxisCount =
-              width < 1200 ? 2 : 4;
+              final int crossAxisCount = width < 1200 ? 2 : 4;
 
               return GridView.builder(
                 shrinkWrap: true,
-                physics:
-                const NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
 
                 itemCount: goals.length,
 
-                gridDelegate:
-                SliverGridDelegateWithFixedCrossAxisCount(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: crossAxisCount,
 
                   mainAxisExtent: 72,
@@ -593,7 +607,6 @@ class _WebDashboardLayout extends StatelessWidget {
                 ),
 
                 itemBuilder: (context, index) {
-
                   final item = goals[index];
 
                   return _buildGoalTile(
@@ -610,9 +623,9 @@ class _WebDashboardLayout extends StatelessWidget {
     );
   }
 
-// =========================================================
-// GOAL TILE
-// =========================================================
+  // =========================================================
+  // GOAL TILE
+  // =========================================================
 
   Widget _buildGoalTile({
     required String title,
@@ -621,7 +634,6 @@ class _WebDashboardLayout extends StatelessWidget {
   }) {
     return LayoutBuilder(
       builder: (context, constraints) {
-
         final width = MediaQuery.of(context).size.width;
 
         /// RESPONSIVE FONT
@@ -634,18 +646,10 @@ class _WebDashboardLayout extends StatelessWidget {
             ? 20
             : 18;
 
-        final double iconBoxSize = isMobile
-            ? 38
-            : 44;
+        final double iconBoxSize = isMobile ? 38 : 44;
 
-        final double arrowSize = isMobile
-            ? 13
-            : 16;
-        final double iconSize = isMobile
-            ? 18
-            : 20;
-
-
+        final double arrowSize = isMobile ? 13 : 16;
+        final double iconSize = isMobile ? 18 : 20;
 
         return WebHoverTile(
           onTap: () {
@@ -659,7 +663,6 @@ class _WebDashboardLayout extends StatelessWidget {
           },
 
           builder: (isHovered) {
-
             return AnimatedContainer(
               duration: const Duration(milliseconds: 200),
 
@@ -684,7 +687,6 @@ class _WebDashboardLayout extends StatelessWidget {
 
               child: Row(
                 children: [
-
                   /// ICON
                   Container(
                     height: iconBoxSize,
@@ -700,15 +702,11 @@ class _WebDashboardLayout extends StatelessWidget {
                     child: Icon(
                       icon,
                       size: iconSize,
-                      color: isHovered
-                          ? Ucolors.primary
-                          : Colors.grey.shade700,
+                      color: isHovered ? Ucolors.primary : Colors.grey.shade700,
                     ),
                   ),
 
-                  SizedBox(
-                    width: isMobile ? 10 : 14,
-                  ),
+                  SizedBox(width: isMobile ? 10 : 14),
 
                   /// TITLE
                   Expanded(
@@ -722,24 +720,18 @@ class _WebDashboardLayout extends StatelessWidget {
                         fontWeight: isHovered
                             ? FontWeight.w600
                             : FontWeight.w500,
-                        color: isHovered
-                            ? Ucolors.primary
-                            : Colors.black87,
+                        color: isHovered ? Ucolors.primary : Colors.black87,
                       ),
                     ),
                   ),
 
-                  SizedBox(
-                    width: isMobile ? 6 : 10,
-                  ),
+                  SizedBox(width: isMobile ? 6 : 10),
 
                   /// ARROW
                   Icon(
                     Icons.arrow_forward_ios_rounded,
                     size: arrowSize,
-                    color: isHovered
-                        ? Ucolors.primary
-                        : Colors.grey.shade400,
+                    color: isHovered ? Ucolors.primary : Colors.grey.shade400,
                   ),
                 ],
               ),
@@ -750,44 +742,31 @@ class _WebDashboardLayout extends StatelessWidget {
     );
   }
 
-// =========================================================
-// TOOLS SECTION
-// =========================================================
+  // =========================================================
+  // TOOLS SECTION
+  // =========================================================
 
   Widget _buildWebToolsSection() {
-
     final tools = [
       {
         "title": "SIP Calculator",
         "img": UImages.sipcalci,
-        "onTap": () => Get.toNamed(
-          AppRoutes.sipCalculator,
-          id: 1,
-        ),
+        "onTap": () => Get.toNamed(AppRoutes.sipCalculator, id: 1),
       },
       {
         "title": "SWP Calculator",
         "img": UImages.swpcali,
-        "onTap": () => Get.toNamed(
-          AppRoutes.swpCalculator,
-          id: 1,
-        ),
+        "onTap": () => Get.toNamed(AppRoutes.swpCalculator, id: 1),
       },
       {
         "title": "Step-Up Calculator",
         "img": UImages.siptopcalci,
-        "onTap": () => Get.toNamed(
-          AppRoutes.stepUpCalculator,
-          id: 1,
-        ),
+        "onTap": () => Get.toNamed(AppRoutes.stepUpCalculator, id: 1),
       },
       {
         "title": "Compare Fund",
         "img": UImages.comparefund,
-        "onTap": () => Get.toNamed(
-          AppRoutes.comparefund,
-          id: 1,
-        ),
+        "onTap": () => Get.toNamed(AppRoutes.comparefund, id: 1),
       },
     ];
 
@@ -809,14 +788,10 @@ class _WebDashboardLayout extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           /// TITLE
           const Text(
             "Financial Tools",
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
 
           const Gap(20),
@@ -824,25 +799,20 @@ class _WebDashboardLayout extends StatelessWidget {
           /// GRID
           LayoutBuilder(
             builder: (context, constraints) {
-
               final width = constraints.maxWidth;
 
               /// MOBILE = 1
               /// TABLET/WEB = 2
 
-              final int crossAxisCount =
-              width < 1200 ? 2 : 4;
-
+              final int crossAxisCount = width < 1200 ? 2 : 4;
 
               return GridView.builder(
                 shrinkWrap: true,
-                physics:
-                const NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
 
                 itemCount: tools.length,
 
-                gridDelegate:
-                SliverGridDelegateWithFixedCrossAxisCount(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: crossAxisCount,
 
                   mainAxisExtent: 72,
@@ -852,7 +822,6 @@ class _WebDashboardLayout extends StatelessWidget {
                 ),
 
                 itemBuilder: (context, index) {
-
                   final item = tools[index];
 
                   return _buildToolItem(
@@ -869,18 +838,13 @@ class _WebDashboardLayout extends StatelessWidget {
     );
   }
 
-// =========================================================
-// TOOL ITEM
-// =========================================================
+  // =========================================================
+  // TOOL ITEM
+  // =========================================================
 
-  Widget _buildToolItem(
-      String title,
-      String img,
-      VoidCallback onTap,
-      ) {
+  Widget _buildToolItem(String title, String img, VoidCallback onTap) {
     return LayoutBuilder(
       builder: (context, constraints) {
-
         final width = MediaQuery.of(context).size.width;
 
         /// RESPONSIVE FONT
@@ -893,18 +857,13 @@ class _WebDashboardLayout extends StatelessWidget {
             ? 20
             : 18;
 
-        final double iconBoxSize = isMobile
-            ? 38
-            : 44;
+        final double iconBoxSize = isMobile ? 38 : 44;
 
-        final double arrowSize = isMobile
-            ? 13
-            : 16;
+        final double arrowSize = isMobile ? 13 : 16;
 
         return WebHoverTile(
           onTap: onTap,
           builder: (isHovered) {
-
             return AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               padding: EdgeInsets.symmetric(
@@ -927,7 +886,6 @@ class _WebDashboardLayout extends StatelessWidget {
 
               child: Row(
                 children: [
-
                   /// IMAGE
                   Container(
                     height: iconBoxSize,
@@ -937,15 +895,10 @@ class _WebDashboardLayout extends StatelessWidget {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Image.asset(
-                      img,
-                      fit: BoxFit.contain,
-                    ),
+                    child: Image.asset(img, fit: BoxFit.contain),
                   ),
 
-                  SizedBox(
-                    width: isMobile ? 10 : 14,
-                  ),
+                  SizedBox(width: isMobile ? 10 : 14),
 
                   /// TITLE
                   Expanded(
@@ -959,24 +912,18 @@ class _WebDashboardLayout extends StatelessWidget {
                         fontWeight: isHovered
                             ? FontWeight.w600
                             : FontWeight.w500,
-                        color: isHovered
-                            ? Ucolors.primary
-                            : Colors.black87,
+                        color: isHovered ? Ucolors.primary : Colors.black87,
                       ),
                     ),
                   ),
 
-                  SizedBox(
-                    width: isMobile ? 6 : 10,
-                  ),
+                  SizedBox(width: isMobile ? 6 : 10),
 
                   /// ARROW
                   Icon(
                     Icons.arrow_forward_ios_rounded,
                     size: arrowSize,
-                    color: isHovered
-                        ? Ucolors.primary
-                        : Colors.grey.shade400,
+                    color: isHovered ? Ucolors.primary : Colors.grey.shade400,
                   ),
                 ],
               ),
@@ -998,7 +945,9 @@ class _WebDashboardLayout extends StatelessWidget {
           // Show Dialog for Web Users
           Get.dialog(
             AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
               title: Row(
                 children: [
                   Icon(Icons.smartphone, color: Ucolors.primary),
@@ -1034,24 +983,16 @@ class _WebDashboardLayout extends StatelessWidget {
           );
         } else {
           // Navigate for Mobile Users
-          Get.toNamed(
-            AppRoutes.kycScreen,
-            id: 1,
-          );
+          Get.toNamed(AppRoutes.kycScreen, id: 1);
         }
-        },
+      },
       child: Container(
         width: double.infinity,
-        constraints: const BoxConstraints(
-          minHeight: 180,
-        ),
+        constraints: const BoxConstraints(minHeight: 180),
         padding: const EdgeInsets.all(30),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [
-              Color(0xFF07315C),
-              Color(0xff0280C0),
-            ],
+            colors: [Color(0xFF07315C), Color(0xff0280C0)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -1066,28 +1007,22 @@ class _WebDashboardLayout extends StatelessWidget {
         ),
         child: Row(
           children: [
-
             /// LEFT
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-
                   Text(
                     "Welcome Back, ${authController.user.value?.name ?? 'Investor'}!",
-                    style: UTextStyles.heading2.copyWith(
-                      color: Colors.white,
-                    ),
+                    style: UTextStyles.heading2.copyWith(color: Colors.white),
                   ),
 
                   const Gap(10),
 
                   Text(
                     "Track your investments and achieve your financial freedom.",
-                    style: UTextStyles.medium.copyWith(
-                      color: Colors.white70,
-                    ),
+                    style: UTextStyles.medium.copyWith(color: Colors.white70),
                   ),
                 ],
               ),
@@ -1097,37 +1032,24 @@ class _WebDashboardLayout extends StatelessWidget {
 
             /// KYC CARD
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 14,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: Colors.white24,
-                ),
+                border: Border.all(color: Colors.white24),
               ),
               child: Row(
                 children: [
-
-                  const Icon(
-                    Icons.verified_user_outlined,
-                    color: Colors.white,
-                  ),
+                  const Icon(Icons.verified_user_outlined, color: Colors.white),
 
                   const Gap(10),
 
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
                       const Text(
                         "KYC Status",
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.white70, fontSize: 12),
                       ),
 
                       Text(
@@ -1146,6 +1068,81 @@ class _WebDashboardLayout extends StatelessWidget {
       ),
     );
   }
+  Widget _buildKycIsComplete() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          _buildActionCard(
+            icon: Icons.flag,
+            title: "Plan your goals",
+            subtitle: "Set clear financial targets",
+            color: Colors.blueAccent,
+          ),
+          const SizedBox(width: 12),
+          _buildActionCard(
+            icon: Icons.person_search,
+            title: "Know your investment personality",
+            subtitle: "Discover your risk profile",
+            color: Colors.deepPurpleAccent,
+          ),
+          const SizedBox(width: 12),
+          _buildActionCard(
+            icon: Icons.shopping_basket,
+            title: "Explore your investment basket",
+            subtitle: "Diversify across funds",
+            color: Colors.green,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+  }) {
+    return Container(
+      width: 220,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.15),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 28),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.grey.shade600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   // =========================================================
   // QUICK ACTIONS
@@ -1155,43 +1152,30 @@ class _WebDashboardLayout extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
+        Expanded(
+          flex: 5,
+          child: _WebQuickActionItem("SIP", UImages.startsip, () {
+            SipProcessController.navIsLumpsum = false;
 
-      Expanded(
-        flex: 5,
-        child: _WebQuickActionItem(
-              "SIP",
-              UImages.startsip,
-                  () {
-                SipProcessController.navIsLumpsum = false;
-
-                Get.toNamed(
-                  id: 1,
-                  AppRoutes.startSipScreen,
-                  arguments: {
-                    'isLumpsum': false,
-                  },
-                );
-              },
-            ),
-      ),
+            Get.toNamed(
+              id: 1,
+              AppRoutes.startSipScreen,
+              arguments: {'isLumpsum': false},
+            );
+          }),
+        ),
         Gap(20),
         Expanded(
           flex: 5,
-          child: _WebQuickActionItem(
-            "Lumpsum",
-            UImages.glyph,
-                () {
-              SipProcessController.navIsLumpsum = true;
+          child: _WebQuickActionItem("Lumpsum", UImages.glyph, () {
+            SipProcessController.navIsLumpsum = true;
 
-              Get.toNamed(
-                id: 1,
-                AppRoutes.startSipScreen,
-                arguments: {
-                  'isLumpsum': true,
-                },
-              );
-            },
-          ),
+            Get.toNamed(
+              id: 1,
+              AppRoutes.startSipScreen,
+              arguments: {'isLumpsum': true},
+            );
+          }),
         ),
       ],
     );
@@ -1209,27 +1193,35 @@ class _WebDashboardLayout extends StatelessWidget {
       {
         't': 'Best SIP',
         'i': UImages.savingbank,
-        'onTap': () => nav.navigateToExploreWithFilter(() => funds.applyBestSipFilter(1)),
+        'onTap': () =>
+            nav.navigateToExploreWithFilter(() => funds.applyBestSipFilter(1)),
       },
       {
         't': 'High Return',
         'i': UImages.highreturn,
-        'onTap': () => nav.navigateToExploreWithFilter(() => funds.applyHighReturnFilter()),
+        'onTap': () => nav.navigateToExploreWithFilter(
+          () => funds.applyHighReturnFilter(),
+        ),
       },
       {
         't': 'International',
         'i': UImages.interfund,
-        'onTap': () => nav.navigateToExploreWithFilter(() => funds.applyCustomSearch('international')),
+        'onTap': () => nav.navigateToExploreWithFilter(
+          () => funds.applyCustomSearch('international'),
+        ),
       },
       {
         't': 'Index Funds',
         'i': UImages.indexfund,
-        'onTap': () => nav.navigateToExploreWithFilter(() => funds.applyCustomSearch('index')),
+        'onTap': () => nav.navigateToExploreWithFilter(
+          () => funds.applyCustomSearch('index'),
+        ),
       },
       {
         't': 'Commodities',
         'i': UImages.moneygold,
-        'onTap': () => nav.navigateToExploreWithFilter(() => funds.applyCommodityFilter()),
+        'onTap': () =>
+            nav.navigateToExploreWithFilter(() => funds.applyCommodityFilter()),
       },
       {
         't': 'NFO',
@@ -1244,7 +1236,7 @@ class _WebDashboardLayout extends StatelessWidget {
         final bool isMobile = width < 600;
         final int crossAxisCount = isMobile ? 2 : 3;
 
-        // Sabse bahar wala Main Parent Card
+
         return Container(
           width: double.infinity,
           margin: const EdgeInsets.symmetric(vertical: 20),
@@ -1264,7 +1256,7 @@ class _WebDashboardLayout extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Section Title Card ke andar
+
               const Text(
                 "Explore Categories",
                 style: TextStyle(
@@ -1307,16 +1299,21 @@ class _WebDashboardLayout extends StatelessWidget {
 
   Widget _buildWebFundGrid() {
     return Obx(() {
-      // Error Fix: Ensure an observable is always accessed
       final bool isLoading = mutualController.isLoading.value;
       final List funds = mutualController.searchFund;
 
       return LayoutBuilder(
         builder: (context, constraints) {
-          final bool isMobile = constraints.maxWidth < 700;
-          final int crossAxisCount = isMobile ? 2 : 4;
+          final width = constraints.maxWidth;
+          final bool isMobile = width < 700;
+          final bool isTablet = width >= 700 && width < 1100;
 
-          // Sabse bahar wala Main Card
+          final int crossAxisCount = isMobile
+              ? 2
+              : isTablet
+              ? 3
+              : 4;
+
           return Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
@@ -1324,7 +1321,11 @@ class _WebDashboardLayout extends StatelessWidget {
               color: Colors.white,
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
               ],
             ),
             child: Column(
@@ -1339,24 +1340,36 @@ class _WebDashboardLayout extends StatelessWidget {
                 /// Loading State
                 if (isLoading)
                   FundShimmerLoading(crossAxisCount: crossAxisCount)
-
-                /// No Data State (Ab ye bhi main card ke andar hi aayega)
                 else if (funds.isEmpty)
                   Center(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 40),
                       child: Column(
                         children: [
-                          Icon(Iconsax.folder_open, size: 52, color: Colors.grey.shade400),
+                          Icon(
+                            Iconsax.folder_open,
+                            size: 52,
+                            color: Colors.grey.shade400,
+                          ),
                           const SizedBox(height: 14),
-                          const Text("No Funds Found", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                          Text("Try exploring other funds or check back later.",
-                              style: TextStyle(fontSize: 14, color: Colors.grey.shade500)),
+                          const Text(
+                            "No Funds Found",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            "Try exploring other funds or check back later.",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
                         ],
                       ),
                     ),
                   )
-
                 /// Data Loaded State
                 else
                   GridView.builder(
@@ -1399,26 +1412,19 @@ class _WebDashboardLayout extends StatelessWidget {
     });
   }
 }
+
 class _WebQuickActionItem extends StatefulWidget {
   final String label;
   final String icon;
   final VoidCallback onTap;
 
-  const _WebQuickActionItem(
-      this.label,
-      this.icon,
-      this.onTap, {
-        super.key,
-      });
+  const _WebQuickActionItem(this.label, this.icon, this.onTap, {super.key});
 
   @override
-  State<_WebQuickActionItem> createState() =>
-      _WebQuickActionItemState();
+  State<_WebQuickActionItem> createState() => _WebQuickActionItemState();
 }
 
-class _WebQuickActionItemState
-    extends State<_WebQuickActionItem> {
-
+class _WebQuickActionItemState extends State<_WebQuickActionItem> {
   bool isHovered = false;
   bool isPressed = false;
 
@@ -1436,7 +1442,6 @@ class _WebQuickActionItemState
 
   @override
   Widget build(BuildContext context) {
-
     final width = MediaQuery.of(context).size.width;
 
     /// RESPONSIVE
@@ -1468,9 +1473,7 @@ class _WebQuickActionItemState
         ? 13
         : 15;
 
-    final double padding = isMobile
-        ? 12
-        : 16;
+    final double padding = isMobile ? 12 : 16;
 
     return MouseRegion(
       onEnter: (_) => _setHover(true),
@@ -1498,12 +1501,9 @@ class _WebQuickActionItemState
             onTapCancel: () => _setPressed(false),
 
             onTap: () async {
-
               _setPressed(true);
 
-              await Future.delayed(
-                const Duration(milliseconds: 90),
-              );
+              await Future.delayed(const Duration(milliseconds: 90));
 
               _setPressed(false);
 
@@ -1512,9 +1512,7 @@ class _WebQuickActionItemState
 
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 220),
-              constraints: const BoxConstraints(
-                minHeight: 180,
-              ),
+              constraints: const BoxConstraints(minHeight: 180),
               width: cardWidth,
               padding: EdgeInsets.symmetric(
                 horizontal: padding,
@@ -1528,14 +1526,8 @@ class _WebQuickActionItemState
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: isHovered
-                      ? [
-                    Colors.white,
-                    Ucolors.primary.withOpacity(0.04),
-                  ]
-                      : [
-                    Colors.white,
-                    Colors.white,
-                  ],
+                      ? [Colors.white, Ucolors.primary.withOpacity(0.04)]
+                      : [Colors.white, Colors.white],
                 ),
 
                 /// BORDER
@@ -1553,10 +1545,7 @@ class _WebQuickActionItemState
                         : Colors.black.withOpacity(0.04),
                     blurRadius: isHovered ? 18 : 8,
                     spreadRadius: isHovered ? 1 : 0,
-                    offset: Offset(
-                      0,
-                      isHovered ? 8 : 4,
-                    ),
+                    offset: Offset(0, isHovered ? 8 : 4),
                   ),
                 ],
               ),
@@ -1564,7 +1553,6 @@ class _WebQuickActionItemState
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-
                   /// ICON BOX
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 220),
@@ -1577,13 +1565,13 @@ class _WebQuickActionItemState
                         end: Alignment.bottomRight,
                         colors: isHovered
                             ? [
-                          Ucolors.primary,
-                          Ucolors.primary.withOpacity(0.85),
-                        ]
+                                Ucolors.primary,
+                                Ucolors.primary.withOpacity(0.85),
+                              ]
                             : [
-                          Ucolors.primary,
-                          Ucolors.primary.withOpacity(0.92),
-                        ],
+                                Ucolors.primary,
+                                Ucolors.primary.withOpacity(0.92),
+                              ],
                       ),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
@@ -1607,9 +1595,7 @@ class _WebQuickActionItemState
                     ),
                   ),
 
-                  SizedBox(
-                    height: isMobile ? 10 : 14,
-                  ),
+                  SizedBox(height: isMobile ? 10 : 14),
 
                   /// LABEL
                   Text(
@@ -1621,9 +1607,7 @@ class _WebQuickActionItemState
                       fontSize: fontSize,
                       fontWeight: FontWeight.w600,
                       height: 1.3,
-                      color: isHovered
-                          ? Ucolors.primary
-                          : Colors.black87,
+                      color: isHovered ? Ucolors.primary : Colors.black87,
                     ),
                   ),
                 ],
@@ -3742,7 +3726,6 @@ class PopularFundCard extends StatefulWidget {
 }
 
 class _PopularFundCardState extends State<PopularFundCard> {
-
   bool isHovered = false;
   bool isPressed = false;
 
@@ -3760,7 +3743,6 @@ class _PopularFundCardState extends State<PopularFundCard> {
 
   @override
   Widget build(BuildContext context) {
-
     final width = MediaQuery.of(context).size.width;
 
     /// RESPONSIVE
@@ -3780,13 +3762,9 @@ class _PopularFundCardState extends State<PopularFundCard> {
         ? 13
         : 14;
 
-    final double cardPadding = isMobile
-        ? 12
-        : 16;
+    final double cardPadding = isMobile ? 12 : 16;
 
-    final double borderRadius = isMobile
-        ? 16
-        : 20;
+    final double borderRadius = isMobile ? 16 : 20;
 
     return MouseRegion(
       onEnter: (_) => _setHover(true),
@@ -3814,12 +3792,9 @@ class _PopularFundCardState extends State<PopularFundCard> {
             onTapCancel: () => _setPressed(false),
 
             onTap: () async {
-
               _setPressed(true);
 
-              await Future.delayed(
-                const Duration(milliseconds: 90),
-              );
+              await Future.delayed(const Duration(milliseconds: 90));
 
               _setPressed(false);
 
@@ -3848,10 +3823,7 @@ class _PopularFundCardState extends State<PopularFundCard> {
                         : Colors.black.withOpacity(0.04),
                     blurRadius: isHovered ? 18 : 8,
                     spreadRadius: isHovered ? 1 : 0,
-                    offset: Offset(
-                      0,
-                      isHovered ? 8 : 4,
-                    ),
+                    offset: Offset(0, isHovered ? 8 : 4),
                   ),
                 ],
               ),
@@ -3859,13 +3831,11 @@ class _PopularFundCardState extends State<PopularFundCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   /// TOP
                   Expanded(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-
                         /// LOGO
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 220),
@@ -3880,18 +3850,16 @@ class _PopularFundCardState extends State<PopularFundCard> {
                           ),
                           child: widget.isNetwork
                               ? CustomCachedImage(
-                            imageUrl: widget.imgPath,
-                            size: logoSize,
-                          )
+                                  imageUrl: widget.imgPath,
+                                  size: logoSize,
+                                )
                               : Image.asset(
-                            widget.imgPath,
-                            fit: BoxFit.contain,
-                          ),
+                                  widget.imgPath,
+                                  fit: BoxFit.contain,
+                                ),
                         ),
 
-                        SizedBox(
-                          width: isMobile ? 10 : 14,
-                        ),
+                        SizedBox(width: isMobile ? 10 : 14),
 
                         /// TITLE
                         Expanded(
@@ -3913,9 +3881,7 @@ class _PopularFundCardState extends State<PopularFundCard> {
                     ),
                   ),
 
-                  SizedBox(
-                    height: isMobile ? 10 : 14,
-                  ),
+                  SizedBox(height: isMobile ? 10 : 14),
 
                   /// BOTTOM
                   Container(
@@ -3930,38 +3896,20 @@ class _PopularFundCardState extends State<PopularFundCard> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-
                         /// LABEL
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-
-                            Text(
-                              '3Y Return',
-                              style: TextStyle(
-                                fontSize: isMobile ? 10 : 11,
-                                color: Colors.grey.shade600,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-
-                            const SizedBox(height: 2),
-
-                            Text(
-                              'Performance',
-                              style: TextStyle(
-                                fontSize: isMobile ? 9 : 10,
-                                color: Colors.grey.shade500,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          '3Y Return',
+                          style: TextStyle(
+                            fontSize: isMobile ? 10 : 11,
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
 
                         /// VALUE
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-
                             Container(
                               padding: const EdgeInsets.all(2),
                               decoration: BoxDecoration(
@@ -4000,11 +3948,6 @@ class _PopularFundCardState extends State<PopularFundCard> {
   }
 }
 
-
-
-
-
-
 class PopularFundCardMob extends StatelessWidget {
   const PopularFundCardMob({
     super.key,
@@ -4023,13 +3966,11 @@ class PopularFundCardMob extends StatelessWidget {
   final Color borderColor;
   final String? threeYear;
 
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -4128,7 +4069,6 @@ class PopularFundCardMob extends StatelessWidget {
     );
   }
 }
-
 
 class GoalBaseSIPCard extends StatelessWidget {
   const GoalBaseSIPCard({
@@ -4239,49 +4179,6 @@ class ToolsItem extends StatelessWidget {
   }
 }
 
-// class CollectionItem extends StatelessWidget {
-//   const CollectionItem({
-//     super.key,
-//     required this.title,
-//     required this.iconImg,
-//     this.onTap,
-//   });
-//   final String title;
-//   final String iconImg;
-//   final VoidCallback? onTap;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       onTap: onTap,
-//       child: Column(
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         mainAxisSize: MainAxisSize.min,
-//         children: [
-//           SizedBox(
-//             height: 40,
-//             width: 40,
-//             child: Image.asset(iconImg, fit: BoxFit.contain),
-//           ),
-//           const SizedBox(height: 6),
-//           Text(
-//             title,
-//             textAlign: TextAlign.center,
-//             maxLines: 2,
-//             overflow: TextOverflow.ellipsis,
-//             style: UTextStyles.small.copyWith(
-//               color:Ucolors.secondary,
-//               fontSize: 11,
-//               height: 1.1,
-//               fontWeight: FontWeight.w500,
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
 class CollectionItemMob extends StatefulWidget {
   final String iconImg;
   final String title;
@@ -4322,18 +4219,18 @@ class _CollectionItemMobState extends State<CollectionItemMob> {
           borderRadius: BorderRadius.circular(14),
           gradient: isPressed
               ? RadialGradient(
-            colors: [Colors.blue.withOpacity(0.15), Colors.transparent],
-            radius: 0.8,
-          )
+                  colors: [Colors.blue.withOpacity(0.15), Colors.transparent],
+                  radius: 0.8,
+                )
               : null,
           boxShadow: isPressed
               ? [
-            BoxShadow(
-              color: Colors.blue.withOpacity(0.25),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ]
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.25),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
               : [],
         ),
         child: Material(
@@ -4406,7 +4303,6 @@ class CollectionItem extends StatefulWidget {
 
 class _CollectionItemState extends State<CollectionItem> {
   double scale = 1.0;
-
   bool isPressed = false;
   bool isHovered = false;
 
@@ -4425,163 +4321,123 @@ class _CollectionItemState extends State<CollectionItem> {
 
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        /// We use the available width provided by the parent
+        final double maxWidth = constraints.maxWidth;
 
-    final width = MediaQuery.of(context).size.width;
+        final bool isSmall = maxWidth < 160;
+        final bool isLarge = maxWidth > 300;
 
-    /// RESPONSIVE
-    final bool isMobile = width < 600;
-    final bool isTablet = width >= 600 && width < 1200;
-    final bool isWeb = width >= 1200;
+        /// Scaling logic based on local constraints
+        final double iconSize = isSmall ? 32 : (isLarge ? 60 : 48);
+        final double fontSize = isSmall ? 10 : (isLarge ? 18 : 13);
+        final double containerPadding = isSmall ? 8 : 14;
+        final double borderRadius = isSmall ? 12 : 18;
+        final double iconBoxSize = isSmall ? 54 : (isLarge ? 74 : 64);
 
-    final double iconSize = isMobile
-        ? 38
-        : isTablet
-        ? 48
-        : 60;
-
-    final double fontSize = isMobile
-        ? 11
-        : isTablet
-        ? 12
-        : 18;
-
-    final double containerPadding = isMobile
-        ? 10
-        : 14;
-
-    final double borderRadius = isMobile
-        ? 14
-        : 18;
-
-    return MouseRegion(
-      onEnter: (_) => _updateHover(true),
-      onExit: (_) => _updateHover(false),
-      child: AnimatedScale(
-        scale: scale,
-        duration: const Duration(milliseconds: 140),
-        curve: Curves.easeOut,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOut,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(borderRadius),
-
-            /// BACKGROUND
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: isHovered
-                  ? [
-                Colors.white,
-                Ucolors.primary.withOpacity(0.04),
-              ]
-                  : [
-                Colors.grey.shade50,
-                Colors.grey.shade200,
-              ],
-            ),
-
-            /// BORDER
-            border: Border.all(
-              color: isHovered
-                  ? Ucolors.primary.withOpacity(0.18)
-                  : Colors.grey.shade200,
-            ),
-
-            /// SHADOW
-            boxShadow: [
-              BoxShadow(
-                color: isHovered
-                    ? Ucolors.primary.withOpacity(0.12)
-                    : Colors.black.withOpacity(0.03),
-                blurRadius: isHovered ? 18 : 8,
-                spreadRadius: isHovered ? 1 : 0,
-                offset: Offset(
-                  0,
-                  isHovered ? 8 : 4,
+        return MouseRegion(
+          onEnter: (_) => _updateHover(true),
+          onExit: (_) => _updateHover(false),
+          child: AnimatedScale(
+            scale: scale,
+            duration: const Duration(milliseconds: 140),
+            curve: Curves.easeOut,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOut,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(borderRadius),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: isHovered
+                      ? [Colors.white, Ucolors.primary.withOpacity(0.04)]
+                      : [Colors.grey.shade50, Colors.grey.shade200],
                 ),
+                border: Border.all(
+                  color: isHovered
+                      ? Ucolors.primary.withOpacity(0.18)
+                      : Colors.grey.shade200,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: isHovered
+                        ? Ucolors.primary.withOpacity(0.12)
+                        : Colors.black.withOpacity(0.03),
+                    blurRadius: isHovered ? 18 : 8,
+                    spreadRadius: isHovered ? 1 : 0,
+                    offset: Offset(0, isHovered ? 8 : 4),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Material(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(borderRadius),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(borderRadius),
+              child: Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(borderRadius),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(borderRadius),
+                  splashColor: Ucolors.primary.withOpacity(0.10),
+                  hoverColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTapDown: (_) => _updatePressed(true),
+                  onTapCancel: () => _updatePressed(false),
+                  onTap: () async {
+                    _updatePressed(true);
+                    await Future.delayed(const Duration(milliseconds: 90));
+                    _updatePressed(false);
+                    widget.onTap?.call();
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.all(containerPadding),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min, // Hug content
+                      children: [
+                        /// ICON CONTAINER
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 220),
+                          height: iconBoxSize,
+                          width: iconBoxSize,
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: isHovered
+                                ? Ucolors.primary.withOpacity(0.08)
+                                : Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          child: Image.asset(
+                            widget.iconImg,
+                            height: iconSize,
+                            width: iconSize,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        SizedBox(height: isSmall ? 6 : 12),
 
-              splashColor: Ucolors.primary.withOpacity(0.10),
-              hoverColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-
-              onTapDown: (_) => _updatePressed(true),
-
-              onTapCancel: () => _updatePressed(false),
-
-              onTap: () async {
-
-                _updatePressed(true);
-
-                await Future.delayed(
-                  const Duration(milliseconds: 90),
-                );
-
-                _updatePressed(false);
-
-                widget.onTap?.call();
-              },
-
-              child: Padding(
-                padding: EdgeInsets.all(containerPadding),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-
-                    /// ICON CONTAINER
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 220),
-                      height: isWeb ? 74 : 64,
-                      width: isWeb ? 74 : 64,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: isHovered
-                            ? Ucolors.primary.withOpacity(0.08)
-                            : Colors.grey.shade50,
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: Image.asset(
-                        widget.iconImg,
-                        height: iconSize,
-                        width: iconSize,
-                        fit: BoxFit.contain,
-                      ),
+                        /// TITLE
+                        Text(
+                          widget.title,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: fontSize,
+                            height: 1.2,
+                            fontWeight: FontWeight.w600,
+                            color: isHovered
+                                ? Ucolors.primary
+                                : const Color(0xff2A2A2A),
+                          ),
+                        ),
+                      ],
                     ),
-
-                    SizedBox(
-                      height: isMobile ? 10 : 14,
-                    ),
-
-                    /// TITLE
-                    Text(
-                      widget.title,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: fontSize,
-                        height: 1.3,
-                        fontWeight: FontWeight.w600,
-                        color: isHovered
-                            ? Ucolors.primary
-                            : const Color(0xff2A2A2A),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

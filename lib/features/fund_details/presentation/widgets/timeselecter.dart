@@ -17,8 +17,8 @@ class PeriodSelector extends GetView<FundDetailsController> {
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Container(
-      height: isDesktop ? 48 : 40,
-      padding: EdgeInsets.symmetric(horizontal: isDesktop ? 8 : 4),
+      height: isDesktop ? 80 : 40,
+      padding: EdgeInsets.symmetric(horizontal: isDesktop ? 2 : 4),
       decoration: BoxDecoration(
         color: isDesktop ? Colors.white : const Color(0xffF3F4F6),
         borderRadius: BorderRadius.circular(isDesktop ? 24 : 10),
@@ -100,7 +100,7 @@ class PeriodSelectorBarChart extends GetView<ChartInvestmentController> {
     ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Container(
-      height: isDesktop ? 52 : 42,
+      height: isDesktop ? 60 : 42,
       padding: EdgeInsets.symmetric(
         horizontal: isDesktop ? 8 : 4,
         vertical: 4,
@@ -243,12 +243,12 @@ class _PeriodButton extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
         margin: EdgeInsets.symmetric(
-          horizontal: isDesktop ? 4 : 4,
-          vertical: isDesktop ? 6 : 0,
+          horizontal: isDesktop ? 10 : 4,
+          vertical: isDesktop ? 2 : 0,
         ),
         padding: EdgeInsets.symmetric(
-          horizontal: isDesktop ? 20 : 8,
-          vertical: isDesktop ? 10 : 8,
+          horizontal: isDesktop ? 10 : 8,
+          vertical: isDesktop ? 8 : 8,
         ),
         decoration: BoxDecoration(
           color: isSelected
@@ -273,14 +273,16 @@ class _PeriodButton extends StatelessWidget {
           ]
               : null,
         ),
-        child: Text(
-          period,
-          style: TextStyle(
-            fontSize: isDesktop ? 14 : 10,
-            fontWeight: FontWeight.w600,
-            color: isSelected
-                ? (isDesktop ? Colors.white : Ucolors.primary)
-                : Colors.grey,
+        child: Center(
+          child: Text(
+            period,
+            style: TextStyle(
+              fontSize: isDesktop ? 14 : 10,
+              fontWeight: FontWeight.w600,
+              color: isSelected
+                  ? (isDesktop ? Colors.white : Ucolors.primary)
+                  : Colors.grey,
+            ),
           ),
         ),
       ),

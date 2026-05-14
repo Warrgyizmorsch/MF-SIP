@@ -33,7 +33,7 @@ class YearlyReturnsChart extends StatelessWidget {
       children: [
         /// 1. STACKED BAR CHART (AMOUNT-BASED Y-AXIS)
         Container(
-          height: height ?? (isDesktop ? 290 : 150),
+          height: height ?? (isDesktop ? 320 : 150),
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Obx(() {
             // Access observables inside Obx

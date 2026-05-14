@@ -859,7 +859,7 @@ class PopularFund extends StatelessWidget {
               Container(
                 // ✅ 2. Margin settings from your history
                 margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 6),
-                child: PopularFundCard(
+                child: PopularFundCardMob(
                   // Or MutualFundCard depending on your grid design
                   borderColor: isSelected
                       ? Colors.transparent

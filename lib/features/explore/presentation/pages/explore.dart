@@ -719,19 +719,15 @@ import 'package:my_sip/common/widget/animated/empty_filled.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
-import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
-import 'package:my_sip/features/cart/data/model/cartItem_model.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
-import 'package:my_sip/features/fund_details/presentation/controllers/fund_details_controller.dart';
-import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
 import 'package:my_sip/features/fund_details/presentation/widgets/helper.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart'; // Ensure this import exists for Deleteiconwithcontainer
 import 'package:my_sip/features/wishlist/presentation/controller/wishlist_controller.dart';
@@ -879,6 +875,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 }
 
+
 class _WebExploreLayout extends StatelessWidget {
   final ScrollController scrollController;
   final FocusNode searchFocus;
@@ -886,6 +883,7 @@ class _WebExploreLayout extends StatelessWidget {
   final List<String> sortItems;
 
   const _WebExploreLayout({
+    super.key,
     required this.scrollController,
     required this.searchFocus,
     required this.sortController,
@@ -895,102 +893,476 @@ class _WebExploreLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final MutualFundController controller = Get.find();
-    final CartController cartController = Get.find();
-    final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
-    return Column(
-      children: [
-        // 1. COMPACT DASHBOARD HEADER
-        if (!isDesktop)
-          Container(
-            height: 70,
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
-            ),
-            child: Row(
-              children: [
-                Text(
-                  "Explore Funds",
-                  style: UTextStyles.heading2.copyWith(fontSize: 20),
-                ),
-                const Spacer(),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FB),
+      body: Center(
+        child:LayoutBuilder(
+          builder: (context, constraints) {
+            final double width = constraints.maxWidth;
 
-                // Search
-                SizedBox(
-                  width: 300,
-                  height: 40,
-                  child: SearchBar(
-                    focusNode: searchFocus,
-                    elevation: MaterialStateProperty.all(0),
-                    backgroundColor: MaterialStateProperty.all(
-                      const Color(0xFFF0F2F5),
-                    ),
-                    leading: const Icon(
-                      Icons.search,
-                      size: 20,
-                      color: Colors.grey,
-                    ),
-                    hintText: 'Search funds...',
-                    onChanged: (value) =>
-                        controller.onSearchQueryChanged(value),
-                    padding: MaterialStateProperty.all(
-                      const EdgeInsets.symmetric(horizontal: 10),
-                    ),
-                  ),
-                ),
-                const Gap(16),
+            // Logic: >1100 (3 col), 800-1100 (2 col), <800 (1 col)
+            int getCrossAxisCount() {
+              if (width > 1100) return 3;
+              if (width >= 800) return 2;
+              return 1;
+            }
 
-                // Filter & Sort
-                OutlinedButton.icon(
-                  onPressed: () async {
-                    final result = await Get.toNamed(AppRoutes.filterpage);
-                    if (result != null && result is Map<String, dynamic>) {
-                      controller.applyFilters(result);
-                    }
-                  },
-                  icon: Icon(Icons.tune, size: 16, color: Ucolors.primary),
-                  label: Text("Filters", style: UTextStyles.medium),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
-                    side: BorderSide(color: Colors.grey.shade300),
-                  ),
-                ),
-                const Gap(10),
+            final int crossAxisCount = getCrossAxisCount();
+            final bool isMobileWidth = width < 600;
 
-                // Cart
-                Obx(
-                  () => Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      IconButton(
-                        onPressed: () => Get.toNamed(AppRoutes.cart),
-                        icon: const Icon(Iconsax.shopping_cart),
-                        hoverColor: Ucolors.primary.withOpacity(0.1),
+            return Padding(
+              padding: EdgeInsets.all(isMobileWidth ? 14 : 24),
+              child: Column(
+                children: [
+                  if (isMobileWidth) ...[
+                    SizedBox(
+                      height: 48,
+                      child: SearchBar(
+                        focusNode: searchFocus,
+                        hintText: "Search funds...",
+                        elevation: WidgetStateProperty.all(0),
+                        backgroundColor: WidgetStateProperty.all(Colors.white),
+                        leading: const Icon(Icons.search),
+                        onChanged: controller.onSearchQueryChanged,
                       ),
-                      if (cartController.generalItemsCount > 0)
-                        Positioned(
-                          right: 5,
-                          top: 5,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Ucolors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Text(
-                              cartController.generalItemsCount.toString(),
-                              style: const TextStyle(
-                                fontSize: 10,
-                                color: Colors.white,
-                              ),
-                            ),
+                    ),
+                    const Gap(18),
+                  ],
+
+                  const Gap(10),
+
+                  Expanded(
+                    child: Obx(() {
+                      if (controller.isLoading.value) {
+                        return _buildLoadingGrid(crossAxisCount);
+                      }
+
+                      if (controller.searchFund.isEmpty) {
+                        return _buildEmptyState();
+                      }
+
+                      return GridView.builder(
+                        controller: scrollController,
+                        itemCount: controller.searchFund.length,
+                        padding: const EdgeInsets.only(bottom: 20),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          // Increased height to accommodate 3 rows of data comfortably
+                          mainAxisExtent: 170,
+                        ),
+                        itemBuilder: (context, index) {
+                          final fund = controller.searchFund[index];
+                          return ResponsiveFundCard(
+                            entity: fund,
+                            // Use mobile UI if only 1 column is showing
+                            isMobile: crossAxisCount == 1,
+                          );
+                        },
+                      );
+                    }),
+                  )
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+
+  Widget _buildLoadingGrid(int crossAxisCount) {
+    return GridView.builder(
+      // Ensure the grid stays within the 1200px constraint set in the parent
+      padding: const EdgeInsets.only(bottom: 20),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        mainAxisSpacing: 16,
+        crossAxisSpacing: 16,
+        // Matches the mainAxisExtent of your real cards for a smooth transition
+        mainAxisExtent: 150,
+      ),
+      itemCount: 20, // Multiple of 3 looks better on desktop
+      itemBuilder: (_, __) => const FundShimmerCard(),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.search_off_rounded, size: 80, color: Colors.red.shade200),
+          const Gap(16),
+          const Text("No Funds Found", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+}
+
+class ResponsiveFundCard extends StatefulWidget {
+  final MutualFundListEntity entity;
+  final bool isMobile;
+
+  const ResponsiveFundCard({
+    super.key,
+    required this.entity,
+    required this.isMobile,
+  });
+
+  @override
+  State<ResponsiveFundCard> createState() =>
+      _ResponsiveFundCardState();
+}
+
+class _ResponsiveFundCardState
+    extends State<ResponsiveFundCard>
+    with SingleTickerProviderStateMixin {
+
+  bool isHover = false;
+
+  late AnimationController _controller;
+
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _elevationAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 220),
+    );
+
+    _scaleAnimation = Tween<double>(
+      begin: 1,
+      end: 1.015,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOut,
+      ),
+    );
+
+    _elevationAnimation = Tween<double>(
+      begin: 0,
+      end: 10,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOut,
+      ),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0),
+      end: const Offset(0, -0.01),
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOut,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    final CartController controller = Get.find<CartController>();
+
+    final MutualFundController mutualFundController =
+    Get.find<MutualFundController>();
+
+    return MouseRegion(
+      onEnter: (_) {
+        setState(() => isHover = true);
+        _controller.forward();
+      },
+      onExit: (_) {
+        setState(() => isHover = false);
+        _controller.reverse();
+      },
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+
+          return Transform.translate(
+            offset: Offset(
+              0,
+              _slideAnimation.value.dy * 100,
+            ),
+
+            child: Transform.scale(
+              scale: _scaleAnimation.value,
+
+              child: AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
+
+            padding: const EdgeInsets.all(8),
+
+            decoration: BoxDecoration(
+
+              /// =========================
+              /// BACKGROUND COLOR ANIMATION
+              /// =========================
+
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+
+                colors: isHover
+                    ? [
+                  const Color(0xFFF5F9FF),
+                  const Color(0xFFEAF3FF),
+                ]
+                    : [
+                  Colors.white,
+                  Colors.white,
+                ],
+              ),
+
+              borderRadius: BorderRadius.circular(22),
+              //
+              // border: Border.all(
+              //   color: isHover
+              //       ? Ucolors.primary.withOpacity(.35)
+              //       : Colors.grey.shade200,
+              //   width: 1.2,
+              // ),
+
+              /// =========================
+              /// SHADOW ANIMATION
+              /// =========================
+
+              boxShadow: [
+                BoxShadow(
+                  blurRadius: isHover ? 22 : 6,
+                  spreadRadius: isHover ? 1 : 0,
+                  offset: Offset(0, isHover ? 10 : 4),
+
+                  color: isHover
+                      ? Ucolors.primary.withOpacity(.10)
+                      : Colors.black.withOpacity(.03),
+                ),
+              ],
+            ),
+
+            child: widget.isMobile
+                ? _buildMobileLayout(controller)
+                : _buildDesktopLayout(
+              controller,
+              mutualFundController,
+            ),
+          ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // =======================================================
+  // DESKTOP LAYOUT
+  // =======================================================
+
+  Widget _buildDesktopLayout(
+      CartController controller,
+      MutualFundController mutualFundController,
+      ) {
+
+    final entity = widget.entity;
+
+    final double width =
+        MediaQuery.of(context).size.width;
+
+    double scale(double baseSize) =>
+        (baseSize * (width / 1200))
+            .clamp(baseSize * 0.8, baseSize * 1.1);
+
+    return GestureDetector(
+      onTap: () {
+
+        mutualFundController
+            .addToLocalRecentlyViewed(entity);
+
+        Get.toNamed(
+          AppRoutes.funddetails,
+          arguments: {
+            'scheme': entity.baseSchemeName,
+            'imgUrl':
+            "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}",
+            'scheme_code':
+            entity.schemeCode.toString(),
+            'email': entity.amc?.email,
+            'address': entity.amc?.address,
+            'contact': entity.amc?.contact,
+          },
+        );
+      },
+
+      child: Row(
+        children: [
+
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+
+              children: [
+
+                Row(
+                  children: [
+
+                    AnimatedContainer(
+                      duration:
+                      const Duration(milliseconds: 250),
+
+                      width: scale(
+                        isHover ? 38 : 32,
+                      ),
+
+                      height: scale(
+                        isHover ? 38 : 32,
+                      ),
+
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+
+                        boxShadow: isHover
+                            ? [
+                          BoxShadow(
+                            blurRadius: 10,
+                            color: Ucolors.primary
+                                .withOpacity(.18),
+                          ),
+                        ]
+                            : [],
+                      ),
+
+                      child: ClipOval(
+                        child: CustomCachedImage(
+                          imageUrl:
+                          "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}",
+                        ),
+                      ),
+                    ),
+
+                    Gap(scale(12)),
+
+                    Expanded(
+                      child: AnimatedDefaultTextStyle(
+                        duration:
+                        const Duration(milliseconds: 220),
+
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: scale(
+                            isHover ? 16 : 15,
+                          ),
+                          color: isHover
+                              ? Ucolors.primary
+                              : const Color(0xff383838),
+                        ),
+
+                        child: Text(
+                          entity.baseSchemeName ??
+                              'Unknown Fund',
+
+                          maxLines: 3,
+
+                          overflow:
+                          TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                Gap(scale(12)),
+
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: scale(44),
+                  ),
+
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+
+                        TextSpan(
+                          text: 'Risk: ',
+                          style: TextStyle(
+                            fontSize: scale(12),
+                            color:
+                            Colors.grey.shade600,
                           ),
                         ),
+
+                        TextSpan(
+                          text:
+                          entity.riskLevel ?? 'N/A',
+
+                          style: TextStyle(
+                            fontWeight:
+                            FontWeight.w700,
+
+                            fontSize: scale(12),
+
+                            color: getRiskMeter(
+                              entity.riskLevel,
+                            ).color,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                Gap(scale(8)),
+
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: scale(44),
+                  ),
+
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+
+                      _miniReturnRow(
+                        "1Y",
+                        entity.returnsEntity?.oneYear,
+                        scale,
+                      ),
+
+                      Gap(scale(12)),
+
+                      _miniReturnRow(
+                        "3Y",
+                        entity.returnsEntity?.threeYear,
+                        scale,
+                      ),
+
+                      Gap(scale(12)),
+
+                      _miniReturnRow(
+                        "5Y",
+                        entity.returnsEntity?.fiveYear,
+                        scale,
+                      ),
                     ],
                   ),
                 ),
@@ -998,388 +1370,791 @@ class _WebExploreLayout extends StatelessWidget {
             ),
           ),
 
-        // 2. MAIN CONTENT (CENTERED TABLE)
-        Expanded(
-          child: Center(
-            child: MaxWidthBox(
-              maxWidth: 1100, // Constrain width for readability
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 24,
-                  horizontal: 24,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Count & Sort
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //   children: [
-                    //     Obx(
-                    //       () => Text(
-                    //         "${controller.selectedFundCount.value == 0 ? controller.mutualfund.length : controller.selectedFundCount} funds found",
-                    //         style: TextStyle(
-                    //           color: Colors.grey.shade600,
-                    //           fontWeight: FontWeight.bold,
-                    //         ),
-                    //       ),
-                    //     ),
-                    //     InkWell(
-                    //       onTap: () => showSelectionBottomSheet(
-                    //         selectedValue: sortController.text,
-                    //         search: false,
-                    //         context: context,
-                    //         title: 'Sort by',
-                    //         items: sortItems,
-                    //         controller: sortController,
-                    //       ),
-                    //       child: Row(
-                    //         children: const [
-                    //           Text(
-                    //             "Sort by: Popularity",
-                    //             style: TextStyle(fontWeight: FontWeight.w600),
-                    //           ),
-                    //           Icon(Icons.keyboard_arrow_down, size: 16),
-                    //         ],
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
-                    // const Gap(16),
+          Gap(scale(12)),
 
-                    // TABLE HEADER
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE8EBF1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        children: const [
-                          Expanded(
-                            flex: 4,
-                            child: Text(
-                              "Fund Name",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Text(
-                              "Risk",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: Text(
-                              "1Y",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: Text(
-                              "3Y",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: Text(
-                              "5Y",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Text(
-                              "Action",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                              textAlign: TextAlign.right,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+          AnimatedScale(
+            scale: isHover ? 1.04 : 1,
+            duration:
+            const Duration(milliseconds: 220),
 
-                    // TABLE LIST
-                    Expanded(
-                      child: Obx(() {
-                        if (controller.isLoading.value) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        // if (controller.isLoading.value &&
-                        //     controller.searchFund.isEmpty) {
-                        //   return const Center(
-                        //     child: CircularProgressIndicator(),
-                        //   );
-                        // }
-                        if (controller.searchFund.isEmpty) {
-                          return const Center(child: Text("No funds found."));
-                        }
-
-                        return ListView.builder(
-                          controller: scrollController,
-                          itemCount:
-                              controller.searchFund.length +
-                              (controller.isMoreLoading.value ? 1 : 0),
-                          itemBuilder: (context, index) {
-                            if (index == controller.searchFund.length) {
-                              return const Padding(
-                                padding: EdgeInsets.all(20),
-                                child: Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              );
-                            }
-
-                            final fund = controller.searchFund[index];
-                            return WebFundTableRow(entity: fund);
-                          },
-                        );
-                      }),
-                    ),
-                  ],
-                ),
-              ),
+            child: _investButton(
+              controller,
+              entity,
+              scale,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+  /// =======================================================
+  /// MINI RETURN ROW
+  /// =======================================================
+
+  Widget _miniReturnRow(
+      String label,
+      dynamic value,
+      double Function(double) scale,
+      ) {
+
+    final double val =
+        double.tryParse(value?.toString() ?? '0') ?? 0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+
+        Text(
+          "$label:",
+
+          style: TextStyle(
+            color: Colors.grey.shade500,
+            fontSize: scale(11),
+          ),
+        ),
+
+        const Gap(2),
+
+        Text(
+          "${val > 0 ? '+' : ''}$val%",
+
+          style: TextStyle(
+            color: val < 0
+                ? Colors.redAccent
+                : const Color(0xFF00C853),
+
+            fontWeight: FontWeight.bold,
+            fontSize: scale(12),
           ),
         ),
       ],
     );
   }
-}
 
-// ==========================================
-// 📊 WEB COMPONENT: Table Row
-// ==========================================
-class WebFundTableRow extends StatelessWidget {
-  final MutualFundListEntity entity;
-  const WebFundTableRow({super.key, required this.entity});
+  /// =======================================================
+  /// INVEST BUTTON
+  /// =======================================================
 
-  @override
-  Widget build(BuildContext context) {
-    final controller = Get.find<CartController>();
+  Widget _investButton(
+      CartController controller,
+      MutualFundListEntity entity,
+      double Function(double) scale,
+      ) {
 
-    return WebHoverRow(
-      onTap: () {
-        // Get.toNamed(
-        //   AppRoutes.funddetails,
-        //   arguments: {
-        //     'scheme': entity.baseSchemeName,
-        //     'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
-        //     'scheme_code': entity.schemeCode.toString(),
-        //   },
-        // );
-        Get.delete<FundDetailsController>();
-        FundDetailsScreen.navData = {
-          'scheme': entity.baseSchemeName,
-          'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
-          'scheme_code': entity.schemeCode.toString(),
-        };
+    return SizedBox(
+      height: scale(38),
 
-        Get.toNamed(AppRoutes.funddetails, id: 1);
-      },
-      builder: (isHovered) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: Row(
+      child: ElevatedButton(
+        onPressed: () async {
+
+          await controller.addToCart(
+            entity.schemeCode ?? '',
+            entity.baseSchemeName ?? '',
+            entity.minSipAmount ?? 0,
+            null,
+          );
+
+          await controller.fetchCart();
+        },
+
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Ucolors.primary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+
+          padding: EdgeInsets.symmetric(
+            horizontal: scale(20),
+          ),
+
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+              scale(10),
+            ),
+          ),
+        ),
+
+        child: Text(
+          "Invest",
+
+          style: TextStyle(
+            fontSize: scale(12),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// =======================================================
+  /// MOBILE LAYOUT
+  /// =======================================================
+
+  Widget _buildMobileLayout(
+      CartController controller,
+      ) {
+
+    final entity = widget.entity;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+
+        /// TOP INFO
+        Row(
           children: [
-            // 1. FUND NAME & LOGO
+
+            Container(
+              width: 46,
+              height: 46,
+
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+
+                border: Border.all(
+                  color: Colors.grey.shade200,
+                ),
+              ),
+
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+
+                child: CustomCachedImage(
+                  imageUrl:
+                  "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}",
+                ),
+              ),
+            ),
+
+            const Gap(12),
+
             Expanded(
-              flex: 4,
-              child: Row(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+
                 children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade200),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: CustomCachedImage(
-                      imageUrl:
-                          "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
-                      fit: BoxFit.contain,
+
+                  Text(
+                    entity.baseSchemeName ??
+                        "Unknown Fund",
+
+                    maxLines: 2,
+
+                    overflow:
+                    TextOverflow.ellipsis,
+
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
                     ),
                   ),
-                  const Gap(12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          entity.baseSchemeName ?? "Unknown Fund",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
-                        ),
-                        Text(
-                          "${entity.amc?.amcName}",
-                          style: TextStyle(
-                            color: Colors.grey.shade500,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
+
+                  const Gap(4),
+
+                  Text(
+                    entity.amc?.amcName ?? '',
+
+                    maxLines: 1,
+
+                    overflow:
+                    TextOverflow.ellipsis,
+
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 11,
                     ),
                   ),
                 ],
-              ),
-            ),
-
-            // 2. RISK BADGE
-            Expanded(
-              flex: 2,
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      // color: Colors.blue.shade200,
-                      color: getRiskMeter(
-                        entity.riskLevel,
-                      ).color.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: getRiskMeter(
-                          entity.riskLevel,
-                        ).color.withOpacity(0.1),
-                      ),
-                    ),
-                    child: Text(
-                      "${entity.riskLevel}",
-                      style: TextStyle(
-                        color: getRiskMeter(entity.riskLevel).color,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // 3. RETURNS COLUMNS
-            Expanded(
-              flex: 1,
-              child: Text(
-                '${entity.returnsEntity?.oneYear}%',
-                style: TextStyle(
-                  // color: Ucolors.success,
-                  color: parseIntSafe(entity.returnsEntity?.oneYear) < 0
-                      ? Colors.red
-                      : Ucolors.success,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: Text(
-                '${entity.returnsEntity?.threeYear}%',
-
-                style: TextStyle(
-                  color: parseIntSafe(entity.returnsEntity?.threeYear) < 0
-                      ? Colors.red
-                      : Ucolors.success,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: Text(
-                '${entity.returnsEntity?.fiveYear}%',
-                style: TextStyle(
-                  // color: Ucolors.success,
-                  color: parseIntSafe(entity.returnsEntity?.fiveYear) < 0
-                      ? Colors.red
-                      : Ucolors.success,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-
-            // 4. ACTION BUTTON
-            Expanded(
-              flex: 2,
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 200),
-                  opacity: isHovered ? 1.0 : 0.7,
-                  child: SizedBox(
-                    height: 32,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        // await controller.addToCart(
-                        //   entity.schemeCode ?? '',
-                        //   entity.baseSchemeName ?? '',
-                        //   entity.minSipAmount ?? 0,
-                        //   null,
-                        // );
-                        await controller.addToCart(
-                          entity.schemeCode ?? '',
-                          entity.baseSchemeName ?? '',
-                          entity.minSipAmount ?? 0,
-                          null,
-                        );
-                        await controller.fetchCart();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Ucolors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                      ),
-                      child: const Text(
-                        "Invest",
-                        style: TextStyle(fontSize: 12),
-                      ),
-                    ),
-                  ),
-                ),
               ),
             ),
           ],
+        ),
+
+        const Gap(18),
+
+        /// RETURNS
+        Row(
+          mainAxisAlignment:
+          MainAxisAlignment.spaceBetween,
+
+          children: [
+
+            _miniReturn("1Y",
+                entity.returnsEntity?.oneYear),
+
+            _miniReturn("3Y",
+                entity.returnsEntity?.threeYear),
+
+            _miniReturn("5Y",
+                entity.returnsEntity?.fiveYear),
+          ],
+        ),
+
+        const Gap(14),
+
+        /// BOTTOM ACTION
+        Row(
+          children: [
+
+            Expanded(
+              child: _riskChip(entity),
+            ),
+
+            const Gap(12),
+
+            Expanded(
+              child: _investButton(
+                controller,
+                entity,
+                    (size) => size,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// =======================================================
+  /// MINI RETURN MOBILE
+  /// =======================================================
+
+  Widget _miniReturn(
+      String label,
+      dynamic value,
+      ) {
+
+    final double val =
+        double.tryParse(value?.toString() ?? '0') ?? 0;
+
+    return Column(
+      children: [
+
+        Text(
+          label,
+
+          style: TextStyle(
+            fontSize: 10,
+            color: Colors.grey.shade600,
+          ),
+        ),
+
+        const Gap(4),
+
+        Text(
+          "${val > 0 ? '+' : ''}$val%",
+
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+
+            color: val < 0
+                ? Colors.red
+                : const Color(0xFF00C853),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// =======================================================
+  /// RISK CHIP
+  /// =======================================================
+
+  Widget _riskChip(
+      MutualFundListEntity entity,
+      ) {
+
+    final risk =
+    getRiskMeter(entity.riskLevel);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 8,
+      ),
+
+      decoration: BoxDecoration(
+        color: risk.color.withOpacity(.1),
+
+        borderRadius:
+        BorderRadius.circular(20),
+      ),
+
+      child: Text(
+        entity.riskLevel ?? "N/A",
+
+        textAlign: TextAlign.center,
+
+        style: TextStyle(
+          color: risk.color,
+          fontWeight: FontWeight.bold,
+          fontSize: 11,
         ),
       ),
     );
   }
 }
+// class _WebExploreLayout extends StatelessWidget {
+//   final ScrollController scrollController;
+//   final FocusNode searchFocus;
+//   final TextEditingController sortController;
+//   final List<String> sortItems;
+//
+//   const _WebExploreLayout({
+//     required this.scrollController,
+//     required this.searchFocus,
+//     required this.sortController,
+//     required this.sortItems,
+//   });
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final MutualFundController controller = Get.find();
+//     final CartController cartController = Get.find();
+//     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+//
+//     return Column(
+//       children: [
+//         // 1. COMPACT DASHBOARD HEADER
+//         if (!isDesktop)
+//           Container(
+//             height: 70,
+//             padding: const EdgeInsets.symmetric(horizontal: 24),
+//             decoration: BoxDecoration(
+//               color: Colors.white,
+//               border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+//             ),
+//             child: Row(
+//               children: [
+//                 Text(
+//                   "Explore Funds",
+//                   style: UTextStyles.heading2.copyWith(fontSize: 20),
+//                 ),
+//                 const Spacer(),
+//
+//                 // Search
+//                 SizedBox(
+//                   width: 300,
+//                   height: 40,
+//                   child: SearchBar(
+//                     focusNode: searchFocus,
+//                     elevation: MaterialStateProperty.all(0),
+//                     backgroundColor: MaterialStateProperty.all(
+//                       const Color(0xFFF0F2F5),
+//                     ),
+//                     leading: const Icon(
+//                       Icons.search,
+//                       size: 20,
+//                       color: Colors.grey,
+//                     ),
+//                     hintText: 'Search funds...',
+//                     onChanged: (value) =>
+//                         controller.onSearchQueryChanged(value),
+//                     padding: MaterialStateProperty.all(
+//                       const EdgeInsets.symmetric(horizontal: 10),
+//                     ),
+//                   ),
+//                 ),
+//                 const Gap(16),
+//
+//                 // Filter & Sort
+//                 OutlinedButton.icon(
+//                   onPressed: () async {
+//                     final result = await Get.toNamed(AppRoutes.filterpage);
+//                     if (result != null && result is Map<String, dynamic>) {
+//                       controller.applyFilters(result);
+//                     }
+//                   },
+//                   icon: Icon(Icons.tune, size: 16, color: Ucolors.primary),
+//                   label: Text("Filters", style: UTextStyles.medium),
+//                   style: OutlinedButton.styleFrom(
+//                     padding: const EdgeInsets.symmetric(
+//                       horizontal: 16,
+//                       vertical: 16,
+//                     ),
+//                     side: BorderSide(color: Colors.grey.shade300),
+//                   ),
+//                 ),
+//                 const Gap(10),
+//
+//                 // Cart
+//                 Obx(
+//                   () => Stack(
+//                     clipBehavior: Clip.none,
+//                     children: [
+//                       IconButton(
+//                         onPressed: () => Get.toNamed(AppRoutes.cart),
+//                         icon: const Icon(Iconsax.shopping_cart),
+//                         hoverColor: Ucolors.primary.withOpacity(0.1),
+//                       ),
+//                       if (cartController.generalItemsCount > 0)
+//                         Positioned(
+//                           right: 5,
+//                           top: 5,
+//                           child: Container(
+//                             padding: const EdgeInsets.all(4),
+//                             decoration: const BoxDecoration(
+//                               color: Ucolors.red,
+//                               shape: BoxShape.circle,
+//                             ),
+//                             child: Text(
+//                               cartController.generalItemsCount.toString(),
+//                               style: const TextStyle(
+//                                 fontSize: 10,
+//                                 color: Colors.white,
+//                               ),
+//                             ),
+//                           ),
+//                         ),
+//                     ],
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//
+//         // 2. MAIN CONTENT (CENTERED TABLE)
+//         Expanded(
+//           child: Center(
+//             child: MaxWidthBox(
+//               maxWidth: 1100, // Constrain width for readability
+//               child: Padding(
+//                 padding: const EdgeInsets.symmetric(
+//                   vertical: 24,
+//                   horizontal: 24,
+//                 ),
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//
+//                     Container(
+//                       padding: const EdgeInsets.symmetric(
+//                         horizontal: 20,
+//                         vertical: 12,
+//                       ),
+//                       decoration: BoxDecoration(
+//                         color: const Color(0xFFE8EBF1),
+//                         borderRadius: BorderRadius.circular(8),
+//                       ),
+//                       child: Row(
+//                         children: const [
+//                           Expanded(
+//                             flex: 4,
+//                             child: Text(
+//                               "Fund Name",
+//                               style: TextStyle(
+//                                 fontWeight: FontWeight.bold,
+//                                 fontSize: 13,
+//                               ),
+//                             ),
+//                           ),
+//                           Expanded(
+//                             flex: 2,
+//                             child: Text(
+//                               "Risk",
+//                               style: TextStyle(
+//                                 fontWeight: FontWeight.bold,
+//                                 fontSize: 13,
+//                               ),
+//                             ),
+//                           ),
+//                           Expanded(
+//                             flex: 1,
+//                             child: Text(
+//                               "1Y",
+//                               style: TextStyle(
+//                                 fontWeight: FontWeight.bold,
+//                                 fontSize: 13,
+//                               ),
+//                             ),
+//                           ),
+//                           Expanded(
+//                             flex: 1,
+//                             child: Text(
+//                               "3Y",
+//                               style: TextStyle(
+//                                 fontWeight: FontWeight.bold,
+//                                 fontSize: 13,
+//                               ),
+//                             ),
+//                           ),
+//                           Expanded(
+//                             flex: 1,
+//                             child: Text(
+//                               "5Y",
+//                               style: TextStyle(
+//                                 fontWeight: FontWeight.bold,
+//                                 fontSize: 13,
+//                               ),
+//                             ),
+//                           ),
+//                           Expanded(
+//                             flex: 2,
+//                             child: Text(
+//                               "Action",
+//                               style: TextStyle(
+//                                 fontWeight: FontWeight.bold,
+//                                 fontSize: 13,
+//                               ),
+//                               textAlign: TextAlign.right,
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+//
+//                     // TABLE LIST
+//                     Expanded(
+//                       child: Obx(() {
+//                         if (controller.isLoading.value) {
+//                           return const Center(
+//                             child: CircularProgressIndicator(),
+//                           );
+//                         }
+//
+//                         if (controller.searchFund.isEmpty) {
+//                           return const Center(child: Text("No funds found."));
+//                         }
+//
+//                         return ListView.builder(
+//                           controller: scrollController,
+//                           itemCount:
+//                               controller.searchFund.length +
+//                               (controller.isMoreLoading.value ? 1 : 0),
+//                           itemBuilder: (context, index) {
+//                             if (index == controller.searchFund.length) {
+//                               return const Padding(
+//                                 padding: EdgeInsets.all(20),
+//                                 child: Center(
+//                                   child: CircularProgressIndicator(),
+//                                 ),
+//                               );
+//                             }
+//
+//                             final fund = controller.searchFund[index];
+//                             return WebFundTableRow(entity: fund);
+//                           },
+//                         );
+//                       }),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }
+//
+// // ==========================================
+// // 📊 WEB COMPONENT: Table Row
+// // ==========================================
+// class WebFundTableRow extends StatelessWidget {
+//   final MutualFundListEntity entity;
+//   const WebFundTableRow({super.key, required this.entity});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final controller = Get.find<CartController>();
+//
+//     return WebHoverRow(
+//       onTap: () {
+//         // Get.toNamed(
+//         //   AppRoutes.funddetails,
+//         //   arguments: {
+//         //     'scheme': entity.baseSchemeName,
+//         //     'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
+//         //     'scheme_code': entity.schemeCode.toString(),
+//         //   },
+//         // );
+//         Get.delete<FundDetailsController>();
+//         FundDetailsScreen.navData = {
+//           'scheme': entity.baseSchemeName,
+//           'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
+//           'scheme_code': entity.schemeCode.toString(),
+//         };
+//
+//         Get.toNamed(AppRoutes.funddetails, id: 1);
+//       },
+//       builder: (isHovered) => Padding(
+//         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+//         child: Row(
+//           children: [
+//             // 1. FUND NAME & LOGO
+//             Expanded(
+//               flex: 4,
+//               child: Row(
+//                 children: [
+//                   Container(
+//                     width: 36,
+//                     height: 36,
+//                     padding: const EdgeInsets.all(4),
+//                     decoration: BoxDecoration(
+//                       border: Border.all(color: Colors.grey.shade200),
+//                       borderRadius: BorderRadius.circular(8),
+//                     ),
+//                     child: CustomCachedImage(
+//                       imageUrl:
+//                           "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
+//                       fit: BoxFit.contain,
+//                     ),
+//                   ),
+//                   const Gap(12),
+//                   Expanded(
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         Text(
+//                           entity.baseSchemeName ?? "Unknown Fund",
+//                           maxLines: 1,
+//                           overflow: TextOverflow.ellipsis,
+//                           style: const TextStyle(
+//                             fontWeight: FontWeight.w600,
+//                             fontSize: 14,
+//                           ),
+//                         ),
+//                         Text(
+//                           "${entity.amc?.amcName}",
+//                           style: TextStyle(
+//                             color: Colors.grey.shade500,
+//                             fontSize: 11,
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//
+//             // 2. RISK BADGE
+//             Expanded(
+//               flex: 2,
+//               child: Row(
+//                 children: [
+//                   Container(
+//                     padding: const EdgeInsets.symmetric(
+//                       horizontal: 8,
+//                       vertical: 4,
+//                     ),
+//                     decoration: BoxDecoration(
+//                       // color: Colors.blue.shade200,
+//                       color: getRiskMeter(
+//                         entity.riskLevel,
+//                       ).color.withOpacity(0.1),
+//                       borderRadius: BorderRadius.circular(15),
+//                       border: Border.all(
+//                         color: getRiskMeter(
+//                           entity.riskLevel,
+//                         ).color.withOpacity(0.1),
+//                       ),
+//                     ),
+//                     child: Text(
+//                       "${entity.riskLevel}",
+//                       style: TextStyle(
+//                         color: getRiskMeter(entity.riskLevel).color,
+//                         fontSize: 11,
+//                         fontWeight: FontWeight.w600,
+//                       ),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//
+//             // 3. RETURNS COLUMNS
+//             Expanded(
+//               flex: 1,
+//               child: Text(
+//                 '${entity.returnsEntity?.oneYear}%',
+//                 style: TextStyle(
+//                   // color: Ucolors.success,
+//                   color: parseIntSafe(entity.returnsEntity?.oneYear) < 0
+//                       ? Colors.red
+//                       : Ucolors.success,
+//                   fontWeight: FontWeight.bold,
+//                 ),
+//               ),
+//             ),
+//             Expanded(
+//               flex: 1,
+//               child: Text(
+//                 '${entity.returnsEntity?.threeYear}%',
+//
+//                 style: TextStyle(
+//                   color: parseIntSafe(entity.returnsEntity?.threeYear) < 0
+//                       ? Colors.red
+//                       : Ucolors.success,
+//                   fontWeight: FontWeight.bold,
+//                 ),
+//               ),
+//             ),
+//             Expanded(
+//               flex: 1,
+//               child: Text(
+//                 '${entity.returnsEntity?.fiveYear}%',
+//                 style: TextStyle(
+//                   // color: Ucolors.success,
+//                   color: parseIntSafe(entity.returnsEntity?.fiveYear) < 0
+//                       ? Colors.red
+//                       : Ucolors.success,
+//                   fontWeight: FontWeight.bold,
+//                 ),
+//               ),
+//             ),
+//
+//             // 4. ACTION BUTTON
+//             Expanded(
+//               flex: 2,
+//               child: Align(
+//                 alignment: Alignment.centerRight,
+//                 child: AnimatedOpacity(
+//                   duration: const Duration(milliseconds: 200),
+//                   opacity: isHovered ? 1.0 : 0.7,
+//                   child: SizedBox(
+//                     height: 32,
+//                     child: ElevatedButton(
+//                       onPressed: () async {
+//                         // await controller.addToCart(
+//                         //   entity.schemeCode ?? '',
+//                         //   entity.baseSchemeName ?? '',
+//                         //   entity.minSipAmount ?? 0,
+//                         //   null,
+//                         // );
+//                         await controller.addToCart(
+//                           entity.schemeCode ?? '',
+//                           entity.baseSchemeName ?? '',
+//                           entity.minSipAmount ?? 0,
+//                           null,
+//                         );
+//                         await controller.fetchCart();
+//                       },
+//                       style: ElevatedButton.styleFrom(
+//                         backgroundColor: Ucolors.primary,
+//                         foregroundColor: Colors.white,
+//                         padding: const EdgeInsets.symmetric(horizontal: 16),
+//                         shape: RoundedRectangleBorder(
+//                           borderRadius: BorderRadius.circular(6),
+//                         ),
+//                       ),
+//                       child: const Text(
+//                         "Invest",
+//                         style: TextStyle(fontSize: 12),
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 // ==========================================
 // 📱 MOBILE LAYOUT (Original Logic Preserved)
