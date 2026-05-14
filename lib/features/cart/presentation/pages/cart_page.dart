@@ -272,7 +272,7 @@ class CartPage extends GetView<CartController> {
                   child: Column(
                     children: [
                       Expanded(
-                        child: PopularFundCard(
+                        child: PopularFundCardMob(
                           onTap: () {
                             Get.find<MutualFundController>()
                                 .addToLocalRecentlyViewed(fund);
