@@ -23,22 +23,20 @@ class CartController extends GetxController {
   var stepUpAmount = 0.0.obs;
   Rx<FundDetailEntity?> fundDetail = Rx<FundDetailEntity?>(null);
   var goalId = RxnInt(); // Nullable reactive int
-  
 
   var investmentAmount = 0.0.obs;
-   setInvestmentDetails({
+  setInvestmentDetails({
     required String code,
     required String name,
     required int minAmount,
     required String amcLogo,
-     required FundDetailEntity fundDetailEntity,
-
+    required FundDetailEntity fundDetailEntity,
   }) {
     schemeCode.value = code;
     schemeName.value = name;
     minSipAmount.value = minAmount;
-    fundDetail.value =fundDetailEntity;
-    amcImage.value= amcLogo;
+    fundDetail.value = fundDetailEntity;
+    amcImage.value = amcLogo;
     debugPrint("amcLogo: ${amcImage.value} ,$amcLogo");
     // goalId.value = gId;
 
@@ -47,23 +45,21 @@ class CartController extends GetxController {
     stepUpAmount.value = minAmount.toDouble();
     update();
   }
+
   bool get isStepUpValid => stepUpAmount.value >= minSipAmount.value;
   @override
   void onInit() {
     super.onInit();
-   
+
     _loadArgs();
 
     log("Captured Filter ID: ${filterGoalId.value}");
     fetchCart();
   }
 
-
- 
   int get totalAmount {
     if (cartResponseEntity.value == null) return 0;
 
-   
     return displayedItems.fold(0, (sum, item) => sum + (item.amount ?? 0));
   }
 
@@ -90,20 +86,17 @@ class CartController extends GetxController {
   //Tracks which specific item is currently being deleted
   final RxInt deletingItemId = (-1).obs;
 
-  
-
   void _loadArgs() {
     // Check if we have arguments and specifically look for goal_id
     if (Get.arguments != null && Get.arguments is Map) {
       filterGoalId.value = Get.arguments['goal_id'];
       investmentAmount.value = Get.arguments['investNow'];
-      debugPrint("investNow:${ investmentAmount.value}");
+      debugPrint("investNow:${investmentAmount.value}");
     } else {
       filterGoalId.value = null; // Explicitly clear if no argument is passed
       investmentAmount.value = 0.0; // Explicitly clear if no argument is passed
     }
-    debugPrint("investNow: ${ investmentAmount.value}");
-
+    debugPrint("investNow: ${investmentAmount.value}");
   }
 
   // Inside CartController
@@ -322,7 +315,6 @@ class CartController extends GetxController {
     }
   }
 
-
   // --- REFACTORED UPDATE (Optimistic UI) ---
   Future<void> updateCartItem({
     required int itemId,
@@ -332,7 +324,8 @@ class CartController extends GetxController {
     String? frequency,
     int? topUpAmount,
     String? capingDate,
-    String? capingAmount
+    String? capingAmount,
+    int? stepUpPercentage,
   }) async {
     // 1. Save original state in case we need to revert on failure
     final originalState = cartResponseEntity.value;
@@ -347,9 +340,10 @@ class CartController extends GetxController {
             sipDay: sipDay ?? item.sipDay,
             amount: amount ?? item.amount,
             frequency: frequency ?? item.frequency,
-            topUpAmount: topUpAmount.toString() ?? item.topUpAmount,
+            topUpAmount: topUpAmount?.toString() ?? item.topUpAmount,
             capingAmount: capingAmount ?? item.capingAmount,
-            capingDate: capingDate ?? item.capingDate
+            capingDate: capingDate ?? item.capingDate,
+            stepUpPercentage: stepUpPercentage ?? item.stepUpPercentage,
           );
         }
         return item;
@@ -368,14 +362,15 @@ class CartController extends GetxController {
       if (sipDay != null) "sip_day": sipDay,
       if (amount != null) "amount": amount,
       if (frequency != null) "frequency": frequency,
-      if (topUpAmount != null) "top_up_amount": topUpAmount,
+      // if (topUpAmount != null)
+      "top_up_amount": topUpAmount,
       if (capingDate != null) "caping_date": capingDate,
       if (capingAmount != null) "caping_amount": capingAmount,
+      if (stepUpPercentage != null) "step_up_percentage": stepUpPercentage,
     });
 
     result.fold(
       (success) async {
-        // Silently refresh from server to ensure totals (summary) are correct
         await fetchCart();
       },
       (failure) {
@@ -406,7 +401,6 @@ class CartController extends GetxController {
 
       result.fold(
         (success) async {
-
           // 3. Remove item from local list instantly
           if (cartResponseEntity.value != null) {
             final updatedItems = cartResponseEntity.value!.items

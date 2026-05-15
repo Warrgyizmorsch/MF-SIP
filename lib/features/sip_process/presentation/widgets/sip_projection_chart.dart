@@ -5,6 +5,7 @@ import 'package:my_sip/core/utils/constant/text_style.dart';
 
 class SipProjectionChart extends StatelessWidget {
   final bool showLeftNumbers;
+  final Color textColor;
   final List<FlSpot> investedSpots;
   final List<FlSpot> projectedSpots;
 
@@ -13,6 +14,7 @@ class SipProjectionChart extends StatelessWidget {
     required this.investedSpots,
     required this.projectedSpots,
     this.showLeftNumbers = true,
+    this.textColor = Colors.white,
   });
 
   @override
@@ -99,7 +101,7 @@ class SipProjectionChart extends StatelessWidget {
                     meta: meta,
                     child: Text(
                       '${value.toInt()}',
-                      style: AppTextStyles.bodyMedium(color: Colors.white),
+                      style: AppTextStyles.bodyMedium(color: textColor),
                     ),
                   );
                 },
@@ -115,21 +117,21 @@ class SipProjectionChart extends StatelessWidget {
                 // inside getTitlesWidget for leftTitles
                 getTitlesWidget: (value, meta) {
                   if (value == 0) {
-                    return const Text(
+                    return Text(
                       '0',
-                      style: TextStyle(color: Colors.white, fontSize: 10),
+                      style: TextStyle(color: textColor, fontSize: 10),
                     );
                   }
 
                   if (value >= 100000) {
                     return Text(
                       '${(value / 100000).toStringAsFixed(1)}L',
-                      style: AppTextStyles.bodyMedium(color: Colors.white),
+                      style: AppTextStyles.bodyMedium(color: textColor),
                     );
                   } else {
                     return Text(
                       '${(value / 1000).toStringAsFixed(0)}K',
-                      style: AppTextStyles.bodyMedium(color: Colors.white),
+                      style: AppTextStyles.bodyMedium(color: textColor),
                     );
                   }
                 },

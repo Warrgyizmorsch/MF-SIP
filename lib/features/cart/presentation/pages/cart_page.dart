@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
@@ -68,148 +69,152 @@ class CartPage extends GetView<CartController> {
               }),
             ),
 
-      body: Obx(() {
-        final items = controller.displayedItems;
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        behavior: HitTestBehavior.translucent,
+        child: Obx(() {
+          final items = controller.displayedItems;
 
-        if (controller.isLoading.value && items.isEmpty) {
-          return Center(child: CircularProgressIndicator());
-        }
+          if (controller.isLoading.value && items.isEmpty) {
+            return Center(child: CircularProgressIndicator());
+          }
 
-        // --- EMPTY STATE ---
-        if (items.isEmpty) {
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Center(
-                  child: controller.filterGoalId.value != null
-                      ? const Text("No funds for this goal")
-                      : const AnimatedEmptyState(
-                          title: "Your Cart is Empty",
-                          message:
-                              "Looks like you haven't added any funds yet. Go explore!",
-                          icon: Icons.shopping_cart_outlined,
+          // --- EMPTY STATE ---
+          if (items.isEmpty) {
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                    child: controller.filterGoalId.value != null
+                        ? const Text("No funds for this goal")
+                        : const AnimatedEmptyState(
+                            title: "Your Cart is Empty",
+                            message:
+                                "Looks like you haven't added any funds yet. Go explore!",
+                            icon: Icons.shopping_cart_outlined,
+                          ),
+                  ),
+
+                  InkWell(
+                    onTap: () {
+                      Get.toNamed(AppRoutes.explorePage);
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Explore more funds',
+                          style: AppTextStyles.bodyMediumBold().copyWith(
+                            color: Ucolors.primary,
+                          ),
                         ),
-                ),
-
-                InkWell(
-                  onTap: () {
-                    Get.toNamed(AppRoutes.explorePage);
-                  },
-                  borderRadius: BorderRadius.circular(8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Explore more funds',
-                        style: AppTextStyles.bodyMediumBold().copyWith(
+                        const SizedBox(width: 6),
+                        const Icon(
+                          Icons.arrow_forward_rounded,
+                          size: 18,
                           color: Ucolors.primary,
                         ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 60),
+                  _buildRecentlyViewed(),
+                ],
+              ),
+            );
+          }
+
+          // --- DESKTOP / WEB LAYOUT ---
+          if (isDesktop) {
+            return Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 1100,
+                ), // Max width for clean look
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 24,
+                    horizontal: 16,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 6,
+                        child: ListView.builder(
+                          itemCount: items.length,
+                          itemBuilder: (context, index) {
+                            return CartItemCard(
+                              index: index,
+                              itemEntity: items[index],
+                            );
+                          },
+                        ),
                       ),
-                      const SizedBox(width: 6),
-                      const Icon(
-                        Icons.arrow_forward_rounded,
-                        size: 18,
-                        color: Ucolors.primary,
-                      ),
+                      const Gap(24),
+                      // 40% Right Side: Order Summary Card
+                      Expanded(flex: 4, child: _buildWebOrderSummary()),
                     ],
                   ),
                 ),
-                const SizedBox(height: 60),
-                _buildRecentlyViewed(),
-              ],
-            ),
+              ),
+            );
+          }
+          // --- MOBILE LAYOUT ---
+          return CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              // 1. Your Cart Items (Scrolls normally)
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    return CartItemCard(index: index, itemEntity: items[index]);
+                  }, childCount: items.length),
+                ),
+              ),
+
+              if (items.length <= 2)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      const SizedBox(height: 20),
+                      _buildRecentlyViewed(),
+                    ],
+                  ),
+                ),
+            ],
           );
-        }
 
-        // --- DESKTOP / WEB LAYOUT ---
-        if (isDesktop) {
-          return Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: 1100,
-              ), // Max width for clean look
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 24,
-                  horizontal: 16,
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 6,
-                      child: ListView.builder(
-                        itemCount: items.length,
-                        itemBuilder: (context, index) {
-                          return CartItemCard(
-                            index: index,
-                            itemEntity: items[index],
-                          );
-                        },
-                      ),
-                    ),
-                    const Gap(24),
-                    // 40% Right Side: Order Summary Card
-                    Expanded(flex: 4, child: _buildWebOrderSummary()),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }
-        // --- MOBILE LAYOUT ---
-        return CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            // 1. Your Cart Items (Scrolls normally)
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  return CartItemCard(index: index, itemEntity: items[index]);
-                }, childCount: items.length),
-              ),
-            ),
-
-            if (items.length <= 2)
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    const SizedBox(height: 20),
-                    _buildRecentlyViewed(),
-                  ],
-                ),
-              ),
-          ],
-        );
-
-        // --- MOBILE LAYOUT ---
-        // return SingleChildScrollView(
-        //   child: Column(
-        //     children: [
-        //       ListView.builder(
-        //         physics: const NeverScrollableScrollPhysics(), // 🚀 3. ADD THIS
-        //         shrinkWrap: true,
-        //         padding: const EdgeInsets.symmetric(vertical: 8),
-        //         itemCount: items.length,
-        //         itemBuilder: (context, index) {
-        //           return CartItemCard(index: index, itemEntity: items[index]);
-        //         },
-        //       ),
-        //       // if (items.length <= 2) _buildRecentlyViewed(),
-        //       if (items.length <= 2) ...[
-        //         // const SizedBox(height: 32),
-        //         _buildRecentlyViewed(),
-        //         // const SizedBox(height: 12),
-        //       ],
-        //     ],
-        //   ),
-        // );
-      }),
+          // --- MOBILE LAYOUT ---
+          // return SingleChildScrollView(
+          //   child: Column(
+          //     children: [
+          //       ListView.builder(
+          //         physics: const NeverScrollableScrollPhysics(), // 🚀 3. ADD THIS
+          //         shrinkWrap: true,
+          //         padding: const EdgeInsets.symmetric(vertical: 8),
+          //         itemCount: items.length,
+          //         itemBuilder: (context, index) {
+          //           return CartItemCard(index: index, itemEntity: items[index]);
+          //         },
+          //       ),
+          //       // if (items.length <= 2) _buildRecentlyViewed(),
+          //       if (items.length <= 2) ...[
+          //         // const SizedBox(height: 32),
+          //         _buildRecentlyViewed(),
+          //         // const SizedBox(height: 12),
+          //       ],
+          //     ],
+          //   ),
+          // );
+        }),
+      ),
     );
   }
 
@@ -779,6 +784,10 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
   late final RxString stepUpType;
 
   late final TextEditingController stepUpController;
+  late final TextEditingController amountController;
+  late final TextEditingController capAmountController;
+
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -786,17 +795,41 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
     // initState only runs ONCE when the row is first created!
     // Keyboard popping up will NO LONGER reset these values.
 
-    final int minTopUp = _parseAmount(
-      widget.itemEntity.minTopupAmount,
-      defaultVal: 500,
-    );
-    final String initialTopUp =
-        (widget.itemEntity.topUpAmount != null &&
-            widget.itemEntity.topUpAmount != '0' &&
-            widget.itemEntity.topUpAmount != '')
-        ? _parseAmount(widget.itemEntity.topUpAmount).toString()
-        : minTopUp.toString();
-    stepUpController = TextEditingController(text: initialTopUp);
+    // final int minTopUp = _parseAmount(
+    //   widget.itemEntity.minTopupAmount,
+    //   defaultVal: 500,
+    // );
+    // final String initialTopUp =
+    //     (widget.itemEntity.topUpAmount != null &&
+    //         widget.itemEntity.topUpAmount != '0' &&
+    //         widget.itemEntity.topUpAmount != '')
+    //     ? _parseAmount(widget.itemEntity.topUpAmount).toString()
+    //     : minTopUp.toString();
+    // stepUpController = TextEditingController(text: initialTopUp);
+    bool hasPercentage =
+        widget.itemEntity.stepUpPercentage != null &&
+        widget.itemEntity.stepUpPercentage! > 0;
+
+    if (hasPercentage) {
+      stepUpType = 'percentage'.obs;
+      stepUpController = TextEditingController(
+        text: widget.itemEntity.stepUpPercentage.toString(),
+      );
+    } else {
+      stepUpType = 'amount'.obs;
+      final int minTopUp = _parseAmount(
+        widget.itemEntity.minTopupAmount,
+        defaultVal: 500,
+      );
+      final String initialTopUp =
+          (widget.itemEntity.topUpAmount != null &&
+              widget.itemEntity.topUpAmount != '0' &&
+              widget.itemEntity.topUpAmount != '')
+          ? _parseAmount(widget.itemEntity.topUpAmount).toString()
+          : minTopUp.toString();
+
+      stepUpController = TextEditingController(text: initialTopUp);
+    }
 
     bool hasAmount =
         widget.itemEntity.capingAmount != null &&
@@ -805,7 +838,7 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
         widget.itemEntity.capingDate != null &&
         widget.itemEntity.capingDate!.isNotEmpty;
 
-    stepUpType = 'amount'.obs;
+    // stepUpType = 'amount'.obs;
 
     if (hasAmount && !hasDate) {
       capType = 'amount'.obs;
@@ -814,6 +847,24 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
     }
 
     localCapDate = (widget.itemEntity.capingDate ?? '').obs;
+
+    final currentType = widget.itemEntity.transType?.toLowerCase() ?? 'sip';
+    final int minSip = _parseAmount(widget.itemEntity.minSipAmount);
+    final int minLumpsum = _parseAmount(widget.itemEntity.minLumpsum);
+    final int currentMinLimit = (currentType == 'lumpsum')
+        ? minLumpsum
+        : minSip;
+
+    final String initialAmount =
+        (widget.itemEntity.amount != null && widget.itemEntity.amount! > 0)
+        ? widget.itemEntity.amount.toString()
+        : currentMinLimit.toString();
+
+    amountController = TextEditingController(text: initialAmount);
+
+    capAmountController = TextEditingController(
+      text: widget.itemEntity.capingAmount ?? '',
+    );
   }
 
   /// Helper to convert API strings like "1000.00" to int 1000
@@ -824,9 +875,11 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     stepUpController.dispose();
+    amountController.dispose();
+    capAmountController.dispose();
+    _debounce?.cancel();
   }
 
   @override
@@ -893,6 +946,8 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                           );
                           newFrequency = '6';
                         }
+
+                        amountController.text = newDefaultAmount.toString();
 
                         controller.updateCartItem(
                           itemId: widget.itemEntity.id!,
@@ -961,11 +1016,12 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                     const SizedBox(height: 6),
                     CustomTextField(
                       height: 55,
-                      key: ValueKey(
-                        'amt_${widget.itemEntity.id}_$currentAmount',
-                      ),
+                      // key: ValueKey(
+                      //   'amt_${widget.itemEntity.id}_$currentAmount',
+                      // ),
                       keyboardType: TextInputType.number,
-                      controller: TextEditingController(text: currentAmount),
+                      // controller: TextEditingController(text: currentAmount),
+                      controller: amountController,
                       validationType: ValidationType.custom,
                       onChanged: (value) {
                         controller.debouncedAmountUpdate(
@@ -1129,7 +1185,25 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                                   onTap: () {
                                     stepUpType.value = 'amount';
                                     stepUpController.text =
-                                        currentTopUp; // Restore amount text
+                                        (widget.itemEntity.topUpAmount !=
+                                                null &&
+                                            widget.itemEntity.topUpAmount !=
+                                                '0' &&
+                                            widget.itemEntity.topUpAmount != '')
+                                        ? _parseAmount(
+                                            widget.itemEntity.topUpAmount,
+                                          ).toString()
+                                        : minTopUp.toString();
+
+                                    controller.updateCartItem(
+                                      itemId: widget.itemEntity.id!,
+                                      topUpAmount: minTopUp,
+                                      stepUpPercentage: 0,
+                                    );
+
+                                    // stepUpType.value = 'amount';
+                                    // stepUpController.text =
+                                    //     currentTopUp; // Restore amount text
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
@@ -1214,21 +1288,65 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                         hint: stepUpType.value == 'amount'
                             ? 'e.g. $minTopUp'
                             : 'e.g. 10',
+                        // --- 3. REPLACE STEP UP onChanged WITH THIS ---
                         onChanged: (value) {
                           final amt = int.tryParse(value) ?? 0;
+                          bool hasError = false;
+
+                          // 1. Check for errors
                           if (stepUpType.value == 'amount') {
-                            controller.setItemError(
-                              -widget.itemEntity.id!,
-                              amt < minTopUp || amt % 100 != 0,
-                            );
+                            hasError = amt < minTopUp || amt % 100 != 0;
                           } else {
-                            // Percentage validation
-                            controller.setItemError(
-                              -widget.itemEntity.id!,
-                              amt <= 0 || amt > 100,
+                            hasError = amt <= 0 || amt > 100;
+                          }
+
+                          // 2. Set error state in UI
+                          controller.setItemError(
+                            -widget.itemEntity.id!,
+                            hasError,
+                          );
+
+                          // 3. Only send API call if there are no errors
+                          if (!hasError) {
+                            if (_debounce?.isActive ?? false)
+                              _debounce!.cancel();
+
+                            _debounce = Timer(
+                              const Duration(milliseconds: 800),
+                              () {
+                                if (stepUpType.value == 'amount') {
+                                  controller.updateCartItem(
+                                    itemId: widget.itemEntity.id!,
+                                    topUpAmount: amt,
+                                    stepUpPercentage: 0,
+                                  );
+                                } else if (stepUpType.value == 'percentage') {
+                                  controller.updateCartItem(
+                                    itemId: widget.itemEntity.id!,
+                                    stepUpPercentage: amt,
+                                    topUpAmount: 0,
+                                  );
+                                }
+                              },
                             );
                           }
                         },
+
+                        // onChanged: (value) {
+                        //   final amt = int.tryParse(value) ?? 0;
+                        //   if (stepUpType.value == 'amount') {
+                        //     controller.setItemError(
+                        //       -widget.itemEntity.id!,
+                        //       amt < minTopUp || amt % 100 != 0,
+                        //     );
+                        //   } else {
+                        //     // Percentage validation
+                        //     controller.setItemError(
+                        //       -widget.itemEntity.id!,
+                        //       amt <= 0 || amt > 100,
+                        //     );
+                        //   }
+                        // },
                         customValidator: (value) {
                           if (value == null || value.trim().isEmpty)
                             return 'Required';
@@ -1243,6 +1361,28 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                           }
                           return null;
                         },
+                        // onSubmitted: (val) {
+                        //   final amt = int.tryParse(val);
+                        //   if (amt != null) {
+                        //     if (stepUpType.value == 'amount' &&
+                        //         amt >= minTopUp &&
+                        //         amt % 100 == 0) {
+                        //       controller.updateCartItem(
+                        //         itemId: widget.itemEntity.id!,
+                        //         topUpAmount: amt,
+                        //       );
+                        //     } else if (stepUpType.value == 'percentage' &&
+                        //         amt > 0 &&
+                        //         amt <= 100) {
+                        //       // IMPORTANT: You may need to add a 'topUpPercentage' parameter
+                        //       // to your updateCartItem method if your backend expects it!
+                        //       controller.updateCartItem(
+                        //         itemId: widget.itemEntity.id!,
+                        //         topUpAmount: amt,
+                        //       );
+                        //     }
+                        //   }
+                        // },
                         onSubmitted: (val) {
                           final amt = int.tryParse(val);
                           if (amt != null) {
@@ -1252,19 +1392,22 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                               controller.updateCartItem(
                                 itemId: widget.itemEntity.id!,
                                 topUpAmount: amt,
+                                stepUpPercentage:
+                                    0, // <-- Added this to clear %
                               );
                             } else if (stepUpType.value == 'percentage' &&
                                 amt > 0 &&
                                 amt <= 100) {
-                              // IMPORTANT: You may need to add a 'topUpPercentage' parameter
-                              // to your updateCartItem method if your backend expects it!
                               controller.updateCartItem(
                                 itemId: widget.itemEntity.id!,
-                                topUpAmount: amt,
+                                stepUpPercentage:
+                                    amt, // <-- Sends to correct field
+                                topUpAmount: null, // <-- Clears amount
                               );
                             }
                           }
                         },
+
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
@@ -1440,18 +1583,35 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                               bgColor: Colors.white,
                               height: 55,
                               borderRadius: 11,
-                              key: ValueKey(
-                                'capAmt_${widget.itemEntity.id}_${widget.itemEntity.capingAmount}',
-                              ),
-                              controller: TextEditingController(
-                                text: widget.itemEntity.capingAmount ?? '',
-                              ),
+                              // key: ValueKey(
+                              //   'capAmt_${widget.itemEntity.id}_${widget.itemEntity.capingAmount}',
+                              // ),
+                              // controller: TextEditingController(
+                              //   text: widget.itemEntity.capingAmount ?? '',
+                              // ),
+                              controller: capAmountController,
                               keyboardType: TextInputType.number,
                               validationType: ValidationType.custom,
                               borderColor: Colors.grey.shade300,
                               focusedBorderColor: Ucolors.primary,
                               hint: 'e.g. 50000',
-                              onChanged: (value) {},
+                              // onChanged: (value) {},
+                              // --- 4. REPLACE CAP AMOUNT onChanged WITH THIS ---
+                              onChanged: (value) {
+                                if (_debounce?.isActive ?? false)
+                                  _debounce!.cancel();
+
+                                _debounce = Timer(
+                                  const Duration(milliseconds: 900),
+                                  () {
+                                    controller.updateCartItem(
+                                      itemId: widget.itemEntity.id!,
+                                      capingAmount: value,
+                                      capingDate: "",
+                                    );
+                                  },
+                                );
+                              },
                               customValidator: (value) => null,
                               onSubmitted: (val) {
                                 controller.updateCartItem(

@@ -115,6 +115,7 @@ class CartItemEntity extends Equatable {
   final String? frequency;
   final String? topUpAmount;
   final String? capingDate;
+  final int? stepUpPercentage;
   final String? capingAmount;
   final int? sipDay;
   final int? tenureMonths;
@@ -149,6 +150,7 @@ class CartItemEntity extends Equatable {
     this.frequency,
     this.topUpAmount,
     this.capingAmount,
+    this.stepUpPercentage,
     this.capingDate,
     this.sipDay,
     this.tenureMonths,
@@ -181,6 +183,7 @@ class CartItemEntity extends Equatable {
     String? topUpAmount,
     String? capingAmount,
     String? capingDate,
+    int? stepUpPercentage,
     int? sipDay,
     int? tenureMonths,
     String? startDate,
@@ -209,6 +212,7 @@ class CartItemEntity extends Equatable {
       frequency: frequency ?? this.frequency,
       topUpAmount: topUpAmount ?? this.topUpAmount,
       capingAmount: capingAmount ?? this.capingAmount,
+      stepUpPercentage: stepUpPercentage ?? this.stepUpPercentage,
       capingDate: capingDate ?? this.capingDate,
       sipDay: sipDay ?? this.sipDay,
       tenureMonths: tenureMonths ?? this.tenureMonths,
@@ -247,6 +251,7 @@ class CartItemEntity extends Equatable {
     capingDate,
     sipDay,
     tenureMonths,
+    stepUpPercentage,
     startDate,
     endDate,
     createdAt,
@@ -323,6 +328,7 @@ extension CartItemModelX on CartItemModel {
       frequency: frequency,
       topUpAmount: topUpAmount,
       capingAmount: capingAmount,
+      stepUpPercentage: stepUpPercentage,
       capingDate: capingDate,
       sipDay: sipDay,
       tenureMonths: tenureMonths,

@@ -117,6 +117,7 @@ class CartItemModel {
   final int? amount;
   final String? frequency;
   final String? topUpAmount;
+  final int?  stepUpPercentage;
   final String? capingDate;
   final String? capingAmount;
   final int? sipDay;
@@ -163,6 +164,7 @@ class CartItemModel {
     this.minSipAmount,
     this.minLumpsum,
     this.amcLogo,
+    this.stepUpPercentage,
 
     //this.goalName,
     this.goalId,
@@ -184,6 +186,7 @@ class CartItemModel {
       amount: json.parse<int>('amount'),
       frequency: json.parse<String>('frequency'),
       topUpAmount: json.parse<String>('top_up_amount'),
+      stepUpPercentage: json.parse<int>('step_up_percentage'),
       capingDate: json.parse<String>('caping_date'),
       capingAmount: json.parse<String>('caping_amount'),
       sipDay: json.parse<int>('sip_day'),

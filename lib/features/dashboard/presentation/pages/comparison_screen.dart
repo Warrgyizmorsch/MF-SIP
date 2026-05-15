@@ -148,7 +148,6 @@ class ComparisonScreen extends StatelessWidget {
   }
 }
 
-
 class FundBottomBarButton extends StatelessWidget {
   const FundBottomBarButton({
     super.key,
@@ -172,7 +171,12 @@ class FundBottomBarButton extends StatelessWidget {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Container(
-      padding: EdgeInsets.fromLTRB(16, 12, 16, bottomPadding > 0 ? bottomPadding : 16),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        12,
+        16,
+        bottomPadding > 0 ? bottomPadding : 16,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -206,7 +210,6 @@ class FundBottomBarButton extends StatelessWidget {
           ),
 
           const SizedBox(width: 12), // Tighter spacing for a cleaner look
-
           // Primary Button (Gradient/Solid)
           Expanded(
             flex: 8,
@@ -217,22 +220,22 @@ class FundBottomBarButton extends StatelessWidget {
                 duration: const Duration(milliseconds: 200),
                 child: isLoading
                     ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2.5,
-                  ),
-                )
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2.5,
+                        ),
+                      )
                     : Text(
-                  secondButton,
-                  key: const ValueKey('btn_text'),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                  ),
-                ),
+                        secondButton,
+                        key: const ValueKey('btn_text'),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                      ),
               ),
             ),
           ),
@@ -280,7 +283,7 @@ class BottomBarButton extends StatelessWidget {
           Expanded(
             child: UElevatedBUtton(
               onPressed: isLoading ? null : secondButtonP, // Disable if loading
-              height: 52,
+              // height: 52,
               child: isLoading
                   ? const SizedBox(
                       height: 10,

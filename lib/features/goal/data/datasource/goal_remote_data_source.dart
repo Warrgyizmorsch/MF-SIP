@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
+import 'package:my_sip/features/goal/data/model/delete_fund_goal.model.dart';
 import 'package:my_sip/features/goal/data/model/goal_model.dart';
 import 'package:my_sip/services/session_manager.dart';
 
@@ -79,6 +80,39 @@ class GoalRemoteDataSource {
       return Right(
         ApiError(message: 'Goal Fund Save Failed with Exception $e'),
       );
+    }
+  }
+
+  Future<Either<Result<DeleteGoalFundModel>, ApiError>> deleteGoalFund({
+    required int id,
+  }) async {
+    try {
+      createLog("[GoalRemoteDataSource] deleteGoalFund id: $id");
+
+      final resp = await apiService.deleteApi(
+        "${Appurl.baseUrl}/api/v1/goal-fund/$id",
+        null,
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
+      );
+
+      createLog("[GoalRemoteDataSource] deleteGoalFund Response: $resp");
+
+      if (resp != null) {
+        final result = DeleteGoalFundModel.fromJson(resp);
+        if (result.status == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(ApiError(message: result.message ?? 'Delete Failed'));
+        }
+      } else {
+        return Right(
+          ApiError(message: 'deleteGoalFund: Invalid response structure'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'deleteGoalFund Exception: $e'));
     }
   }
 }

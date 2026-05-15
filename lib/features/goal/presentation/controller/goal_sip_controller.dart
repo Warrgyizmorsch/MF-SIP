@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:image_picker/image_picker.dart';
+import 'package:my_sip/common/widget/animated/popups.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 
@@ -43,6 +45,7 @@ class GoalSipController extends GetxController {
   // final selectedPopularFund = <int>{}.obs;
   final selectedPopularFund = <String>{}.obs;
   // RxList<int> selectedPopularFund = <int>[].obs;
+  final isDeleting = <int, bool>{}.obs;
 
   final goalNameTextEditingController = TextEditingController();
 
@@ -88,7 +91,20 @@ class GoalSipController extends GetxController {
 
   Future<void> saveGoalToDb() async {
     if (goalNameTextEditingController.text.isEmpty) {
-      Get.snackbar("Error", "Please enter a goal name");
+      // Get.snackbar("Error", "Please enter a goal name");
+      // showCustomToast(
+      //   title: "errro",
+      //   message: 'Please enter a Goal name',
+      //   backgroundColor: Colors.yellow,
+      //   icon: Icons.warning,
+      // );
+      // ULoaders.warning(title: 'Enter a Goal Name ');
+      showCustomToast(
+        title: 'Enter a Goal name',
+        message: "",
+        backgroundColor: Colors.orange,
+        icon: Icons.warning,
+      );
       return;
     }
 
@@ -159,13 +175,59 @@ class GoalSipController extends GetxController {
         //   savedDatabaseId.value,
         // );
 
-        Get.snackbar("Success", "$fundName linked to your goal!");
+        // Get.snackbar("Success", "$fundName linked to your goal!");
+        showCustomToast(
+          title: "Added to Goal",
+          message: fundName,
+          backgroundColor: Ucolors.primary,
+          icon: Icons.check_circle_outline,
+        );
         await getAllGoals();
       },
       (error) {
-        Get.snackbar("Error", "${error.message}");
+        // Get.snackbar("Errorrr", "${error.message}");
+        showCustomToast(
+          title: "Already in Goal",
+          message: fundName,
+          backgroundColor: Colors.orange.shade700,
+          icon: Icons.info_outline,
+        );
       },
     );
+  }
+
+  Future<void> deleteGoalFund(int id) async {
+    isDeleting[id] = true;
+
+    final result = await goalUseCases.deleteGoalFundUseCase(id: id);
+
+    result.fold(
+      (success) {
+        // // Remove from local list instantly — no extra fetch needed
+        final goals = goalResponse.value?.data;
+        if (goals != null) {
+          // 2. Iterate through goals to find where this fund link exists
+          for (var goal in goals) {
+            goal.goalFunds.removeWhere((fund) => fund.id == id);
+          }
+          // 3. Trigger Rx update
+          goalResponse.refresh();
+        }
+        // goalResponse.value?.data.removeWhere((item) => item.id == id);
+        ULoaders.success(
+          title: 'Deleted',
+          message: success.data?.message ?? '',
+        );
+      },
+      (error) {
+        ULoaders.error(
+          title: 'Error',
+          message: error.message ?? 'Delete failed',
+        );
+      },
+    );
+
+    isDeleting[id] = false;
   }
 
   Future<void> pickCoverImage(ImageSource source) async {

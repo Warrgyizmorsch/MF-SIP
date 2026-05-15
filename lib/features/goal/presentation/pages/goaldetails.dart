@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
@@ -99,6 +100,7 @@ class GoaldetailsPage extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: BottomBarButton(
+        firstButtonP: () {},
         firstButton: 'Remove Funds',
         secondButton: 'Add Funds',
         secondButtonP: () {
@@ -692,36 +694,111 @@ class GoalDetailSection extends StatelessWidget {
                     ),
 
                   ...linkedFunds.map((fund) {
-                    final String imgUrl =
-                        "${Appurl.baseUrl}${fund.mutualFund?.amc?.amcLogo ?? ''}";
+                    // ... inside your linkedFunds.map((fund) { ...
 
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(vertical: 5),
-                      dense: true,
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.transparent,
-                        backgroundImage: NetworkImage(imgUrl),
-                        onBackgroundImageError: (_, __) =>
-                            const Icon(Icons.broken_image),
-                      ),
-                      title: Text(
-                        fund.mutualFund?.schemeName ?? 'Unknown Fund',
-                        style: UTextStyles.medium.copyWith(
-                          color: Ucolors.dark,
-                          fontWeight: FontWeight.w500,
+                    return Obx(() {
+                      final bool deleting =
+                          goalSipController.isDeleting[fund.id] ?? false;
+                      final String imgUrl =
+                          "${Appurl.baseUrl}${fund.mutualFund?.amc?.amcLogo ?? ''}";
+
+                      return ListTile(
+                        contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                        dense: true,
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.transparent,
+                          backgroundImage: NetworkImage(imgUrl),
+                          onBackgroundImageError: (_, __) =>
+                              const Icon(Icons.broken_image),
                         ),
-                      ),
-                      trailing: Text(
-                        // _fmt(fund.sipAmount ?? 0), // Made safe with ?? 0
-                        _fmt(
-                          fund.mutualFund?.minSipAmount ?? 0,
-                        ), // Made safe with ?? 0
-                        style: UTextStyles.medium.copyWith(
-                          color: Ucolors.dark,
-                          fontWeight: FontWeight.w500,
+                        title: Text(
+                          fund.mutualFund?.schemeName ?? 'Unknown Fund',
+                          style: UTextStyles.medium.copyWith(
+                            color: Ucolors.dark,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                    );
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              _fmt(
+                                fund.sipAmount,
+                              ), 
+                              style: UTextStyles.medium.copyWith(
+                                color: Ucolors.dark,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            // ✅ Delete Trigger
+                            deleting
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : IconButton(
+                                    icon: const Icon(
+                                      Iconsax.trash,
+                                      color: Colors.red,
+                                      size: 20,
+                                    ),
+                                    onPressed: () {
+                                      // Show confirmation dialog or delete directly
+                                      Get.defaultDialog(
+                                        title: "Remove Fund",
+                                        middleText:
+                                            "Are you sure you want to remove this fund from your goal?",
+                                        textConfirm: "Remove",
+                                        textCancel: "Cancel",
+                                        confirmTextColor: Colors.white,
+                                        onConfirm: () {
+                                          Get.back(); // Close dialog
+                                          goalSipController.deleteGoalFund(
+                                            fund.id,
+                                          ); // Passing GoalFundEntity.id
+                                        },
+                                      );
+                                    },
+                                  ),
+                          ],
+                        ),
+                      );
+                    });
+
+                    // final String imgUrl =
+                    //     "${Appurl.baseUrl}${fund.mutualFund?.amc?.amcLogo ?? ''}";
+
+                    // return ListTile(
+                    //   contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                    //   dense: true,
+                    //   leading: CircleAvatar(
+                    //     backgroundColor: Colors.transparent,
+                    //     backgroundImage: NetworkImage(imgUrl),
+                    //     onBackgroundImageError: (_, __) =>
+                    //         const Icon(Icons.broken_image),
+                    //   ),
+                    //   title: Text(
+                    //     fund.mutualFund?.schemeName ?? 'Unknown Fund',
+                    //     style: UTextStyles.medium.copyWith(
+                    //       color: Ucolors.dark,
+                    //       fontWeight: FontWeight.w500,
+                    //     ),
+                    //   ),
+                    //   trailing: Text(
+                    //     // _fmt(fund.sipAmount ?? 0), // Made safe with ?? 0
+                    //     _fmt(
+                    //       fund.mutualFund?.minSipAmount ?? 0,
+                    //     ), // Made safe with ?? 0
+                    //     style: UTextStyles.medium.copyWith(
+                    //       color: Ucolors.dark,
+                    //       fontWeight: FontWeight.w500,
+                    //     ),
+                    //   ),
+                    // );
                   }).toList(), // Add .toList() when spreading maps in columns
                 ],
               ),

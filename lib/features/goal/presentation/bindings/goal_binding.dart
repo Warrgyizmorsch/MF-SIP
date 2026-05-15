@@ -3,6 +3,7 @@ import 'package:my_sip/core/network/network_api_service.dart';
 import 'package:my_sip/features/goal/data/datasource/goal_remote_data_source.dart';
 import 'package:my_sip/features/goal/data/repositories/goal_repository_impl.dart';
 import 'package:my_sip/features/goal/domain/usecases/get_goals_use_case.dart';
+import 'package:my_sip/features/goal/domain/usecases/goal_fund_delete_usecases.dart';
 import 'package:my_sip/features/goal/domain/usecases/goal_use_cases.dart';
 import 'package:my_sip/features/goal/domain/usecases/save_goal_to_fund.dart';
 import 'package:my_sip/features/goal/domain/usecases/save_goal_use_case.dart';
@@ -29,10 +30,14 @@ class GoalBinding extends Bindings {
       () => SaveGoalFundUseCase(repository: Get.find<GoalRepositoryImpl>()),
     );
     Get.lazyPut(
+      () => DeleteGoalFundUseCase(goalRepository: Get.find<GoalRepositoryImpl>()),
+    );
+    Get.lazyPut(
       () => GoalUseCases(
         saveGoalUseCase: Get.find<SaveGoalUseCase>(),
         getGoalsUseCase: Get.find<GetGoalsUseCase>(),
         saveGoalFundUseCase: Get.find<SaveGoalFundUseCase>(),
+        deleteGoalFundUseCase: Get.find<DeleteGoalFundUseCase>()
       ),
     );
     Get.lazyPut(
