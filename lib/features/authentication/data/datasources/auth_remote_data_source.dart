@@ -75,7 +75,19 @@ class AuthRemoteDataSource {
         return Right(ApiError(message: resp['message'] ?? 'Send Otp Failed'));
       }
     } catch (e) {
-      return Right(ApiError(message: 'Send Otp Failed with Exception $e'));
+      createLog("Send Otp Exception: $e");
+      String cleanMessage = "Something went wrong. Please try again.";
+      final errorString = e.toString().toLowerCase();
+      if (errorString.contains('timeout')) {
+        cleanMessage = "Connection timed out. Please check your internet.";
+      } else if (errorString.contains('socketexception') ||
+          errorString.contains('failed host lookup')) {
+        cleanMessage = "No internet connection. Please check your network.";
+      } else {
+        cleanMessage = e.toString().replaceAll("Exception: ", "");
+      }
+      // return Right(ApiError(message: 'Send Otp Failed with Exception $e'));
+      return Right(ApiError(message: cleanMessage));
     }
   }
 

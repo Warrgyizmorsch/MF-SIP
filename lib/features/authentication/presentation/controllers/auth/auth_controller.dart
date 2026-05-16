@@ -9,6 +9,7 @@ import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/authentication/domain/entitites/auth_entity.dart';
 import 'package:my_sip/features/authentication/domain/usecases/auth_use_cases.dart';
 import 'package:flutter/material.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:my_sip/services/session_manager.dart';
 
@@ -53,128 +54,88 @@ class AuthController extends GetxController {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  final GoogleSignIn _googleSignIn =
-  GoogleSignIn.standard();
+  final GoogleSignIn _googleSignIn = GoogleSignIn.standard();
 
   /// GOOGLE SIGN IN
   Future<void> signInWithGoogle() async {
-
     try {
-
-      debugPrint(
-        "========== GOOGLE SIGN IN START ==========",
-      );
+      debugPrint("========== GOOGLE SIGN IN START ==========");
 
       /// CLEAR PREVIOUS ACCOUNT
       await _googleSignIn.disconnect();
 
       await _googleSignIn.signOut();
 
-      debugPrint(
-        "OLD GOOGLE SESSION CLEARED",
-      );
+      debugPrint("OLD GOOGLE SESSION CLEARED");
 
       /// OPEN GOOGLE ACCOUNT PICKER
-      final GoogleSignInAccount? googleUser =
-      await _googleSignIn.signIn();
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       /// USER CANCELLED
       if (googleUser == null) {
-
-        debugPrint(
-          "USER CANCELLED LOGIN",
-        );
+        debugPrint("USER CANCELLED LOGIN");
 
         return;
       }
 
-      debugPrint(
-        "SELECTED EMAIL : ${googleUser.email}",
-      );
+      debugPrint("SELECTED EMAIL : ${googleUser.email}");
 
       /// AUTH
       final GoogleSignInAuthentication googleAuth =
-      await googleUser.authentication;
+          await googleUser.authentication;
 
       /// CREDENTIAL
-      final credential =
-      GoogleAuthProvider.credential(
+      final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
       /// FIREBASE LOGIN
-      final UserCredential userCredential =
-      await _auth.signInWithCredential(
+      final UserCredential userCredential = await _auth.signInWithCredential(
         credential,
       );
 
       /// USER
-      final User? user =
-          userCredential.user;
+      final User? user = userCredential.user;
 
       if (user != null) {
-
-        debugPrint(
-          "LOGIN SUCCESS : ${user.email}",
-        );
+        debugPrint("LOGIN SUCCESS : ${user.email}");
 
         final bool isNewUser =
-            userCredential.additionalUserInfo
-                ?.isNewUser ?? false;
+            userCredential.additionalUserInfo?.isNewUser ?? false;
 
         /// NEW USER
         if (isNewUser) {
+          nameController.text = user.displayName ?? "";
 
-          nameController.text =
-              user.displayName ?? "";
+          emailController.text = user.email ?? "";
 
-          emailController.text =
-              user.email ?? "";
-
-          Get.offNamed(
-            AppRoutes.registerAccountScreen,
-          );
-
+          Get.offNamed(AppRoutes.registerAccountScreen);
         } else {
-
           /// OLD USER
           // Get.offAllNamed(AppRoutes.bottomBar);
         }
       }
-
     } catch (e) {
-
-      debugPrint(
-        "GOOGLE LOGIN ERROR : $e",
-      );
+      debugPrint("GOOGLE LOGIN ERROR : $e");
     }
   }
 
-
   /// LOGOUT
   Future<void> signOutGoogle() async {
-
     try {
-
       await _googleSignIn.signOut();
 
       await _auth.signOut();
 
       debugPrint("LOGOUT SUCCESS");
 
-      Get.snackbar(
-        "Logout",
-        "User logged out successfully",
-      );
-
+      Get.snackbar("Logout", "User logged out successfully");
     } catch (e) {
-
-      debugPrint(
-        "LOGOUT ERROR : $e",
-      );
+      debugPrint("LOGOUT ERROR : $e");
     }
   }
+
   @override
   void onClose() {
     _timer?.cancel();
@@ -296,30 +257,135 @@ class AuthController extends GetxController {
         isOtpSendLoading.value = false;
         isLoginLoading.value = false;
 
+        // Get.snackbar(
+
+        //   "Otp sent Successfully",
+        //   "Hey, we just send an otp to ${mobileController.text.trim()}",
+        //   colorText: Colors.white,
+        //   backgroundColor: Colors.green,
+        // );
         Get.snackbar(
-          "Otp sent Successfully",
-          "Hey, we just send an otp to ${mobileController.text.trim()}",
-          colorText: Colors.white,
-          backgroundColor: Colors.green,
+          "", // Leave empty because we are using custom titleText
+          "", // Leave empty because we are using custom messageText
+          // 1. Modern Typography Hierarchy
+          titleText: const Text(
+            "OTP Sent Successfully",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+              letterSpacing: -0.5,
+            ),
+          ),
+          messageText: Text(
+            "Hey, we just sent an OTP to ${mobileController.text.trim()}",
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.white.withOpacity(
+                0.9,
+              ), // Slightly faded for contrast
+              height: 1.4, // Better line spacing
+            ),
+          ),
+
+          // 2. Premium Iconography
+          icon: const Icon(
+            Icons.check_circle_rounded, // Rounded modern icon
+            color: Colors.white,
+            size: 28,
+          ),
+          shouldIconPulse:
+              false, // Disabling pulse makes it feel more solid/premium
+          // 3. Layout & Positioning
+          snackPosition: SnackPosition.TOP, // Top avoids blocking the keyboard!
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          borderRadius: 16, // Smooth modern corners
+          // 4. Color & Elevation
+          backgroundColor: const Color(
+            0xFF2E7D32,
+          ), // A deep, premium success green
+          barBlur:
+              20, // Adds a subtle glassmorphism effect if background is slightly transparent
+          boxShadows: [
+            BoxShadow(
+              color: const Color(0xFF2E7D32).withOpacity(0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
+
+          // 5. Smooth Animation
+          animationDuration: const Duration(milliseconds: 400),
+          duration: const Duration(
+            seconds: 4,
+          ), // Give them time to read the number
+          isDismissible: true,
+          dismissDirection: DismissDirection.horizontal,
         );
+
         Get.toNamed(AppRoutes.otpVerificationScreen);
       },
+      // (error) {
+      //   isNumberValid.value = false;
+      //   isLoginLoading.value = false;
+      //   isPhoneNotRegistered.value = true;
+
+      //   // mobileController.clear();
+
+      //   createLog("Send Otp $error");
+      //   // Get.snackbar("Send Otp Failed", error.message);
+      //   Get.snackbar(
+      //     "Account not found",
+      //     'Please register using this mobile number.',
+      //     backgroundColor: Ucolors.red,
+      //     colorText: Colors.white,
+      //   );
+      //   isOtpSendLoading.value = false;
+      // },
       (error) {
-        isNumberValid.value = false;
         isLoginLoading.value = false;
-        isPhoneNotRegistered.value = true;
-
-        // mobileController.clear();
-
-        createLog("Send Otp $error");
-        // Get.snackbar("Send Otp Failed", error.message);
-        Get.snackbar(
-          "Account not found",
-          'Please register using this mobile number.',
-          backgroundColor: Ucolors.red,
-          colorText: Colors.white,
-        );
         isOtpSendLoading.value = false;
+
+        createLog("Send Otp Error: ${error.message}");
+
+        final errorMessage = error.message.toLowerCase();
+
+        // 1. Check if the backend specifically rejected the number
+        if (errorMessage.contains('not found') ||
+            errorMessage.contains('register') ||
+            errorMessage.contains('does not exist')) {
+          isNumberValid.value = false;
+          isPhoneNotRegistered.value = true;
+
+          // Get.snackbar(
+          //   "Account not found",
+          //   'Please register using this mobile number.',
+          //   backgroundColor: Ucolors.red,
+          //   colorText: Colors.white,
+          // );
+          // showCustomToast(
+          //   title: 'Account not found',
+          //   message: '',
+          //   backgroundColor: Colors.red,
+          //   icon: Icons.error,
+          // );
+          ULoaders.error(
+            title: 'Account not found',
+            message: 'Please register using this mobile number.',
+          );
+        } else {
+          // 2. Handle Network Timeouts and other crashes safely
+          // Do NOT set isPhoneNotRegistered = true here!
+
+          Get.snackbar(
+            "Request Failed",
+            error.message, // Shows the clean message from Step 1
+            backgroundColor: Ucolors.red,
+            colorText: Colors.white,
+            duration: const Duration(seconds: 4),
+          );
+        }
       },
     );
   }
@@ -407,7 +473,7 @@ class AuthController extends GetxController {
         //   backgroundColor: Colors.green,
         // );
         ULoaders.success(
-          title: '"Verify Otp Success',
+          title: 'Verify Otp Success',
           message: 'OTP Verified Successfully',
         );
         await Future.delayed(const Duration(seconds: 2));

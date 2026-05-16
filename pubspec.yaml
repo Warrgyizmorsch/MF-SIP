@@ -52,6 +52,7 @@ dependencies:
 
   webview_flutter: ^4.10.0 # webview
   html_unescape: ^2.0.0 # webview
+  
   youtube_player_flutter: ^9.1.1
   youtube_player_iframe: ^5.2.2
   image_picker: ^1.2.1
@@ -69,6 +70,7 @@ dependencies:
   firebase_messaging: ^16.2.0
   google_sign_in: ^6.2.1
   firebase_auth: ^6.1.0
+  flutter_inappwebview: ^6.1.5
 
 
 

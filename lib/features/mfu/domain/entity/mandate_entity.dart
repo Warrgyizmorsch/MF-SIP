@@ -8,25 +8,33 @@ class MfuMandateCreateEntity extends Equatable {
   final String message;
   final int mandateId;
   final String mandateType;
-  final MfuMandatePlainBodyEntity? plainBody;
-  final MfuMandateResponseEntity? response;
+  final String? status;
+  final String? approveLink;
+  final String? deepLink;
+  // final MfuMandatePlainBodyEntity? plainBody;
+  // final MfuMandateResponseEntity? response;
 
   const MfuMandateCreateEntity({
     required this.success,
     required this.message,
     required this.mandateId,
     required this.mandateType,
-    this.plainBody,
-    this.response,
+    this.status,
+    this.approveLink,
+    this.deepLink,
+  
+    // this.plainBody,
+    // this.response,
   });
 
-  bool get isSuccess => response?.isSuccess ?? false;
-  String get approveLink => response?.approveLink ?? '';
-  String get mmrn => response?.mmrn ?? '';
+  // bool get isSuccess => response?.isSuccess ?? false;
+  // String get approveLink => response?.approveLink ?? '';
+  // String get mmrn => response?.mmrn ?? '';
 
   @override
   List<Object?> get props => [
-        success, message, mandateId, mandateType, plainBody, response,
+        success, message, mandateId, mandateType, 
+        // plainBody, response,
       ];
 }
 
@@ -101,8 +109,11 @@ extension MfuMandateCreateMapper on MfuMandateCreateModel {
       message: message ?? '',
       mandateId: mandateId ?? 0,
       mandateType: mandateType ?? '',
-      plainBody: plainBody?.toEntity(),
-      response: response?.toEntity(),
+      status: status ?? '',
+      approveLink: approveLink ?? "",
+      deepLink: deepLink ?? '',
+      // plainBody: plainBody?.toEntity(),
+      // response: response?.toEntity(),
     );
   }
 }

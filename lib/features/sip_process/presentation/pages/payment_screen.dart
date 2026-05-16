@@ -229,7 +229,13 @@ class PaymentScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF6F7FB),
       appBar: _buildAppBar(context),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        // padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 24,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 24, // <-- FIX
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -829,194 +835,211 @@ void _showMandateSheet(BuildContext context, String amount) {
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
-    builder: (_) => Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Gap(12),
-          // Drag handle
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE2E5F0),
-              borderRadius: BorderRadius.circular(100),
+    builder: (_) => SingleChildScrollView(
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        // padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+        padding: EdgeInsets.fromLTRB(
+          24,
+          0,
+          24,
+          MediaQuery.of(context).padding.bottom + 32,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Gap(12),
+            // Drag handle
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE2E5F0),
+                borderRadius: BorderRadius.circular(100),
+              ),
             ),
-          ),
-          const Gap(28),
+            const Gap(28),
 
-          // Shield icon
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              gradient: Ucolors.backgroundGradient,
-              borderRadius: BorderRadius.circular(22),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF4F46E5).withOpacity(0.30),
-                  blurRadius: 18,
-                  offset: const Offset(0, 6),
-                ),
-              ],
+            // Shield icon
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                gradient: Ucolors.backgroundGradient,
+                borderRadius: BorderRadius.circular(22),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF4F46E5).withOpacity(0.30),
+                    blurRadius: 18,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.verified_user_rounded,
+                color: Colors.white,
+                size: 34,
+              ),
             ),
-            child: const Icon(
-              Icons.verified_user_rounded,
-              color: Colors.white,
-              size: 34,
-            ),
-          ),
-          const Gap(20),
+            const Gap(20),
 
-          // Title & subtitle
-          const Text(
-            'Setup Bank Mandate',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF1A1D2E),
-              letterSpacing: -0.3,
+            // Title & subtitle
+            const Text(
+              'Setup Bank Mandate',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF1A1D2E),
+                letterSpacing: -0.3,
+              ),
             ),
-          ),
-          const Gap(8),
-          const Text(
-            'Authorise a one-time mandate to enable\nautomatic payments from your bank account.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              color: Color(0xFF8A8FA8),
-              height: 1.55,
+            const Gap(8),
+            const Text(
+              'Authorise a one-time mandate to enable\nautomatic payments from your bank account.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: Color(0xFF8A8FA8),
+                height: 1.55,
+              ),
             ),
-          ),
-          const Gap(28),
+            const Gap(28),
 
-          // Info rows
-          _mandateRow(
-            Icons.currency_rupee_rounded,
-            'Mandate Amount',
-            '₹$amount',
-            // valueColor: const Color(0xFF4F46E5),
-            valueColor: Ucolors.darkBlue,
-          ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF0F2F8)),
-          _mandateRow(Icons.repeat_rounded, 'Frequency', 'As & when presented'),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF0F2F8)),
-          _mandateRow(
-            Icons.account_balance_rounded,
-            'Debit type',
-            'Auto-debit (e-NACH)',
-          ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF0F2F8)),
-          _mandateRow(
-            Icons.calendar_today_rounded,
-            'Valid until',
-            'Until cancelled',
-          ),
-          const Gap(24),
-
-          // Warning notice
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFF8ED),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFFFE0A3)),
+            // Info rows
+            _mandateRow(
+              Icons.currency_rupee_rounded,
+              'Mandate Amount',
+              '₹$amount',
+              // valueColor: const Color(0xFF4F46E5),
+              valueColor: Ucolors.darkBlue,
             ),
-            child: const Row(
-              children: [
-                Icon(
-                  Icons.info_outline_rounded,
-                  size: 16,
-                  color: Color(0xFFE5941A),
-                ),
-                Gap(8),
-                Expanded(
-                  child: Text(
-                    'You can revoke this mandate anytime from your bank or app settings.',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFFB06A00),
-                      height: 1.4,
+            const Divider(height: 1, thickness: 1, color: Color(0xFFF0F2F8)),
+            _mandateRow(
+              Icons.repeat_rounded,
+              'Frequency',
+              'As & when presented',
+            ),
+            const Divider(height: 1, thickness: 1, color: Color(0xFFF0F2F8)),
+            _mandateRow(
+              Icons.account_balance_rounded,
+              'Debit type',
+              'Auto-debit (e-NACH)',
+            ),
+            const Divider(height: 1, thickness: 1, color: Color(0xFFF0F2F8)),
+            _mandateRow(
+              Icons.calendar_today_rounded,
+              'Valid until',
+              'Until cancelled',
+            ),
+            const Gap(24),
+
+            // Warning notice
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF8ED),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFFFE0A3)),
+              ),
+              child: const Row(
+                children: [
+                  Icon(
+                    Icons.info_outline_rounded,
+                    size: 16,
+                    color: Color(0xFFE5941A),
+                  ),
+                  Gap(8),
+                  Expanded(
+                    child: Text(
+                      'You can revoke this mandate anytime from your bank or app settings.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFFB06A00),
+                        height: 1.4,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const Gap(28),
+            const Gap(28),
 
-          // Buttons
-          Row(
-            children: [
-              // Close
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => Get.back(),
-                  child: Container(
-                    height: 54,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF6F7FB),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFE2E5F0)),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'Close',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF4A4E6A),
+            // Buttons
+            Row(
+              children: [
+                // Close
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => Get.back(),
+                    child: Container(
+                      height: 54,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF6F7FB),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE2E5F0)),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'Close',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF4A4E6A),
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              const Gap(12),
+                const Gap(12),
 
-              // Auto Pay
-              Expanded(
-                flex: 2,
-                child: GestureDetector(
-                  onTap: () {
-                    final method =
-                        Get.find<MfuController>().selectedMethod.value;
-                    Get.find<MfuController>().createMandate(
-                      mandateType: method == 'upi' ? 'upi' : 'enach',
-                    );
-                  },
-                  child: Container(
-                    height: 54,
-                    decoration: BoxDecoration(
-                      gradient: Ucolors.backgroundGradient,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.bolt_rounded, color: Colors.white, size: 18),
-                        Gap(6),
-                        Text(
-                          'Enable Auto Pay',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
+                // Auto Pay
+                Expanded(
+                  flex: 2,
+                  child: GestureDetector(
+                    onTap: () {
+                      Get.back();
+                      final method =
+                          Get.find<MfuController>().selectedMethod.value;
+                      Get.find<MfuController>().createMandate(
+                        mandateType: method == 'upi' ? 'upi' : 'enach',
+                      );
+                    },
+                    child: Container(
+                      height: 54,
+                      decoration: BoxDecoration(
+                        gradient: Ucolors.backgroundGradient,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.bolt_rounded,
                             color: Colors.white,
+                            size: 18,
                           ),
-                        ),
-                      ],
+                          Gap(6),
+                          Text(
+                            'Enable Auto Pay',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     ),
   );
