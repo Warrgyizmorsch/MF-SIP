@@ -340,7 +340,7 @@ class WatchlistPage extends StatelessWidget {
                               child: Column(
                                 children: [
                                   Expanded(
-                                    child: PopularFundCard(
+                                    child: PopularFundCardMob(
                                       onTap: () {
                                         Get.find<MutualFundController>()
                                             .addToLocalRecentlyViewed(fund);

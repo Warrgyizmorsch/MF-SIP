@@ -159,227 +159,224 @@ class _WebDashboardLayout extends StatelessWidget {
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(vertical: 30),
             child: Center(
-              child: MaxWidthBox(
-                maxWidth: 1200,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // --- TITLE ---
-                      const Text(
-                        "Portfolio Overview",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // --- TITLE ---
+                    const Text(
+                      "Portfolio Overview",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Gap(24),
+
+                    // --- TOP STAT CARDS (Full Width Row) ---
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _WebStatCard(
+                            title: "Current Value",
+                            value: "₹32,580",
+                            trend: "+15.06%",
+                            icon: Iconsax.wallet_money,
+                            color: Ucolors.primary,
+                            isPrimary: true, // Highlights this card
+                          ),
                         ),
-                      ),
-                      const Gap(24),
-
-                      // --- TOP STAT CARDS (Full Width Row) ---
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _WebStatCard(
-                              title: "Current Value",
-                              value: "₹32,580",
-                              trend: "+15.06%",
-                              icon: Iconsax.wallet_money,
-                              color: Ucolors.primary,
-                              isPrimary: true, // Highlights this card
-                            ),
+                        const Gap(24),
+                        Expanded(
+                          child: _WebStatCard(
+                            title: "Total Investment",
+                            value: "₹30,000",
+                            icon: Iconsax.money_send,
+                            color: Colors.orange,
                           ),
-                          const Gap(24),
-                          Expanded(
-                            child: _WebStatCard(
-                              title: "Total Investment",
-                              value: "₹30,000",
-                              icon: Iconsax.money_send,
-                              color: Colors.orange,
-                            ),
+                        ),
+                        const Gap(24),
+                        Expanded(
+                          child: _WebStatCard(
+                            title: "Profit / Loss",
+                            value: "+ ₹2,580",
+                            trend: "Healthy",
+                            icon: Iconsax.chart_2,
+                            color: Colors.green,
+                            isProfit: true,
                           ),
-                          const Gap(24),
-                          Expanded(
-                            child: _WebStatCard(
-                              title: "Profit / Loss",
-                              value: "+ ₹2,580",
-                              trend: "Healthy",
-                              icon: Iconsax.chart_2,
-                              color: Colors.green,
-                              isProfit: true,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
+                    ),
 
-                      const Gap(30),
+                    const Gap(30),
 
-                      // --- MAIN CONTENT SPLIT ---
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // LEFT COLUMN (Chart + Portfolio List) - 65% width
-                          Expanded(
-                            flex: 2,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Chart Section
-                                Container(
-                                  height: 350,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(20),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.05),
-                                        blurRadius: 10,
-                                      ),
-                                    ],
-                                  ),
-                                  // Reuse your existing chart widget
-                                  child: const FundComparisonChartWidget(),
-                                ),
-                                const Gap(30),
-
-                                // Portfolio List Header
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text(
-                                      "Your Assets",
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {},
-                                      child: const Text("View All"),
+                    // --- MAIN CONTENT SPLIT ---
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // LEFT COLUMN (Chart + Portfolio List) - 65% width
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Chart Section
+                              Container(
+                                height: 350,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 10,
                                     ),
                                   ],
                                 ),
-                                const Gap(10),
+                                // Reuse your existing chart widget
+                                child: const FundComparisonChartWidget(),
+                              ),
+                              const Gap(30),
 
-                                // Portfolio List (Reusing Mobile Card in Grid/List)
-                                ListView.separated(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: 4,
-                                  separatorBuilder: (_, __) => const Gap(10),
-                                  itemBuilder: (ctx, index) =>
-                                      _WebPortfolioRow(),
-                                ),
-                              ],
-                            ),
+                              // Portfolio List Header
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    "Your Assets",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {},
+                                    child: const Text("View All"),
+                                  ),
+                                ],
+                              ),
+                              const Gap(10),
+
+                              // Portfolio List (Reusing Mobile Card in Grid/List)
+                              ListView.separated(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: 4,
+                                separatorBuilder: (_, __) => const Gap(10),
+                                itemBuilder: (ctx, index) =>
+                                    _WebPortfolioRow(),
+                              ),
+                            ],
                           ),
+                        ),
 
-                          const Gap(30),
+                        const Gap(30),
 
-                          // RIGHT COLUMN (Transactions + Actions) - 35% width
-                          Expanded(
-                            flex: 1,
-                            child: Column(
-                              children: [
-                                // Quick Actions
-                                Container(
-                                  padding: const EdgeInsets.all(20),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(20),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.05),
-                                        blurRadius: 10,
-                                      ),
-                                    ],
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "Quick Actions",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      const Gap(20),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          _WebActionButton(
-                                            label: "Top Up",
-                                            icon: Iconsax.add_circle,
-                                            color: Ucolors.primary,
-                                          ),
-                                          _WebActionButton(
-                                            label: "Withdraw",
-                                            icon: Iconsax.minus_cirlce,
-                                            color: Colors.orange,
-                                          ),
-                                          _WebActionButton(
-                                            label: "SIP",
-                                            icon: Iconsax.timer_1,
-                                            color: Colors.purple,
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
+                        // RIGHT COLUMN (Transactions + Actions) - 35% width
+                        Expanded(
+                          flex: 1,
+                          child: Column(
+                            children: [
+                              // Quick Actions
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 10,
+                                    ),
+                                  ],
                                 ),
-                                const Gap(24),
-
-                                // Recent Transactions
-                                Container(
-                                  padding: const EdgeInsets.all(20),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(20),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.05),
-                                        blurRadius: 10,
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Quick Actions",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
                                       ),
-                                    ],
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "Recent Transactions",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
+                                    ),
+                                    const Gap(20),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        _WebActionButton(
+                                          label: "Top Up",
+                                          icon: Iconsax.add_circle,
+                                          color: Ucolors.primary,
                                         ),
-                                      ),
-                                      const Gap(15),
-                                      ListView.separated(
-                                        shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        itemCount: 5,
-                                        separatorBuilder: (_, __) =>
-                                            const Divider(height: 20),
-                                        itemBuilder: (ctx, index) =>
-                                            const TransactionCard(
-                                              isWebCompact: true,
-                                            ),
-                                      ),
-                                    ],
-                                  ),
+                                        _WebActionButton(
+                                          label: "Withdraw",
+                                          icon: Iconsax.minus_cirlce,
+                                          color: Colors.orange,
+                                        ),
+                                        _WebActionButton(
+                                          label: "SIP",
+                                          icon: Iconsax.timer_1,
+                                          color: Colors.purple,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                              const Gap(24),
+
+                              // Recent Transactions
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 10,
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Recent Transactions",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    const Gap(15),
+                                    ListView.separated(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: 5,
+                                      separatorBuilder: (_, __) =>
+                                          const Divider(height: 20),
+                                      itemBuilder: (ctx, index) =>
+                                          const TransactionCard(
+                                            isWebCompact: true,
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -487,101 +484,135 @@ class _WebStatCardState extends State<_WebStatCard> {
     return MouseRegion(
       onEnter: (_) => setState(() => isHovered = true),
       onExit: (_) => setState(() => isHovered = false),
+
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(24),
-        transform: Matrix4.identity()..scale(isHovered ? 1.02 : 1.0),
+
+        transform: Matrix4.identity()
+          ..scale(isHovered ? 1.02 : 1.0),
+
         decoration: BoxDecoration(
-          color: widget.isPrimary ? Ucolors.primary : Colors.white,
+
+          /// LIGHT PREMIUM BACKGROUND
+          color: widget.color.withOpacity(0.04),
+
           borderRadius: BorderRadius.circular(20),
+
+          border: Border.all(
+            color: widget.color.withOpacity(0.08),
+          ),
+
           boxShadow: [
             BoxShadow(
-              color: widget.color.withOpacity(isHovered ? 0.2 : 0.05),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              color: widget.color.withOpacity(
+                isHovered ? 0.10 : 0.04,
+              ),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
             ),
           ],
-          gradient: widget.isPrimary
-              ? const LinearGradient(
-                  colors: [Color(0xFF07315C), Color(0xff0280C0)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                )
-              : null,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+
+        child: Stack(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: widget.isPrimary
-                        ? Colors.white.withOpacity(0.2)
-                        : widget.color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    widget.icon,
-                    color: widget.isPrimary ? Colors.white : widget.color,
-                    size: 24,
+
+            /// WAVE BACKGROUND
+            Positioned.fill(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+
+                child: CustomPaint(
+                  painter: _CardWavePainter(
+                    color: widget.color,
+                    isProfit:  widget.isProfit
                   ),
                 ),
-                if (widget.trend != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: widget.isProfit
-                          ? Colors.green.withOpacity(0.2)
-                          : Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          widget.isProfit
-                              ? Icons.arrow_upward
-                              : Icons.trending_up,
-                          size: 14,
-                          color: widget.isPrimary ? Colors.white : Colors.green,
-                        ),
-                        const Gap(4),
-                        Text(
-                          widget.trend!,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: widget.isPrimary
-                                ? Colors.white
-                                : Colors.green,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
-            const Gap(24),
-            Text(
-              widget.value,
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: widget.isPrimary ? Colors.white : Colors.black87,
               ),
             ),
-            const Gap(4),
-            Text(
-              widget.title,
-              style: TextStyle(
-                fontSize: 14,
-                color: widget.isPrimary ? Colors.white70 : Colors.grey,
+
+            /// CONTENT
+            Padding(
+              padding: const EdgeInsets.all(24),
+
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+
+                  /// TOP ROW
+                  Row(
+                    mainAxisAlignment:
+                    MainAxisAlignment.spaceBetween,
+                    children: [
+
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color:Ucolors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          widget.icon,
+                          color: widget.color,
+                          size: 20,
+                        ),
+                      ),
+
+                      if (widget.trend != null)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              widget.isProfit
+                                  ? Icons.arrow_upward
+                                  : Icons.arrow_downward,
+                              size: 14,
+                              color: widget.isProfit
+                                  ? Colors.green
+                                  : Colors.red,
+                            ),
+                            const Gap(4),
+                            Text(
+                              widget.trend!,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: widget.isProfit
+                                    ? Colors.green
+                                    : Colors.red,
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+
+                  /// BOTTOM CONTENT
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.value,
+                        style: const TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xff1F2937),
+                        ),
+                      ),
+
+                      const Gap(6),
+
+                      Text(
+                        widget.title,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
@@ -590,6 +621,86 @@ class _WebStatCardState extends State<_WebStatCard> {
     );
   }
 }
+class _CardWavePainter extends CustomPainter {
+  final Color color;
+  final bool isProfit;
+
+  _CardWavePainter({
+    required this.color,
+    this.isProfit = true,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Background gradient
+    final gradientPaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          color.withOpacity(0.15),
+          color.withOpacity(0.03),
+        ],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    // Main wave path
+    final wavePath = Path();
+    wavePath.moveTo(0, size.height * 0.8);
+
+    if (isProfit) {
+      wavePath.quadraticBezierTo(
+        size.width * 0.25, size.height * 0.7,
+        size.width * 0.5, size.height * 0.6,
+      );
+      wavePath.quadraticBezierTo(
+        size.width * 0.75, size.height * 0.5,
+        size.width, size.height * 0.4,
+      );
+    } else {
+      wavePath.quadraticBezierTo(
+        size.width * 0.25, size.height * 0.9,
+        size.width * 0.5, size.height * 0.95,
+      );
+      wavePath.quadraticBezierTo(
+        size.width * 0.75, size.height,
+        size.width, size.height * 0.9,
+      );
+    }
+
+    wavePath.lineTo(size.width, size.height);
+    wavePath.lineTo(0, size.height);
+    wavePath.close();
+
+    canvas.drawPath(wavePath, gradientPaint);
+
+    // Optional highlight wave for depth
+    final highlightPaint = Paint()
+      ..color = color.withOpacity(0.08);
+    final highlightPath = Path();
+    highlightPath.moveTo(0, size.height * 0.9);
+    highlightPath.quadraticBezierTo(
+      size.width * 0.3, size.height * 0.8,
+      size.width * 0.6, size.height * 0.7,
+    );
+    highlightPath.quadraticBezierTo(
+      size.width * 0.9, size.height * 0.6,
+      size.width, size.height * 0.5,
+    );
+    highlightPath.lineTo(size.width, size.height);
+    highlightPath.close();
+
+    canvas.drawPath(highlightPath, highlightPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _CardWavePainter oldDelegate) {
+    return oldDelegate.color != color || oldDelegate.isProfit != isProfit;
+  }
+}
+
+
+
+
 
 class _WebActionButton extends StatelessWidget {
   final String label;

@@ -409,8 +409,7 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
 
     return Column(
       children: [
-        // Desktop Header
-        if (!isDesktop)
+
           Container(
             height: 80,
             padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -443,10 +442,27 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                   ),
                 ),
                 const Gap(16),
-                IconButton(
-                  onPressed: () => Get.toNamed(AppRoutes.watchlist),
-                  icon: const Icon(Iconsax.archive_tick),
-                ),
+                Obx(() {
+                  final wishlistController = Get.find<WishlistController>();
+
+                  // Assuming controller is your Detail/Item controller
+                  final String code = controller.schemeCode;
+                  final String name = controller.schemeName;
+
+                  final bool isFav = wishlistController.isFavorite(code);
+
+                  return CompactIcon(
+                    icon: isFav ? Iconsax.heart5 : Iconsax.heart,
+                    iconColor: isFav
+                        ? Colors.red
+                        : Ucolors.darkgrey, // Using your Ucolors constant
+                    onPressed: () => wishlistController.toggleWishlist(code, name),
+                  );
+                }),
+           // IconButton(
+           //        onPressed: () => Get.toNamed(AppRoutes.watchlist),
+           //        icon: const Icon(Iconsax.archive_tick),
+           //      ),
                 const Gap(8),
                 IconButton(
                   onPressed: () => Get.toNamed(AppRoutes.cart),
@@ -462,73 +478,70 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
             controller: controller.scrollController,
             padding: const EdgeInsets.all(32),
             child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1600),
-                child: Column(
-                  children: [
-                    // Performance Section (Full Width)
+              child: Column(
+                children: [
+                  // Performance Section (Full Width)
 
-                    // const Gap(32),
+                  // const Gap(32),
 
-                    // Two Column Grid
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 20,
-                      children: [
-                        // LEFT COLUMN (60%)
-                        Expanded(
-                          flex: 6,
-                          child: Column(
-                            children: [
-                              // Fund Header Card
-                              _DesktopFundHeader(
-                                fund: fund,
-                                controller: controller,
-                              ),
-                              const Gap(24),
-                              _DesktopPerformanceSection(
-                                controller: controller,
-                              ),
-                              const Gap(24),
-                              _DesktopOverviewCard(fund: fund),
-                              const Gap(24),
+                  // Two Column Grid
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 20,
+                    children: [
+                      // LEFT COLUMN (60%)
+                      Expanded(
+                        flex: 6,
+                        child: Column(
+                          children: [
+                            // Fund Header Card
+                            _DesktopFundHeader(
+                              fund: fund,
+                              controller: controller,
+                            ),
+                            const Gap(24),
+                            _DesktopPerformanceSection(
+                              controller: controller,
+                            ),
+                            const Gap(24),
+                            _DesktopOverviewCard(fund: fund),
+                            const Gap(24),
 
-                              // const Gap(24),
-                            ],
-                          ),
+                            // const Gap(24),
+                          ],
                         ),
+                      ),
 
-                        // RIGHT COLUMN (40%)
-                        Expanded(
-                          flex: 4,
-                          child: Column(
-                            children: [
-                              _DesktopQuickLookCard(fund: fund),
-                              const Gap(24),
-                              // const Gap(50),
-                              _DesktopActionCard(fund: fund),
-                              const Gap(24),
+                      // RIGHT COLUMN (40%)
+                      Expanded(
+                        flex: 4,
+                        child: Column(
+                          children: [
+                            _DesktopQuickLookCard(fund: fund),
+                            const Gap(24),
+                            // const Gap(50),
+                            _DesktopActionCard(fund: fund),
+                            const Gap(24),
 
-                              _DesktopAllocationCard(controller: controller),
-                              const Gap(24),
-                            ],
-                          ),
+                            _DesktopAllocationCard(controller: controller),
+                            const Gap(24),
+                          ],
                         ),
-                      ],
-                    ),
-                    _DesktopReturnsCard(controller: controller),
-                    const Gap(24),
+                      ),
+                    ],
+                  ),
+                  _DesktopReturnsCard(controller: controller),
+                  const Gap(24),
 
-                    const Gap(32),
-                    _DesktopRiskCard(controller: controller),
-                    const Gap(24),
-                    _DesktopAboutCard(fund: fund),
-                    const Gap(24),
-                    _DesktopComparisonSection(controller: controller),
-                    const Gap(24),
-                    _DesktopInvestmentDetailsCard(fund: fund),
-                  ],
-                ),
+                  const Gap(32),
+                  _DesktopRiskCard(controller: controller),
+                  const Gap(24),
+                  _DesktopAboutCard(fund: fund),
+                  const Gap(24),
+                  _DesktopComparisonSection(controller: controller),
+                  const Gap(24),
+                  _DesktopInvestmentDetailsCard(fund: fund),
+                ],
               ),
             ),
           ),
@@ -539,99 +552,361 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
 }
 
 // Desktop Header Card
+// ==========================================
+// DESKTOP HEADER CARD
+// ==========================================
+
 class _DesktopFundHeader extends StatelessWidget {
+
   final dynamic fund;
   final FundDetailsController controller;
 
-  const _DesktopFundHeader({required this.fund, required this.controller});
+  const _DesktopFundHeader({
+    required this.fund,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+
+    return Obx(() {
+
+      final fund = controller.fundDetail.value;
+
+      final bool isOpen =
+          fund?.schemeStatus ==
+              'Open Ended Schemes';
+
+      return Container(
+        padding: const EdgeInsets.all(28),
+
+        decoration: BoxDecoration(
+          color: Colors.white,
+
+          borderRadius:
+          BorderRadius.circular(22),
+
+          border: Border.all(
+            color: Colors.grey.shade200,
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey.shade200, width: 2),
+
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(.04),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
             ),
-            child: ClipOval(
-              child: CustomCachedImage(imageUrl: controller.imgUrl),
-            ),
-          ),
-          const Gap(24),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  fund?.schemeName ?? '',
-                  style: AppTextStyles.bodyLargeBold(color: Colors.black),
+          ],
+        ),
+
+        child: Row(
+          crossAxisAlignment:
+          CrossAxisAlignment.start,
+
+          children: [
+
+            /// =====================================
+            /// LOGO
+            /// =====================================
+
+            Container(
+              width: 82,
+              height: 82,
+
+              padding: const EdgeInsets.all(4),
+
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+
+                color: Colors.white,
+
+                border: Border.all(
+                  color: Colors.grey.shade200,
+                  width: 2,
                 ),
-                const Gap(12),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 8,
-                  children: [
-                    _buildBadge(
-                      fund?.schemeCategory ?? 'Equity',
-                      Ucolors.primary,
-                    ),
-                    _buildBadge(
-                      fund?.riskometerValue ?? 'High',
-                      _getRiskColor(fund?.riskometerValue ?? ''),
-                    ),
-                    _buildBadge('OPEN', Ucolors.success),
-                  ],
+
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(.03),
+                    blurRadius: 8,
+                  ),
+                ],
+              ),
+
+              child: ClipOval(
+                child: CustomCachedImage(
+                  imageUrl: controller.imgUrl,
                 ),
-              ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+
+            const Gap(24),
+
+            /// =====================================
+            /// FUND INFO
+            /// =====================================
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+
+                children: [
+
+                  /// FUND NAME
+                  Text(
+                    fund?.schemeName ??
+                        'Loading Fund Name...',
+
+                    maxLines: 3,
+
+                    overflow:
+                    TextOverflow.ellipsis,
+
+                    style: const TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1B1B1B),
+                      height: 1.3,
+                    ),
+                  ),
+
+                  const Gap(10),
+
+                  /// CATEGORY
+                  Text(
+                    fund?.schemeCategory ??
+                        'Mutual Fund',
+
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade700,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+
+                  const Gap(18),
+
+                  /// BADGES
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+
+                    children: [
+
+                      _buildModernBadge(
+                        label:
+                        fund?.riskometerValue ??
+                            'High Risk',
+
+                        color: _getRiskColor(
+                          fund?.riskometerValue ?? '',
+                        ),
+
+                        icon:
+                        Icons.speed_rounded,
+                      ),
+
+                      _buildModernBadge(
+                        label:
+                        isOpen
+                            ? 'OPEN'
+                            : 'CLOSED',
+
+                        color:
+                        isOpen
+                            ? Ucolors.success
+                            : Ucolors.red,
+
+                        icon: Icons.lens,
+                        isDot: true,
+                      ),
+
+                      _buildModernBadge(
+                        label:
+                        fund?.schemeName ??
+                            'Growth',
+
+                        color: Ucolors.primary,
+                        icon:
+                        Icons.auto_graph_rounded,
+                      ),
+                    ],
+                  ),
+
+                  const Gap(20),
+
+                  /// EXTRA INFO
+                  // Row(
+                  //   children: [
+                  //
+                  //     _infoTile(
+                  //       title: "Fund House",
+                  //       value:
+                  //       fund?.fundHouse ??
+                  //           'N/A',
+                  //     ),
+                  //
+                  //     const Gap(28),
+                  //
+                  //     _infoTile(
+                  //       title: "Benchmark",
+                  //       value:
+                  //       fund?.b ??
+                  //           'N/A',
+                  //     ),
+                  //   ],
+                  // ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
-  Widget _buildBadge(String text, Color color) {
+  // ==========================================
+  // MODERN BADGE
+  // ==========================================
+
+  Widget _buildModernBadge({
+    required String label,
+    required Color color,
+    required IconData icon,
+    bool isDot = false,
+  }) {
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 9,
       ),
-      child: Text(
-        text.toUpperCase(),
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-          color: color,
-          letterSpacing: 0.5,
+
+      decoration: BoxDecoration(
+        color: color.withOpacity(.08),
+
+        borderRadius:
+        BorderRadius.circular(30),
+
+        border: Border.all(
+          color: color.withOpacity(.18),
         ),
       ),
+
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+
+        children: [
+
+          if (isDot)
+            Container(
+              width: 8,
+              height: 8,
+
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+              ),
+            )
+          else
+            Icon(
+              icon,
+              size: 15,
+              color: color,
+            ),
+
+          const Gap(8),
+
+          Text(
+            label.toUpperCase(),
+
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: color,
+              letterSpacing: .4,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
+  // ==========================================
+  // INFO TILE
+  // ==========================================
+
+  Widget _infoTile({
+    required String title,
+    required String value,
+  }) {
+
+    return Column(
+      crossAxisAlignment:
+      CrossAxisAlignment.start,
+
+      children: [
+
+        Text(
+          title,
+
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey.shade500,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+
+        const Gap(6),
+
+        SizedBox(
+          width: 220,
+
+          child: Text(
+            value,
+
+            maxLines: 1,
+
+            overflow:
+            TextOverflow.ellipsis,
+
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF222222),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ==========================================
+  // RISK COLOR
+  // ==========================================
+
   Color _getRiskColor(String risk) {
-    final riskLower = risk.toLowerCase();
-    if (riskLower.contains('very high')) return Ucolors.red;
-    if (riskLower.contains('high')) return Colors.orange;
-    if (riskLower.contains('moderate')) return Colors.yellow[700]!;
-    if (riskLower.contains('low')) return Ucolors.success;
+
+    final riskLower =
+    risk.toLowerCase();
+
+    if (riskLower.contains('very high')) {
+      return Ucolors.red;
+    }
+
+    if (riskLower.contains('high')) {
+      return Colors.orange;
+    }
+
+    if (riskLower.contains('moderate')) {
+      return Colors.amber.shade700;
+    }
+
+    if (riskLower.contains('low')) {
+      return Ucolors.success;
+    }
+
     return Ucolors.darkgrey;
   }
 }
@@ -1121,7 +1396,7 @@ class _DesktopRiskCard extends StatelessWidget {
                     const Gap(24),
                     // Give chart a fixed height or aspect ratio
                     SizedBox(
-                      height: 300,
+                      height: 500,
                       child: YearlyReturnsChart(yearlyData: data),
                     ),
                   ],

@@ -99,7 +99,30 @@ class AuthController extends GetxController {
       final User? user = userCredential.user;
 
       if (user != null) {
-        debugPrint("LOGIN SUCCESS : ${user.email}");
+
+        Map<String, dynamic> userJson = {
+          "uid": user.uid,
+          "email": user.email,
+          "displayName": user.displayName,
+          "photoURL": user.photoURL,
+          "emailVerified": user.emailVerified,
+          "phoneNumber": user.phoneNumber,
+          "isAnonymous": user.isAnonymous,
+          "metadata": {
+            "creationTime": user.metadata.creationTime?.toIso8601String(),
+            "lastSignInTime": user.metadata.lastSignInTime?.toIso8601String(),
+          },
+          "providerData": user.providerData.map((info) => {
+            "providerId": info.providerId,
+            "uid": info.uid,
+            "displayName": info.displayName,
+            "email": info.email,
+            "photoURL": info.photoURL,
+          }).toList(),
+        };
+
+        debugPrint("========== NEW USER JSON DATA ==========");
+        debugPrint(userJson.toString());
 
         final bool isNewUser =
             userCredential.additionalUserInfo?.isNewUser ?? false;
@@ -108,7 +131,16 @@ class AuthController extends GetxController {
         if (isNewUser) {
           nameController.text = user.displayName ?? "";
 
-          emailController.text = user.email ?? "";
+          nameController.text =
+              user.displayName ?? "";
+
+          emailController.text =
+              user.email ?? "";
+          debugPrint(user.uid);
+
+          Get.offNamed(
+            AppRoutes.registerAccountScreen,
+          );
 
           Get.offNamed(AppRoutes.registerAccountScreen);
         } else {
