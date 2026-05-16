@@ -408,14 +408,21 @@ class _WebDashboardLayout extends StatelessWidget {
 
                       return PopularFundCard(
                         onTap: () {
-                          // Navigation Logic
-                          mutualController.addToLocalRecentlyViewed(fund);
+
+                          Get.find<MutualFundController>()
+                              .addToLocalRecentlyViewed(fund);
+
                           Get.toNamed(
                             AppRoutes.funddetails,
                             arguments: {
-                              'scheme': name,
-                              'imgUrl': img,
-                              'scheme_code': schemeCode,
+                              'scheme': fund.baseSchemeName,
+                              'imgUrl':
+                              "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}",
+                              'scheme_code':
+                              fund.schemeCode.toString(),
+                              'email': fund.amc?.email,
+                              'address': fund.amc?.address,
+                              'contact': fund.amc?.contact,
                             },
                           );
                         },
@@ -1069,115 +1076,151 @@ class _WebDashboardLayout extends StatelessWidget {
     );
   }
   Widget _buildKycIsComplete() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          _buildActionCard(
-            icon: Icons.flag,
-            title: "Plan your goals",
-            subtitle: "Set clear financial targets",
-            color: Colors.blueAccent,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool isMobile = constraints.maxWidth < 700;
+
+        return Container(
+          width: double.infinity,
+          constraints: const BoxConstraints(minHeight: 180),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: Colors.grey.shade100,
+            ),
           ),
-          const SizedBox(width: 12),
-          _buildActionCard(
-            icon: Icons.person_search,
-            title: "Know your investment personality",
-            subtitle: "Discover your risk profile",
-            color: Colors.deepPurpleAccent,
+
+          /// MOBILE
+          child: isMobile
+              ? SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                Expanded(
+                  child: WebActionCard(
+                    icon: Icons.flag,
+                    title: "Plan your goals",
+                    subtitle: "Set clear financial targets",
+                    color: Colors.blueAccent,
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                Expanded(
+
+                  child: WebActionCard(
+                    icon: Icons.person_search,
+                    title: "Know your investment personality",
+                    subtitle: "Discover your risk profile",
+                    color: Colors.deepPurpleAccent,
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: WebActionCard(
+                    icon: Icons.shopping_basket,
+                    title: "Explore your investment basket",
+                    subtitle: "Diversify across funds",
+                    color: Colors.green,
+                  ),
+                ),
+              ],
+            ),
+          )
+
+          /// WEB / TABLET
+              : Row(
+            children: [
+              Expanded(
+                child: WebActionCard(
+                  icon: Icons.flag,
+                  title: "Plan your goals",
+                  subtitle: "Set clear financial targets",
+                  color: Colors.blueAccent,
+                ),
+              ),
+
+              const SizedBox(width: 16),
+
+              Expanded(
+                child: WebActionCard(
+                  icon: Icons.person_search,
+                  title: "Know your investment personality",
+                  subtitle: "Discover your risk profile",
+                  color: Colors.deepPurpleAccent,
+                ),
+              ),
+
+              const SizedBox(width: 16),
+
+              Expanded(
+                child: WebActionCard(
+                  icon: Icons.shopping_basket,
+                  title: "Explore your investment basket",
+                  subtitle: "Diversify across funds",
+                  color: Colors.green,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          _buildActionCard(
-            icon: Icons.shopping_basket,
-            title: "Explore your investment basket",
-            subtitle: "Diversify across funds",
-            color: Colors.green,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildActionCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-  }) {
-    return Container(
-      width: 220,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.2)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: color, size: 28),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey.shade600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   // =========================================================
   // QUICK ACTIONS
   // =========================================================
 
   Widget _buildQuickActionsCard(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Expanded(
-          flex: 5,
-          child: _WebQuickActionItem("SIP", UImages.startsip, () {
-            SipProcessController.navIsLumpsum = false;
-
-            Get.toNamed(
-              id: 1,
-              AppRoutes.startSipScreen,
-              arguments: {'isLumpsum': false},
-            );
-          }),
+    return Container(
+      width: double.infinity,
+      constraints: const BoxConstraints(minHeight: 180),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: Colors.grey.shade100,
         ),
-        Gap(20),
-        Expanded(
-          flex: 5,
-          child: _WebQuickActionItem("Lumpsum", UImages.glyph, () {
-            SipProcessController.navIsLumpsum = true;
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Expanded(
+            flex: 5,
+            child: _WebQuickActionItem("SIP", UImages.startsip, () {
+              SipProcessController.navIsLumpsum = false;
 
-            Get.toNamed(
-              id: 1,
-              AppRoutes.startSipScreen,
-              arguments: {'isLumpsum': true},
-            );
-          }),
-        ),
-      ],
+              Get.toNamed(
+                id: 1,
+                AppRoutes.startSipScreen,
+                arguments: {'isLumpsum': false},
+              );
+            }),
+          ),
+          Gap(20),
+          Expanded(
+            flex: 5,
+            child: _WebQuickActionItem("Lumpsum", UImages.glyph, () {
+              SipProcessController.navIsLumpsum = true;
+
+              Get.toNamed(
+                id: 1,
+                AppRoutes.startSipScreen,
+                arguments: {'isLumpsum': true},
+              );
+            }),
+          ),
+        ],
+      ),
     );
   }
 
@@ -2108,506 +2151,7 @@ class _MobileLayout extends StatelessWidget {
                     ),
                   );
                 }),
-                // Obx(() {
-                //   final controller = Get.find<PersonalisationController>();
-                //   final size = MediaQuery.of(context).size;
 
-                //   // 🔴 3. Read the individual flags from the controller
-                //   final isPending = controller.isKycPending.value;
-                //   final isVerified = controller.isKycVerified.value;
-                //   final noRiskProfile = !controller.hasRiskProfile.value;
-                //   final noNominee = !controller.hasNominee.value;
-                //   final noBank = !controller.hasBank.value;
-                //   final isAllComplete =
-                //       isVerified && !noRiskProfile && !noNominee && !noBank;
-
-                //   // --- 1. DEFAULT STATE (Not Started / Incomplete) ---
-                //   Color bgColor = Ucolors.light;
-                //   Color iconColor = Colors.black;
-                //   Color titleColor = Ucolors.dark;
-                //   Color subTextColor = Colors.grey;
-                //   IconData leftIcon = Icons.person;
-                //   Widget? customLeftIcon;
-                //   IconData rightIcon = Icons.arrow_forward_ios;
-                //   String titleText = 'Complete KYC & Profile';
-                //   String subText = 'Verify your Identity to start Investing';
-                //   VoidCallback? onTapAction = () =>
-                //       Get.toNamed(AppRoutes.kycScreen);
-
-                //   // ==========================================
-                //   // 🚦 PRIORITY ROUTING
-                //   // ==========================================
-
-                //   if (isPending || !isVerified) {
-                //     bgColor = isPending ? Colors.orange.shade50 : Ucolors.light;
-                //     iconColor = isPending
-                //         ? Colors.orange.shade700
-                //         : Colors.black;
-                //     titleColor = isPending
-                //         ? Colors.orange.shade900
-                //         : Ucolors.dark;
-                //     subTextColor = isPending
-                //         ? Colors.orange.shade800
-                //         : Colors.grey;
-                //     leftIcon = isPending ? Icons.hourglass_top : Icons.person;
-                //     rightIcon = isPending
-                //         ? Icons.access_time
-                //         : Icons.arrow_forward_ios;
-                //     titleText = isPending
-                //         ? 'KYC in Progress'
-                //         : 'Complete KYC & Profile';
-                //     subText = isPending
-                //         ? 'CAMS is reviewing your details ⏳'
-                //         : 'Verify your Identity to start Investing';
-                //     onTapAction = isPending
-                //         ? () => ULoaders.info(
-                //             title: "Processing",
-                //             message:
-                //                 "Your KYC is currently under review by CAMS. Please check back shortly.",
-                //           )
-                //         : () => Get.toNamed(AppRoutes.kycScreen);
-                //   } else if (noRiskProfile) {
-                //     bgColor = Ucolors.blue;
-                //     iconColor = Ucolors.light;
-                //     titleColor = Ucolors.light;
-                //     subTextColor = Ucolors.light.withOpacity(0.8);
-                //     customLeftIcon = const CircleAvatar(
-                //       backgroundColor: Colors.amber,
-                //       backgroundImage: AssetImage(UImages.crown),
-                //       radius: 14,
-                //     );
-                //     rightIcon = Icons.arrow_forward_ios;
-                //     titleText = 'Check Your Risk Profile Now!';
-                //     subText = 'Discover your investment style';
-                //     onTapAction = () => Get.toNamed(AppRoutes.riskProfile);
-                //   } else if (noNominee) {
-                //     bgColor = Ucolors.light;
-                //     iconColor = Ucolors.blue;
-                //     titleColor = Ucolors.blue;
-                //     subTextColor = Colors.grey;
-                //     leftIcon = Icons.family_restroom;
-                //     titleText = 'Add a Nominee';
-                //     subText = 'Secure your investments for your family';
-                //     onTapAction = () => Get.toNamed(AppRoutes.nomineeDetail);
-                //   } else if (noBank) {
-                //     bgColor = Ucolors.blue;
-                //     iconColor = Ucolors.light;
-                //     titleColor = Ucolors.light;
-                //     subTextColor = Ucolors.light.withOpacity(0.8);
-                //     leftIcon = Icons.account_balance;
-                //     titleText = 'Add Bank Account';
-                //     subText = 'Link your bank for fast transactions';
-                //     onTapAction = () => Get.toNamed(AppRoutes.addanotherbank);
-                //   } else if (isAllComplete) {
-                //     // A premium, modern green gradient look
-                //     bgColor = const Color(0xFFE8F5E9); // Very light green
-                //     iconColor = const Color(0xFF2E7D32); // Deep premium green
-                //     titleColor = const Color(0xFF1B5E20);
-                //     subTextColor = const Color(0xFF388E3C);
-
-                //     // We will use a custom Left Icon to make it pop!
-                //     customLeftIcon = Container(
-                //       padding: const EdgeInsets.all(8),
-                //       decoration: BoxDecoration(
-                //         color: Colors.green.shade100,
-                //         shape: BoxShape.circle,
-                //       ),
-                //       child: Icon(
-                //         Icons.rocket_launch_rounded,
-                //         color: iconColor,
-                //         size: 20,
-                //       ),
-                //     );
-
-                //     rightIcon = Icons.arrow_forward_rounded;
-                //     titleText = 'Ready to Invest! 🎉';
-                //     subText =
-                //         'Your profile is 100% complete. Start your first SIP.';
-                //     onTapAction = () {
-                //       // Get.toNamed(AppRoutes.exploreFunds);
-                //     };
-                //   } else {
-                //     return const SizedBox.shrink(); // Fallback
-                //   }
-
-                //   // --- UI RENDER ---
-                //   return Positioned(
-                //     left: 20,
-                //     right: 20,
-                //     bottom: 0,
-                //     child: Center(
-                //       child: GestureDetector(
-                //         onTap: onTapAction,
-                //         child: Container(
-                //           height: size.height * 0.13,
-                //           decoration: BoxDecoration(
-                //             color: bgColor,
-                //             borderRadius: BorderRadius.circular(15),
-                //             boxShadow: [
-                //               BoxShadow(
-                //                 color: Colors.black.withOpacity(0.15),
-                //                 blurRadius: 5,
-                //                 offset: const Offset(0, 4),
-                //               ),
-                //             ],
-                //           ),
-                //           child: Padding(
-                //             padding: const EdgeInsets.symmetric(
-                //               horizontal: 15,
-                //               vertical: 10,
-                //             ),
-                //             child: Row(
-                //               children: [
-                //                 customLeftIcon ??
-                //                     Icon(leftIcon, size: 24, color: iconColor),
-                //                 const SizedBox(width: 15),
-                //                 Expanded(
-                //                   child: Column(
-                //                     crossAxisAlignment:
-                //                         CrossAxisAlignment.start,
-                //                     mainAxisAlignment: MainAxisAlignment.center,
-                //                     children: [
-                //                       Text(
-                //                         'Onboarding task',
-                //                         style: UTextStyles.caption.copyWith(
-                //                           fontSize: 12,
-                //                           color: subTextColor,
-                //                         ),
-                //                       ),
-                //                       Text(
-                //                         titleText,
-                //                         style: UTextStyles.medium.copyWith(
-                //                           fontWeight: FontWeight.bold,
-                //                           color: titleColor,
-                //                           fontSize: 14,
-                //                         ),
-                //                       ),
-                //                       Text(
-                //                         subText,
-                //                         maxLines: 1,
-                //                         overflow: TextOverflow.ellipsis,
-                //                         style: UTextStyles.caption.copyWith(
-                //                           fontSize: 10,
-                //                           color: subTextColor,
-                //                         ),
-                //                       ),
-                //                     ],
-                //                   ),
-                //                 ),
-                //                 Icon(rightIcon, size: 14, color: iconColor),
-                //               ],
-                //             ),
-                //           ),
-                //         ),
-                //       ),
-                //     ),
-                //   );
-                // }),
-
-                // Obx(() {
-                //   final session = SessionManager.instance;
-                //   final isVerified = session.isKycVerified.value;
-                //   final isPending = session.isKycPending.value;
-
-                //   // --- 1. DEFAULT STATE (Not Started / Incomplete) ---
-                //   Color bgColor = Ucolors.light;
-                //   Color iconColor = Colors.black;
-                //   Color titleColor = Ucolors.dark;
-                //   IconData leftIcon = Icons.person;
-                //   IconData rightIcon = Icons.arrow_forward_ios;
-                //   String titleText = 'Complete KYC & Profile';
-                //   String subText = 'Verify your Identity to start Investing';
-                //   VoidCallback? onTapAction = () =>
-                //       Get.toNamed(AppRoutes.kycScreen);
-
-                //   // --- 2. PENDING STATE ---
-                //   if (isPending) {
-                //     bgColor = Colors.orange.shade50;
-                //     iconColor = Colors.orange.shade700;
-                //     titleColor = Colors.orange.shade900;
-                //     leftIcon = Icons.hourglass_top;
-                //     rightIcon = Icons.access_time;
-                //     titleText = 'KYC in Progress';
-                //     subText = 'CAMS is reviewing your details ⏳';
-                //     onTapAction = () {
-                //       ULoaders.info(
-                //         title: "Processing",
-                //         message:
-                //             "Your KYC is currently under review by CAMS. Please check back shortly.",
-                //       );
-                //     };
-                //   }
-                //   // --- 3. VERIFIED STATE ---
-                //   else if (isVerified) {
-                //     bgColor = Colors.green.shade50;
-                //     iconColor = Colors.green;
-                //     titleColor = Colors.green;
-                //     leftIcon = Icons.check_circle;
-                //     rightIcon = Icons.verified;
-                //     titleText = 'KYC Completed';
-                //     subText = 'Your account is fully verified 🎉';
-                //     onTapAction = null;
-                //   }
-
-                //   // --- UI RENDER ---
-                //   return Positioned(
-                //     left: 20,
-                //     right: 20,
-                //     bottom: 0,
-                //     child: Center(
-                //       child: GestureDetector(
-                //         onTap: onTapAction,
-                //         child: Container(
-                //           height: size.height * 0.13,
-                //           decoration: BoxDecoration(
-                //             color: bgColor,
-                //             borderRadius: BorderRadius.circular(15),
-                //             boxShadow: [
-                //               BoxShadow(
-                //                 color: Colors.black.withOpacity(0.15),
-                //                 blurRadius: 5,
-                //                 offset: const Offset(0, 4),
-                //               ),
-                //             ],
-                //           ),
-                //           child: Padding(
-                //             padding: const EdgeInsets.symmetric(
-                //               horizontal: 15,
-                //               vertical: 10,
-                //             ),
-                //             child: Row(
-                //               children: [
-                //                 Icon(leftIcon, size: 24, color: iconColor),
-                //                 const SizedBox(width: 15),
-                //                 Expanded(
-                //                   child: Column(
-                //                     crossAxisAlignment:
-                //                         CrossAxisAlignment.start,
-                //                     mainAxisAlignment: MainAxisAlignment.center,
-                //                     children: [
-                //                       Text(
-                //                         'Onboarding task',
-                //                         style: UTextStyles.caption.copyWith(
-                //                           fontSize: 12,
-                //                         ),
-                //                       ),
-                //                       Text(
-                //                         titleText,
-                //                         style: UTextStyles.medium.copyWith(
-                //                           fontWeight: FontWeight.bold,
-                //                           color: titleColor,
-                //                           fontSize: 14,
-                //                         ),
-                //                       ),
-                //                       Text(
-                //                         subText,
-                //                         maxLines: 1,
-                //                         overflow: TextOverflow.ellipsis,
-                //                         style: UTextStyles.caption.copyWith(
-                //                           fontSize: 10,
-                //                         ),
-                //                       ),
-                //                     ],
-                //                   ),
-                //                 ),
-                //                 Icon(
-                //                   rightIcon,
-                //                   size:
-                //                       14, // Slightly larger for better visibility
-                //                   color: iconColor,
-                //                 ),
-                //               ],
-                //             ),
-                //           ),
-                //         ),
-                //       ),
-                //     ),
-                //   );
-                // }),
-                // Obx(() {
-                //   final isVerified =
-                //       SessionManager.instance.isKycVerified.value;
-
-                //   return Positioned(
-                //     left: 20,
-                //     right: 20,
-                //     bottom: 0,
-                //     child: Center(
-                //       child: GestureDetector(
-                //         onTap: () async {
-                //           if (!isVerified) {
-                //             Get.toNamed(AppRoutes.kycScreen);
-                //           }
-                //           //
-                //           // else {
-                //           //   await SessionManager.instance.setKycVerified(false);
-
-                //           //   Get.toNamed(
-                //           //     AppRoutes.kycScreen,
-                //           //   ); // comment this after testing
-                //           // }
-                //         },
-                //         child: Container(
-                //           height: size.height * 0.13,
-                //           decoration: BoxDecoration(
-                //             color: isVerified
-                //                 ? Colors.green.shade50
-                //                 : Ucolors.light,
-                //             borderRadius: BorderRadius.circular(15),
-                //             boxShadow: [
-                //               BoxShadow(
-                //                 color: Colors.black.withOpacity(0.15),
-                //                 blurRadius: 5,
-                //                 offset: const Offset(0, 4),
-                //               ),
-                //             ],
-                //           ),
-                //           child: Padding(
-                //             padding: const EdgeInsets.symmetric(
-                //               horizontal: 15,
-                //               vertical: 10,
-                //             ),
-                //             child: Row(
-                //               children: [
-                //                 Icon(
-                //                   isVerified
-                //                       ? Icons.check_circle
-                //                       : Icons.person,
-                //                   size: 24,
-                //                   color: isVerified
-                //                       ? Colors.green
-                //                       : Colors.black,
-                //                 ),
-                //                 const SizedBox(width: 15),
-                //                 Expanded(
-                //                   child: Column(
-                //                     crossAxisAlignment:
-                //                         CrossAxisAlignment.start,
-                //                     mainAxisAlignment: MainAxisAlignment.center,
-                //                     children: [
-                //                       Text(
-                //                         'Onboarding task',
-                //                         style: UTextStyles.caption.copyWith(
-                //                           fontSize: 12,
-                //                         ),
-                //                       ),
-
-                //                       /// 🔥 MAIN TEXT CHANGE
-                //                       Text(
-                //                         isVerified
-                //                             ? 'KYC Completed'
-                //                             : 'Complete KYC & Profile',
-                //                         style: UTextStyles.medium.copyWith(
-                //                           fontWeight: FontWeight.bold,
-                //                           color: isVerified
-                //                               ? Colors.green
-                //                               : Ucolors.dark,
-                //                           fontSize: 14,
-                //                         ),
-                //                       ),
-
-                //                       /// 🔥 SUB TEXT CHANGE
-                //                       Text(
-                //                         isVerified
-                //                             ? 'Your account is fully verified 🎉'
-                //                             : 'Verify your Identity to start Investing',
-                //                         maxLines: 1,
-                //                         overflow: TextOverflow.ellipsis,
-                //                         style: UTextStyles.caption.copyWith(
-                //                           fontSize: 10,
-                //                         ),
-                //                       ),
-                //                     ],
-                //                   ),
-                //                 ),
-
-                //                 /// 🔥 RIGHT ICON CHANGE
-                //                 Icon(
-                //                   isVerified
-                //                       ? Icons.verified
-                //                       : Icons.arrow_forward_ios,
-                //                   size: 12,
-                //                   color: isVerified
-                //                       ? Colors.green
-                //                       : Colors.black,
-                //                 ),
-                //               ],
-                //             ),
-                //           ),
-                //         ),
-                //       ),
-                //     ),
-                //   );
-                // }),
-
-                // Positioned(
-                //   left: 20,
-                //   right: 20,
-                //   bottom: 0,
-                //   child: Center(
-                //     child: GestureDetector(
-                //       onTap: () => Get.toNamed(AppRoutes.kycScreen),
-                //       child: Container(
-                //         height: size.height * 0.13,
-                //         decoration: BoxDecoration(
-                //           color: Ucolors.light,
-                //           borderRadius: BorderRadius.circular(15),
-                //           boxShadow: [
-                //             BoxShadow(
-                //               color: Colors.black.withOpacity(0.15),
-                //               blurRadius: 5,
-                //               offset: const Offset(0, 4),
-                //             ),
-                //           ],
-                //         ),
-                //         child: Padding(
-                //           padding: const EdgeInsets.symmetric(
-                //             horizontal: 15,
-                //             vertical: 10,
-                //           ),
-                //           child: Row(
-                //             children: [
-                //               const Icon(Icons.person, size: 24),
-                //               const SizedBox(width: 15),
-                //               Expanded(
-                //                 child: Column(
-                //                   crossAxisAlignment: CrossAxisAlignment.start,
-                //                   mainAxisAlignment: MainAxisAlignment.center,
-                //                   mainAxisSize: MainAxisSize.min,
-                //                   children: [
-                //                     Text(
-                //                       'Onboarding task',
-                //                       style: UTextStyles.caption.copyWith(
-                //                         fontSize: 12,
-                //                       ),
-                //                     ),
-                //                     Text(
-                //                       'Complete KYC & Profile',
-                //                       style: UTextStyles.medium.copyWith(
-                //                         fontWeight: FontWeight.bold,
-                //                         color: Ucolors.dark,
-                //                         fontSize: 14,
-                //                       ),
-                //                     ),
-                //                     Text(
-                //                       'Verify your Identity to start Investing',
-                //                       maxLines: 1,
-                //                       overflow: TextOverflow.ellipsis,
-                //                       style: UTextStyles.caption.copyWith(
-                //                         fontSize: 10,
-                //                       ),
-                //                     ),
-                //                   ],
-                //                 ),
-                //               ),
-                //               const Icon(Icons.arrow_forward_ios, size: 12),
-                //             ],
-                //           ),
-                //         ),
-                //       ),
-                //     ),
-                //   ),
-                // ),
               ],
             ),
           ),
@@ -4284,7 +3828,251 @@ class _CollectionItemMobState extends State<CollectionItemMob> {
     );
   }
 }
+class WebActionCard extends StatefulWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color color;
+  final VoidCallback? onTap;
 
+  const WebActionCard({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+    this.onTap,
+  });
+
+  @override
+  State<WebActionCard> createState() => _WebActionCardState();
+}
+
+class _WebActionCardState extends State<WebActionCard> {
+  bool isHovered = false;
+  bool isPressed = false;
+
+  void _setHover(bool value) {
+    setState(() {
+      isHovered = value;
+    });
+  }
+
+  void _setPressed(bool value) {
+    setState(() {
+      isPressed = value;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
+    /// RESPONSIVE
+    final bool isMobile = width < 600;
+    final bool isTablet = width >= 600 && width < 1100;
+
+    final double cardHeight = isMobile
+        ? 150
+        : isTablet
+        ? 165
+        : 180;
+
+    final double iconBoxSize = isMobile
+        ? 48
+        : isTablet
+        ? 54
+        : 60;
+
+    final double iconSize = isMobile
+        ? 22
+        : isTablet
+        ? 26
+        : 30;
+
+    final double titleFontSize = isMobile
+        ? 14
+        : isTablet
+        ? 15
+        : 17;
+
+    final double subtitleFontSize = isMobile
+        ? 11
+        : isTablet
+        ? 12
+        : 13;
+
+    final double padding = isMobile ? 14 : 18;
+
+    return MouseRegion(
+      onEnter: (_) => _setHover(true),
+      onExit: (_) => _setHover(false),
+      child: AnimatedScale(
+        scale: isPressed
+            ? 0.97
+            : isHovered
+            ? 1.02
+            : 1.0,
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(24),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(24),
+            splashColor: widget.color.withOpacity(0.08),
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+
+            onTapDown: (_) => _setPressed(true),
+
+            onTapCancel: () => _setPressed(false),
+
+            onTap: () async {
+              _setPressed(true);
+
+              await Future.delayed(const Duration(milliseconds: 90));
+
+              _setPressed(false);
+
+              widget.onTap?.call();
+            },
+
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              height: cardHeight,
+              padding: EdgeInsets.all(padding),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+
+                /// BACKGROUND
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: isHovered
+                      ? [
+                    Colors.white,
+                    widget.color.withOpacity(0.06),
+                  ]
+                      : [
+                    widget.color.withOpacity(0.08),
+                    widget.color.withOpacity(0.03),
+                  ],
+                ),
+
+                /// BORDER
+                border: Border.all(
+                  color: isHovered
+                      ? widget.color.withOpacity(0.18)
+                      : widget.color.withOpacity(0.10),
+                ),
+
+                /// SHADOW
+                boxShadow: [
+                  BoxShadow(
+                    color: isHovered
+                        ? widget.color.withOpacity(0.14)
+                        : Colors.black.withOpacity(0.04),
+                    blurRadius: isHovered ? 18 : 8,
+                    spreadRadius: isHovered ? 1 : 0,
+                    offset: Offset(0, isHovered ? 8 : 4),
+                  ),
+                ],
+              ),
+
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  /// TOP ROW
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      /// ICON BOX
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 220),
+                        height: iconBoxSize,
+                        width: iconBoxSize,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              widget.color,
+                              widget.color.withOpacity(0.85),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: [
+                            BoxShadow(
+                              color: widget.color.withOpacity(
+                                isHovered ? 0.28 : 0.16,
+                              ),
+                              blurRadius: isHovered ? 18 : 10,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          widget.icon,
+                          color: Colors.white,
+                          size: iconSize,
+                        ),
+                      ),
+
+                      AnimatedRotation(
+                        turns: isHovered ? 0.08 : 0,
+                        duration: const Duration(milliseconds: 220),
+                        child: Icon(
+                          Icons.arrow_outward_rounded,
+                          size: iconSize - 6,
+                          color: isHovered
+                              ? widget.color
+                              : Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const Spacer(),
+
+                  /// TITLE
+                  Text(
+                    widget.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: titleFontSize,
+                      fontWeight: FontWeight.w700,
+                      height: 1.3,
+                      color: isHovered
+                          ? widget.color
+                          : const Color(0xff1E293B),
+                    ),
+                  ),
+
+                  SizedBox(height: isMobile ? 6 : 8),
+
+                  /// SUBTITLE
+                  Text(
+                    widget.subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: subtitleFontSize,
+                      height: 1.5,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 class CollectionItem extends StatefulWidget {
   final String iconImg;
   final String title;

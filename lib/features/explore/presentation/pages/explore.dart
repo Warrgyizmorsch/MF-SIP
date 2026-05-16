@@ -895,7 +895,6 @@ class _WebExploreLayout extends StatelessWidget {
     final MutualFundController controller = Get.find();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FB),
       body: Center(
         child:LayoutBuilder(
           builder: (context, constraints) {
@@ -945,7 +944,8 @@ class _WebExploreLayout extends StatelessWidget {
                       return GridView.builder(
                         controller: scrollController,
                         itemCount: controller.searchFund.length,
-                        padding: const EdgeInsets.only(bottom: 20),
+                        // padding: const EdgeInsets.only(bottom: 20),
+                        padding: const EdgeInsets.only(bottom: 20, left: 8, right: 8,top: 8),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: crossAxisCount,
                           crossAxisSpacing: 16,
@@ -1136,12 +1136,12 @@ class _ResponsiveFundCardState
 
               borderRadius: BorderRadius.circular(22),
               //
-              // border: Border.all(
-              //   color: isHover
-              //       ? Ucolors.primary.withOpacity(.35)
-              //       : Colors.grey.shade200,
-              //   width: 1.2,
-              // ),
+              border: Border.all(
+                color: isHover
+                    ? Ucolors.primary.withOpacity(.35)
+                    : Colors.grey.shade200,
+                width: 1.2,
+              ),
 
               /// =========================
               /// SHADOW ANIMATION
