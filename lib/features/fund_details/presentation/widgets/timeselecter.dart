@@ -17,11 +17,11 @@ class PeriodSelector extends GetView<FundDetailsController> {
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Container(
-      height: isDesktop ? 80 : 40,
+      height: isDesktop ? 50 : 40,
       padding: EdgeInsets.symmetric(horizontal: isDesktop ? 2 : 4),
       decoration: BoxDecoration(
         color: isDesktop ? Colors.white : const Color(0xffF3F4F6),
-        borderRadius: BorderRadius.circular(isDesktop ? 24 : 10),
+        borderRadius: BorderRadius.circular(isDesktop ? 10 : 10),
         border: isDesktop ? Border.all(color: Colors.grey.shade200) : null,
         boxShadow: isDesktop
             ? [

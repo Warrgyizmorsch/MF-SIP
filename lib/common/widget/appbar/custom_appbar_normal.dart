@@ -69,3 +69,88 @@ class CustomAppBarNormal extends StatelessWidget
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }
+
+class WebCustomAppBarNormal extends StatelessWidget
+    implements PreferredSizeWidget {
+  const WebCustomAppBarNormal({
+    super.key,
+    required this.title,
+    this.action,
+    this.backgroundColor,
+    this.backIcon = true,
+    this.actionsPadding,
+    this.bottom,
+  });
+
+  final String title;
+  final List<Widget>? action;
+  final Color? backgroundColor;
+  final bool backIcon;
+  final double? actionsPadding;
+  final PreferredSizeWidget? bottom;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      toolbarHeight: 100, // AppBar Height
+      bottom: bottom,
+      elevation: 0,
+      backgroundColor: backgroundColor ?? Colors.grey.shade50,
+
+      actionsPadding: EdgeInsets.only(
+        right: actionsPadding ?? 0,
+      ),
+
+      automaticallyImplyLeading: false,
+
+      leading: backIcon
+          ? Padding(
+        padding: const EdgeInsets.only(left: 16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => Navigator.maybePop(context),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              height: 42,
+              width: 42,
+              decoration: BoxDecoration(
+                color: const Color(0xffEDEDED),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                child: CompactIcon(
+                  iconSize: 18,
+                  icon: Icons.arrow_back_ios,
+                  onPressed: () =>
+                      Navigator.maybePop(context),
+                ),
+              ),
+            ),
+          ),
+        ),
+      )
+          : null,
+
+      leadingWidth: 70,
+
+      // LEFT TITLE
+      titleSpacing: 20,
+      centerTitle: false,
+
+      title: Text(
+        title,
+        style: UTextStyles.subtitle1.copyWith(
+          color: Ucolors.dark,
+          fontWeight: FontWeight.w600,
+          fontSize: 18,
+        ),
+      ),
+
+      actions: action,
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(80);
+}
