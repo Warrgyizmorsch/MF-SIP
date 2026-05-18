@@ -176,7 +176,7 @@ class GoalScreen extends GetView<GoalSipController> {
 }
 
 class CircularUploadIndicator extends StatelessWidget {
-  final UserGoalEntity? goalEntity; 
+  final UserGoalEntity? goalEntity;
   final String goalName;
   final double targetAmount;
   final double investedAmount;
@@ -206,15 +206,16 @@ class CircularUploadIndicator extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         // Navigate to details if needed, passing ID or data
-        Get.toNamed(AppRoutes.goaldetails,
-        //  arguments: {'goalName': goalName}
-        arguments: {
-          'goal': goalEntity,
-          'emoji': iconEmoji,
-          'target': targetAmount,
-          'invested': investedAmount,
-        }
-         );
+        Get.toNamed(
+          AppRoutes.goaldetails,
+          //  arguments: {'goalName': goalName}
+          arguments: {
+            'goal': goalEntity,
+            'emoji': iconEmoji,
+            'target': targetAmount,
+            'invested': investedAmount,
+          },
+        );
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16),

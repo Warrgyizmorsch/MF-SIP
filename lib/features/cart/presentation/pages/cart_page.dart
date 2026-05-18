@@ -862,8 +862,21 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
 
     amountController = TextEditingController(text: initialAmount);
 
+    // capAmountController = TextEditingController(
+    //   text: widget.itemEntity.capingAmount ?? '',
+    // );
+    final int minTopUpForCap = _parseAmount(
+      widget.itemEntity.minTopupAmount,
+      defaultVal: 500,
+    );
+    final int defaultCap = minSip + minTopUpForCap;
+
     capAmountController = TextEditingController(
-      text: widget.itemEntity.capingAmount ?? '',
+      text:
+          (widget.itemEntity.capingAmount != null &&
+              widget.itemEntity.capingAmount!.isNotEmpty)
+          ? widget.itemEntity.capingAmount
+          : defaultCap.toString(),
     );
   }
 
@@ -1324,7 +1337,7 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                                   controller.updateCartItem(
                                     itemId: widget.itemEntity.id!,
                                     stepUpPercentage: amt,
-                                    topUpAmount: 0,
+                                    // topUpAmount: 0,
                                   );
                                 }
                               },
@@ -1503,7 +1516,15 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                           children: [
                             Expanded(
                               child: InkWell(
-                                onTap: () => capType.value = 'date',
+                                onTap: () {
+                                  capType.value = 'date';
+
+                                  controller.updateCartItem(
+                                    itemId: widget.itemEntity.id!,
+                                    capingAmount: "",
+                                    capingDate: localCapDate.value,
+                                  );
+                                },
                                 borderRadius: BorderRadius.circular(8),
                                 child: Container(
                                   alignment: Alignment.center,
@@ -1530,7 +1551,48 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                             ),
                             Expanded(
                               child: InkWell(
-                                onTap: () => capType.value = 'amount',
+                                onTap: () {
+                                  capType.value = 'amount';
+
+                                  // if (capAmountController.text.isEmpty) {
+                                  //   final int minSip = _parseAmount(widget.itemEntity.minSipAmount);
+                                  //   final int minTopUp = _parseAmount(widget.itemEntity.minTopupAmount, defaultVal: 500);
+                                  //   capAmountController.text = (minSip + minTopUp).toString();
+
+                                  //   // Optional: Instantly send to backend
+                                  //   controller.updateCartItem(
+                                  //     itemId: widget.itemEntity.id!,
+                                  //     capingAmount: capAmountController.text,
+                                  //     capingDate: "",
+                                  //   );
+                                  // }
+                                  final int minSip = _parseAmount(
+                                    widget.itemEntity.minSipAmount,
+                                  );
+                                  final int minTopUp = _parseAmount(
+                                    widget.itemEntity.minTopupAmount,
+                                    defaultVal: 500,
+                                  );
+                                  final int absoluteMinCap = minSip + minTopUp;
+
+                                  // Auto-fill if empty OR if the current number is too low to be legal!
+                                  final currentCapAmt =
+                                      int.tryParse(capAmountController.text) ??
+                                      0;
+                                  if (capAmountController.text.isEmpty ||
+                                      currentCapAmt <= absoluteMinCap) {
+                                    // Adding 100 so it is strictly greater than the minimum
+                                    capAmountController.text =
+                                        (absoluteMinCap + 100).toString();
+                                  }
+
+                                  // Tell backend to clear date and use the valid amount
+                                  controller.updateCartItem(
+                                    itemId: widget.itemEntity.id!,
+                                    capingAmount: capAmountController.text,
+                                    capingDate: "",
+                                  );
+                                },
                                 borderRadius: BorderRadius.circular(8),
                                 child: Container(
                                   alignment: Alignment.center,
@@ -1594,31 +1656,109 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                               validationType: ValidationType.custom,
                               borderColor: Colors.grey.shade300,
                               focusedBorderColor: Ucolors.primary,
-                              hint: 'e.g. 50000',
+                              hint: 'e.g. 5000',
                               // onChanged: (value) {},
                               // --- 4. REPLACE CAP AMOUNT onChanged WITH THIS ---
                               onChanged: (value) {
-                                if (_debounce?.isActive ?? false)
-                                  _debounce!.cancel();
+                                final capAmt = int.tryParse(value) ?? 0;
+                                final int minSip = _parseAmount(
+                                  widget.itemEntity.minSipAmount,
+                                );
+                                final int minTopUp = _parseAmount(
+                                  widget.itemEntity.minTopupAmount,
+                                  defaultVal: 500,
+                                );
+                                final int absoluteMinCap = minSip + minTopUp;
 
-                                _debounce = Timer(
-                                  const Duration(milliseconds: 900),
-                                  () {
-                                    controller.updateCartItem(
-                                      itemId: widget.itemEntity.id!,
-                                      capingAmount: value,
-                                      capingDate: "",
-                                    );
-                                  },
+                                // bool hasError = capAmt <= absoluteMinCap;
+                                bool hasError =
+                                    capAmt <= absoluteMinCap ||
+                                    capAmt % 100 != 0;
+                                controller.setItemError(
+                                  -widget.itemEntity.id!,
+                                  hasError,
                                 );
+
+                                // if (_debounce?.isActive ?? false)
+                                //   _debounce!.cancel();
+
+                                // _debounce = Timer(
+                                //   const Duration(milliseconds: 900),
+                                //   () {
+                                //     controller.updateCartItem(
+                                //       itemId: widget.itemEntity.id!,
+                                //       capingAmount: value,
+                                //       capingDate: "",
+                                //     );
+                                //   },
+                                // );
+                                if (!hasError) {
+                                  if (_debounce?.isActive ?? false)
+                                    _debounce!.cancel();
+                                  _debounce = Timer(
+                                    const Duration(milliseconds: 800),
+                                    () {
+                                      controller.updateCartItem(
+                                        itemId: widget.itemEntity.id!,
+                                        capingAmount: value,
+                                        capingDate: "",
+                                      );
+                                    },
+                                  );
+                                }
                               },
-                              customValidator: (value) => null,
-                              onSubmitted: (val) {
-                                controller.updateCartItem(
-                                  itemId: widget.itemEntity.id!,
-                                  capingAmount: val,
-                                  capingDate: "",
+                              // customValidator: (value) => null,
+                              customValidator: (value) {
+                                if (value == null || value.trim().isEmpty)
+                                  return 'Required';
+                                final capAmt = int.tryParse(value) ?? 0;
+
+                                final int minSip = _parseAmount(
+                                  widget.itemEntity.minSipAmount,
                                 );
+                                final int minTopUp = _parseAmount(
+                                  widget.itemEntity.minTopupAmount,
+                                  defaultVal: 500,
+                                );
+                                final int absoluteMinCap = minSip + minTopUp;
+
+                                // Show error if it is not greater than the baseline
+                                // if (capAmt <= absoluteMinCap)
+                                //   return 'Must be > ₹$absoluteMinCap';
+                                if (capAmt <= absoluteMinCap)
+                                  return 'Must be > ₹$absoluteMinCap';
+                                if (capAmt % 100 != 0)
+                                  return 'Multiple of ₹100';
+                                return null;
+                              },
+                              // onSubmitted: (val) {
+                              //   controller.updateCartItem(
+                              //     itemId: widget.itemEntity.id!,
+                              //     capingAmount: val,
+                              //     capingDate: "",
+                              //   );
+                              // },
+                              onSubmitted: (val) {
+                                final capAmt = int.tryParse(val) ?? 0;
+
+                                final int minSip = _parseAmount(
+                                  widget.itemEntity.minSipAmount,
+                                );
+                                final int minTopUp = _parseAmount(
+                                  widget.itemEntity.minTopupAmount,
+                                  defaultVal: 500,
+                                );
+                                final int absoluteMinCap = minSip + minTopUp;
+
+                                // Only submit if valid
+                                if (capAmt > absoluteMinCap &&
+                                    capAmt % 100 == 0) {
+                                  controller.updateCartItem(
+                                    itemId: widget.itemEntity.id!,
+                                    capingAmount: val,
+                                    capingDate: "",
+                                  );
+                                }
                               },
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,

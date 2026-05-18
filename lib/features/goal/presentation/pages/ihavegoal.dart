@@ -42,42 +42,48 @@ import '../../../home/presentation/pages/home.dart';
 class IhavegoalPage extends GetView<GoalSipController> {
   IhavegoalPage({super.key});
 
-  final Map<String, Map<String, dynamic>> goalConfig = {
-    'car': {'amount': 1000000, 'duration': 5, 'rate': 12, 'name': 'Car'},
-    'bike': {'amount': 150000, 'duration': 3, 'rate': 12, 'name': 'Bike'},
-    'home': {'amount': 3000000, 'duration': 10, 'rate': 12, 'name': 'Home'},
-    'marriage': {
-      'amount': 500000,
-      'duration': 5,
-      'rate': 12,
-      'name': 'Marriage',
-    },
-    'vacation': {
-      'amount': 100000,
-      'duration': 2,
-      'rate': 12,
-      'name': 'Vacation',
-    },
-    'custom': {'amount': 100000, 'duration': 2, 'rate': 12, 'name': 'Custom'},
-  };
+  // final Map<String, Map<String, dynamic>> goalConfig = {
+  //   'car': {'amount': 1000000, 'duration': 5, 'rate': 12, 'name': 'Car'},
+  //   'bike': {'amount': 150000, 'duration': 3, 'rate': 12, 'name': 'Bike'},
+  //   'home': {'amount': 3000000, 'duration': 10, 'rate': 12, 'name': 'Home'},
+  //   'marriage': {
+  //     'amount': 500000,
+  //     'duration': 5,
+  //     'rate': 12,
+  //     'name': 'Marriage',
+  //   },
+  //   'vacation': {
+  //     'amount': 100000,
+  //     'duration': 2,
+  //     'rate': 12,
+  //     'name': 'Vacation',
+  //   },
+  //   'custom': {'amount': 100000, 'duration': 2, 'rate': 12, 'name': 'Custom'},
+  // };
 
   final CartController cartController = Get.find<CartController>();
   final GlobalKey popularFundsKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
-    final args = Get.arguments ?? {};
-    final String goalType = args['goalType'] ?? 'custom';
-    final goalData = goalConfig[goalType]!;
-    final String name = goalData['name']!;
+    // final args = Get.arguments ?? {};
+    // final String goalType = args['goalType'] ?? 'custom';
+    // final goalData = goalConfig[goalType]!;
+    // final String name = goalData['name']!;
 
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   controller.isGoalSaved.value = false;
+    //   controller.initFromGoal(
+    //     amount: goalData['amount'].toDouble(),
+    //     years: goalData['duration'].toDouble(),
+    //     rate: goalData['rate'].toDouble(),
+    //   );
+    // });
+    final args = Get.arguments ?? {};
+    final String initialType = args['goalType'] ?? 'custom';
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.isGoalSaved.value = false;
-      controller.initFromGoal(
-        amount: goalData['amount'].toDouble(),
-        years: goalData['duration'].toDouble(),
-        rate: goalData['rate'].toDouble(),
-      );
+      controller.resetStateForNewGoal();
+      controller.updateGoalType(initialType);
     });
 
     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
@@ -86,24 +92,58 @@ class IhavegoalPage extends GetView<GoalSipController> {
       backgroundColor: isDesktop
           ? const Color(0xFFF5F7FA)
           : const Color(0xffF3F4F6),
-      appBar: CustomAppBarNormal(
-        title: 'Create $name Goal',
-        action: [CompactIcon(icon: Iconsax.info_circle, onPressed: () {})],
-        actionsPadding: 15,
+      // appBar: CustomAppBarNormal(
+      //   title: 'Create $name Goal',
+      //   action: [CompactIcon(icon: Iconsax.info_circle, onPressed: () {})],
+      //   actionsPadding: 15,
+      // ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Obx(() {
+          final activeName =
+              controller.goalConfig[controller
+                  .selectedGoalType
+                  .value]?['name'] ??
+              'Custom';
+          return CustomAppBarNormal(
+            title: 'Create $activeName Goal',
+            action: [CompactIcon(icon: Iconsax.info_circle, onPressed: () {})],
+            actionsPadding: 15,
+          );
+        }),
       ),
-      body: isDesktop
-          ? _WebLayout(
-              name: name,
-              goalData: goalData,
-              controller: controller,
-              popularFundsKey: popularFundsKey,
-            )
-          : _MobileLayout(
-              name: name,
-              goalData: goalData,
-              controller: controller,
-              popularFundsKey: popularFundsKey,
-            ),
+      // body: isDesktop
+      //     ? _WebLayout(
+      //         name: name,
+      //         goalData: goalData,
+      //         controller: controller,
+      //         popularFundsKey: popularFundsKey,
+      //       )
+      //     : _MobileLayout(
+      //         name: name,
+      //         goalData: goalData,
+      //         controller: controller,
+      //         popularFundsKey: popularFundsKey,
+      //       ),
+      body: Obx(() {
+        final currentType = controller.selectedGoalType.value;
+        final currentData = controller.goalConfig[currentType]!;
+        final activeName = currentData['name']!;
+
+        return isDesktop
+            ? _WebLayout(
+                name: activeName,
+                goalData: currentData,
+                controller: controller,
+                popularFundsKey: popularFundsKey,
+              )
+            : _MobileLayout(
+                name: activeName,
+                goalData: currentData,
+                controller: controller,
+                popularFundsKey: popularFundsKey,
+              );
+      }),
       bottomNavigationBar: Obx(
         () => controller.isGoalSaved.value
             ? SafeArea(
@@ -438,6 +478,20 @@ class _MobileLayout extends StatelessWidget {
     final goalSipController = Get.find<GoalSipController>(); // ✅ Added
     final cartController = Get.find<CartController>(); // ✅ Added
     final FocusNode searchFocus = FocusNode();
+
+    goalSipController.selectedPopularFund.clear();
+
+    // final freshGoal = goalSipController.goalResponse.value?.data
+    //     ?.firstWhereOrNull((g) => g.id == goalId);
+
+    //     if (freshGoal != null) {
+    //   for (var fund in freshGoal.goalFunds) {
+    //     final name = fund.mutualFund?.schemeName;
+    //     if (name != null) {
+    //       goalSipController.selectedPopularFund.add(name);
+    //     }
+    //   }
+    // }
 
     showModalBottomSheet(
       context: context,
@@ -806,6 +860,7 @@ class _MobileLayout extends StatelessWidget {
         mutualController.setSearchFocus(false);
         Get.find<FundhouseController>().clearAllFilters();
         mutualController.silentReset();
+        // goalSipController.selectedPopularFund.clear();
       });
     });
   }
@@ -1356,7 +1411,9 @@ class SIPSection extends StatelessWidget {
 
 class GoalNameSelect extends StatelessWidget {
   final GoalSipController controller;
-  final String goalName;
+  final String
+  goalName; // Still accepting to handle matching references if needed
+
   const GoalNameSelect({
     super.key,
     required this.goalName,
@@ -1366,25 +1423,102 @@ class GoalNameSelect extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(children: [SmallHeading(smallheading: 'Goal Name')]),
+        Row(children: [const SmallHeading(smallheading: 'Goal Category')]),
         const Gap(5),
-        UTextFormField(
-          readOnly: true,
-          prefixIcon: null,
-          controller: TextEditingController(text: goalName),
-          backgroundColor: Colors.white,
+
+        // Dynamic Dropdown Input container matching White background card logic
+        Obx(
+          () => Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: controller.selectedGoalType.value,
+                isExpanded: true,
+                icon: const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Ucolors.darkgrey,
+                ),
+                dropdownColor: Colors.white,
+                items: controller.goalConfig.keys.map((String key) {
+                  final itemName =
+                      controller.goalConfig[key]?['name'] ?? 'Custom';
+                  return DropdownMenuItem<String>(
+                    value: key,
+                    child: Text(
+                      itemName,
+                      style: const TextStyle(color: Colors.black, fontSize: 15),
+                    ),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    controller.updateGoalType(newValue);
+                  }
+                },
+              ),
+            ),
+          ),
         ),
-        UTextFormField(
-          controller: controller.goalNameTextEditingController,
-          backgroundColor: Colors.white,
-          prefixIcon: null,
-          hintText: 'Enter $goalName Name',
-        ),
+
+        const Gap(15),
+        Row(children: [const SmallHeading(smallheading: 'Custom Goal Title')]),
+        const Gap(5),
+        Obx(() {
+          final activeLabel =
+              controller.goalConfig[controller
+                  .selectedGoalType
+                  .value]?['name'] ??
+              'Custom';
+          return UTextFormField(
+            controller: controller.goalNameTextEditingController,
+            backgroundColor: Colors.white,
+            prefixIcon: null,
+            hintText: 'Enter specific name for your $activeLabel',
+          );
+        }),
       ],
     );
   }
 }
+
+// class GoalNameSelect extends StatelessWidget {
+//   final GoalSipController controller;
+//   final String goalName;
+//   const GoalNameSelect({
+//     super.key,
+//     required this.goalName,
+//     required this.controller,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       children: [
+//         Row(children: [SmallHeading(smallheading: 'Goal Name')]),
+//         const Gap(5),
+//         UTextFormField(
+//           readOnly: true,
+//           prefixIcon: null,
+//           controller: TextEditingController(text: goalName),
+//           backgroundColor: Colors.white,
+//         ),
+//         UTextFormField(
+//           controller: controller.goalNameTextEditingController,
+//           backgroundColor: Colors.white,
+//           prefixIcon: null,
+//           hintText: 'Enter $goalName Name',
+//         ),
+//       ],
+//     );
+//   }
+// }
 
 class CoverSection extends StatelessWidget {
   final GoalSipController controller;

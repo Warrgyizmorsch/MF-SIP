@@ -44,7 +44,7 @@ class UserModel {
   final String? riskSlabId;
   final String? riskScore;
   final String? canNumber;
-  final String?  canStatus;
+  final String? canStatus;
   final RiskProfileModel? riskProfileModel;
   final CustomerDetailsModel1? customerDetailsModel;
 
@@ -78,6 +78,7 @@ class UserModel {
     String? mobile,
     String? image,
     String? panCard,
+    String? kycStatus,
     String? canNumber,
 
     CustomerDetailsModel1? customerDetails,
@@ -89,6 +90,7 @@ class UserModel {
       mobile: mobile ?? this.mobile,
       img: image ?? this.img,
       panCard: panCard ?? this.panCard,
+      kycStatus: kycStatus ?? this.kycStatus,
       canNumber: canNumber ?? this.canNumber,
       canStatus: canStatus ?? this.canStatus,
       customerDetailsModel: customerDetails ?? this.customerDetailsModel,
@@ -146,11 +148,10 @@ class UserModel {
       'kyc_verified_at': kycVerifiedAt,
       'status': status,
       'risk_slab_id': riskSlabId,
-      'can_number':canNumber,
-      'can_status':canStatus,
+      'can_number': canNumber,
+      'can_status': canStatus,
       'risk_profile': riskProfileModel,
       'customer_details': customerDetailsModel,
-      
     };
   }
 }
@@ -257,7 +258,7 @@ class CustomerDetailsModel1 {
       address: json.parse<String>('address'),
       updatedAt: json.parse<String>('updated_at'),
       createdAt: json.parse<String>('created_at'),
-      occupation: json.parse<String>('occupation')
+      occupation: json.parse<String>('occupation'),
     );
   }
   Map<String, dynamic> toJson() {
@@ -273,7 +274,7 @@ class CustomerDetailsModel1 {
       'address': address,
       'updated_at': updatedAt,
       'created_at': createdAt,
-      'occupation': occupation
+      'occupation': occupation,
     };
   }
 }

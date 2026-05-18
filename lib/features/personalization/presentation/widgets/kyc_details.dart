@@ -517,20 +517,20 @@ class KycDetailsScreen extends StatelessWidget {
         const SizedBox(height: 10),
         InkWell(
           onTap: () {
-            final responseData =
-                SessionManager.instance.onboardingRespone.value;
+            // final responseData =
+            //     SessionManager.instance.onboardingRespone.value;
 
-            if (responseData != null) {
-              String prettyPrint = const JsonEncoder.withIndent(
-                '  ',
-              ).convert(responseData.toJson());
-              log('✅ Onboarding Response:\n$prettyPrint');
-            } else {
-              log('❌ Onboarding Response is currently NULL');
-              log(
-                '${SessionManager.instance.tokenDataModel.value?.id}----------${SessionManager.instance.getTokenData?.id}',
-              );
-            }
+            // if (responseData != null) {
+            //   String prettyPrint = const JsonEncoder.withIndent(
+            //     '  ',
+            //   ).convert(responseData.toJson());
+            //   log('✅ Onboarding Response:\n$prettyPrint');
+            // } else {
+            //   log('❌ Onboarding Response is currently NULL');
+            //   log(
+            //     '${SessionManager.instance.tokenDataModel.value?.id}----------${SessionManager.instance.getTokenData?.id}',
+            //   );
+            // }
           },
 
           child: InfoCard(

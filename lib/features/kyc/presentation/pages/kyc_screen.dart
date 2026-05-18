@@ -2285,8 +2285,8 @@ class KycScreen extends GetView<KycController> {
                 children: [
                   // --- AADHAAR LOCKED DATA ---
                   CustomTextField(
-                    enabled: false,
-                    readOnly: true,
+                    // enabled: false,
+                    // readOnly: true,
                     validationType: ValidationType.required,
                     height: 60,
                     label: "Full Name (As per Aadhaar)",

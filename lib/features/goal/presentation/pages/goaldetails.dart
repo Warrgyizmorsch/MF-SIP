@@ -120,12 +120,24 @@ class GoaldetailsPage extends StatelessWidget {
     final goalSipController = Get.find<GoalSipController>();
     final cartController = Get.find<CartController>();
     final FocusNode searchFocus = FocusNode();
+    goalSipController.selectedPopularFund.clear();
+
+    // final freshGoal = goalSipController.goalResponse.value?.data
+    //     ?.firstWhereOrNull((g) => g.id == goal);
+    // if (freshGoal != null) {
+    //   for (var fund in freshGoal.goalFunds) {
+    //     final name = fund.mutualFund?.schemeName;
+    //     if (name != null) {
+    //       goalSipController.selectedPopularFund.add(name);
+    //     }
+    //   }
+    // }
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-      useSafeArea: true,
+    useSafeArea: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
       ),
@@ -492,6 +504,7 @@ class GoaldetailsPage extends StatelessWidget {
         mutualController.setSearchFocus(false);
         Get.find<FundhouseController>().clearAllFilters();
         mutualController.silentReset();
+        goalSipController.selectedPopularFund.clear();
       });
     });
   }
@@ -722,9 +735,7 @@ class GoalDetailSection extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              _fmt(
-                                fund.sipAmount,
-                              ), 
+                              _fmt(fund.sipAmount),
                               style: UTextStyles.medium.copyWith(
                                 color: Ucolors.dark,
                                 fontWeight: FontWeight.w500,

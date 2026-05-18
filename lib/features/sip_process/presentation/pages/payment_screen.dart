@@ -802,7 +802,16 @@ class _BottomBar extends StatelessWidget {
             UElevatedBUtton(
               height: 54,
               onPressed: () {
-                // hook your payment logic here
+                if (Get.find<MfuController>().upiId.isEmpty &&
+                    Get.find<MfuController>().selectedMethod.value == 'upi') {
+                  showCustomToast(
+                    title: 'Enter UPI Id',
+                    message: '',
+                    backgroundColor: Colors.red,
+                    icon: Icons.warning,
+                  );
+                  return;
+                }
                 _showMandateSheet(context, amount);
               },
 

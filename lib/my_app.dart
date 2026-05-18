@@ -184,9 +184,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           builder: (context, widget) {
             final mediaQueryData = MediaQuery.of(context);
             return MediaQuery(
-              data: mediaQueryData.copyWith(
-                textScaler: TextScaler.noScaling,
-              ),
+              data: mediaQueryData.copyWith(textScaler: TextScaler.noScaling),
               child: ResponsiveBreakpoints.builder(
                 child: Obx(
                   () => SafeArea(
@@ -218,8 +216,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                                     const Text(
                                       "MF SIP Secured",
                                       style: TextStyle(
-
-
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                       ),

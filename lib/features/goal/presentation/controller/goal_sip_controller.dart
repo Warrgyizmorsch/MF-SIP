@@ -6,7 +6,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
-import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 
 import 'package:my_sip/features/fund_details/data/models/return_model.dart';
 import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
@@ -15,6 +14,12 @@ import 'package:my_sip/services/session_manager.dart';
 
 class GoalSipController extends GetxController {
   final GoalUseCases goalUseCases;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _recalculate();
+  }
 
   final cartController = Get.find<CartController>();
 
@@ -38,6 +43,85 @@ class GoalSipController extends GetxController {
 
   final isGoalSaved = false.obs;
 
+  final selectedGoalType = 'custom'.obs;
+  // final Map<String, Map<String, dynamic>> goalConfig = {
+  //   'car': {'amount': 1000000.0, 'duration': 5.0, 'rate': 12.0, 'name': 'Car'},
+  //   'bike': {'amount': 150000.0, 'duration': 3.0, 'rate': 12.0, 'name': 'Bike'},
+  //   'home': {
+  //     'amount': 3000000.0,
+  //     'duration': 10.0,
+  //     'rate': 12.0,
+  //     'name': 'Home',
+  //   },
+  //   'marriage': {
+  //     'amount': 500000.0,
+  //     'duration': 5.0,
+  //     'rate': 12.0,
+  //     'name': 'Marriage',
+  //   },
+  //   'vacation': {
+  //     'amount': 100000.0,
+  //     'duration': 2.0,
+  //     'rate': 12.0,
+  //     'name': 'Vacation',
+  //   },
+  //   'custom': {
+  //     'amount': 100000.0,
+  //     'duration': 2.0,
+  //     'rate': 12.0,
+  //     'name': 'Custom',
+  //   },
+  // };
+  final Map<String, Map<String, dynamic>> goalConfig = {
+    // ✅ Added 'db_id' to each category (Check with your backend team for the exact IDs!)
+    'car': {
+      'db_id': "1",
+      'amount': 1000000.0,
+      'duration': 5.0,
+      'rate': 12.0,
+      'name': 'Car',
+    },
+    'education': {
+      'db_id': "3",
+      'amount': 500000.0,
+      'duration': 3.0,
+      'rate': 12.0,
+      'name': 'Education',
+    },
+    'home': {
+      'db_id': "2",
+      'amount': 3000000.0,
+      'duration': 10.0,
+      'rate': 12.0,
+      'name': 'Home',
+    },
+    'marriage': {
+      'db_id': "4",
+      'amount': 500000.0,
+      'duration': 5.0,
+      'rate': 12.0,
+      'name': 'Marriage',
+    },
+    'vacation': {
+      'db_id': "6",
+      'amount': 100000.0,
+      'duration': 2.0,
+      'rate': 12.0,
+      'name': 'Vacation',
+    },
+    'custom': {
+      'db_id': "7",
+      'amount': 100000.0,
+      'duration': 2.0,
+      'rate': 12.0,
+      'name': 'Custom',
+    },
+
+    /// 3 - education
+    /// 4 - marriage
+    /// 5 - retirement
+  };
+
   // Yearly report
   final yearlyReport = <ReturnRow>[].obs;
 
@@ -51,10 +135,21 @@ class GoalSipController extends GetxController {
 
   GoalSipController({required this.goalUseCases});
 
-  @override
-  void onInit() {
-    super.onInit();
-    _recalculate();
+  void updateGoalType(String newType) {
+    if (!goalConfig.containsKey(newType)) return;
+
+    selectedGoalType.value = newType;
+    isGoalSaved.value = false;
+    selectedPopularFund.clear(); // Reset selections for the new goal setup
+    goalNameTextEditingController.clear();
+
+    final targetConfig = goalConfig[newType]!;
+
+    initFromGoal(
+      amount: targetConfig['amount'],
+      years: targetConfig['duration'],
+      rate: targetConfig['rate'],
+    );
   }
 
   void initFromGoal({
@@ -107,6 +202,8 @@ class GoalSipController extends GetxController {
       );
       return;
     }
+    final currentType = selectedGoalType.value;
+    final correctDbId = goalConfig[currentType]?['db_id'] ?? "6";
 
     final requestData = {
       "user_id": SessionManager.instance.getUserData?.id,
@@ -119,7 +216,7 @@ class GoalSipController extends GetxController {
       "invested_amount": invested.value,
       "status": "active",
       "goal_name": goalNameTextEditingController.text,
-      "goal_id": "1",
+      "goal_id": correctDbId,
     };
 
     final result = await goalUseCases.saveGoalUseCase.call(requestData);
@@ -234,14 +331,13 @@ class GoalSipController extends GetxController {
     try {
       final ImagePicker picker = ImagePicker();
 
-      // Using the exact same picker setup as your signature code
       final XFile? image = await picker.pickImage(
         source: source,
-        imageQuality: 80, // Optional: compresses the image slightly
+        imageQuality: 80,
       );
 
       if (image != null) {
-        coverImage.value = image; // Updates the Obx in the UI
+        coverImage.value = image;
       }
     } catch (e) {
       Get.snackbar("Error", "Failed to pick cover: $e");
@@ -365,5 +461,12 @@ class GoalSipController extends GetxController {
 
   bool isSelectedFund(String fundName) {
     return selectedPopularFund.contains(fundName);
+  }
+
+  // ✅ ADD THIS METHOD to GoalSipController
+  void resetStateForNewGoal() {
+    isGoalSaved.value = false;
+    savedDatabaseId.value = null;
+    selectedPopularFund.clear();
   }
 }

@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/animated/custom_toast.dart';
@@ -13,6 +14,7 @@ import 'package:my_sip/features/mfu/domain/entity/emandate_status_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/mandate_entity.dart';
 import 'package:my_sip/features/mfu/domain/usecases/mfu_usecases.dart';
 import 'package:my_sip/services/session_manager.dart';
+import 'package:pinput/pinput.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MfuController extends GetxController {
@@ -66,7 +68,15 @@ class MfuController extends GetxController {
   }
 
   Future<void> verifyUpi() async {
-    if (upiId.value.isEmpty) return;
+    if (upiId.value.isEmpty) {
+      showCustomToast(
+        title: 'Enter UPI Id',
+        message: '',
+        backgroundColor: Colors.red,
+        icon: Icons.warning,
+      );
+      return;
+    }
     isVerifying.value = true;
     await Future.delayed(const Duration(seconds: 2));
     isVerified.value = true;

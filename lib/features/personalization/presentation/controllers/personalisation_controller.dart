@@ -579,6 +579,8 @@ class PersonalisationController extends GetxController {
               email: apiData.data?.email,
               image: apiData.data?.image,
               panCard: apiData.data?.panCard,
+              kycStatus: apiData.data?.kycStatus,
+
               // ... map other fields
             );
 
@@ -673,16 +675,24 @@ class PersonalisationController extends GetxController {
 
   void _checkPanEditPermission() {
     final status = session.getUserData?.kycStatus?.toLowerCase();
+    final isVerified = session.isKycVerified.value;
+    final isPending = session.isKycPending.value;
 
-    if (status == 'approved' || status == 'pending') {
+    if (status == 'approved' ||
+        isVerified ||
+        isKycVerified.value ||
+        isPending ||
+        status == 'pending') {
       //   || status == 'timed out'    add for testing
       canEditPan.value = false;
+      debugPrint("🔒 PAN STATUS: LOCKED (canEditPan is ${canEditPan.value})");
     }
     // else if (status == 'not started' || status == null || status.isEmpty) {
     //   canEditPan.value = true;
     // }
     else {
       canEditPan.value = true;
+      print("🔓 PAN STATUS: UNLOCKED (canEditPan is ${canEditPan.value})");
     }
   }
 

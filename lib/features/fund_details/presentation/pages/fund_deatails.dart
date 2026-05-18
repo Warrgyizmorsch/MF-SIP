@@ -857,10 +857,6 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
   }
 }
 
-
-
-
-
 class WebOverviewScreen extends GetView<FundDetailsController> {
   final GlobalKey overViewKey;
   final GlobalKey returnsKey;
@@ -895,7 +891,7 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
           // SECTION 1: CHART & STATS OVERVIEW
           // ==========================================
           _buildResponsiveLayout(
-           context: context,
+            context: context,
             leftChild: CustomContainer(
               topPadding: 15,
               child: Column(
@@ -911,14 +907,16 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                       StatItem1(
                         title: 'Returns (1Y)',
                         amount: fund?.schemePerformanceList.isNotEmpty == true
-                            ? fund!.schemePerformanceList[0].oneYearReturn.toString()
+                            ? fund!.schemePerformanceList[0].oneYearReturn
+                                  .toString()
                             : '',
                         amountColor: Ucolors.success,
                         percentage: '%',
                       ),
                       StatItem1(
                         title: 'BenchMark (1Y)',
-                        amount: fund?.navChangePercentage.toStringAsFixed(2) ?? '',
+                        amount:
+                            fund?.navChangePercentage.toStringAsFixed(2) ?? '',
                         percentage: '%',
                         amountColor: Ucolors.success,
                       ),
@@ -930,10 +928,14 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                   Builder(
                     builder: (context) {
                       final navEntity = controller.navHistorydata.value;
-                      if (controller.navHistoryHasError.value || navEntity == null || navEntity.data.isEmpty) {
+                      if (controller.navHistoryHasError.value ||
+                          navEntity == null ||
+                          navEntity.data.isEmpty) {
                         return _buildChartErrorPlaceholder();
                       }
-                      return SchemeLineChart(navData: navEntity.data.reversed.toList());
+                      return SchemeLineChart(
+                        navData: navEntity.data.reversed.toList(),
+                      );
                     },
                   ),
                   const Gap(12),
@@ -972,7 +974,8 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                         const SizedBox(height: 10),
                         _twoColumnRow(
                           leftTitle: 'Expense Ratio',
-                          leftValue: '${fund?.expenseRatioPercentage.toString()}%',
+                          leftValue:
+                              '${fund?.expenseRatioPercentage.toString()}%',
                           rightTitle: 'AUM',
                           rightValue: '₹ ${fund?.schemeAssets.toString()} Cr',
                         ),
@@ -981,7 +984,8 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                           leftTitle: 'Lock In',
                           leftValue: 'No Lock-in',
                           rightTitle: 'Launch Date',
-                          rightValue: fund?.schemeInceptionDate.toString() ?? '',
+                          rightValue:
+                              fund?.schemeInceptionDate.toString() ?? '',
                         ),
                         const SizedBox(height: 10),
                         const Text(
@@ -1020,7 +1024,8 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                           color: Ucolors.success,
                           leftValue: '20.23%',
                           rightTitle: '5Y SIP Return',
-                          rightValue: fund?.schemePerformanceList.isNotEmpty == true
+                          rightValue:
+                              fund?.schemePerformanceList.isNotEmpty == true
                               ? '${fund!.schemePerformanceList[0].fiveYearReturn.toString()} %'
                               : '',
                           color2: Ucolors.success,
@@ -1039,90 +1044,103 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
           // ==========================================
           if (fund != null) ...[
             Builder(
-                builder: (context) {
-                  final returnss = controller.buildTrailingReturns(fund);
-                  return _buildResponsiveLayout(
-                    context: context,
-                    leftChild: CustomContainer(
-                      topPadding: 15,
-                      bottomPadding: 15,
-                      child: DefaultTabController(
-                        length: 2,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              key: returnsKey,
-                              padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                              child: const USectionHeading(
-                                title: 'Trailing Returns',
-                                showActionButton: false,
-                              ),
-                            ),
-                            _buildPillTabBar(tabs: const [Tab(text: "Table"), Tab(text: "Graph")]),
-                            const SizedBox(height: 8),
-                            SizedBox(
-                              height: 450,
-                              child: TabBarView(
-                                children: [
-                                  SingleChildScrollView(
-                                    child: Column(
-                                      children: [
-                                        TableHeader(
-                                          heading1: 'Period',
-                                          heading2: 'Scheme',
-                                          heading3: 'Category',
-                                          heading4: 'Benchmark',
-                                        ),
-                                        DashedLine(color: Colors.grey.shade200),
-                                        ...returnss.map((row) => ReturnsTableRow(data: row)),
-                                      ],
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 0),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        GroupedPerformanceBarChart(data: returnss),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          "Returns vs Benchmark",
-                                          style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    rightChild: CustomContainer(
-                      topPadding: 15,
-                      bottomPadding: 15,
+              builder: (context) {
+                final returnss = controller.buildTrailingReturns(fund);
+                return _buildResponsiveLayout(
+                  context: context,
+                  leftChild: CustomContainer(
+                    topPadding: 15,
+                    bottomPadding: 15,
+                    child: DefaultTabController(
+                      length: 2,
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
+                            key: returnsKey,
                             padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
                             child: const USectionHeading(
-                              title: 'Fund Performance',
+                              title: 'Trailing Returns',
                               showActionButton: false,
                             ),
                           ),
+                          _buildPillTabBar(
+                            tabs: const [
+                              Tab(text: "Table"),
+                              Tab(text: "Graph"),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
                           SizedBox(
-                            height: isDesktop ? 490 : 300,
-                            child: returnss.isEmpty
-                                ? const Center(child: CircularProgressIndicator())
-                                : YearlyReturnsChart(yearlyData: returnss),
+                            height: 450,
+                            child: TabBarView(
+                              children: [
+                                SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      TableHeader(
+                                        heading1: 'Period',
+                                        heading2: 'Scheme',
+                                        heading3: 'Category',
+                                        heading4: 'Benchmark',
+                                      ),
+                                      DashedLine(color: Colors.grey.shade200),
+                                      ...returnss.map(
+                                        (row) => ReturnsTableRow(data: row),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      GroupedPerformanceBarChart(
+                                        data: returnss,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        "Returns vs Benchmark",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey.shade500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
                     ),
-                  );
-                }),
+                  ),
+                  rightChild: CustomContainer(
+                    topPadding: 15,
+                    bottomPadding: 15,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                          child: const USectionHeading(
+                            title: 'Fund Performance',
+                            showActionButton: false,
+                          ),
+                        ),
+                        SizedBox(
+                          height: isDesktop ? 490 : 300,
+                          child: returnss.isEmpty
+                              ? const Center(child: CircularProgressIndicator())
+                              : YearlyReturnsChart(yearlyData: returnss),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
             const Gap(8),
           ],
 
@@ -1167,7 +1185,8 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                     leftValue: fund?.riskometerValue.toString() ?? '',
                     rightTitle: 'Volatile',
                     rightValue: fund?.riskStatisticsList.isNotEmpty == true
-                        ? fund!.riskStatisticsList[0].volatilityCm3Year.toString()
+                        ? fund!.riskStatisticsList[0].volatilityCm3Year
+                              .toString()
                         : '',
                     color: risk.color,
                   ),
@@ -1175,7 +1194,8 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                   _twoColumnRow(
                     leftTitle: 'Shape Ratio:',
                     leftValue: fund?.riskStatisticsList.isNotEmpty == true
-                        ? fund!.riskStatisticsList[0].sharpeRatioCm3Year.toString()
+                        ? fund!.riskStatisticsList[0].sharpeRatioCm3Year
+                              .toString()
                         : '',
                     rightTitle: 'Beta',
                     rightValue: fund?.riskStatisticsList.isNotEmpty == true
@@ -1190,7 +1210,9 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                   ),
                   Text(
                     'Your Principle Will be at:',
-                    style: Theme.of(context).textTheme.labelLarge!.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 3),
                   Text(
@@ -1216,19 +1238,31 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          RiskLegendItem(color: Colors.green, label: 'Very Low'),
+                          RiskLegendItem(
+                            color: Colors.green,
+                            label: 'Very Low',
+                          ),
                           SizedBox(height: 8),
                           RiskLegendItem(color: Colors.orange, label: 'Medium'),
                           SizedBox(height: 8),
-                          RiskLegendItem(color: Colors.redAccent, label: 'High'),
+                          RiskLegendItem(
+                            color: Colors.redAccent,
+                            label: 'High',
+                          ),
                         ],
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          RiskLegendItem(color: Colors.lightGreen, label: 'Low'),
+                          RiskLegendItem(
+                            color: Colors.lightGreen,
+                            label: 'Low',
+                          ),
                           SizedBox(height: 8),
-                          RiskLegendItem(color: Colors.amber, label: 'Moderate High'),
+                          RiskLegendItem(
+                            color: Colors.amber,
+                            label: 'Moderate High',
+                          ),
                           SizedBox(height: 8),
                           RiskLegendItem(color: Colors.red, label: 'Very High'),
                         ],
@@ -1252,7 +1286,9 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                 itemCount: fund.schemePeerComparisonList.length - 1,
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) => SizedBox(
-                  width: isDesktop ? MediaQuery.of(context).size.width * 0.45 : MediaQuery.of(context).size.width * 0.92,
+                  width: isDesktop
+                      ? MediaQuery.of(context).size.width * 0.45
+                      : MediaQuery.of(context).size.width * 0.92,
                   child: GestureDetector(
                     onTap: () {
                       Get.toNamed(
@@ -1260,7 +1296,9 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                         arguments: {
                           'name': controller.schemeName,
                           'imgUrl': controller.imgUrl,
-                          'name2': fund.schemePeerComparisonList[index + 1].schemeName,
+                          'name2': fund
+                              .schemePeerComparisonList[index + 1]
+                              .schemeName,
                         },
                       );
                     },
@@ -1281,32 +1319,52 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                             imgUrl: controller.imgUrl,
                             fund1: fund.schemeName,
                             year: fund.schemePerformanceList.isNotEmpty == true
-                                ? fund.schemePerformanceList[0].threeYearReturn.toString()
+                                ? fund.schemePerformanceList[0].threeYearReturn
+                                      .toString()
                                 : '',
                           ),
                           const SizedBox(height: 3),
                           Row(
                             children: [
-                              Expanded(child: DashedLine(color: Colors.grey.shade300)),
+                              Expanded(
+                                child: DashedLine(color: Colors.grey.shade300),
+                              ),
                               Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 6),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                ),
                                 padding: const EdgeInsets.all(5),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.blue, width: 1.2),
+                                  border: Border.all(
+                                    color: Colors.blue,
+                                    width: 1.2,
+                                  ),
                                 ),
                                 child: const Text(
                                   'VS',
-                                  style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w600),
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
-                              Expanded(child: DashedLine(color: Colors.grey.shade300)),
+                              Expanded(
+                                child: DashedLine(color: Colors.grey.shade300),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 5),
                           FundComparisonItem(
-                            year: fund.schemePeerComparisonList[index + 1].threeYearReturn.toString(),
-                            fund1: fund.schemePeerComparisonList[index + 1].schemeName.toString(),
+                            year: fund
+                                .schemePeerComparisonList[index + 1]
+                                .threeYearReturn
+                                .toString(),
+                            fund1: fund
+                                .schemePeerComparisonList[index + 1]
+                                .schemeName
+                                .toString(),
                           ),
                         ],
                       ),
@@ -1334,16 +1392,22 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       itemCount: fund.schemePeerComparisonList.length - 1,
-                      separatorBuilder: (context, index) => const SizedBox(width: 16),
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(width: 16),
                       itemBuilder: (context, index) {
                         final item = fund.schemePeerComparisonList[index + 1];
                         return GestureDetector(
                           onTap: () {
-                            controller.loadNewFund(item.schemeName, fund.schemeAmfiCode);
+                            controller.loadNewFund(
+                              item.schemeName,
+                              fund.schemeAmfiCode,
+                            );
                             debugPrint("Opening ${item.schemeName}");
                           },
                           child: Container(
-                            width: isDesktop ? 320 : MediaQuery.of(context).size.width * 0.75,
+                            width: isDesktop
+                                ? 320
+                                : MediaQuery.of(context).size.width * 0.75,
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               color: Colors.grey.shade50,
@@ -1355,7 +1419,11 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                                 Row(
                                   children: [
                                     ClipOval(
-                                      child: Image.asset(UImages.imp, height: 32, width: 32),
+                                      child: Image.asset(
+                                        UImages.imp,
+                                        height: 32,
+                                        width: 32,
+                                      ),
                                     ),
                                     const SizedBox(width: 10),
                                     Expanded(
@@ -1363,18 +1431,31 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                                         item.schemeName,
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
                                 const Spacer(),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    _buildMiniStat('1Y', '${item.oneYearReturn}%'),
-                                    _buildMiniStat('3Y', '${item.threeYearReturn}%'),
-                                    _buildMiniStat('5Y', '${item.fiveYearReturn}%'),
+                                    _buildMiniStat(
+                                      '1Y',
+                                      '${item.oneYearReturn}%',
+                                    ),
+                                    _buildMiniStat(
+                                      '3Y',
+                                      '${item.threeYearReturn}%',
+                                    ),
+                                    _buildMiniStat(
+                                      '5Y',
+                                      '${item.fiveYearReturn}%',
+                                    ),
                                   ],
                                 ),
                               ],
@@ -1415,7 +1496,12 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                   colorClickableText: Ucolors.primary,
                 ),
                 const SizedBox(height: 10),
-                Text('Fund Manager', style: UTextStyles.large.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  'Fund Manager',
+                  style: UTextStyles.large.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 if (managers.isNotEmpty)
                   ...managers.asMap().entries.map((entry) {
@@ -1425,7 +1511,10 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                         if (entry.key > 0)
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 2),
-                            child: DashedLine(color: Colors.grey.shade300, dashSpace: 4),
+                            child: DashedLine(
+                              color: Colors.grey.shade300,
+                              dashSpace: 4,
+                            ),
                           ),
                         fundManager(entry.value),
                       ],
@@ -1450,13 +1539,29 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
               }
             },
             children: [
-              _buildDetailRow('Fund Size', '₹${fund?.schemeAssets} Cr.', Icons.bar_chart_outlined),
+              _buildDetailRow(
+                'Fund Size',
+                '₹${fund?.schemeAssets} Cr.',
+                Icons.bar_chart_outlined,
+              ),
               _buildDashedDivider(),
-              _buildDetailRow('Min. Inv', '₹${fund?.minimumInvestment}', Icons.circle_outlined),
+              _buildDetailRow(
+                'Min. Inv',
+                '₹${fund?.minimumInvestment}',
+                Icons.circle_outlined,
+              ),
               _buildDashedDivider(),
-              _buildDetailRow('Min. Sip Inv', '₹${fund?.sipMinimumAmount}', Icons.change_circle_outlined),
+              _buildDetailRow(
+                'Min. Sip Inv',
+                '₹${fund?.sipMinimumAmount}',
+                Icons.change_circle_outlined,
+              ),
               _buildDashedDivider(),
-              _buildDetailRow('Expense Ratio', '${fund?.expenseRatioPercentage}%', Icons.pie_chart_outline),
+              _buildDetailRow(
+                'Expense Ratio',
+                '${fund?.expenseRatioPercentage}%',
+                Icons.pie_chart_outline,
+              ),
             ],
           ),
 
@@ -1471,19 +1576,37 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
               }
             },
             children: [
-              investmentDetailSection('Category', fund?.schemeCategory ?? '', Icons.category),
+              investmentDetailSection(
+                'Category',
+                fund?.schemeCategory ?? '',
+                Icons.category,
+              ),
               DashedLine(dashSpace: 0, color: Colors.grey.shade300),
               investmentDetailSection(
                 'Inv. Plan',
-                fund?.schemeName.contains('-') == true ? fund!.schemeName.split('-')[1].trim() : 'Nil',
+                fund?.schemeName.contains('-') == true
+                    ? fund!.schemeName.split('-')[1].trim()
+                    : 'Nil',
                 Icons.travel_explore_rounded,
               ),
               DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-              investmentDetailSection('Launched IN', fund?.schemeInceptionDate.toString() ?? '', Icons.calendar_month_sharp),
+              investmentDetailSection(
+                'Launched IN',
+                fund?.schemeInceptionDate.toString() ?? '',
+                Icons.calendar_month_sharp,
+              ),
               DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-              investmentDetailSection('Bench Mark', fund?.schemeBenchmark.toString() ?? '', Icons.track_changes),
+              investmentDetailSection(
+                'Bench Mark',
+                fund?.schemeBenchmark.toString() ?? '',
+                Icons.track_changes,
+              ),
               DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-              investmentDetailSection('Fund Type', fund?.schemeStatus.split(' ')[0].toString() ?? '', Icons.library_books),
+              investmentDetailSection(
+                'Fund Type',
+                fund?.schemeStatus.split(' ')[0].toString() ?? '',
+                Icons.library_books,
+              ),
             ],
           ),
 
@@ -1498,13 +1621,29 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
               }
             },
             children: [
-              investmentDetailSection('AMC', fund?.schemeCompany.toString() ?? '', Icons.bar_chart_rounded),
+              investmentDetailSection(
+                'AMC',
+                fund?.schemeCompany.toString() ?? '',
+                Icons.bar_chart_rounded,
+              ),
               DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-              investmentDetailSection('Email', controller.email, Icons.mail_outline),
+              investmentDetailSection(
+                'Email',
+                controller.email,
+                Icons.mail_outline,
+              ),
               DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-              investmentDetailSection('Office No', controller.contact, Icons.home_work_outlined),
+              investmentDetailSection(
+                'Office No',
+                controller.contact,
+                Icons.home_work_outlined,
+              ),
               DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-              investmentDetailSection('Address', controller.address, Icons.location_on_outlined),
+              investmentDetailSection(
+                'Address',
+                controller.address,
+                Icons.location_on_outlined,
+              ),
             ],
           ),
         ],
@@ -1533,38 +1672,20 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                flex: 6,
-                child: leftChild,
-              ),
+              Expanded(flex: 6, child: leftChild),
               const Gap(4),
-              Expanded(
-                flex: 4,
-                child: rightChild,
-              ),
+              Expanded(flex: 4, child: rightChild),
             ],
           );
         }
 
         // Tablet
         if (isTablet) {
-          return Column(
-            children: [
-              leftChild,
-              const Gap(12),
-              rightChild,
-            ],
-          );
+          return Column(children: [leftChild, const Gap(12), rightChild]);
         }
 
         // Mobile
-        return Column(
-          children: [
-            leftChild,
-            const Gap(8),
-            rightChild,
-          ],
-        );
+        return Column(children: [leftChild, const Gap(8), rightChild]);
       },
     );
   }
@@ -1577,7 +1698,10 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
         borderRadius: BorderRadius.circular(25),
       ),
       child: TabBar(
-        indicator: BoxDecoration(color: Ucolors.primary, borderRadius: BorderRadius.circular(25)),
+        indicator: BoxDecoration(
+          color: Ucolors.primary,
+          borderRadius: BorderRadius.circular(25),
+        ),
         labelColor: Colors.white,
         unselectedLabelColor: Colors.grey.shade600,
         labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
@@ -1610,11 +1734,18 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
           child: ExpansionTile(
             initiallyExpanded: isActive,
             onExpansionChanged: onTapChanged,
-            tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+            tilePadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 0,
+            ),
             childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
             title: Text(
               title,
-              style: TextStyle(fontSize: 15, color: Ucolors.dark, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: 15,
+                color: Ucolors.dark,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             children: [
               Divider(height: 1, color: Colors.grey.shade100),
@@ -1628,35 +1759,52 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
 
   Widget _buildPortfolioSection(var entity) {
     // 1. Cast the map data explicitly to Map<String, double> to prevent type inference errors
-    final Map<String, double> assetMap = Map<String, double>.from(entity?.assetAllocation ?? {});
+    final Map<String, double> assetMap = Map<String, double>.from(
+      entity?.assetAllocation ?? {},
+    );
 
     // 2. Now the compiler knows exactly that 'e' is a MapEntry<String, double>
-    final assetList = assetMap.entries
-        .where((MapEntry<String, double> e) => e.value > 0)
-        .toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    final assetList =
+        assetMap.entries
+            .where((MapEntry<String, double> e) => e.value > 0)
+            .toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
 
     final mcap = entity?.mcapAllocation;
 
     // 3. Apply explicit typing to the Market Cap list items to prevent the same issue here
     final List<MapEntry<String, double>> mcapList = [
       if ((mcap?.marketCapLargecapPercent ?? 0) > 0)
-        MapEntry('Large Cap', (mcap!.marketCapLargecapPercent as num).toDouble()),
+        MapEntry(
+          'Large Cap',
+          (mcap!.marketCapLargecapPercent as num).toDouble(),
+        ),
       if ((mcap?.marketCapMidcapPercent ?? 0) > 0)
         MapEntry('Mid Cap', (mcap!.marketCapMidcapPercent as num).toDouble()),
       if ((mcap?.marketCapSmallcapPercent ?? 0) > 0)
-        MapEntry('Small Cap', (mcap!.marketCapSmallcapPercent as num).toDouble()),
+        MapEntry(
+          'Small Cap',
+          (mcap!.marketCapSmallcapPercent as num).toDouble(),
+        ),
     ];
 
     if (controller.isPortfolioLoading.value) {
-      return const SizedBox(height: 250, child: Center(child: CircularProgressIndicator()));
+      return const SizedBox(
+        height: 250,
+        child: Center(child: CircularProgressIndicator()),
+      );
     }
 
     return DefaultTabController(
       length: 2,
       child: Column(
         children: [
-          _buildPillTabBar(tabs: const [Tab(text: "Asset Allocation"), Tab(text: "Market Cap")]),
+          _buildPillTabBar(
+            tabs: const [
+              Tab(text: "Asset Allocation"),
+              Tab(text: "Market Cap"),
+            ],
+          ),
           const Gap(10),
           Divider(color: Colors.grey.shade200),
           SizedBox(
@@ -1675,14 +1823,16 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
             length: 2,
             child: Column(
               children: [
-                _buildPillTabBar(tabs: const [Tab(text: "Top 10 Sector"), Tab(text: "Top 10 Stock")]),
+                _buildPillTabBar(
+                  tabs: const [
+                    Tab(text: "Top 10 Sector"),
+                    Tab(text: "Top 10 Stock"),
+                  ],
+                ),
                 SizedBox(
                   height: 400,
                   child: TabBarView(
-                    children: [
-                      _buildSectorTab(entity),
-                      _buildStockTab(entity),
-                    ],
+                    children: [_buildSectorTab(entity), _buildStockTab(entity)],
                   ),
                 ),
               ],
@@ -1693,12 +1843,16 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
     );
   }
 
-  Widget _buildAllocationTab(List<MapEntry<String, dynamic>> data, String centerText) {
+  Widget _buildAllocationTab(
+    List<MapEntry<String, dynamic>> data,
+    String centerText,
+  ) {
     if (data.isEmpty) {
       return AnimatedEmptyState(
         icon: Iconsax.ghost,
         title: 'No Market Cap Data',
-        message: 'The AMC hasnt disclosed the Market Cap for this fund, or it may not be applicable to this scheme',
+        message:
+            'The AMC hasnt disclosed the Market Cap for this fund, or it may not be applicable to this scheme',
       );
     }
 
@@ -1740,7 +1894,11 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
               Text(
                 centerText,
                 textAlign: TextAlign.center,
-                style: UTextStyles.medium.copyWith(color: Ucolors.dark, fontWeight: FontWeight.bold, fontSize: 12),
+                style: UTextStyles.medium.copyWith(
+                  color: Ucolors.dark,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
               ),
             ],
           ),
@@ -1767,7 +1925,8 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
     if (entity == null || names.isEmpty || values.isEmpty) {
       return AnimatedEmptyState(
         title: 'No Sector Data',
-        message: 'The AMC hasnt disclosed the holdings for this fund, or it may not be applicable to this scheme',
+        message:
+            'The AMC hasnt disclosed the holdings for this fund, or it may not be applicable to this scheme',
       );
     }
 
@@ -1784,7 +1943,11 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
         children: top10Items.map((entry) {
           return Padding(
             padding: const EdgeInsets.only(top: 10),
-            child: PercentageBar(title: entry.key, percentage: entry.value, color: Colors.blue),
+            child: PercentageBar(
+              title: entry.key,
+              percentage: entry.value,
+              color: Colors.blue,
+            ),
           );
         }).toList(),
       ),
@@ -1798,14 +1961,18 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
     if (entity == null || names.isEmpty || values.isEmpty) {
       return AnimatedEmptyState(
         title: 'No Stock Data',
-        message: 'The AMC hasnt disclosed the holdings for this fund, or it may not be applicable to this scheme',
+        message:
+            'The AMC hasnt disclosed the holdings for this fund, or it may not be applicable to this scheme',
       );
     }
 
     int count = names.length < values.length ? names.length : values.length;
     final dateRegex = RegExp(r'\d{1,2}[/-]\d{1,2}[/-]\d{2,4}');
     final percentageRegex = RegExp(r'\d+(\.\d+)?\s*%');
-    final faceValueRegex = RegExp(r'\s+(EQ|NEW|FV|RS\.?|RE\.?|Rs\.?|Re\.?)\b.*$', caseSensitive: false);
+    final faceValueRegex = RegExp(
+      r'\s+(EQ|NEW|FV|RS\.?|RE\.?|Rs\.?|Re\.?)\b.*$',
+      caseSensitive: false,
+    );
     final punctuationRegex = RegExp(r'[()\[\]\-]');
 
     List<MapEntry<String, double>> holdings = [];
@@ -1835,8 +2002,22 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
           const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Stock Allocation', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Ucolors.darkgrey)),
-              Text('Holding %', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Ucolors.darkgrey)),
+              Text(
+                'Stock Allocation',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  color: Ucolors.darkgrey,
+                ),
+              ),
+              Text(
+                'Holding %',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  color: Ucolors.darkgrey,
+                ),
+              ),
             ],
           ),
           const Gap(10),
@@ -1845,7 +2026,11 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
           ...top10Items.map((item) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 10),
-              child: PercentageBar(title: item.key, percentage: item.value, color: Colors.blue),
+              child: PercentageBar(
+                title: item.key,
+                percentage: item.value,
+                color: Colors.blue,
+              ),
             );
           }),
         ],
@@ -1866,14 +2051,34 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
             decoration: BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, spreadRadius: 2)],
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 8,
+                  spreadRadius: 2,
+                ),
+              ],
             ),
-            child: Icon(Icons.show_chart_rounded, size: 28, color: Colors.grey.shade400),
+            child: Icon(
+              Icons.show_chart_rounded,
+              size: 28,
+              color: Colors.grey.shade400,
+            ),
           ),
           const SizedBox(height: 16),
-          Text('Chart Unavailable', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.grey.shade800)),
+          Text(
+            'Chart Unavailable',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade800,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text('We couldn\'t fetch the NAV history right now.', style: TextStyle(fontSize: 12, color: Colors.grey.shade500)),
+          Text(
+            'We couldn\'t fetch the NAV history right now.',
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+          ),
           const SizedBox(height: 12),
           TextButton.icon(
             onPressed: () {
@@ -1882,12 +2087,25 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                 period: controller.selectedPeriod.value,
               );
             },
-            icon: Icon(Icons.refresh_rounded, size: 16, color: Colors.blue.shade700),
-            label: Text('Retry', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.blue.shade700)),
+            icon: Icon(
+              Icons.refresh_rounded,
+              size: 16,
+              color: Colors.blue.shade700,
+            ),
+            label: Text(
+              'Retry',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.blue.shade700,
+              ),
+            ),
             style: TextButton.styleFrom(
               backgroundColor: Colors.blue.shade50,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
@@ -1901,9 +2119,23 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 10, color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 10,
+            color: Colors.grey.shade600,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
         const SizedBox(height: 2),
-        Text(value, style: TextStyle(fontSize: 12, color: Colors.green.shade800, fontWeight: FontWeight.bold)),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.green.shade800,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ],
     );
   }
@@ -1915,9 +2147,15 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
         children: [
           Icon(icon, size: 16, color: Colors.grey.shade600),
           const SizedBox(width: 10),
-          Text(label, style: TextStyle(color: Colors.grey.shade700, fontSize: 12)),
+          Text(
+            label,
+            style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
+          ),
           const Spacer(),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+          Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+          ),
         ],
       ),
     );
@@ -1934,8 +2172,20 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text('● $title', style: UTextStyles.medium.copyWith(color: color, fontWeight: FontWeight.w600)),
-        Text(value, style: UTextStyles.medium.copyWith(color: color, fontWeight: FontWeight.w600)),
+        Text(
+          '● $title',
+          style: UTextStyles.medium.copyWith(
+            color: color,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Text(
+          value,
+          style: UTextStyles.medium.copyWith(
+            color: color,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ],
     );
   }
@@ -1950,7 +2200,13 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
           const SizedBox(width: 10),
           Expanded(
             flex: 2,
-            child: Text(title, style: UTextStyles.medium.copyWith(fontWeight: FontWeight.w400, fontSize: 12)),
+            child: Text(
+              title,
+              style: UTextStyles.medium.copyWith(
+                fontWeight: FontWeight.w400,
+                fontSize: 12,
+              ),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -1959,7 +2215,11 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
               value,
               textAlign: TextAlign.right,
               softWrap: true,
-              style: UTextStyles.medium.copyWith(fontWeight: FontWeight.w600, color: Ucolors.dark, fontSize: 12),
+              style: UTextStyles.medium.copyWith(
+                fontWeight: FontWeight.w600,
+                color: Ucolors.dark,
+                fontSize: 12,
+              ),
             ),
           ),
         ],
@@ -1976,7 +2236,13 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
         backgroundColor: Ucolors.skyblue1,
         child: Icon(Icons.person, color: Ucolors.dark, size: 13),
       ),
-      title: Text(name, style: UTextStyles.medium.copyWith(fontWeight: FontWeight.w600, color: Ucolors.dark)),
+      title: Text(
+        name,
+        style: UTextStyles.medium.copyWith(
+          fontWeight: FontWeight.w600,
+          color: Ucolors.dark,
+        ),
+      ),
       trailing: CompactIcon(
         icon: Icons.arrow_forward_ios_rounded,
         iconColor: Ucolors.darkgrey,
@@ -5969,7 +6235,7 @@ class _SpeedometerGaugeState extends State<SpeedometerGauge> {
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
     return SizedBox(
       key: _gaugeKey,
-      height: isDesktop?250: 130,
+      height: isDesktop ? 250 : 130,
       child: SfRadialGauge(
         axes: [
           RadialAxis(

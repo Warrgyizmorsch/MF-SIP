@@ -180,14 +180,17 @@ class _WebDashboardLayout extends StatelessWidget {
                 /// TABLET LAYOUT
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [_buildLeftSectionTable(context,isPending)],
+                    children: [_buildLeftSectionTable(context, isPending)],
                   )
                 /// DESKTOP LAYOUT
                 : Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       /// LEFT SECTION
-                      Expanded(flex: 6, child: _buildLeftSection(context, isPending)),
+                      Expanded(
+                        flex: 6,
+                        child: _buildLeftSection(context, isPending),
+                      ),
 
                       const SizedBox(width: 30),
 
@@ -202,14 +205,12 @@ class _WebDashboardLayout extends StatelessWidget {
   }
 
   Widget _buildLeftSectionTable(BuildContext context, bool isPending) {
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
 
       children: [
         /// HERo
-        isPending?
-         _buildHeroBanner():_buildKycIsComplete(),
+        isPending ? _buildHeroBanner() : _buildKycIsComplete(),
 
         const Gap(24),
 
@@ -248,14 +249,13 @@ class _WebDashboardLayout extends StatelessWidget {
   // LEFT SECTION
   // =========================================================
 
-  Widget _buildLeftSection(BuildContext context,bool isPending) {
+  Widget _buildLeftSection(BuildContext context, bool isPending) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         /// HERO
         ///
-        isPending?
-        _buildHeroBanner():_buildKycIsComplete(),
+        isPending ? _buildHeroBanner() : _buildKycIsComplete(),
 
         const Gap(24),
 
@@ -298,7 +298,6 @@ class _WebDashboardLayout extends StatelessWidget {
 
   Widget _buildRecentCard() {
     return Obx(() {
-
       final bool isLoading = mutualController.isLoading.value;
       final List recentList = mutualController.recentlyViewedFunds;
 
@@ -333,7 +332,6 @@ class _WebDashboardLayout extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 const USectionHeading(
                   title: 'Recently Viewed',
                   fontSize: 22,
@@ -408,7 +406,6 @@ class _WebDashboardLayout extends StatelessWidget {
 
                       return PopularFundCard(
                         onTap: () {
-
                           Get.find<MutualFundController>()
                               .addToLocalRecentlyViewed(fund);
 
@@ -417,9 +414,8 @@ class _WebDashboardLayout extends StatelessWidget {
                             arguments: {
                               'scheme': fund.baseSchemeName,
                               'imgUrl':
-                              "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}",
-                              'scheme_code':
-                              fund.schemeCode.toString(),
+                                  "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}",
+                              'scheme_code': fund.schemeCode.toString(),
                               'email': fund.amc?.email,
                               'address': fund.amc?.address,
                               'contact': fund.amc?.contact,
@@ -1075,6 +1071,7 @@ class _WebDashboardLayout extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildKycIsComplete() {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -1087,93 +1084,87 @@ class _WebDashboardLayout extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: Colors.grey.shade100,
-            ),
+            border: Border.all(color: Colors.grey.shade100),
           ),
 
           /// MOBILE
           child: isMobile
               ? SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                Expanded(
-                  child: WebActionCard(
-                    icon: Icons.flag,
-                    title: "Plan your goals",
-                    subtitle: "Set clear financial targets",
-                    color: Colors.blueAccent,
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: WebActionCard(
+                          icon: Icons.flag,
+                          title: "Plan your goals",
+                          subtitle: "Set clear financial targets",
+                          color: Colors.blueAccent,
+                        ),
+                      ),
+
+                      const SizedBox(width: 12),
+
+                      Expanded(
+                        child: WebActionCard(
+                          icon: Icons.person_search,
+                          title: "Know your investment personality",
+                          subtitle: "Discover your risk profile",
+                          color: Colors.deepPurpleAccent,
+                        ),
+                      ),
+
+                      const SizedBox(width: 12),
+
+                      Expanded(
+                        child: WebActionCard(
+                          icon: Icons.shopping_basket,
+                          title: "Explore your investment basket",
+                          subtitle: "Diversify across funds",
+                          color: Colors.green,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-
-                const SizedBox(width: 12),
-
-                Expanded(
-
-                  child: WebActionCard(
-                    icon: Icons.person_search,
-                    title: "Know your investment personality",
-                    subtitle: "Discover your risk profile",
-                    color: Colors.deepPurpleAccent,
-                  ),
-                ),
-
-                const SizedBox(width: 12),
-
-                Expanded(
-                  child: WebActionCard(
-                    icon: Icons.shopping_basket,
-                    title: "Explore your investment basket",
-                    subtitle: "Diversify across funds",
-                    color: Colors.green,
-                  ),
-                ),
-              ],
-            ),
-          )
-
-          /// WEB / TABLET
+                )
+              /// WEB / TABLET
               : Row(
-            children: [
-              Expanded(
-                child: WebActionCard(
-                  icon: Icons.flag,
-                  title: "Plan your goals",
-                  subtitle: "Set clear financial targets",
-                  color: Colors.blueAccent,
+                  children: [
+                    Expanded(
+                      child: WebActionCard(
+                        icon: Icons.flag,
+                        title: "Plan your goals",
+                        subtitle: "Set clear financial targets",
+                        color: Colors.blueAccent,
+                      ),
+                    ),
+
+                    const SizedBox(width: 16),
+
+                    Expanded(
+                      child: WebActionCard(
+                        icon: Icons.person_search,
+                        title: "Know your investment personality",
+                        subtitle: "Discover your risk profile",
+                        color: Colors.deepPurpleAccent,
+                      ),
+                    ),
+
+                    const SizedBox(width: 16),
+
+                    Expanded(
+                      child: WebActionCard(
+                        icon: Icons.shopping_basket,
+                        title: "Explore your investment basket",
+                        subtitle: "Diversify across funds",
+                        color: Colors.green,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-
-              const SizedBox(width: 16),
-
-              Expanded(
-                child: WebActionCard(
-                  icon: Icons.person_search,
-                  title: "Know your investment personality",
-                  subtitle: "Discover your risk profile",
-                  color: Colors.deepPurpleAccent,
-                ),
-              ),
-
-              const SizedBox(width: 16),
-
-              Expanded(
-                child: WebActionCard(
-                  icon: Icons.shopping_basket,
-                  title: "Explore your investment basket",
-                  subtitle: "Diversify across funds",
-                  color: Colors.green,
-                ),
-              ),
-            ],
-          ),
         );
       },
     );
   }
-
-
 
   // =========================================================
   // QUICK ACTIONS
@@ -1187,9 +1178,7 @@ class _WebDashboardLayout extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: Colors.grey.shade100,
-        ),
+        border: Border.all(color: Colors.grey.shade100),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1279,7 +1268,6 @@ class _WebDashboardLayout extends StatelessWidget {
         final bool isMobile = width < 600;
         final int crossAxisCount = isMobile ? 2 : 3;
 
-
         return Container(
           width: double.infinity,
           margin: const EdgeInsets.symmetric(vertical: 20),
@@ -1299,7 +1287,6 @@ class _WebDashboardLayout extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               const Text(
                 "Explore Categories",
                 style: TextStyle(
@@ -2022,7 +2009,7 @@ class _MobileLayout extends StatelessWidget {
                   }
                   // 4. If Bank is missing (even if KYC is pending)
                   else if (noBank) {
-                    bgColor = Ucolors.blue;
+                    bgColor = Ucolors.primary;
                     iconColor = Ucolors.light;
                     titleColor = Ucolors.light;
                     subTextColor = Ucolors.light.withOpacity(0.8);
@@ -2151,7 +2138,6 @@ class _MobileLayout extends StatelessWidget {
                     ),
                   );
                 }),
-
               ],
             ),
           ),
@@ -2296,11 +2282,11 @@ class _MobileLayout extends StatelessWidget {
                   iconData: Icons.directions_car_filled_rounded,
                 ),
                 GoalBaseSIPCard(
-                  title: 'Bike Goal',
-                  iconData: Icons.pedal_bike_rounded,
+                  title: 'Education',
+                  iconData: Icons.menu_book,
                   onTap: () => Get.toNamed(
                     AppRoutes.ihavegoal,
-                    arguments: {'goalType': 'bike'},
+                    arguments: {'goalType': 'education'},
                   ),
                   // onTap: () => Get.toNamed(AppRoutes.comingSoon),
                 ),
@@ -3828,6 +3814,7 @@ class _CollectionItemMobState extends State<CollectionItemMob> {
     );
   }
 }
+
 class WebActionCard extends StatefulWidget {
   final IconData icon;
   final String title;
@@ -3950,14 +3937,11 @@ class _WebActionCardState extends State<WebActionCard> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: isHovered
-                      ? [
-                    Colors.white,
-                    widget.color.withOpacity(0.06),
-                  ]
+                      ? [Colors.white, widget.color.withOpacity(0.06)]
                       : [
-                    widget.color.withOpacity(0.08),
-                    widget.color.withOpacity(0.03),
-                  ],
+                          widget.color.withOpacity(0.08),
+                          widget.color.withOpacity(0.03),
+                        ],
                 ),
 
                 /// BORDER
@@ -4044,9 +4028,7 @@ class _WebActionCardState extends State<WebActionCard> {
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.w700,
                       height: 1.3,
-                      color: isHovered
-                          ? widget.color
-                          : const Color(0xff1E293B),
+                      color: isHovered ? widget.color : const Color(0xff1E293B),
                     ),
                   ),
 
@@ -4073,6 +4055,7 @@ class _WebActionCardState extends State<WebActionCard> {
     );
   }
 }
+
 class CollectionItem extends StatefulWidget {
   final String iconImg;
   final String title;
