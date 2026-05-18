@@ -3663,7 +3663,7 @@ class GoalBaseSIPCard extends StatelessWidget {
                   title,
                   style: UTextStyles.small.copyWith(
                     color: Ucolors.dark,
-                    fontSize: 13,
+                    fontSize: 11,
                     fontFamily: UTextStyles.font,
                     fontWeight: FontWeight.w500,
                   ),
