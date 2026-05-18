@@ -409,68 +409,68 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
 
     return Column(
       children: [
-
-          Container(
-            height: 80,
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                IconButton(
-                  onPressed: () => Get.back(),
-                  icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-                ),
-                const Gap(16),
-                Expanded(
-                  child: Text(
-                    "Fund Details",
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const Gap(16),
-                Obx(() {
-                  final wishlistController = Get.find<WishlistController>();
-
-                  // Assuming controller is your Detail/Item controller
-                  final String code = controller.schemeCode;
-                  final String name = controller.schemeName;
-
-                  final bool isFav = wishlistController.isFavorite(code);
-
-                  return CompactIcon(
-                    icon: isFav ? Iconsax.heart5 : Iconsax.heart,
-                    iconColor: isFav
-                        ? Colors.red
-                        : Ucolors.darkgrey, // Using your Ucolors constant
-                    onPressed: () => wishlistController.toggleWishlist(code, name),
-                  );
-                }),
-           // IconButton(
-           //        onPressed: () => Get.toNamed(AppRoutes.watchlist),
-           //        icon: const Icon(Iconsax.archive_tick),
-           //      ),
-                const Gap(8),
-                IconButton(
-                  onPressed: () => Get.toNamed(AppRoutes.cart),
-                  icon: const Icon(Iconsax.shopping_cart),
-                ),
-              ],
-            ),
+        Container(
+          height: 80,
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () => Get.back(),
+                icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+              ),
+              const Gap(16),
+              Expanded(
+                child: Text(
+                  "Fund Details",
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const Gap(16),
+              Obx(() {
+                final wishlistController = Get.find<WishlistController>();
+
+                // Assuming controller is your Detail/Item controller
+                final String code = controller.schemeCode;
+                final String name = controller.schemeName;
+
+                final bool isFav = wishlistController.isFavorite(code);
+
+                return CompactIcon(
+                  icon: isFav ? Iconsax.heart5 : Iconsax.heart,
+                  iconColor: isFav
+                      ? Colors.red
+                      : Ucolors.darkgrey, // Using your Ucolors constant
+                  onPressed: () =>
+                      wishlistController.toggleWishlist(code, name),
+                );
+              }),
+              // IconButton(
+              //        onPressed: () => Get.toNamed(AppRoutes.watchlist),
+              //        icon: const Icon(Iconsax.archive_tick),
+              //      ),
+              const Gap(8),
+              IconButton(
+                onPressed: () => Get.toNamed(AppRoutes.cart),
+                icon: const Icon(Iconsax.shopping_cart),
+              ),
+            ],
+          ),
+        ),
 
         // Main Content
         Expanded(
@@ -500,9 +500,7 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                               controller: controller,
                             ),
                             const Gap(24),
-                            _DesktopPerformanceSection(
-                              controller: controller,
-                            ),
+                            _DesktopPerformanceSection(controller: controller),
                             const Gap(24),
                             _DesktopOverviewCard(fund: fund),
                             const Gap(24),
@@ -557,25 +555,17 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
 // ==========================================
 
 class _DesktopFundHeader extends StatelessWidget {
-
   final dynamic fund;
   final FundDetailsController controller;
 
-  const _DesktopFundHeader({
-    required this.fund,
-    required this.controller,
-  });
+  const _DesktopFundHeader({required this.fund, required this.controller});
 
   @override
   Widget build(BuildContext context) {
-
     return Obx(() {
-
       final fund = controller.fundDetail.value;
 
-      final bool isOpen =
-          fund?.schemeStatus ==
-              'Open Ended Schemes';
+      final bool isOpen = fund?.schemeStatus == 'Open Ended Schemes';
 
       return Container(
         padding: const EdgeInsets.all(28),
@@ -583,12 +573,9 @@ class _DesktopFundHeader extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
 
-          borderRadius:
-          BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(22),
 
-          border: Border.all(
-            color: Colors.grey.shade200,
-          ),
+          border: Border.all(color: Colors.grey.shade200),
 
           boxShadow: [
             BoxShadow(
@@ -600,15 +587,12 @@ class _DesktopFundHeader extends StatelessWidget {
         ),
 
         child: Row(
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
 
           children: [
-
             /// =====================================
             /// LOGO
             /// =====================================
-
             Container(
               width: 82,
               height: 82,
@@ -620,10 +604,7 @@ class _DesktopFundHeader extends StatelessWidget {
 
                 color: Colors.white,
 
-                border: Border.all(
-                  color: Colors.grey.shade200,
-                  width: 2,
-                ),
+                border: Border.all(color: Colors.grey.shade200, width: 2),
 
                 boxShadow: [
                   BoxShadow(
@@ -634,9 +615,7 @@ class _DesktopFundHeader extends StatelessWidget {
               ),
 
               child: ClipOval(
-                child: CustomCachedImage(
-                  imageUrl: controller.imgUrl,
-                ),
+                child: CustomCachedImage(imageUrl: controller.imgUrl),
               ),
             ),
 
@@ -645,23 +624,18 @@ class _DesktopFundHeader extends StatelessWidget {
             /// =====================================
             /// FUND INFO
             /// =====================================
-
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
 
                 children: [
-
                   /// FUND NAME
                   Text(
-                    fund?.schemeName ??
-                        'Loading Fund Name...',
+                    fund?.schemeName ?? 'Loading Fund Name...',
 
                     maxLines: 3,
 
-                    overflow:
-                    TextOverflow.ellipsis,
+                    overflow: TextOverflow.ellipsis,
 
                     style: const TextStyle(
                       fontSize: 26,
@@ -675,8 +649,7 @@ class _DesktopFundHeader extends StatelessWidget {
 
                   /// CATEGORY
                   Text(
-                    fund?.schemeCategory ??
-                        'Mutual Fund',
+                    fund?.schemeCategory ?? 'Mutual Fund',
 
                     style: TextStyle(
                       fontSize: 14,
@@ -693,43 +666,28 @@ class _DesktopFundHeader extends StatelessWidget {
                     runSpacing: 12,
 
                     children: [
-
                       _buildModernBadge(
-                        label:
-                        fund?.riskometerValue ??
-                            'High Risk',
+                        label: fund?.riskometerValue ?? 'High Risk',
 
-                        color: _getRiskColor(
-                          fund?.riskometerValue ?? '',
-                        ),
+                        color: _getRiskColor(fund?.riskometerValue ?? ''),
 
-                        icon:
-                        Icons.speed_rounded,
+                        icon: Icons.speed_rounded,
                       ),
 
                       _buildModernBadge(
-                        label:
-                        isOpen
-                            ? 'OPEN'
-                            : 'CLOSED',
+                        label: isOpen ? 'OPEN' : 'CLOSED',
 
-                        color:
-                        isOpen
-                            ? Ucolors.success
-                            : Ucolors.red,
+                        color: isOpen ? Ucolors.success : Ucolors.red,
 
                         icon: Icons.lens,
                         isDot: true,
                       ),
 
                       _buildModernBadge(
-                        label:
-                        fund?.schemeName ??
-                            'Growth',
+                        label: fund?.schemeName ?? 'Growth',
 
                         color: Ucolors.primary,
-                        icon:
-                        Icons.auto_graph_rounded,
+                        icon: Icons.auto_graph_rounded,
                       ),
                     ],
                   ),
@@ -776,45 +734,30 @@ class _DesktopFundHeader extends StatelessWidget {
     required IconData icon,
     bool isDot = false,
   }) {
-
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 9,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
 
       decoration: BoxDecoration(
         color: color.withOpacity(.08),
 
-        borderRadius:
-        BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(30),
 
-        border: Border.all(
-          color: color.withOpacity(.18),
-        ),
+        border: Border.all(color: color.withOpacity(.18)),
       ),
 
       child: Row(
         mainAxisSize: MainAxisSize.min,
 
         children: [
-
           if (isDot)
             Container(
               width: 8,
               height: 8,
 
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             )
           else
-            Icon(
-              icon,
-              size: 15,
-              color: color,
-            ),
+            Icon(icon, size: 15, color: color),
 
           const Gap(8),
 
@@ -837,17 +780,11 @@ class _DesktopFundHeader extends StatelessWidget {
   // INFO TILE
   // ==========================================
 
-  Widget _infoTile({
-    required String title,
-    required String value,
-  }) {
-
+  Widget _infoTile({required String title, required String value}) {
     return Column(
-      crossAxisAlignment:
-      CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
 
       children: [
-
         Text(
           title,
 
@@ -868,8 +805,7 @@ class _DesktopFundHeader extends StatelessWidget {
 
             maxLines: 1,
 
-            overflow:
-            TextOverflow.ellipsis,
+            overflow: TextOverflow.ellipsis,
 
             style: const TextStyle(
               fontSize: 14,
@@ -887,9 +823,7 @@ class _DesktopFundHeader extends StatelessWidget {
   // ==========================================
 
   Color _getRiskColor(String risk) {
-
-    final riskLower =
-    risk.toLowerCase();
+    final riskLower = risk.toLowerCase();
 
     if (riskLower.contains('very high')) {
       return Ucolors.red;

@@ -794,6 +794,11 @@ class _BottomBar extends StatelessWidget {
               ],
             ),
             const Gap(12),
+
+            // Obx(
+            //   () => Get.find<MfuController>().isCreatingMandate.value
+            //       ? const CircularProgressIndicator()
+            //       :
             UElevatedBUtton(
               height: 54,
               onPressed: () {
@@ -823,6 +828,7 @@ class _BottomBar extends StatelessWidget {
                 ],
               ),
             ),
+            // ),
           ],
         ),
       ),

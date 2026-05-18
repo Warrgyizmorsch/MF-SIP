@@ -6,6 +6,7 @@ import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/mfu/data/model/can_register_model.dart';
 import 'package:my_sip/features/mfu/data/model/can_status_model.dart';
+import 'package:my_sip/features/mfu/data/model/emandate_status.dart';
 import 'package:my_sip/features/mfu/data/model/mandate_model.dart';
 import 'package:my_sip/services/session_manager.dart';
 
@@ -129,6 +130,41 @@ class MfuRemoteDataSource {
       }
     } catch (e) {
       return Right(ApiError(message: 'createMandate Exception: $e'));
+    }
+  }
+
+  Future<Either<Result<MfuMandateStatusModel>, ApiError>> getMandateStatus({
+    required int uid,
+    required String mandateType,
+  }) async {
+    try {
+      final body = {"uid": uid, "mandate_type": mandateType};
+
+      createLog("[MfuRemoteDataSource] getMandateStatus Request: $body");
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/mfu/mandate/status",
+        data: body,
+      );
+
+      createLog("[MfuRemoteDataSource] getMandateStatus Response: $resp");
+
+      if (resp != null) {
+        final result = MfuMandateStatusModel.fromJson(resp);
+        if (result.success == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(message: result.message ?? 'Mandate Status Failed'),
+          );
+        }
+      } else {
+        return Right(
+          ApiError(message: 'getMandateStatus: Invalid response structure'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'getMandateStatus Exception: $e'));
     }
   }
 }

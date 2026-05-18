@@ -4,6 +4,7 @@ import 'package:my_sip/features/mfu/data/datasource/mfu_remote_data_source.dart'
 import 'package:my_sip/features/mfu/data/repository/mfu_repo_imple.dart';
 import 'package:my_sip/features/mfu/domain/usecases/can_register_usecases.dart';
 import 'package:my_sip/features/mfu/domain/usecases/can_status_usecases.dart';
+import 'package:my_sip/features/mfu/domain/usecases/emandate_status_usecases.dart';
 import 'package:my_sip/features/mfu/domain/usecases/mandate_use_cases.dart';
 import 'package:my_sip/features/mfu/domain/usecases/mfu_usecases.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
@@ -37,12 +38,18 @@ class MfuBindings extends Bindings {
           MfuMandateCreateUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
     );
 
+    Get.lazyPut(
+      () =>
+          MfuMandateStatusUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+    );
+
     // 4. Use Cases Wrapper
     Get.lazyPut(
       () => MfuUseCases(
         canRegisterUseCase: Get.find<CanRegisterUseCase>(),
         getCanStatusUseCase: Get.find<GetCanStatusUseCase>(),
         mfuMandateCreateUseCase: Get.find<MfuMandateCreateUseCase>(),
+        mfuMandateStatusUseCase: Get.find<MfuMandateStatusUseCase>(),
       ),
     );
 

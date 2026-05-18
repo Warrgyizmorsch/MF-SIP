@@ -4,6 +4,7 @@ import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/features/mfu/data/datasource/mfu_remote_data_source.dart';
 import 'package:my_sip/features/mfu/domain/entity/can_register_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/can_status_entity.dart';
+import 'package:my_sip/features/mfu/domain/entity/emandate_status_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/mandate_entity.dart';
 import 'package:my_sip/features/mfu/domain/repository/mfu_repository_abstract.dart';
 
@@ -48,21 +49,40 @@ class MfuRepositoryImpl extends MfuRepository {
   }
 
   @override
-Future<Either<Result<MfuMandateCreateEntity>, ApiError>> createMandate({
-  required int uid,
-  required String mandateType,
-}) async {
-  try {
-    final response = await _remoteDataSource.createMandate(
-      uid: uid,
-      mandateType: mandateType,
-    );
-    return response.fold(
-      (successResult) => Left(Result.success(successResult.data!.toEntity())),
-      (error) => Right(error),
-    );
-  } catch (e) {
-    return Right(ApiError(message: e.toString()));
+  Future<Either<Result<MfuMandateCreateEntity>, ApiError>> createMandate({
+    required int uid,
+    required String mandateType,
+  }) async {
+    try {
+      final response = await _remoteDataSource.createMandate(
+        uid: uid,
+        mandateType: mandateType,
+      );
+      return response.fold(
+        (successResult) => Left(Result.success(successResult.data!.toEntity())),
+        (error) => Right(error),
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
   }
-}
+
+  @override
+  Future<Either<Result<MfuMandateStatusEntity>, ApiError>> getMandateStatus({
+    required int uid,
+    required String mandateType,
+  }) async {
+    try {
+      final response = await _remoteDataSource.getMandateStatus(
+        uid: uid,
+        mandateType: mandateType,
+      );
+      return response.fold(
+        (successResult) => Left(Result.success(successResult.data!.toEntity())),
+        (error) => Right(error),
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
+  }
 }

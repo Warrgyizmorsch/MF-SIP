@@ -757,22 +757,25 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                   Obx(() {
                     if (controller.linkedBankAccount.value != null) {
                       return Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          UElevatedBUtton(
-                            outlined: true,
-                            onPressed: () {
-                              log('e-mandate ');
-                              Get.find<MfuController>().createMandate(
-                                mandateType: 'enach',
-                              );
-                            },
-                            child: const Center(
-                              child: Text(
-                                'Set Up Auto Pay',
-                                style: TextStyle(color: Ucolors.blue),
-                              ),
-                            ),
-                          ),
+                          Get.find<MfuController>().isCreatingMandate.value
+                              ? Center(child: CircularProgressIndicator())
+                              : UElevatedBUtton(
+                                  outlined: true,
+                                  onPressed: () {
+                                    log('e-mandate ');
+                                    Get.find<MfuController>().createMandate(
+                                      mandateType: 'enach',
+                                    );
+                                  },
+                                  child: const Center(
+                                    child: Text(
+                                      'Set Up Auto Pay',
+                                      style: TextStyle(color: Ucolors.blue),
+                                    ),
+                                  ),
+                                ),
                           const Gap(15),
                         ],
                       );
