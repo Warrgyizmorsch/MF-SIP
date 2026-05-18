@@ -224,7 +224,7 @@ class _WebDashboardLayout extends StatelessWidget {
                             children: [
                               // Chart Section
                               Container(
-                                height: 350,
+                                height: 500,
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(20),
@@ -337,45 +337,220 @@ class _WebDashboardLayout extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: Colors.grey.shade200,
+                                  ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
+                                      color: Colors.black.withOpacity(0.04),
                                       blurRadius: 10,
+                                      offset: const Offset(0, 4),
                                     ),
                                   ],
                                 ),
                                 child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      "Recent Transactions",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
+                                    /// HEADER
+                                    Row(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text(
+                                          "Upcoming SIPs",
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+
+                                        InkWell(
+                                          onTap: () {},
+                                          child: const Text(
+                                            "View All",
+                                            style: TextStyle(
+                                              color: Colors.blue,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    const Gap(15),
+
+                                    const SizedBox(height: 18),
+
+                                    /// SIP LIST
                                     ListView.separated(
                                       shrinkWrap: true,
                                       physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      itemCount: 5,
+                                      const NeverScrollableScrollPhysics(),
+                                      itemCount: 3,
                                       separatorBuilder: (_, __) =>
-                                          const Divider(height: 20),
-                                      itemBuilder: (ctx, index) =>
-                                          const TransactionCard(
-                                            isWebCompact: true,
-                                          ),
+                                      const SizedBox(height: 18),
+                                      itemBuilder: (context, index) {
+                                        final data = [
+                                          {
+                                            "date": "10",
+                                            "month": "Dec",
+                                            "fund": "Kotak Bluechip Fund",
+                                            "type": "Monthly",
+                                            "amount": "₹5000",
+                                          },
+                                          {
+                                            "date": "15",
+                                            "month": "Dec",
+                                            "fund":
+                                            "ICICI Prudential Tech",
+                                            "type": "Monthly",
+                                            "amount": "₹3000",
+                                          },
+                                          {
+                                            "date": "20",
+                                            "month": "Dec",
+                                            "fund": "SBI Small Cap Fund",
+                                            "type": "Monthly",
+                                            "amount": "₹2000",
+                                          },
+                                        ];
+
+                                        final item = data[index];
+
+                                        return Row(
+                                          children: [
+                                            /// DATE BOX
+                                            Container(
+                                              width: 42,
+                                              padding:
+                                              const EdgeInsets.symmetric(
+                                                vertical: 8,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.blue
+                                                    .withOpacity(0.08),
+                                                borderRadius:
+                                                BorderRadius.circular(10),
+                                              ),
+                                              child: Column(
+                                                children: [
+                                                  Text(
+                                                    item["date"]!,
+                                                    style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                      FontWeight.w700,
+                                                      color: Colors.blue,
+                                                    ),
+                                                  ),
+
+                                                  Text(
+                                                    item["month"]!,
+                                                    style: TextStyle(
+                                                      fontSize: 11,
+                                                      fontWeight:
+                                                      FontWeight.w600,
+                                                      color:
+                                                      Colors.blue.shade700,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+
+                                            const SizedBox(width: 14),
+
+                                            /// FUND INFO
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    item["fund"]!,
+                                                    maxLines: 1,
+                                                    overflow:
+                                                    TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                      FontWeight.w600,
+                                                    ),
+                                                  ),
+
+                                                  const SizedBox(height: 4),
+
+                                                  Text(
+                                                    item["type"]!,
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color:
+                                                      Colors.grey.shade500,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+
+                                            /// AMOUNT
+                                            Text(
+                                              item["amount"]!,
+                                              style: const TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),
-                              ),
+                              )
+                              // Container(
+                              //   padding: const EdgeInsets.all(20),
+                              //   decoration: BoxDecoration(
+                              //     color: Colors.white,
+                              //     borderRadius: BorderRadius.circular(20),
+                              //     boxShadow: [
+                              //       BoxShadow(
+                              //         color: Colors.black.withOpacity(0.05),
+                              //         blurRadius: 10,
+                              //       ),
+                              //     ],
+                              //   ),
+                              //   child: Column(
+                              //     crossAxisAlignment:
+                              //         CrossAxisAlignment.start,
+                              //     children: [
+                              //       const Text(
+                              //         "Recent Transactions",
+                              //         style: TextStyle(
+                              //           fontWeight: FontWeight.bold,
+                              //           fontSize: 16,
+                              //         ),
+                              //       ),
+                              //       const Gap(15),
+                              //       ListView.separated(
+                              //         shrinkWrap: true,
+                              //         physics:
+                              //             const NeverScrollableScrollPhysics(),
+                              //         itemCount: 5,
+                              //         separatorBuilder: (_, __) =>
+                              //             const Divider(height: 20),
+                              //         itemBuilder: (ctx, index) =>
+                              //             const TransactionCard(
+                              //               isWebCompact: true,
+                              //             ),
+                              //       ),
+                              //     ],
+                              //   ),
+                              // ),
                             ],
                           ),
                         ),
                       ],
                     ),
+
                   ],
                 ),
               ),
@@ -451,6 +626,260 @@ class _WebDashboardLayout extends StatelessWidget {
   }
 }
 
+
+
+class DashboardWidget extends StatelessWidget {
+  const DashboardWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA), // Light background color
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // Agar screen width 900 se kam hai toh column (stacked) dikhao, nahi toh row
+            if (constraints.maxWidth < 900) {
+              return Column(
+                children: [
+                  _buildGoalTrackerCard(),
+                  const SizedBox(height: 20),
+                  _buildCashFlowCard(),
+                ],
+              );
+            } else {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: _buildGoalTrackerCard()),
+                  const SizedBox(width: 24),
+                  Expanded(child: _buildCashFlowCard()),
+                ],
+              );
+            }
+          },
+        ),
+      ),
+    );
+
+  }
+
+  /// ----------------------------------------------------
+  /// 1. GOAL TRACKER CARD
+  /// ----------------------------------------------------
+  Widget _buildGoalTrackerCard() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Goal Tracker',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+          ),
+          const SizedBox(height: 24),
+          _buildGoalItem(
+            icon: Icons.track_changes, // App me Iconsax.target use kar sakte hain
+            iconColor: const Color(0xFF10B981),
+            iconBgColor: const Color(0xFFE6F4EA),
+            title: 'Dream Home',
+            currentAmount: '₹1,500,000',
+            targetAmount: '₹5,000,000',
+            progress: 0.30,
+            progressText: '30% Completed',
+          ),
+          const SizedBox(height: 24),
+          _buildGoalItem(
+            icon: Icons.trending_up, // App me Iconsax.trending_up use kar sakte hain
+            iconColor: const Color(0xFF3B82F6),
+            iconBgColor: const Color(0xFFEFF6FF),
+            title: 'Car',
+            currentAmount: '₹450,000',
+            targetAmount: '₹1,200,000',
+            progress: 0.38,
+            progressText: '38% Completed',
+          ),
+          const SizedBox(height: 32),
+
+          // Dotted Add New Goal Button
+          OutlinedButton(
+            onPressed: () {},
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 52),
+              side: const BorderSide(color: Color(0xFF0284C7), style: BorderStyle.solid), // For pure dotted, use dotted_border package
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.add, color: Color(0xFF0284C7), size: 20),
+                SizedBox(width: 8),
+                Text(
+                  'Add New Goal',
+                  style: TextStyle(color: Color(0xFF0284C7), fontWeight: FontWeight.w600, fontSize: 15),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGoalItem({
+    required IconData icon,
+    required Color iconColor,
+    required Color iconBgColor,
+    required String title,
+    required String currentAmount,
+    required String targetAmount,
+    required double progress,
+    required String progressText,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(color: iconBgColor, borderRadius: BorderRadius.circular(8)),
+              child: Icon(icon, color: iconColor, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
+            const Spacer(),
+            Text('$currentAmount / $targetAmount', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.grey.shade700)),
+          ],
+        ),
+        const SizedBox(height: 10),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: LinearProgressIndicator(
+            value: progress,
+            minHeight: 10,
+            backgroundColor: Colors.grey.shade100,
+            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF0284C7)),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(progressText, style: TextStyle(fontSize: 12, color: Colors.grey.shade400)),
+      ],
+    );
+  }
+
+  /// ----------------------------------------------------
+  /// 2. CASH FLOW CARD
+  /// ----------------------------------------------------
+  Widget _buildCashFlowCard() {
+    // Static Dummy Data for Transactions
+    final List<Map<String, dynamic>> transactions = [
+      {'date': '10 Nov 2024', 'fund': 'Kotak Bluechip', 'type': 'SIP', 'amount': '₹5,000', 'isLumpSum': false},
+      {'date': '05 Nov 2024', 'fund': 'ICICI Tech', 'type': 'SIP', 'amount': '₹3,000', 'isLumpSum': false},
+      {'date': '01 Nov 2024', 'fund': 'HDFC Midcap', 'type': 'Lumpsum', 'amount': '₹10,000', 'isLumpSum': true},
+      {'date': '25 Oct 2024', 'fund': 'SBI Small Cap', 'type': 'SIP', 'amount': '₹2,000', 'isLumpSum': false},
+      {'date': '10 Oct 2024', 'fund': 'Kotak Bluechip', 'type': 'SIP', 'amount': '₹5,000', 'isLumpSum': false},
+    ];
+
+    return Container(
+      height: 440, // Fixed height taaki scrollbar properly visible ho aur design clean lage
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Cash Flow',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+              ),
+              Text(
+                'Latest 10 Transactions',
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade400),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // Table Headers
+          Row(
+            children: [
+              Expanded(flex: 2, child: Text('DATE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey.shade400, letterSpacing: 0.5))),
+              Expanded(flex: 3, child: Text('FUND', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey.shade400, letterSpacing: 0.5))),
+              Expanded(flex: 2, child: Align(alignment: Alignment.centerRight, child: Text('AMOUNT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey.shade400, letterSpacing: 0.5)))),
+            ],
+          ),
+          const Divider(height: 24, thickness: 1),
+
+          // Scrollable List Area
+          Expanded(
+            child: Scrollbar(
+              thumbVisibility: true, // Always show scrollbar track like in the screenshot
+              thickness: 6,
+              radius: const Radius.circular(8),
+              child: ListView.separated(
+                itemCount: transactions.length,
+                padding: const EdgeInsets.only(right: 12), // Scrollbar se gap ke liye
+                separatorBuilder: (context, index) => const Divider(height: 32, thickness: 0.5, color: Color(0xFFF1F5F9)),
+                itemBuilder: (context, index) {
+                  final item = transactions[index];
+                  return Row(
+                    children: [
+                      // Date Column
+                      Expanded(
+                        flex: 2,
+                        child: Text(item['date'], style: TextStyle(fontSize: 14, color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
+                      ),
+                      // Fund Column (Name + Type)
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(item['fund'], style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
+                            const SizedBox(height: 4),
+                            Text(item['type'], style: TextStyle(fontSize: 12, color: Colors.grey.shade400, fontWeight: FontWeight.w500)),
+                          ],
+                        ),
+                      ),
+                      // Amount Column (Color matching based on type)
+                      Expanded(
+                        flex: 2,
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            item['amount'],
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: item['isLumpSum'] ? const Color(0xFF0284C7) : const Color(0xFF0F172A),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 // --- 💎 WEB WIDGETS ---
 
 class _WebStatCard extends StatefulWidget {

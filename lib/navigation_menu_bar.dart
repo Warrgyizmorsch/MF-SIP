@@ -1961,267 +1961,244 @@ class NavigationMenuBar extends StatelessWidget {
     final isTablet = ResponsiveBreakpoints.of(context).equals(TABLET);
 
     return PopScope(
-      // canPop: false,
-      canPop: kIsWeb && controller.selectedIndex.value == 0,
-      onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) return;
-        // if (controller.selectedIndex.value != 0) {
-        //   controller.changePage(0);
-        //   return;
-        // }
-        if (controller.selectedIndex.value != 0) {
-          controller.changePage(0, isDesktop: isDesktop || isTablet);
-          return;
+    canPop: kIsWeb && controller.selectedIndex.value == 0,
+    onPopInvokedWithResult: (didPop, result) async {
+      if (didPop) return;
+
+      if (controller.selectedIndex.value != 0) {
+        controller.changePage(
+          0,
+          isDesktop: isDesktop || isTablet,
+        );
+        return;
+      }
+
+      if (!kIsWeb) {
+        final shouldExit =
+        await _showModernExitDialog(context);
+
+        if (shouldExit) {
+          SystemNavigator.pop();
         }
-        if (!kIsWeb) {
-          final shouldExit = await _showModernExitDialog(context);
-          if (shouldExit) {
-            SystemNavigator.pop();
-          }
-        }
+      }
+    },
 
-        // final shouldExit = await _showModernExitDialog(context);
-        // if (shouldExit) {
-        //   SystemNavigator.pop();
-        // }
-      },
-      child: Scaffold(
-        body: Row(
-          children: [
-            // isDesktop
-            //     ? _DesktopSideNav(isDesktop: isDesktop, isTablet: isTablet)
-            //     : const SizedBox.shrink(),
-            if (isDesktop || isTablet)
-              _DesktopSideNav(isDesktop: isDesktop, isTablet: isTablet),
-            Expanded(
-              child: Column(
-                children: [
-                  if (isDesktop) const GlobalTopHeader(),
-                  Expanded(
-                    child: (isDesktop || isTablet)
-                        ? Navigator(
-                            key: Get.nestedKey(1), // Fixes header and sidebar
-                            initialRoute: AppRoutes.home,
-                            // onGenerateRoute: (settings) {
-                            //   final page = AppPages.pages().firstWhereOrNull(
-                            //     (p) => p.name == settings.name,
-                            //   );
-                            //   if (page != null) {
-                            //     return GetPageRoute(
-                            //       settings: settings,
-                            //       page: page.page,
-                            //       binding: page.binding,
-                            //       bindings: page.bindings,
-                            //       transition: Transition.fadeIn,
-                            //     );
-                            //   }
-                            //   return GetPageRoute(
-                            //     page: () => const HomeScreen(),
-                            //   );
-                            // },
-                            onGenerateRoute: (settings) {
-                              // Match the route defined in AppPages
-
-                              final List<GetPage> allPages = AppPages.pages();
-                              GetPage? page;
-
-                              try {
-                                page = allPages.firstWhere(
-                                  (p) => p.name == settings.name,
-                                );
-                              } catch (e) {
-                                page = null; // Route not found
-                              }
-
-                              if (page != null) {
-                                return GetPageRoute(
-                                  settings: settings,
-                                  page: page.page,
-                                  binding: page.binding,
-                                  bindings: page.bindings,
-                                  transition: Transition.fadeIn,
-                                );
-                              }
-                              // Fallback to Home if route is invalid
-                              return GetPageRoute(
-                                page: () => const HomeScreen(),
-                              );
-                            },
-                          )
-                        : Obx(() {
-                            switch (controller.selectedIndex.value) {
-                              case 0:
-                                return const HomeScreen();
-                              case 1:
-                                return const ExploreScreen();
-                              case 2:
-                                return DashboardScreen();
-                              case 3:
-                                return const GoalScreen();
-                              // return const ComingSoon();
-
-                              // Profile Sub-categories
-                              case 40:
-                                return const ProfileScreen();
-                              case 41:
-                                return const KycDetailsScreen();
-                              case 42:
-                                return PersonalDetailsScreen();
-                              case 43:
-                                return const BankDetailsScreen();
-                              case 44:
-                                return const NomineeListScreen();
-                              case 45:
-                                return const DocumentScreen();
-                              // case 46:
-                              //   return HelpSupportScreen();
-
-                              // Help & Support
-
-                              case 50:
-                                return HtmlWebViewPage(
-                                  key: const ValueKey('contact'),
-                                  appBar: false,
-
-                                  title: 'Contact Support',
-                                  url:
-                                      'https://sip.londonstreetstore.com/contact-us?mobile=true',
-                                );
-                              case 51:
-                                return HtmlWebViewPage(
-                                  appBar: false,
-                                  key: const ValueKey('privacy'),
-
-                                  title: 'Privacy Policy',
-                                  url:
-                                      'https://sip.londonstreetstore.com/privacy-policy?mobile=true',
-                                );
-                              case 52:
-                                return HtmlWebViewPage(
-                                  appBar: false,
-                                  key: const ValueKey('terms'),
-
-                                  title: 'Terms & Conditions',
-                                  url:
-                                      'https://sip.londonstreetstore.com/terms-and-conditions?mobile=true',
-                                );
-                              case 53:
-                                return HtmlWebViewPage(
-                                  appBar: false,
-                                  key: const ValueKey('faq'),
-
-                                  title: 'FAQs',
-                                  url:
-                                      'https://sip.londonstreetstore.com/faq?mobile=true',
-                                );
-                              case 54:
-                                return HtmlWebViewPage(
-                                  appBar: false,
-                                  key: const ValueKey('abouts'),
-
-                                  title: 'About Us',
-                                  url:
-                                      'https://sip.londonstreetstore.com/about-us?mobile=true',
-                                );
-
-                              default:
-                                return const HomeScreen();
-                            }
-                          }),
-                  ),
-
-                  // Expanded(
-                  //   child: Obx(() {
-                  //     switch (controller.selectedIndex.value) {
-                  //       case 0:
-                  //         return const HomeScreen();
-                  //       case 1:
-                  //         return const ExploreScreen();
-                  //       case 2:
-                  //         return DashboardScreen();
-                  //       case 3:
-                  //         return const GoalScreen();
-
-                  //       // Profile Sub-categories
-                  //       case 40:
-                  //         return const ProfileScreen();
-                  //       case 41:
-                  //         return const KycDetailsScreen();
-                  //       case 42:
-                  //         return PersonalDetailsScreen();
-                  //       case 43:
-                  //         return const BankDetailsScreen();
-                  //       case 44:
-                  //         return const NomineeListScreen();
-                  //       case 45:
-                  //         return const DocumentScreen();
-                  //       // case 46:
-                  //       //   return HelpSupportScreen();
-
-                  //       // Help & Support
-
-                  //       case 50:
-                  //         return HtmlWebViewPage(
-                  //           key: const ValueKey('contact'),
-                  //           appBar: false,
-
-                  //           title: 'Contact Support',
-                  //           url:
-                  //               'https://sip.londonstreetstore.com/contact-us?mobile=true',
-                  //         );
-                  //       case 51:
-                  //         return HtmlWebViewPage(
-                  //           appBar: false,
-                  //           key: const ValueKey('privacy'),
-
-                  //           title: 'Privacy Policy',
-                  //           url:
-                  //               'https://sip.londonstreetstore.com/privacy-policy?mobile=true',
-                  //         );
-                  //       case 52:
-                  //         return HtmlWebViewPage(
-                  //           appBar: false,
-                  //           key: const ValueKey('terms'),
-
-                  //           title: 'Terms & Conditions',
-                  //           url:
-                  //               'https://sip.londonstreetstore.com/terms-and-conditions?mobile=true',
-                  //         );
-                  //       case 53:
-                  //         return HtmlWebViewPage(
-                  //           appBar: false,
-                  //           key: const ValueKey('faq'),
-
-                  //           title: 'FAQs',
-                  //           url:
-                  //               'https://sip.londonstreetstore.com/faq?mobile=true',
-                  //         );
-                  //       case 54:
-                  //         return HtmlWebViewPage(
-                  //           appBar: false,
-                  //           key: const ValueKey('abouts'),
-
-                  //           title: 'About Us',
-                  //           url:
-                  //               'https://sip.londonstreetstore.com/about-us?mobile=true',
-                  //         );
-
-                  //       default:
-                  //         return const HomeScreen();
-                  //     }
-                  //   }),
-                  // ),
-                ],
-              ),
+    child: Scaffold(
+      body: Row(
+        children: [
+          if (isDesktop || isTablet)
+            _DesktopSideNav(
+              isDesktop: isDesktop,
+              isTablet: isTablet,
             ),
-          ],
+
+          Expanded(
+            child: Column(
+              children: [
+                if (isDesktop)
+                  const GlobalTopHeader(),
+
+                Expanded(
+                  child: Column(
+                    children: [
+                      /// Main Content
+                      Expanded(
+                        child: (isDesktop || isTablet)
+                            ? Navigator(
+                          key: Get.nestedKey(1),
+                          initialRoute:
+                          AppRoutes.home,
+                          onGenerateRoute:
+                              (settings) {
+                            final List<GetPage>
+                            allPages =
+                            AppPages.pages();
+
+                            GetPage? page;
+
+                            try {
+                              page = allPages
+                                  .firstWhere(
+                                    (p) =>
+                                p.name ==
+                                    settings
+                                        .name,
+                              );
+                            } catch (e) {
+                              page = null;
+                            }
+
+                            if (page != null) {
+                              return GetPageRoute(
+                                settings:
+                                settings,
+                                page:
+                                page.page,
+                                binding: page
+                                    .binding,
+                                bindings: page
+                                    .bindings,
+                                transition:
+                                Transition
+                                    .fadeIn,
+                              );
+                            }
+
+                            return GetPageRoute(
+                              page: () =>
+                              const HomeScreen(),
+                            );
+                          },
+                        )
+                            : Obx(() {
+                          switch (controller
+                              .selectedIndex
+                              .value) {
+                            case 0:
+                              return const HomeScreen();
+
+                            case 1:
+                              return const ExploreScreen();
+
+                            case 2:
+                              return DashboardScreen();
+
+                            case 3:
+                              return const GoalScreen();
+
+                            case 40:
+                              return const ProfileScreen();
+
+                            case 41:
+                              return const KycDetailsScreen();
+
+                            case 42:
+                              return PersonalDetailsScreen();
+
+                            case 43:
+                              return const BankDetailsScreen();
+
+                            case 44:
+                              return const NomineeListScreen();
+
+                            case 45:
+                              return const DocumentScreen();
+
+                            case 50:
+                              return HtmlWebViewPage(
+                                key: const ValueKey(
+                                  'contact',
+                                ),
+                                appBar: false,
+                                title:
+                                'Contact Support',
+                                url:
+                                'https://sip.londonstreetstore.com/contact-us?mobile=true',
+                              );
+
+                            case 51:
+                              return HtmlWebViewPage(
+                                appBar: false,
+                                key: const ValueKey(
+                                  'privacy',
+                                ),
+                                title:
+                                'Privacy Policy',
+                                url:
+                                'https://sip.londonstreetstore.com/privacy-policy?mobile=true',
+                              );
+
+                            case 52:
+                              return HtmlWebViewPage(
+                                appBar: false,
+                                key: const ValueKey(
+                                  'terms',
+                                ),
+                                title:
+                                'Terms & Conditions',
+                                url:
+                                'https://sip.londonstreetstore.com/terms-and-conditions?mobile=true',
+                              );
+
+                            case 53:
+                              return HtmlWebViewPage(
+                                appBar: false,
+                                key: const ValueKey(
+                                  'faq',
+                                ),
+                                title:
+                                'FAQs',
+                                url:
+                                'https://sip.londonstreetstore.com/faq?mobile=true',
+                              );
+
+                            case 54:
+                              return HtmlWebViewPage(
+                                appBar: false,
+                                key: const ValueKey(
+                                  'abouts',
+                                ),
+                                title:
+                                'About Us',
+                                url:
+                                'https://sip.londonstreetstore.com/about-us?mobile=true',
+                              );
+
+                            default:
+                              return const HomeScreen();
+                          }
+                        }),
+                      ),
+
+                      /// Global Web Footer
+                      if (isDesktop || isTablet)
+                        const WebFooter(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+
+      bottomNavigationBar:
+      isDesktop ? null : const _MobileBottomNavBar(),
+    ),
+    );
+  }
+}
+class WebFooter extends StatelessWidget {
+  const WebFooter({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+        vertical: 16,
+        horizontal: 20,
+      ),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Ucolors.light,
+        border: Border(
+          top: BorderSide(
+            color: Colors.grey.shade300,
+          ),
         ),
-        bottomNavigationBar: (isDesktop) ? null : const _MobileBottomNavBar(),
+      ),
+      child: Text(
+        "ARN : 104807 || Kriti Hinger",
+        style: TextStyle(
+          fontSize: 13,
+          color: Colors.grey.shade800,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
 }
-
 class GlobalTopHeader extends StatelessWidget {
   const GlobalTopHeader({super.key});
 
@@ -2640,350 +2617,380 @@ class _DesktopSideNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final controller = NavigationBarController.instance;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
+    final screenWidth = MediaQuery.of(context).size.width;
 
-        final width = constraints.maxWidth;
+    /// RESPONSIVE BREAKPOINTS
+    final bool isCompactDesktop =
+        screenWidth < 1200;
 
-        /// RESPONSIVE
-        final bool isSmallDesktop = width < 900;
+    final bool isMiniTablet =
+        screenWidth < 800;
 
-        final double sideWidth = isDesktop
-            ? (isSmallDesktop ? 150 : 280)
-            : 82;
+    /// WIDTH
+    final double sideWidth = isDesktop
+        ? (isCompactDesktop ? 220 : 280)
+        : (isMiniTablet ? 78 : 90);
 
-        final double logoSize = isDesktop
-            ? (isSmallDesktop ? 50 : 60)
-            : 42;
+    /// LOGO
+    final double logoSize = isDesktop
+        ? (isCompactDesktop ? 48 : 60)
+        : 40;
 
-        final double navFontSize = isDesktop
-            ? (isSmallDesktop ? 14 : 15)
-            : 18;
+    /// TEXT
+    final double navFontSize = isDesktop
+        ? (isCompactDesktop ? 13 : 15)
+        : 13;
 
-        final double iconSize = isDesktop
-            ? 22
-            : 20;
+    final double iconSize = isDesktop ? 22 : 20;
 
-        final double horizontalPadding = isDesktop
-            ? (isSmallDesktop ? 14 : 16)
-            : 10;
+    final double horizontalPadding =
+    isDesktop ? 14 : 10;
 
-        return Container(
-          width: sideWidth,
+    final bool showText =
+        isDesktop || screenWidth > 850;
 
-          decoration: BoxDecoration(
-            color: Colors.white,
+    return Container(
+      width: sideWidth,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          right: BorderSide(
+            color: Colors.grey.shade200,
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(2, 0),
+          ),
+        ],
+      ),
 
-            border: Border(
-              right: BorderSide(
-                color: Colors.grey.shade200,
-                width: 1,
+      child: SafeArea(
+        child: Column(
+          children: [
+            /// LOGO
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: showText ? 18 : 10,
+                vertical: 14,
+              ),
+              child: Row(
+                mainAxisAlignment: showText
+                    ? MainAxisAlignment.start
+                    : MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(
+                    UImages.mfsiplogo,
+                    height: logoSize,
+                    width: logoSize,
+                  ),
+
+                  if (showText) ...[
+                    const SizedBox(width: 12),
+
+                    Expanded(
+                      child: Text(
+                        'MF SIP',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize:
+                          isCompactDesktop
+                              ? 18
+                              : 20,
+                          fontWeight:
+                          FontWeight.w700,
+                          color: Ucolors.dark,
+                          fontFamily:
+                          UTextStyles.font,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
 
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 10,
-                offset: const Offset(2, 0),
+            /// USER CARD
+            Container(
+              margin: EdgeInsets.symmetric(
+                horizontal: showText ? 12 : 8,
               ),
-            ],
-          ),
+              padding: EdgeInsets.all(
+                showText ? 12 : 8,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius:
+                BorderRadius.circular(16),
+                border: Border.all(
+                  color: Colors.grey.shade100,
+                ),
+              ),
 
-          child: SafeArea(
-            child: Column(
-              children: [
+              child: Obx(() {
+                final reactiveUser =
+                    SessionManager
+                        .instance.userObs.value;
 
-                /// LOGO
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isDesktop ? 20 : 10,
-                    vertical: 14,
-                  ),
+                return Row(
+                  mainAxisAlignment: showText
+                      ? MainAxisAlignment.start
+                      : MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      height: showText ? 48 : 40,
+                      width: showText ? 48 : 40,
+                      child: UCircularImage(
+                        image:
+                        reactiveUser?.img ?? "",
+                      ),
+                    ),
 
-                  child: Row(
-                    children: [
+                    if (showText) ...[
+                      const SizedBox(width: 12),
 
-                      SvgPicture.asset(
-                        UImages.mfsiplogo,
-                        height: logoSize,
-                        width: logoSize,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment:
+                          CrossAxisAlignment
+                              .start,
+                          children: [
+                            Text(
+                              UHelperFunction
+                                  .getGreetingMsg(),
+                              overflow:
+                              TextOverflow
+                                  .ellipsis,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors
+                                    .grey.shade600,
+                              ),
+                            ),
+
+                            const SizedBox(
+                              height: 2,
+                            ),
+
+                            Text(
+                              reactiveUser?.name ??
+                                  '',
+                              maxLines: 1,
+                              overflow:
+                              TextOverflow
+                                  .ellipsis,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight:
+                                FontWeight
+                                    .w600,
+                                color:
+                                Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                );
+              }),
+            ),
+
+            const SizedBox(height: 18),
+
+            /// NAVIGATION
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                  horizontal:
+                  showText ? 12 : 8,
+                ),
+                child: Column(
+                  children: [
+                    if (showText)
+                      _buildSectionTitle(
+                        "GENERALS",
                       ),
 
-                      if (isDesktop) ...[
+                    Obx(() => _buildNavItem(
+                      controller,
+                      0,
+                      Iconsax.home,
+                      'Home',
+                      showText,
+                      navFontSize,
+                      iconSize,
+                      horizontalPadding,
+                    )),
 
-                        const SizedBox(width: 12),
+                    Obx(() => _buildNavItem(
+                      controller,
+                      1,
+                      Icons.trending_up,
+                      'Explore',
+                      showText,
+                      navFontSize,
+                      iconSize,
+                      horizontalPadding,
+                    )),
 
-                        Expanded(
-                          child: Text(
-                            'MF SIP',
+                    Obx(() => _buildNavItem(
+                      controller,
+                      2,
+                      Iconsax.chart_1,
+                      'Dashboard',
+                      showText,
+                      navFontSize,
+                      iconSize,
+                      horizontalPadding,
+                    )),
 
-                            overflow: TextOverflow.ellipsis,
+                    Obx(() => _buildNavItem(
+                      controller,
+                      3,
+                      Iconsax.cup,
+                      'Goal',
+                      showText,
+                      navFontSize,
+                      iconSize,
+                      horizontalPadding,
+                    )),
 
-                            style: TextStyle(
-                              fontSize:
-                              isSmallDesktop ? 18 : 20,
-                              fontWeight: FontWeight.w700,
-                              color: Ucolors.dark,
-                              fontFamily: UTextStyles.font,
-                            ),
+                    const SizedBox(height: 18),
+
+                    if (showText)
+                      _buildSectionTitle(
+                        "SETTINGS",
+                      ),
+
+                    /// PROFILE
+                    Obx(() {
+                      final isExpanded =
+                          controller
+                              .isProfileExpanded
+                              .value;
+
+                      return Column(
+                        children: [
+                          _DesktopNavItem(
+                            icon: Iconsax.user4,
+                            label: 'Profile',
+                            isSelected: false,
+                            isDesktop: showText,
+                            fontSize:
+                            navFontSize,
+                            iconSize: iconSize,
+                            horizontalPadding:
+                            horizontalPadding,
+                            trailing: showText
+                                ? Icon(
+                              isExpanded
+                                  ? Icons
+                                  .keyboard_arrow_up
+                                  : Icons
+                                  .keyboard_arrow_down,
+                              size: 18,
+                              color: Colors
+                                  .grey
+                                  .shade600,
+                            )
+                                : null,
+                            onTap: () {
+                              controller
+                                  .changePage(
+                                4,
+                                isDesktop:
+                                showText,
+                              );
+                            },
                           ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
 
-                /// USER
-                Container(
-                  margin: EdgeInsets.symmetric(
-                    horizontal: isDesktop ? 12 : 8,
-                  ),
-
-                  padding: EdgeInsets.all(
-                    isDesktop ? 12 : 8,
-                  ),
-
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Colors.grey.shade100,
-                    ),
-                  ),
-
-                  child: Obx(() {
-
-                    final reactiveUser =
-                        SessionManager.instance.userObs.value;
-
-                    return Row(
-                      children: [
-
-                        SizedBox(
-                          height: isDesktop ? 48 : 40,
-                          width: isDesktop ? 48 : 40,
-                          child: UCircularImage(
-                            image: reactiveUser?.img ?? "",
-                          ),
-                        ),
-
-                        if (isDesktop) ...[
-
-                          const SizedBox(width: 12),
-
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment:
-                              CrossAxisAlignment.start,
-
-                              children: [
-
-                                Text(
-                                  UHelperFunction.getGreetingMsg(),
-
-                                  overflow: TextOverflow.ellipsis,
-
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.grey.shade600,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 2),
-
-                                Text(
-                                  reactiveUser?.name ?? '',
-
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-
-                                  style: TextStyle(
-                                    fontSize:
-                                    isSmallDesktop ? 13 : 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    );
-                  }),
-                ),
-
-                const SizedBox(height: 18),
-
-                /// NAVIGATION
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(
-                      horizontal:
-                      isDesktop ? 12 : 8,
-                    ),
-
-                    child: Column(
-                      children: [
-
-                        if (isDesktop)
-                          _buildSectionTitle("GENERALS"),
-
-                        /// HOME
-                        Obx(() => _buildNavItem(
-                          controller,
-                          0,
-                          Iconsax.home,
-                          'Home',
-                          isDesktop,
-                          navFontSize,
-                          iconSize,
-                          horizontalPadding,
-                        )),
-
-                        /// EXPLORE
-                        Obx(() => _buildNavItem(
-                          controller,
-                          1,
-                          Icons.trending_up,
-                          'Explore',
-                          isDesktop,
-                          navFontSize,
-                          iconSize,
-                          horizontalPadding,
-                        )),
-
-                        /// DASHBOARD
-                        Obx(() => _buildNavItem(
-                          controller,
-                          2,
-                          Iconsax.chart_1,
-                          'Dashboard',
-                          isDesktop,
-                          navFontSize,
-                          iconSize,
-                          horizontalPadding,
-                        )),
-
-                        /// GOAL
-                        Obx(() => _buildNavItem(
-                          controller,
-                          3,
-                          Iconsax.cup,
-                          'Goal',
-                          isDesktop,
-                          navFontSize,
-                          iconSize,
-                          horizontalPadding,
-                        )),
-
-                        const SizedBox(height: 18),
-
-                        if (isDesktop)
-                          _buildSectionTitle("SETTINGS"),
-
-                        /// PROFILE
-                        Obx(() {
-
-                          final isExpanded =
-                              controller.isProfileExpanded.value;
-
-                          return Column(
-                            children: [
-
-                              _DesktopNavItem(
-                                icon: Iconsax.user4,
-                                label: 'Profile',
-                                isSelected: false,
-                                isDesktop: isDesktop,
-                                fontSize: navFontSize,
-                                iconSize: iconSize,
-                                horizontalPadding:
-                                horizontalPadding,
-
-                                trailing: isDesktop
-                                    ? Icon(
-                                  isExpanded
-                                      ? Icons.keyboard_arrow_up
-                                      : Icons.keyboard_arrow_down,
-                                  size: 18,
-                                  color: Colors.grey.shade600,
-                                )
-                                    : null,
-
-                                onTap: () {
-                                  controller.changePage(
-                                    4,
-                                    isDesktop: isDesktop,
-                                  );
-                                },
+                          if (showText)
+                            AnimatedCrossFade(
+                              duration:
+                              const Duration(
+                                milliseconds: 250,
                               ),
-
-                              if (isDesktop)
-                                AnimatedCrossFade(
-                                  duration:
-                                  const Duration(milliseconds: 250),
-
-                                  crossFadeState: isExpanded
-                                      ? CrossFadeState.showFirst
-                                      : CrossFadeState.showSecond,
-
-                                  firstChild: Column(
-                                    children: [
-                                      _buildSubItem(
-                                        controller,
-                                        41,
-                                        "KYC Details",
-                                      ),
-                                      _buildSubItem(
-                                        controller,
-                                        42,
-                                        "Personal Details",
-                                      ),
-                                      _buildSubItem(
-                                        controller,
-                                        43,
-                                        "Bank Account",
-                                      ),
-                                      _buildSubItem(
-                                        controller,
-                                        44,
-                                        "Nominee Details",
-                                      ),
-                                      _buildSubItem(
-                                        controller,
-                                        45,
-                                        "Documents",
-                                      ),
-                                    ],
+                              crossFadeState:
+                              isExpanded
+                                  ? CrossFadeState
+                                  .showFirst
+                                  : CrossFadeState
+                                  .showSecond,
+                              firstChild:
+                              Column(
+                                children: [
+                                  _buildSubItem(
+                                    controller,
+                                    41,
+                                    "KYC Details",
                                   ),
-
-                                  secondChild:
-                                  const SizedBox.shrink(),
-                                ),
-                            ],
-                          );
-                        }),
-                      ],
-                    ),
-                  ),
+                                  _buildSubItem(
+                                    controller,
+                                    42,
+                                    "Personal Details",
+                                  ),
+                                  _buildSubItem(
+                                    controller,
+                                    43,
+                                    "Bank Account",
+                                  ),
+                                  _buildSubItem(
+                                    controller,
+                                    44,
+                                    "Nominee Details",
+                                  ),
+                                  _buildSubItem(
+                                    controller,
+                                    45,
+                                    "Documents",
+                                  ),
+                                ],
+                              ),
+                              secondChild:
+                              const SizedBox
+                                  .shrink(),
+                            ),
+                        ],
+                      );
+                    }),
+                  ],
                 ),
-
-                /// LOGOUT
-                if (isDesktop)
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: LogoutButton(web: true),
-                  ),
-              ],
+              ),
             ),
-          ),
-        );
-      },
+
+            /// FOOTER
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                children: [
+                  if (showText)
+                    Text(
+                      "ARN : 104807",
+                      style: TextStyle(
+                        fontSize: 11,
+                        color:
+                        Colors.grey.shade600,
+                        fontWeight:
+                        FontWeight.w500,
+                      ),
+                    ),
+
+                  const SizedBox(height: 10),
+
+                  if (showText)
+                    LogoutButton(web: true),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -2994,13 +3001,10 @@ class _DesktopSideNav extends StatelessWidget {
         bottom: 10,
         top: 4,
       ),
-
       child: Align(
         alignment: Alignment.centerLeft,
-
         child: Text(
           title,
-
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.bold,
@@ -3026,13 +3030,17 @@ class _DesktopSideNav extends StatelessWidget {
       icon: icon,
       label: label,
       isSelected:
-      controller.selectedIndex.value == index,
+      controller.selectedIndex.value ==
+          index,
       isDesktop: isDesktop,
       fontSize: fontSize,
       iconSize: iconSize,
-      horizontalPadding: horizontalPadding,
-      onTap: () =>
-          controller.changePage(index, isDesktop: isDesktop),
+      horizontalPadding:
+      horizontalPadding,
+      onTap: () => controller.changePage(
+        index,
+        isDesktop: isDesktop,
+      ),
     );
   }
 
@@ -3041,24 +3049,22 @@ class _DesktopSideNav extends StatelessWidget {
       int index,
       String label,
       ) {
-
     final isSelected =
-        controller.selectedIndex.value == index;
+        controller.selectedIndex.value ==
+            index;
 
     return InkWell(
-      onTap: () => controller.changePage(index),
-
+      onTap: () =>
+          controller.changePage(index),
       child: Container(
         width: double.infinity,
-
-        padding: const EdgeInsets.symmetric(
+        padding:
+        const EdgeInsets.symmetric(
           horizontal: 18,
           vertical: 10,
         ),
-
         child: Text(
           label,
-
           style: TextStyle(
             fontSize: 13,
             fontWeight: isSelected
@@ -3187,33 +3193,55 @@ class _MobileBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      bottom: true,
-      child: Container(
-        height: kBottomNavigationBarHeight + 4,
-        padding: const EdgeInsets.only(top: 0, bottom: 2),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        /// Footer
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(
+            vertical: 8,
+          ),
+          alignment: Alignment.center,
+          color: Ucolors.light,
+          child: Text(
+            "ARN : 104807 || Kriti Hinger",
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.grey.shade700,
+              fontWeight: FontWeight.w500,
             ),
-          ],
+          ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: const [
-            _MobileNavItem(index: 0, icon: Iconsax.home, label: 'Home'),
-            _MobileNavItem(index: 1, icon: Icons.trending_up, label: 'Explore'),
-            _MobileNavItem(index: 2, icon: Iconsax.chart_1, label: 'Dashboard'),
-            _MobileNavItem(index: 3, icon: Iconsax.cup, label: 'Goal'),
-            _MobileNavItem(index: 4, icon: Iconsax.user4, label: 'Profile'),
-          ],
+        SafeArea(
+          top: false,
+          bottom: true,
+          child: Container(
+            height: kBottomNavigationBarHeight + 4,
+            padding: const EdgeInsets.only(top: 0, bottom: 2),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, -2),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: const [
+                _MobileNavItem(index: 0, icon: Iconsax.home, label: 'Home'),
+                _MobileNavItem(index: 1, icon: Icons.trending_up, label: 'Explore'),
+                _MobileNavItem(index: 2, icon: Iconsax.chart_1, label: 'Dashboard'),
+                _MobileNavItem(index: 3, icon: Iconsax.cup, label: 'Goal'),
+                _MobileNavItem(index: 4, icon: Iconsax.user4, label: 'Profile'),
+              ],
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 }
