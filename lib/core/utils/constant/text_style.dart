@@ -312,7 +312,7 @@ fontFamily: font,    fontSize: _body2,
 class AppTextStyles {
   AppTextStyles._(); // private constructor — no instantiation
 
-  static const String font = 'Geist';
+  static const String font = 'Roboto';
 
   // helper to avoid repeating clamp logic
   static double _s(double size) => size.sp.clamp(size * 0.8, size * 1.2);

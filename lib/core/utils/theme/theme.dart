@@ -50,7 +50,7 @@ import 'package:my_sip/core/utils/theme/widget_theme/appbar_theme.dart';
 class Utheme {
   Utheme._();
 
-  static const String _font = 'Geist'; // ✅ single source of truth
+  static const String _font = 'Roboto'; // ✅ single source of truth
 
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,

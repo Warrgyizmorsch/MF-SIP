@@ -897,6 +897,7 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
           _buildResponsiveLayout(
            context: context,
             leftChild: CustomContainer(
+              height: 430,
               topPadding: 15,
               child: Column(
                 children: [
@@ -941,69 +942,74 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                 ],
               ),
             ),
-            rightChild: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 20 : 0),
-                  child: Container(
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      color: Ucolors.light,
-                      border: Border.all(color: Ucolors.borderColor),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          key: overViewKey,
-                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                          child: const USectionHeading(
-                            title: 'Fund Overview',
-                            showActionButton: false,
+            rightChild: Container(
+              height: 430,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: isDesktop ? 20 : 0),
+                      child: Container(
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: Ucolors.light,
+                          border: Border.all(color: Ucolors.borderColor),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                key: overViewKey,
+                                padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                                child: const USectionHeading(
+                                  title: 'Fund Overview',
+                                  showActionButton: false,
+                                ),
+                              ),
+                              _twoColumnRow(
+                                leftTitle: 'Min SIP',
+                                leftValue: '₹ ${fund?.sipMinimumAmount.toString()}',
+                                rightTitle: 'Min lumpsum',
+                                rightValue: '₹ ${fund?.minimumInvestment.toString()}',
+                              ),
+                              const SizedBox(height: 10),
+                              _twoColumnRow(
+                                leftTitle: 'Expense Ratio',
+                                leftValue: '${fund?.expenseRatioPercentage.toString()}%',
+                                rightTitle: 'AUM',
+                                rightValue: '₹ ${fund?.schemeAssets.toString()} Cr',
+                              ),
+                              const SizedBox(height: 10),
+                              _twoColumnRow(
+                                leftTitle: 'Lock In',
+                                leftValue: 'No Lock-in',
+                                rightTitle: 'Launch Date',
+                                rightValue: fund?.schemeInceptionDate.toString() ?? '',
+                              ),
+                              const SizedBox(height: 10),
+                              const Text(
+                                'Exit Load:',
+                                style: TextStyle(fontSize: 12, color: Colors.grey),
+                              ),
+                              ReadMoreText(
+                                fund?.exitLoad.toString() ?? '',
+                                trimMode: TrimMode.Line,
+                                trimLines: 2,
+                                trimCollapsedText: 'Show More',
+                                trimExpandedText: 'Show Less',
+                                colorClickableText: Ucolors.primary,
+                              ),
+                            ],
                           ),
                         ),
-                        _twoColumnRow(
-                          leftTitle: 'Min SIP',
-                          leftValue: '₹ ${fund?.sipMinimumAmount.toString()}',
-                          rightTitle: 'Min lumpsum',
-                          rightValue: '₹ ${fund?.minimumInvestment.toString()}',
-                        ),
-                        const SizedBox(height: 10),
-                        _twoColumnRow(
-                          leftTitle: 'Expense Ratio',
-                          leftValue: '${fund?.expenseRatioPercentage.toString()}%',
-                          rightTitle: 'AUM',
-                          rightValue: '₹ ${fund?.schemeAssets.toString()} Cr',
-                        ),
-                        const SizedBox(height: 10),
-                        _twoColumnRow(
-                          leftTitle: 'Lock In',
-                          leftValue: 'No Lock-in',
-                          rightTitle: 'Launch Date',
-                          rightValue: fund?.schemeInceptionDate.toString() ?? '',
-                        ),
-                        const SizedBox(height: 10),
-                        const Text(
-                          'Exit Load:',
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
-                        ReadMoreText(
-                          fund?.exitLoad.toString() ?? '',
-                          trimMode: TrimMode.Line,
-                          trimLines: 1,
-                          trimCollapsedText: 'Show More',
-                          trimExpandedText: 'Show Less',
-                          colorClickableText: Ucolors.primary,
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-                const Gap(8),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 20 : 0),
-                  child: CustomContainer(
+                  const Gap(8),
+                  CustomContainer(
                     topPadding: 15,
                     bottomPadding: 15,
                     child: Column(
@@ -1028,8 +1034,8 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                       ],
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           const Gap(8),
@@ -1537,7 +1543,6 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                 flex: 6,
                 child: leftChild,
               ),
-              const Gap(4),
               Expanded(
                 flex: 4,
                 child: rightChild,
@@ -1855,7 +1860,7 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
 
   Widget _buildChartErrorPlaceholder() {
     return Container(
-      height: 200,
+      height: 280,
       width: double.infinity,
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
       child: Column(
