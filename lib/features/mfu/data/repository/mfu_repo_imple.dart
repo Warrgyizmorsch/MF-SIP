@@ -2,10 +2,12 @@ import 'package:dartz/dartz.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/features/mfu/data/datasource/mfu_remote_data_source.dart';
+import 'package:my_sip/features/mfu/data/model/normal_txn_req_model.dart';
 import 'package:my_sip/features/mfu/domain/entity/can_register_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/can_status_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/emandate_status_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/mandate_entity.dart';
+import 'package:my_sip/features/mfu/domain/entity/normal_txn_entity.dart';
 import 'package:my_sip/features/mfu/domain/repository/mfu_repository_abstract.dart';
 
 class MfuRepositoryImpl extends MfuRepository {
@@ -52,11 +54,13 @@ class MfuRepositoryImpl extends MfuRepository {
   Future<Either<Result<MfuMandateCreateEntity>, ApiError>> createMandate({
     required int uid,
     required String mandateType,
+    String? upiId,
   }) async {
     try {
       final response = await _remoteDataSource.createMandate(
         uid: uid,
         mandateType: mandateType,
+        upi: upiId,
       );
       return response.fold(
         (successResult) => Left(Result.success(successResult.data!.toEntity())),
@@ -77,6 +81,21 @@ class MfuRepositoryImpl extends MfuRepository {
         uid: uid,
         mandateType: mandateType,
       );
+      return response.fold(
+        (successResult) => Left(Result.success(successResult.data!.toEntity())),
+        (error) => Right(error),
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Result<MfuNormalTxnEntity>, ApiError>> normalTransaction(
+    MfuNormalTxnRequest request,
+  ) async {
+    try {
+      final response = await _remoteDataSource.normalTransaction(request);
       return response.fold(
         (successResult) => Left(Result.success(successResult.data!.toEntity())),
         (error) => Right(error),

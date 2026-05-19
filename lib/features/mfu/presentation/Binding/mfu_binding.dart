@@ -7,6 +7,7 @@ import 'package:my_sip/features/mfu/domain/usecases/can_status_usecases.dart';
 import 'package:my_sip/features/mfu/domain/usecases/emandate_status_usecases.dart';
 import 'package:my_sip/features/mfu/domain/usecases/mandate_use_cases.dart';
 import 'package:my_sip/features/mfu/domain/usecases/mfu_usecases.dart';
+import 'package:my_sip/features/mfu/domain/usecases/normal_txn_usecases.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 
 import 'package:my_sip/services/session_manager.dart';
@@ -43,6 +44,10 @@ class MfuBindings extends Bindings {
           MfuMandateStatusUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
     );
 
+    Get.lazyPut(
+      () => MfuNormalTxnUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+    );
+
     // 4. Use Cases Wrapper
     Get.lazyPut(
       () => MfuUseCases(
@@ -50,6 +55,7 @@ class MfuBindings extends Bindings {
         getCanStatusUseCase: Get.find<GetCanStatusUseCase>(),
         mfuMandateCreateUseCase: Get.find<MfuMandateCreateUseCase>(),
         mfuMandateStatusUseCase: Get.find<MfuMandateStatusUseCase>(),
+        mfuNormalTxnUseCase: Get.find<MfuNormalTxnUseCase>(),
       ),
     );
 

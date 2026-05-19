@@ -241,7 +241,6 @@ class _WebDashboardLayout extends StatelessWidget {
 
         /// VIDEOS
         _buildWebVideoRow(),
-
       ],
     );
   }
@@ -266,8 +265,6 @@ class _WebDashboardLayout extends StatelessWidget {
         _buildWebFundGrid(),
 
         const Gap(24),
-
-
 
         /// VIDEOS
         _buildWebVideoRow(),
@@ -343,7 +340,6 @@ class _WebDashboardLayout extends StatelessWidget {
                 /// 1. LOADING STATE
                 if (isLoading)
                   FundShimmerLoading(crossAxisCount: crossAxisCount)
-
                 /// 2. EMPTY STATE
                 else if (recentList.isEmpty)
                   Container(
@@ -382,7 +378,6 @@ class _WebDashboardLayout extends StatelessWidget {
                       ],
                     ),
                   )
-
                 /// 3. DATA LOADED (Sirf 2 Rows dikhenge, baki ke liye Scroll hoga)
                 else
                   SizedBox(
@@ -390,8 +385,10 @@ class _WebDashboardLayout extends StatelessWidget {
                     // thoda extra padding ke sath 345 ya 350 perfect rahega
                     height: 345,
                     child: GridView.builder(
-                      shrinkWrap: false, // Ab yeh parent SizedBox ki height lega
-                      physics: const BouncingScrollPhysics(), // Scroll enable kiya
+                      shrinkWrap:
+                          false, // Ab yeh parent SizedBox ki height lega
+                      physics:
+                          const BouncingScrollPhysics(), // Scroll enable kiya
                       itemCount: recentList.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: crossAxisCount,
@@ -419,7 +416,8 @@ class _WebDashboardLayout extends StatelessWidget {
                               AppRoutes.funddetails,
                               arguments: {
                                 'scheme': fund.baseSchemeName,
-                                'imgUrl': "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}",
+                                'imgUrl':
+                                    "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}",
                                 'scheme_code': fund.schemeCode.toString(),
                                 'email': fund.amc?.email,
                                 'address': fund.amc?.address,
@@ -662,13 +660,11 @@ class _WebDashboardLayout extends StatelessWidget {
 
         return WebHoverTile(
           onTap: () {
-            // Get.toNamed(
-            //   AppRoutes.goalPlanner,
-            //   id: 1,
-            //   arguments: {
-            //     'goal_type': goalType,
-            //   },
-            // );
+            Get.toNamed(
+              AppRoutes.ihavegoal,
+              id: 1,
+              arguments: {'goal_type': goalType},
+            );
           },
 
           builder: (isHovered) {
@@ -1081,8 +1077,7 @@ class _WebDashboardLayout extends StatelessWidget {
   Widget _buildKycIsComplete() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool isMobile =
-            constraints.maxWidth < 700;
+        final bool isMobile = constraints.maxWidth < 700;
 
         return Container(
           width: double.infinity,
@@ -1096,109 +1091,84 @@ class _WebDashboardLayout extends StatelessWidget {
           /// MOBILE = HORIZONTAL SCROLL
           child: isMobile
               ? SizedBox(
-            height: 170,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              physics:
-              const BouncingScrollPhysics(),
-              itemCount: 3,
-              separatorBuilder:
-                  (context, index) =>
-              const SizedBox(width: 12),
-              itemBuilder: (context, index) {
-                final items = [
-                  {
-                    "icon": Icons.flag,
-                    "title": "Plan your goals",
-                    "subtitle":
-                    "Set clear financial targets",
-                    "color": Colors.blueAccent,
-                  },
-                  {
-                    "icon":
-                    Icons.person_search,
-                    "title":
-                    "Know your investment personality",
-                    "subtitle":
-                    "Discover your risk profile",
-                    "color":
-                    Colors.deepPurpleAccent,
-                  },
-                  {
-                    "icon":
-                    Icons.shopping_basket,
-                    "title":
-                    "Explore your investment basket",
-                    "subtitle":
-                    "Diversify across funds",
-                    "color": Colors.green,
-                  },
-                ];
+                  height: 170,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: 3,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(width: 12),
+                    itemBuilder: (context, index) {
+                      final items = [
+                        {
+                          "icon": Icons.flag,
+                          "title": "Plan your goals",
+                          "subtitle": "Set clear financial targets",
+                          "color": Colors.blueAccent,
+                        },
+                        {
+                          "icon": Icons.person_search,
+                          "title": "Know your investment personality",
+                          "subtitle": "Discover your risk profile",
+                          "color": Colors.deepPurpleAccent,
+                        },
+                        {
+                          "icon": Icons.shopping_basket,
+                          "title": "Explore your investment basket",
+                          "subtitle": "Diversify across funds",
+                          "color": Colors.green,
+                        },
+                      ];
 
-                final item = items[index];
+                      final item = items[index];
 
-                return SizedBox(
-                  width:
-                  constraints.maxWidth *
-                      0.75,
-                  child: WebActionCard(
-                    icon:
-                    item["icon"] as IconData,
-                    title:
-                    item["title"] as String,
-                    subtitle: item["subtitle"]
-                    as String,
-                    color:
-                    item["color"] as Color,
+                      return SizedBox(
+                        width: constraints.maxWidth * 0.75,
+                        child: WebActionCard(
+                          icon: item["icon"] as IconData,
+                          title: item["title"] as String,
+                          subtitle: item["subtitle"] as String,
+                          color: item["color"] as Color,
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
-          )
-
-          /// TABLET / WEB
+                )
+              /// TABLET / WEB
               : Row(
-            children: [
-              Expanded(
-                child: WebActionCard(
-                  icon: Icons.flag,
-                  title: "Plan your goals",
-                  subtitle:
-                  "Set clear financial targets",
-                  color: Colors.blueAccent,
+                  children: [
+                    Expanded(
+                      child: WebActionCard(
+                        icon: Icons.flag,
+                        title: "Plan your goals",
+                        subtitle: "Set clear financial targets",
+                        color: Colors.blueAccent,
+                      ),
+                    ),
+
+                    const SizedBox(width: 16),
+
+                    Expanded(
+                      child: WebActionCard(
+                        icon: Icons.person_search,
+                        title: "Know your investment personality",
+                        subtitle: "Discover your risk profile",
+                        color: Colors.deepPurpleAccent,
+                      ),
+                    ),
+
+                    const SizedBox(width: 16),
+
+                    Expanded(
+                      child: WebActionCard(
+                        icon: Icons.shopping_basket,
+                        title: "Explore your investment basket",
+                        subtitle: "Diversify across funds",
+                        color: Colors.green,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-
-              const SizedBox(width: 16),
-
-              Expanded(
-                child: WebActionCard(
-                  icon:
-                  Icons.person_search,
-                  title:
-                  "Know your investment personality",
-                  subtitle:
-                  "Discover your risk profile",
-                  color:
-                  Colors.deepPurpleAccent,
-                ),
-              ),
-
-              const SizedBox(width: 16),
-
-              Expanded(
-                child: WebActionCard(
-                  icon:
-                  Icons.shopping_basket,
-                  title:
-                  "Explore your investment basket",
-                  subtitle:
-                  "Diversify across funds",
-                  color: Colors.green,
-                ),
-              ),
-            ],
-          ),
         );
       },
     );

@@ -8,6 +8,8 @@ import 'package:my_sip/features/mfu/data/model/can_register_model.dart';
 import 'package:my_sip/features/mfu/data/model/can_status_model.dart';
 import 'package:my_sip/features/mfu/data/model/emandate_status.dart';
 import 'package:my_sip/features/mfu/data/model/mandate_model.dart';
+import 'package:my_sip/features/mfu/data/model/normal_txn_model.dart';
+import 'package:my_sip/features/mfu/data/model/normal_txn_req_model.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 class MfuRemoteDataSource {
@@ -101,9 +103,17 @@ class MfuRemoteDataSource {
   Future<Either<Result<MfuMandateCreateModel>, ApiError>> createMandate({
     required int uid,
     required String mandateType,
+    String? upi,
   }) async {
     try {
-      final body = {"uid": uid, "mandate_type": mandateType};
+      // final body = {"uid": uid, "mandate_type": mandateType};
+      final Map<String, dynamic> body = {
+        "uid": uid,
+        "mandate_type": mandateType,
+      };
+      if (mandateType.toLowerCase() == 'upi' && upi != null && upi.isNotEmpty) {
+        body["upi_id"] = upi;
+      }
 
       createLog("[MfuRemoteDataSource] createMandate Request: $body");
 
@@ -165,6 +175,40 @@ class MfuRemoteDataSource {
       }
     } catch (e) {
       return Right(ApiError(message: 'getMandateStatus Exception: $e'));
+    }
+  }
+
+  Future<Either<Result<MfuNormalTxnModel>, ApiError>> normalTransaction(
+    MfuNormalTxnRequest request,
+  ) async {
+    try {
+      final body = request.toJson();
+
+      createLog("[MfuRemoteDataSource] normalTransaction Request: $body");
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/mfu/normal-transaction",
+        data: body,
+      );
+
+      createLog("[MfuRemoteDataSource] normalTransaction Response: $resp");
+
+      if (resp != null) {
+        final result = MfuNormalTxnModel.fromJson(resp);
+        if (result.success == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(message: result.message ?? 'Transaction Failed'),
+          );
+        }
+      } else {
+        return Right(
+          ApiError(message: 'normalTransaction: Invalid response structure'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'normalTransaction Exception: $e'));
     }
   }
 }

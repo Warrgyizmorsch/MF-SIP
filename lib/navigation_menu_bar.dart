@@ -1675,7 +1675,7 @@ class NavigationBarController extends GetxController {
       selectedIndex.value = 1;
     } else if (currentRoute.contains(AppRoutes.dashBoardPage)) {
       selectedIndex.value = 2;
-    } else if (currentRoute.contains(AppRoutes.comingSoon)) {
+    } else if (currentRoute.contains(AppRoutes.goalScreen)) {
       selectedIndex.value = 3;
     } else if (currentRoute.contains(AppRoutes.profilePage)) {
       selectedIndex.value = 40;
@@ -1727,7 +1727,7 @@ class NavigationBarController extends GetxController {
           route = AppRoutes.dashBoardPage;
           break;
         case 3:
-          route = AppRoutes.comingSoon;
+          route = AppRoutes.goalScreen;
           break;
         case 40:
           route = AppRoutes.profilePage;
@@ -1937,7 +1937,10 @@ class NavigationMenuBar extends StatelessWidget {
                                 child: const Text(
                                   'Exit App',
 
-                                  style: TextStyle(fontWeight: FontWeight.bold,   fontFamily: UTextStyles.font,),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: UTextStyles.font,
+                                  ),
                                 ),
                               ),
                             ),
@@ -1961,213 +1964,173 @@ class NavigationMenuBar extends StatelessWidget {
     final isTablet = ResponsiveBreakpoints.of(context).equals(TABLET);
 
     return PopScope(
-    canPop: kIsWeb && controller.selectedIndex.value == 0,
-    onPopInvokedWithResult: (didPop, result) async {
-      if (didPop) return;
+      canPop: kIsWeb && controller.selectedIndex.value == 0,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
 
-      if (controller.selectedIndex.value != 0) {
-        controller.changePage(
-          0,
-          isDesktop: isDesktop || isTablet,
-        );
-        return;
-      }
-
-      if (!kIsWeb) {
-        final shouldExit =
-        await _showModernExitDialog(context);
-
-        if (shouldExit) {
-          SystemNavigator.pop();
+        if (controller.selectedIndex.value != 0) {
+          controller.changePage(0, isDesktop: isDesktop || isTablet);
+          return;
         }
-      }
-    },
 
-    child: Scaffold(
-      body: Row(
-        children: [
-          if (isDesktop || isTablet)
-            _DesktopSideNav(
-              isDesktop: isDesktop,
-              isTablet: isTablet,
-            ),
+        if (!kIsWeb) {
+          final shouldExit = await _showModernExitDialog(context);
 
-          Expanded(
-            child: Column(
-              children: [
-                if (isDesktop)
-                  const GlobalTopHeader(),
+          if (shouldExit) {
+            SystemNavigator.pop();
+          }
+        }
+      },
 
-                Expanded(
-                  child: Column(
-                    children: [
-                      /// Main Content
-                      Expanded(
-                        child: (isDesktop || isTablet)
-                            ? Navigator(
-                          key: Get.nestedKey(1),
-                          initialRoute:
-                          AppRoutes.home,
-                          onGenerateRoute:
-                              (settings) {
-                            final List<GetPage>
-                            allPages =
-                            AppPages.pages();
+      child: Scaffold(
+        body: Row(
+          children: [
+            if (isDesktop || isTablet)
+              _DesktopSideNav(isDesktop: isDesktop, isTablet: isTablet),
 
-                            GetPage? page;
+            Expanded(
+              child: Column(
+                children: [
+                  if (isDesktop) const GlobalTopHeader(),
 
-                            try {
-                              page = allPages
-                                  .firstWhere(
-                                    (p) =>
-                                p.name ==
-                                    settings
-                                        .name,
-                              );
-                            } catch (e) {
-                              page = null;
-                            }
+                  Expanded(
+                    child: Column(
+                      children: [
+                        /// Main Content
+                        Expanded(
+                          child: (isDesktop || isTablet)
+                              ? Navigator(
+                                  key: Get.nestedKey(1),
+                                  initialRoute: AppRoutes.home,
+                                  onGenerateRoute: (settings) {
+                                    final List<GetPage> allPages =
+                                        AppPages.pages();
 
-                            if (page != null) {
-                              return GetPageRoute(
-                                settings:
-                                settings,
-                                page:
-                                page.page,
-                                binding: page
-                                    .binding,
-                                bindings: page
-                                    .bindings,
-                                transition:
-                                Transition
-                                    .fadeIn,
-                              );
-                            }
+                                    GetPage? page;
 
-                            return GetPageRoute(
-                              page: () =>
-                              const HomeScreen(),
-                            );
-                          },
-                        )
-                            : Obx(() {
-                          switch (controller
-                              .selectedIndex
-                              .value) {
-                            case 0:
-                              return const HomeScreen();
+                                    try {
+                                      page = allPages.firstWhere(
+                                        (p) => p.name == settings.name,
+                                      );
+                                    } catch (e) {
+                                      page = null;
+                                    }
 
-                            case 1:
-                              return const ExploreScreen();
+                                    if (page != null) {
+                                      return GetPageRoute(
+                                        settings: settings,
+                                        page: page.page,
+                                        binding: page.binding,
+                                        bindings: page.bindings,
+                                        transition: Transition.fadeIn,
+                                      );
+                                    }
 
-                            case 2:
-                              return DashboardScreen();
+                                    return GetPageRoute(
+                                      page: () => const HomeScreen(),
+                                    );
+                                  },
+                                )
+                              : Obx(() {
+                                  switch (controller.selectedIndex.value) {
+                                    case 0:
+                                      return const HomeScreen();
 
-                            case 3:
-                              return const GoalScreen();
+                                    case 1:
+                                      return const ExploreScreen();
 
-                            case 40:
-                              return const ProfileScreen();
+                                    case 2:
+                                      return DashboardScreen();
 
-                            case 41:
-                              return const KycDetailsScreen();
+                                    case 3:
+                                      return const GoalScreen();
 
-                            case 42:
-                              return PersonalDetailsScreen();
+                                    case 40:
+                                      return const ProfileScreen();
 
-                            case 43:
-                              return const BankDetailsScreen();
+                                    case 41:
+                                      return const KycDetailsScreen();
 
-                            case 44:
-                              return const NomineeListScreen();
+                                    case 42:
+                                      return PersonalDetailsScreen();
 
-                            case 45:
-                              return const DocumentScreen();
+                                    case 43:
+                                      return const BankDetailsScreen();
 
-                            case 50:
-                              return HtmlWebViewPage(
-                                key: const ValueKey(
-                                  'contact',
-                                ),
-                                appBar: false,
-                                title:
-                                'Contact Support',
-                                url:
-                                'https://sip.londonstreetstore.com/contact-us?mobile=true',
-                              );
+                                    case 44:
+                                      return const NomineeListScreen();
 
-                            case 51:
-                              return HtmlWebViewPage(
-                                appBar: false,
-                                key: const ValueKey(
-                                  'privacy',
-                                ),
-                                title:
-                                'Privacy Policy',
-                                url:
-                                'https://sip.londonstreetstore.com/privacy-policy?mobile=true',
-                              );
+                                    case 45:
+                                      return const DocumentScreen();
 
-                            case 52:
-                              return HtmlWebViewPage(
-                                appBar: false,
-                                key: const ValueKey(
-                                  'terms',
-                                ),
-                                title:
-                                'Terms & Conditions',
-                                url:
-                                'https://sip.londonstreetstore.com/terms-and-conditions?mobile=true',
-                              );
+                                    case 50:
+                                      return HtmlWebViewPage(
+                                        key: const ValueKey('contact'),
+                                        appBar: false,
+                                        title: 'Contact Support',
+                                        url:
+                                            'https://sip.londonstreetstore.com/contact-us?mobile=true',
+                                      );
 
-                            case 53:
-                              return HtmlWebViewPage(
-                                appBar: false,
-                                key: const ValueKey(
-                                  'faq',
-                                ),
-                                title:
-                                'FAQs',
-                                url:
-                                'https://sip.londonstreetstore.com/faq?mobile=true',
-                              );
+                                    case 51:
+                                      return HtmlWebViewPage(
+                                        appBar: false,
+                                        key: const ValueKey('privacy'),
+                                        title: 'Privacy Policy',
+                                        url:
+                                            'https://sip.londonstreetstore.com/privacy-policy?mobile=true',
+                                      );
 
-                            case 54:
-                              return HtmlWebViewPage(
-                                appBar: false,
-                                key: const ValueKey(
-                                  'abouts',
-                                ),
-                                title:
-                                'About Us',
-                                url:
-                                'https://sip.londonstreetstore.com/about-us?mobile=true',
-                              );
+                                    case 52:
+                                      return HtmlWebViewPage(
+                                        appBar: false,
+                                        key: const ValueKey('terms'),
+                                        title: 'Terms & Conditions',
+                                        url:
+                                            'https://sip.londonstreetstore.com/terms-and-conditions?mobile=true',
+                                      );
 
-                            default:
-                              return const HomeScreen();
-                          }
-                        }),
-                      ),
+                                    case 53:
+                                      return HtmlWebViewPage(
+                                        appBar: false,
+                                        key: const ValueKey('faq'),
+                                        title: 'FAQs',
+                                        url:
+                                            'https://sip.londonstreetstore.com/faq?mobile=true',
+                                      );
 
-                      /// Global Web Footer
-                      if (isDesktop || isTablet)
-                        const WebFooter(),
-                    ],
+                                    case 54:
+                                      return HtmlWebViewPage(
+                                        appBar: false,
+                                        key: const ValueKey('abouts'),
+                                        title: 'About Us',
+                                        url:
+                                            'https://sip.londonstreetstore.com/about-us?mobile=true',
+                                      );
+
+                                    default:
+                                      return const HomeScreen();
+                                  }
+                                }),
+                        ),
+
+                        /// Global Web Footer
+                        if (isDesktop || isTablet) const WebFooter(),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
 
-      bottomNavigationBar:
-      isDesktop ? null : const _MobileBottomNavBar(),
-    ),
+        bottomNavigationBar: isDesktop ? null : const _MobileBottomNavBar(),
+      ),
     );
   }
 }
+
 class WebFooter extends StatelessWidget {
   const WebFooter({super.key});
 
@@ -2175,18 +2138,11 @@ class WebFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        vertical: 16,
-        horizontal: 20,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Ucolors.light,
-        border: Border(
-          top: BorderSide(
-            color: Colors.grey.shade300,
-          ),
-        ),
+        border: Border(top: BorderSide(color: Colors.grey.shade300)),
       ),
       child: Text(
         "ARN : 104807 || Kriti Hinger",
@@ -2199,6 +2155,7 @@ class WebFooter extends StatelessWidget {
     );
   }
 }
+
 class GlobalTopHeader extends StatelessWidget {
   const GlobalTopHeader({super.key});
 
@@ -2610,10 +2567,7 @@ class _DesktopSideNav extends StatelessWidget {
   final bool isDesktop;
   final bool isTablet;
 
-  const _DesktopSideNav({
-    required this.isDesktop,
-    required this.isTablet,
-  });
+  const _DesktopSideNav({required this.isDesktop, required this.isTablet});
 
   @override
   Widget build(BuildContext context) {
@@ -2622,11 +2576,9 @@ class _DesktopSideNav extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
 
     /// RESPONSIVE BREAKPOINTS
-    final bool isCompactDesktop =
-        screenWidth < 1200;
+    final bool isCompactDesktop = screenWidth < 1200;
 
-    final bool isMiniTablet =
-        screenWidth < 800;
+    final bool isMiniTablet = screenWidth < 800;
 
     /// WIDTH
     final double sideWidth = isDesktop
@@ -2634,32 +2586,22 @@ class _DesktopSideNav extends StatelessWidget {
         : (isMiniTablet ? 78 : 90);
 
     /// LOGO
-    final double logoSize = isDesktop
-        ? (isCompactDesktop ? 48 : 60)
-        : 40;
+    final double logoSize = isDesktop ? (isCompactDesktop ? 48 : 60) : 40;
 
     /// TEXT
-    final double navFontSize = isDesktop
-        ? (isCompactDesktop ? 13 : 15)
-        : 13;
+    final double navFontSize = isDesktop ? (isCompactDesktop ? 13 : 15) : 13;
 
     final double iconSize = isDesktop ? 22 : 20;
 
-    final double horizontalPadding =
-    isDesktop ? 14 : 10;
+    final double horizontalPadding = isDesktop ? 14 : 10;
 
-    final bool showText =
-        isDesktop || screenWidth > 850;
+    final bool showText = isDesktop || screenWidth > 850;
 
     return Container(
       width: sideWidth,
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(
-          right: BorderSide(
-            color: Colors.grey.shade200,
-          ),
-        ),
+        border: Border(right: BorderSide(color: Colors.grey.shade200)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.03),
@@ -2697,15 +2639,10 @@ class _DesktopSideNav extends StatelessWidget {
                         'MF SIP',
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize:
-                          isCompactDesktop
-                              ? 18
-                              : 20,
-                          fontWeight:
-                          FontWeight.w700,
+                          fontSize: isCompactDesktop ? 18 : 20,
+                          fontWeight: FontWeight.w700,
                           color: Ucolors.dark,
-                          fontFamily:
-                          UTextStyles.font,
+                          fontFamily: UTextStyles.font,
                         ),
                       ),
                     ),
@@ -2716,25 +2653,16 @@ class _DesktopSideNav extends StatelessWidget {
 
             /// USER CARD
             Container(
-              margin: EdgeInsets.symmetric(
-                horizontal: showText ? 12 : 8,
-              ),
-              padding: EdgeInsets.all(
-                showText ? 12 : 8,
-              ),
+              margin: EdgeInsets.symmetric(horizontal: showText ? 12 : 8),
+              padding: EdgeInsets.all(showText ? 12 : 8),
               decoration: BoxDecoration(
                 color: Colors.grey.shade50,
-                borderRadius:
-                BorderRadius.circular(16),
-                border: Border.all(
-                  color: Colors.grey.shade100,
-                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey.shade100),
               ),
 
               child: Obx(() {
-                final reactiveUser =
-                    SessionManager
-                        .instance.userObs.value;
+                final reactiveUser = SessionManager.instance.userObs.value;
 
                 return Row(
                   mainAxisAlignment: showText
@@ -2744,10 +2672,7 @@ class _DesktopSideNav extends StatelessWidget {
                     SizedBox(
                       height: showText ? 48 : 40,
                       width: showText ? 48 : 40,
-                      child: UCircularImage(
-                        image:
-                        reactiveUser?.img ?? "",
-                      ),
+                      child: UCircularImage(image: reactiveUser?.img ?? ""),
                     ),
 
                     if (showText) ...[
@@ -2755,41 +2680,27 @@ class _DesktopSideNav extends StatelessWidget {
 
                       Expanded(
                         child: Column(
-                          crossAxisAlignment:
-                          CrossAxisAlignment
-                              .start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              UHelperFunction
-                                  .getGreetingMsg(),
-                              overflow:
-                              TextOverflow
-                                  .ellipsis,
+                              UHelperFunction.getGreetingMsg(),
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 11,
-                                color: Colors
-                                    .grey.shade600,
+                                color: Colors.grey.shade600,
                               ),
                             ),
 
-                            const SizedBox(
-                              height: 2,
-                            ),
+                            const SizedBox(height: 2),
 
                             Text(
-                              reactiveUser?.name ??
-                                  '',
+                              reactiveUser?.name ?? '',
                               maxLines: 1,
-                              overflow:
-                              TextOverflow
-                                  .ellipsis,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 14,
-                                fontWeight:
-                                FontWeight
-                                    .w600,
-                                color:
-                                Colors.black87,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
                               ),
                             ),
                           ],
@@ -2806,74 +2717,70 @@ class _DesktopSideNav extends StatelessWidget {
             /// NAVIGATION
             Expanded(
               child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(
-                  horizontal:
-                  showText ? 12 : 8,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: showText ? 12 : 8),
                 child: Column(
                   children: [
-                    if (showText)
-                      _buildSectionTitle(
-                        "GENERALS",
+                    if (showText) _buildSectionTitle("GENERALS"),
+
+                    Obx(
+                      () => _buildNavItem(
+                        controller,
+                        0,
+                        Iconsax.home,
+                        'Home',
+                        showText,
+                        navFontSize,
+                        iconSize,
+                        horizontalPadding,
                       ),
+                    ),
 
-                    Obx(() => _buildNavItem(
-                      controller,
-                      0,
-                      Iconsax.home,
-                      'Home',
-                      showText,
-                      navFontSize,
-                      iconSize,
-                      horizontalPadding,
-                    )),
+                    Obx(
+                      () => _buildNavItem(
+                        controller,
+                        1,
+                        Icons.trending_up,
+                        'Explore',
+                        showText,
+                        navFontSize,
+                        iconSize,
+                        horizontalPadding,
+                      ),
+                    ),
 
-                    Obx(() => _buildNavItem(
-                      controller,
-                      1,
-                      Icons.trending_up,
-                      'Explore',
-                      showText,
-                      navFontSize,
-                      iconSize,
-                      horizontalPadding,
-                    )),
+                    Obx(
+                      () => _buildNavItem(
+                        controller,
+                        2,
+                        Iconsax.chart_1,
+                        'Dashboard',
+                        showText,
+                        navFontSize,
+                        iconSize,
+                        horizontalPadding,
+                      ),
+                    ),
 
-                    Obx(() => _buildNavItem(
-                      controller,
-                      2,
-                      Iconsax.chart_1,
-                      'Dashboard',
-                      showText,
-                      navFontSize,
-                      iconSize,
-                      horizontalPadding,
-                    )),
-
-                    Obx(() => _buildNavItem(
-                      controller,
-                      3,
-                      Iconsax.cup,
-                      'Goal',
-                      showText,
-                      navFontSize,
-                      iconSize,
-                      horizontalPadding,
-                    )),
+                    Obx(
+                      () => _buildNavItem(
+                        controller,
+                        3,
+                        Iconsax.cup,
+                        'Goal',
+                        showText,
+                        navFontSize,
+                        iconSize,
+                        horizontalPadding,
+                      ),
+                    ),
 
                     const SizedBox(height: 18),
 
-                    if (showText)
-                      _buildSectionTitle(
-                        "SETTINGS",
-                      ),
+                    if (showText) _buildSectionTitle("SETTINGS"),
 
                     /// PROFILE
                     Obx(() {
-                      final isExpanded =
-                          controller
-                              .isProfileExpanded
-                              .value;
+                      final isExpanded = controller.isProfileExpanded.value;
 
                       return Column(
                         children: [
@@ -2882,79 +2789,47 @@ class _DesktopSideNav extends StatelessWidget {
                             label: 'Profile',
                             isSelected: false,
                             isDesktop: showText,
-                            fontSize:
-                            navFontSize,
+                            fontSize: navFontSize,
                             iconSize: iconSize,
-                            horizontalPadding:
-                            horizontalPadding,
+                            horizontalPadding: horizontalPadding,
                             trailing: showText
                                 ? Icon(
-                              isExpanded
-                                  ? Icons
-                                  .keyboard_arrow_up
-                                  : Icons
-                                  .keyboard_arrow_down,
-                              size: 18,
-                              color: Colors
-                                  .grey
-                                  .shade600,
-                            )
+                                    isExpanded
+                                        ? Icons.keyboard_arrow_up
+                                        : Icons.keyboard_arrow_down,
+                                    size: 18,
+                                    color: Colors.grey.shade600,
+                                  )
                                 : null,
                             onTap: () {
-                              controller
-                                  .changePage(
-                                4,
-                                isDesktop:
-                                showText,
-                              );
+                              controller.changePage(4, isDesktop: showText);
                             },
                           ),
 
                           if (showText)
                             AnimatedCrossFade(
-                              duration:
-                              const Duration(
-                                milliseconds: 250,
-                              ),
-                              crossFadeState:
-                              isExpanded
-                                  ? CrossFadeState
-                                  .showFirst
-                                  : CrossFadeState
-                                  .showSecond,
-                              firstChild:
-                              Column(
+                              duration: const Duration(milliseconds: 250),
+                              crossFadeState: isExpanded
+                                  ? CrossFadeState.showFirst
+                                  : CrossFadeState.showSecond,
+                              firstChild: Column(
                                 children: [
-                                  _buildSubItem(
-                                    controller,
-                                    41,
-                                    "KYC Details",
-                                  ),
+                                  _buildSubItem(controller, 41, "KYC Details"),
                                   _buildSubItem(
                                     controller,
                                     42,
                                     "Personal Details",
                                   ),
-                                  _buildSubItem(
-                                    controller,
-                                    43,
-                                    "Bank Account",
-                                  ),
+                                  _buildSubItem(controller, 43, "Bank Account"),
                                   _buildSubItem(
                                     controller,
                                     44,
                                     "Nominee Details",
                                   ),
-                                  _buildSubItem(
-                                    controller,
-                                    45,
-                                    "Documents",
-                                  ),
+                                  _buildSubItem(controller, 45, "Documents"),
                                 ],
                               ),
-                              secondChild:
-                              const SizedBox
-                                  .shrink(),
+                              secondChild: const SizedBox.shrink(),
                             ),
                         ],
                       );
@@ -2974,17 +2849,14 @@ class _DesktopSideNav extends StatelessWidget {
                       "ARN : 104807",
                       style: TextStyle(
                         fontSize: 11,
-                        color:
-                        Colors.grey.shade600,
-                        fontWeight:
-                        FontWeight.w500,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
 
                   const SizedBox(height: 10),
 
-                  if (showText)
-                    LogoutButton(web: true),
+                  if (showText) LogoutButton(web: true),
                 ],
               ),
             ),
@@ -2996,11 +2868,7 @@ class _DesktopSideNav extends StatelessWidget {
 
   Widget _buildSectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.only(
-        left: 14,
-        bottom: 10,
-        top: 4,
-      ),
+      padding: const EdgeInsets.only(left: 14, bottom: 10, top: 4),
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
@@ -3017,62 +2885,45 @@ class _DesktopSideNav extends StatelessWidget {
   }
 
   Widget _buildNavItem(
-      NavigationBarController controller,
-      int index,
-      IconData icon,
-      String label,
-      bool isDesktop,
-      double fontSize,
-      double iconSize,
-      double horizontalPadding,
-      ) {
+    NavigationBarController controller,
+    int index,
+    IconData icon,
+    String label,
+    bool isDesktop,
+    double fontSize,
+    double iconSize,
+    double horizontalPadding,
+  ) {
     return _DesktopNavItem(
       icon: icon,
       label: label,
-      isSelected:
-      controller.selectedIndex.value ==
-          index,
+      isSelected: controller.selectedIndex.value == index,
       isDesktop: isDesktop,
       fontSize: fontSize,
       iconSize: iconSize,
-      horizontalPadding:
-      horizontalPadding,
-      onTap: () => controller.changePage(
-        index,
-        isDesktop: isDesktop,
-      ),
+      horizontalPadding: horizontalPadding,
+      onTap: () => controller.changePage(index, isDesktop: isDesktop),
     );
   }
 
   Widget _buildSubItem(
-      NavigationBarController controller,
-      int index,
-      String label,
-      ) {
-    final isSelected =
-        controller.selectedIndex.value ==
-            index;
+    NavigationBarController controller,
+    int index,
+    String label,
+  ) {
+    final isSelected = controller.selectedIndex.value == index;
 
     return InkWell(
-      onTap: () =>
-          controller.changePage(index),
+      onTap: () => controller.changePage(index),
       child: Container(
         width: double.infinity,
-        padding:
-        const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 10,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 13,
-            fontWeight: isSelected
-                ? FontWeight.w600
-                : FontWeight.w400,
-            color: isSelected
-                ? Ucolors.blue
-                : Colors.grey.shade700,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+            color: isSelected ? Ucolors.blue : Colors.grey.shade700,
           ),
         ),
       ),
@@ -3081,7 +2932,6 @@ class _DesktopSideNav extends StatelessWidget {
 }
 
 class _DesktopNavItem extends StatelessWidget {
-
   final IconData icon;
   final String label;
   final bool isSelected;
@@ -3107,7 +2957,6 @@ class _DesktopNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
 
@@ -3120,8 +2969,7 @@ class _DesktopNavItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
 
           child: AnimatedContainer(
-            duration:
-            const Duration(milliseconds: 220),
+            duration: const Duration(milliseconds: 220),
 
             padding: EdgeInsets.symmetric(
               vertical: 14,
@@ -3144,17 +2992,13 @@ class _DesktopNavItem extends StatelessWidget {
 
             child: Row(
               children: [
-
                 Icon(
                   icon,
                   size: iconSize,
-                  color: isSelected
-                      ? Ucolors.blue
-                      : Colors.grey.shade700,
+                  color: isSelected ? Ucolors.blue : Colors.grey.shade700,
                 ),
 
                 if (isDesktop) ...[
-
                   const SizedBox(width: 14),
 
                   Expanded(
@@ -3168,15 +3012,12 @@ class _DesktopNavItem extends StatelessWidget {
                         fontWeight: isSelected
                             ? FontWeight.w600
                             : FontWeight.w500,
-                        color: isSelected
-                            ? Ucolors.blue
-                            : Colors.grey.shade800,
+                        color: isSelected ? Ucolors.blue : Colors.grey.shade800,
                       ),
                     ),
                   ),
 
-                  if (trailing != null)
-                    trailing!,
+                  if (trailing != null) trailing!,
                 ],
               ],
             ),
@@ -3199,9 +3040,7 @@ class _MobileBottomNavBar extends StatelessWidget {
         /// Footer
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(
-            vertical: 8,
-          ),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           alignment: Alignment.center,
           color: Ucolors.light,
           child: Text(
@@ -3233,8 +3072,16 @@ class _MobileBottomNavBar extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: const [
                 _MobileNavItem(index: 0, icon: Iconsax.home, label: 'Home'),
-                _MobileNavItem(index: 1, icon: Icons.trending_up, label: 'Explore'),
-                _MobileNavItem(index: 2, icon: Iconsax.chart_1, label: 'Dashboard'),
+                _MobileNavItem(
+                  index: 1,
+                  icon: Icons.trending_up,
+                  label: 'Explore',
+                ),
+                _MobileNavItem(
+                  index: 2,
+                  icon: Iconsax.chart_1,
+                  label: 'Dashboard',
+                ),
                 _MobileNavItem(index: 3, icon: Iconsax.cup, label: 'Goal'),
                 _MobileNavItem(index: 4, icon: Iconsax.user4, label: 'Profile'),
               ],

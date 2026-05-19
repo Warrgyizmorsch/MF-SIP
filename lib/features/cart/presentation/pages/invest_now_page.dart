@@ -6,13 +6,11 @@ import 'package:get/get.dart';
 import '../../../../common/widget/images/custom_cached_image.dart';
 import '../../../../common/widget/text_form/text_field_component.dart';
 import '../../../../config/routes/app_routes.dart';
-import '../../../../core/utils/constant/appUrl.dart';
 import '../../../../core/utils/constant/colors.dart';
 import '../../../../core/utils/constant/text_style.dart';
 import '../../../../core/utils/enums/enums.dart';
 import '../../../fund_details/presentation/pages/fund_deatails.dart';
 import '../controllers/cart_controller.dart';
-import 'cart_page.dart';
 
 class InvestNowPage extends GetView<CartController> {
   final bool isDesktop = Get.width > 600;

@@ -8,10 +8,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/animated/custom_toast.dart';
+import 'package:my_sip/features/mfu/data/model/normal_txn_req_model.dart';
 import 'package:my_sip/features/mfu/domain/entity/can_register_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/can_status_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/emandate_status_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/mandate_entity.dart';
+import 'package:my_sip/features/mfu/domain/entity/normal_txn_entity.dart';
 import 'package:my_sip/features/mfu/domain/usecases/mfu_usecases.dart';
 import 'package:my_sip/services/session_manager.dart';
 import 'package:pinput/pinput.dart';
@@ -31,15 +33,18 @@ class MfuController extends GetxController {
   final isVerified = false.obs;
   final isVerifying = false.obs;
   final isCreatingMandate = false.obs;
+  final isSubmittingTxn = false.obs;
 
   final mandateCreateResponse = Rxn<MfuMandateCreateEntity>();
   final mfuCanResponse = Rxn<MfuCanResponseEntity>();
   final mandateStatusResponse = Rxn<MfuMandateStatusEntity>();
   final canStatusResponse = Rxn<MfuCanStatusEntity>();
+  final normalTxnResponse = Rxn<MfuNormalTxnEntity>();
 
   final errorMessage = ''.obs;
   final selectedMethod = 'upi'.obs; // 'upi' | 'netbanking'
   final upiId = ''.obs;
+  final TextEditingController upiNumber = TextEditingController();
 
   // ─── Convenience Getters ─────────────────────────────────────────────────────
 
@@ -64,7 +69,7 @@ class MfuController extends GetxController {
   void selectMethod(String method) {
     selectedMethod.value = method;
     isVerified.value = false;
-    upiId.value = '';
+    // upiId.value = '';
   }
 
   Future<void> verifyUpi() async {
@@ -201,26 +206,13 @@ class MfuController extends GetxController {
   }
 
   /// ------   Mandate ----   ///
-  Future<void> createMandate({required String mandateType}) async {
+  Future<void> createMandate({
+    required String mandateType,
+    String? upiId,
+  }) async {
     isCreatingMandate.value = true;
     errorMessage.value = '';
 
-    // Get.dialog(
-    //   const Center(
-    //     child: Column(
-    //       mainAxisSize: MainAxisSize.min,
-    //       children: [
-    //         CircularProgressIndicator(color: Colors.white),
-    //         SizedBox(height: 16),
-    //         Text(
-    //           "Preparing secure gateway...",
-    //           style: TextStyle(color: Colors.white, fontSize: 16),
-    //         ),
-    //       ],
-    //     ),
-    //   ),
-    //   barrierDismissible: false,
-    // );
     CustomLoadingDialog.show(title: "Preparing secure gateway...");
 
     final uid = session.getUserData?.id ?? 0;
@@ -229,6 +221,7 @@ class MfuController extends GetxController {
       final result = await mfuUseCases.mfuMandateCreateUseCase(
         uid: uid,
         mandateType: mandateType,
+        upiId: upiId,
       );
 
       await result.fold(
@@ -330,6 +323,7 @@ class MfuController extends GetxController {
     isCreatingMandate.value = false;
   }
 
+  /*
   // Future<void> createMandate({required String mandateType}) async {
   //   isCreatingMandate.value = true;
   //   errorMessage.value = '';
@@ -396,6 +390,8 @@ class MfuController extends GetxController {
   //   isCreatingMandate.value = false;
   // }
 
+  */
+
   // get mandate status
   Future<void> getMandateStatus({required String mandateType}) async {
     isLoadingMandateStatus.value = true;
@@ -423,6 +419,35 @@ class MfuController extends GetxController {
     );
 
     isLoadingMandateStatus.value = false;
+  }
+
+  Future<void> normalTransaction(MfuNormalTxnRequest request) async {
+    isSubmittingTxn.value = true;
+    errorMessage.value = '';
+
+    final result = await mfuUseCases.mfuNormalTxnUseCase(request);
+
+    result.fold(
+      (success) async {
+        normalTxnResponse.value = success.data;
+        log(
+          "[MfuController] Txn submitted — ref: ${success.data?.entGroupRefNo}",
+        );
+
+        if (success.data?.hasApprovalLink == true) {
+          // openLink(success.data!.approvalLink);
+          final webViewResult = await Get.to(
+            () => MandateWebView(url: success.data!.approvalLink),
+          );
+        }
+      },
+      (error) {
+        errorMessage.value = error.message ?? 'Transaction failed';
+        Get.snackbar('Transaction Error', errorMessage.value);
+      },
+    );
+
+    isSubmittingTxn.value = false;
   }
 
   @override

@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/animated/empty_filled.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
 import 'package:my_sip/features/wishlist/presentation/controller/wishlist_controller.dart';
 import 'package:readmore/readmore.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -72,9 +73,7 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                 children: [
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 8,
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     alignment: Alignment.center,
                     color: Ucolors.light,
                     child: Text(
@@ -89,7 +88,11 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                   SafeArea(
                     top: false,
                     child:
-                        controller.fundDetail.value!.riskStatisticsList.isNotEmpty
+                        controller
+                            .fundDetail
+                            .value!
+                            .riskStatisticsList
+                            .isNotEmpty
                         ? FundBottomBarButton(
                             firstButton: 'Lumpsum',
                             secondButton: 'Invest now',
@@ -117,21 +120,52 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                               debugPrint(
                                 "sip: ${controller.fundDetail.value?.sipMinimumAmount}",
                               );
-                              await cartController.setInvestmentDetails(
-                                code: controller.schemeCode,
-                                name: controller.schemeName,
-                                minAmount:
-                                    controller.fundDetail.value!.sipMinimumAmount,
-                                fundDetailEntity: controller.fundDetail.value!,
-                                amcLogo: controller.imgUrl,
+                              final argVal = controller.fundDetail.value;
+
+                              final purchaseArgs = SipPurchaseArgs(
+                                schemeCode: '012',
+                                fundName: controller
+                                    .schemeName, // Replace with variable
+                                category:
+                                    argVal?.schemeCategory ??
+                                    "", // Replace with variable
+                                riskLabel:
+                                    argVal?.riskometerValue ??
+                                    "", // Replace with variable
+                                minSip:
+                                    argVal?.sipMinimumAmount ??
+                                    1000, // Replace with variable from API
+                                minLumpsum:
+                                    argVal?.minimumInvestment.toInt() ??
+                                    1000, // Replace with variable from API
+                                minTopup:
+                                    argVal?.minimumTopup.toInt() ??
+                                    5000, // Replace with variable from API
+                                folio: null,
+                                imgUrl: controller
+                                    .imgUrl, // Pass folio if the user already has one, otherwise null
                               );
-                              Get.toNamed(
-                                AppRoutes.investNow,
-                                arguments: {
-                                  "investNow":
-                                      controller.fundDetail.value?.sipMinimumAmount,
-                                },
+
+                              Get.to(
+                                () => SIPPurchasePage(),
+                                arguments: purchaseArgs,
                               );
+
+                              // await cartController.setInvestmentDetails(
+                              //   code: controller.schemeCode,
+                              //   name: controller.schemeName,
+                              //   minAmount:
+                              //       controller.fundDetail.value!.sipMinimumAmount,
+                              //   fundDetailEntity: controller.fundDetail.value!,
+                              //   amcLogo: controller.imgUrl,
+                              // );
+                              // Get.toNamed(
+                              //   AppRoutes.investNow,
+                              //   arguments: {
+                              //     "investNow":
+                              //         controller.fundDetail.value?.sipMinimumAmount,
+                              //   },
+                              // );
 
                               // await cartController.addToCart(
                               //   controller.schemeCode,
@@ -1820,8 +1854,7 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
     required ValueChanged<bool> onTapChanged,
     required List<Widget> children,
   }) {
-    final bool isDesktop =
-        MediaQuery.of(context).size.width >= 1100;
+    final bool isDesktop = MediaQuery.of(context).size.width >= 1100;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(12.0, 4.0, 12.0, 0.0),
@@ -1829,16 +1862,11 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(
-            color: Colors.grey.shade200,
-            width: 1,
-          ),
+          side: BorderSide(color: Colors.grey.shade200, width: 1),
         ),
         color: Ucolors.light,
         child: Theme(
-          data: ThemeData().copyWith(
-            dividerColor: Colors.transparent,
-          ),
+          data: ThemeData().copyWith(dividerColor: Colors.transparent),
           child: ExpansionTile(
             // Web/Desktop me default open
             initiallyExpanded: isDesktop ? true : isActive,
@@ -1849,12 +1877,7 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
               vertical: 0,
             ),
 
-            childrenPadding: const EdgeInsets.fromLTRB(
-              16,
-              0,
-              16,
-              4,
-            ),
+            childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
 
             title: Text(
               title,
@@ -1866,10 +1889,7 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
             ),
 
             children: [
-              Divider(
-                height: 1,
-                color: Colors.grey.shade100,
-              ),
+              Divider(height: 1, color: Colors.grey.shade100),
 
               ...children,
             ],
