@@ -22,7 +22,7 @@ import 'package:my_sip/features/goal/presentation/widget/GoalDetailsIndicator.da
 
 import '../../domain/entity/goal_entity.dart';
 
-class GoaldetailsPage extends StatelessWidget {
+class GoaldetailsPage extends GetView<GoalSipController> {
   const GoaldetailsPage({super.key});
 
   @override
@@ -41,7 +41,55 @@ class GoaldetailsPage extends StatelessWidget {
 
       appBar: CustomAppBarNormal(
         title: title,
-        action: [CompactIcon(icon: Icons.more_vert, onPressed: () {})],
+        action: [
+          PopupMenuButton<String>(
+            color:Ucolors.light,
+
+            icon: const Icon(Icons.more_vert),
+
+            onSelected: (value) {
+              if (value == 'edit') {
+                showEditGoalDialog(context:context,currentGoalId: currentGoalId, goal: goal);
+                // edit
+              } else if (value == 'delete') {
+                showDeleteGoalDialog(context: context,currentGoalId: currentGoalId);
+              }
+            },
+
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'edit',
+
+                child: const Row(
+                  children: [
+                    Icon(Icons.edit, size: 18),
+                    SizedBox(width: 8),
+                    Text('Edit'),
+                  ],
+                ),
+              ),
+
+              PopupMenuItem(
+                value: 'delete',
+
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.delete,
+                      size: 18,
+                      color: Colors.red,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Delete',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: Padding(
         padding: UPadding.screenPadding,
@@ -113,8 +161,170 @@ class GoaldetailsPage extends StatelessWidget {
         },
       ),
     );
-  }
 
+  }
+  void showDeleteGoalDialog({required BuildContext context, required currentGoalId}) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Row(
+            children: [
+              Icon(
+                Icons.delete_outline,
+                color: Colors.red,
+              ),
+              SizedBox(width: 10),
+              Text("Delete Goal"),
+            ],
+          ),
+
+          content: const Text(
+            "Are you sure you want to delete this goal?",
+            style: TextStyle(fontSize: 15),
+          ),
+
+          actionsPadding: const EdgeInsets.only(
+            left: 16,
+            right: 16,
+            bottom: 16,
+          ),
+
+          actions: [
+            OutlinedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+
+              style: OutlinedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+              ),
+
+              child: const Text("Cancel"),
+            ),
+
+            ElevatedButton(
+              onPressed: () async {
+
+
+                // DELETE API / CONTROLLER CALL
+               await  controller.deleteGoal(currentGoalId);
+
+              },
+
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+              ),
+
+              child: const Text("Delete"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+  void showEditGoalDialog({required BuildContext context, required int currentGoalId ,required UserGoalEntity? goal}) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+
+          title: const Row(
+            children: [
+              Icon(
+                Icons.edit_outlined,
+                color: Colors.blue,
+              ),
+              SizedBox(width: 10),
+              Text("Edit Goal"),
+            ],
+          ),
+
+          content: const Text(
+            "Are you sure you want to edit this goal?",
+            style: TextStyle(
+              fontSize: 15,
+            ),
+          ),
+
+          actionsPadding: const EdgeInsets.only(
+            left: 16,
+            right: 16,
+            bottom: 16,
+          ),
+
+          actions: [
+            OutlinedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+
+              style: OutlinedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+              ),
+
+              child: const Text("Cancel"),
+            ),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+
+                // OPEN EDIT SCREEN
+                Get.toNamed(AppRoutes.ihavegoal,arguments: {"goalId":currentGoalId, "goal":goal, "isEdit":true});
+
+              },
+
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+              ),
+
+              child: const Text("Edit"),
+            ),
+          ],
+        );
+      },
+    );
+  }
   void _showExploreMoreBottomSheet(BuildContext context, int goal) {
     final mutualController = Get.find<MutualFundController>();
     final goalSipController = Get.find<GoalSipController>();

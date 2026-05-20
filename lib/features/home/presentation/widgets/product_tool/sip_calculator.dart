@@ -96,7 +96,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
       backgroundColor: isDesktop
           ? const Color(0xFFF5F7FA)
           : Colors.white.withOpacity(0.96),
-      appBar: CustomAppBarNormal(title: 'SIP Calculator', backIcon: true),
+      appBar: CustomAppBarNormal(title: 'SIP Calculator', backIcon: true,backgroundColor: Ucolors.light,),
       body: SingleChildScrollView(
         padding: isDesktop
             ? const EdgeInsets.symmetric(vertical: 30, horizontal: 24)
@@ -356,16 +356,19 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
   Widget _buildLumpsumTab(bool isDesktop) {
     // 1. Inputs
     Widget inputs = Container(
+      height:isDesktop? 450:null,
+      alignment:isDesktop? Alignment.center:null,
       padding: EdgeInsets.all(isDesktop ? 24 : 0),
       decoration: isDesktop ? _webCardDecoration() : null,
       child: Column(
+        mainAxisAlignment: isDesktop? MainAxisAlignment.spaceBetween:MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (isDesktop)
-            const Text(
+             Text(
               "Input Details",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize:isDesktop?22: 18, fontWeight: FontWeight.bold),
             ),
           if (isDesktop) const Gap(20),
           SipSliderTile2(
@@ -399,6 +402,8 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
 
     // 2. Results
     Widget results = Container(
+      height:isDesktop? 450:null,
+      alignment:isDesktop? Alignment.center:null,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
       decoration: BoxDecoration(
         color: Ucolors.light,
@@ -441,16 +446,13 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
     // 3. Responsive Layout Logic
     if (isDesktop) {
       return Center(
-        child: MaxWidthBox(
-          maxWidth: 1200,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(flex: 4, child: inputs),
-              const Gap(30),
-              Expanded(flex: 6, child: results),
-            ],
-          ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(flex: 4, child: inputs),
+            const Gap(30),
+            Expanded(flex: 6, child: results),
+          ],
         ),
       );
     } else {

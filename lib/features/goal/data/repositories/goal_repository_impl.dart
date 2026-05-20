@@ -81,4 +81,18 @@ class GoalRepositoryImpl extends GoalRepository {
       return Right(ApiError(message: e.toString()));
     }
   }
+  @override
+  Future<Either<Result<DeleteGoalFundEntity>, ApiError>> deleteGoal({
+    required int id,
+  }) async {
+    try {
+      final response = await goalRemoteDataSource.deleteGoal(id: id);
+      return response.fold(
+        (successResult) => Left(Result.success(successResult.data!.toEntity())),
+        (error) => Right(error),
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
+  }
 }

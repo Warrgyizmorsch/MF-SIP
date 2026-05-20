@@ -33,11 +33,15 @@ class GoalBinding extends Bindings {
       () => DeleteGoalFundUseCase(goalRepository: Get.find<GoalRepositoryImpl>()),
     );
     Get.lazyPut(
+          () => DeleteGoalUseCase(goalRepository: Get.find<GoalRepositoryImpl>()),
+    );
+    Get.lazyPut(
       () => GoalUseCases(
         saveGoalUseCase: Get.find<SaveGoalUseCase>(),
         getGoalsUseCase: Get.find<GetGoalsUseCase>(),
         saveGoalFundUseCase: Get.find<SaveGoalFundUseCase>(),
-        deleteGoalFundUseCase: Get.find<DeleteGoalFundUseCase>()
+        deleteGoalFundUseCase: Get.find<DeleteGoalFundUseCase>(),
+          deleteGoalUseCase: Get.find<DeleteGoalUseCase>()
       ),
     );
     Get.lazyPut(

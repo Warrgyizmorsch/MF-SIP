@@ -12,4 +12,7 @@ abstract class GoalRepository {
   Future<Either<Result<DeleteGoalFundEntity>, ApiError>> deleteGoalFund({
   required int id,
 });
+  Future<Either<Result<DeleteGoalFundEntity>, ApiError>> deleteGoal({
+  required int id,
+});
 }

@@ -115,4 +115,36 @@ class GoalRemoteDataSource {
       return Right(ApiError(message: 'deleteGoalFund Exception: $e'));
     }
   }
+  Future<Either<Result<DeleteGoalFundModel>, ApiError>> deleteGoal({
+    required int id,
+  }) async {
+    try {
+      createLog("[GoalRemoteDataSource] deleteGoalFund id: $id");
+
+      final resp = await apiService.deleteApi(
+        "${Appurl.baseUrl}/api/v1/goal/$id",
+        null,
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
+      );
+
+      createLog("[GoalRemoteDataSource] deleteGoalFund Response: $resp");
+
+      if (resp != null) {
+        final result = DeleteGoalFundModel.fromJson(resp);
+        if (result.status == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(ApiError(message: result.message ?? 'Delete Failed'));
+        }
+      } else {
+        return Right(
+          ApiError(message: 'deleteGoalFund: Invalid response structure'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'deleteGoalFund Exception: $e'));
+    }
+  }
 }

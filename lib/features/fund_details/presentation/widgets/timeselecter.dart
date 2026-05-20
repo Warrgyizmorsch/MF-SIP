@@ -102,7 +102,7 @@ class PeriodSelectorBarChart extends GetView<ChartInvestmentController> {
     return Container(
       height: isDesktop ? 60 : 42,
       padding: EdgeInsets.symmetric(
-        horizontal: isDesktop ? 8 : 4,
+        horizontal: isDesktop ? 0 : 4,
         vertical: 4,
       ),
       decoration: BoxDecoration(

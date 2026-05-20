@@ -1727,7 +1727,7 @@ class NavigationBarController extends GetxController {
           route = AppRoutes.dashBoardPage;
           break;
         case 3:
-          route = AppRoutes.comingSoon;
+          route = AppRoutes.ihavegoal;
           break;
         case 40:
           route = AppRoutes.profilePage;
@@ -2176,7 +2176,7 @@ class WebFooter extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(
-        vertical: 16,
+        vertical: 4,
         horizontal: 20,
       ),
       alignment: Alignment.center,
@@ -2259,7 +2259,7 @@ class GlobalTopHeader extends StatelessWidget {
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Container(
-      height: 90,
+      height: Get.height*0.09,
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(

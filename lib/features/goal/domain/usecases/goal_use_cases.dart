@@ -8,11 +8,13 @@ class GoalUseCases {
   final GetGoalsUseCase getGoalsUseCase;
   final SaveGoalFundUseCase saveGoalFundUseCase;
   final DeleteGoalFundUseCase deleteGoalFundUseCase;
+  final DeleteGoalUseCase deleteGoalUseCase;
 
   GoalUseCases({
     required this.saveGoalUseCase,
     required this.getGoalsUseCase,
     required this.saveGoalFundUseCase,
     required this.deleteGoalFundUseCase,
+    required this.deleteGoalUseCase
   });
 }

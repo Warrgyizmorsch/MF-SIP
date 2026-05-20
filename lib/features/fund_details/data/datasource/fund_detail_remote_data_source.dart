@@ -24,9 +24,10 @@ class FundDetailRemoteDataSource {
     try {
       final response = await _servicesApi.postApi(
         '${Appurl.baseUrl2}/getSchemeInfoLatest',
+        // '${Appurl.baseUrl}/api/mutual-fund/details',
         queryParameters: {
-          'key': 'c6b23a3f-ee3c-4b8b-a9bb-05bce1e39405',
-          'scheme': data['scheme'],
+          'key': 'c6b23a3f-ee3c-4b8b4b8b-a9bb-05bce1e39405',
+          'scheme_code': data['scheme'],
         },
       );
       createLog(
@@ -58,9 +59,10 @@ class FundDetailRemoteDataSource {
     try {
       final response = await _servicesApi.postApi(
         '${Appurl.baseUrl2}/getPortfolioAnalysisNew',
+        // '${Appurl.baseUrl}/public/api/mutual-fund/portfolio-details?scheme',
         queryParameters: {
           'key': 'c6b23a3f-ee3c-4b8b-a9bb-05bce1e39405',
-          'scheme': data['scheme'],
+          'scheme_code': data['scheme'],
         },
       );
       createLog(

@@ -17,3 +17,14 @@ class DeleteGoalFundUseCase {
     return await goalRepository.deleteGoalFund(id: id);
   }
 }
+class DeleteGoalUseCase {
+  final GoalRepository goalRepository;
+
+  DeleteGoalUseCase({required this.goalRepository});
+
+  Future<Either<Result<DeleteGoalFundEntity>, ApiError>> call({
+    required int id,
+  }) async {
+    return await goalRepository.deleteGoal(id: id);
+  }
+}
