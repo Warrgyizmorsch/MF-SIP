@@ -20,6 +20,7 @@ class AppRoutes {
   static const selectFundsScreen = '/selectFundsScreen';
   static const personaldetails = '/personaldetails';
   static const ihavegoal = '/ihavegoal';
+  static const masterGoalsPage = '/masterGoalsPage';
   static const successfullcreategoal = '/successfullcreategoal';
   static const goalviewcard = '/goalviewcard';
   static const goaldetails = '/goaldetails';

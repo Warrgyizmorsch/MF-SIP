@@ -12,9 +12,14 @@ import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
 import 'package:my_sip/features/goal/domain/usecases/goal_use_cases.dart';
 import 'package:my_sip/services/session_manager.dart';
 
+import '../../domain/entity/goal_master_entity.dart';
+
 class GoalSipController extends GetxController {
   final GoalUseCases goalUseCases;
-
+  final RxBool isMasterGoalLoading = false.obs;
+  final RxList<MasterGoalEntity> masterGoals = <MasterGoalEntity>[].obs;
+  final RxString masterGoalError = ''.obs;
+  final RxInt selectedGoalIndex = (-1).obs;
 
   @override
   void onInit() {
@@ -126,15 +131,32 @@ class GoalSipController extends GetxController {
     );
   }
   void loadGoalForEdit(UserGoalEntity goal) {
+    /// Goal Name
     goalNameTextEditingController.text = goal.goalName ?? '';
-    targetAmount.value =
-        goal.investedAmount??0.0;
-    years.value= goal.monthlyInvestment??0.0;
 
-    savedDatabaseId.value = goal.id ?? 0;
-    annualRate.value =goal.expectedReturnRate??0.0;
-    _recalculate();
+    /// Goal Type
+    final selectedType = goalConfig.entries
+        .firstWhere(
+          (entry) => entry.value['db_id'] == goal.goalId.toString(),
+      orElse: () => MapEntry('custom', goalConfig['custom']!),
+    )
+        .key;
+
+    selectedGoalType.value = selectedType;
+
+    /// IMPORTANT
+    /// Fill SIP values from existing goal
+    initFromGoal(
+      amount: (goal.investedAmount ?? 0).toDouble(),
+      years: (goal.goalTenure ?? 1).toDouble(),
+      rate: (goal.expectedReturnRate ?? 12).toDouble(),
+    );
+
+    /// Goal Saved State
     isGoalSaved.value = true;
+
+    /// Recalculate
+    _recalculate();
 
     update();
   }
@@ -147,7 +169,29 @@ class GoalSipController extends GetxController {
     setYears(years);
     setRate(rate);
   }
+  Future<bool> getMasterGoals() async {
+    isMasterGoalLoading.value = true;
 
+    try {
+      final result = await goalUseCases.getMasterGoalsUseCase.call();
+
+      return result.fold(
+            (success) {
+              masterGoals.assignAll(success.data?.data ?? []);
+          return true;
+        },
+            (error) {
+          Get.snackbar("Error", error.message);
+          return false;
+        },
+      );
+    } catch (e) {
+      Get.snackbar("Error", e.toString());
+      return false;
+    } finally {
+      isMasterGoalLoading.value = false;
+    }
+  }
   Future<bool> getAllGoals() async {
     isLoadingGoals.value = true;
     try {

@@ -166,7 +166,9 @@ class GoalScreen extends GetView<GoalSipController> {
         if (!hasGoals || controller.isLoadingGoals.value)
           return const SizedBox.shrink();
         return FloatingActionButton(
-          onPressed: () => Get.toNamed(AppRoutes.ihavegoal),
+          onPressed: () {
+           controller.getMasterGoals();
+            Get.toNamed(AppRoutes.ihavegoal);},
           backgroundColor: Ucolors.primary,
           child: const Icon(Icons.add, color: Colors.white),
         );
