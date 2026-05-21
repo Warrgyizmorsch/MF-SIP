@@ -12,8 +12,14 @@ import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
 import 'package:my_sip/features/goal/domain/usecases/goal_use_cases.dart';
 import 'package:my_sip/services/session_manager.dart';
 
+import '../../domain/entity/goal_master_entity.dart';
+
 class GoalSipController extends GetxController {
   final GoalUseCases goalUseCases;
+  final RxBool isMasterGoalLoading = false.obs;
+  final RxList<MasterGoalEntity> masterGoals = <MasterGoalEntity>[].obs;
+  final RxString masterGoalError = ''.obs;
+  final RxInt selectedGoalIndex = (-1).obs;
 
   @override
   void onInit() {
@@ -44,34 +50,7 @@ class GoalSipController extends GetxController {
   final isGoalSaved = false.obs;
 
   final selectedGoalType = 'custom'.obs;
-  // final Map<String, Map<String, dynamic>> goalConfig = {
-  //   'car': {'amount': 1000000.0, 'duration': 5.0, 'rate': 12.0, 'name': 'Car'},
-  //   'bike': {'amount': 150000.0, 'duration': 3.0, 'rate': 12.0, 'name': 'Bike'},
-  //   'home': {
-  //     'amount': 3000000.0,
-  //     'duration': 10.0,
-  //     'rate': 12.0,
-  //     'name': 'Home',
-  //   },
-  //   'marriage': {
-  //     'amount': 500000.0,
-  //     'duration': 5.0,
-  //     'rate': 12.0,
-  //     'name': 'Marriage',
-  //   },
-  //   'vacation': {
-  //     'amount': 100000.0,
-  //     'duration': 2.0,
-  //     'rate': 12.0,
-  //     'name': 'Vacation',
-  //   },
-  //   'custom': {
-  //     'amount': 100000.0,
-  //     'duration': 2.0,
-  //     'rate': 12.0,
-  //     'name': 'Custom',
-  //   },
-  // };
+
   final Map<String, Map<String, dynamic>> goalConfig = {
     // ✅ Added 'db_id' to each category (Check with your backend team for the exact IDs!)
     'car': {
@@ -151,7 +130,36 @@ class GoalSipController extends GetxController {
       rate: targetConfig['rate'],
     );
   }
+  void loadGoalForEdit(UserGoalEntity goal) {
+    /// Goal Name
+    goalNameTextEditingController.text = goal.goalName ?? '';
 
+    /// Goal Type
+    final selectedType = goalConfig.entries
+        .firstWhere(
+          (entry) => entry.value['db_id'] == goal.goalId.toString(),
+      orElse: () => MapEntry('custom', goalConfig['custom']!),
+    )
+        .key;
+
+    selectedGoalType.value = selectedType;
+
+    /// IMPORTANT
+    /// Fill SIP values from existing goal
+    initFromGoal(
+      amount: (goal.investedAmount ?? 0).toDouble(),
+      years: (goal.goalTenure ?? 1).toDouble(),
+      rate: (goal.expectedReturnRate ?? 12).toDouble(),
+    );
+
+    /// Goal Saved State
+    isGoalSaved.value = true;
+
+    /// Recalculate
+    _recalculate();
+
+    update();
+  }
   void initFromGoal({
     required double amount,
     required double years,
@@ -161,7 +169,29 @@ class GoalSipController extends GetxController {
     setYears(years);
     setRate(rate);
   }
+  Future<bool> getMasterGoals() async {
+    isMasterGoalLoading.value = true;
 
+    try {
+      final result = await goalUseCases.getMasterGoalsUseCase.call();
+
+      return result.fold(
+            (success) {
+              masterGoals.assignAll(success.data?.data ?? []);
+          return true;
+        },
+            (error) {
+          Get.snackbar("Error", error.message);
+          return false;
+        },
+      );
+    } catch (e) {
+      Get.snackbar("Error", e.toString());
+      return false;
+    } finally {
+      isMasterGoalLoading.value = false;
+    }
+  }
   Future<bool> getAllGoals() async {
     isLoadingGoals.value = true;
     try {
@@ -310,7 +340,45 @@ class GoalSipController extends GetxController {
           // 3. Trigger Rx update
           goalResponse.refresh();
         }
+        Get.back();
+        Get.back();
         // goalResponse.value?.data.removeWhere((item) => item.id == id);
+        ULoaders.success(
+          title: 'Deleted',
+          message: success.data?.message ?? '',
+        );
+      },
+      (error) {
+        ULoaders.error(
+          title: 'Error',
+          message: error.message ?? 'Delete failed',
+        );
+      },
+    );
+
+    isDeleting[id] = false;
+  }
+  Future<void> deleteGoal(int id) async {
+    isDeleting[id] = true;
+
+    final result = await goalUseCases.deleteGoalUseCase(id: id);
+
+    result.fold(
+      (success) async {
+        // // Remove from local list instantly — no extra fetch needed
+        final goals = goalResponse.value?.data;
+        if (goals != null) {
+          // 2. Iterate through goals to find where this fund link exists
+          for (var goal in goals) {
+            goal.goalFunds.removeWhere((fund) => fund.id == id);
+          }
+          // 3. Trigger Rx update
+          goalResponse.refresh();
+
+        }
+        await    getAllGoals();
+        Get.back();
+        Get.back();
         ULoaders.success(
           title: 'Deleted',
           message: success.data?.message ?? '',

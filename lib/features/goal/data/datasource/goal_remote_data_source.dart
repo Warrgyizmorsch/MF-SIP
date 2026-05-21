@@ -8,6 +8,7 @@ import 'package:my_sip/services/session_manager.dart';
 
 import '../../../../core/network/network_api_service.dart';
 import '../../../../core/utils/helper/helpers.dart';
+import '../model/get_goal_master_model.dart';
 
 class GoalRemoteDataSource {
   final NetworkServicesApi apiService;
@@ -113,6 +114,83 @@ class GoalRemoteDataSource {
       }
     } catch (e) {
       return Right(ApiError(message: 'deleteGoalFund Exception: $e'));
+    }
+  }
+  Future<Either<Result<DeleteGoalFundModel>, ApiError>> deleteGoal({
+    required int id,
+  }) async {
+    try {
+      createLog("[GoalRemoteDataSource] deleteGoalFund id: $id");
+
+      final resp = await apiService.deleteApi(
+        "${Appurl.baseUrl}/api/v1/goal/$id",
+        null,
+        headers: {
+          "Authorization": "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
+      );
+
+      createLog("[GoalRemoteDataSource] deleteGoalFund Response: $resp");
+
+      if (resp != null) {
+        final result = DeleteGoalFundModel.fromJson(resp);
+        if (result.status == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(ApiError(message: result.message ?? 'Delete Failed'));
+        }
+      } else {
+        return Right(
+          ApiError(message: 'deleteGoalFund: Invalid response structure'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'deleteGoalFund Exception: $e'));
+    }
+  }
+
+  Future<Either<Result<MasterGoalsResponse>, ApiError>>
+  getGoalsMaster() async {
+    try {
+      final result = await apiService.getApi(
+        "${Appurl.baseUrl}/api/v1/goal/master",
+        headers: {
+          "Authorization":
+          "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
+      );
+
+      createLog(
+        "[Goal Remote Data Source] Goal Master Response: $result",
+      );
+
+      /// API RESPONSE CHECK
+      if (result['status'] == true) {
+
+        final data = MasterGoalsResponse.fromJson(result);
+
+        return Left(Result.success(data));
+
+      } else {
+
+        return Right(
+          ApiError(
+            message: result['message'] ?? 'Goal Master Failed',
+          ),
+        );
+      }
+
+    } catch (e) {
+
+      createLog(
+        "[Goal Remote Data Source] Exception: $e",
+      );
+
+      return Right(
+        ApiError(
+          message: 'Goal Master Failed with Exception: $e',
+        ),
+      );
     }
   }
 }

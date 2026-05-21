@@ -59,7 +59,7 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
         }
 
         return isDesktop
-            ? _DesktopFundDetailsLayout(controller: controller)
+            ? _DesktopFundDetailsLayout(controller: controller, cartController:cartController)
             : _MobileFundDetailsLayout(controller: controller);
       }),
       bottomNavigationBar: isDesktop
@@ -594,46 +594,39 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
 // }
 class _DesktopFundDetailsLayout extends StatelessWidget {
   final FundDetailsController controller;
-  const _DesktopFundDetailsLayout({required this.controller});
+  final CartController cartController;
+  const _DesktopFundDetailsLayout({required this.controller, required this.cartController});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
+    return CustomScrollView(
+      controller: controller.scrollController,
+      slivers: [
+        _buildAppBar(),
+        const SliverToBoxAdapter(child: SizedBox(height: 20)),
+        _buildFundHeader(context),
+        const SliverToBoxAdapter(child: SizedBox(height: 10)),
         GetBuilder<FundDetailsController>(
           id: 'tabs',
-          builder: (controller) {
-            return DesktopSideTabs(
+          builder: (controller) => SliverPersistentHeader(
+            pinned: true,
+            delegate: WebSliverPageTabs(
               selectedIndex: controller.tabController.index,
-              onTap: (index) {
-                controller.scrollToIndex(index);
-              },
-            );
-          },
+              onTap: (index) => controller.scrollToIndex(index),
+            ),
+          ),
         ),
-
-        Expanded(
-          child: CustomScrollView(
-            controller: controller.scrollController,
-            slivers: [
-              _buildAppBar(),
-              const SliverToBoxAdapter(child: SizedBox(height: 20)),
-              _buildFundHeader(context),
-              const SliverToBoxAdapter(child: SizedBox(height: 10)),
-
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: WebOverviewScreen(
-                    overViewKey: controller.overViewKey,
-                    returnsKey: controller.returnsKey,
-                    riskKey: controller.riskKey,
-                    portfolioKey: controller.portfolioKey,
-                    infoKey: controller.infoKey,
-                  ),
-                ),
-              ),
-            ],
+        const SliverToBoxAdapter(child: SizedBox(height: 10)),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: WebOverviewScreen(
+              overViewKey: controller.overViewKey,
+              returnsKey: controller.returnsKey,
+              riskKey: controller.riskKey,
+              portfolioKey: controller.portfolioKey,
+              infoKey: controller.infoKey,
+            ),
           ),
         ),
       ],
@@ -714,97 +707,208 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
       sliver: SliverToBoxAdapter(
         child: Obx(() {
           final fund = controller.fundDetail.value;
-          final bool isOpen = fund?.schemeStatus == 'Open Ended Schemes';
 
-          return Card(
-            elevation: 0, // Lower elevation + Border is more modern
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(
-                color: Colors.grey.shade200,
-                width: 1,
-              ), // Clean border
-            ),
-            color: Ucolors.light,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+          final bool isOpen =
+              fund?.schemeStatus == 'Open Ended Schemes';
 
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 1. Logo and Name Row
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.grey.shade100,
-                            width: 2,
-                          ),
-                        ),
-                        child: ClipOval(
-                          child: CustomCachedImage(
-                            imageUrl: controller.imgUrl,
-                            height: 48,
-                            width: 48,
-                          ),
-                        ),
+          final width = MediaQuery.of(context).size.width;
+
+          final bool isMobile = width < 700;
+
+          return IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+
+                /// ================= LEFT CARD =================
+                Expanded(
+                  flex: 7,
+                  child: Card(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(
+                        color: Colors.grey.shade200,
+                        width: 1,
                       ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              fund?.schemeName ?? 'Loading Fund Name...',
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleMedium!
-                                  .copyWith(
-                                    fontWeight: FontWeight.w700,
+                    ),
+                    color: Ucolors.light,
+                    child: Padding(
+                      padding:
+                      const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                      child: Row(
+                        crossAxisAlignment:
+                        CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.grey.shade100,
+                                width: 2,
+                              ),
+                            ),
+                            child: ClipOval(
+                              child: CustomCachedImage(
+                                imageUrl: controller.imgUrl,
+                                height: 48,
+                                width: 48,
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(width: 14),
+
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment:
+                              MainAxisAlignment.center,
+                              crossAxisAlignment:
+                              CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  fund?.schemeName ??
+                                      'Loading Fund Name...',
+                                  maxLines: 2,
+                                  overflow:
+                                  TextOverflow.ellipsis,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium!
+                                      .copyWith(
+                                    fontWeight:
+                                    FontWeight.w700,
                                     height: 1.2,
                                     color: Colors.black87,
                                   ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              fund?.schemeCategory ?? 'Mutual Fund',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey.shade600,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                _buildModernBadge(
-                                  label: fund?.riskometerValue ?? 'High Risk',
-                                  color: _getRiskColor(
-                                    fund?.riskometerValue ?? '',
+                                ),
+
+                                const SizedBox(height: 6),
+
+                                Text(
+                                  fund?.schemeCategory ??
+                                      'Mutual Fund',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color:
+                                    Colors.grey.shade600,
+                                    fontWeight:
+                                    FontWeight.w500,
                                   ),
-                                  icon: Icons.speed_rounded,
                                 ),
-                                const SizedBox(width: 10),
-                                _buildModernBadge(
-                                  label: isOpen ? 'OPEN' : 'CLOSED',
-                                  color: isOpen ? Ucolors.success : Ucolors.red,
-                                  icon: Icons.lens,
-                                  isDot: true,
+
+                                const SizedBox(height: 10),
+
+                                Wrap(
+                                  spacing: 10,
+                                  runSpacing: 8,
+                                  children: [
+                                    _buildModernBadge(
+                                      label:
+                                      fund?.riskometerValue ??
+                                          'High Risk',
+                                      color: _getRiskColor(
+                                        fund?.riskometerValue ??
+                                            '',
+                                      ),
+                                      icon:
+                                      Icons.speed_rounded,
+                                    ),
+
+                                    _buildModernBadge(
+                                      label: isOpen
+                                          ? 'OPEN'
+                                          : 'CLOSED',
+                                      color: isOpen
+                                          ? Ucolors.success
+                                          : Ucolors.red,
+                                      icon: Icons.lens,
+                                      isDot: true,
+                                    ),
+                                  ],
                                 ),
-                                const Spacer(),
                               ],
                             ),
-                          ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                if (!isMobile) const SizedBox(width: 12),
+
+                /// ================= RIGHT CARD =================
+                if (controller
+                    .fundDetail
+                    .value!
+                    .riskStatisticsList
+                    .isNotEmpty)
+                  Expanded(
+                    flex: 3,
+                    child: Card(
+                      elevation: 0,
+                      color: Ucolors.light,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: BorderSide(
+                          color: Colors.grey.shade200,
+                          width: 1,
                         ),
                       ),
-                    ],
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Center(
+                          child: FundBottomBarButton(
+                            firstButton: 'Lumpsum',
+                            secondButton: 'Invest now',
+
+                            firstButtonP: () async {
+                              await cartController.addToCart(
+                                controller.schemeCode,
+                                controller.schemeName,
+                                controller
+                                    .fundDetail
+                                    .value
+                                    ?.minimumInvestment
+                                    .toInt() ??
+                                    5000,
+                                transType: 'lumpsum',
+                                null,
+                              );
+                            },
+
+                            secondButtonP: () async {
+                              await cartController
+                                  .setInvestmentDetails(
+                                code: controller.schemeCode,
+                                name: controller.schemeName,
+                                minAmount: controller
+                                    .fundDetail
+                                    .value!
+                                    .sipMinimumAmount,
+                                fundDetailEntity:
+                                controller.fundDetail.value!,
+                                amcLogo: controller.imgUrl,
+                              );
+
+                              Get.toNamed(
+                                AppRoutes.investNow,
+                                arguments: {
+                                  "investNow": controller
+                                      .fundDetail
+                                      .value
+                                      ?.sipMinimumAmount,
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                ],
-              ),
+              ],
             ),
           );
         }),
@@ -1364,10 +1468,11 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                     ),
                   ),
 
-                  SizedBox(
+                  Container(
                     height: MediaQuery.of(context).size.height < 700
-                        ? 150
+                        ? 190
                         : 180,
+                    alignment: Alignment.center,
                     child: ScrollConfiguration(
                       behavior: const MaterialScrollBehavior().copyWith(
                         dragDevices: {
@@ -1599,57 +1704,60 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
           ],
           _buildResponsiveLayout(
             context: context,
-            leftChild: CustomContainer(
-              topPadding: 15,
-              bottomPadding: 4,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    key: infoKey,
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                    child: const USectionHeading(
-                      title: 'About this Fund',
-                      showActionButton: false,
+            leftChild: Padding(
+              padding: const EdgeInsets.only(top:8.0),
+              child: CustomContainer(
+                topPadding: 20,
+                bottomPadding: 4,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      key: infoKey,
+                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                      child: const USectionHeading(
+                        title: 'About this Fund',
+                        showActionButton: false,
+                      ),
                     ),
-                  ),
-                  ReadMoreText(
-                    style: UTextStyles.medium,
-                    fund?.schemeObjective.toString() ?? '',
-                    trimMode: TrimMode.Line,
-                    trimLines: 5,
-                    trimCollapsedText: 'Show More',
-                    trimExpandedText: 'Show Less',
-                    colorClickableText: Ucolors.primary,
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Fund Manager',
-                    style: UTextStyles.large.copyWith(
-                      fontWeight: FontWeight.w600,
+                    ReadMoreText(
+                      style: UTextStyles.medium,
+                      fund?.schemeObjective.toString() ?? '',
+                      trimMode: TrimMode.Line,
+                      trimLines: 5,
+                      trimCollapsedText: 'Show More',
+                      trimExpandedText: 'Show Less',
+                      colorClickableText: Ucolors.primary,
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  if (managers.isNotEmpty)
-                    ...managers.asMap().entries.map((entry) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (entry.key > 0)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 2),
-                              child: DashedLine(
-                                color: Colors.grey.shade300,
-                                dashSpace: 4,
+                    const SizedBox(height: 10),
+                    Text(
+                      'Fund Manager',
+                      style: UTextStyles.large.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    if (managers.isNotEmpty)
+                      ...managers.asMap().entries.map((entry) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (entry.key > 0)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 2),
+                                child: DashedLine(
+                                  color: Colors.grey.shade300,
+                                  dashSpace: 4,
+                                ),
                               ),
-                            ),
-                          fundManager(entry.value),
-                        ],
-                      );
-                    }).toList()
-                  else
-                    const Text("No manager details available"),
-                ],
+                            fundManager(entry.value),
+                          ],
+                        );
+                      }).toList()
+                    else
+                      const Text("No manager details available"),
+                  ],
+                ),
               ),
             ),
             rightChild: _buildExpansionCard(
@@ -1779,7 +1887,7 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
           ),
 
           const Gap(8),
-          WebFooter(),
+
         ],
       );
     });
@@ -6723,7 +6831,7 @@ class DesktopSideTabs extends StatelessWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToActiveTab());
 
     return Container(
-      width: 260,
+      width: MediaQuery.of(context).size.width * 0.12,
       decoration: BoxDecoration(
         color: Ucolors.light,
         border: Border(right: BorderSide(color: Colors.grey.shade200)),
@@ -6731,7 +6839,7 @@ class DesktopSideTabs extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            height: 70,
+            height: 50,
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Text(
@@ -6757,8 +6865,8 @@ class DesktopSideTabs extends StatelessWidget {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 220),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
+                      horizontal: 4,
+                      vertical: 4,
                     ),
                     decoration: BoxDecoration(
                       color: isSelected
@@ -6812,6 +6920,139 @@ class DesktopSideTabs extends StatelessWidget {
       ),
     );
   }
+}
+class WebSliverPageTabs extends SliverPersistentHeaderDelegate {
+  final int selectedIndex;
+  final ValueChanged<int> onTap;
+
+  static final ScrollController _scrollController = ScrollController();
+
+  WebSliverPageTabs({
+    required this.selectedIndex,
+    required this.onTap,
+  });
+
+  final tabs = const [
+    'Overview',
+    'Returns',
+    'Risk',
+    'Portfolio',
+    'Information',
+  ];
+
+  void _scrollToActiveTab() {
+    if (_scrollController.hasClients) {
+      double offset = selectedIndex * 120.0;
+
+      double target = offset.clamp(
+        0.0,
+        _scrollController.position.maxScrollExtent,
+      );
+
+      _scrollController.animateTo(
+        target,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  @override
+  bool shouldRebuild(covariant WebSliverPageTabs oldDelegate) {
+    return oldDelegate.selectedIndex != selectedIndex;
+  }
+
+  @override
+  Widget build(
+      BuildContext context,
+      double shrinkOffset,
+      bool overlapsContent,
+      ) {
+    WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _scrollToActiveTab(),
+    );
+
+    final isDesktop =
+    ResponsiveBreakpoints.of(context).largerThan(TABLET);
+
+    final width = MediaQuery.of(context).size.width;
+
+    final bool isMobile = width < 700;
+    final bool isTablet = width >= 700 && width < 1100;
+
+    final double horizontalMargin = isMobile
+        ? 12
+        : isTablet
+        ? 40
+        : width * 0.12;
+
+    return Material(
+      color: Ucolors.light,
+      elevation: overlapsContent ? 2 : 0,
+      child: Container(
+        height: 80,
+        width: Get.width,
+        margin: EdgeInsets.symmetric(
+          horizontal: horizontalMargin,
+          vertical: 4,
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 10,
+          vertical: 6,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(20),
+        ),
+
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(tabs.length, (index) {
+            final isSelected = index == selectedIndex;
+
+            return Expanded(
+              child: GestureDetector(
+                onTap: () => onTap(index),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? Colors.white
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    tabs[index],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: isDesktop ? 14 : 12,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                      color: isSelected
+                          ? Ucolors.primary
+                          : Colors.grey.shade700,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+
+  @override
+  double get maxExtent => 50;
+
+  @override
+  double get minExtent => 50;
 }
 
 class SliverPageTabs extends SliverPersistentHeaderDelegate {

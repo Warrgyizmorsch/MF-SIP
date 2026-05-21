@@ -710,6 +710,8 @@
 //   }
 // }
 
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -734,6 +736,8 @@ import 'package:my_sip/features/wishlist/presentation/controller/wishlist_contro
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../../common/widget/shimmer/shimmer.dart';
+import '../../../fund_details/presentation/controllers/fund_details_controller.dart';
+import '../../../fund_details/presentation/pages/fund_deatails.dart';
 
 enum FundMenuAction {
   addToCart,
@@ -1195,22 +1199,14 @@ class _ResponsiveFundCardState
     return GestureDetector(
       onTap: () {
 
-        mutualFundController
-            .addToLocalRecentlyViewed(entity);
+        Get.delete<FundDetailsController>();
+        FundDetailsScreen.navData = {
+          'scheme': entity.baseSchemeName,
+          'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
+          'scheme_code': entity.schemeCode.toString(),
+        };
 
-        Get.toNamed(
-          AppRoutes.funddetails,
-          arguments: {
-            'scheme': entity.baseSchemeName,
-            'imgUrl':
-            "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}",
-            'scheme_code':
-            entity.schemeCode.toString(),
-            'email': entity.amc?.email,
-            'address': entity.amc?.address,
-            'contact': entity.amc?.contact,
-          },
-        );
+        Get.toNamed(AppRoutes.funddetails, id: 1);
       },
 
       child: Row(

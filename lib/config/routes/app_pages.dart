@@ -48,6 +48,7 @@ import '../../features/freedom_sip/presentation/pages/accumulationAndDistributio
 import '../../features/freedom_sip/presentation/pages/growth_scheme_screen.dart';
 import '../../features/fund_details/presentation/pages/fund_deatails.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
+import '../../features/goal/presentation/pages/master_goals_page.dart';
 import '../../features/home/presentation/binding/home_bindings.dart';
 import '../../features/home/presentation/pages/notification_page.dart';
 import '../../features/wishlist/presentation/pages/watchlist_page.dart';
@@ -150,6 +151,12 @@ class AppPages {
     GetPage(
       name: AppRoutes.ihavegoal,
       page: () => IhavegoalPage(),
+      binding: GoalBinding(),
+    ),
+
+    GetPage(
+      name: AppRoutes.masterGoalsPage,
+      page: () => MasterGoalsPage(),
       binding: GoalBinding(),
     ),
     GetPage(

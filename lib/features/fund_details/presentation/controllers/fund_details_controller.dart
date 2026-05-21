@@ -150,6 +150,8 @@ class FundDetailsController extends GetxController
     await Future.wait([
       getFundDetails(scchemeName: scheme),
       getPortfolioAnalysis(scchemeName: scheme),
+      // getFundDetails(scchemeName: id),
+      // getPortfolioAnalysis(scchemeName: id),
       getShcemeNavHistory(scchemeCode: id),
     ]);
 

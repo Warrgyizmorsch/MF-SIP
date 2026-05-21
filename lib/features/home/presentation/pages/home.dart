@@ -241,6 +241,7 @@ class _WebDashboardLayout extends StatelessWidget {
 
         /// VIDEOS
         _buildWebVideoRow(),
+
       ],
     );
   }
@@ -265,6 +266,8 @@ class _WebDashboardLayout extends StatelessWidget {
         _buildWebFundGrid(),
 
         const Gap(24),
+
+
 
         /// VIDEOS
         _buildWebVideoRow(),
@@ -306,7 +309,7 @@ class _WebDashboardLayout extends StatelessWidget {
           final bool isTablet = width >= 700 && width < 1100;
 
           final int crossAxisCount = isMobile
-              ? 2
+              ? 1
               : isTablet
               ? 3
               : 4;
@@ -340,6 +343,7 @@ class _WebDashboardLayout extends StatelessWidget {
                 /// 1. LOADING STATE
                 if (isLoading)
                   FundShimmerLoading(crossAxisCount: crossAxisCount)
+
                 /// 2. EMPTY STATE
                 else if (recentList.isEmpty)
                   Container(
@@ -378,6 +382,7 @@ class _WebDashboardLayout extends StatelessWidget {
                       ],
                     ),
                   )
+
                 /// 3. DATA LOADED (Sirf 2 Rows dikhenge, baki ke liye Scroll hoga)
                 else
                   SizedBox(
@@ -385,10 +390,8 @@ class _WebDashboardLayout extends StatelessWidget {
                     // thoda extra padding ke sath 345 ya 350 perfect rahega
                     height: 345,
                     child: GridView.builder(
-                      shrinkWrap:
-                          false, // Ab yeh parent SizedBox ki height lega
-                      physics:
-                          const BouncingScrollPhysics(), // Scroll enable kiya
+                      shrinkWrap: false, // Ab yeh parent SizedBox ki height lega
+                      physics: const BouncingScrollPhysics(), // Scroll enable kiya
                       itemCount: recentList.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: crossAxisCount,
@@ -409,21 +412,13 @@ class _WebDashboardLayout extends StatelessWidget {
 
                         return PopularFundCard(
                           onTap: () {
-                            Get.find<MutualFundController>()
-                                .addToLocalRecentlyViewed(fund);
-
-                            Get.toNamed(
-                              AppRoutes.funddetails,
-                              arguments: {
-                                'scheme': fund.baseSchemeName,
-                                'imgUrl':
-                                    "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}",
-                                'scheme_code': fund.schemeCode.toString(),
-                                'email': fund.amc?.email,
-                                'address': fund.amc?.address,
-                                'contact': fund.amc?.contact,
-                              },
-                            );
+                            Get.delete<FundDetailsController>();
+                            FundDetailsScreen.navData = {
+                              'scheme': name,
+                              'imgUrl': img,
+                              'scheme_code': fund.schemeCode.toString(),
+                            };
+                            Get.toNamed(AppRoutes.funddetails, id: 1);
                           },
                           isNetwork: true,
                           imgPath: img,
@@ -596,8 +591,17 @@ class _WebDashboardLayout extends StatelessWidget {
               /// MOBILE = 2
               /// WEB = 4
 
-              final int crossAxisCount = width < 1200 ? 2 : 4;
+              final bool isMobile = width < 700;
+              final bool isTablet = width >= 700 && width < 1100;
 
+
+              final int crossAxisCount = width < 300
+                  ? 1
+                  : isMobile
+                  ? 2
+                  : isTablet
+                  ? 3
+                  : 4;
               return GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -607,7 +611,7 @@ class _WebDashboardLayout extends StatelessWidget {
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: crossAxisCount,
 
-                  mainAxisExtent: 72,
+                  mainAxisExtent: 75,
 
                   crossAxisSpacing: 14,
                   mainAxisSpacing: 14,
@@ -650,20 +654,22 @@ class _WebDashboardLayout extends StatelessWidget {
         final double titleFontSize = isMobile
             ? 12
             : isTablet
-            ? 20
-            : 18;
+            ? 14
+            : 16;
 
-        final double iconBoxSize = isMobile ? 38 : 44;
+        final double iconBoxSize = isMobile ? 32 : 44;
 
         final double arrowSize = isMobile ? 13 : 16;
-        final double iconSize = isMobile ? 18 : 20;
+        final double iconSize = isMobile ? 16 : 20;
 
         return WebHoverTile(
           onTap: () {
             Get.toNamed(
               AppRoutes.ihavegoal,
               id: 1,
-              arguments: {'goal_type': goalType},
+              arguments: {
+                'goal_type': goalType,
+              },
             );
           },
 
@@ -672,8 +678,8 @@ class _WebDashboardLayout extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
 
               padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 10 : 14,
-                vertical: isMobile ? 10 : 14,
+                horizontal: isMobile ? 8 : 10,
+                vertical: isMobile ? 8 : 10,
               ),
 
               decoration: BoxDecoration(
@@ -711,7 +717,7 @@ class _WebDashboardLayout extends StatelessWidget {
                     ),
                   ),
 
-                  SizedBox(width: isMobile ? 10 : 14),
+                  SizedBox(width: isMobile ? 6 : 8),
 
                   /// TITLE
                   Expanded(
@@ -809,8 +815,18 @@ class _WebDashboardLayout extends StatelessWidget {
               /// MOBILE = 1
               /// TABLET/WEB = 2
 
-              final int crossAxisCount = width < 1200 ? 2 : 4;
 
+              final bool isMobile = width < 700;
+              final bool isTablet = width >= 700 && width < 1100;
+
+
+              final int crossAxisCount = width < 300
+                  ? 1
+                  : isMobile
+                  ? 2
+                  : isTablet
+                  ? 3
+                  : 4;
               return GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -820,7 +836,7 @@ class _WebDashboardLayout extends StatelessWidget {
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: crossAxisCount,
 
-                  mainAxisExtent: 72,
+                  mainAxisExtent: 75,
 
                   crossAxisSpacing: 14,
                   mainAxisSpacing: 14,
@@ -853,18 +869,20 @@ class _WebDashboardLayout extends StatelessWidget {
         final width = MediaQuery.of(context).size.width;
 
         /// RESPONSIVE FONT
+        /// RESPONSIVE FONT
         final bool isMobile = width < 400;
         final bool isTablet = width >= 400 && width < 1800;
 
         final double titleFontSize = isMobile
             ? 12
             : isTablet
-            ? 20
-            : 18;
+            ? 14
+            : 16;
 
-        final double iconBoxSize = isMobile ? 38 : 44;
+        final double iconBoxSize = isMobile ? 32 : 44;
 
         final double arrowSize = isMobile ? 13 : 16;
+        final double iconSize = isMobile ? 16 : 20;
 
         return WebHoverTile(
           onTap: onTap,
@@ -872,8 +890,8 @@ class _WebDashboardLayout extends StatelessWidget {
             return AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 10 : 14,
-                vertical: isMobile ? 10 : 14,
+                horizontal: isMobile ? 8 : 10,
+                vertical: isMobile ? 8 : 10,
               ),
               decoration: BoxDecoration(
                 color: isHovered
@@ -903,8 +921,7 @@ class _WebDashboardLayout extends StatelessWidget {
                     child: Image.asset(img, fit: BoxFit.contain),
                   ),
 
-                  SizedBox(width: isMobile ? 10 : 14),
-
+                  SizedBox(width: isMobile ? 6 : 8),
                   /// TITLE
                   Expanded(
                     child: Text(
@@ -1077,10 +1094,11 @@ class _WebDashboardLayout extends StatelessWidget {
   Widget _buildKycIsComplete() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool isMobile = constraints.maxWidth < 700;
+        final bool isMobile =
+            constraints.maxWidth < 700;
 
         return Container(
-          width: double.infinity,
+          width:constraints.maxHeight* 0.4,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white,
@@ -1091,84 +1109,109 @@ class _WebDashboardLayout extends StatelessWidget {
           /// MOBILE = HORIZONTAL SCROLL
           child: isMobile
               ? SizedBox(
-                  height: 170,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: 3,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(width: 12),
-                    itemBuilder: (context, index) {
-                      final items = [
-                        {
-                          "icon": Icons.flag,
-                          "title": "Plan your goals",
-                          "subtitle": "Set clear financial targets",
-                          "color": Colors.blueAccent,
-                        },
-                        {
-                          "icon": Icons.person_search,
-                          "title": "Know your investment personality",
-                          "subtitle": "Discover your risk profile",
-                          "color": Colors.deepPurpleAccent,
-                        },
-                        {
-                          "icon": Icons.shopping_basket,
-                          "title": "Explore your investment basket",
-                          "subtitle": "Diversify across funds",
-                          "color": Colors.green,
-                        },
-                      ];
+            height: 180,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              physics:
+              const BouncingScrollPhysics(),
+              itemCount: 3,
+              separatorBuilder:
+                  (context, index) =>
+              const SizedBox(width: 12),
+              itemBuilder: (context, index) {
+                final items = [
+                  {
+                    "icon": Icons.flag,
+                    "title": "Plan your goals",
+                    "subtitle":
+                    "Set clear financial targets",
+                    "color": Colors.blueAccent,
+                  },
+                  {
+                    "icon":
+                    Icons.person_search,
+                    "title":
+                    "Know your investment personality",
+                    "subtitle":
+                    "Discover your risk profile",
+                    "color":
+                    Colors.deepPurpleAccent,
+                  },
+                  {
+                    "icon":
+                    Icons.shopping_basket,
+                    "title":
+                    "Explore your investment basket",
+                    "subtitle":
+                    "Diversify across funds",
+                    "color": Colors.green,
+                  },
+                ];
 
-                      final item = items[index];
+                final item = items[index];
 
-                      return SizedBox(
-                        width: constraints.maxWidth * 0.75,
-                        child: WebActionCard(
-                          icon: item["icon"] as IconData,
-                          title: item["title"] as String,
-                          subtitle: item["subtitle"] as String,
-                          color: item["color"] as Color,
-                        ),
-                      );
-                    },
+                return SizedBox(
+                  width:
+                  constraints.maxWidth *
+                      0.3,
+                  child: WebActionCard(
+                    icon:
+                    item["icon"] as IconData,
+                    title:
+                    item["title"] as String,
+                    subtitle: item["subtitle"]
+                    as String,
+                    color:
+                    item["color"] as Color,
                   ),
-                )
-              /// TABLET / WEB
+                );
+              },
+            ),
+          )
+
+          /// TABLET / WEB
               : Row(
-                  children: [
-                    Expanded(
-                      child: WebActionCard(
-                        icon: Icons.flag,
-                        title: "Plan your goals",
-                        subtitle: "Set clear financial targets",
-                        color: Colors.blueAccent,
-                      ),
-                    ),
-
-                    const SizedBox(width: 16),
-
-                    Expanded(
-                      child: WebActionCard(
-                        icon: Icons.person_search,
-                        title: "Know your investment personality",
-                        subtitle: "Discover your risk profile",
-                        color: Colors.deepPurpleAccent,
-                      ),
-                    ),
-
-                    const SizedBox(width: 16),
-
-                    Expanded(
-                      child: WebActionCard(
-                        icon: Icons.shopping_basket,
-                        title: "Explore your investment basket",
-                        subtitle: "Diversify across funds",
-                        color: Colors.green,
-                      ),
-                    ),
-                  ],
+            children: [
+              Expanded(
+                child: WebActionCard(
+                  icon: Icons.flag,
+                  title: "Plan your goals",
+                  subtitle:
+                  "Set clear financial targets",
+                  color: Colors.blueAccent,
                 ),
+              ),
+
+              const SizedBox(width: 16),
+
+              Expanded(
+                child: WebActionCard(
+                  icon:
+                  Icons.person_search,
+                  title:
+                  "Know your investment personality",
+                  subtitle:
+                  "Discover your risk profile",
+                  color:
+                  Colors.deepPurpleAccent,
+                ),
+              ),
+
+              const SizedBox(width: 16),
+
+              Expanded(
+                child: WebActionCard(
+                  icon:
+                  Icons.shopping_basket,
+                  title:
+                  "Explore your investment basket",
+                  subtitle:
+                  "Diversify across funds",
+                  color: Colors.green,
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -3872,7 +3915,7 @@ class _WebActionCardState extends State<WebActionCard> {
         ? 150
         : isTablet
         ? 165
-        : 180;
+        : 190;
 
     final double iconBoxSize = isMobile
         ? 48
@@ -3890,13 +3933,13 @@ class _WebActionCardState extends State<WebActionCard> {
         ? 14
         : isTablet
         ? 15
-        : 17;
+        : 16;
 
     final double subtitleFontSize = isMobile
-        ? 11
+        ? 10
         : isTablet
-        ? 12
-        : 13;
+        ? 11
+        : 12;
 
     final double padding = isMobile ? 14 : 18;
 

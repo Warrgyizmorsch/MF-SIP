@@ -166,7 +166,9 @@ class GoalScreen extends GetView<GoalSipController> {
         if (!hasGoals || controller.isLoadingGoals.value)
           return const SizedBox.shrink();
         return FloatingActionButton(
-          onPressed: () => Get.toNamed(AppRoutes.ihavegoal),
+          onPressed: () {
+           controller.getMasterGoals();
+            Get.toNamed(AppRoutes.ihavegoal);},
           backgroundColor: Ucolors.primary,
           child: const Icon(Icons.add, color: Colors.white),
         );
@@ -218,7 +220,7 @@ class CircularUploadIndicator extends StatelessWidget {
         );
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -230,98 +232,105 @@ class CircularUploadIndicator extends StatelessWidget {
             ),
           ],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Stack(
-              alignment: Alignment.center,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final double circleSize = constraints.maxHeight * 0.45;
+
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // Background Circle (Track)
-                CircularPercentIndicator(
-                  radius: size.width <= 320
-                      ? 60
-                      : 70, // Slightly adjusted radius
-                  lineWidth: 12,
-                  percent: 1.0, // Full circle for background
-                  startAngle: 0,
-                  circularStrokeCap: CircularStrokeCap.round,
-                  backgroundColor: Colors.transparent,
-                  progressColor: Colors.grey.shade100,
-                ),
-                // Progress Circle
-                CircularPercentIndicator(
-                  center: Container(
-                    width: size.width <= 320 ? 80 : 90,
-                    height: size.width <= 320 ? 80 : 90,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      shape: BoxShape.circle,
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CircularPercentIndicator(
+                      radius: circleSize / 1.3,
+                      lineWidth: 8,
+                      percent: 1,
+                      backgroundColor: Colors.transparent,
+                      progressColor: Colors.grey.shade200,
                     ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      iconEmoji ?? "🎯", // Default emoji if null
-                      style: const TextStyle(fontSize: 28),
+
+                    CircularPercentIndicator(
+                      radius: circleSize / 1.3,
+                      lineWidth: 8,
+                      percent: percentage,
+                      animation: true,
+                      circularStrokeCap: CircularStrokeCap.round,
+                      backgroundColor: Colors.transparent,
+                      progressColor: Ucolors.blue,
+
+                      center: Container(
+                        width: circleSize * 0.9,
+                        height: circleSize * 0.9,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          iconEmoji ?? "🎯",
+                          style: TextStyle(
+                            fontSize: circleSize * 0.22,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                  radius: size.width <= 320 ? 60 : 70,
-                  lineWidth: 12,
-                  percent: percentage,
-                  animation: true,
-                  animationDuration: 1000,
-                  circularStrokeCap: CircularStrokeCap.round,
-                  backgroundColor: Colors.transparent,
-                  progressColor: Ucolors.blue, // Ensure Ucolors is imported
+
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 5,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 4,
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          percentString,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
 
-                // Percentage Label (Bottom Right of Circle)
-                Positioned(
-                  right: 0,
-                  bottom: 0,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
+                const SizedBox(height: 4),
+
+                FittedBox(
+                  child: Text(
+                    goalName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: UTextStyles.large.copyWith(
+                      fontSize: 14,
                     ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(color: Colors.black12, blurRadius: 4),
-                      ],
-                    ),
-                    child: Text(
-                      percentString,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
+                  ),
+                ),
+
+                FittedBox(
+                  child: Text(
+                    '₹ ${targetAmount.toStringAsFixed(0)}',
+                    style: UTextStyles.medium.copyWith(
+                      color: Colors.grey.shade600,
+                      fontSize: 12,
                     ),
                   ),
                 ),
               ],
-            ),
-            // const Gap(12),
-            FittedBox(
-              child: Text(
-                goalName,
-                style: UTextStyles.large.copyWith(fontSize: 16),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            // const Gap(4),
-            FittedBox(
-              child: Text(
-                // Simple currency formatting
-                '₹ ${targetAmount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
-                style: UTextStyles.medium.copyWith(
-                  color: Colors.grey.shade600,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
