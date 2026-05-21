@@ -414,7 +414,7 @@ class PersonalisationController extends GetxController {
         "account_number": bankAccountNumberController.text.trim(),
         "ifsc_code": bankIfscController.text.trim().toUpperCase(),
         "bank_name": bankNameController.text.trim(),
-        "micr": bankMicrController.text.trim(),
+        "micr_code": bankMicrController.text.trim(),
         "account_type": bankAccountType.value,
       };
 
@@ -981,8 +981,8 @@ class PersonalisationController extends GetxController {
         "name": nomineeNameTextEditingController.text,
         "relation": nomineeRelationTextEditingController.text,
         "dob": nomineeDobTextEditingController.text,
-        "allocation_percent": 100,
-        // nomineeAllocationPercentTextEditingController.text,
+        "allocation_percent":
+            nomineeAllocationPercentTextEditingController.text,
         // Send 1 if minor, 0 if not
         "is_minor": isNomineeMinor.value ? 1 : 0,
         "guardian_name": nomineeMinorsGuardianTextEditingController.text,

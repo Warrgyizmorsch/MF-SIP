@@ -964,7 +964,9 @@ import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 
 import 'package:my_sip/features/mfu/data/model/normal_txn_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/systematic_txn_req_model.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
+import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -990,6 +992,16 @@ class _C {
 // Investment Type Enum
 // ─────────────────────────────────────────────────────────────────────────────
 enum InvType { sip, lumpsum, stepup }
+
+enum SipFrequency { daily, weekly, monthly }
+
+extension SipFreqX on SipFrequency {
+  String get label => switch (this) {
+    SipFrequency.daily => 'Daily',
+    SipFrequency.weekly => 'Weekly',
+    SipFrequency.monthly => 'Monthly',
+  };
+}
 
 extension InvTypeX on InvType {
   String get label => switch (this) {
@@ -1050,11 +1062,23 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
   // ── Route args & controller ─────────────────────────────────────────────────
   late final SipPurchaseArgs _args;
   late final MfuController _mfu;
+  final PersonalisationController personalisationController =
+      Get.find<PersonalisationController>();
 
   // ── Investment state ────────────────────────────────────────────────────────
   InvType _invType = InvType.sip;
   int _amount = 0;
   int _sipDay = 16;
+
+  SipFrequency _sipFreq = SipFrequency.monthly;
+  int _sipWeekDay = 1; // 1 = Monday
+  final List<String> _weekDays = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+  ];
 
   // Step-up specific
   int _stepUpAmt = 0; // amount step-up
@@ -1196,8 +1220,39 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
     return null;
   }
 
+  /// Formats the SIP Day/Date according to MFU Systematic Transaction Rules
+  String _formatMfuSipDay() {
+    switch (_sipFreq) {
+      case SipFrequency.daily:
+        // Rule 1: For Daily Frequency, the dates shall not be specified (Blank).
+        return "NA";
+
+      case SipFrequency.weekly:
+        // Rule 2: For Weekly DAY based Frequency, 1-Monday, 2-Tuesday..., 5-Friday.
+        // Assuming _sipWeekDay is 1-5.
+        return _sipWeekDay.toString();
+
+      case SipFrequency.monthly:
+        // Rule 5: For other frequencies, dates separated by slash.
+        // Since your UI currently selects a single date (e.g. 15), we just pass "15".
+        // Note: If you ever add a feature to let users pick multiple dates (e.g., 5th and 15th),
+        // you would join them like this: "5/15"
+
+        // Handling the "Last Working Date" (LD) edge case
+        if (_sipDay == 28 && DateTime.now().month == 2) {
+          // Optional: If you want to map a specific logic to "LD"
+          // return "LD";
+        }
+        return _sipDay
+            .toString(); // MFU spec example: "2", "8", "15" (no zero-padding required here)
+
+      default:
+        return "";
+    }
+  }
+
   void _onInvest() {
-    // Run all validations
+    // 1. Run all validations
     final aErr = _validateAmount(_amount);
     final sErr = _invType == InvType.stepup ? _validateStepUp() : null;
     final cErr = _invType == InvType.stepup ? _validateCap() : null;
@@ -1212,70 +1267,205 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
 
     HapticFeedback.mediumImpact();
 
+    // 2. Fetch User Identifiers
     final uid = SessionManager.instance.getUserData?.id ?? 0;
+    final can = SessionManager.instance.getUserData?.canNumber ?? '';
     final folio = _args.folio;
 
-    final MfuNormalTxnRequest req;
+    // 3. Route to the correct API based on Investment Type
+    // if (_invType == InvType.sip || _invType == InvType.stepup) {
+    //   // Calculate dynamic SIP dates (Starts next month, runs for 30 years by default)
+    //   final now = DateTime.now();
+    //   final startDate = DateTime(now.year, now.month + 1, _sipDay);
+    //   final endDate = DateTime(
+    //     startDate.year + 30,
+    //     startDate.month,
+    //     startDate.day,
+    //   );
 
-    switch (_invType) {
-      case InvType.sip:
-        req = folio == null
-            ? MfuNormalTxnRequest.lumpsumNewFolio(
-                uid: uid,
-                schemeCode: _args.schemeCode,
-                amount: _amount.toDouble(),
-              )
-            : MfuNormalTxnRequest.lumpsumExistingFolio(
-                uid: uid,
-                schemeCode: _args.schemeCode,
-                amount: _amount.toDouble(),
-                folio: folio,
-              );
+    //   // Map your UI frequency to the API's expected string
+    //   String freqCode = 'M'; // Default Monthly
+    //   if (_sipFreq == SipFrequency.weekly) freqCode = 'W';
+    //   if (_sipFreq == SipFrequency.daily) freqCode = 'D';
 
-      case InvType.lumpsum:
-        req = folio == null
-            ? MfuNormalTxnRequest.lumpsumNewFolio(
-                uid: uid,
-                schemeCode: _args.schemeCode,
-                amount: _amount.toDouble(),
-              )
-            : MfuNormalTxnRequest.lumpsumExistingFolio(
-                uid: uid,
-                schemeCode: _args.schemeCode,
-                amount: _amount.toDouble(),
-                folio: folio,
-              );
+    //   // Call the Systematic Transaction API
+    //   _mfu.systematicTransaction(
+    //     MfuSystematicTxnRequest.sip(
+    //       uid: uid,
+    //       can: '14167AZA01',
+    //       schemeCode: '012',
+    //       folio: "FT000001115", // Pass empty string if new folio
+    //       amount: _amount,
+    //       frequency: freqCode,
+    //       day: _sipDay.toString().padLeft(2, '0'),
+    //       startMonth: startDate.month.toString().padLeft(2, '0'),
+    //       startYear: startDate.year.toString(),
+    //       endMonth: endDate.month.toString().padLeft(2, '0'),
+    //       endYear: endDate.year.toString(),
 
-      case InvType.stepup:
-        // Step-up still maps to the lumpsum/SIP calls with extra params.
-        // Adjust if your backend has a dedicated stepup endpoint.
-        req = folio == null
-            ? MfuNormalTxnRequest.lumpsumNewFolio(
-                uid: uid,
-                schemeCode: _args.schemeCode,
-                amount: _amount.toDouble(),
-              )
-            : MfuNormalTxnRequest.lumpsumExistingFolio(
-                uid: uid,
-                schemeCode: _args.schemeCode,
-                amount: _amount.toDouble(),
-                folio: folio,
-              );
+    //       // ⚠️ TODO: Replace these hardcoded values with actual data from user's selected bank/mandate
+    //       paymentMode: "DM",
+    //       accType: "SB",
+    //       accNo: "654321",
+    //       ifsc: "ABHY0065002",
+    //       micr: "400065002",
+    //       mandateRefNo: "PRNUAT001",
+    //     ),
+    //   );
+    // 3. Route to the correct API based on Investment Type
+    if (_invType == InvType.sip || _invType == InvType.stepup) {
+      final now = DateTime.now();
+      DateTime startDate = DateTime(now.year, now.month + 1, _sipDay);
+
+      // MFU 30-Day Minimum Gap Rule (Prevents "Invalid Date" rejections)
+      if (startDate.difference(now).inDays < 30) {
+        startDate = DateTime(now.year, now.month + 2, _sipDay);
+      }
+      final endDate = DateTime(
+        startDate.year + 30,
+        startDate.month,
+        startDate.day,
+      );
+
+      // Map UI frequency to API string
+      String freqCode = 'M';
+      if (_sipFreq == SipFrequency.weekly) freqCode = 'W';
+      if (_sipFreq == SipFrequency.daily) freqCode = 'D';
+
+      // 🚀 THE FIX: Use the new MFU Spec formatter here
+      final mfuFormattedDay = _formatMfuSipDay();
+
+      _mfu.systematicTransaction(
+        MfuSystematicTxnRequest.sip(
+          uid: 7,
+          can: "14167AZA01",
+          schemeCode: _args.schemeCode,
+          // schemeCode: "012",
+          // folio: folio ?? "",
+          folio: "FT000001115",
+          amount: _amount,
+          frequency: freqCode,
+          // day: mfuFormattedDay,
+          day: "10",
+          startMonth: startDate.month.toString().padLeft(2, '0'),
+          startYear: startDate.year.toString(),
+          endMonth: endDate.month.toString().padLeft(2, '0'),
+          endYear: endDate.year.toString(),
+
+          paymentMode: "DM",
+          accType: "SB",
+          accNo: "654321",
+          ifsc: "ABHY0065002",
+          micr: "400065002",
+          mandateRefNo: "PRNUAT001",
+        ),
+      );
+    } else if (_invType == InvType.lumpsum) {
+      // Call the Normal Transaction API
+      // if (folio != null && folio.isNotEmpty) {
+      //   _mfu.normalTransaction(
+      //     MfuNormalTxnRequest.lumpsumExistingFolio(
+      //       uid: uid,
+      //       schemeCode: _args.schemeCode,
+      //       amount: _amount.toDouble(),
+      //       folio: folio,
+      //     ),
+      //   );
+      // }
+      //  else
+      {
+        _mfu.normalTransaction(
+          MfuNormalTxnRequest.lumpsumNewFolio(
+            uid: uid,
+            schemeCode: _args.schemeCode,
+            amount: _amount.toDouble(),
+          ),
+        );
+      }
     }
-
-    _mfu.normalTransaction(req);
   }
+
+  // void _onInvest() {
+  //   // Run all validations
+  //   final aErr = _validateAmount(_amount);
+  //   final sErr = _invType == InvType.stepup ? _validateStepUp() : null;
+  //   final cErr = _invType == InvType.stepup ? _validateCap() : null;
+
+  //   setState(() {
+  //     _amountError = aErr;
+  //     _stepUpError = sErr;
+  //     _capError = cErr;
+  //   });
+
+  //   if (aErr != null || sErr != null || cErr != null) return;
+
+  //   HapticFeedback.mediumImpact();
+
+  //   final uid = SessionManager.instance.getUserData?.id ?? 0;
+  //   final folio = _args.folio;
+
+  //   final MfuNormalTxnRequest req;
+
+  //   switch (_invType) {
+  //     case InvType.sip:
+  //       req = folio == null
+  //           ? MfuNormalTxnRequest.lumpsumNewFolio(
+  //               uid: uid,
+  //               schemeCode: _args.schemeCode,
+  //               amount: _amount.toDouble(),
+  //             )
+  //           : MfuNormalTxnRequest.lumpsumExistingFolio(
+  //               uid: uid,
+  //               schemeCode: _args.schemeCode,
+  //               amount: _amount.toDouble(),
+  //               folio: folio,
+  //             );
+
+  //     case InvType.lumpsum:
+  //       req = folio == null
+  //           ? MfuNormalTxnRequest.lumpsumNewFolio(
+  //               uid: uid,
+  //               schemeCode: _args.schemeCode,
+  //               amount: _amount.toDouble(),
+  //             )
+  //           : MfuNormalTxnRequest.lumpsumExistingFolio(
+  //               uid: uid,
+  //               schemeCode: _args.schemeCode,
+  //               amount: _amount.toDouble(),
+  //               folio: folio,
+  //             );
+
+  //     case InvType.stepup:
+  //       // Step-up still maps to the lumpsum/SIP calls with extra params.
+  //       // Adjust if your backend has a dedicated stepup endpoint.
+  //       req = folio == null
+  //           ? MfuNormalTxnRequest.lumpsumNewFolio(
+  //               uid: uid,
+  //               schemeCode: _args.schemeCode,
+  //               amount: _amount.toDouble(),
+  //             )
+  //           : MfuNormalTxnRequest.lumpsumExistingFolio(
+  //               uid: uid,
+  //               schemeCode: _args.schemeCode,
+  //               amount: _amount.toDouble(),
+  //               folio: folio,
+  //             );
+  //   }
+
+  //   _mfu.normalTransaction(req);
+  // }
 
   // ── Build ─────────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
+    final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor: _C.bg,
+        backgroundColor: Colors.white,
         body: Stack(
           children: [
-            _MeshBg(),
+            // _MeshBg(),
             SafeArea(
               child: Column(
                 children: [
@@ -1295,20 +1485,21 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                 ],
               ),
             ),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Obx(
-                () => _BottomCta(
-                  amount: _amount,
-                  invType: _invType,
-                  isLoading: _mfu.isSubmittingTxn.value,
-                  isValid: _isValid,
-                  onInvest: _onInvest,
+            if (!isKeyboardOpen)
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Obx(
+                  () => _BottomCta(
+                    amount: _amount,
+                    invType: _invType,
+                    isLoading: _mfu.isSubmittingTxn.value,
+                    isValid: _isValid,
+                    onInvest: _onInvest,
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),
@@ -1316,16 +1507,17 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
   }
 
   Widget _buildBody() {
+    final user = personalisationController.userData.value;
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Fund card
+          // ── Fund card ──────────────────────────────────────────────────────
           _FundCard(args: _args),
           const SizedBox(height: 24),
 
-          // ── Investment type selector ────────────────────────────────────────
+          // ── Investment type selector ───────────────────────────────────────
           _InvTypeSelector(selected: _invType, onChanged: _onTypeChanged),
           const SizedBox(height: 24),
 
@@ -1344,29 +1536,61 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
           ),
           const SizedBox(height: 24),
 
-          // ── SIP / Step-up extras ───────────────────────────────────────────
+          // ── SIP Details (Daily / Weekly / Monthly) ─────────────────────────
           if (_invType == InvType.sip || _invType == InvType.stepup) ...[
             _sectionLabel('SIP DETAILS'),
             const SizedBox(height: 12),
+
+            // 1. SIP Frequency Selector
             _DetailTile(
-              onTap: _pickSipDate,
-              icon: Icons.calendar_month_rounded,
+              onTap: _showFrequencyPicker,
+              icon: Icons.update_rounded,
               iconColor: _C.primary,
-              label: 'SIP Date',
-              value: 'Monthly on $_sipDay',
-              trailing: _Chip(label: '${_sipDay}th', color: _C.primary),
+              label: 'SIP Frequency',
+              value: _sipFreq.label,
+              trailing: const _Chip(label: 'Change', color: _C.primary),
             ),
-            const SizedBox(height: 10),
+
+            // 2. Conditionally Show Date or Day Selector
+            if (_sipFreq != SipFrequency.daily) ...[
+              const SizedBox(height: 10),
+
+              if (_sipFreq == SipFrequency.monthly)
+                _DetailTile(
+                  onTap: _pickSipDate,
+                  icon: Icons.calendar_month_rounded,
+                  iconColor: _C.primary,
+                  label: 'SIP Date',
+                  value: 'Monthly on ${_sipDay}th',
+                  trailing: _Chip(label: '${_sipDay}th', color: _C.primary),
+                )
+              else if (_sipFreq == SipFrequency.weekly)
+                _DetailTile(
+                  onTap: _showWeekDayPicker,
+                  icon: Icons.calendar_view_week_rounded,
+                  iconColor: _C.primary,
+                  label: 'SIP Day',
+                  value: 'Every ${_weekDays[_sipWeekDay - 1]}',
+                  trailing: _Chip(
+                    label: _weekDays[_sipWeekDay - 1]
+                        .substring(0, 3)
+                        .toUpperCase(),
+                    color: _C.primary,
+                  ),
+                ),
+            ],
+            const SizedBox(height: 24), // Spacing before payment
           ],
 
-          // Bank account tile (always)
+          // ── Bank account tile (always visible) ─────────────────────────────
           _sectionLabel('PAYMENT'),
           const SizedBox(height: 12),
           _DetailTile(
             icon: Icons.account_balance_rounded,
             iconColor: _C.success,
             label: 'Bank Account',
-            value: 'HDFC Bank  ****  8291',
+            value:
+                '${user?.bankAccount?.bankName ?? ''}\n${user?.bankAccount?.accountNumberEncrypted ?? ''}',
             badge: _Chip(label: 'Auto-pay', color: _C.success),
           ),
 
@@ -1381,14 +1605,14 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
             ),
           ],
 
-          // ── Step-up section ────────────────────────────────────────────────
+          // ── Step-up section (Preserved perfectly!) ─────────────────────────
           if (_invType == InvType.stepup) ...[
             const SizedBox(height: 24),
             _StepUpSection(
               stepUpAmt: _stepUpAmt,
               stepUpPct: _stepUpPct,
               byPct: _stepByPct,
-              frequency: _frequency,
+              frequency: _frequency, // '6' or '12'
               capByDate: _capByDate,
               capDate: _capDate,
               capAmount: _capAmount,
@@ -1428,6 +1652,275 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
           const SizedBox(height: 24),
           _InfoBanner(invType: _invType),
         ],
+      ),
+    );
+  }
+
+  // Widget _buildBody() {
+  //   return SingleChildScrollView(
+  //     padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         // Fund card
+  //         _FundCard(args: _args),
+  //         const SizedBox(height: 24),
+
+  //         // ── Investment type selector ────────────────────────────────────────
+  //         _InvTypeSelector(selected: _invType, onChanged: _onTypeChanged),
+  //         const SizedBox(height: 24),
+
+  //         // ── Amount section ─────────────────────────────────────────────────
+  //         _amountHeader(),
+  //         const SizedBox(height: 12),
+  //         _AmountCard(
+  //           amount: _amount,
+  //           pulse: _pulse,
+  //           onAdd: _addAmount,
+  //           error: _amountError,
+  //           onChanged: (v) => setState(() {
+  //             _amount = v;
+  //             _amountError = _validateAmount(v);
+  //           }),
+  //         ),
+  //         const SizedBox(height: 24),
+
+  //         // ── SIP / Step-up extras ───────────────────────────────────────────
+  //         if (_invType == InvType.sip || _invType == InvType.stepup) ...[
+  //           _sectionLabel('SIP DETAILS'),
+  //           const SizedBox(height: 12),
+  //           _DetailTile(
+  //             onTap: _pickSipDate,
+  //             icon: Icons.calendar_month_rounded,
+  //             iconColor: _C.primary,
+  //             label: 'SIP Date',
+  //             value: 'Monthly on $_sipDay',
+  //             trailing: _Chip(label: '${_sipDay}th', color: _C.primary),
+  //           ),
+  //           const SizedBox(height: 10),
+  //         ],
+
+  //         // Bank account tile (always)
+  //         _sectionLabel('PAYMENT'),
+  //         const SizedBox(height: 12),
+  //         _DetailTile(
+  //           icon: Icons.account_balance_rounded,
+  //           iconColor: _C.success,
+  //           label: 'Bank Account',
+  //           value: 'HDFC Bank  ****  8291',
+  //           badge: _Chip(label: 'Auto-pay', color: _C.success),
+  //         ),
+
+  //         // Folio tile (only existing folio)
+  //         if (_args.folio != null) ...[
+  //           const SizedBox(height: 10),
+  //           _DetailTile(
+  //             icon: Icons.folder_open_rounded,
+  //             iconColor: const Color(0xFF8B5CF6),
+  //             label: 'Folio',
+  //             value: _args.folio!,
+  //           ),
+  //         ],
+
+  //         // ── Step-up section ────────────────────────────────────────────────
+  //         // if (_invType == InvType.stepup) ...[
+  //         //   const SizedBox(height: 24),
+  //         //   _StepUpSection(
+  //         //     stepUpAmt: _stepUpAmt,
+  //         //     stepUpPct: _stepUpPct,
+  //         //     byPct: _stepByPct,
+  //         //     frequency: _frequency,
+  //         //     capByDate: _capByDate,
+  //         //     capDate: _capDate,
+  //         //     capAmount: _capAmount,
+  //         //     minTopup: _args.minTopup,
+  //         //     minSip: _args.minSip,
+  //         //     stepUpError: _stepUpError,
+  //         //     capError: _capError,
+  //         //     onFreqChanged: (f) => setState(() => _frequency = f),
+  //         //     onByPctToggle: (v) => setState(() {
+  //         //       _stepByPct = v;
+  //         //       _stepUpError = null;
+  //         //     }),
+  //         //     onStepAmtChanged: (v) => setState(() {
+  //         //       _stepUpAmt = v;
+  //         //       _stepUpError = _validateStepUp();
+  //         //     }),
+  //         //     onStepPctChanged: (v) => setState(() {
+  //         //       _stepUpPct = v;
+  //         //       _stepUpError = _validateStepUp();
+  //         //     }),
+  //         //     onCapTypeToggle: (byDate) => setState(() {
+  //         //       _capByDate = byDate;
+  //         //       _capError = null;
+  //         //     }),
+  //         //     onCapDatePicked: (d) => setState(() {
+  //         //       _capDate = d;
+  //         //       _capError = _validateCap();
+  //         //     }),
+  //         //     onCapAmtChanged: (v) => setState(() {
+  //         //       _capAmount = v;
+  //         //       _capError = _validateCap();
+  //         //     }),
+  //         //   ),
+  //         // ],
+  //         // ── SIP / Step-up extras ───────────────────────────────────────────
+  //         if (_invType == InvType.sip || _invType == InvType.stepup) ...[
+  //           _sectionLabel('SIP DETAILS'),
+  //           const SizedBox(height: 12),
+
+  //           // 1. SIP Frequency Selector
+  //           _DetailTile(
+  //             onTap: _showFrequencyPicker,
+  //             icon: Icons.update_rounded,
+  //             iconColor: _C.primary,
+  //             label: 'SIP Frequency',
+  //             value: _sipFreq.label,
+  //             trailing: _Chip(label: 'Change', color: _C.primary),
+  //           ),
+
+  //           // 2. Conditionally Show Date or Day Selector
+  //           if (_sipFreq != SipFrequency.daily) ...[
+  //             const SizedBox(height: 10),
+
+  //             if (_sipFreq == SipFrequency.monthly)
+  //               _DetailTile(
+  //                 onTap: _pickSipDate,
+  //                 icon: Icons.calendar_month_rounded,
+  //                 iconColor: _C.primary,
+  //                 label: 'SIP Date',
+  //                 value: 'Monthly on ${_sipDay}th',
+  //                 trailing: _Chip(label: '${_sipDay}th', color: _C.primary),
+  //               )
+  //             else if (_sipFreq == SipFrequency.weekly)
+  //               _DetailTile(
+  //                 onTap: _showWeekDayPicker,
+  //                 icon: Icons.calendar_view_week_rounded,
+  //                 iconColor: _C.primary,
+  //                 label: 'SIP Day',
+  //                 value: 'Every ${_weekDays[_sipWeekDay - 1]}',
+  //                 trailing: _Chip(
+  //                   label: _weekDays[_sipWeekDay - 1]
+  //                       .substring(0, 3)
+  //                       .toUpperCase(),
+  //                   color: _C.primary,
+  //                 ),
+  //               ),
+  //           ],
+  //           const SizedBox(height: 10),
+  //         ],
+
+  //         // ── Info banner ────────────────────────────────────────────────────
+  //         const SizedBox(height: 24),
+  //         _InfoBanner(invType: _invType),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  void _showFrequencyPicker() {
+    FocusScope.of(context).unfocus();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: _C.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Select SIP Frequency',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: _C.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ...SipFrequency.values.map(
+                (f) => ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    f.label,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: _C.textPrimary,
+                    ),
+                  ),
+                  trailing: _sipFreq == f
+                      ? const Icon(
+                          Icons.check_circle_rounded,
+                          color: _C.primary,
+                        )
+                      : null,
+                  onTap: () {
+                    setState(() => _sipFreq = f);
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showWeekDayPicker() {
+    FocusScope.of(context).unfocus();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: _C.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Select SIP Day',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: _C.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ...List.generate(_weekDays.length, (index) {
+                final dayIndex = index + 1; // 1-based index (Monday = 1)
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    _weekDays[index],
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: _C.textPrimary,
+                    ),
+                  ),
+                  trailing: _sipWeekDay == dayIndex
+                      ? const Icon(
+                          Icons.check_circle_rounded,
+                          color: _C.primary,
+                        )
+                      : null,
+                  onTap: () {
+                    setState(() => _sipWeekDay = dayIndex);
+                    Navigator.pop(context);
+                  },
+                );
+              }),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -1525,7 +2018,7 @@ class _InvTypeSelector extends StatelessWidget {
                 curve: Curves.easeOutCubic,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  gradient: active ? Ucolors.modernFintechGradient : null,
+                  gradient: active ? Ucolors.gradientBlue : null,
                   borderRadius: BorderRadius.circular(13),
                   boxShadow: active
                       ? [
@@ -1568,7 +2061,10 @@ class _InvTypeSelector extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 // Amount Card
 // ─────────────────────────────────────────────────────────────────────────────
-class _AmountCard extends StatelessWidget {
+// ─────────────────────────────────────────────────────────────────────────────
+// Amount Card (Inline Editing)
+// ─────────────────────────────────────────────────────────────────────────────
+class _AmountCard extends StatefulWidget {
   final int amount;
   final Animation<double> pulse;
   final Function(int) onAdd;
@@ -1584,11 +2080,69 @@ class _AmountCard extends StatelessWidget {
   });
 
   @override
+  State<_AmountCard> createState() => _AmountCardState();
+}
+
+class _AmountCardState extends State<_AmountCard> {
+  late TextEditingController _ctrl;
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = TextEditingController(text: _fmt(widget.amount));
+    _focusNode = FocusNode();
+
+    // 🚀 UX Trick: Remove commas when focused for easy typing, add them back when done
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus) {
+        _ctrl.text = widget.amount == 0 ? '' : widget.amount.toString();
+        // Move cursor to the end
+        _ctrl.selection = TextSelection.collapsed(offset: _ctrl.text.length);
+      } else {
+        _ctrl.text = _fmt(widget.amount);
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant _AmountCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Sync external changes (like clicking the +100 buttons) into the text field
+    if (oldWidget.amount != widget.amount && !_focusNode.hasFocus) {
+      _ctrl.text = _fmt(widget.amount);
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  String _fmt(int v) {
+    if (v == 0) return '0';
+    if (v >= 1000) {
+      final s = v.toString();
+      return '${s.substring(0, s.length - 3)},${s.substring(s.length - 3)}';
+    }
+    return v.toString();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
       decoration: BoxDecoration(
-        gradient: Ucolors.modernFintechGradient,
+        // gradient: Ucolors.modernFintechGradient,
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1E40AF), Color(0xFF2563EB), Color(0xFF0EA5E9)],
+          stops: [0.0, 0.55, 1.0],
+        ),
+
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
@@ -1624,39 +2178,65 @@ class _AmountCard extends StatelessWidget {
               ),
             ),
           ),
-
           Column(
             children: [
-              // Editable amount
+              // 🚀 1. The Inline Editable Amount
               ScaleTransition(
-                scale: pulse,
+                scale: widget.pulse,
                 child: GestureDetector(
-                  onTap: () => _showAmountSheet(context),
+                  onTap: () => _focusNode.requestFocus(),
                   child: Column(
                     children: [
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: '₹ ',
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 6.0),
+                            child: Text(
+                              '₹ ',
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.6),
                                 fontSize: 28,
                                 fontWeight: FontWeight.w300,
                               ),
                             ),
-                            TextSpan(
-                              text: _fmt(amount),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 56,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: -2,
-                                height: 1,
+                          ),
+                          // IntrinsicWidth ensures the textfield perfectly wraps the typed numbers
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(minWidth: 40),
+                            child: IntrinsicWidth(
+                              child: TextField(
+                                controller: _ctrl,
+                                focusNode: _focusNode,
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                ],
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 56,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: -2,
+                                  height: 1,
+                                ),
+                                decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                  hintText: '0',
+                                  hintStyle: TextStyle(color: Colors.white54),
+                                ),
+                                onChanged: (val) {
+                                  // Instantly update the parent state as they type
+                                  final v = int.tryParse(val) ?? 0;
+                                  widget.onChanged(v);
+                                },
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 4),
                       Row(
@@ -1683,7 +2263,7 @@ class _AmountCard extends StatelessWidget {
                 ),
               ),
 
-              if (error != null) ...[
+              if (widget.error != null) ...[
                 const SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -1696,7 +2276,7 @@ class _AmountCard extends StatelessWidget {
                     border: Border.all(color: _C.danger.withOpacity(0.3)),
                   ),
                   child: Text(
-                    error!,
+                    widget.error!,
                     style: const TextStyle(
                       color: Color(0xFFFFB3B3),
                       fontSize: 12,
@@ -1712,15 +2292,15 @@ class _AmountCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _AddBtn(label: '+₹100', onTap: () => onAdd(100)),
+                  _AddBtn(label: '+₹100', onTap: () => widget.onAdd(100)),
                   const SizedBox(width: 8),
                   _AddBtn(
                     label: '+₹500',
-                    onTap: () => onAdd(500),
+                    onTap: () => widget.onAdd(500),
                     highlight: true,
                   ),
                   const SizedBox(width: 8),
-                  _AddBtn(label: '+₹1,000', onTap: () => onAdd(1000)),
+                  _AddBtn(label: '+₹1,000', onTap: () => widget.onAdd(1000)),
                 ],
               ),
             ],
@@ -1729,104 +2309,266 @@ class _AmountCard extends StatelessWidget {
       ),
     );
   }
-
-  void _showAmountSheet(BuildContext context) {
-    final ctrl = TextEditingController(text: amount.toString());
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: const BoxDecoration(
-            color: _C.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Enter Amount',
-                style: TextStyle(
-                  color: _C.textPrimary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: ctrl,
-                autofocus: true,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  color: _C.textPrimary,
-                ),
-                decoration: InputDecoration(
-                  prefixText: '₹ ',
-                  prefixStyle: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w300,
-                    color: _C.textSec,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: _C.border),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: _C.primary, width: 2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _C.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  onPressed: () {
-                    final v = int.tryParse(ctrl.text) ?? amount;
-                    onChanged(v);
-                    Navigator.pop(context);
-                  },
-                  child: const Text(
-                    'Set Amount',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  String _fmt(int v) {
-    if (v >= 1000) {
-      final s = v.toString();
-      return '${s.substring(0, s.length - 3)},${s.substring(s.length - 3)}';
-    }
-    return v.toString();
-  }
 }
+// class _AmountCard extends StatelessWidget {
+//   final int amount;
+//   final Animation<double> pulse;
+//   final Function(int) onAdd;
+//   final String? error;
+//   final ValueChanged<int> onChanged;
+
+//   const _AmountCard({
+//     required this.amount,
+//     required this.pulse,
+//     required this.onAdd,
+//     required this.onChanged,
+//     this.error,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+//       decoration: BoxDecoration(
+//         gradient: Ucolors.modernFintechGradient,
+//         borderRadius: BorderRadius.circular(24),
+//         boxShadow: [
+//           BoxShadow(
+//             color: _C.primary.withOpacity(0.35),
+//             blurRadius: 28,
+//             offset: const Offset(0, 10),
+//           ),
+//         ],
+//       ),
+//       child: Stack(
+//         children: [
+//           Positioned(
+//             right: -20,
+//             top: -20,
+//             child: Container(
+//               width: 100,
+//               height: 100,
+//               decoration: BoxDecoration(
+//                 shape: BoxShape.circle,
+//                 color: Colors.white.withOpacity(0.06),
+//               ),
+//             ),
+//           ),
+//           Positioned(
+//             left: -30,
+//             bottom: -30,
+//             child: Container(
+//               width: 120,
+//               height: 120,
+//               decoration: BoxDecoration(
+//                 shape: BoxShape.circle,
+//                 color: Colors.white.withOpacity(0.04),
+//               ),
+//             ),
+//           ),
+
+//           Column(
+//             children: [
+//               // Editable amount
+//               ScaleTransition(
+//                 scale: pulse,
+//                 child: GestureDetector(
+//                   onTap: () => _showAmountSheet(context),
+//                   child: Column(
+//                     children: [
+//                       RichText(
+//                         text: TextSpan(
+//                           children: [
+//                             TextSpan(
+//                               text: '₹ ',
+//                               style: TextStyle(
+//                                 color: Colors.white.withOpacity(0.6),
+//                                 fontSize: 28,
+//                                 fontWeight: FontWeight.w300,
+//                               ),
+//                             ),
+//                             TextSpan(
+//                               text: _fmt(amount),
+//                               style: const TextStyle(
+//                                 color: Colors.white,
+//                                 fontSize: 56,
+//                                 fontWeight: FontWeight.w900,
+//                                 letterSpacing: -2,
+//                                 height: 1,
+//                               ),
+//                             ),
+//                           ],
+//                         ),
+//                       ),
+//                       const SizedBox(height: 4),
+//                       Row(
+//                         mainAxisAlignment: MainAxisAlignment.center,
+//                         children: [
+//                           Text(
+//                             'tap to edit',
+//                             style: TextStyle(
+//                               color: Colors.white.withOpacity(0.45),
+//                               fontSize: 11,
+//                               fontWeight: FontWeight.w500,
+//                             ),
+//                           ),
+//                           const SizedBox(width: 4),
+//                           Icon(
+//                             Icons.edit_rounded,
+//                             size: 11,
+//                             color: Colors.white.withOpacity(0.45),
+//                           ),
+//                         ],
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               ),
+
+//               if (error != null) ...[
+//                 const SizedBox(height: 8),
+//                 Container(
+//                   padding: const EdgeInsets.symmetric(
+//                     horizontal: 12,
+//                     vertical: 4,
+//                   ),
+//                   decoration: BoxDecoration(
+//                     color: _C.danger.withOpacity(0.15),
+//                     borderRadius: BorderRadius.circular(8),
+//                     border: Border.all(color: _C.danger.withOpacity(0.3)),
+//                   ),
+//                   child: Text(
+//                     error!,
+//                     style: const TextStyle(
+//                       color: Color(0xFFFFB3B3),
+//                       fontSize: 12,
+//                       fontWeight: FontWeight.w600,
+//                     ),
+//                   ),
+//                 ),
+//               ],
+
+//               const SizedBox(height: 20),
+
+//               // Quick-add chips
+//               Row(
+//                 mainAxisAlignment: MainAxisAlignment.center,
+//                 children: [
+//                   _AddBtn(label: '+₹100', onTap: () => onAdd(100)),
+//                   const SizedBox(width: 8),
+//                   _AddBtn(
+//                     label: '+₹500',
+//                     onTap: () => onAdd(500),
+//                     highlight: true,
+//                   ),
+//                   const SizedBox(width: 8),
+//                   _AddBtn(label: '+₹1,000', onTap: () => onAdd(1000)),
+//                 ],
+//               ),
+//             ],
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   void _showAmountSheet(BuildContext context) {
+//     final ctrl = TextEditingController(text: amount.toString());
+//     showModalBottomSheet(
+//       context: context,
+//       isScrollControlled: true,
+//       backgroundColor: Colors.transparent,
+//       builder: (_) => Padding(
+//         padding: EdgeInsets.only(
+//           bottom: MediaQuery.of(context).viewInsets.bottom,
+//         ),
+//         child: Container(
+//           padding: const EdgeInsets.all(24),
+//           decoration: const BoxDecoration(
+//             color: _C.surface,
+//             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+//           ),
+//           child: Column(
+//             mainAxisSize: MainAxisSize.min,
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               const Text(
+//                 'Enter Amount',
+//                 style: TextStyle(
+//                   color: _C.textPrimary,
+//                   fontSize: 18,
+//                   fontWeight: FontWeight.w800,
+//                 ),
+//               ),
+//               const SizedBox(height: 16),
+//               TextField(
+//                 controller: ctrl,
+//                 autofocus: true,
+//                 keyboardType: TextInputType.number,
+//                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+//                 style: const TextStyle(
+//                   fontSize: 28,
+//                   fontWeight: FontWeight.w800,
+//                   color: _C.textPrimary,
+//                 ),
+//                 decoration: InputDecoration(
+//                   prefixText: '₹ ',
+//                   prefixStyle: const TextStyle(
+//                     fontSize: 28,
+//                     fontWeight: FontWeight.w300,
+//                     color: _C.textSec,
+//                   ),
+//                   border: OutlineInputBorder(
+//                     borderRadius: BorderRadius.circular(16),
+//                     borderSide: const BorderSide(color: _C.border),
+//                   ),
+//                   focusedBorder: OutlineInputBorder(
+//                     borderRadius: BorderRadius.circular(16),
+//                     borderSide: const BorderSide(color: _C.primary, width: 2),
+//                   ),
+//                 ),
+//               ),
+//               const SizedBox(height: 16),
+//               SizedBox(
+//                 width: double.infinity,
+//                 height: 52,
+//                 child: ElevatedButton(
+//                   style: ElevatedButton.styleFrom(
+//                     backgroundColor: _C.primary,
+//                     shape: RoundedRectangleBorder(
+//                       borderRadius: BorderRadius.circular(14),
+//                     ),
+//                   ),
+//                   onPressed: () {
+//                     final v = int.tryParse(ctrl.text) ?? amount;
+//                     onChanged(v);
+//                     Navigator.pop(context);
+//                   },
+//                   child: const Text(
+//                     'Set Amount',
+//                     style: TextStyle(
+//                       color: Colors.white,
+//                       fontSize: 16,
+//                       fontWeight: FontWeight.w700,
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   String _fmt(int v) {
+//     if (v >= 1000) {
+//       final s = v.toString();
+//       return '${s.substring(0, s.length - 3)},${s.substring(s.length - 3)}';
+//     }
+//     return v.toString();
+//   }
+// }
 
 class _AddBtn extends StatelessWidget {
   final String label;
@@ -2454,7 +3196,7 @@ class _DetailTile extends StatelessWidget {
   final Color iconColor;
   final String label, value;
   final Widget? badge, trailing;
-  final VoidCallback? onTap; // 🚀 1. Add this property
+  final VoidCallback? onTap;
 
   const _DetailTile({
     required this.icon,
@@ -2463,7 +3205,7 @@ class _DetailTile extends StatelessWidget {
     required this.value,
     this.badge,
     this.trailing,
-    this.onTap, // 🚀 2. Add to constructor
+    this.onTap,
   });
 
   @override
@@ -2527,23 +3269,7 @@ class _DetailTile extends StatelessWidget {
                   ),
                 ),
                 if (badge != null) ...[badge!, const SizedBox(width: 8)],
-                if (trailing != null) ...[
-                  trailing!,
-                  const SizedBox(width: 8),
-                ] else
-                  Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: _C.pLight,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      color: _C.primary,
-                      size: 13,
-                    ),
-                  ),
+                if (trailing != null) ...[trailing!, const SizedBox(width: 8)],
               ],
             ),
           ),

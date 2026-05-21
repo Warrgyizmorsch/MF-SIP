@@ -4,19 +4,19 @@ import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/features/mfu/data/model/normal_txn_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/systematic_txn_req_model.dart';
 import 'package:my_sip/features/mfu/domain/entity/can_register_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/can_status_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/emandate_status_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/mandate_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/normal_txn_entity.dart';
+import 'package:my_sip/features/mfu/domain/entity/systematic_txn_entity.dart';
 import 'package:my_sip/features/mfu/domain/usecases/mfu_usecases.dart';
 import 'package:my_sip/services/session_manager.dart';
-import 'package:pinput/pinput.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MfuController extends GetxController {
@@ -34,12 +34,14 @@ class MfuController extends GetxController {
   final isVerifying = false.obs;
   final isCreatingMandate = false.obs;
   final isSubmittingTxn = false.obs;
+  final isSubmittingSystematicTxn = false.obs;
 
   final mandateCreateResponse = Rxn<MfuMandateCreateEntity>();
   final mfuCanResponse = Rxn<MfuCanResponseEntity>();
   final mandateStatusResponse = Rxn<MfuMandateStatusEntity>();
   final canStatusResponse = Rxn<MfuCanStatusEntity>();
   final normalTxnResponse = Rxn<MfuNormalTxnEntity>();
+  final systematicTxnResponse = Rxn<MfuSystematicTxnEntity>();
 
   final errorMessage = ''.obs;
   final selectedMethod = 'upi'.obs; // 'upi' | 'netbanking'
@@ -448,6 +450,39 @@ class MfuController extends GetxController {
     );
 
     isSubmittingTxn.value = false;
+  }
+
+  Future<void> systematicTransaction(MfuSystematicTxnRequest request) async {
+    isSubmittingSystematicTxn.value = true;
+    errorMessage.value = '';
+
+    final result = await mfuUseCases.mfuSystematicTxnUseCase(request);
+
+    result.fold(
+      (success) async {
+        systematicTxnResponse.value = success.data;
+        log(
+          "[MfuController] Systematic Txn — ref: ${success.data?.entGroupRefNo}",
+        );
+
+        if (success.data?.hasErrors == true) {
+          log("[MfuController] Txn Errors: ${success.data?.errors}");
+        }
+
+        if (success.data?.hasApprovalLink == true) {
+          // openLink(success.data!.approvalLink);
+          final webViewResult = await Get.to(
+            () => MandateWebView(url: success.data!.approvalLink),
+          );
+        }
+      },
+      (error) {
+        errorMessage.value = error.message ?? 'Systematic transaction failed';
+        Get.snackbar('Transaction Error', errorMessage.value);
+      },
+    );
+
+    isSubmittingSystematicTxn.value = false;
   }
 
   @override

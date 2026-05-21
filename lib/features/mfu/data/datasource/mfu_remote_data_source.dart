@@ -10,6 +10,8 @@ import 'package:my_sip/features/mfu/data/model/emandate_status.dart';
 import 'package:my_sip/features/mfu/data/model/mandate_model.dart';
 import 'package:my_sip/features/mfu/data/model/normal_txn_model.dart';
 import 'package:my_sip/features/mfu/data/model/normal_txn_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/systematic_txn_model.dart';
+import 'package:my_sip/features/mfu/data/model/systematic_txn_req_model.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 class MfuRemoteDataSource {
@@ -209,6 +211,44 @@ class MfuRemoteDataSource {
       }
     } catch (e) {
       return Right(ApiError(message: 'normalTransaction Exception: $e'));
+    }
+  }
+
+  Future<Either<Result<MfuSystematicTxnModel>, ApiError>> systematicTransaction(
+    MfuSystematicTxnRequest request,
+  ) async {
+    try {
+      final body = request.toJson();
+
+      createLog("[MfuRemoteDataSource] systematicTransaction Request: $body");
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/systematic-transaction",
+        data: body,
+      );
+
+      createLog("[MfuRemoteDataSource] systematicTransaction Response: $resp");
+
+      if (resp != null) {
+        final result = MfuSystematicTxnModel.fromJson(resp);
+        if (result.success == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(
+              message: result.message ?? 'Systematic Transaction Failed',
+            ),
+          );
+        }
+      } else {
+        return Right(
+          ApiError(
+            message: 'systematicTransaction: Invalid response structure',
+          ),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'systematicTransaction Exception: $e'));
     }
   }
 }

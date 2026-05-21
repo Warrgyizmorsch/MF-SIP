@@ -663,6 +663,7 @@ class ProfileHeader extends StatelessWidget {
     required this.subtitle,
     required this.icon,
     required this.onTap,
+    this.iconColor = Colors.black,
   });
 
   final String img;
@@ -670,6 +671,7 @@ class ProfileHeader extends StatelessWidget {
   final String subtitle;
   final IconData icon;
   final VoidCallback onTap;
+  final Color iconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -694,7 +696,7 @@ class ProfileHeader extends StatelessWidget {
               child: CircleAvatar(
                 backgroundColor: Colors.white,
                 radius: 14,
-                child: Center(child: Icon(icon, color: Colors.black, size: 16)),
+                child: Center(child: Icon(icon, color: iconColor, size: 16)),
               ),
             ),
           ],

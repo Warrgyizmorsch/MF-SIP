@@ -20,9 +20,9 @@ class Ucolors {
   static const Color red = Color(0xffD03811);
   static const Color borderside = Color(0xffD0D0D0);
   static const Color skyblue1 = Color(0xffE8F4FF);
-  static const Color secondary =Color(0xff2A7BBF);
-  static const Color black =Color(0xff000000);
-  static const Color white =Color(0xffFFFFFF);
+  static const Color secondary = Color(0xff2A7BBF);
+  static const Color black = Color(0xff000000);
+  static const Color white = Color(0xffFFFFFF);
 
   static const LinearGradient backgroundGradient = LinearGradient(
     begin: Alignment.centerRight,
@@ -57,10 +57,12 @@ class Ucolors {
   static const LinearGradient deepOceanGradient = LinearGradient(
     begin: Alignment.topRight,
     end: Alignment.bottomLeft,
-    colors: [
-      Color(0xFF2C5364), // Muted Teal
-      Color(0xFF203A43), // Mid-transition blue
-      Color(0xFF0F2027), // Very dark charcoal
-    ],
+    colors: [Color(0xFF2C5364), Color(0xFF203A43), Color(0xFF0F2027)],
+  );
+  static const LinearGradient gradientBlue = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF1E40AF), Color(0xFF2563EB), Color(0xFF0EA5E9)],
+    stops: [0.0, 0.55, 1.0],
   );
 }

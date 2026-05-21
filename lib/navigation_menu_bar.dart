@@ -1509,7 +1509,7 @@ class NavigationBarController extends GetxController {
 
   void _startBackgroundCamsCheck() {
     _checkCamsStatusSilently();
-    _camsPollingTimer = Timer.periodic(const Duration(seconds: 15), (
+    _camsPollingTimer = Timer.periodic(const Duration(seconds: 30), (
       timer,
     ) async {
       await _checkCamsStatusSilently();
