@@ -300,7 +300,7 @@ class GoaldetailsPage extends GetView<GoalSipController> {
                 Navigator.pop(context);
 
                 // OPEN EDIT SCREEN
-                Get.toNamed(AppRoutes.ihavegoal,arguments: {"goalId":currentGoalId, "goal":goal, "isEdit":true});
+                Get.toNamed(AppRoutes.masterGoalsPage,arguments: {"goalId":currentGoalId, "goal":goal, "isEdit":true});
 
               },
 

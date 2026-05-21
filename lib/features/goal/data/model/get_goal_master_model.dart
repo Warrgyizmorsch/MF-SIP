@@ -25,6 +25,7 @@ class MasterGoal {
   final int id;
   final String goalType;
   final String goalIcon;
+  final String logo;
   final String goalDescription;
   final String targetAmount;
   final String monthlyInvestment;
@@ -37,6 +38,7 @@ class MasterGoal {
     required this.id,
     required this.goalType,
     required this.goalIcon,
+    required this.logo,
     required this.goalDescription,
     required this.targetAmount,
     required this.monthlyInvestment,
@@ -50,6 +52,7 @@ class MasterGoal {
     return MasterGoal(
       id: json['id'] ?? 0,
       goalType: json['goal_type'] ?? '',
+      logo: json['logo'] ?? '',
       goalIcon: json['goal_icon'] ?? '',
       goalDescription: json['goal_description'] ?? '',
       targetAmount: json['target_amount'] ?? '',
@@ -65,6 +68,7 @@ class MasterGoal {
     return {
       'id': id,
       'goal_type': goalType,
+      'logo': logo,
       'goal_icon': goalIcon,
       'goal_description': goalDescription,
       'target_amount': targetAmount,

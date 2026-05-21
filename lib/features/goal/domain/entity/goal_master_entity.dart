@@ -21,6 +21,7 @@ class MasterGoalEntity extends Equatable {
   final int id;
   final String goalType;
   final String goalIcon;
+  final String logo;
   final String goalDescription;
   final double targetAmount;
   final double monthlyInvestment;
@@ -33,6 +34,7 @@ class MasterGoalEntity extends Equatable {
     required this.id,
     required this.goalType,
     required this.goalIcon,
+    required this.logo,
     required this.goalDescription,
     required this.targetAmount,
     required this.monthlyInvestment,
@@ -47,6 +49,7 @@ class MasterGoalEntity extends Equatable {
     id,
     goalType,
     goalIcon,
+    logo,
     goalDescription,
     targetAmount,
     monthlyInvestment,
@@ -72,7 +75,8 @@ extension MasterGoalMapper on MasterGoal {
     return MasterGoalEntity(
       id: id,
       goalType: goalType,
-      goalIcon: goalIcon,
+      goalIcon:goalIcon,
+      logo: logo,
       goalDescription: goalDescription,
       targetAmount: double.tryParse(targetAmount) ?? 0.0,
       monthlyInvestment:
