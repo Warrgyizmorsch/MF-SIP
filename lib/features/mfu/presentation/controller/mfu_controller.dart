@@ -19,11 +19,19 @@ import 'package:my_sip/features/mfu/domain/usecases/mfu_usecases.dart';
 import 'package:my_sip/services/session_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+enum RedeemType { amount, allFree, units }
+
 class MfuController extends GetxController {
   final MfuUseCases mfuUseCases;
   final session = SessionManager.instance;
 
   MfuController(this.mfuUseCases);
+
+  @override
+  void onInit() {
+    super.onInit();
+    redeemAmountCtrl.addListener(_onRedeemAmountTyped);
+  }
 
   // ─── State ───────────────────────────────────────────────────────────────────
 
@@ -35,6 +43,15 @@ class MfuController extends GetxController {
   final isCreatingMandate = false.obs;
   final isSubmittingTxn = false.obs;
   final isSubmittingSystematicTxn = false.obs;
+
+  // ─── Redeem State ────────────────────────────────────────────────────────────
+
+  final redeemType = RedeemType.amount.obs;
+  final redeemInputError = RxnString();
+  final redeemAmountInWords = ''.obs;
+
+  final redeemAmountCtrl = TextEditingController();
+  final redeemUnitsCtrl = TextEditingController();
 
   final mandateCreateResponse = Rxn<MfuMandateCreateEntity>();
   final mfuCanResponse = Rxn<MfuCanResponseEntity>();
@@ -130,7 +147,10 @@ class MfuController extends GetxController {
       },
       (error) {
         errorMessage.value = error.message ?? 'Something went wrong';
-        Get.snackbar('MFU Error', errorMessage.value);
+        CustomSnackbar.error(
+          title: 'MFU Error',
+          message: 'Something went wrong',
+        );
       },
     );
 
@@ -485,9 +505,149 @@ class MfuController extends GetxController {
     isSubmittingSystematicTxn.value = false;
   }
 
+  // Redeem
+  void _onRedeemAmountTyped() {
+    final v = double.tryParse(redeemAmountCtrl.text) ?? 0;
+    redeemAmountInWords.value = v > 0 ? '${_toWords(v.toInt())} only' : '';
+    redeemInputError.value = null; // Clear error on typing
+  }
+
+  void selectRedeemType(RedeemType type) {
+    redeemType.value = type;
+    redeemInputError.value = null;
+  }
+
+  void useMaxRedeemAmount(double maxAmount) {
+    redeemAmountCtrl.text = maxAmount.toStringAsFixed(2);
+  }
+
+  void useMaxRedeemUnits(double maxUnits) {
+    redeemUnitsCtrl.text = maxUnits.toStringAsFixed(3);
+    redeemInputError.value = null;
+  }
+
+  void processRedemption({
+    required String schemeCode,
+    required String folio,
+    required double freeUnits,
+    required double freeValue,
+  }) {
+    redeemInputError.value = null;
+    final uid = session.getUserData?.id ?? 0;
+
+    switch (redeemType.value) {
+      case RedeemType.amount:
+        final v = double.tryParse(redeemAmountCtrl.text) ?? 0;
+        if (v <= 0) {
+          redeemInputError.value = 'Please enter an amount';
+          return;
+        }
+        if (v > freeValue) {
+          redeemInputError.value =
+              'Exceeds free value (Max: ₹${freeValue.toStringAsFixed(2)})';
+          return;
+        }
+        normalTransaction(
+          MfuNormalTxnRequest.redeemByAmount(
+            uid: uid,
+            schemeCode: schemeCode,
+            amount: v,
+            folio: folio,
+          ),
+        );
+        break;
+
+      case RedeemType.units:
+        final v = double.tryParse(redeemUnitsCtrl.text) ?? 0;
+        if (v <= 0) {
+          redeemInputError.value = 'Please enter units';
+          return;
+        }
+        if (v > freeUnits) {
+          redeemInputError.value =
+              'Exceeds free units (Max: ${freeUnits.toStringAsFixed(3)})';
+          return;
+        }
+        normalTransaction(
+          MfuNormalTxnRequest.redeemByUnit(
+            uid: uid,
+            schemeCode: schemeCode,
+            units: v,
+            folio: folio,
+          ),
+        );
+        break;
+
+      case RedeemType.allFree:
+        if (freeUnits <= 0) {
+          redeemInputError.value = 'No free units available';
+          return;
+        }
+        normalTransaction(
+          MfuNormalTxnRequest.fullRedeem(
+            uid: uid,
+            schemeCode: schemeCode,
+            folio: folio,
+          ),
+        );
+        break;
+    }
+  }
+
+  // ─── Number to Words Formatter ───────────────────────────────────────────────
+  static const _ones = [
+    '',
+    'One',
+    'Two',
+    'Three',
+    'Four',
+    'Five',
+    'Six',
+    'Seven',
+    'Eight',
+    'Nine',
+    'Ten',
+    'Eleven',
+    'Twelve',
+    'Thirteen',
+    'Fourteen',
+    'Fifteen',
+    'Sixteen',
+    'Seventeen',
+    'Eighteen',
+    'Nineteen',
+  ];
+  static const _tens = [
+    '',
+    '',
+    'Twenty',
+    'Thirty',
+    'Forty',
+    'Fifty',
+    'Sixty',
+    'Seventy',
+    'Eighty',
+    'Ninety',
+  ];
+  String _toWords(int n) {
+    if (n == 0) return 'Zero';
+    if (n < 20) return _ones[n];
+    if (n < 100)
+      return '${_tens[n ~/ 10]}${n % 10 > 0 ? ' ${_ones[n % 10]}' : ''}';
+    if (n < 1000)
+      return '${_ones[n ~/ 100]} Hundred${n % 100 > 0 ? ' ${_toWords(n % 100)}' : ''}';
+    if (n < 100000)
+      return '${_toWords(n ~/ 1000)} Thousand${n % 1000 > 0 ? ' ${_toWords(n % 1000)}' : ''}';
+    if (n < 10000000)
+      return '${_toWords(n ~/ 100000)} Lakh${n % 100000 > 0 ? ' ${_toWords(n % 100000)}' : ''}';
+    return '${_toWords(n ~/ 10000000)} Crore${n % 10000000 > 0 ? ' ${_toWords(n % 10000000)}' : ''}';
+  }
+
   @override
   void onClose() {
     _stopCanStatusPolling();
+    redeemAmountCtrl.dispose();
+    redeemUnitsCtrl.dispose();
     super.onClose();
   }
 }

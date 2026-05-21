@@ -10,6 +10,7 @@ import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/mfu/presentation/pages/redeem_page.dart';
 import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
@@ -266,8 +267,7 @@ class _WebDashboardLayout extends StatelessWidget {
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemCount: 4,
                                 separatorBuilder: (_, __) => const Gap(10),
-                                itemBuilder: (ctx, index) =>
-                                    _WebPortfolioRow(),
+                                itemBuilder: (ctx, index) => _WebPortfolioRow(),
                               ),
                             ],
                           ),
@@ -294,8 +294,7 @@ class _WebDashboardLayout extends StatelessWidget {
                                   ],
                                 ),
                                 child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const Text(
                                       "Quick Actions",
@@ -354,7 +353,7 @@ class _WebDashboardLayout extends StatelessWidget {
                                     /// HEADER
                                     Row(
                                       mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         const Text(
                                           "Upcoming SIPs",
@@ -384,10 +383,10 @@ class _WebDashboardLayout extends StatelessWidget {
                                     ListView.separated(
                                       shrinkWrap: true,
                                       physics:
-                                      const NeverScrollableScrollPhysics(),
+                                          const NeverScrollableScrollPhysics(),
                                       itemCount: 3,
                                       separatorBuilder: (_, __) =>
-                                      const SizedBox(height: 18),
+                                          const SizedBox(height: 18),
                                       itemBuilder: (context, index) {
                                         final data = [
                                           {
@@ -400,8 +399,7 @@ class _WebDashboardLayout extends StatelessWidget {
                                           {
                                             "date": "15",
                                             "month": "Dec",
-                                            "fund":
-                                            "ICICI Prudential Tech",
+                                            "fund": "ICICI Prudential Tech",
                                             "type": "Monthly",
                                             "amount": "₹3000",
                                           },
@@ -422,14 +420,15 @@ class _WebDashboardLayout extends StatelessWidget {
                                             Container(
                                               width: 42,
                                               padding:
-                                              const EdgeInsets.symmetric(
-                                                vertical: 8,
-                                              ),
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 8,
+                                                  ),
                                               decoration: BoxDecoration(
-                                                color: Colors.blue
-                                                    .withOpacity(0.08),
+                                                color: Colors.blue.withOpacity(
+                                                  0.08,
+                                                ),
                                                 borderRadius:
-                                                BorderRadius.circular(10),
+                                                    BorderRadius.circular(10),
                                               ),
                                               child: Column(
                                                 children: [
@@ -438,7 +437,7 @@ class _WebDashboardLayout extends StatelessWidget {
                                                     style: const TextStyle(
                                                       fontSize: 16,
                                                       fontWeight:
-                                                      FontWeight.w700,
+                                                          FontWeight.w700,
                                                       color: Colors.blue,
                                                     ),
                                                   ),
@@ -448,9 +447,9 @@ class _WebDashboardLayout extends StatelessWidget {
                                                     style: TextStyle(
                                                       fontSize: 11,
                                                       fontWeight:
-                                                      FontWeight.w600,
+                                                          FontWeight.w600,
                                                       color:
-                                                      Colors.blue.shade700,
+                                                          Colors.blue.shade700,
                                                     ),
                                                   ),
                                                 ],
@@ -463,17 +462,17 @@ class _WebDashboardLayout extends StatelessWidget {
                                             Expanded(
                                               child: Column(
                                                 crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
                                                     item["fund"]!,
                                                     maxLines: 1,
                                                     overflow:
-                                                    TextOverflow.ellipsis,
+                                                        TextOverflow.ellipsis,
                                                     style: const TextStyle(
                                                       fontSize: 14,
                                                       fontWeight:
-                                                      FontWeight.w600,
+                                                          FontWeight.w600,
                                                     ),
                                                   ),
 
@@ -484,7 +483,7 @@ class _WebDashboardLayout extends StatelessWidget {
                                                     style: TextStyle(
                                                       fontSize: 12,
                                                       color:
-                                                      Colors.grey.shade500,
+                                                          Colors.grey.shade500,
                                                     ),
                                                   ),
                                                 ],
@@ -505,7 +504,7 @@ class _WebDashboardLayout extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                              )
+                              ),
                               // Container(
                               //   padding: const EdgeInsets.all(20),
                               //   decoration: BoxDecoration(
@@ -550,7 +549,6 @@ class _WebDashboardLayout extends StatelessWidget {
                         ),
                       ],
                     ),
-
                   ],
                 ),
               ),
@@ -626,8 +624,6 @@ class _WebDashboardLayout extends StatelessWidget {
   }
 }
 
-
-
 class DashboardWidget extends StatelessWidget {
   const DashboardWidget({Key? key}) : super(key: key);
 
@@ -662,7 +658,6 @@ class DashboardWidget extends StatelessWidget {
         ),
       ),
     );
-
   }
 
   /// ----------------------------------------------------
@@ -681,11 +676,16 @@ class DashboardWidget extends StatelessWidget {
         children: [
           const Text(
             'Goal Tracker',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF0F172A),
+            ),
           ),
           const SizedBox(height: 24),
           _buildGoalItem(
-            icon: Icons.track_changes, // App me Iconsax.target use kar sakte hain
+            icon:
+                Icons.track_changes, // App me Iconsax.target use kar sakte hain
             iconColor: const Color(0xFF10B981),
             iconBgColor: const Color(0xFFE6F4EA),
             title: 'Dream Home',
@@ -696,7 +696,8 @@ class DashboardWidget extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           _buildGoalItem(
-            icon: Icons.trending_up, // App me Iconsax.trending_up use kar sakte hain
+            icon: Icons
+                .trending_up, // App me Iconsax.trending_up use kar sakte hain
             iconColor: const Color(0xFF3B82F6),
             iconBgColor: const Color(0xFFEFF6FF),
             title: 'Car',
@@ -712,8 +713,13 @@ class DashboardWidget extends StatelessWidget {
             onPressed: () {},
             style: OutlinedButton.styleFrom(
               minimumSize: const Size(double.infinity, 52),
-              side: const BorderSide(color: Color(0xFF0284C7), style: BorderStyle.solid), // For pure dotted, use dotted_border package
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              side: const BorderSide(
+                color: Color(0xFF0284C7),
+                style: BorderStyle.solid,
+              ), // For pure dotted, use dotted_border package
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -722,7 +728,11 @@ class DashboardWidget extends StatelessWidget {
                 SizedBox(width: 8),
                 Text(
                   'Add New Goal',
-                  style: TextStyle(color: Color(0xFF0284C7), fontWeight: FontWeight.w600, fontSize: 15),
+                  style: TextStyle(
+                    color: Color(0xFF0284C7),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                  ),
                 ),
               ],
             ),
@@ -749,13 +759,30 @@ class DashboardWidget extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: iconBgColor, borderRadius: BorderRadius.circular(8)),
+              decoration: BoxDecoration(
+                color: iconBgColor,
+                borderRadius: BorderRadius.circular(8),
+              ),
               child: Icon(icon, color: iconColor, size: 20),
             ),
             const SizedBox(width: 12),
-            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1E293B),
+              ),
+            ),
             const Spacer(),
-            Text('$currentAmount / $targetAmount', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.grey.shade700)),
+            Text(
+              '$currentAmount / $targetAmount',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade700,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 10),
@@ -769,7 +796,10 @@ class DashboardWidget extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        Text(progressText, style: TextStyle(fontSize: 12, color: Colors.grey.shade400)),
+        Text(
+          progressText,
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade400),
+        ),
       ],
     );
   }
@@ -780,15 +810,46 @@ class DashboardWidget extends StatelessWidget {
   Widget _buildCashFlowCard() {
     // Static Dummy Data for Transactions
     final List<Map<String, dynamic>> transactions = [
-      {'date': '10 Nov 2024', 'fund': 'Kotak Bluechip', 'type': 'SIP', 'amount': '₹5,000', 'isLumpSum': false},
-      {'date': '05 Nov 2024', 'fund': 'ICICI Tech', 'type': 'SIP', 'amount': '₹3,000', 'isLumpSum': false},
-      {'date': '01 Nov 2024', 'fund': 'HDFC Midcap', 'type': 'Lumpsum', 'amount': '₹10,000', 'isLumpSum': true},
-      {'date': '25 Oct 2024', 'fund': 'SBI Small Cap', 'type': 'SIP', 'amount': '₹2,000', 'isLumpSum': false},
-      {'date': '10 Oct 2024', 'fund': 'Kotak Bluechip', 'type': 'SIP', 'amount': '₹5,000', 'isLumpSum': false},
+      {
+        'date': '10 Nov 2024',
+        'fund': 'Kotak Bluechip',
+        'type': 'SIP',
+        'amount': '₹5,000',
+        'isLumpSum': false,
+      },
+      {
+        'date': '05 Nov 2024',
+        'fund': 'ICICI Tech',
+        'type': 'SIP',
+        'amount': '₹3,000',
+        'isLumpSum': false,
+      },
+      {
+        'date': '01 Nov 2024',
+        'fund': 'HDFC Midcap',
+        'type': 'Lumpsum',
+        'amount': '₹10,000',
+        'isLumpSum': true,
+      },
+      {
+        'date': '25 Oct 2024',
+        'fund': 'SBI Small Cap',
+        'type': 'SIP',
+        'amount': '₹2,000',
+        'isLumpSum': false,
+      },
+      {
+        'date': '10 Oct 2024',
+        'fund': 'Kotak Bluechip',
+        'type': 'SIP',
+        'amount': '₹5,000',
+        'isLumpSum': false,
+      },
     ];
 
     return Container(
-      height: 440, // Fixed height taaki scrollbar properly visible ho aur design clean lage
+      height:
+          440, // Fixed height taaki scrollbar properly visible ho aur design clean lage
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -803,7 +864,11 @@ class DashboardWidget extends StatelessWidget {
             children: [
               const Text(
                 'Cash Flow',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0F172A),
+                ),
               ),
               Text(
                 'Latest 10 Transactions',
@@ -816,9 +881,45 @@ class DashboardWidget extends StatelessWidget {
           // Table Headers
           Row(
             children: [
-              Expanded(flex: 2, child: Text('DATE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey.shade400, letterSpacing: 0.5))),
-              Expanded(flex: 3, child: Text('FUND', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey.shade400, letterSpacing: 0.5))),
-              Expanded(flex: 2, child: Align(alignment: Alignment.centerRight, child: Text('AMOUNT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey.shade400, letterSpacing: 0.5)))),
+              Expanded(
+                flex: 2,
+                child: Text(
+                  'DATE',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey.shade400,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 3,
+                child: Text(
+                  'FUND',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey.shade400,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    'AMOUNT',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey.shade400,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
           const Divider(height: 24, thickness: 1),
@@ -826,13 +927,20 @@ class DashboardWidget extends StatelessWidget {
           // Scrollable List Area
           Expanded(
             child: Scrollbar(
-              thumbVisibility: true, // Always show scrollbar track like in the screenshot
+              thumbVisibility:
+                  true, // Always show scrollbar track like in the screenshot
               thickness: 6,
               radius: const Radius.circular(8),
               child: ListView.separated(
                 itemCount: transactions.length,
-                padding: const EdgeInsets.only(right: 12), // Scrollbar se gap ke liye
-                separatorBuilder: (context, index) => const Divider(height: 32, thickness: 0.5, color: Color(0xFFF1F5F9)),
+                padding: const EdgeInsets.only(
+                  right: 12,
+                ), // Scrollbar se gap ke liye
+                separatorBuilder: (context, index) => const Divider(
+                  height: 32,
+                  thickness: 0.5,
+                  color: Color(0xFFF1F5F9),
+                ),
                 itemBuilder: (context, index) {
                   final item = transactions[index];
                   return Row(
@@ -840,7 +948,14 @@ class DashboardWidget extends StatelessWidget {
                       // Date Column
                       Expanded(
                         flex: 2,
-                        child: Text(item['date'], style: TextStyle(fontSize: 14, color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
+                        child: Text(
+                          item['date'],
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
                       // Fund Column (Name + Type)
                       Expanded(
@@ -848,9 +963,23 @@ class DashboardWidget extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(item['fund'], style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
+                            Text(
+                              item['fund'],
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF1E293B),
+                              ),
+                            ),
                             const SizedBox(height: 4),
-                            Text(item['type'], style: TextStyle(fontSize: 12, color: Colors.grey.shade400, fontWeight: FontWeight.w500)),
+                            Text(
+                              item['type'],
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade400,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -864,7 +993,9 @@ class DashboardWidget extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: item['isLumpSum'] ? const Color(0xFF0284C7) : const Color(0xFF0F172A),
+                              color: item['isLumpSum']
+                                  ? const Color(0xFF0284C7)
+                                  : const Color(0xFF0F172A),
                             ),
                           ),
                         ),
@@ -917,25 +1048,19 @@ class _WebStatCardState extends State<_WebStatCard> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
 
-        transform: Matrix4.identity()
-          ..scale(isHovered ? 1.02 : 1.0),
+        transform: Matrix4.identity()..scale(isHovered ? 1.02 : 1.0),
 
         decoration: BoxDecoration(
-
           /// LIGHT PREMIUM BACKGROUND
           color: widget.color.withOpacity(0.04),
 
           borderRadius: BorderRadius.circular(20),
 
-          border: Border.all(
-            color: widget.color.withOpacity(0.08),
-          ),
+          border: Border.all(color: widget.color.withOpacity(0.08)),
 
           boxShadow: [
             BoxShadow(
-              color: widget.color.withOpacity(
-                isHovered ? 0.10 : 0.04,
-              ),
+              color: widget.color.withOpacity(isHovered ? 0.10 : 0.04),
               blurRadius: 18,
               offset: const Offset(0, 8),
             ),
@@ -944,7 +1069,6 @@ class _WebStatCardState extends State<_WebStatCard> {
 
         child: Stack(
           children: [
-
             /// WAVE BACKGROUND
             Positioned.fill(
               child: ClipRRect(
@@ -953,7 +1077,7 @@ class _WebStatCardState extends State<_WebStatCard> {
                 child: CustomPaint(
                   painter: _CardWavePainter(
                     color: widget.color,
-                    isProfit:  widget.isProfit
+                    isProfit: widget.isProfit,
                   ),
                 ),
               ),
@@ -967,24 +1091,17 @@ class _WebStatCardState extends State<_WebStatCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-
                   /// TOP ROW
                   Row(
-                    mainAxisAlignment:
-                    MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color:Ucolors.white,
+                          color: Ucolors.white,
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
-                          widget.icon,
-                          color: widget.color,
-                          size: 20,
-                        ),
+                        child: Icon(widget.icon, color: widget.color, size: 20),
                       ),
 
                       if (widget.trend != null)
@@ -1050,14 +1167,12 @@ class _WebStatCardState extends State<_WebStatCard> {
     );
   }
 }
+
 class _CardWavePainter extends CustomPainter {
   final Color color;
   final bool isProfit;
 
-  _CardWavePainter({
-    required this.color,
-    this.isProfit = true,
-  });
+  _CardWavePainter({required this.color, this.isProfit = true});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -1066,10 +1181,7 @@ class _CardWavePainter extends CustomPainter {
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [
-          color.withOpacity(0.15),
-          color.withOpacity(0.03),
-        ],
+        colors: [color.withOpacity(0.15), color.withOpacity(0.03)],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
     // Main wave path
@@ -1078,21 +1190,29 @@ class _CardWavePainter extends CustomPainter {
 
     if (isProfit) {
       wavePath.quadraticBezierTo(
-        size.width * 0.25, size.height * 0.7,
-        size.width * 0.5, size.height * 0.6,
+        size.width * 0.25,
+        size.height * 0.7,
+        size.width * 0.5,
+        size.height * 0.6,
       );
       wavePath.quadraticBezierTo(
-        size.width * 0.75, size.height * 0.5,
-        size.width, size.height * 0.4,
+        size.width * 0.75,
+        size.height * 0.5,
+        size.width,
+        size.height * 0.4,
       );
     } else {
       wavePath.quadraticBezierTo(
-        size.width * 0.25, size.height * 0.9,
-        size.width * 0.5, size.height * 0.95,
+        size.width * 0.25,
+        size.height * 0.9,
+        size.width * 0.5,
+        size.height * 0.95,
       );
       wavePath.quadraticBezierTo(
-        size.width * 0.75, size.height,
-        size.width, size.height * 0.9,
+        size.width * 0.75,
+        size.height,
+        size.width,
+        size.height * 0.9,
       );
     }
 
@@ -1103,17 +1223,20 @@ class _CardWavePainter extends CustomPainter {
     canvas.drawPath(wavePath, gradientPaint);
 
     // Optional highlight wave for depth
-    final highlightPaint = Paint()
-      ..color = color.withOpacity(0.08);
+    final highlightPaint = Paint()..color = color.withOpacity(0.08);
     final highlightPath = Path();
     highlightPath.moveTo(0, size.height * 0.9);
     highlightPath.quadraticBezierTo(
-      size.width * 0.3, size.height * 0.8,
-      size.width * 0.6, size.height * 0.7,
+      size.width * 0.3,
+      size.height * 0.8,
+      size.width * 0.6,
+      size.height * 0.7,
     );
     highlightPath.quadraticBezierTo(
-      size.width * 0.9, size.height * 0.6,
-      size.width, size.height * 0.5,
+      size.width * 0.9,
+      size.height * 0.6,
+      size.width,
+      size.height * 0.5,
     );
     highlightPath.lineTo(size.width, size.height);
     highlightPath.close();
@@ -1126,10 +1249,6 @@ class _CardWavePainter extends CustomPainter {
     return oldDelegate.color != color || oldDelegate.isProfit != isProfit;
   }
 }
-
-
-
-
 
 class _WebActionButton extends StatelessWidget {
   final String label;
@@ -1356,7 +1475,7 @@ class _MobileDashboardLayout extends StatelessWidget {
                         Text(
                           'Current Value',
                           style: Theme.of(context).textTheme.titleMedium!
-                              .copyWith(color: Ucolors.skyblue,fontSize: 15,),
+                              .copyWith(color: Ucolors.skyblue, fontSize: 15),
                         ),
                         const SizedBox(height: 6),
                         Row(
@@ -1738,6 +1857,24 @@ class PortfolioCard extends StatelessWidget {
                             case PortfolioMenuAction.cancel:
                               break;
                             case PortfolioMenuAction.redemption:
+                              Get.to(
+                                () => RedeemPage(),
+                                arguments: RedeemArgs(
+                                  schemeCode: '012',
+                                  schemeName:
+                                      'Nippon India Large Cap Fund- Growth Plan- Growth Option',
+                                  folioNumber: '28975246',
+                                  folioType: 'Individual',
+                                  totalUnits: 0.049,
+                                  totalValue: 104304,
+                                  lockedUnits: 0.0,
+                                  lockedValue: 0,
+                                  freeUnits: 0.049,
+                                  freeValue: 104304,
+                                  investedAmt: 78500,
+                                ),
+                              );
+
                               break;
                           }
                         },
@@ -1866,9 +2003,10 @@ class SummaryItem extends StatelessWidget {
         Text(
           title,
           //  style: const TextStyle(color: Colors.white70)
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium!.copyWith(color: Ucolors.skyblue,fontSize: 14,),
+          style: Theme.of(context).textTheme.titleMedium!.copyWith(
+            color: Ucolors.skyblue,
+            fontSize: 14,
+          ),
         ),
         const SizedBox(height: 2),
         Text(

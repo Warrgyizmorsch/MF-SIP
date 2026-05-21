@@ -169,7 +169,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       builder: (context, child) {
         return GetMaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: Utheme.lightTheme,
+          // theme: Utheme.lightTheme,
           initialBinding: UBinding(),
           getPages: AppPages.pages(),
           initialRoute: AppRoutes.splash,

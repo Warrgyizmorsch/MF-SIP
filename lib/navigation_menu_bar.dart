@@ -1450,7 +1450,6 @@
 // }
 
 import 'dart:async';
-import 'dart:developer';
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -1462,7 +1461,6 @@ import 'package:my_sip/common/widget/images/image_select.dart';
 import 'package:my_sip/common/widget/webview/webview.dart';
 import 'package:my_sip/config/routes/app_pages.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
-import 'package:my_sip/core/utils/helper/device_helper.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
@@ -1470,7 +1468,6 @@ import 'package:my_sip/features/explore/presentation/controller/fundhouse_contro
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
 import 'package:my_sip/features/explore/presentation/widget/webfilterpage.dart';
-import 'package:my_sip/features/goal/presentation/pages/coming_soon.dart';
 import 'package:my_sip/features/goal/presentation/pages/goal.dart';
 import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/kyc/data/datasource/kyc_remote_data_source.dart';
@@ -1553,10 +1550,6 @@ class NavigationBarController extends GetxController {
         _camsPollingTimer?.cancel();
 
         await SessionManager.instance.handleKycApproved();
-
-        // 1. Update Device Storage
-        // await SessionManager.instance.setKycPending(false);
-        // await SessionManager.instance.setKycVerified(true);
 
         // 2. Update UI instantly!
         if (Get.isRegistered<PersonalisationController>()) {
@@ -2138,10 +2131,7 @@ class WebFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        vertical: 4,
-        horizontal: 20,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 20),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Ucolors.light,
@@ -2219,7 +2209,7 @@ class GlobalTopHeader extends StatelessWidget {
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Container(
-      height: Get.height*0.09,
+      height: Get.height * 0.09,
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(

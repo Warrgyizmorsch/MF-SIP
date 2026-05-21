@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:image_picker/image_picker.dart';
+import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
@@ -28,6 +29,49 @@ class PersonalisationController extends GetxController {
 
   PersonalisationUseCases get useCases => _useCases;
 
+  @override
+  void onInit() {
+    super.onInit();
+    panController.addListener(_onPanTextChanged);
+    loadRiskQuestions();
+    _checkPanEditPermission();
+    fetchBanks();
+    fetchUserDetails();
+    bankIfscController.addListener(() {
+      final text = bankIfscController.text;
+      if (text.length == 11) {
+        _fetchBankDetailsFromIFSC(text);
+      } else {
+        resolvedBranch.value = '';
+      }
+    });
+
+    bankNameController.addListener(() {
+      if (bankNameController.text.isNotEmpty) {
+        if (bankIfscController.text.isNotEmpty &&
+            bankNameController.text != autoFetchedBank.value) {
+          bankIfscController.clear();
+          resolvedBranch.value = '';
+          autoFetchedBank.value = '';
+
+          Future.delayed(const Duration(milliseconds: 600), () {
+            Get.closeAllSnackbars();
+
+            ULoaders.warning(
+              title: "Bank Changed",
+              message:
+                  "Please enter the IFSC code for your newly selected bank.",
+            );
+          });
+        } else {
+          print(
+            "❌ Conditions not met. Either IFSC is empty, or the bank names match.",
+          );
+        }
+      }
+    });
+  }
+
   final panKeyboardType = TextInputType.text.obs;
   final FocusNode panFocusNode = FocusNode();
   final personalDetailsFormKey = GlobalKey<FormState>();
@@ -42,6 +86,9 @@ class PersonalisationController extends GetxController {
   final riskResult = Rxn<RiskResultModel>();
   final applock = false.obs;
   final canEditPan = false.obs;
+  // 1. ADD THESE TWO LINES AT THE TOP OF THE CONTROLLER
+  bool _isRegisteringCan = false;
+  bool _hasAttemptedCanReg = false;
 
   // --- Onboarding Status Flags ---
   final isKycPending = false.obs;
@@ -281,7 +328,7 @@ class PersonalisationController extends GetxController {
             log('Has Nominee: ${hasNominee.value}');
             log('Has Risk Profile: ${hasRiskProfile.value}');
 
-            _checkAndTriggerCanRegistration();
+            checkAndTriggerCanRegistration();
             final mfuController = Get.find<MfuController>();
             mfuController.resumePollingIfNeeded();
           } else {
@@ -301,11 +348,53 @@ class PersonalisationController extends GetxController {
   }
 
   // ------------ Can Check and Create -------------  //
-  void _checkAndTriggerCanRegistration() {
-    // ✅ CAN already exists on server → skip forever
+  // void _checkAndTriggerCanRegistration() {
+  //   // ✅ CAN already exists on server → skip forever
+  //   final existingCan = session.getUserData?.canNumber ?? '';
+  //   if (existingCan.isNotEmpty) {
+  //     log("[CAN] Already exists ($existingCan) — skipping registration");
+  //     return;
+  //   }
+
+  //   final kycDone = isKycVerified.value;
+  //   final bankDone = hasBank.value;
+  //   final personalDetailsDone = hasPersonalDetails.value;
+
+  //   log(
+  //     "[CAN] Check → KYC: $kycDone | Bank: $bankDone | PersonalDetails: $personalDetailsDone",
+  //   );
+
+  //   if (kycDone && bankDone && personalDetailsDone) {
+  //     log("[CAN] ✅ All conditions met — triggering CAN registration");
+  //     _triggerCanRegistration();
+  //   } else {
+  //     final missing = [
+  //       if (!kycDone) 'KYC',
+  //       if (!bankDone) 'Bank',
+  //       if (!personalDetailsDone) 'Personal Details',
+  //     ].join(', ');
+  //     log("[CAN] ⏳ Skipped — missing: $missing");
+  //   }
+  // }
+  void checkAndTriggerCanRegistration({bool isManualTrigger = false}) {
+    // 2. ADD THIS GUARD CHECK AT THE TOP OF THE FUNCTION
+    // if (_isRegisteringCan || _hasAttemptedCanReg) {
+    //   return;
+    // }
+    if (_isRegisteringCan) {
+      log("[CAN] Already registering, please wait...");
+      return;
+    }
+    if (!isManualTrigger && _hasAttemptedCanReg) {
+      return;
+    }
+
     final existingCan = session.getUserData?.canNumber ?? '';
-    if (existingCan.isNotEmpty) {
-      log("[CAN] Already exists ($existingCan) — skipping registration");
+    final exitstingCan1 = userData.value?.canNumber ?? '';
+    if (existingCan.isNotEmpty || exitstingCan1.isNotEmpty) {
+      log(
+        "[CAN] Already exists ($existingCan --- $exitstingCan1) — skipping registration",
+      );
       return;
     }
 
@@ -321,6 +410,12 @@ class PersonalisationController extends GetxController {
       log("[CAN] ✅ All conditions met — triggering CAN registration");
       _triggerCanRegistration();
     } else {
+      if (isManualTrigger) {
+        CustomSnackbar.warning(
+          title: 'Action Required',
+          message: 'Please complete KYC, Bank, and Personal Details first.',
+        );
+      }
       final missing = [
         if (!kycDone) 'KYC',
         if (!bankDone) 'Bank',
@@ -330,33 +425,89 @@ class PersonalisationController extends GetxController {
     }
   }
 
+  // Future<void> _triggerCanRegistration() async {
+  //   try {
+  //     final mfuController = Get.find<MfuController>();
+  //     await mfuController.canRegister(reqEvent: "CR");
+
+  //     if (mfuController.errorMessage.value.isEmpty) {
+  //       // ✅ Refresh session so canNumber is populated from server
+  //       // await session.refreshUserData();
+  //       final canNumber = mfuController.mfuCanResponse.value?.can ?? '';
+  //       if (canNumber.isNotEmpty) {
+  //         final currentUser = session.getUserData;
+  //         if (currentUser != null) {
+  //           await session.updateUserData(
+  //             currentUser.copyWith(canNumber: canNumber),
+  //           );
+  //         }
+  //       }
+
+  //       log("[CAN] ✅ Registered — CAN: $canNumber");
+
+  //       await fetchUserDetails();
+  //       Get.find<MfuController>().resumePollingIfNeeded();
+  //     } else {
+  //       log("[CAN] ❌ Failed: ${mfuController.errorMessage.value}");
+  //     }
+  //   } catch (e) {
+  //     log("[CAN] ❌ Exception: $e");
+  //   }
+  // }
   Future<void> _triggerCanRegistration() async {
+    // 3. LOCK THE GUARDS
+    _isRegisteringCan = true;
+    _hasAttemptedCanReg = true;
+
     try {
       final mfuController = Get.find<MfuController>();
       await mfuController.canRegister(reqEvent: "CR");
 
-      if (mfuController.errorMessage.value.isEmpty) {
-        // ✅ Refresh session so canNumber is populated from server
-        // await session.refreshUserData();
-        final canNumber = mfuController.mfuCanResponse.value?.can ?? '';
-        if (canNumber.isNotEmpty) {
-          final currentUser = session.getUserData;
-          if (currentUser != null) {
-            await session.updateUserData(
-              currentUser.copyWith(canNumber: canNumber),
-            );
-          }
+      final canResponse = mfuController.mfuCanResponse.value;
+      final canNumber = canResponse?.can ?? '';
+
+      // 4. CHECK IF CAN NUMBER ACTUALLY CAME BACK
+      if (canNumber.isNotEmpty) {
+        final currentUser = session.getUserData;
+        if (currentUser != null) {
+          await session.updateUserData(
+            currentUser.copyWith(canNumber: canNumber),
+          );
         }
 
         log("[CAN] ✅ Registered — CAN: $canNumber");
 
         await fetchUserDetails();
-        Get.find<MfuController>().resumePollingIfNeeded();
+        mfuController.resumePollingIfNeeded();
       } else {
-        log("[CAN] ❌ Failed: ${mfuController.errorMessage.value}");
+        // 5. EXTRACT THE INNER MFU ERROR (e.g., "First Nominee ID is Invalid")
+        final mfuErrorMsg =
+            canResponse?.canRegistrationResponse?.respHeader?.errorMsg;
+        String actualError = mfuErrorMsg != null && mfuErrorMsg.isNotEmpty
+            ? mfuErrorMsg
+            : mfuController.errorMessage.value;
+
+        actualError = actualError
+            .replaceAll('canRegister Failed with Exception:', '')
+            .replaceAll('Fetch Error:', '')
+            .replaceAll('Exception:', '')
+            .trim(); //
+
+        log("[CAN] ❌ Failed to generate CAN: $actualError");
+
+        // 6. SHOW THE ERROR TO THE USER
+        if (actualError.isNotEmpty) {
+          CustomSnackbar.warning(
+            title: 'Registration Issue',
+            message: actualError,
+          );
+        }
       }
     } catch (e) {
       log("[CAN] ❌ Exception: $e");
+    } finally {
+      // 7. UNLOCK THE RUNNING GUARD
+      _isRegisteringCan = false;
     }
   }
 
@@ -710,62 +861,6 @@ class PersonalisationController extends GetxController {
   }
 
   double get remainingAllocation => 100.0 - currentTotalAllocation;
-
-  @override
-  void onInit() {
-    super.onInit();
-    panController.addListener(_onPanTextChanged);
-    loadRiskQuestions();
-    _checkPanEditPermission();
-    fetchBanks();
-    fetchUserDetails();
-    bankIfscController.addListener(() {
-      final text = bankIfscController.text;
-      if (text.length == 11) {
-        _fetchBankDetailsFromIFSC(text);
-      } else {
-        resolvedBranch.value = '';
-      }
-    });
-    // bankNameController.addListener(() {
-    //   if (bankNameController.text.isNotEmpty &&
-    //       bankNameController.text != autoFetchedBank.value) {
-
-    //     bankIfscController.clear();
-    //     resolvedBranch.value = '';
-    //     autoFetchedBank.value = '';
-
-    //     ULoaders.warning(
-    //       title: "Bank Changed",
-    //       message: "Please enter the IFSC code for your newly selected bank.",
-    //     );
-    //   }
-    // });
-    bankNameController.addListener(() {
-      if (bankNameController.text.isNotEmpty) {
-        if (bankIfscController.text.isNotEmpty &&
-            bankNameController.text != autoFetchedBank.value) {
-          bankIfscController.clear();
-          resolvedBranch.value = '';
-          autoFetchedBank.value = '';
-
-          Future.delayed(const Duration(milliseconds: 600), () {
-            Get.closeAllSnackbars();
-
-            ULoaders.warning(
-              title: "Bank Changed",
-              message:
-                  "Please enter the IFSC code for your newly selected bank.",
-            );
-          });
-        } else {
-          print(
-            "❌ Conditions not met. Either IFSC is empty, or the bank names match.",
-          );
-        }
-      }
-    });
-  }
 
   void _onPanTextChanged() {
     final text = panController.text;
