@@ -20,7 +20,7 @@ class GoalSipController extends GetxController {
   final RxList<MasterGoalEntity> masterGoals = <MasterGoalEntity>[].obs;
   final RxString masterGoalError = ''.obs;
   final RxInt selectedGoalIndex = (-1).obs;
-
+  final GlobalKey goalDetailsKey = GlobalKey();
   @override
   void onInit() {
     super.onInit();
@@ -46,11 +46,22 @@ class GoalSipController extends GetxController {
   final invested = 0.obs;
   final futureValue = 0.obs;
   final totalReturn = 0.obs;
-
+  RxInt goalId = 0.obs;
   final isGoalSaved = false.obs;
 
   final selectedGoalType = 'custom'.obs;
-
+  final goalError = RxString('');
+  void setGoalName(String value) {
+    if (value.trim().isEmpty) {
+      goalError.value = "Goal title is required";
+    } else {
+      goalError.value = "";
+    }
+    update(); // for GetBuilder
+  }
+  bool get isFormValid =>
+      goalError.value.isEmpty &&
+          goalNameTextEditingController.text.isNotEmpty;
   final Map<String, Map<String, dynamic>> goalConfig = {
     // ✅ Added 'db_id' to each category (Check with your backend team for the exact IDs!)
     'car': {
@@ -170,26 +181,57 @@ class GoalSipController extends GetxController {
     setRate(rate);
   }
   Future<bool> getMasterGoals() async {
+
     isMasterGoalLoading.value = true;
+    update();
 
     try {
-      final result = await goalUseCases.getMasterGoalsUseCase.call();
+
+      final result =
+      await goalUseCases.getMasterGoalsUseCase.call();
 
       return result.fold(
+
             (success) {
-              masterGoals.assignAll(success.data?.data ?? []);
+
+          masterGoals.assignAll(
+            success.data?.data ?? [],
+          );
+
+          isMasterGoalLoading.value = false;
+
+          update();
+
           return true;
         },
+
             (error) {
-          Get.snackbar("Error", error.message);
+
+          isMasterGoalLoading.value = false;
+
+          update();
+
+          Get.snackbar(
+            "Error",
+            error.message,
+          );
+
           return false;
         },
       );
+
     } catch (e) {
-      Get.snackbar("Error", e.toString());
-      return false;
-    } finally {
+
       isMasterGoalLoading.value = false;
+
+      update();
+
+      Get.snackbar(
+        "Error",
+        e.toString(),
+      );
+
+      return false;
     }
   }
   Future<bool> getAllGoals() async {
@@ -215,6 +257,10 @@ class GoalSipController extends GetxController {
   }
 
   Future<void> saveGoalToDb() async {
+    setGoalName(goalNameTextEditingController.text);
+    if (!isFormValid) {
+      return;
+    }
     if (goalNameTextEditingController.text.isEmpty) {
       // Get.snackbar("Error", "Please enter a goal name");
       // showCustomToast(
@@ -246,17 +292,18 @@ class GoalSipController extends GetxController {
       "invested_amount": invested.value,
       "status": "active",
       "goal_name": goalNameTextEditingController.text,
-      "goal_id": correctDbId,
+      "goal_id": goalId.value.toString(),
     };
 
     final result = await goalUseCases.saveGoalUseCase.call(requestData);
     return result.fold(
-      (success) {
+      (success) async {
         // Get.snackbar("Success", success.data ?? '');
         Get.snackbar("Success", 'Goal saved successfully,');
 
         isGoalSaved.value = true;
         savedDatabaseId.value = int.tryParse(success.data?.toString() ?? '0');
+       await getAllGoals();
 
         print('goal id save ${success.data}');
       },

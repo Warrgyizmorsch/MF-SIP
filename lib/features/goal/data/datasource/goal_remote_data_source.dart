@@ -168,7 +168,7 @@ class GoalRemoteDataSource {
       if (result['status'] == true) {
 
         final data = MasterGoalsResponse.fromJson(result);
-
+        createLog("[Goal Remote Data Source] Goal Master Parsed Data: $data");
         return Left(Result.success(data));
 
       } else {

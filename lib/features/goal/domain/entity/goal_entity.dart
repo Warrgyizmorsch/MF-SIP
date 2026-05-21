@@ -59,6 +59,7 @@ class GoalTypeEntity extends Equatable {
   final int id;
   final String typeName; // API key: goal_type
   final String goalIcon;
+  final String logo;
   final String goalDescription;
   final double targetAmount;
   final double monthlyInvestment;
@@ -77,13 +78,13 @@ class GoalTypeEntity extends Equatable {
     required this.expectedReturnRate,
     required this.goalTenure,
     required this.investedAmount,
-    required this.status,
+    required this.status, required this.logo,
   });
 
   @override
   List<Object?> get props => [
     id, typeName, goalIcon, goalDescription, targetAmount, monthlyInvestment,
-    expectedReturnRate, goalTenure, investedAmount, status
+    expectedReturnRate, goalTenure, investedAmount, status,logo
   ];
 }
 
@@ -203,6 +204,7 @@ extension GoalTypeMapper on GoalTypeModel {
       id: id ?? 0,
       typeName: goalType ?? '',
       goalIcon: goalIcon ?? '',
+      logo: logo ?? '',
       goalDescription: goalDescription ?? '',
       targetAmount: targetAmount ?? 0.0,
       monthlyInvestment: monthlyInvestment ?? 0.0,

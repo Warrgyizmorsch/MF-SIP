@@ -79,6 +79,8 @@ class GoalTypeModel {
   final int? id;
   final String? goalType;
   final String? goalIcon;
+  final String? logo;
+
   final String? goalDescription;
   final double? targetAmount;
   final double? monthlyInvestment;
@@ -91,6 +93,7 @@ class GoalTypeModel {
     this.id,
     this.goalType,
     this.goalIcon,
+    this.logo,
     this.goalDescription,
     this.targetAmount,
     this.monthlyInvestment,
@@ -104,6 +107,7 @@ class GoalTypeModel {
     return GoalTypeModel(
       id: json.parse<int>('id'),
       goalType: json.parse<String>('goal_type'),
+      logo: json.parse<String>('logo'),
       goalIcon: json.parse<String>('goal_icon'),
       goalDescription: json.parse<String>('goal_description'),
       targetAmount: json.parse<double>('target_amount'),
