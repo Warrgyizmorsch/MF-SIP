@@ -264,7 +264,7 @@ class CircularUploadIndicator extends StatelessWidget {
                       animation: true,
                       circularStrokeCap: CircularStrokeCap.round,
                       backgroundColor: Colors.transparent,
-                      progressColor:Ucolors.darkBlue,
+                      progressColor:Ucolors.blue,
                       center: Container(
                         width: circleSize * 0.9,
                         height: circleSize * 0.9,
@@ -304,8 +304,8 @@ class CircularUploadIndicator extends StatelessWidget {
                                       1.0
                                     ],
                                     colors: [
-                                      Ucolors.darkBlue,
-                                      Ucolors.darkBlue,
+                                      Ucolors.blue,
+                                      Ucolors.blue,
                                       Colors.transparent,
                                       Colors.transparent,
                                     ],
