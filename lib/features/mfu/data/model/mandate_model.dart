@@ -10,8 +10,8 @@ class MfuMandateCreateModel {
   final String? status;
   final String? approveLink;
   final String? deepLink;
-  // final MfuMandatePlainBodyModel? plainBody;
-  // final MfuMandateResponseModel? response;
+  final MfuMandatePlainBodyModel? plainBody;
+  final MfuMandateResponseModel? response;
 
   MfuMandateCreateModel({
     this.success,
@@ -21,29 +21,29 @@ class MfuMandateCreateModel {
     this.status,
     this.approveLink,
     this.deepLink,
-    // this.plainBody,
-    // this.response,
+    this.plainBody,
+    this.response,
   });
 
   factory MfuMandateCreateModel.fromJson(Map<String, dynamic> json) {
     return MfuMandateCreateModel(
-      success: json.parse<bool>('success'),
+      success: json.parse<bool>('status'),
       message: json.parse<String>('message'),
       mandateId: json.parse<int>('mandate_id'),
       mandateType: json.parse<String>('mandate_type'),
       status: json.parse<String>('status'),
       approveLink: json.parse<String>('approve_link'),
       deepLink: json.parse<String>('deep_link'),
-      // plainBody: json['plain_body'] != null
-      //     ? MfuMandatePlainBodyModel.fromJson(
-      //         json['plain_body'] as Map<String, dynamic>,
-      //       )
-      //     : null,
-      // response: json['response'] != null
-      //     ? MfuMandateResponseModel.fromJson(
-      //         json['response'] as Map<String, dynamic>,
-      //       )
-      //     : null,
+      plainBody: json['plain_body'] != null
+          ? MfuMandatePlainBodyModel.fromJson(
+              json['plain_body'] as Map<String, dynamic>,
+            )
+          : null,
+      response: json['response'] != null
+          ? MfuMandateResponseModel.fromJson(
+              json['response'] as Map<String, dynamic>,
+            )
+          : null,
     );
   }
 }

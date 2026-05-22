@@ -249,7 +249,9 @@ class MfuController extends GetxController {
       await result.fold(
         (success) async {
           mandateCreateResponse.value = success.data;
-          final approveLink = success.data?.approveLink;
+          final approveLink = success.data?.response?.approveLink;
+
+          log(approveLink.toString());
 
           // Navigator.of(Get.overlayContext!).pop();
           CustomLoadingDialog.hide();

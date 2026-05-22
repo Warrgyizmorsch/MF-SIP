@@ -110,11 +110,12 @@ class MfuRemoteDataSource {
     try {
       // final body = {"uid": uid, "mandate_type": mandateType};
       final Map<String, dynamic> body = {
-        "uid": uid,
+        // "uid": uid,
+        "uid": 9105,
         "mandate_type": mandateType,
       };
       if (mandateType.toLowerCase() == 'upi' && upi != null && upi.isNotEmpty) {
-        body["upi_id"] = upi;
+        body["vpaId"] = upi;
       }
 
       createLog("[MfuRemoteDataSource] createMandate Request: $body");

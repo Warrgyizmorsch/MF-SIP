@@ -766,7 +766,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                                   onPressed: () {
                                     log('e-mandate ');
                                     Get.find<MfuController>().createMandate(
-                                      mandateType: 'enach',
+                                      mandateType: 'upi',
                                     );
                                   },
                                   child: const Center(

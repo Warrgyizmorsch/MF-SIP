@@ -11,8 +11,8 @@ class MfuMandateCreateEntity extends Equatable {
   final String? status;
   final String? approveLink;
   final String? deepLink;
-  // final MfuMandatePlainBodyEntity? plainBody;
-  // final MfuMandateResponseEntity? response;
+  final MfuMandatePlainBodyEntity? plainBody;
+  final MfuMandateResponseEntity? response;
 
   const MfuMandateCreateEntity({
     required this.success,
@@ -23,8 +23,8 @@ class MfuMandateCreateEntity extends Equatable {
     this.approveLink,
     this.deepLink,
   
-    // this.plainBody,
-    // this.response,
+    this.plainBody,
+    this.response,
   });
 
   // bool get isSuccess => response?.isSuccess ?? false;
@@ -34,7 +34,7 @@ class MfuMandateCreateEntity extends Equatable {
   @override
   List<Object?> get props => [
         success, message, mandateId, mandateType, 
-        // plainBody, response,
+        plainBody, response,
       ];
 }
 
@@ -112,8 +112,8 @@ extension MfuMandateCreateMapper on MfuMandateCreateModel {
       status: status ?? '',
       approveLink: approveLink ?? "",
       deepLink: deepLink ?? '',
-      // plainBody: plainBody?.toEntity(),
-      // response: response?.toEntity(),
+      plainBody: plainBody?.toEntity(),
+      response: response?.toEntity(),
     );
   }
 }

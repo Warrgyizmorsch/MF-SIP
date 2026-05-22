@@ -19,7 +19,6 @@ class _T {
   static const success = Color(0xFF059669);
   static const danger = Color(0xFFDC2626);
   static const dangerBg = Color(0xFFFEF2F2);
-  static const black = Color(0xFF111827); // proceed button
   static const activeRowBg = Color(0xFFEFF6FF); // selected radio row bg
 }
 

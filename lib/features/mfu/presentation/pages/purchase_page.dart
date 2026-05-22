@@ -2018,7 +2018,8 @@ class _InvTypeSelector extends StatelessWidget {
                 curve: Curves.easeOutCubic,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  gradient: active ? Ucolors.gradientBlue : null,
+                  // gradient: active ? Ucolors.icicibankGradient : null,
+                  color: active ? Ucolors.primary : null,
                   borderRadius: BorderRadius.circular(13),
                   boxShadow: active
                       ? [
@@ -2135,22 +2136,22 @@ class _AmountCardState extends State<_AmountCard> {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
       decoration: BoxDecoration(
-        // gradient: Ucolors.modernFintechGradient,
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF1E40AF), Color(0xFF2563EB), Color(0xFF0EA5E9)],
-          stops: [0.0, 0.55, 1.0],
-        ),
-
+        gradient: Ucolors.backgroundGradient,
+        // color: Colors.grey,
+        // gradient: const LinearGradient(
+        //   begin: Alignment.topLeft,
+        //   end: Alignment.bottomRight,
+        //   colors: [Color(0xFF1E40AF), Color(0xFF2563EB), Color(0xFF0EA5E9)],
+        //   stops: [0.0, 0.55, 1.0],
+        // ),
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: _C.primary.withOpacity(0.35),
-            blurRadius: 28,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: _C.primary.withOpacity(0.35),
+        //     blurRadius: 28,
+        //     offset: const Offset(0, 10),
+        //   ),
+        // ],
       ),
       child: Stack(
         children: [

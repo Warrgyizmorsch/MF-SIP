@@ -18,7 +18,7 @@ class MfuMandateStatusModel {
 
   factory MfuMandateStatusModel.fromJson(Map<String, dynamic> json) {
     return MfuMandateStatusModel(
-      success: json.parse<bool>('success'),
+      success: json.parse<bool>('status'),
       message: json.parse<String>('message'),
       mandateId: json.parse<int>('mandate_id'),
       mandateType: json.parse<String>('mandate_type'),
