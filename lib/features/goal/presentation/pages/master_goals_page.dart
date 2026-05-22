@@ -41,20 +41,20 @@ class MasterGoalsPage extends GetView<GoalSipController> {
         await controller.getMasterGoals();
         final args = Get.arguments ?? {};
         final String initialType = args['goalType'] ?? 'custom';
-        final bool isEdit =args['isEdit']??false;
+        controller.isEdit.value =args['isEdit']??false;
         final int goalId =args['goalId']??0;
         final UserGoalEntity? goal =args['goal'];
-        debugPrint("isEdit:$isEdit, goal id:$goalId, UserGoal:$goal");
+        debugPrint("isEdit:${ controller.isEdit.value}, goal id:$goalId, UserGoal:$goal");
         WidgetsBinding.instance.addPostFrameCallback((_) {
           /// reset only when create new goal
-          if (!isEdit) {
+          if (! controller.isEdit.value) {
             controller.resetStateForNewGoal();
           }
 
           controller.updateGoalType(initialType);
 
           /// edit data set
-          if (isEdit && goal != null) {
+          if ( controller.isEdit.value && goal != null) {
             controller.loadGoalForEdit(goal);
           }
         });
@@ -116,33 +116,124 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
 
                   const Gap(4),
                   Obx(() {
-                    if (!controller.isGoalSaved.value) {
+
+                    /// ==============================
+                    /// BUTTON ENABLE LOGIC
+                    /// ==============================
+
+                    final bool isEdit =
+                        controller.isEdit.value;
+
+                    final bool hasChanges =
+                        controller.hasChanges.value;
+
+                    /// ==============================
+                    /// HIDE BUTTON IN EDIT MODE
+                    /// UNTIL USER CHANGES SOMETHING
+                    /// ==============================
+
+                    if (isEdit && !hasChanges) {
+
+                      return Column(
+                        children: [
+
+                          const ProjectionGraph(),
+
+                          const Gap(9),
+
+                          USectionHeading(
+                            key: popularFundsKey,
+                            title: 'Popular Funds',
+                            showActionButton: true,
+
+                            onPressed: () {
+
+                              log('goal create');
+
+                              _showExploreMoreBottomSheet(
+                                context,
+                              );
+                            },
+                          ),
+
+                          PopularFund(),
+
+                          const Gap(10),
+                        ],
+                      );
+                    }
+
+                    /// ==============================
+                    /// SHOW SAVE / UPDATE BUTTON
+                    /// ==============================
+
+                    if (!controller.isGoalSaved.value || isEdit) {
+
                       return Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 10,
                           vertical: 10,
                         ),
+
                         child: UElevatedBUtton(
+
                           onPressed: () async {
-                            await controller.saveGoalToDb();
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              if (popularFundsKey.currentContext != null) {
-                                Scrollable.ensureVisible(
-                                  popularFundsKey.currentContext!,
-                                  duration: const Duration(milliseconds: 800),
-                                  curve: Curves.easeInOutCubic,
-                                  alignment: 0.1,
-                                );
-                              }
-                            });
-                            await Get.find<MutualFundController>().fetchData();
+
+                            /// ==============================
+                            /// EDIT MODE
+                            /// ==============================
+
+                            if (isEdit) {
+
+                              // await controller.updateGoal();
+
+                            } else {
+
+                              /// ==============================
+                              /// CREATE MODE
+                              /// ==============================
+
+                              await controller.saveGoalToDb();
+
+                              WidgetsBinding.instance
+                                  .addPostFrameCallback((_) {
+
+                                if (popularFundsKey
+                                    .currentContext !=
+                                    null) {
+
+                                  Scrollable.ensureVisible(
+                                    popularFundsKey
+                                        .currentContext!,
+                                    duration:
+                                    const Duration(
+                                      milliseconds: 800,
+                                    ),
+                                    curve:
+                                    Curves.easeInOutCubic,
+                                    alignment: 0.1,
+                                  );
+                                }
+                              });
+
+                              await Get.find<
+                                  MutualFundController>()
+                                  .fetchData();
+                            }
                           },
+
                           child: Center(
                             child: Text(
-                              "Save Goal",
-                              style: AppTextStyles.bodyMedium(
+
+                              isEdit
+                                  ? "Update Goal"
+                                  : "Save Goal",
+
+                              style:
+                              AppTextStyles.bodyMedium(
                                 color: Colors.white,
                               ),
+
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -150,24 +241,38 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                       );
                     }
 
+                    /// ==============================
+                    /// AFTER SAVE UI
+                    /// ==============================
+
                     return Column(
                       children: [
+
                         const ProjectionGraph(),
+
                         const Gap(9),
+
                         USectionHeading(
                           key: popularFundsKey,
                           title: 'Popular Funds',
                           showActionButton: true,
+
                           onPressed: () {
+
                             log('goal create');
-                            _showExploreMoreBottomSheet(context);
+
+                            _showExploreMoreBottomSheet(
+                              context,
+                            );
                           },
                         ),
+
                         PopularFund(),
+
                         const Gap(10),
                       ],
                     );
-                  }),
+                  })
                 ],
               ),
             ),
@@ -1005,10 +1110,11 @@ class SIPSectionGoal extends GetView<GoalSipController> {
           const Gap(20),
 
           Obx(
-            () => Wrap(
+                () => Wrap(
               spacing: 10,
               runSpacing: 10,
               children: [
+
                 SizedBox(
                   width: Get.width * .40 - 12,
                   child: _ValueCard(
@@ -1016,6 +1122,34 @@ class SIPSectionGoal extends GetView<GoalSipController> {
                     value: controller.monthlySip.value.toDouble(),
                   ),
                 ),
+
+                /// SHOW ONLY IN EDIT MODE
+                if (controller.hasChanges.value&& controller.isEdit.value)
+
+                  SizedBox(
+                    width: Get.width * .40 - 12,
+                    child: _ValueCard(
+                      title: 'Existing SIP',
+                      value: controller
+                          .existingSipAmount
+                          .value
+                          .toDouble(),
+                    ),
+                  ),
+
+                /// SHOW ONLY IN EDIT MODE
+                if (controller.hasChanges.value&& controller.isEdit.value)
+
+                  SizedBox(
+                    width: Get.width * .40 - 12,
+                    child: _ValueCard(
+                      title: 'Additional SIP',
+                      value: controller
+                          .additionalSipAmount
+                          .value
+                          .toDouble(),
+                    ),
+                  ),
 
                 SizedBox(
                   width: Get.width * .40 - 12,
@@ -1465,6 +1599,13 @@ class GoalsGridScreen extends GetView<GoalSipController> {
               );
             },
           ),
+          floatingActionButton:  controller.isEdit.value? FloatingActionButton(
+            onPressed: () {
+              Get.to(() => GoalDetailsScreen());
+            },
+            backgroundColor: Ucolors.primary,
+            child: const Icon(Icons.check, color: Colors.white),
+          ):null,
         );
       },
     );
