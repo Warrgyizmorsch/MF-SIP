@@ -79,6 +79,7 @@ class MutualFundController extends GetxController {
       /// ---------------------------------  ///
       _resetAndFetch(); // Start over from Page 1
     });
+    update();
   }
 
   void applyFilters(Map<String, dynamic> newFilters) {

@@ -147,9 +147,9 @@ class GoaldetailsPage extends GetView<GoalSipController> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomBarButton(
+      bottomNavigationBar: BottomBarButtonGoalDetails(
         firstButtonP: () {},
-        firstButton: 'Remove Funds',
+        firstButton: 'Add To Cart',
         secondButton: 'Add Funds',
         secondButtonP: () {
           // _showExploreMoreBottomSheet(context);
@@ -1053,6 +1053,66 @@ class ValueTitleGoal extends StatelessWidget {
             textAlign: TextAlign.center,
             title,
             style: UTextStyles.small.copyWith(color: Ucolors.darkgrey),
+          ),
+        ],
+      ),
+    );
+  }
+}
+class BottomBarButtonGoalDetails extends StatelessWidget {
+  const BottomBarButtonGoalDetails({
+    super.key,
+    required this.firstButton,
+    required this.secondButton,
+    this.firstButtonP,
+    this.secondButtonP,
+    this.isLoading = false, // <--- Add this
+  });
+
+  final String firstButton;
+  final String secondButton;
+  final VoidCallback? firstButtonP;
+  final VoidCallback? secondButtonP;
+  final bool isLoading; // <--- Add this
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewPadding.bottom;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+      child: Row(
+        children: [
+          Expanded(
+            child: UElevatedBUtton(
+              onPressed: isLoading ? null : firstButtonP, // Disable if loading
+              // height: 52,
+              // outlined: true,
+              child: Center(
+                child: Text(firstButton, style:  UTextStyles.buttonText),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: UElevatedBUtton(
+              onPressed: isLoading ? null : secondButtonP, // Disable if loading
+              // height: 52,
+              child: isLoading
+                  ? const SizedBox(
+                height: 10,
+                width: 10,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                ),
+              )
+                  : Center(
+                child: Text(secondButton, style: UTextStyles.buttonText),
+              ),
+            ),
           ),
         ],
       ),

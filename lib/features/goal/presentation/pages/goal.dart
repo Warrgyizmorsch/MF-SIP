@@ -68,7 +68,7 @@ class GoalScreen extends GetView<GoalSipController> {
                 ),
                 const SizedBox(height: 25),
                 UElevatedBUtton(
-                  onPressed: () => Get.toNamed(AppRoutes.ihavegoal),
+                  onPressed: () => Get.toNamed(AppRoutes.masterGoalsPage),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
