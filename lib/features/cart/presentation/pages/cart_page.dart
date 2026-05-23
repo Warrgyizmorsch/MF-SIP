@@ -45,176 +45,194 @@ class CartPage extends GetView<CartController> {
         args['monthlyAmount'].toString(),
       );
     }
+    if (args != null && args['isFromGoal'] == true) {
+      controller.isFromGoal.value = true;
+    }
+    debugPrint("Cart Page Arguments: $args, Monthly Amount: ${controller.monthlyAmount.value}");
 
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
-    return Scaffold(
-      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
-      appBar: isDesktop ? null : const CustomAppBarNormal(title: 'Cart'),
-
-      persistentFooterDecoration: isDesktop ? null : const BoxDecoration(),
-      persistentFooterButtons: isDesktop
-          ? null
-          : [const TermAndPolicy(term: 'By Proceeding I accept the ')],
-      bottomNavigationBar: isDesktop
-          ? null
-          : SafeArea(
-              top: false,
-              child: Obx(() {
-                return CartBottomBar(
-                  isValid: controller.isCartValid1,
-                  amount: controller.totalAmount.toString(),
-                  ontap: _handlePurchase,
-                );
-              }),
-            ),
-
-      body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        behavior: HitTestBehavior.translucent,
-        child: Obx(() {
-          final items = controller.displayedItems;
-
-          if (controller.isLoading.value && items.isEmpty) {
-            return Center(child: CircularProgressIndicator());
+    return GetBuilder<CartController>(
+        initState: (_) {
+          if(controller.isFromGoal.value) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Get.find<CartController>().distributeMonthlyAmount();
+            });
           }
+        },
+        builder: (controller) {
+        return Scaffold(
+          backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
+          appBar: isDesktop ? null : const CustomAppBarNormal(title: 'Cart'),
 
-          // --- EMPTY STATE ---
-          if (items.isEmpty) {
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Center(
-                    child: controller.filterGoalId.value != null
-                        ? const Text("No funds for this goal")
-                        : const AnimatedEmptyState(
-                            title: "Your Cart is Empty",
-                            message:
-                                "Looks like you haven't added any funds yet. Go explore!",
-                            icon: Icons.shopping_cart_outlined,
-                          ),
-                  ),
+          persistentFooterDecoration: isDesktop ? null : const BoxDecoration(),
+          persistentFooterButtons: isDesktop
+              ? null
+              : [const TermAndPolicy(term: 'By Proceeding I accept the ')],
+          bottomNavigationBar: isDesktop
+              ? null
+              : SafeArea(
+                  top: false,
+                  child: Obx(() {
+                    return CartBottomBar(
+                      isValid: controller.isCartValid1,
+                      amount: controller.totalAmount.toString(),
+                      ontap: _handlePurchase,
+                    );
+                  }),
+                ),
 
-                  InkWell(
-                    onTap: () {
-                      Get.toNamed(AppRoutes.explorePage);
-                    },
-                    borderRadius: BorderRadius.circular(8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Explore more funds',
-                          style: AppTextStyles.bodyMediumBold().copyWith(
-                            color: Ucolors.primary,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        const Icon(
-                          Icons.arrow_forward_rounded,
-                          size: 18,
-                          color: Ucolors.primary,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 60),
-                  _buildRecentlyViewed(),
-                ],
-              ),
-            );
-          }
+          body: GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            behavior: HitTestBehavior.translucent,
+            child: Obx(() {
+              final items = controller.displayedItems;
 
-          // --- DESKTOP / WEB LAYOUT ---
-          if (isDesktop) {
-            return Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: 1100,
-                ), // Max width for clean look
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 24,
-                    horizontal: 16,
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              if (controller.isLoading.value && items.isEmpty) {
+                return Center(child: CircularProgressIndicator());
+              }
+
+              // --- EMPTY STATE ---
+              if (items.isEmpty) {
+                return SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Expanded(
-                        flex: 6,
-                        child: ListView.builder(
-                          itemCount: items.length,
-                          itemBuilder: (context, index) {
-                            return CartItemCard(
-                              index: index,
-                              itemEntity: items[index],
-                            );
-                          },
+
+                      Center(
+                        child: controller.filterGoalId.value != null
+                            ? const Text("No funds for this goal")
+                            : const AnimatedEmptyState(
+                                title: "Your Cart is Empty",
+                                message:
+                                    "Looks like you haven't added any funds yet. Go explore!",
+                                icon: Icons.shopping_cart_outlined,
+                              ),
+                      ),
+
+                      InkWell(
+                        onTap: () {
+                          Get.toNamed(AppRoutes.explorePage);
+                        },
+                        borderRadius: BorderRadius.circular(8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Explore more funds',
+                              style: AppTextStyles.bodyMediumBold().copyWith(
+                                color: Ucolors.primary,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            const Icon(
+                              Icons.arrow_forward_rounded,
+                              size: 18,
+                              color: Ucolors.primary,
+                            ),
+                          ],
                         ),
                       ),
-                      const Gap(24),
-                      // 40% Right Side: Order Summary Card
-                      Expanded(flex: 4, child: _buildWebOrderSummary()),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }
-          // --- MOBILE LAYOUT ---
-          return CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              // 1. Your Cart Items (Scrolls normally)
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    return CartItemCard(index: index, itemEntity: items[index]);
-                  }, childCount: items.length),
-                ),
-              ),
-
-              if (items.length <= 2)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 60),
                       _buildRecentlyViewed(),
                     ],
                   ),
-                ),
-            ],
-          );
+                );
+              }
 
-          // --- MOBILE LAYOUT ---
-          // return SingleChildScrollView(
-          //   child: Column(
-          //     children: [
-          //       ListView.builder(
-          //         physics: const NeverScrollableScrollPhysics(), // 🚀 3. ADD THIS
-          //         shrinkWrap: true,
-          //         padding: const EdgeInsets.symmetric(vertical: 8),
-          //         itemCount: items.length,
-          //         itemBuilder: (context, index) {
-          //           return CartItemCard(index: index, itemEntity: items[index]);
-          //         },
-          //       ),
-          //       // if (items.length <= 2) _buildRecentlyViewed(),
-          //       if (items.length <= 2) ...[
-          //         // const SizedBox(height: 32),
-          //         _buildRecentlyViewed(),
-          //         // const SizedBox(height: 12),
-          //       ],
-          //     ],
-          //   ),
-          // );
-        }),
-      ),
+              // --- DESKTOP / WEB LAYOUT ---
+              if (isDesktop) {
+                return Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: 1100,
+                    ), // Max width for clean look
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 24,
+                        horizontal: 16,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 6,
+                            child: ListView.builder(
+                              itemCount: items.length,
+                              itemBuilder: (context, index) {
+                                return CartItemCard(
+                                  index: index,
+                                  itemEntity: items[index],
+                                );
+                              },
+                            ),
+                          ),
+                          const Gap(24),
+                          // 40% Right Side: Order Summary Card
+                          Expanded(flex: 4, child: _buildWebOrderSummary()),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }
+              // --- MOBILE LAYOUT ---
+              return CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  // 1. Your Cart Items (Scrolls normally)
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        return CartItemCard(index: index, itemEntity: items[index]);
+                      }, childCount: items.length),
+                    ),
+                  ),
+
+                  if (items.length <= 2)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          const SizedBox(height: 20),
+                          DistributionRemainderCard(),
+                          const SizedBox(height: 20),
+                          _buildRecentlyViewed(),
+                        ],
+                      ),
+                    ),
+                ],
+              );
+
+              // --- MOBILE LAYOUT ---
+              // return SingleChildScrollView(
+              //   child: Column(
+              //     children: [
+              //       ListView.builder(
+              //         physics: const NeverScrollableScrollPhysics(), // 🚀 3. ADD THIS
+              //         shrinkWrap: true,
+              //         padding: const EdgeInsets.symmetric(vertical: 8),
+              //         itemCount: items.length,
+              //         itemBuilder: (context, index) {
+              //           return CartItemCard(index: index, itemEntity: items[index]);
+              //         },
+              //       ),
+              //       // if (items.length <= 2) _buildRecentlyViewed(),
+              //       if (items.length <= 2) ...[
+              //         // const SizedBox(height: 32),
+              //         _buildRecentlyViewed(),
+              //         // const SizedBox(height: 12),
+              //       ],
+              //     ],
+              //   ),
+              // );
+            }),
+          ),
+        );
+      }
     );
   }
 
@@ -2456,5 +2474,98 @@ class InputBox extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+class DistributionRemainderCard extends StatelessWidget {
+  const DistributionRemainderCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = Get.find<CartController>();
+
+    return Obx(() {
+      final int remainder = controller.distributionRemainder.value;
+
+      // Remainder 0 hai toh hide karo
+      if (remainder == 0) return const SizedBox.shrink();
+
+      final bool isExtra = remainder < 0;  // assigned > total
+      final bool isSaved = remainder > 0;  // assigned < total
+
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isExtra
+              ? const Color(0xFFFFF3F3)   // extra laga → red tint
+              : const Color(0xFFF0FFF4),  // bacha → green tint
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isExtra
+                ? Colors.red.shade200
+                : Colors.green.shade200,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isExtra
+                    ? Colors.red.shade50
+                    : Colors.green.shade50,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                isExtra
+                    ? Icons.arrow_upward_rounded
+                    : Icons.savings_outlined,
+                color: isExtra ? Colors.red : Colors.green,
+                size: 18,
+              ),
+            ),
+
+            const SizedBox(width: 12),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isSaved ? 'Unallocated Amount' : 'Amount Exceeded',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: isExtra
+                          ? Colors.red.shade700
+                          : Colors.green.shade700,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    isSaved
+                        ? '₹${remainder.abs()} distribute nahi hua (100 ke multiple rounding ke wajah se)'
+                        : 'Funds ki min SIP se ₹${remainder.abs()} zyada lag raha hai',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Text(
+              '${isSaved ? '+' : '-'}₹${remainder.abs()}',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: isExtra ? Colors.red : Colors.green,
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 }

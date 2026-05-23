@@ -21,10 +21,112 @@ class CartController extends GetxController {
   var selectedSipDay = 1.obs; // Default to the 1st of the month
   var stepUpFrequency = '6'.obs; // Default to 6 months
   var stepUpAmount = 0.0.obs;
+  final distributionRemainder = 0.obs;
+  final isFromGoal = false.obs;
   Rx<FundDetailEntity?> fundDetail = Rx<FundDetailEntity?>(null);
   var goalId = RxnInt(); // Nullable reactive int
 
   var investmentAmount = 0.0.obs;
+
+
+  void distributeMonthlyAmount() {
+    final items = displayedItems;
+    final int total = monthlyAmount.value;
+
+    if (items.isEmpty || total <= 0) return;
+
+    final int count = items.length;
+    final int rawPerFund = (total / count).floor();
+
+    // 100 ke multiple mein floor
+    final int perFund = (rawPerFund ~/ 100) * 100;
+
+    int totalAssigned = 0;
+
+    for (final item in items) {
+      final int minAmount = _getMinAmount(item);
+
+      int finalAmount = perFund;
+
+      // Case 2: perFund < minSip → min se set karo
+      if (perFund < minAmount) {
+        finalAmount = minAmount;
+      }
+
+      // 100 ke multiple ensure karo
+      finalAmount = (finalAmount ~/ 100) * 100;
+      if (finalAmount < minAmount) {
+        // ceiling to next 100
+        finalAmount = ((minAmount + 99) ~/ 100) * 100;
+      }
+
+      totalAssigned += finalAmount;
+
+      updateCartItem(
+        itemId: item.id!,
+        amount: finalAmount,
+      );
+    }
+
+    // Remainder: positive = bacha, negative = exceeded
+    distributionRemainder.value = total - totalAssigned;
+  }
+
+  void distributeAfterFixing({
+    required int fixedItemId,
+    required int fixedAmount,
+  }) {
+    final items = displayedItems
+        .where((i) => i.id != fixedItemId)
+        .toList();
+
+    final int remaining = monthlyAmount.value - fixedAmount;
+
+    if (items.isEmpty || remaining <= 0) {
+      distributionRemainder.value = remaining;
+      return;
+    }
+
+    final int count = items.length;
+    final int rawPerFund = (remaining / count).floor();
+    final int perFund = (rawPerFund ~/ 100) * 100;
+
+    int totalAssigned = fixedAmount;
+
+    for (final item in items) {
+      final int minAmount = _getMinAmount(item);
+      int finalAmount = perFund;
+
+      if (perFund < minAmount) {
+        finalAmount = ((minAmount + 99) ~/ 100) * 100;
+      }
+
+      totalAssigned += finalAmount;
+
+      updateCartItem(
+        itemId: item.id!,
+        amount: finalAmount,
+      );
+    }
+
+    distributionRemainder.value = monthlyAmount.value - totalAssigned;
+  }
+
+  int _getMinAmount(CartItemEntity item) {
+    final type = item.transType?.toLowerCase() ?? 'sip';
+    if (type == 'lumpsum') {
+      return double.tryParse(item.minLumpsum ?? '0')?.toInt() ?? 0;
+    }
+    return double.tryParse(item.minSipAmount ?? '0')?.toInt() ?? 0;
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    if(isFromGoal.value==true) {
+      distributeMonthlyAmount();
+    }
+  }
   setInvestmentDetails({
     required String code,
     required String name,

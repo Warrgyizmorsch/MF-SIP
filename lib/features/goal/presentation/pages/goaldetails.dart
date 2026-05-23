@@ -32,6 +32,7 @@ class GoaldetailsPage extends GetView<GoalSipController> {
     final String emoji = args['emoji'] ?? '🎯';
     final double target = args['target'] ?? 0.0;
     final double invested = args['invested'] ?? 0.0;
+    final String logo = args['logo'] ??"";
 
     final String title = goal?.goalName ?? 'Goal Details';
     final int currentGoalId = goal?.id ?? 0;
@@ -132,6 +133,7 @@ class GoaldetailsPage extends GetView<GoalSipController> {
                       target: target,
                       invested: invested,
                       emoji: emoji,
+                      logo: logo,
                     ),
                     SingleChildScrollView(
                       child: Column(
@@ -725,12 +727,14 @@ class GoalDetailSection extends StatelessWidget {
   final double target;
   final double invested;
   final String emoji;
+  final String logo;
   const GoalDetailSection({
     super.key,
     required this.goal,
     required this.target,
     required this.invested,
     required this.emoji,
+    required this.logo,
   });
 
   String _fmt(double amount) {
@@ -756,9 +760,15 @@ class GoalDetailSection extends StatelessWidget {
           CircularGoalIndicatorDetails(
             percentage: true, // Uses the large layout
             goalName: goal?.goalName ?? '',
+            goalType: goal?.goalType?.typeName ?? '',
             targetAmount: target,
             investedAmount: invested,
             emoji: emoji,
+            imageUrl: logo != null && logo.isNotEmpty
+                ? (logo.startsWith('http')
+                ? logo
+                : "${Appurl.baseUrl}/$logo")
+                : "",
             // If they uploaded a cover image, pass the URL here!
             // imageUrl: goal?.goalCover != null && goal!.goalCover.isNotEmpty
             //     ? "${Appurl.baseUrl}${goal!.goalCover}"

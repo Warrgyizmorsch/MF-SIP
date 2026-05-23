@@ -12,6 +12,8 @@ import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
 import 'package:my_sip/features/goal/domain/usecases/goal_use_cases.dart';
 import 'package:my_sip/services/session_manager.dart';
 
+import '../../../explore/domain/entities/mutual_fund_list_entity.dart';
+import '../../../explore/presentation/controller/mutual_fund_controller.dart';
 import '../../domain/entity/goal_master_entity.dart';
 
 class GoalSipController extends GetxController {
@@ -58,7 +60,7 @@ class GoalSipController extends GetxController {
   final targetAmount = 0.0.obs;
   final years = 1.0.obs;
   final annualRate = 12.0.obs;
-
+   RxList<MutualFundListEntity> fundList= <MutualFundListEntity>[].obs;
   // Outputs (WHOLE NUMBERS like website)
   final monthlySip = 0.obs;
   final invested = 0.obs;
@@ -447,10 +449,11 @@ class GoalSipController extends GetxController {
       (success) async {
         // Get.snackbar("Success", success.data ?? '');
         Get.snackbar("Success", 'Goal saved successfully,');
-
+        await fetchCount();
+        await getAllGoals();
         isGoalSaved.value = true;
         savedDatabaseId.value = int.tryParse(success.data?.toString() ?? '0');
-       await getAllGoals();
+
 
         print('goal id save ${success.data}');
       },
@@ -730,6 +733,48 @@ class GoalSipController extends GetxController {
 
       selectedPopularFund.add(name);
     }
+  }
+  Color getGoalColor(String goalType) {
+    switch (goalType.toLowerCase()) {
+
+      case 'car':
+        return Colors.blue.shade300;
+
+      case 'house':
+        return Colors.orange.shade300;
+
+      case 'education':
+        return Colors.green.shade300;
+
+      case 'marriage':
+        return Colors.pink.shade300;
+
+      case 'retirement':
+        return Colors.deepPurple.shade300;
+
+      case 'vacation':
+        return Colors.teal.shade300;
+
+      case 'other':
+        return Colors.indigo.shade300;
+
+      default:
+        return Colors.grey;
+    }
+  }
+  Future<void> fetchCount() async {
+    Map<String, dynamic> params = {
+      "return_max":annualRate.value,
+      "sort_order":"",
+    };
+    Get.find<MutualFundController>().applyFilters(
+      params,);
+    final result = await Get.find<MutualFundController>().fetchData(
+
+    );
+    // fundList.assignAll(result);
+    print("Fund Result:");
+
   }
 
   bool isSelectedFund(String fundName) {
