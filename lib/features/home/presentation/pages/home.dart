@@ -1960,6 +1960,8 @@ class _MobileLayout extends StatelessWidget {
                   Color iconColor = Colors.black;
                   Color titleColor = Ucolors.dark;
                   Color subTextColor = Colors.grey;
+
+                  
                   IconData leftIcon = Icons.person;
                   Widget? customLeftIcon;
                   IconData rightIcon = Icons.arrow_forward_ios;

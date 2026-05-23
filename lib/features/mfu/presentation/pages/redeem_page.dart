@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:my_sip/common/widget/animated/custom_footer.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/common/widget/text_form/text_field_component.dart';
@@ -105,14 +106,14 @@ class _RedeemPageState extends State<RedeemPage> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor: _T.bg,
+        // backgroundColor: _T.bg,
         appBar: CustomAppBarNormal(title: 'Redeem'),
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           child: Stack(
             children: [
               SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 110),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -123,6 +124,9 @@ class _RedeemPageState extends State<RedeemPage> {
                     _buildBankCard(),
                     const SizedBox(height: 12),
                     _buildNoticeCard(),
+
+                    const SizedBox(height: 12),
+                    CustomFooter(),
                   ],
                 ),
               ),
@@ -680,7 +684,7 @@ class _RedeemPageState extends State<RedeemPage> {
     final bottomPad = MediaQuery.of(context).padding.bottom;
     return Container(
       padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + bottomPad),
-      color: _T.bg,
+      // color: _T.bg,
       child: Obx(() {
         final loading = _mfu.isSubmittingTxn.value;
         return GestureDetector(

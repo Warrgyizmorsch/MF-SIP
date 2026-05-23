@@ -8,6 +8,8 @@ import 'package:my_sip/features/mfu/data/model/can_register_model.dart';
 import 'package:my_sip/features/mfu/data/model/can_status_model.dart';
 import 'package:my_sip/features/mfu/data/model/emandate_status.dart';
 import 'package:my_sip/features/mfu/data/model/mandate_model.dart';
+import 'package:my_sip/features/mfu/data/model/mandate_status_req.dart';
+import 'package:my_sip/features/mfu/data/model/mfu_mandate_create_req.dart';
 import 'package:my_sip/features/mfu/data/model/normal_txn_model.dart';
 import 'package:my_sip/features/mfu/data/model/normal_txn_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/systematic_txn_model.dart';
@@ -102,22 +104,54 @@ class MfuRemoteDataSource {
     }
   }
 
-  Future<Either<Result<MfuMandateCreateModel>, ApiError>> createMandate({
-    required int uid,
-    required String mandateType,
-    String? upi,
-  }) async {
-    try {
-      // final body = {"uid": uid, "mandate_type": mandateType};
-      final Map<String, dynamic> body = {
-        // "uid": uid,
-        "uid": 9105,
-        "mandate_type": mandateType,
-      };
-      if (mandateType.toLowerCase() == 'upi' && upi != null && upi.isNotEmpty) {
-        body["vpaId"] = upi;
-      }
+  // Future<Either<Result<MfuMandateCreateModel>, ApiError>> createMandate({
+  //   required int uid,
+  //   required String mandateType,
+  //   String? upi,
+  // }) async {
+  //   try {
+  //     // final body = {"uid": uid, "mandate_type": mandateType};
+  //     final Map<String, dynamic> body = {
+  //       // "uid": uid,
+  //       "uid": 9105,
+  //       "mandate_type": mandateType,
+  //     };
+  //     if (mandateType.toLowerCase() == 'upi' && upi != null && upi.isNotEmpty) {
+  //       body["vpaId"] = upi;
+  //     }
 
+  //     createLog("[MfuRemoteDataSource] createMandate Request: $body");
+
+  //     final resp = await _apiService.postApi(
+  //       "${Appurl.baseUrl}/api/v1/mfu/mandate/create",
+  //       data: body,
+  //     );
+
+  //     createLog("[MfuRemoteDataSource] createMandate Response: $resp");
+
+  //     if (resp != null) {
+  //       final result = MfuMandateCreateModel.fromJson(resp);
+  //       if (result.success == true) {
+  //         return Left(Result.success(result));
+  //       } else {
+  //         return Right(
+  //           ApiError(message: result.message ?? 'Mandate Create Failed'),
+  //         );
+  //       }
+  //     } else {
+  //       return Right(
+  //         ApiError(message: 'createMandate: Invalid response structure'),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     return Right(ApiError(message: 'createMandate Exception: $e'));
+  //   }
+  // }
+  Future<Either<Result<MfuMandateCreateModel>, ApiError>> createMandate(
+    MfuMandateCreateRequest request,
+  ) async {
+    try {
+      final body = request.toJson();
       createLog("[MfuRemoteDataSource] createMandate Request: $body");
 
       final resp = await _apiService.postApi(
@@ -129,7 +163,7 @@ class MfuRemoteDataSource {
 
       if (resp != null) {
         final result = MfuMandateCreateModel.fromJson(resp);
-        if (result.success == true) {
+        if (result.status == true) {
           return Left(Result.success(result));
         } else {
           return Right(
@@ -146,13 +180,11 @@ class MfuRemoteDataSource {
     }
   }
 
-  Future<Either<Result<MfuMandateStatusModel>, ApiError>> getMandateStatus({
-    required int uid,
-    required String mandateType,
-  }) async {
+  Future<Either<Result<MfuMandateStatusModel>, ApiError>> getMandateStatus(
+    MfuMandateStatusRequest request,
+  ) async {
     try {
-      final body = {"uid": uid, "mandate_type": mandateType};
-
+      final body = request.toJson();
       createLog("[MfuRemoteDataSource] getMandateStatus Request: $body");
 
       final resp = await _apiService.postApi(
@@ -164,7 +196,7 @@ class MfuRemoteDataSource {
 
       if (resp != null) {
         final result = MfuMandateStatusModel.fromJson(resp);
-        if (result.success == true) {
+        if (result.status == true) {
           return Left(Result.success(result));
         } else {
           return Right(
@@ -180,6 +212,41 @@ class MfuRemoteDataSource {
       return Right(ApiError(message: 'getMandateStatus Exception: $e'));
     }
   }
+
+  // Future<Either<Result<MfuMandateStatusModel>, ApiError>> getMandateStatus({
+  //   required int uid,
+  //   required String mandateType,
+  // }) async {
+  //   try {
+  //     final body = {"uid": uid, "mandate_type": mandateType};
+
+  //     createLog("[MfuRemoteDataSource] getMandateStatus Request: $body");
+
+  //     final resp = await _apiService.postApi(
+  //       "${Appurl.baseUrl}/api/v1/mfu/mandate/status",
+  //       data: body,
+  //     );
+
+  //     createLog("[MfuRemoteDataSource] getMandateStatus Response: $resp");
+
+  //     if (resp != null) {
+  //       final result = MfuMandateStatusModel.fromJson(resp);
+  //       if (result.success == true) {
+  //         return Left(Result.success(result));
+  //       } else {
+  //         return Right(
+  //           ApiError(message: result.message ?? 'Mandate Status Failed'),
+  //         );
+  //       }
+  //     } else {
+  //       return Right(
+  //         ApiError(message: 'getMandateStatus: Invalid response structure'),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     return Right(ApiError(message: 'getMandateStatus Exception: $e'));
+  //   }
+  // }
 
   Future<Either<Result<MfuNormalTxnModel>, ApiError>> normalTransaction(
     MfuNormalTxnRequest request,

@@ -960,6 +960,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:my_sip/common/widget/animated/custom_footer.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 
@@ -1509,7 +1510,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
   Widget _buildBody() {
     final user = personalisationController.userData.value;
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 90),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1651,6 +1652,8 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
           // ── Info banner ────────────────────────────────────────────────────
           const SizedBox(height: 24),
           _InfoBanner(invType: _invType),
+          const SizedBox(height: 8),
+          CustomFooter(),
         ],
       ),
     );
@@ -3325,7 +3328,7 @@ class _InfoBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
       decoration: BoxDecoration(
         color: _C.pLight,
         borderRadius: BorderRadius.circular(16),

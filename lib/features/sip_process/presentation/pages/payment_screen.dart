@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gap/gap.dart';
+import 'package:my_sip/common/widget/animated/custom_footer.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/mfu/data/model/mfu_mandate_create_req.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
+import 'package:my_sip/services/session_manager.dart';
 
 class PaymentScreen extends StatelessWidget {
   PaymentScreen({super.key});
@@ -25,8 +28,9 @@ class PaymentScreen extends StatelessWidget {
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: const Color(0xFFF6F7FB),
+      // backgroundColor: const Color(0xFFF6F7FB),
       appBar: _buildAppBar(context),
+
       body: SingleChildScrollView(
         // padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         padding: EdgeInsets.only(
@@ -592,7 +596,7 @@ class _BottomBar extends StatelessWidget {
                 ),
               ],
             ),
-            const Gap(12),
+            const Gap(5),
 
             // Obx(
             //   () => Get.find<MfuController>().isCreatingMandate.value
@@ -636,7 +640,9 @@ class _BottomBar extends StatelessWidget {
                 ],
               ),
             ),
+
             // ),
+            CustomFooter(),
           ],
         ),
       ),
@@ -726,7 +732,8 @@ void _showMandateSheet(BuildContext context, String amount) {
             _mandateRow(
               Icons.currency_rupee_rounded,
               'Mandate Amount',
-              '₹$amount',
+              // '₹$amount',
+              '₹100,000.00',
               // valueColor: const Color(0xFF4F46E5),
               valueColor: Ucolors.darkBlue,
             ),
@@ -814,18 +821,47 @@ void _showMandateSheet(BuildContext context, String amount) {
                 Expanded(
                   flex: 2,
                   child: GestureDetector(
-                    onTap: () {
+                    onTap: () async {
                       Get.back();
                       final controller = Get.find<MfuController>();
                       final method = controller.selectedMethod.value;
+                      final uid =
+                          Get.find<SessionManager>().getUserData?.id ?? 0;
                       final String? enteredUpi = method == 'upi'
                           ? controller.upiId.value.trim()
                           : null;
 
-                      controller.createMandate(
-                        mandateType: method == 'upi' ? 'upi' : 'enach',
-                        upiId: enteredUpi,
-                      );
+                      if (method == 'upi') {
+                        final String upiId = controller.upiId.value.trim();
+
+                        await controller.createMandate(
+                          MfuMandateCreateRequest.upi(
+                            uid: 9105,
+                            amount: 100000, // Use the amount from PaymentScreen
+                            // vpaId: upiId,
+                            vpaId: 'MFUYES14157AZA01@yesbankltd',
+                            endDate:
+                                "2036-05-24", // Adjust as per your requirement
+                          ),
+                        );
+                      } else {
+                        // eNACH
+                        await controller.createMandate(
+                          MfuMandateCreateRequest.enach(
+                            uid: 9105,
+                            amount: 100000,
+                            startDate: DateTime.now().toString().split(
+                              ' ',
+                            )[0], // Dynamic Start Date
+                            endDate: "2036-05-24",
+                          ),
+                        );
+                      }
+
+                      // controller.createMandate(
+                      //   mandateType: method == 'upi' ? 'upi' : 'enach',
+                      //   upiId: enteredUpi,
+                      // );
 
                       // Get.find<MfuController>().createMandate(
                       //   mandateType: method == 'upi' ? 'upi' : 'enach',

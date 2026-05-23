@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:my_sip/common/widget/animated/custom_footer.dart';
 import 'package:my_sip/common/widget/animated/empty_filled.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
@@ -55,7 +56,11 @@ class CartPage extends GetView<CartController> {
       persistentFooterDecoration: isDesktop ? null : const BoxDecoration(),
       persistentFooterButtons: isDesktop
           ? null
-          : [const TermAndPolicy(term: 'By Proceeding I accept the ')],
+          : [
+              const
+              // TermAndPolicy(term: 'By Proceeding I accept the ')
+              CustomFooter(),
+            ],
       bottomNavigationBar: isDesktop
           ? null
           : SafeArea(

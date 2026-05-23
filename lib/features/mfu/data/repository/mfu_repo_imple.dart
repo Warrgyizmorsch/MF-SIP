@@ -2,6 +2,8 @@ import 'package:dartz/dartz.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/features/mfu/data/datasource/mfu_remote_data_source.dart';
+import 'package:my_sip/features/mfu/data/model/mandate_status_req.dart';
+import 'package:my_sip/features/mfu/data/model/mfu_mandate_create_req.dart';
 import 'package:my_sip/features/mfu/data/model/normal_txn_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/systematic_txn_req_model.dart';
 import 'package:my_sip/features/mfu/domain/entity/can_register_entity.dart';
@@ -53,17 +55,11 @@ class MfuRepositoryImpl extends MfuRepository {
   }
 
   @override
-  Future<Either<Result<MfuMandateCreateEntity>, ApiError>> createMandate({
-    required int uid,
-    required String mandateType,
-    String? upiId,
-  }) async {
+  Future<Either<Result<MfuMandateCreateEntity>, ApiError>> createMandate(
+    MfuMandateCreateRequest request,
+  ) async {
     try {
-      final response = await _remoteDataSource.createMandate(
-        uid: uid,
-        mandateType: mandateType,
-        upi: upiId,
-      );
+      final response = await _remoteDataSource.createMandate(request);
       return response.fold(
         (successResult) => Left(Result.success(successResult.data!.toEntity())),
         (error) => Right(error),
@@ -73,24 +69,59 @@ class MfuRepositoryImpl extends MfuRepository {
     }
   }
 
+  // @override
+  // Future<Either<Result<MfuMandateCreateEntity>, ApiError>> createMandate({
+  //   required int uid,
+  //   required String mandateType,
+  //   String? upiId,
+  // }) async {
+  //   try {
+  //     final response = await _remoteDataSource.createMandate(
+  //       uid: uid,
+  //       mandateType: mandateType,
+  //       upi: upiId,
+  //     );
+  //     return response.fold(
+  //       (successResult) => Left(Result.success(successResult.data!.toEntity())),
+  //       (error) => Right(error),
+  //     );
+  //   } catch (e) {
+  //     return Right(ApiError(message: e.toString()));
+  //   }
+  // }
+
+  // @override
+  // Future<Either<Result<MfuMandateStatusEntity>, ApiError>> getMandateStatus({
+  //   required int uid,
+  //   required String mandateType,
+  // }) async {
+  //   try {
+  //     final response = await _remoteDataSource.getMandateStatus(
+  //       uid: uid,
+  //       mandateType: mandateType,
+  //     );
+  //     return response.fold(
+  //       (successResult) => Left(Result.success(successResult.data!.toEntity())),
+  //       (error) => Right(error),
+  //     );
+  //   } catch (e) {
+  //     return Right(ApiError(message: e.toString()));
+  //   }
+  // }
   @override
-  Future<Either<Result<MfuMandateStatusEntity>, ApiError>> getMandateStatus({
-    required int uid,
-    required String mandateType,
-  }) async {
-    try {
-      final response = await _remoteDataSource.getMandateStatus(
-        uid: uid,
-        mandateType: mandateType,
-      );
-      return response.fold(
-        (successResult) => Left(Result.success(successResult.data!.toEntity())),
-        (error) => Right(error),
-      );
-    } catch (e) {
-      return Right(ApiError(message: e.toString()));
-    }
+Future<Either<Result<MfuMandateStatusEntity>, ApiError>> getMandateStatus(
+  MfuMandateStatusRequest request,
+) async {
+  try {
+    final response = await _remoteDataSource.getMandateStatus(request);
+    return response.fold(
+      (successResult) => Left(Result.success(successResult.data!.toEntity())),
+      (error) => Right(error),
+    );
+  } catch (e) {
+    return Right(ApiError(message: e.toString()));
   }
+}
 
   @override
   Future<Either<Result<MfuNormalTxnEntity>, ApiError>> normalTransaction(
@@ -107,21 +138,17 @@ class MfuRepositoryImpl extends MfuRepository {
     }
   }
 
-
   @override
-Future<Either<Result<MfuSystematicTxnEntity>, ApiError>> systematicTransaction(
-  MfuSystematicTxnRequest request,
-) async {
-  try {
-    final response = await _remoteDataSource.systematicTransaction(request);
-    return response.fold(
-      (successResult) => Left(Result.success(successResult.data!.toEntity())),
-      (error) => Right(error),
-    );
-  } catch (e) {
-    return Right(ApiError(message: e.toString()));
+  Future<Either<Result<MfuSystematicTxnEntity>, ApiError>>
+  systematicTransaction(MfuSystematicTxnRequest request) async {
+    try {
+      final response = await _remoteDataSource.systematicTransaction(request);
+      return response.fold(
+        (successResult) => Left(Result.success(successResult.data!.toEntity())),
+        (error) => Right(error),
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
   }
-}
-
-
 }

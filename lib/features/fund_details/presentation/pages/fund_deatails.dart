@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:my_sip/common/widget/animated/custom_footer.dart';
 import 'package:my_sip/common/widget/animated/empty_filled.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
@@ -59,7 +60,10 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
         }
 
         return isDesktop
-            ? _DesktopFundDetailsLayout(controller: controller, cartController:cartController)
+            ? _DesktopFundDetailsLayout(
+                controller: controller,
+                cartController: cartController,
+              )
             : _MobileFundDetailsLayout(controller: controller);
       }),
       bottomNavigationBar: isDesktop
@@ -71,20 +75,21 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    alignment: Alignment.center,
-                    color: Ucolors.light,
-                    child: Text(
-                      "ARN : 104807 || Kriti Hinger",
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.grey.shade700,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
+                  // Container(
+                  //   width: double.infinity,
+                  //   padding: const EdgeInsets.symmetric(vertical: 8),
+                  //   alignment: Alignment.center,
+                  //   color: Ucolors.light,
+                  //   child: Text(
+                  //     "ARN : 104807 || Kriti Hinger",
+                  //     style: TextStyle(
+                  //       fontSize: 11,
+                  //       color: Colors.grey.shade700,
+                  //       fontWeight: FontWeight.w500,
+                  //     ),
+                  //   ),
+                  // ),
+                  CustomFooter(),
                   SafeArea(
                     top: false,
                     child:
@@ -595,7 +600,10 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
 class _DesktopFundDetailsLayout extends StatelessWidget {
   final FundDetailsController controller;
   final CartController cartController;
-  const _DesktopFundDetailsLayout({required this.controller, required this.cartController});
+  const _DesktopFundDetailsLayout({
+    required this.controller,
+    required this.cartController,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -708,8 +716,7 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
         child: Obx(() {
           final fund = controller.fundDetail.value;
 
-          final bool isOpen =
-              fund?.schemeStatus == 'Open Ended Schemes';
+          final bool isOpen = fund?.schemeStatus == 'Open Ended Schemes';
 
           final width = MediaQuery.of(context).size.width;
 
@@ -719,7 +726,6 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-
                 /// ================= LEFT CARD =================
                 Expanded(
                   flex: 7,
@@ -727,18 +733,13 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(
-                        color: Colors.grey.shade200,
-                        width: 1,
-                      ),
+                      side: BorderSide(color: Colors.grey.shade200, width: 1),
                     ),
                     color: Ucolors.light,
                     child: Padding(
-                      padding:
-                      const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                       child: Row(
-                        crossAxisAlignment:
-                        CrossAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
                             padding: const EdgeInsets.all(2),
@@ -762,39 +763,31 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
 
                           Expanded(
                             child: Column(
-                              mainAxisAlignment:
-                              MainAxisAlignment.center,
-                              crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  fund?.schemeName ??
-                                      'Loading Fund Name...',
+                                  fund?.schemeName ?? 'Loading Fund Name...',
                                   maxLines: 2,
-                                  overflow:
-                                  TextOverflow.ellipsis,
+                                  overflow: TextOverflow.ellipsis,
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleMedium!
                                       .copyWith(
-                                    fontWeight:
-                                    FontWeight.w700,
-                                    height: 1.2,
-                                    color: Colors.black87,
-                                  ),
+                                        fontWeight: FontWeight.w700,
+                                        height: 1.2,
+                                        color: Colors.black87,
+                                      ),
                                 ),
 
                                 const SizedBox(height: 6),
 
                                 Text(
-                                  fund?.schemeCategory ??
-                                      'Mutual Fund',
+                                  fund?.schemeCategory ?? 'Mutual Fund',
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color:
-                                    Colors.grey.shade600,
-                                    fontWeight:
-                                    FontWeight.w500,
+                                    color: Colors.grey.shade600,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
 
@@ -806,20 +799,15 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                                   children: [
                                     _buildModernBadge(
                                       label:
-                                      fund?.riskometerValue ??
-                                          'High Risk',
+                                          fund?.riskometerValue ?? 'High Risk',
                                       color: _getRiskColor(
-                                        fund?.riskometerValue ??
-                                            '',
+                                        fund?.riskometerValue ?? '',
                                       ),
-                                      icon:
-                                      Icons.speed_rounded,
+                                      icon: Icons.speed_rounded,
                                     ),
 
                                     _buildModernBadge(
-                                      label: isOpen
-                                          ? 'OPEN'
-                                          : 'CLOSED',
+                                      label: isOpen ? 'OPEN' : 'CLOSED',
                                       color: isOpen
                                           ? Ucolors.success
                                           : Ucolors.red,
@@ -840,11 +828,7 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                 if (!isMobile) const SizedBox(width: 12),
 
                 /// ================= RIGHT CARD =================
-                if (controller
-                    .fundDetail
-                    .value!
-                    .riskStatisticsList
-                    .isNotEmpty)
+                if (controller.fundDetail.value!.riskStatisticsList.isNotEmpty)
                   Expanded(
                     flex: 3,
                     child: Card(
@@ -852,10 +836,7 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                       color: Ucolors.light,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
-                        side: BorderSide(
-                          color: Colors.grey.shade200,
-                          width: 1,
-                        ),
+                        side: BorderSide(color: Colors.grey.shade200, width: 1),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(12),
@@ -868,11 +849,8 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                               await cartController.addToCart(
                                 controller.schemeCode,
                                 controller.schemeName,
-                                controller
-                                    .fundDetail
-                                    .value
-                                    ?.minimumInvestment
-                                    .toInt() ??
+                                controller.fundDetail.value?.minimumInvestment
+                                        .toInt() ??
                                     5000,
                                 transType: 'lumpsum',
                                 null,
@@ -880,16 +858,14 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                             },
 
                             secondButtonP: () async {
-                              await cartController
-                                  .setInvestmentDetails(
+                              await cartController.setInvestmentDetails(
                                 code: controller.schemeCode,
                                 name: controller.schemeName,
                                 minAmount: controller
                                     .fundDetail
                                     .value!
                                     .sipMinimumAmount,
-                                fundDetailEntity:
-                                controller.fundDetail.value!,
+                                fundDetailEntity: controller.fundDetail.value!,
                                 amcLogo: controller.imgUrl,
                               );
 
@@ -1705,7 +1681,7 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
           _buildResponsiveLayout(
             context: context,
             leftChild: Padding(
-              padding: const EdgeInsets.only(top:8.0),
+              padding: const EdgeInsets.only(top: 8.0),
               child: CustomContainer(
                 topPadding: 20,
                 bottomPadding: 4,
@@ -1744,7 +1720,9 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                           children: [
                             if (entry.key > 0)
                               Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 2,
+                                ),
                                 child: DashedLine(
                                   color: Colors.grey.shade300,
                                   dashSpace: 4,
@@ -1887,7 +1865,6 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
           ),
 
           const Gap(8),
-
         ],
       );
     });
@@ -6921,16 +6898,14 @@ class DesktopSideTabs extends StatelessWidget {
     );
   }
 }
+
 class WebSliverPageTabs extends SliverPersistentHeaderDelegate {
   final int selectedIndex;
   final ValueChanged<int> onTap;
 
   static final ScrollController _scrollController = ScrollController();
 
-  WebSliverPageTabs({
-    required this.selectedIndex,
-    required this.onTap,
-  });
+  WebSliverPageTabs({required this.selectedIndex, required this.onTap});
 
   final tabs = const [
     'Overview',
@@ -6964,16 +6939,13 @@ class WebSliverPageTabs extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-      BuildContext context,
-      double shrinkOffset,
-      bool overlapsContent,
-      ) {
-    WidgetsBinding.instance.addPostFrameCallback(
-          (_) => _scrollToActiveTab(),
-    );
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToActiveTab());
 
-    final isDesktop =
-    ResponsiveBreakpoints.of(context).largerThan(TABLET);
+    final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     final width = MediaQuery.of(context).size.width;
 
@@ -6992,14 +6964,8 @@ class WebSliverPageTabs extends SliverPersistentHeaderDelegate {
       child: Container(
         height: 80,
         width: Get.width,
-        margin: EdgeInsets.symmetric(
-          horizontal: horizontalMargin,
-          vertical: 4,
-        ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 10,
-          vertical: 6,
-        ),
+        margin: EdgeInsets.symmetric(horizontal: horizontalMargin, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: Colors.grey[100],
           borderRadius: BorderRadius.circular(20),
@@ -7019,9 +6985,7 @@ class WebSliverPageTabs extends SliverPersistentHeaderDelegate {
                   margin: const EdgeInsets.symmetric(horizontal: 4),
 
                   decoration: BoxDecoration(
-                    color: isSelected
-                        ? Colors.white
-                        : Colors.transparent,
+                    color: isSelected ? Colors.white : Colors.transparent,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(

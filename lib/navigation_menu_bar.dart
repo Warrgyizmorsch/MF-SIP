@@ -1457,6 +1457,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:flutter/services.dart';
+import 'package:my_sip/common/widget/animated/custom_footer.dart';
 import 'package:my_sip/common/widget/images/image_select.dart';
 import 'package:my_sip/common/widget/webview/webview.dart';
 import 'package:my_sip/config/routes/app_pages.dart';
@@ -3031,20 +3032,34 @@ class _MobileBottomNavBar extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         /// Footer
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          alignment: Alignment.center,
-          color: Ucolors.light,
-          child: Text(
-            "ARN : 104807 || Kriti Hinger",
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.grey.shade700,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
+        CustomFooter(),
+
+        // Container(
+        //   width: double.infinity,
+        //   padding: const EdgeInsets.symmetric(vertical: 8),
+        //   alignment: Alignment.center,
+        //   color: Ucolors.light,
+        //   child: Column(
+        //     children: [
+        //       Text(
+        //         "AMFI registered mutual fund distributor",
+        //         style: TextStyle(
+        //           fontSize: 12,
+        //           color: Colors.grey.shade700,
+        //           fontWeight: FontWeight.w500,
+        //         ),
+        //       ),
+        //       Text(
+        //         "ARN : 104807 || Kriti Hinger",
+        //         style: TextStyle(
+        //           fontSize: 12,
+        //           color: Colors.grey.shade700,
+        //           fontWeight: FontWeight.w500,
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // ),
         SafeArea(
           top: false,
           bottom: true,

@@ -764,10 +764,11 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                               : UElevatedBUtton(
                                   outlined: true,
                                   onPressed: () {
-                                    log('e-mandate ');
-                                    Get.find<MfuController>().createMandate(
-                                      mandateType: 'upi',
-                                    );
+                                    // Get.find<MfuController>().createMandate(
+                                    //   mandateType: 'upi',
+
+                                    // );
+                                    Get.toNamed(AppRoutes.paymentScreen);
                                   },
                                   child: const Center(
                                     child: Text(

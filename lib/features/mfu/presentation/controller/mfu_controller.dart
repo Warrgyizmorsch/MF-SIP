@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/animated/custom_toast.dart';
+import 'package:my_sip/features/mfu/data/model/mandate_status_req.dart';
+import 'package:my_sip/features/mfu/data/model/mfu_mandate_create_req.dart';
 import 'package:my_sip/features/mfu/data/model/normal_txn_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/systematic_txn_req_model.dart';
 import 'package:my_sip/features/mfu/domain/entity/can_register_entity.dart';
@@ -228,75 +230,103 @@ class MfuController extends GetxController {
   }
 
   /// ------   Mandate ----   ///
-  Future<void> createMandate({
-    required String mandateType,
-    String? upiId,
-  }) async {
+  Future<void> createMandate(MfuMandateCreateRequest request) async {
     isCreatingMandate.value = true;
     errorMessage.value = '';
 
+    // 1. Show Loading Dialog
     CustomLoadingDialog.show(title: "Preparing secure gateway...");
 
-    final uid = session.getUserData?.id ?? 0;
-
     try {
-      final result = await mfuUseCases.mfuMandateCreateUseCase(
-        uid: uid,
-        mandateType: mandateType,
-        upiId: upiId,
-      );
+      final result = await mfuUseCases.mfuMandateCreateUseCase(request);
 
       await result.fold(
         (success) async {
           mandateCreateResponse.value = success.data;
-          final approveLink = success.data?.response?.approveLink;
 
-          log(approveLink.toString());
+          // Get the mandate type (Fallback to selectedMethod if backend doesn't echo it)
+          final mandateType = success.data?.mandateType ?? selectedMethod.value;
 
-          // Navigator.of(Get.overlayContext!).pop();
+          log("[MfuController] Mandate created — type: $mandateType");
+
+          final approveLink = success.data?.approveLink ?? '';
+
+          // 2. Hide Loading Dialog before opening WebView
           CustomLoadingDialog.hide();
 
-          if (approveLink != null && approveLink.isNotEmpty) {
+          if (approveLink.isNotEmpty) {
+            // 3. Open WebView and wait for result
             final webViewResult = await Get.to(
               () => MandateWebView(url: approveLink),
             );
 
             debugPrint("==================================================");
-            debugPrint("WEBPAGE RAW TEXT:");
-            debugPrint(webViewResult.toString());
+            debugPrint("WEBPAGE RAW TEXT: $webViewResult");
             debugPrint("==================================================");
 
+            // 4. Handle WebView Result
             if (webViewResult == 'success' || webViewResult == 'check_status') {
-              // Get.dialog(
-              //   const Center(
-              //     child: Column(
-              //       mainAxisSize: MainAxisSize.min,
-              //       children: [
-              //         CircularProgressIndicator(color: Colors.white),
-              //         SizedBox(height: 16),
-              //         Text(
-              //           "Verifying status with bank...",
-              //           style: TextStyle(color: Colors.white, fontSize: 16),
-              //         ),
-              //       ],
-              //     ),
-              //   ),
-              //   barrierDismissible: false,
-              // );
               CustomLoadingDialog.show(title: "Verifying status with bank...");
 
               try {
                 await Future.delayed(const Duration(seconds: 2));
-
-                await getMandateStatus(mandateType: mandateType);
+                final uid =
+                    success.data?.mandate?.userId ??
+                    session.getUserData?.id ??
+                    0;
+                // final can = session.getUserData?.canNumber ?? '';
+                // final can = mandateCreateResponse.value?.can ?? '';
+                final can =
+                    success.data?.can ?? session.getUserData?.canNumber ?? '';
+                // final mmrn =
+                //     mandateCreateResponse.value?.enachResponse?.mmrn ?? '';
+                // final mumrn =
+                //     mandateCreateResponse.value?.upiResponse?.mumrn ?? '';
+                final freshMmrn = success.data?.enachResponse?.mmrn ?? '';
+                final freshMumrn = success.data?.upiResponse?.mumrn ?? '';
+                if (mandateType == 'upi') {
+                  if (freshMumrn.isEmpty) {
+                    CustomSnackbar.error(
+                      title: 'Error',
+                      message: 'No UPI Mandate ID found to verify.',
+                    );
+                    return;
+                  }
+                  await getMandateStatus(
+                    MfuMandateStatusRequest.upi(
+                      // userId: uid,
+                      userId: uid,
+                      can: can,
+                      mumrn: freshMumrn,
+                    ),
+                  );
+                } else {
+                  if (freshMmrn.isEmpty) {
+                    CustomSnackbar.error(
+                      title: 'Error',
+                      message: 'No eNACH Mandate ID found to verify.',
+                    );
+                    return;
+                  }
+                  await getMandateStatus(
+                    MfuMandateStatusRequest.enach(
+                      // userId: 9105,
+                      userId: uid,
+                      can: can,
+                      mmrn: freshMmrn,
+                    ),
+                  );
+                }
+                // Call status API
+                // await getMandateStatus(mandateType: mandateType);
               } finally {
-                Navigator.of(Get.overlayContext!).pop();
+                CustomLoadingDialog.hide();
               }
 
               await Future.delayed(const Duration(milliseconds: 300));
 
-              final actualStatus = mandateStatusResponse.value?.status
-                  ?.toLowerCase();
+              // 5. Evaluate final status from backend
+              final actualStatus = mandateStatusResponse.value?.mandateStatus;
 
               if (actualStatus == 'success' || actualStatus == 'approved') {
                 CustomSnackbar.success(
@@ -324,11 +354,11 @@ class MfuController extends GetxController {
           }
         },
         (error) async {
-          // Navigator.of(Get.overlayContext!).pop();
+          // Handle API Error
           CustomLoadingDialog.hide();
           await Future.delayed(const Duration(milliseconds: 300));
 
-          errorMessage.value = error.message;
+          errorMessage.value = error.message ?? 'Mandate creation failed';
           CustomSnackbar.error(
             title: 'Mandate Error',
             message: errorMessage.value,
@@ -336,16 +366,135 @@ class MfuController extends GetxController {
         },
       );
     } catch (e) {
-      Get.back();
-
+      // Handle Unexpected Exception
+      CustomLoadingDialog.hide();
       CustomSnackbar.error(
         title: 'Error',
         message: 'An unexpected error occurred.',
       );
+    } finally {
+      isCreatingMandate.value = false;
     }
-
-    isCreatingMandate.value = false;
   }
+
+  // Future<void> createMandate({
+  //   required String mandateType,
+  //   String? upiId,
+  // }) async {
+  //   isCreatingMandate.value = true;
+  //   errorMessage.value = '';
+
+  //   CustomLoadingDialog.show(title: "Preparing secure gateway...");
+
+  //   final uid = session.getUserData?.id ?? 0;
+
+  //   try {
+  //     final result = await mfuUseCases.mfuMandateCreateUseCase(
+  //       uid: uid,
+  //       mandateType: mandateType,
+  //       upiId: upiId,
+  //     );
+
+  //     await result.fold(
+  //       (success) async {
+  //         mandateCreateResponse.value = success.data;
+  //         final approveLink = success.data?.response?.approveLink;
+
+  //         log(approveLink.toString());
+
+  //         // Navigator.of(Get.overlayContext!).pop();
+  //         CustomLoadingDialog.hide();
+
+  //         if (approveLink != null && approveLink.isNotEmpty) {
+  //           final webViewResult = await Get.to(
+  //             () => MandateWebView(url: approveLink),
+  //           );
+
+  //           debugPrint("==================================================");
+  //           debugPrint("WEBPAGE RAW TEXT:");
+  //           debugPrint(webViewResult.toString());
+  //           debugPrint("==================================================");
+
+  //           if (webViewResult == 'success' || webViewResult == 'check_status') {
+  //             // Get.dialog(
+  //             //   const Center(
+  //             //     child: Column(
+  //             //       mainAxisSize: MainAxisSize.min,
+  //             //       children: [
+  //             //         CircularProgressIndicator(color: Colors.white),
+  //             //         SizedBox(height: 16),
+  //             //         Text(
+  //             //           "Verifying status with bank...",
+  //             //           style: TextStyle(color: Colors.white, fontSize: 16),
+  //             //         ),
+  //             //       ],
+  //             //     ),
+  //             //   ),
+  //             //   barrierDismissible: false,
+  //             // );
+  //             CustomLoadingDialog.show(title: "Verifying status with bank...");
+
+  //             try {
+  //               await Future.delayed(const Duration(seconds: 2));
+
+  //               await getMandateStatus(mandateType: mandateType);
+  //             } finally {
+  //               Navigator.of(Get.overlayContext!).pop();
+  //             }
+
+  //             await Future.delayed(const Duration(milliseconds: 300));
+
+  //             final actualStatus = mandateStatusResponse.value?.status
+  //                 ?.toLowerCase();
+
+  //             if (actualStatus == 'success' || actualStatus == 'approved') {
+  //               CustomSnackbar.success(
+  //                 title: 'Success',
+  //                 message: 'Mandate approved and verified successfully!',
+  //               );
+  //             } else if (actualStatus == 'pending') {
+  //               CustomSnackbar.success(
+  //                 title: 'Processing',
+  //                 message:
+  //                     'Your mandate is being processed. It may take a few minutes.',
+  //               );
+  //             } else {
+  //               CustomSnackbar.error(
+  //                 title: 'Failed',
+  //                 message: 'Mandate verification failed. Status: $actualStatus',
+  //               );
+  //             }
+  //           } else if (webViewResult == 'failed') {
+  //             CustomSnackbar.error(
+  //               title: 'Failed',
+  //               message: 'Mandate authorization failed or was cancelled.',
+  //             );
+  //           }
+  //         }
+  //       },
+  //       (error) async {
+  //         // Navigator.of(Get.overlayContext!).pop();
+  //         CustomLoadingDialog.hide();
+  //         await Future.delayed(const Duration(milliseconds: 300));
+
+  //         errorMessage.value = error.message;
+  //         CustomSnackbar.error(
+  //           title: 'Mandate Error',
+  //           message: errorMessage.value,
+  //         );
+  //       },
+  //     );
+  //   } catch (e) {
+  //     Get.back();
+
+  //     CustomSnackbar.error(
+  //       title: 'Error',
+  //       message: 'An unexpected error occurred.',
+  //     );
+  //   }
+
+  //   isCreatingMandate.value = false;
+  // }
 
   /*
   // Future<void> createMandate({required String mandateType}) async {
@@ -417,28 +566,50 @@ class MfuController extends GetxController {
   */
 
   // get mandate status
-  Future<void> getMandateStatus({required String mandateType}) async {
+  // Future<void> getMandateStatus({required String mandateType}) async {
+  //   isLoadingMandateStatus.value = true;
+  //   errorMessage.value = '';
+
+  //   final uid = session.getUserData?.id ?? 0;
+
+  //   final result = await mfuUseCases.mfuMandateStatusUseCase(
+  //     uid: uid,
+  //     mandateType: mandateType,
+  //   );
+
+  //   result.fold(
+  //     (success) {
+  //       mandateStatusResponse.value = success.data;
+  //       log("[MfuController] Mandate Status: ${success.data?.status}");
+  //     },
+  //     (error) {
+  //       errorMessage.value = error.message ?? 'Failed to fetch mandate status';
+  //       CustomSnackbar.error(
+  //         title: 'Mandate Status Error ----------',
+  //         message: errorMessage.value,
+  //       );
+  //     },
+  //   );
+
+  //   isLoadingMandateStatus.value = false;
+  // }
+
+  Future<void> getMandateStatus(MfuMandateStatusRequest request) async {
     isLoadingMandateStatus.value = true;
     errorMessage.value = '';
 
-    final uid = session.getUserData?.id ?? 0;
+    mandateStatusResponse.value = null;
 
-    final result = await mfuUseCases.mfuMandateStatusUseCase(
-      uid: uid,
-      mandateType: mandateType,
-    );
+    final result = await mfuUseCases.mfuMandateStatusUseCase(request);
 
     result.fold(
       (success) {
         mandateStatusResponse.value = success.data;
-        log("[MfuController] Mandate Status: ${success.data?.status}");
+        log("[MfuController] Mandate Status: ${success.data?.mandateStatus}");
       },
       (error) {
         errorMessage.value = error.message ?? 'Failed to fetch mandate status';
-        CustomSnackbar.error(
-          title: 'Mandate Status Error ----------',
-          message: errorMessage.value,
-        );
+        Get.snackbar('Mandate Status Error', errorMessage.value);
       },
     );
 
