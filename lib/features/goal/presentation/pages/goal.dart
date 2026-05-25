@@ -68,7 +68,7 @@ class GoalScreen extends GetView<GoalSipController> {
                 ),
                 const SizedBox(height: 25),
                 UElevatedBUtton(
-                  onPressed: () => Get.toNamed(AppRoutes.ihavegoal),
+                  onPressed: () => Get.toNamed(AppRoutes.masterGoalsPage),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -184,21 +184,24 @@ class CircularUploadIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final GoalSipController controller = Get.find<GoalSipController>();
     final double percentage = targetAmount > 0
         ? (investedAmount / targetAmount).clamp(0.0, 1.0)
         : 0.0;
 
     final String percentString =
         "${(percentage * 100).toStringAsFixed(0)}%";
-
+    final Color goalColor = controller.getGoalColor(goalEntity?.goalType?.typeName ?? '');
     return GestureDetector(
       onTap: () {
+
         Get.toNamed(
           AppRoutes.goaldetails,
           arguments: {
             'goal': goalEntity,
             'target': targetAmount,
             'invested': investedAmount,
+            'logo': iconUrl,
           },
         );
       },
@@ -226,7 +229,7 @@ class CircularUploadIndicator extends StatelessWidget {
                   : '${Appurl.baseUrl}/$iconUrl',
               width: circleSize * 0.55,
               height: circleSize * 0.55,
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
               errorBuilder: (_, __, ___) {
                 return Icon(
                   Icons.flag,
@@ -264,7 +267,7 @@ class CircularUploadIndicator extends StatelessWidget {
                       animation: true,
                       circularStrokeCap: CircularStrokeCap.round,
                       backgroundColor: Colors.transparent,
-                      progressColor:Ucolors.blue,
+                      progressColor:goalColor,
                       center: Container(
                         width: circleSize * 0.9,
                         height: circleSize * 0.9,
@@ -304,8 +307,8 @@ class CircularUploadIndicator extends StatelessWidget {
                                       1.0
                                     ],
                                     colors: [
-                                      Ucolors.blue,
-                                      Ucolors.blue,
+                                      goalColor,
+                                      goalColor,
                                       Colors.transparent,
                                       Colors.transparent,
                                     ],

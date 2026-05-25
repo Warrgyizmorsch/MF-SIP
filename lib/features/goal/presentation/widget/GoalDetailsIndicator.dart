@@ -1,45 +1,67 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/text_style.dart';
+import 'package:get/get.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+
+import '../controller/goal_sip_controller.dart';
 
 class CircularGoalIndicatorDetails extends StatelessWidget {
   final bool percentage;
   final String goalName;
+  final String goalType;
   final double targetAmount;
   final double investedAmount;
   final String emoji;
-  final String? imageUrl; // For the center image
+  final String imageUrl;
 
   const CircularGoalIndicatorDetails({
     super.key,
     this.percentage = false,
     required this.goalName,
+    required this.goalType,
     required this.targetAmount,
     required this.investedAmount,
     this.emoji = '🎯',
-    this.imageUrl,
+    required this.imageUrl,
   });
 
-  // Helper method to format currency
   String _fmt(double amount) {
-    return '₹ ${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}';
+    return '₹ ${amount.toStringAsFixed(0).replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+    )}';
   }
+
+
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final GoalSipController controller = Get.find<GoalSipController>();
+    final Color goalColor =controller. getGoalColor(goalType);
 
-    // 1. Calculate actual progress (0.0 to 1.0)
-    final double actualProgress = targetAmount > 0
-        ? (investedAmount / targetAmount).clamp(0.0, 1.0)
-        : 0.0;
+    final double actualProgress =
+    targetAmount > 0 ? (investedAmount / targetAmount).clamp(0.0, 1.0) : 0.0;
 
     final String percentStr = "${(actualProgress * 100).toStringAsFixed(0)}%";
 
-    final double trackPercent = 0.77;
-    final double fillPercent =
-        actualProgress * trackPercent; // Scales progress to fit the arc
+    final double radius = size.width <= 320 ? 60 : 80;
+    final double lineWidth = 15;
+
+    // Start angle of CircularPercentIndicator
+    final double startAngle = 220;
+
+    // Sweep angle in degrees
+    final double sweepAngle = 360 * actualProgress * 0.77;
+
+    // Convert end angle to radians for emoji positioning
+    final double radians = (startAngle + sweepAngle - 90) * (math.pi / 180);
+
+    // Emoji radius should include half lineWidth so it sits on stroke
+    final double emojiRadius = radius - 2;
+
+    final double emojiX = emojiRadius * math.cos(radians);
+    final double emojiY = emojiRadius * math.sin(radians);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -49,87 +71,141 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              /// Outer Circular Arc (Grey Track)
-              CircularPercentIndicator(
-                radius: size.width <= 320 ? 60 : 80,
-                lineWidth: 15,
-                percent: trackPercent,
-                startAngle: 220,
-                circularStrokeCap: CircularStrokeCap.round,
-                backgroundColor: Colors.transparent,
-                progressColor: Colors.grey.shade200,
-              ),
-
-              /// Inner Circular Arc (Blue Progress)
-              CircularPercentIndicator(
-                center: Container(
-                  width: size.width <= 320 ? 60 : 80,
-                  height: size.width <= 320 ? 60 : 80,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    shape: BoxShape.circle,
-                    // Load the user's cover image if it exists
-                    image: imageUrl != null && imageUrl!.isNotEmpty
-                        ? DecorationImage(
-                            image: NetworkImage(imageUrl!),
-                            fit: BoxFit.cover,
-                          )
-                        : null,
-                  ),
-                  child: imageUrl == null || imageUrl!.isEmpty
-                      ? const Icon(Icons.image, color: Colors.grey, size: 30)
-                      : null,
+          SizedBox(
+            width: radius * 2.8,
+            height: radius * 2.4,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Grey background track
+                CircularPercentIndicator(
+                  radius: radius,
+                  lineWidth: lineWidth,
+                  percent: 0.77,
+                  startAngle: startAngle,
+                  circularStrokeCap: CircularStrokeCap.round,
+                  backgroundColor: Colors.grey.shade200,
+                  progressColor: Colors.grey.shade200,
                 ),
-                radius: size.width <= 320 ? 60 : 80,
-                lineWidth: 15,
-                percent: fillPercent, // Uses the scaled percentage
-                startAngle: 220,
-                circularStrokeCap: CircularStrokeCap.round,
-                backgroundColor: Colors.transparent,
-                progressColor: Ucolors.blue,
-              ),
 
-              if (!percentage) ...[
-                Positioned(
-                  left: 0,
-                  bottom: 0,
-                  child: Text(_fmt(investedAmount), style: UTextStyles.small),
-                ),
-                Positioned(
-                  right: 15,
-                  bottom: 0,
-                  child: Text(percentStr, style: UTextStyles.small),
-                ),
-              ],
-
-              Positioned(
-                left: 10,
-                bottom: 10,
-                child: Text(emoji, style: const TextStyle(fontSize: 30)),
-              ),
-
-              if (percentage)
-                Positioned(
-                  bottom: 0,
-                  child: Text(
-                    percentStr,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
+                // Colored progress
+                CircularPercentIndicator(
+                  radius: radius,
+                  lineWidth: lineWidth,
+                  percent: actualProgress * 0.77,
+                  startAngle: startAngle,
+                  circularStrokeCap: CircularStrokeCap.round,
+                  backgroundColor: Colors.transparent,
+                  progressColor: goalColor,
+                  center: Container(
+                    width: radius,
+                    height: radius,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey.shade100,
+                    ),
+                    child: ClipOval(
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          if (imageUrl.isNotEmpty)
+                            ColorFiltered(
+                              colorFilter: ColorFilter.mode(
+                                Colors.grey.shade300,
+                                BlendMode.modulate,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (_, __, ___) => Icon(
+                                    Icons.flag,
+                                    size: 35,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          if (imageUrl.isNotEmpty)
+                            ShaderMask(
+                              blendMode: BlendMode.srcIn,
+                              shaderCallback: (Rect bounds) => LinearGradient(
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
+                                stops: [0.0, actualProgress, actualProgress, 1.0],
+                                colors: [goalColor, goalColor, Colors.transparent, Colors.transparent],
+                              ).createShader(bounds),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (_, __, ___) => Icon(
+                                    Icons.flag,
+                                    size: 35,
+                                    color: goalColor,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          if (imageUrl.isEmpty)
+                            Text(
+                              emoji,
+                              style: const TextStyle(fontSize: 34),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-            ],
-          ),
 
+                // Moving emoji along progress
+                Transform.translate(
+                  offset: Offset(emojiX, emojiY),
+                  child: Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      emoji,
+                      style: const TextStyle(fontSize: 22),
+                    ),
+                  ),
+                ),
+
+                if (percentage)
+                  Positioned(
+                    bottom: 0,
+                    child: Text(
+                      percentStr,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: goalColor,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
           if (!percentage) ...[
-            Text(goalName, style: UTextStyles.large),
+            const SizedBox(height: 10),
+            Text(
+              goalName,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
             Text(
               _fmt(targetAmount),
-              style: UTextStyles.medium.copyWith(color: Colors.black),
+              style: const TextStyle(color: Colors.black, fontSize: 14),
             ),
           ],
         ],

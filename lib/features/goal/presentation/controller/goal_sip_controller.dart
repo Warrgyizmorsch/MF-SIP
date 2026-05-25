@@ -12,23 +12,35 @@ import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
 import 'package:my_sip/features/goal/domain/usecases/goal_use_cases.dart';
 import 'package:my_sip/services/session_manager.dart';
 
+import '../../../explore/domain/entities/mutual_fund_list_entity.dart';
+import '../../../explore/presentation/controller/mutual_fund_controller.dart';
 import '../../domain/entity/goal_master_entity.dart';
 
 class GoalSipController extends GetxController {
   final GoalUseCases goalUseCases;
-  final hasChanges = false.obs;
-
-  double originalTargetAmount = 0;
-  double originalYears = 0;
-  String originalGoalName = '';
-  final existingSipAmount = 0.obs;
-  final additionalSipAmount = 0.obs;
   final RxBool isMasterGoalLoading = false.obs;
+  /// =======================================
+  /// USE EXISTING VARIABLES ONLY
+  /// =======================================
+
+  final RxBool isEdit = false.obs;
+  final RxBool hasChanges = false.obs;
+
+  final RxDouble existingSipAmount = 0.0.obs;
+  final RxDouble additionalSipAmount = 0.0.obs;
+
+  /// NEW ONLY
+  final RxDouble dailySipAmount = 0.0.obs;
+  final RxDouble weeklySipAmount = 0.0.obs;
+
+  /// TRACK OLD VALUES
+  double initialTargetAmount = 0;
+  double initialYears = 0;
+  double initialRate = 0;
   final RxList<MasterGoalEntity> masterGoals = <MasterGoalEntity>[].obs;
   final RxString masterGoalError = ''.obs;
   final RxInt selectedGoalIndex = (-1).obs;
   final GlobalKey goalDetailsKey = GlobalKey();
-  final RxBool isEdit = false.obs;
   @override
   void onInit() {
     super.onInit();
@@ -48,7 +60,7 @@ class GoalSipController extends GetxController {
   final targetAmount = 0.0.obs;
   final years = 1.0.obs;
   final annualRate = 12.0.obs;
-
+   RxList<MutualFundListEntity> fundList= <MutualFundListEntity>[].obs;
   // Outputs (WHOLE NUMBERS like website)
   final monthlySip = 0.obs;
   final invested = 0.obs;
@@ -65,7 +77,6 @@ class GoalSipController extends GetxController {
     } else {
       goalError.value = "";
     }
-    checkForChanges();
     update(); // for GetBuilder
   }
   bool get isFormValid =>
@@ -139,8 +150,6 @@ class GoalSipController extends GetxController {
 
     selectedGoalType.value = newType;
     isGoalSaved.value = false;
-    hasChanges.value= false;
-
     selectedPopularFund.clear(); // Reset selections for the new goal setup
     goalNameTextEditingController.clear();
 
@@ -152,48 +161,13 @@ class GoalSipController extends GetxController {
       rate: targetConfig['rate'],
     );
   }
+  /// =======================================
+  /// loadGoalForEdit()
+  /// =======================================
   void loadGoalForEdit(UserGoalEntity goal) {
-
-    /// ==============================
-    /// EDIT MODE ENABLE
-    /// ==============================
-    hasChanges.value= false;
-    isEdit.value = true;
-
-    /// ==============================
-    /// SAVE IDS
-    /// ==============================
-    originalTargetAmount =
-        (goal.investedAmount ?? 0).toDouble();
-
-    originalYears =
-        (goal.goalTenure ?? 1).toDouble();
-
-    originalGoalName =
-        goal.goalName ?? '';
-    /// user goal row id
-    savedDatabaseId.value = goal.id;
-
-    /// master goal type id
-    goalId.value = goal.goalId ?? 0;
-
-    /// ==============================
-    /// GOAL NAME
-    /// ==============================
 
     goalNameTextEditingController.text =
         goal.goalName ?? '';
-
-    /// ==============================
-    /// EXISTING SIP
-    /// ==============================
-
-    existingSipAmount.value =
-        (goal.monthlyInvestment ?? 0).toInt();
-
-    /// ==============================
-    /// GOAL TYPE
-    /// ==============================
 
     final selectedType = goalConfig.entries
         .firstWhere(
@@ -209,97 +183,151 @@ class GoalSipController extends GetxController {
 
     selectedGoalType.value = selectedType;
 
-    /// ==============================
-    /// SELECT CARD INDEX
-    /// ==============================
+    /// =========================
+    /// OLD VALUES
+    /// =========================
 
-    final matchedIndex = masterGoals.indexWhere(
-          (masterGoal) =>
-      masterGoal.id == goal.goalId,
-    );
+    initialTargetAmount =
+        (goal.investedAmount ?? 0).toDouble();
 
-    if (matchedIndex != -1) {
+    initialYears =
+        (goal.goalTenure ?? 1).toDouble();
 
-      selectedGoalIndex.value = matchedIndex;
+    initialRate =
+        (goal.expectedReturnRate ?? 12).toDouble();
 
-    } else {
+    /// =========================
+    /// EXISTING SIP
+    /// =========================
 
-      selectedGoalIndex.value =
-          masterGoals.indexWhere(
-                (masterGoal) =>
-            masterGoal.goalType ==
-                selectedType,
-          );
-    }
+    existingSipAmount.value =
+        (goal.monthlyInvestment ?? 0).toDouble();
 
-    /// ==============================
-    /// LOAD SIP VALUES
-    /// ==============================
+    /// =========================
+    /// INIT
+    /// =========================
 
     initFromGoal(
-      amount:
-      (goal.investedAmount ?? 0).toDouble(),
-      years:
-      (goal.goalTenure ?? 1).toDouble(),
-      rate:
-      (goal.expectedReturnRate ?? 12)
-          .toDouble(),
+      amount: initialTargetAmount,
+      years: initialYears,
+      rate: initialRate,
     );
 
-    /// ==============================
-    /// PRELOAD SELECTED FUNDS
-    /// ==============================
+    /// =========================
+    /// RESET CHANGE VALUES
+    /// =========================
 
-    selectedPopularFund.clear();
+    hasChanges.value = false;
 
-    for (var fund in goal.goalFunds) {
+    additionalSipAmount.value = 0;
 
-      final name =
-          fund.mutualFund?.schemeName;
+    weeklySipAmount.value = 0;
 
-      if (name != null) {
-
-        selectedPopularFund.add(name);
-      }
-    }
-
-    /// ==============================
-    /// GOAL SAVED STATE
-    /// ==============================
+    dailySipAmount.value = 0;
 
     isGoalSaved.value = true;
-
-    /// ==============================
-    /// RECALCULATE
-    /// ==============================
 
     _recalculate();
 
     update();
   }
+  /// =======================================
+  /// CHECK CHANGES
+  /// =======================================
 
   void checkForChanges() {
-    isGoalSaved.value=false;
-    final bool changed =
 
-        targetAmount.value != originalTargetAmount ||
+    final bool amountChanged =
+        targetAmount.value != initialTargetAmount;
 
-            years.value != originalYears ||
+    final bool yearChanged =
+        years.value != initialYears;
 
-            goalNameTextEditingController.text.trim() !=
-                originalGoalName.trim();
+    final bool rateChanged =
+        annualRate.value != initialRate;
 
-    hasChanges.value = changed;
+    hasChanges.value =
+        amountChanged ||
+            yearChanged ||
+            rateChanged;
+
+    if (!hasChanges.value) {
+
+      additionalSipAmount.value = 0;
+
+      weeklySipAmount.value = 0;
+
+      dailySipAmount.value = 0;
+
+      update();
+
+      return;
+    }
+
+    final double newSip =
+    monthlySip.value.toDouble();
+
+    final double oldSip =
+        existingSipAmount.value;
+
+    double diff = newSip - oldSip;
+
+    if (diff < 0) {
+      diff = 0;
+    }
+
+    additionalSipAmount.value = diff;
+
+    weeklySipAmount.value =
+        diff / 4;
+
+    dailySipAmount.value =
+        diff / 30;
+
+    update();
   }
-
   void initFromGoal({
     required double amount,
     required double years,
     required double rate,
   }) {
+
+    /// =========================
+    /// STORE INITIAL VALUES
+    /// =========================
+
+    initialTargetAmount = amount;
+    initialYears = years;
+    initialRate = rate;
+
+    /// =========================
+    /// SET VALUES
+    /// =========================
+
     setTarget(amount);
     setYears(years);
     setRate(rate);
+
+    /// =========================
+    /// EXISTING SIP
+    /// =========================
+
+    existingSipAmount.value =
+        monthlySip.value.toDouble();
+
+    /// =========================
+    /// RESET VALUES
+    /// =========================
+
+    additionalSipAmount.value = 0;
+
+    weeklySipAmount.value = 0;
+
+    dailySipAmount.value = 0;
+
+    hasChanges.value = false;
+
+    update();
   }
   Future<bool> getMasterGoals() async {
 
@@ -421,10 +449,11 @@ class GoalSipController extends GetxController {
       (success) async {
         // Get.snackbar("Success", success.data ?? '');
         Get.snackbar("Success", 'Goal saved successfully,');
-
+        await fetchCount();
+        await getAllGoals();
         isGoalSaved.value = true;
         savedDatabaseId.value = int.tryParse(success.data?.toString() ?? '0');
-       await getAllGoals();
+
 
         print('goal id save ${success.data}');
       },
@@ -580,7 +609,10 @@ class GoalSipController extends GetxController {
     }
   }
 
-  ///// -------------- Goal Calculation ---------------///
+  /// =======================================
+  /// UPDATE THESE METHODS
+  /// =======================================
+
   void setTarget(double value) {
     targetAmount.value = value;
     _recalculate();
@@ -606,80 +638,48 @@ class GoalSipController extends GetxController {
   }
 
   void _recalculate() {
-
     final int totalMonths = (years.value * 12).round();
 
     if (totalMonths <= 0 || targetAmount.value <= 0) {
-
       monthlySip.value = 0;
       invested.value = 0;
       futureValue.value = 0;
       totalReturn.value = 0;
-      additionalSipAmount.value = 0;
+      yearlyReport.clear(); //  clear report
 
       return;
     }
 
     final r = _effectiveMonthlyRate(annualRate.value);
 
+    //  Step 1: exact SIP (double)
     double exactSip;
-
     if (r == 0) {
-
       exactSip = targetAmount.value / totalMonths;
-
     } else {
-
-      final factor =
-          ((pow(1 + r, totalMonths) - 1) / r) * (1 + r);
-
+      final factor = ((pow(1 + r, totalMonths) - 1) / r) * (1 + r);
       exactSip = targetAmount.value / factor;
     }
 
+    //  Step 2: ROUND like website
     final int roundedSip = exactSip.round();
+    monthlySip.value = roundedSip;
 
-    // ======================================================
-    // EDIT MODE LOGIC
-    // ======================================================
-
-    if (isEdit.value) {
-
-      final extraSip =
-          roundedSip - existingSipAmount.value;
-
-      additionalSipAmount.value =
-      extraSip < 0 ? 0 : extraSip;
-
-      monthlySip.value =
-          existingSipAmount.value +
-              additionalSipAmount.value;
-
-    } else {
-
-      monthlySip.value = roundedSip;
-    }
-
-    // ======================================================
-    // INVESTMENT CALCULATION
-    // ======================================================
-
+    //  Step 3: build projection using ROUNDED SIP ONLY
     int investedTmp = 0;
     double valueTmp = 0;
 
     for (int i = 0; i < totalMonths; i++) {
-
-      investedTmp += monthlySip.value;
-
-      valueTmp =
-          (valueTmp + monthlySip.value) * (1 + r);
+      investedTmp += roundedSip;
+      valueTmp = (valueTmp + roundedSip) * (1 + r);
     }
 
     invested.value = investedTmp;
-
     futureValue.value = valueTmp.round();
+    // totalReturn.value = futureValue.value - invested.value;
+    totalReturn.value = (targetAmount.value - invested.value).round();
 
-    totalReturn.value =
-        futureValue.value - invested.value;
+    yearlyReport.value = buildYearlyReport();
   }
 
   // ------Report -- //
@@ -723,11 +723,58 @@ class GoalSipController extends GetxController {
   //       ? selectedPopularFund.remove(id)
   //       : selectedPopularFund.add(id);
   // }
+  void toggleFund(String name) {
 
-  void toggleFund(String fundName) {
-    selectedPopularFund.contains(fundName)
-        ? selectedPopularFund.remove(fundName)
-        : selectedPopularFund.add(fundName);
+    if (selectedPopularFund.contains(name)) {
+
+      selectedPopularFund.remove(name);
+
+    } else {
+
+      selectedPopularFund.add(name);
+    }
+  }
+  Color getGoalColor(String goalType) {
+    switch (goalType.toLowerCase()) {
+
+      case 'car':
+        return Colors.blue.shade300;
+
+      case 'house':
+        return Colors.orange.shade300;
+
+      case 'education':
+        return Colors.green.shade300;
+
+      case 'marriage':
+        return Colors.pink.shade300;
+
+      case 'retirement':
+        return Colors.deepPurple.shade300;
+
+      case 'vacation':
+        return Colors.teal.shade300;
+
+      case 'other':
+        return Colors.indigo.shade300;
+
+      default:
+        return Colors.grey;
+    }
+  }
+  Future<void> fetchCount() async {
+    Map<String, dynamic> params = {
+      "return_max":annualRate.value,
+      "sort_order":"",
+    };
+    Get.find<MutualFundController>().applyFilters(
+      params,);
+    final result = await Get.find<MutualFundController>().fetchData(
+
+    );
+    // fundList.assignAll(result);
+    print("Fund Result:");
+
   }
 
   bool isSelectedFund(String fundName) {
@@ -737,7 +784,6 @@ class GoalSipController extends GetxController {
   // ✅ ADD THIS METHOD to GoalSipController
   void resetStateForNewGoal() {
     isGoalSaved.value = false;
-    hasChanges.value= false;
     savedDatabaseId.value = null;
     selectedPopularFund.clear();
   }
