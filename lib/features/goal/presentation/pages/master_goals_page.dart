@@ -1,5 +1,7 @@
 
 
+import 'dart:math';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -19,6 +21,7 @@ import '../../../../core/utils/constant/colors.dart';
 import '../../../../core/utils/constant/text_style.dart';
 import '../../../../core/utils/helper/helpers.dart';
 import '../../../../navigation_menu_bar.dart';
+import '../../../cart/domain/usecases/cart_usecases.dart';
 import '../../../cart/presentation/controllers/cart_controller.dart';
 import '../../../cart/presentation/pages/cart_page.dart';
 import '../../../explore/presentation/controller/fundhouse_controller.dart';
@@ -210,37 +213,54 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
           ],
         ),
       ),
-      bottomNavigationBar: Obx(() {
-        if (!controller.isGoalSaved.value) return const SizedBox.shrink();
-        return SafeArea(
-          top: false,
-          child: CartBottomBar(
-            isValid: controller.selectedPopularFund.isNotEmpty,
-            ontap: () {
-              if (controller.selectedPopularFund.isEmpty) {
-                Get.snackbar("Error", "Please select funds to start SIP");
-                return;
-              }
-              final cartCont = Get.find<CartController>();
-              cartCont.filterGoalId.value = controller.savedDatabaseId.value;
-              cartController.monthlyAmount.value =
-                  controller.monthlySip.value.toInt();
-              Get.toNamed(
-                AppRoutes.cart,
-                arguments: {
-                  'monthlyAmount': controller.monthlySip.value.toInt(),
-                  'goal_id': controller.savedDatabaseId.value,
-                  'isFromGoal': true,
-                },
-              );
-            },
-            amount: controller.monthlySip.value.toStringAsFixed(0),
-            amountColor: Ucolors.blue,
-            title: 'Installment Amount',
-            buttonText: 'Start SIP',
-          ),
-        );
-      }),
+      // bottomNavigationBar: Obx(() {
+      //   if (!controller.isGoalSaved.value) return const SizedBox.shrink();
+      //   return SafeArea(
+      //     top: false,
+      //     child: CartBottomBar(
+      //       isValid: controller.selectedPopularFund.isNotEmpty,
+      //       ontap: () {
+      //         if (controller.selectedPopularFund.isEmpty) {
+      //           Get.snackbar("Error", "Please select funds to start SIP");
+      //           return;
+      //         }
+      //
+      //         // OLD INSTANCE REMOVE
+      //         if (Get.isRegistered<CartController>()) {
+      //           Get.delete<CartController>(force: true);
+      //         }
+      //
+      //         // NEW INSTANCE CREATE
+      //         final CartController cartCont = Get.put(
+      //           CartController(Get.find<CartUsecases>()),
+      //         );
+      //
+      //         cartCont.clearCart();
+      //
+      //         cartCont.filterGoalId.value =
+      //             controller.savedDatabaseId.value;
+      //
+      //         cartCont.monthlyAmount.value =
+      //             controller.monthlySip.value.toInt();
+      //
+      //         Get.toNamed(
+      //           AppRoutes.cart,
+      //           arguments: {
+      //             'monthlyAmount':
+      //             controller.monthlySip.value.toInt(),
+      //             'goal_id':
+      //             controller.savedDatabaseId.value,
+      //             'isFromGoal': true,
+      //           },
+      //         );
+      //       },
+      //       amount: controller.monthlySip.value.toStringAsFixed(0),
+      //       amountColor: Ucolors.blue,
+      //       // title: 'Installment Amount',
+      //       // buttonText: 'Start SIP',
+      //     ),
+      //   );
+      // }),
     );
   }
 
@@ -1099,7 +1119,7 @@ class ProjectionIcon extends StatelessWidget {
 }
 
 // =============================================================================
-// SIPSectionGoal — unchanged logic, minor const fix
+// SIPSectionGoal — SIP + Lumpsum Tab
 // =============================================================================
 class SIPSectionGoal extends GetView<GoalSipController> {
   const SIPSectionGoal({super.key});
@@ -1113,7 +1133,9 @@ class SIPSectionGoal extends GetView<GoalSipController> {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
+          // ── Goal Title Field ──────────────────────────────────────────────
           TextFormFieldCustom(
             title: "Goal Title",
             hintTextColor: Ucolors.black,
@@ -1145,162 +1167,603 @@ class SIPSectionGoal extends GetView<GoalSipController> {
           ),
           Obx(() => controller.goalError.isNotEmpty
               ? Padding(
-            padding: const EdgeInsets.only(top: 4, left: 5),
+            padding: const EdgeInsets.only(top: 4),
             child: Text(
               controller.goalError.value,
               style: TextStyle(fontSize: 12, color: Ucolors.red),
             ),
           )
               : const SizedBox.shrink()),
+
           const Gap(20),
 
-          Obx(() => SipSliderTile2(
-            prefix: '₹',
-            title: 'I Need',
-            value: controller.targetAmount.value < 100
-                ? 100
-                : controller.targetAmount.value,
-            min: 100,
-            max: 10000000,
-            suffix: '',
-            onChanged: controller.setTarget,
-          )),
-          const Gap(16),
+          // ── SIP / Lumpsum Tab Toggle ──────────────────────────────────────
+          Obx(() {
+            final isSip = controller.investmentMode.value == 'sip';
+            return Container(
+              decoration: BoxDecoration(
+                color: const Color(0xffF3F4F6),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.all(4),
+              child: Row(
+                children: [
+                  _TabButton(
+                    label: 'SIP',
+                    isSelected: isSip,
+                    onTap: () => controller.investmentMode.value = 'sip',
+                  ),
+                  _TabButton(
+                    label: 'Lumpsum',
+                    isSelected: !isSip,
+                    onTap: () {  controller.investmentMode.value = 'lumpsum';
+                    controller.recalculateLumpsum();},
+                  ),
+                ],
+              ),
+            );
+          }),
 
-          Obx(() => SipSliderTile2(
-            title: 'Duration',
-            value: controller.years.value,
-            min: 1,
-            max: 30,
-            suffix: 'Yrs',
-            onChanged: controller.setYears,
-          )),
-          const Gap(16),
-
-          Obx(() => SipSliderTile2(
-            title: 'Expected Return',
-            value: controller.annualRate.value,
-            min: 1,
-            max: 30,
-            suffix: '%',
-            onChanged: controller.setRate,
-          )),
           const Gap(20),
 
-          Obx(() => Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              SizedBox(
-                width: Get.width * .40 - 12,
-                child: _ValueCard(
-                  title: 'Daily SIP',
-                  value: formatCurrency(
-                      controller.dailySipAmount.value),
-                ),
-              ),
-              SizedBox(
-                width: Get.width * .40 - 12,
-                child: _ValueCard(
-                  title: 'Weekly SIP',
-                  value: formatCurrency(
-                      controller.weeklySipAmount.value),
-                ),
-              ),
-              SizedBox(
-                width: Get.width * .40 - 12,
-                child: _ValueCard(
-                  title: 'Monthly SIP',
-                  value: formatCurrency(
-                      controller.monthlySip.value.toDouble()),
-                ),
-              ),
-
-              // Edit mode only: existing + additional SIP
-              if (controller.hasChanges.value &&
-                  controller.isEdit.value) ...[
-                SizedBox(
-                  width: Get.width * .20 - 12,
-                  child: _ValueCard(
-                    title: 'Existing SIP',
-                    value: formatCurrency(controller
-                        .existingSipAmount.value
-                        .toDouble()),
-                  ),
-                ),
-                SizedBox(
-                  width: Get.width * .40 - 12,
-                  child: _ValueCard(
-                    title: 'Additional SIP',
-                    value: formatCurrency(controller
-                        .additionalSipAmount.value
-                        .toDouble()),
-                  ),
-                ),
-              ],
-
-              SizedBox(
-                width: Get.width * .40 - 12,
-                child: _ValueCard(
-                  title: 'Invested',
-                  value: formatCurrency(
-                      controller.invested.value.toDouble()),
-                ),
-              ),
-              SizedBox(
-                width: Get.width * .40 - 12,
-                child: _ValueCard(
-                  title: 'Future Value',
-                  value: formatCurrency(
-                      controller.targetAmount.value.toDouble()),
-                ),
-              ),
-              SizedBox(
-                width: Get.width * .40 - 12,
-                child: _ValueCard(
-                  title: 'Total Return',
-                  value: formatCurrency(
-                      controller.totalReturn.value.toDouble()),
-                ),
-              ),
-            ],
-          )),
+          // ── Tab Content ───────────────────────────────────────────────────
+          Obx(() {
+            final isSip = controller.investmentMode.value == 'sip';
+            return isSip
+                ? const _SipTabContent()
+                : const _LumpsumTabContent();
+          }),
         ],
       ),
     );
   }
 }
 
-class _ValueCard extends StatelessWidget {
-  const _ValueCard({required this.title, required this.value});
+// ── Tab Button ────────────────────────────────────────────────────────────────
+class _TabButton extends StatelessWidget {
+  const _TabButton({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
 
-  final String title;
-  final String value;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeInOut,
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: isSelected
+                ? [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ]
+                : [],
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight:
+                isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected ? Ucolors.primary : Colors.grey.shade500,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// _SipTabContent  — Daily / Weekly / Monthly sliders + value cards
+// =============================================================================
+class _SipTabContent extends GetView<GoalSipController> {
+  const _SipTabContent();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Target Amount
+        Obx(() => SipSliderTile2(
+          prefix: '₹',
+          title: 'I Need',
+          value: controller.targetAmount.value < 100
+              ? 100
+              : controller.targetAmount.value,
+          min: 100,
+          max: 10000000,
+          suffix: '',
+          onChanged: controller.setTarget,
+        )),
+        const Gap(16),
+
+        // Duration
+        Obx(() => SipSliderTile2(
+          title: 'Duration',
+          value: controller.years.value,
+          min: 1,
+          max: 30,
+          suffix: 'Yrs',
+          onChanged: controller.setYears,
+        )),
+        const Gap(16),
+
+        // Expected Return
+        Obx(() => SipSliderTile2(
+          title: 'Expected Return',
+          value: controller.annualRate.value,
+          min: 1,
+          max: 30,
+          suffix: '%',
+          onChanged: controller.setRate,
+        )),
+        const Gap(20),
+
+        // Value Cards
+        Obx(() => Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            SizedBox(
+              width: Get.width * .40 - 12,
+              child: _ValueCard(
+                title: 'Daily SIP',
+                value: formatCurrency(controller.dailySipAmount.value),
+                accent: false,
+              ),
+            ),
+            SizedBox(
+              width: Get.width * .40 - 12,
+              child: _ValueCard(
+                title: 'Weekly SIP',
+                value: formatCurrency(controller.weeklySipAmount.value),
+                accent: false,
+              ),
+            ),
+            SizedBox(
+              width: Get.width * .40 - 12,
+              child: _ValueCard(
+                title: 'Monthly SIP',
+                value: formatCurrency(
+                    controller.monthlySip.value.toDouble()),
+                accent: true, // highlight monthly
+              ),
+            ),
+
+            // Edit mode only
+            if (controller.hasChanges.value && controller.isEdit.value) ...[
+              SizedBox(
+                width: Get.width * .40 - 12,
+                child: _ValueCard(
+                  title: 'Existing SIP',
+                  value: formatCurrency(
+                      controller.existingSipAmount.value.toDouble()),
+                  accent: false,
+                ),
+              ),
+              SizedBox(
+                width: Get.width * .40 - 12,
+                child: _ValueCard(
+                  title: 'Additional SIP',
+                  value: formatCurrency(
+                      controller.additionalSipAmount.value.toDouble()),
+                  accent: false,
+                ),
+              ),
+            ],
+
+            SizedBox(
+              width: Get.width * .40 - 12,
+              child: _ValueCard(
+                title: 'Invested',
+                value:
+                formatCurrency(controller.invested.value.toDouble()),
+                accent: false,
+              ),
+            ),
+            SizedBox(
+              width: Get.width * .40 - 12,
+              child: _ValueCard(
+                title: 'Future Value',
+                value: formatCurrency(
+                    controller.targetAmount.value.toDouble()),
+                accent: false,
+              ),
+            ),
+            SizedBox(
+              width: Get.width * .40 - 12,
+              child: _ValueCard(
+                title: 'Total Return',
+                value: formatCurrency(
+                    controller.totalReturn.value.toDouble()),
+                accent: false,
+              ),
+            ),
+          ],
+        )),
+      ],
+    );
+  }
+}
+
+// =============================================================================
+// _LumpsumTabContent  — One-time invest amount + duration + return sliders
+// =============================================================================
+class _LumpsumTabContent extends GetView<GoalSipController> {
+  const _LumpsumTabContent();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Lumpsum Amount
+        Obx(() => SipSliderTile2(
+          prefix: '₹',
+          title: 'Invest Amount',
+          value: controller.lumpsumAmount.value < 500
+              ? 500
+              : controller.lumpsumAmount.value,
+          min: 500,
+          max: 10000000,
+          suffix: '',
+          onChanged: controller.setLumpsumAmount,
+        )),
+        const Gap(16),
+
+        // Duration
+        Obx(() => SipSliderTile2(
+          title: 'Duration',
+          value: controller.years.value,
+          min: 1,
+          max: 30,
+          suffix: 'Yrs',
+          onChanged: controller.setYears,
+        )),
+        const Gap(16),
+
+        // Expected Return
+        Obx(() => SipSliderTile2(
+          title: 'Expected Return',
+          value: controller.annualRate.value,
+          min: 1,
+          max: 30,
+          suffix: '%',
+          onChanged: controller.setRate,
+        )),
+        const Gap(20),
+
+        // Value Cards
+        Obx(() => Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            SizedBox(
+              width: Get.width * .40 - 12,
+              child: _ValueCard(
+                title: 'Invest Once',
+                value: formatCurrency(
+                    controller.lumpsumAmount.value.toDouble()),
+                accent: true,
+              ),
+            ),
+            SizedBox(
+              width: Get.width * .40 - 12,
+              child: _ValueCard(
+                title: 'Duration',
+                value: '${controller.years.value.toInt()} Yrs',
+                accent: false,
+              ),
+            ),
+            SizedBox(
+              width: Get.width * .40 - 12,
+              child: _ValueCard(
+                title: 'Future Value',
+                value: formatCurrency(
+                    controller.lumpsumFutureValue.value.toDouble()),
+                accent: false,
+              ),
+            ),
+            SizedBox(
+              width: Get.width * .40 - 12,
+              child: _ValueCard(
+                title: 'Total Return',
+                value: formatCurrency(
+                    controller.lumpsumTotalReturn.value.toDouble()),
+                accent: false,
+              ),
+            ),
+            SizedBox(
+              width: Get.width * .40 - 12,
+              child: _ValueCard(
+                title: 'Return %',
+                value:
+                '${controller.lumpsumReturnPercent.value.toStringAsFixed(1)}%',
+                accent: false,
+              ),
+            ),
+          ],
+        )),
+      ],
+    );
+  }
+}
+
+// =============================================================================
+// _ValueCard — updated with optional accent highlight
+// =============================================================================
+class _ValueCard extends StatelessWidget {
+  const _ValueCard({
+    required this.title,
+    required this.value,
+    this.accent = false,
+  });
+
+  final String title;
+  final String value;
+  final bool accent; // true = primary color border highlight
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xffF5F7FB),
+        color: accent ? Ucolors.primary.withOpacity(0.06) : const Color(0xffF5F7FB),
         borderRadius: BorderRadius.circular(14),
+        border: accent
+            ? Border.all(color: Ucolors.primary.withOpacity(0.35), width: 1.2)
+            : null,
       ),
       child: Column(
         children: [
-          Text(title,
-              style:
-              TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+          Text(
+            title,
+            style: TextStyle(
+              color: accent ? Ucolors.primary : Colors.grey.shade600,
+              fontSize: 12,
+              fontWeight: accent ? FontWeight.w600 : FontWeight.w400,
+            ),
+          ),
           const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
-                fontSize: 16, fontWeight: FontWeight.w700),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: accent ? Ucolors.primary : Colors.black,
+            ),
           ),
         ],
       ),
     );
   }
 }
+
+
+
+
+
+
+
+
+// class SIPSectionGoal extends GetView<GoalSipController> {
+//   const SIPSectionGoal({super.key});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       padding: const EdgeInsets.all(16),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(16),
+//       ),
+//       child: Column(
+//         mainAxisAlignment: MainAxisAlignment.start,
+//         children: [
+//           TextFormFieldCustom(
+//             title: "Goal Title",
+//             hintTextColor: Ucolors.black,
+//             hintTextSize: 12,
+//             borderWidth: 1,
+//             backgroundColor: Ucolors.light,
+//             borderColor: Ucolors.darkgrey,
+//             method: TextFieldCustom(
+//               height: 50,
+//               width: double.infinity,
+//               hintText: "Enter Full Name",
+//               textInputType: TextInputType.text,
+//               backgroundColor: Colors.transparent,
+//               controller: controller.goalNameTextEditingController,
+//               onChanged: (value) {
+//                 controller.setGoalName(value ?? "");
+//                 return null;
+//               },
+//               onEditingComplete: () => FocusScope.of(context).unfocus(),
+//               suffixIcon: Container(
+//                 width: 30,
+//                 alignment: Alignment.center,
+//                 child: const Text(
+//                   "*",
+//                   style: TextStyle(color: Colors.red, fontSize: 16),
+//                 ),
+//               ),
+//             ),
+//           ),
+//           Obx(() => controller.goalError.isNotEmpty
+//               ? Padding(
+//             padding: const EdgeInsets.only(top: 4, left: 0),
+//             child: Text(
+//               controller.goalError.value,
+//               style: TextStyle(fontSize: 12, color: Ucolors.red),
+//             ),
+//           )
+//               : const SizedBox.shrink()),
+//           const Gap(20),
+//
+//           Obx(() => SipSliderTile2(
+//             prefix: '₹',
+//             title: 'I Need',
+//             value: controller.targetAmount.value < 100
+//                 ? 100
+//                 : controller.targetAmount.value,
+//             min: 100,
+//             max: 10000000,
+//             suffix: '',
+//             onChanged: controller.setTarget,
+//           )),
+//           const Gap(16),
+//
+//           Obx(() => SipSliderTile2(
+//             title: 'Duration',
+//             value: controller.years.value,
+//             min: 1,
+//             max: 30,
+//             suffix: 'Yrs',
+//             onChanged: controller.setYears,
+//           )),
+//           const Gap(16),
+//
+//           Obx(() => SipSliderTile2(
+//             title: 'Expected Return',
+//             value: controller.annualRate.value,
+//             min: 1,
+//             max: 30,
+//             suffix: '%',
+//             onChanged: controller.setRate,
+//           )),
+//           const Gap(20),
+//
+//           Obx(() => Wrap(
+//             spacing: 10,
+//             runSpacing: 10,
+//             children: [
+//               SizedBox(
+//                 width: Get.width * .40 - 12,
+//                 child: _ValueCard(
+//                   title: 'Daily SIP',
+//                   value: formatCurrency(
+//                       controller.dailySipAmount.value),
+//                 ),
+//               ),
+//               SizedBox(
+//                 width: Get.width * .40 - 12,
+//                 child: _ValueCard(
+//                   title: 'Weekly SIP',
+//                   value: formatCurrency(
+//                       controller.weeklySipAmount.value),
+//                 ),
+//               ),
+//               SizedBox(
+//                 width: Get.width * .40 - 12,
+//                 child: _ValueCard(
+//                   title: 'Monthly SIP',
+//                   value: formatCurrency(
+//                       controller.monthlySip.value.toDouble()),
+//                 ),
+//               ),
+//
+//               // Edit mode only: existing + additional SIP
+//               if (controller.hasChanges.value &&
+//                   controller.isEdit.value) ...[
+//                 SizedBox(
+//                   width: Get.width * .20 - 12,
+//                   child: _ValueCard(
+//                     title: 'Existing SIP',
+//                     value: formatCurrency(controller
+//                         .existingSipAmount.value
+//                         .toDouble()),
+//                   ),
+//                 ),
+//                 SizedBox(
+//                   width: Get.width * .40 - 12,
+//                   child: _ValueCard(
+//                     title: 'Additional SIP',
+//                     value: formatCurrency(controller
+//                         .additionalSipAmount.value
+//                         .toDouble()),
+//                   ),
+//                 ),
+//               ],
+//
+//               SizedBox(
+//                 width: Get.width * .40 - 12,
+//                 child: _ValueCard(
+//                   title: 'Invested',
+//                   value: formatCurrency(
+//                       controller.invested.value.toDouble()),
+//                 ),
+//               ),
+//               SizedBox(
+//                 width: Get.width * .40 - 12,
+//                 child: _ValueCard(
+//                   title: 'Future Value',
+//                   value: formatCurrency(
+//                       controller.targetAmount.value.toDouble()),
+//                 ),
+//               ),
+//               SizedBox(
+//                 width: Get.width * .40 - 12,
+//                 child: _ValueCard(
+//                   title: 'Total Return',
+//                   value: formatCurrency(
+//                       controller.totalReturn.value.toDouble()),
+//                 ),
+//               ),
+//             ],
+//           )),
+//         ],
+//       ),
+//     );
+//   }
+//}
+//
+// class _ValueCard extends StatelessWidget {
+//   const _ValueCard({required this.title, required this.value});
+//
+//   final String title;
+//   final String value;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       padding: const EdgeInsets.all(14),
+//       decoration: BoxDecoration(
+//         color: const Color(0xffF5F7FB),
+//         borderRadius: BorderRadius.circular(14),
+//       ),
+//       child: Column(
+//         children: [
+//           Text(title,
+//               style:
+//               TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+//           const SizedBox(height: 8),
+//           Text(
+//             value,
+//             style: const TextStyle(
+//                 fontSize: 16, fontWeight: FontWeight.w700),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 // =============================================================================
 // GoalsGridScreen — unchanged logic, minor const cleanup
@@ -1438,9 +1901,18 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                           controller.selectedGoalType.value =
                               goal.goalType;
                           controller.setTarget(goal.targetAmount);
+
                           controller.setYears(
                               goal.goalTenure.toDouble());
                           controller.setRate(goal.expectedReturnRate);
+                          // ── Lumpsum
+                          final double r = goal.expectedReturnRate / 100;
+                          final int n = goal.goalTenure.toInt();
+                          final double pv = goal.targetAmount / pow(1 + r, n); // PV calculate
+
+                          controller.lumpsumAmount.value = pv;                        // invest amount
+                          controller.lumpsumFutureValue.value = goal.targetAmount;    // fixed FV
+                          controller.lumpsumTotalReturn.value = goal.targetAmount - pv;
                           controller.update();
 
                           await Future.delayed(

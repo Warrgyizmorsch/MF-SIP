@@ -28,88 +28,78 @@ class CartController extends GetxController {
 
   var investmentAmount = 0.0.obs;
 
+  int roundToNearest100(int amount) {
+    final remainder = amount % 100;
 
-  void distributeMonthlyAmount() {
-    final items = displayedItems;
-    final int total = monthlyAmount.value;
-
-    if (items.isEmpty || total <= 0) return;
-
-    final int count = items.length;
-    final int rawPerFund = (total / count).floor();
-
-    // 100 ke multiple mein floor
-    final int perFund = (rawPerFund ~/ 100) * 100;
-
-    int totalAssigned = 0;
-
-    for (final item in items) {
-      final int minAmount = _getMinAmount(item);
-
-      int finalAmount = perFund;
-
-      // Case 2: perFund < minSip → min se set karo
-      if (perFund < minAmount) {
-        finalAmount = minAmount;
-      }
-
-      // 100 ke multiple ensure karo
-      finalAmount = (finalAmount ~/ 100) * 100;
-      if (finalAmount < minAmount) {
-        // ceiling to next 100
-        finalAmount = ((minAmount + 99) ~/ 100) * 100;
-      }
-
-      totalAssigned += finalAmount;
-
-      updateCartItem(
-        itemId: item.id!,
-        amount: finalAmount,
-      );
+    if (remainder >= 50) {
+      return amount + (100 - remainder);
+    } else {
+      return amount - remainder;
     }
-
-    // Remainder: positive = bacha, negative = exceeded
-    distributionRemainder.value = total - totalAssigned;
   }
 
-  void distributeAfterFixing({
-    required int fixedItemId,
-    required int fixedAmount,
-  }) {
-    final items = displayedItems
-        .where((i) => i.id != fixedItemId)
-        .toList();
+  Future<void> distributeMonthlyAmount() async {
 
-    final int remaining = monthlyAmount.value - fixedAmount;
+    final items = displayedItems;
 
-    if (items.isEmpty || remaining <= 0) {
-      distributionRemainder.value = remaining;
+    if (items.isEmpty || monthlyAmount.value <= 0) {
       return;
     }
 
     final int count = items.length;
-    final int rawPerFund = (remaining / count).floor();
-    final int perFund = (rawPerFund ~/ 100) * 100;
 
-    int totalAssigned = fixedAmount;
+    // STEP 1 → Round total to nearest 100
+    final int roundedTotal =
+    roundToNearest100(monthlyAmount.value);
 
-    for (final item in items) {
-      final int minAmount = _getMinAmount(item);
-      int finalAmount = perFund;
+    // STEP 2 → Equal divide
+    double dividedAmount = roundedTotal / count;
 
-      if (perFund < minAmount) {
-        finalAmount = ((minAmount + 99) ~/ 100) * 100;
-      }
+    // STEP 3 → Round each divided amount to nearest 100
+    int baseAmount =
+    roundToNearest100(dividedAmount.round());
 
-      totalAssigned += finalAmount;
+    final List<int> assignedAmounts = [];
 
-      updateCartItem(
-        itemId: item.id!,
-        amount: finalAmount,
+    // STEP 4 → Assign amount
+    for (int i = 0; i < count; i++) {
+      assignedAmounts.add(baseAmount);
+    }
+
+    int totalAssigned =
+    assignedAmounts.fold(0, (a, b) => a + b);
+
+    // STEP 5 → Fix difference
+    int difference = roundedTotal - totalAssigned;
+
+    if (difference != 0) {
+      assignedAmounts[count - 1] += difference;
+    }
+
+    totalAssigned =
+        assignedAmounts.fold(0, (a, b) => a + b);
+
+    distributionRemainder.value =
+        monthlyAmount.value - totalAssigned;
+
+    debugPrint(
+      "Original Total: ${monthlyAmount.value}\n"
+          "Rounded Total: $roundedTotal\n"
+          "Assigned Amounts: $assignedAmounts\n"
+          "Total Assigned: $totalAssigned\n"
+          "Remainder: ${distributionRemainder.value}",
+    );
+
+    // STEP 6 → API Update
+    for (int i = 0; i < items.length; i++) {
+      await updateCartItem(
+        itemId: items[i].id!,
+        amount: assignedAmounts[i],
+        shouldFetchCart: false,
       );
     }
 
-    distributionRemainder.value = monthlyAmount.value - totalAssigned;
+    await fetchCart();
   }
 
   int _getMinAmount(CartItemEntity item) {
@@ -120,13 +110,7 @@ class CartController extends GetxController {
     return double.tryParse(item.minSipAmount ?? '0')?.toInt() ?? 0;
   }
 
-  @override
-  void onReady() {
-    super.onReady();
-    if(isFromGoal.value==true) {
-      distributeMonthlyAmount();
-    }
-  }
+
   setInvestmentDetails({
     required String code,
     required String name,
@@ -149,14 +133,25 @@ class CartController extends GetxController {
   }
 
   bool get isStepUpValid => stepUpAmount.value >= minSipAmount.value;
+  RxBool isInitLoading = false.obs;
   @override
-  void onInit() {
+  Future<void> onInit() async {
     super.onInit();
 
-    _loadArgs();
+    await _loadArgs();
+    debugPrint("Monthly Amount ${monthlyAmount.value} and Goal ID: ${filterGoalId.value} and isGoal:${isFromGoal.value} detected. Distributing...");
 
-    log("Captured Filter ID: ${filterGoalId.value}");
-    fetchCart();
+    if ((filterGoalId.value != null && filterGoalId.value != 0) &&
+        monthlyAmount.value > 0) {
+      isInitLoading.value = true;
+      await fetchCart();
+
+      await distributeMonthlyAmount();
+      isInitLoading.value = false;
+    } else {
+      await fetchCart();
+    }
+
   }
 
   int get totalAmount {
@@ -188,17 +183,44 @@ class CartController extends GetxController {
   //Tracks which specific item is currently being deleted
   final RxInt deletingItemId = (-1).obs;
 
-  void _loadArgs() {
-    // Check if we have arguments and specifically look for goal_id
-    if (Get.arguments != null && Get.arguments is Map) {
-      filterGoalId.value = Get.arguments['goal_id'];
-      investmentAmount.value = Get.arguments['investNow'];
-      debugPrint("investNow:${investmentAmount.value}");
-    } else {
-      filterGoalId.value = null; // Explicitly clear if no argument is passed
-      investmentAmount.value = 0.0; // Explicitly clear if no argument is passed
+  Future<void> _loadArgs() async {
+    monthlyAmount.value = 0;
+    investmentAmount.value = 0.0;
+    filterGoalId.value = null;
+    isFromGoal.value = false;
+
+    final args = Get.arguments as Map<String, dynamic>?;
+
+    if (args == null) {
+      debugPrint("No arguments received");
+      return;
     }
-    debugPrint("investNow: ${investmentAmount.value}");
+
+    // Monthly Amount
+    if (args['monthlyAmount'] != null) {
+      monthlyAmount.value =
+          int.tryParse(args['monthlyAmount'].toString()) ?? 0;
+    }
+
+    // Goal Data
+    if (args['isFromGoal'] == true) {
+      isFromGoal.value = true;
+      filterGoalId.value = args['goal_id'];
+    }
+
+    // Invest Now
+    if (args['investNow'] != null) {
+      investmentAmount.value =
+          double.tryParse(args['investNow'].toString()) ?? 0.0;
+    }
+
+    debugPrint(
+      "Cart Page Arguments: $args\n"
+          "Monthly Amount: ${monthlyAmount.value}\n"
+          "Goal Id: ${filterGoalId.value}\n"
+          "isFromGoal: ${isFromGoal.value}\n"
+          "Invest Now: ${investmentAmount.value}",
+    );
   }
 
   // Inside CartController
@@ -232,7 +254,43 @@ class CartController extends GetxController {
   void setItemError(int itemId, bool hasError) {
     itemErrors[itemId] = hasError;
   }
+  void clearCart() {
+    cartResponseEntity.value = null;
 
+    items.clear();
+    wishlist.clear();
+
+    monthlyAmount.value = 0;
+    filterGoalId.value = null;
+    goalId.value = null;
+
+    investmentAmount.value = 0.0;
+
+    isFromGoal.value = false;
+
+    optimisticBadgeCount.value = 0;
+    distributionRemainder.value = 0;
+
+    itemErrors.clear();
+
+    deletingItemId.value = -1;
+
+    schemeCode.value = '';
+    schemeName.value = '';
+    amcImage.value = '';
+
+    invType.value = 'sip';
+
+    minSipAmount.value = 0;
+
+    selectedSipDay.value = 1;
+
+    stepUpFrequency.value = '6';
+
+    stepUpAmount.value = 0.0;
+
+    fundDetail.value = null;
+  }
   void setMonthlyAmount(int value) {
     monthlyAmount.value = value;
   }
@@ -428,6 +486,7 @@ class CartController extends GetxController {
     String? capingDate,
     String? capingAmount,
     int? stepUpPercentage,
+    bool shouldFetchCart = true,
   }) async {
     // 1. Save original state in case we need to revert on failure
     final originalState = cartResponseEntity.value;
@@ -436,7 +495,6 @@ class CartController extends GetxController {
     if (cartResponseEntity.value != null) {
       final updatedItems = cartResponseEntity.value!.items.map((item) {
         if (item.id == itemId) {
-          // You should ensure your CartItemEntity has a copyWith method
           return item.copyWith(
             transType: transType ?? item.transType,
             sipDay: sipDay ?? item.sipDay,
@@ -469,10 +527,13 @@ class CartController extends GetxController {
       if (capingAmount != null) "caping_amount": capingAmount,
       if (stepUpPercentage != null) "step_up_percentage": stepUpPercentage,
     });
+    debugPrint("Optimistically updating item $itemId locally with new values$itemId : $amount");
 
     result.fold(
       (success) async {
-        await fetchCart();
+        if (shouldFetchCart) {
+          await fetchCart();
+        }
       },
       (failure) {
         // 4. Rollback: If API fails, revert to the original state

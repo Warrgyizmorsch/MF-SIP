@@ -603,40 +603,13 @@ class GoaldetailsPage extends GetView<GoalSipController> {
                                       //     goalSipController.savedDatabaseId.value;
 
                                       if (!isSelected) {
-                                        // Add to Goal Cart
-                                        // goalSipController.toggleFund(name);
-                                        // cartController.addToCart(
-                                        //   title: 'Goal',
-                                        //   fund.schemeCode ?? '',
-                                        //   name,
-                                        //   fund.minSipAmount ?? 0,
-                                        //   currentGoalId,
-                                        // );
                                         goalSipController.saveFundToGoal(
                                           goalId: goal,
                                           schemeCode: schemeCodeStr,
                                           fundName: name,
                                         );
                                       } else {
-                                        // Remove from Goal Cart
-                                        // final cartItem = cartController
-                                        //     .cartResponseEntity
-                                        //     .value
-                                        //     ?.items
-                                        //     .firstWhereOrNull(
-                                        //       (item) =>
-                                        //           item.schemeCode.toString() ==
-                                        //           schemeCodeStr,
-                                        //     );
 
-                                        // if (cartItem != null &&
-                                        //     cartItem.id != null) {
-                                        //   cartController.deleteCartItem(
-                                        //     cartItem.id!,
-                                        //     name,
-                                        //   );
-                                        //   goalSipController.toggleFund(name);
-                                        // }
                                         goalSipController.toggleFund(name);
                                       }
                                     },
@@ -978,6 +951,7 @@ class GoalDetailSection extends StatelessWidget {
                                       size: 20,
                                     ),
                                     onPressed: () {
+
                                       // Show confirmation dialog or delete directly
                                       Get.defaultDialog(
                                         title: "Remove Fund",
@@ -987,7 +961,8 @@ class GoalDetailSection extends StatelessWidget {
                                         textCancel: "Cancel",
                                         confirmTextColor: Colors.white,
                                         onConfirm: () {
-                                          Get.back(); // Close dialog
+                                          Get.back();
+                                          Get.back();// Close dialog
                                           goalSipController.deleteGoalFund(
                                             fund.id,
                                           ); // Passing GoalFundEntity.id

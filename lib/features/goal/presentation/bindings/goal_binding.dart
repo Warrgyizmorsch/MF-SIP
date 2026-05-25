@@ -50,8 +50,11 @@ class GoalBinding extends Bindings {
           getMasterGoalsUseCase: Get.find<GetMasterGoalsUseCase>(),
       ),
     );
-    Get.lazyPut(
-      () => GoalSipController(goalUseCases: Get.find<GoalUseCases>()),
+    Get.lazyPut<GoalSipController>(
+          () => GoalSipController(
+        goalUseCases: Get.find<GoalUseCases>(),
+      ),
+      fenix: true,
     );
   }
 }
