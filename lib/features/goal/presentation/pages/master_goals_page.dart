@@ -19,6 +19,7 @@ import '../../../../core/utils/constant/colors.dart';
 import '../../../../core/utils/constant/text_style.dart';
 import '../../../../core/utils/helper/helpers.dart';
 import '../../../../navigation_menu_bar.dart';
+import '../../../cart/domain/usecases/cart_usecases.dart';
 import '../../../cart/presentation/controllers/cart_controller.dart';
 import '../../../cart/presentation/pages/cart_page.dart';
 import '../../../explore/presentation/controller/fundhouse_controller.dart';
@@ -221,15 +222,32 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                 Get.snackbar("Error", "Please select funds to start SIP");
                 return;
               }
-              final cartCont = Get.find<CartController>();
-              cartCont.filterGoalId.value = controller.savedDatabaseId.value;
-              cartController.monthlyAmount.value =
+
+              // OLD INSTANCE REMOVE
+              if (Get.isRegistered<CartController>()) {
+                Get.delete<CartController>(force: true);
+              }
+
+              // NEW INSTANCE CREATE
+              final CartController cartCont = Get.put(
+                CartController(Get.find<CartUsecases>()),
+              );
+
+              cartCont.clearCart();
+
+              cartCont.filterGoalId.value =
+                  controller.savedDatabaseId.value;
+
+              cartCont.monthlyAmount.value =
                   controller.monthlySip.value.toInt();
+
               Get.toNamed(
                 AppRoutes.cart,
                 arguments: {
-                  'monthlyAmount': controller.monthlySip.value.toInt(),
-                  'goal_id': controller.savedDatabaseId.value,
+                  'monthlyAmount':
+                  controller.monthlySip.value.toInt(),
+                  'goal_id':
+                  controller.savedDatabaseId.value,
                   'isFromGoal': true,
                 },
               );
@@ -1113,6 +1131,7 @@ class SIPSectionGoal extends GetView<GoalSipController> {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           TextFormFieldCustom(
             title: "Goal Title",
@@ -1145,7 +1164,7 @@ class SIPSectionGoal extends GetView<GoalSipController> {
           ),
           Obx(() => controller.goalError.isNotEmpty
               ? Padding(
-            padding: const EdgeInsets.only(top: 4, left: 5),
+            padding: const EdgeInsets.only(top: 4, left: 0),
             child: Text(
               controller.goalError.value,
               style: TextStyle(fontSize: 12, color: Ucolors.red),

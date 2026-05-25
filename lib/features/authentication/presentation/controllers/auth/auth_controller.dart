@@ -57,24 +57,23 @@ class AuthController extends GetxController {
   final GoogleSignIn _googleSignIn = GoogleSignIn.standard();
 
   /// GOOGLE SIGN IN
+  /// GOOGLE SIGN IN
   Future<void> signInWithGoogle() async {
     try {
       debugPrint("========== GOOGLE SIGN IN START ==========");
 
       /// CLEAR PREVIOUS ACCOUNT
-      await _googleSignIn.disconnect();
-
       await _googleSignIn.signOut();
 
       debugPrint("OLD GOOGLE SESSION CLEARED");
 
       /// OPEN GOOGLE ACCOUNT PICKER
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      final GoogleSignInAccount? googleUser =
+      await _googleSignIn.signIn();
 
       /// USER CANCELLED
       if (googleUser == null) {
         debugPrint("USER CANCELLED LOGIN");
-
         return;
       }
 
@@ -82,7 +81,7 @@ class AuthController extends GetxController {
 
       /// AUTH
       final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      await googleUser.authentication;
 
       /// CREDENTIAL
       final credential = GoogleAuthProvider.credential(
@@ -91,7 +90,8 @@ class AuthController extends GetxController {
       );
 
       /// FIREBASE LOGIN
-      final UserCredential userCredential = await _auth.signInWithCredential(
+      final UserCredential userCredential =
+      await _auth.signInWithCredential(
         credential,
       );
 
@@ -109,8 +109,10 @@ class AuthController extends GetxController {
           "phoneNumber": user.phoneNumber,
           "isAnonymous": user.isAnonymous,
           "metadata": {
-            "creationTime": user.metadata.creationTime?.toIso8601String(),
-            "lastSignInTime": user.metadata.lastSignInTime?.toIso8601String(),
+            "creationTime":
+            user.metadata.creationTime?.toIso8601String(),
+            "lastSignInTime":
+            user.metadata.lastSignInTime?.toIso8601String(),
           },
           "providerData": user.providerData.map((info) => {
             "providerId": info.providerId,
@@ -129,27 +131,29 @@ class AuthController extends GetxController {
 
         /// NEW USER
         if (isNewUser) {
-          nameController.text = user.displayName ?? "";
 
           nameController.text =
               user.displayName ?? "";
 
           emailController.text =
               user.email ?? "";
-          debugPrint(user.uid);
 
           Get.offNamed(
             AppRoutes.registerAccountScreen,
           );
 
-          Get.offNamed(AppRoutes.registerAccountScreen);
         } else {
+
           /// OLD USER
           // Get.offAllNamed(AppRoutes.bottomBar);
+
         }
       }
+
     } catch (e) {
+
       debugPrint("GOOGLE LOGIN ERROR : $e");
+
     }
   }
 

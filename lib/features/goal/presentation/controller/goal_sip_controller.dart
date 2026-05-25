@@ -537,7 +537,7 @@ class GoalSipController extends GetxController {
           // 3. Trigger Rx update
           goalResponse.refresh();
         }
-        Get.back();
+
         Get.back();
         // goalResponse.value?.data.removeWhere((item) => item.id == id);
         ULoaders.success(
@@ -765,10 +765,12 @@ class GoalSipController extends GetxController {
   Future<void> fetchCount() async {
     Map<String, dynamic> params = {
       "return_max":annualRate.value,
-      "sort_order":"",
+      "sort_order":"desc",
+      "return_year":years.value.toInt()
     };
     Get.find<MutualFundController>().applyFilters(
       params,);
+
     final result = await Get.find<MutualFundController>().fetchData(
 
     );

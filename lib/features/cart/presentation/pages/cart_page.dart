@@ -40,27 +40,11 @@ class CartPage extends GetView<CartController> {
 
   @override
   Widget build(BuildContext context) {
-    final args = Get.arguments as Map<String, dynamic>?;
-    if (args != null && args['monthlyAmount'] != null) {
-      controller.monthlyAmount.value = int.parse(
-        args['monthlyAmount'].toString(),
-      );
-    }
-    if (args != null && args['isFromGoal'] == true) {
-      controller.isFromGoal.value = true;
-    }
-    debugPrint("Cart Page Arguments: $args, Monthly Amount: ${controller.monthlyAmount.value}");
 
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
     return GetBuilder<CartController>(
-        initState: (_) {
-          if(controller.isFromGoal.value) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              Get.find<CartController>().distributeMonthlyAmount();
-            });
-          }
-        },
+
         builder: (controller) {
         return Scaffold(
           backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
@@ -72,16 +56,23 @@ class CartPage extends GetView<CartController> {
               : [const TermAndPolicy(term: 'By Proceeding I accept the ')],
           bottomNavigationBar: isDesktop
               ? null
-              : SafeArea(
-                  top: false,
-                  child: Obx(() {
-                    return CartBottomBar(
-                      isValid: controller.isCartValid1,
-                      amount: controller.totalAmount.toString(),
-                      ontap: _handlePurchase,
-                    );
-                  }),
-                ),
+              :SafeArea(
+            top: false,
+            child: Obx(() {
+
+              final isLoading =
+                  (controller.isLoading.value && controller.items.isEmpty) ||
+                      controller.isInitLoading.value;
+
+              return CartBottomBar(
+                isValid: controller.isCartValid1,
+                amount: isLoading
+                    ? '0'
+                    : controller.totalAmount.toString(),
+                ontap: _handlePurchase,
+              );
+            }),
+          ),
 
           body: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
@@ -89,7 +80,7 @@ class CartPage extends GetView<CartController> {
             child: Obx(() {
               final items = controller.displayedItems;
 
-              if (controller.isLoading.value && items.isEmpty) {
+              if (controller.isLoading.value && items.isEmpty || controller.isInitLoading.value) {
                 return Center(child: CircularProgressIndicator());
               }
 
@@ -407,8 +398,11 @@ class CartPage extends GetView<CartController> {
                 style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
               ),
               Obx(
-                () => Text(
-                  '₹ ${controller.totalAmount}',
+                    () => Text(
+                  controller.isLoading.value ||
+                      controller.isInitLoading.value
+                      ? '₹ 0'
+                      : '₹ ${controller.totalAmount}',
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -445,7 +439,6 @@ class CartPage extends GetView<CartController> {
     );
   }
 }
-
 class CartBottomBar extends StatelessWidget {
   const CartBottomBar({
     super.key,
@@ -468,69 +461,62 @@ class CartBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.of(context).viewPadding.bottom;
+    final bottomInset =
+        MediaQuery.of(context).viewPadding.bottom;
 
     return Padding(
       padding: EdgeInsets.only(bottom: bottomInset),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        decoration: BoxDecoration(color: Color(0xffE8F4FF)),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+        decoration: const BoxDecoration(
+          color: Color(0xffE8F4FF),
+        ),
         child: Row(
           children: [
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
-                spacing: 0,
                 children: [
                   Text(
-                    title ?? 'Amount Payable ',
+                    title ?? 'Amount Payable',
                     style: UTextStyles.small.copyWith(
                       fontSize: 11,
                       color: Colors.grey,
                     ),
                   ),
-                  Row(
-                    children: [
-                      Text(
-                        amount ?? '₹ 5,000',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: amountColor ?? Ucolors.success,
-                        ),
-                      ),
-                      Text(
-                        goalAmount != null ? goalAmount! : '',
-                        style: TextStyle(
-                          fontSize: goalAmount != null ? 14 : 14,
-                        ),
-                      ),
-                    ],
+                  Text(
+                      '₹ ${amount ?? 0}',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Ucolors.success,
+
+                    ),
                   ),
                 ],
               ),
             ),
+
             Expanded(
-              child:
-                  //  Obx(() {
-                  //   final isValid = Get.find<CartController>().isCartValid1;
-                  //   return
-                  UElevatedBUtton(
-                    // color: isValid ? null : Colors.grey,
-                    color: isValid ? null : Colors.grey,
-                    // height: 50,
-                    // onPressed: ontap,
-                    onPressed: isValid ? ontap : null,
-                    // width: 50,
-                    child: Center(
-                      child: Text(
-                        buttonText ?? 'Purchase',
-                        style: UTextStyles.buttonText,
-                      ),
-                    ),
+              child: UElevatedBUtton(
+                color: isValid
+                    ? null
+                    : Colors.grey,
+                onPressed:
+                isValid ? ontap : null,
+                child: Center(
+                  child: Text(
+                    buttonText ?? 'Purchase',
+                    style:
+                    UTextStyles.buttonText,
                   ),
-              // }),
+                ),
+              ),
             ),
           ],
         ),
