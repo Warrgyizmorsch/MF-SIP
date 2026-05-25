@@ -60,6 +60,7 @@ class ProfileDataModel {
   final RiskProfileModel? riskProfile;
   final NomineeModel? nominee;
   final BankAccountModel? bankAccount;
+  final MfuMandateModel? mfuMandate;
 
   ProfileDataModel({
     this.id,
@@ -101,6 +102,7 @@ class ProfileDataModel {
     this.customerDetails,
     this.bankAccount,
     this.nominee,
+    this.mfuMandate,
   });
 
   factory ProfileDataModel.fromJson(Map<String, dynamic> json) {
@@ -159,6 +161,12 @@ class ProfileDataModel {
               (json['bank_accounts'] as List).isNotEmpty)
           ? BankAccountModel.fromJson((json['bank_accounts'] as List).first)
           : null,
+      mfuMandate:
+          (json['mfu_mandates'] != null &&
+              (json['mfu_mandates'] as List).isNotEmpty)
+          ? MfuMandateModel.fromJson((json['mfu_mandates'] as List).first)
+          : null,
+
       // nominee: json.parseNested<NomineeModel>(
       //   'nominees',
       //   (m) => NomineeModel.fromJson(m),
@@ -343,6 +351,65 @@ class BankAccountModel {
       ifscCode: json.parse<String>('ifsc_code'),
       bankName: json.parse<String>('bank_name'),
       verified: json.parse<int>('verified'),
+    );
+  }
+}
+
+class MfuMandateModel {
+  final int? id;
+  final int? userId;
+  final int? bankAccountId;
+  final String? startDate;
+  final String? endDate;
+  final String? vpaId;
+  final String? mandateMode;
+  final String? mandateType;
+  final String? mumrn;
+  final String? mmrn;
+  final String? aumrn;
+  final String? status;
+  final String? aggrStatus;
+  final String? maxAmount;
+  final String? createdAt;
+  final String? updatedAt;
+
+  MfuMandateModel({
+    this.id,
+    this.userId,
+    this.bankAccountId,
+    this.startDate,
+    this.endDate,
+    this.vpaId,
+    this.mandateMode,
+    this.mandateType,
+    this.mumrn,
+    this.mmrn,
+    this.aumrn,
+    this.status,
+    this.aggrStatus,
+    this.maxAmount,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  factory MfuMandateModel.fromJson(Map<String, dynamic> json) {
+    return MfuMandateModel(
+      id: json.parse<int>('id'),
+      userId: json.parse<int>('user_id'),
+      bankAccountId: json.parse<int>('bank_account_id'),
+      startDate: json.parse<String>('start_date'),
+      endDate: json.parse<String>('end_date'),
+      vpaId: json.parse<String>('vpa_id'),
+      mandateMode: json.parse<String>('mandate_mode'),
+      mandateType: json.parse<String>('mandate_type'),
+      mumrn: json.parse<String>('mumrn'),
+      mmrn: json.parse<String>('mmrn'),
+      aumrn: json.parse<String>('aumrn'),
+      status: json.parse<String>('status'),
+      aggrStatus: json.parse<String>('aggr_status'),
+      maxAmount: json.parse<String>('max_amount'),
+      createdAt: json.parse<String>('created_at'),
+      updatedAt: json.parse<String>('updated_at'),
     );
   }
 }

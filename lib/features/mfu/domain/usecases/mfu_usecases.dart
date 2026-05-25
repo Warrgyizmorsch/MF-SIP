@@ -1,3 +1,4 @@
+import 'package:my_sip/features/mfu/domain/usecases/bank_validation_usecases.dart';
 import 'package:my_sip/features/mfu/domain/usecases/can_register_usecases.dart';
 import 'package:my_sip/features/mfu/domain/usecases/can_status_usecases.dart';
 import 'package:my_sip/features/mfu/domain/usecases/emandate_status_usecases.dart';
@@ -12,6 +13,7 @@ class MfuUseCases {
   final MfuMandateStatusUseCase mfuMandateStatusUseCase;
   final MfuNormalTxnUseCase mfuNormalTxnUseCase;
   final MfuSystematicTxnUseCase mfuSystematicTxnUseCase;
+  final MfuCanBankValidationUseCase mfuCanBankValidationUseCase;
 
   MfuUseCases({
     required this.canRegisterUseCase,
@@ -20,5 +22,6 @@ class MfuUseCases {
     required this.mfuMandateStatusUseCase,
     required this.mfuNormalTxnUseCase,
     required this.mfuSystematicTxnUseCase,
+    required this.mfuCanBankValidationUseCase,
   });
 }

@@ -10,6 +10,7 @@ import 'package:my_sip/features/mfu/domain/entity/can_register_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/can_status_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/emandate_status_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/mandate_entity.dart';
+import 'package:my_sip/features/mfu/domain/entity/mfu_bank_validation_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/normal_txn_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/systematic_txn_entity.dart';
 import 'package:my_sip/features/mfu/domain/repository/mfu_repository_abstract.dart';
@@ -45,6 +46,20 @@ class MfuRepositoryImpl extends MfuRepository {
   }) async {
     try {
       final response = await _remoteDataSource.getCanStatus(can: can);
+      return response.fold(
+        (successResult) => Left(Result.success(successResult.data!.toEntity())),
+        (error) => Right(error),
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Result<MfuCanBankValidationEntity>, ApiError>>
+  canBankValidation({required int uid}) async {
+    try {
+      final response = await _remoteDataSource.canBankValidation(uid: uid);
       return response.fold(
         (successResult) => Left(Result.success(successResult.data!.toEntity())),
         (error) => Right(error),
@@ -109,19 +124,19 @@ class MfuRepositoryImpl extends MfuRepository {
   //   }
   // }
   @override
-Future<Either<Result<MfuMandateStatusEntity>, ApiError>> getMandateStatus(
-  MfuMandateStatusRequest request,
-) async {
-  try {
-    final response = await _remoteDataSource.getMandateStatus(request);
-    return response.fold(
-      (successResult) => Left(Result.success(successResult.data!.toEntity())),
-      (error) => Right(error),
-    );
-  } catch (e) {
-    return Right(ApiError(message: e.toString()));
+  Future<Either<Result<MfuMandateStatusEntity>, ApiError>> getMandateStatus(
+    MfuMandateStatusRequest request,
+  ) async {
+    try {
+      final response = await _remoteDataSource.getMandateStatus(request);
+      return response.fold(
+        (successResult) => Left(Result.success(successResult.data!.toEntity())),
+        (error) => Right(error),
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
   }
-}
 
   @override
   Future<Either<Result<MfuNormalTxnEntity>, ApiError>> normalTransaction(

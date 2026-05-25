@@ -4,6 +4,7 @@ import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
+import 'package:my_sip/features/mfu/data/model/bank_validation_res.dart';
 import 'package:my_sip/features/mfu/data/model/can_register_model.dart';
 import 'package:my_sip/features/mfu/data/model/can_status_model.dart';
 import 'package:my_sip/features/mfu/data/model/emandate_status.dart';
@@ -103,6 +104,36 @@ class MfuRemoteDataSource {
       return Right(ApiError(message: 'getCanStatus Exception: $e'));
     }
   }
+
+  Future<Either<Result<MfuCanBankValidationModel>, ApiError>> canBankValidation({
+  required int uid,
+}) async {
+  try {
+    final body = {"uid": uid};
+
+    createLog("[MfuRemoteDataSource] canBankValidation Request: $body");
+
+    final resp = await _apiService.postApi(
+      "${Appurl.baseUrl}/api/mfu/can-bank-validation",
+      data: body,
+    );
+
+    createLog("[MfuRemoteDataSource] canBankValidation Response: $resp");
+
+    if (resp != null) {
+      final result = MfuCanBankValidationModel.fromJson(resp);
+      if (result.success == true) {
+        return Left(Result.success(result));
+      } else {
+        return Right(ApiError(message: result.message ?? 'CAN Bank Validation Failed'));
+      }
+    } else {
+      return Right(ApiError(message: 'canBankValidation: Invalid response structure'));
+    }
+  } catch (e) {
+    return Right(ApiError(message: 'canBankValidation Exception: $e'));
+  }
+}
 
   // Future<Either<Result<MfuMandateCreateModel>, ApiError>> createMandate({
   //   required int uid,

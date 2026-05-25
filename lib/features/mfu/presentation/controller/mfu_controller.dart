@@ -15,9 +15,11 @@ import 'package:my_sip/features/mfu/domain/entity/can_register_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/can_status_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/emandate_status_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/mandate_entity.dart';
+import 'package:my_sip/features/mfu/domain/entity/mfu_bank_validation_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/normal_txn_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/systematic_txn_entity.dart';
 import 'package:my_sip/features/mfu/domain/usecases/mfu_usecases.dart';
+import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
 import 'package:my_sip/services/session_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -45,6 +47,7 @@ class MfuController extends GetxController {
   final isCreatingMandate = false.obs;
   final isSubmittingTxn = false.obs;
   final isSubmittingSystematicTxn = false.obs;
+  final isValidatingCanBank = false.obs;
 
   // ─── Redeem State ────────────────────────────────────────────────────────────
 
@@ -61,6 +64,7 @@ class MfuController extends GetxController {
   final canStatusResponse = Rxn<MfuCanStatusEntity>();
   final normalTxnResponse = Rxn<MfuNormalTxnEntity>();
   final systematicTxnResponse = Rxn<MfuSystematicTxnEntity>();
+  final canBankValidationResponse = Rxn<MfuCanBankValidationEntity>();
 
   final errorMessage = ''.obs;
   final selectedMethod = 'upi'.obs; // 'upi' | 'netbanking'
@@ -86,6 +90,282 @@ class MfuController extends GetxController {
 
   Timer? _canStatusTimer;
   static const _pollInterval = Duration(hours: 2);
+
+  ////  SIP PURCHASE — State & Logic
+  final Rx<SipPurchaseArgs> sipArgs = Rx<SipPurchaseArgs>(
+    const SipPurchaseArgs(schemeCode: '', fundName: ''),
+  );
+
+  // ─── Investment State ─────────────────────────────────────────────────────────
+
+  final Rx<InvType> sipInvType = Rx<InvType>(InvType.sip);
+  final RxInt sipAmount = 500.obs;
+  final RxInt sipDay = 16.obs;
+  final Rx<SipFrequency> sipFreq = Rx<SipFrequency>(SipFrequency.monthly);
+  final RxInt sipWeekDay = 1.obs; // 1 = Monday
+
+  // Step-up specific
+  final RxInt sipStepUpAmt = 0.obs;
+  final RxInt sipStepUpPct = 10.obs;
+  final RxBool sipStepByPct = false.obs;
+  final RxString sipFrequency = '6'.obs; // '6' = half-yearly, '12' = yearly
+
+  // Cap limit
+  final RxBool sipCapByDate = true.obs;
+  final Rx<DateTime?> sipCapDate = Rx<DateTime?>(null);
+  final RxInt sipCapAmount = 0.obs;
+
+  // ─── Validation Errors ────────────────────────────────────────────────────────
+
+  final Rx<String?> sipAmountError = Rx<String?>(null);
+  final Rx<String?> sipStepUpError = Rx<String?>(null);
+  final Rx<String?> sipCapError = Rx<String?>(null);
+
+  // ─── Computed ─────────────────────────────────────────────────────────────────
+
+  int get sipCurrentMin => switch (sipInvType.value) {
+    InvType.sip => sipArgs.value.minSip,
+    InvType.lumpsum => sipArgs.value.minLumpsum,
+    InvType.stepup => sipArgs.value.minSip,
+  };
+
+  bool get sipIsValid {
+    if (sipAmountError.value != null) return false;
+    if (sipInvType.value == InvType.stepup) {
+      if (sipStepUpError.value != null) return false;
+      if (sipCapError.value != null) return false;
+    }
+    return true;
+  }
+
+  void initSipPurchase(SipPurchaseArgs args) {
+    sipArgs.value = args;
+    sipAmount.value = args.minSip;
+    sipStepUpAmt.value = args.minTopup;
+    sipCapAmount.value = args.minSip + args.minTopup + 100;
+
+    // Reset all errors and optional state
+    sipAmountError.value = null;
+    sipStepUpError.value = null;
+    sipCapError.value = null;
+    sipInvType.value = InvType.sip;
+    sipFreq.value = SipFrequency.monthly;
+    sipDay.value = 16;
+    sipWeekDay.value = 1;
+    sipStepByPct.value = false;
+    sipStepUpPct.value = 10;
+    sipFrequency.value = '6';
+    sipCapByDate.value = true;
+    sipCapDate.value = null;
+  }
+
+  // ─── Type Changed ─────────────────────────────────────────────────────────────
+
+  void onSipTypeChanged(InvType t) {
+    sipInvType.value = t;
+    sipAmountError.value = null;
+    sipStepUpError.value = null;
+    sipCapError.value = null;
+    sipAmount.value = switch (t) {
+      InvType.lumpsum => sipArgs.value.minLumpsum,
+      _ => sipArgs.value.minSip,
+    };
+  }
+
+  // ─── Amount ───────────────────────────────────────────────────────────────────
+
+  void onSipAddAmount(int delta) {
+    sipAmount.value += delta;
+    sipAmountError.value = _validateSipAmount(sipAmount.value);
+  }
+
+  void onSipAmountChanged(int v) {
+    sipAmount.value = v;
+    sipAmountError.value = _validateSipAmount(v);
+  }
+
+  String? _validateSipAmount(int v) {
+    if (v < sipCurrentMin) return 'Min ₹$sipCurrentMin';
+    if (v % 100 != 0) return 'Must be a multiple of ₹100';
+    return null;
+  }
+
+  // ─── Step-up ──────────────────────────────────────────────────────────────────
+
+  void onSipStepByPctToggle(bool byPct) {
+    sipStepByPct.value = byPct;
+    sipStepUpError.value = null;
+  }
+
+  void onSipStepAmtChanged(int v) {
+    sipStepUpAmt.value = v;
+    sipStepUpError.value = _validateStepUp();
+  }
+
+  void onSipStepPctChanged(int v) {
+    sipStepUpPct.value = v;
+    sipStepUpError.value = _validateStepUp();
+  }
+
+  void onSipFrequencyChanged(String f) => sipFrequency.value = f;
+
+  String? _validateStepUp() {
+    if (sipStepByPct.value) {
+      if (sipStepUpPct.value <= 0) return 'Min 1%';
+      if (sipStepUpPct.value > 100) return 'Max 100%';
+    } else {
+      if (sipStepUpAmt.value < sipArgs.value.minTopup) {
+        return 'Min ₹${sipArgs.value.minTopup}';
+      }
+      if (sipStepUpAmt.value % 100 != 0) return 'Multiple of ₹100';
+    }
+    return null;
+  }
+
+  // ─── Cap ──────────────────────────────────────────────────────────────────────
+
+  void onSipCapTypeToggle(bool byDate) {
+    sipCapByDate.value = byDate;
+    sipCapError.value = null;
+  }
+
+  void onSipCapDatePicked(DateTime d) {
+    sipCapDate.value = d;
+    sipCapError.value = _validateCap();
+  }
+
+  void onSipCapAmtChanged(int v) {
+    sipCapAmount.value = v;
+    sipCapError.value = _validateCap();
+  }
+
+  String? _validateCap() {
+    if (sipCapByDate.value) {
+      if (sipCapDate.value == null) return 'Select an end date';
+      if (sipCapDate.value!.isBefore(DateTime.now())) {
+        return 'Date must be in future';
+      }
+    } else {
+      final minCap = sipArgs.value.minSip + sipArgs.value.minTopup;
+      if (sipCapAmount.value <= minCap) return 'Must be > ₹$minCap';
+      if (sipCapAmount.value % 100 != 0) return 'Multiple of ₹100';
+    }
+    return null;
+  }
+
+  // ─── SIP Frequency / Date pickers (delegates — call from View) ───────────────
+
+  void setSipFrequency(SipFrequency f) => sipFreq.value = f;
+
+  void setSipDay(int day) => sipDay.value = day;
+
+  void setSipWeekDay(int weekDay) => sipWeekDay.value = weekDay;
+
+  // ─── MFU Day Formatter ────────────────────────────────────────────────────────
+
+  String formatMfuSipDay() {
+    switch (sipFreq.value) {
+      case SipFrequency.daily:
+        // MFU Rule: For Daily frequency, date field must be blank / NA.
+        return 'NA';
+
+      case SipFrequency.weekly:
+        // MFU Rule: 1=Monday … 5=Friday
+        return sipWeekDay.value.toString();
+
+      case SipFrequency.monthly:
+        // MFU Rule: Pass the day number as a string, e.g. "10", "15"
+        return sipDay.value.toString();
+    }
+  }
+
+  // ─── Invest ───────────────────────────────────────────────────────────────────
+
+  void onSipInvest() {
+    // 1. Validate everything
+    final aErr = _validateSipAmount(sipAmount.value);
+    final sErr = sipInvType.value == InvType.stepup ? _validateStepUp() : null;
+    final cErr = sipInvType.value == InvType.stepup ? _validateCap() : null;
+
+    sipAmountError.value = aErr;
+    sipStepUpError.value = sErr;
+    sipCapError.value = cErr;
+
+    if (aErr != null || sErr != null || cErr != null) return;
+
+    final args = sipArgs.value;
+
+    if (sipInvType.value == InvType.sip || sipInvType.value == InvType.stepup) {
+      final now = DateTime.now();
+      DateTime startDate = DateTime(now.year, now.month + 1, sipDay.value);
+
+      // MFU 30-Day Minimum Gap Rule
+      if (startDate.difference(now).inDays < 30) {
+        startDate = DateTime(now.year, now.month + 2, sipDay.value);
+      }
+      final endDate = DateTime(
+        startDate.year + 30,
+        startDate.month,
+        startDate.day,
+      );
+
+      String freqCode = 'M';
+      if (sipFreq.value == SipFrequency.weekly) freqCode = 'W';
+      if (sipFreq.value == SipFrequency.daily) freqCode = 'D';
+
+      systematicTransaction(
+        MfuSystematicTxnRequest.sip(
+          // uid: session.getUserData?.id ?? 7,
+          uid: 9105,
+          // can: session.getUserData?.canNumber ?? '14167AZA01',
+          can: '14167AZA01',
+          schemeCode: "012",
+          // schemeCode: args.schemeCode,
+          folio: '',
+          // folio: args.folio ?? '',
+          amount: sipAmount.value,
+          // frequency: freqCode,
+          frequency: "M",
+          day: "10",
+          // day: formatMfuSipDay(),
+          startMonth: startDate.month.toString().padLeft(2, '0'),
+          startYear: startDate.year.toString(),
+          endMonth: endDate.month.toString().padLeft(2, '0'),
+          endYear: endDate.year.toString(),
+          paymentMode: 'DM',
+          accType: 'SB',
+          accNo: '654321',
+          ifsc: 'ABHY0065002',
+          micr: '400065002',
+          mandateRefNo: 'PRNUAT001',
+        ),
+      );
+    } else if (sipInvType.value == InvType.lumpsum) {
+      final folio = args.folio;
+      if (folio != null && folio.isNotEmpty) {
+        normalTransaction(
+          MfuNormalTxnRequest.lumpsumExistingFolio(
+            uid: 9015,
+            // uid: session.getUserData?.id ?? 0,
+            schemeCode: args.schemeCode,
+            amount: sipAmount.value.toDouble(),
+            folio: folio,
+          ),
+        );
+      } else {
+        normalTransaction(
+          MfuNormalTxnRequest.lumpsumNewFolio(
+            uid: 9105,
+            schemeCode: "012",
+            // schemeCode: args.schemeCode,
+            amount: sipAmount.value.toDouble(),
+          ),
+        );
+      }
+    }
+  }
+
+  ////////////////          ----------------------------           //////////////////
 
   void selectMethod(String method) {
     selectedMethod.value = method;
@@ -228,6 +508,44 @@ class MfuController extends GetxController {
       _startCanStatusPolling();
     }
   }
+
+  //Bank Validation
+
+  Future<void> canBankValidation() async {
+    isValidatingCanBank.value = true;
+    errorMessage.value = '';
+
+    final uid = session.getUserData?.id ?? 0;
+
+    final result = await mfuUseCases.mfuCanBankValidationUseCase(uid: uid);
+
+    result.fold(
+      (success) {
+        canBankValidationResponse.value = success.data;
+        log(
+          "[MfuController] CAN Bank Validation — bankExist: ${success.data?.isBankLinked}",
+        );
+      },
+      (error) {
+        errorMessage.value = error.message ?? 'CAN Bank Validation Failed';
+        Get.snackbar('Validation Error', errorMessage.value);
+      },
+    );
+
+    isValidatingCanBank.value = false;
+  }
+
+  //   Usage from UI
+  //   controller.canBankValidation();
+
+  // // Check result
+  // Obx(() {
+  //   final response = controller.canBankValidationResponse.value;
+  //   if (response?.isBankLinked == true) {
+  //     // bank is linked to CAN ✅
+  //   }
+  // });
+  /// ---------------------------
 
   /// ------   Mandate ----   ///
   Future<void> createMandate(MfuMandateCreateRequest request) async {
@@ -376,223 +694,6 @@ class MfuController extends GetxController {
       isCreatingMandate.value = false;
     }
   }
-
-  // Future<void> createMandate({
-  //   required String mandateType,
-  //   String? upiId,
-  // }) async {
-  //   isCreatingMandate.value = true;
-  //   errorMessage.value = '';
-
-  //   CustomLoadingDialog.show(title: "Preparing secure gateway...");
-
-  //   final uid = session.getUserData?.id ?? 0;
-
-  //   try {
-  //     final result = await mfuUseCases.mfuMandateCreateUseCase(
-  //       uid: uid,
-  //       mandateType: mandateType,
-  //       upiId: upiId,
-  //     );
-
-  //     await result.fold(
-  //       (success) async {
-  //         mandateCreateResponse.value = success.data;
-  //         final approveLink = success.data?.response?.approveLink;
-
-  //         log(approveLink.toString());
-
-  //         // Navigator.of(Get.overlayContext!).pop();
-  //         CustomLoadingDialog.hide();
-
-  //         if (approveLink != null && approveLink.isNotEmpty) {
-  //           final webViewResult = await Get.to(
-  //             () => MandateWebView(url: approveLink),
-  //           );
-
-  //           debugPrint("==================================================");
-  //           debugPrint("WEBPAGE RAW TEXT:");
-  //           debugPrint(webViewResult.toString());
-  //           debugPrint("==================================================");
-
-  //           if (webViewResult == 'success' || webViewResult == 'check_status') {
-  //             // Get.dialog(
-  //             //   const Center(
-  //             //     child: Column(
-  //             //       mainAxisSize: MainAxisSize.min,
-  //             //       children: [
-  //             //         CircularProgressIndicator(color: Colors.white),
-  //             //         SizedBox(height: 16),
-  //             //         Text(
-  //             //           "Verifying status with bank...",
-  //             //           style: TextStyle(color: Colors.white, fontSize: 16),
-  //             //         ),
-  //             //       ],
-  //             //     ),
-  //             //   ),
-  //             //   barrierDismissible: false,
-  //             // );
-  //             CustomLoadingDialog.show(title: "Verifying status with bank...");
-
-  //             try {
-  //               await Future.delayed(const Duration(seconds: 2));
-
-  //               await getMandateStatus(mandateType: mandateType);
-  //             } finally {
-  //               Navigator.of(Get.overlayContext!).pop();
-  //             }
-
-  //             await Future.delayed(const Duration(milliseconds: 300));
-
-  //             final actualStatus = mandateStatusResponse.value?.status
-  //                 ?.toLowerCase();
-
-  //             if (actualStatus == 'success' || actualStatus == 'approved') {
-  //               CustomSnackbar.success(
-  //                 title: 'Success',
-  //                 message: 'Mandate approved and verified successfully!',
-  //               );
-  //             } else if (actualStatus == 'pending') {
-  //               CustomSnackbar.success(
-  //                 title: 'Processing',
-  //                 message:
-  //                     'Your mandate is being processed. It may take a few minutes.',
-  //               );
-  //             } else {
-  //               CustomSnackbar.error(
-  //                 title: 'Failed',
-  //                 message: 'Mandate verification failed. Status: $actualStatus',
-  //               );
-  //             }
-  //           } else if (webViewResult == 'failed') {
-  //             CustomSnackbar.error(
-  //               title: 'Failed',
-  //               message: 'Mandate authorization failed or was cancelled.',
-  //             );
-  //           }
-  //         }
-  //       },
-  //       (error) async {
-  //         // Navigator.of(Get.overlayContext!).pop();
-  //         CustomLoadingDialog.hide();
-  //         await Future.delayed(const Duration(milliseconds: 300));
-
-  //         errorMessage.value = error.message;
-  //         CustomSnackbar.error(
-  //           title: 'Mandate Error',
-  //           message: errorMessage.value,
-  //         );
-  //       },
-  //     );
-  //   } catch (e) {
-  //     Get.back();
-
-  //     CustomSnackbar.error(
-  //       title: 'Error',
-  //       message: 'An unexpected error occurred.',
-  //     );
-  //   }
-
-  //   isCreatingMandate.value = false;
-  // }
-
-  /*
-  // Future<void> createMandate({required String mandateType}) async {
-  //   isCreatingMandate.value = true;
-  //   errorMessage.value = '';
-
-  //   final uid = session.getUserData?.id ?? 0;
-
-  //   final result = await mfuUseCases.mfuMandateCreateUseCase(
-  //     uid: uid,
-  //     mandateType: mandateType,
-  //   );
-
-  //   // result.fold(
-  //   //   (success) {
-  //   //     mandateCreateResponse.value = success.data;
-  //   //     log(
-  //   //       "[MfuController] Mandate created — type: $mandateType | approve link: ${success.data?.approveLink}",
-  //   //     );
-  //   //   },
-  //   //   (error) {
-  //   //     errorMessage.value = error.message;
-  //   //     Get.snackbar('Mandate Error', errorMessage.value);
-  //   //   },
-  //   // );
-  //   await result.fold(
-  //     (success) async {
-  //       mandateCreateResponse.value = success.data;
-  //       final approveLink = success.data?.approveLink;
-
-  //       if (approveLink != null && approveLink.isNotEmpty) {
-  //         // Navigate to your new WebView screen and wait for the result
-  //         final result = await Get.to(() => MandateWebView(url: approveLink));
-
-  //         if (result == 'success' || result == 'check_status') {
-  //           CustomSnackbar.success(
-  //             title: 'Success',
-  //             message: 'Mandate approved successfully!',
-  //           );
-  //           // Refresh your user data or state here
-  //         } else if (result == 'failed') {
-  //           CustomSnackbar.error(
-  //             title: 'Failed',
-  //             message: 'Mandate authorization failed or was cancelled.',
-  //           );
-  //         } else {
-  //           Get.snackbar(
-  //             'Something else ',
-  //             'some other problem.',
-  //             backgroundColor: Colors.orange,
-  //             colorText: Colors.white,
-  //           );
-  //         }
-  //       }
-  //     },
-
-  //     (error) {
-  //       errorMessage.value = error.message;
-  //       CustomSnackbar.error(
-  //         title: 'Mandate Error',
-  //         message: errorMessage.value,
-  //       );
-  //     },
-  //   );
-
-  //   isCreatingMandate.value = false;
-  // }
-
-  */
-
-  // get mandate status
-  // Future<void> getMandateStatus({required String mandateType}) async {
-  //   isLoadingMandateStatus.value = true;
-  //   errorMessage.value = '';
-
-  //   final uid = session.getUserData?.id ?? 0;
-
-  //   final result = await mfuUseCases.mfuMandateStatusUseCase(
-  //     uid: uid,
-  //     mandateType: mandateType,
-  //   );
-
-  //   result.fold(
-  //     (success) {
-  //       mandateStatusResponse.value = success.data;
-  //       log("[MfuController] Mandate Status: ${success.data?.status}");
-  //     },
-  //     (error) {
-  //       errorMessage.value = error.message ?? 'Failed to fetch mandate status';
-  //       CustomSnackbar.error(
-  //         title: 'Mandate Status Error ----------',
-  //         message: errorMessage.value,
-  //       );
-  //     },
-  //   );
-
-  //   isLoadingMandateStatus.value = false;
-  // }
 
   Future<void> getMandateStatus(MfuMandateStatusRequest request) async {
     isLoadingMandateStatus.value = true;
@@ -805,14 +906,18 @@ class MfuController extends GetxController {
   String _toWords(int n) {
     if (n == 0) return 'Zero';
     if (n < 20) return _ones[n];
-    if (n < 100)
+    if (n < 100) {
       return '${_tens[n ~/ 10]}${n % 10 > 0 ? ' ${_ones[n % 10]}' : ''}';
-    if (n < 1000)
+    }
+    if (n < 1000) {
       return '${_ones[n ~/ 100]} Hundred${n % 100 > 0 ? ' ${_toWords(n % 100)}' : ''}';
-    if (n < 100000)
+    }
+    if (n < 100000) {
       return '${_toWords(n ~/ 1000)} Thousand${n % 1000 > 0 ? ' ${_toWords(n % 1000)}' : ''}';
-    if (n < 10000000)
+    }
+    if (n < 10000000) {
       return '${_toWords(n ~/ 100000)} Lakh${n % 100000 > 0 ? ' ${_toWords(n % 100000)}' : ''}';
+    }
     return '${_toWords(n ~/ 10000000)} Crore${n % 10000000 > 0 ? ' ${_toWords(n % 10000000)}' : ''}';
   }
 

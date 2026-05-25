@@ -113,6 +113,8 @@ class PersonalisationController extends GetxController {
 
   final userData = Rxn<profileEntity.ProfileDataEntity>();
 
+
+
   final nomineeDocumentSelectionList = [
     "Pan",
     "Aadhaar",
@@ -228,6 +230,7 @@ class PersonalisationController extends GetxController {
   final RxBool isFetchingIFSC = false.obs;
   final RxString resolvedBranch = ''.obs;
   final RxString autoFetchedBank = ''.obs;
+  
 
   // ------------------------ Add Bank Account State --------------------------///
   final isBankAdding = false.obs;

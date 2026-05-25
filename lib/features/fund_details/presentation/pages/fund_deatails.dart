@@ -128,7 +128,7 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                               final argVal = controller.fundDetail.value;
 
                               final purchaseArgs = SipPurchaseArgs(
-                                schemeCode: '012',
+                                schemeCode: controller.schemeCode,
                                 fundName: controller
                                     .schemeName, // Replace with variable
                                 category:

@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:my_sip/core/network/network_api_service.dart';
 import 'package:my_sip/features/mfu/data/datasource/mfu_remote_data_source.dart';
 import 'package:my_sip/features/mfu/data/repository/mfu_repo_imple.dart';
+import 'package:my_sip/features/mfu/domain/usecases/bank_validation_usecases.dart';
 import 'package:my_sip/features/mfu/domain/usecases/can_register_usecases.dart';
 import 'package:my_sip/features/mfu/domain/usecases/can_status_usecases.dart';
 import 'package:my_sip/features/mfu/domain/usecases/emandate_status_usecases.dart';
@@ -34,6 +35,11 @@ class MfuBindings extends Bindings {
     Get.lazyPut(
       () => GetCanStatusUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
     );
+    Get.lazyPut(
+  () => MfuCanBankValidationUseCase(
+    mfuRepository: Get.find<MfuRepositoryImpl>(),
+  ),
+);
 
     Get.lazyPut(
       () =>
@@ -59,6 +65,7 @@ class MfuBindings extends Bindings {
       () => MfuUseCases(
         canRegisterUseCase: Get.find<CanRegisterUseCase>(),
         getCanStatusUseCase: Get.find<GetCanStatusUseCase>(),
+        mfuCanBankValidationUseCase: Get.find<MfuCanBankValidationUseCase>(),
         mfuMandateCreateUseCase: Get.find<MfuMandateCreateUseCase>(),
         mfuMandateStatusUseCase: Get.find<MfuMandateStatusUseCase>(),
         mfuNormalTxnUseCase: Get.find<MfuNormalTxnUseCase>(),
