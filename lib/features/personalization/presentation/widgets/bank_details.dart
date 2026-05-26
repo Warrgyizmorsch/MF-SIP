@@ -434,7 +434,7 @@
 //         gradient: color,
 //         boxShadow: [
 //           BoxShadow(
-//             color: Colors.black.withValues(alpha:0.1),
+//             color: Colors.black.withOpacity(0.1),
 //             blurRadius: 15,
 //             offset: const Offset(0, 8),
 //           ),
@@ -568,7 +568,7 @@
 //           decoration: BoxDecoration(
 //             color:
 //                 containercolor ??
-//                 Colors.white.withValues(alpha:
+//                 Colors.white.withOpacity(
 //                   0.2,
 //                 ), // Transparent white looks better on gradients
 //             borderRadius: BorderRadius.circular(12),
@@ -846,7 +846,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
 //           gradient: color,
 //           boxShadow: [
 //             BoxShadow(
-//               color: Colors.black.withValues(alpha:0.15),
+//               color: Colors.black.withOpacity(0.15),
 //               blurRadius: 15,
 //               offset: const Offset(0, 8),
 //             ),
@@ -865,7 +865,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
 //                   width: 180,
 //                   decoration: BoxDecoration(
 //                     shape: BoxShape.circle,
-//                     color: Colors.white.withValues(alpha:0.06),
+//                     color: Colors.white.withOpacity(0.06),
 //                   ),
 //                 ),
 //               ),
@@ -877,7 +877,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
 //                   width: 140,
 //                   decoration: BoxDecoration(
 //                     shape: BoxShape.circle,
-//                     color: Colors.white.withValues(alpha:0.04),
+//                     color: Colors.white.withOpacity(0.04),
 //                   ),
 //                 ),
 //               ),
@@ -1026,7 +1026,7 @@ class BankCard extends StatelessWidget {
         gradient: color,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.1),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -1153,7 +1153,7 @@ class Deleteiconwithcontainer extends StatelessWidget {
           height: 36,
           width: 36,
           decoration: BoxDecoration(
-            color: containercolor ?? Colors.white.withValues(alpha:0.2),
+            color: containercolor ?? Colors.white.withOpacity(0.2),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(Iconsax.trash, color: Colors.white, size: 18),

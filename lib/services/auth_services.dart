@@ -1,5 +1,4 @@
 
-import 'package:flutter/cupertino.dart';
 import 'package:local_auth/local_auth.dart';
 
 class AuthServicesBio {
@@ -25,7 +24,7 @@ class AuthServicesBio {
       }
     } catch (e) {
       isAuthenticate = false;
-      debugPrint('Error $e');
+      print('Error $e');
     }
 
     return isAuthenticate;

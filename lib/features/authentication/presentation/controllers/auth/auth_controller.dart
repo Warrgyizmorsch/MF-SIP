@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:my_sip/common/widget/animated/popups.dart';
@@ -13,8 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:my_sip/services/session_manager.dart';
-
-import '../../../../../services/firebase_services.dart';
 
 class AuthController extends GetxController {
   final AuthUseCases _authUseCases;
@@ -60,12 +57,13 @@ class AuthController extends GetxController {
   final GoogleSignIn _googleSignIn = GoogleSignIn.standard();
 
   /// GOOGLE SIGN IN
-  /// GOOGLE SIGN IN
   Future<void> signInWithGoogle() async {
     try {
       debugPrint("========== GOOGLE SIGN IN START ==========");
 
       /// CLEAR PREVIOUS ACCOUNT
+      await _googleSignIn.disconnect();
+
       await _googleSignIn.signOut();
 
       debugPrint("OLD GOOGLE SESSION CLEARED");
@@ -76,6 +74,7 @@ class AuthController extends GetxController {
       /// USER CANCELLED
       if (googleUser == null) {
         debugPrint("USER CANCELLED LOGIN");
+
         return;
       }
 
@@ -100,6 +99,7 @@ class AuthController extends GetxController {
       final User? user = userCredential.user;
 
       if (user != null) {
+
         Map<String, dynamic> userJson = {
           "uid": user.uid,
           "email": user.email,
@@ -112,17 +112,13 @@ class AuthController extends GetxController {
             "creationTime": user.metadata.creationTime?.toIso8601String(),
             "lastSignInTime": user.metadata.lastSignInTime?.toIso8601String(),
           },
-          "providerData": user.providerData
-              .map(
-                (info) => {
-                  "providerId": info.providerId,
-                  "uid": info.uid,
-                  "displayName": info.displayName,
-                  "email": info.email,
-                  "photoURL": info.photoURL,
-                },
-              )
-              .toList(),
+          "providerData": user.providerData.map((info) => {
+            "providerId": info.providerId,
+            "uid": info.uid,
+            "displayName": info.displayName,
+            "email": info.email,
+            "photoURL": info.photoURL,
+          }).toList(),
         };
 
         debugPrint("========== NEW USER JSON DATA ==========");
@@ -135,7 +131,16 @@ class AuthController extends GetxController {
         if (isNewUser) {
           nameController.text = user.displayName ?? "";
 
-          emailController.text = user.email ?? "";
+          nameController.text =
+              user.displayName ?? "";
+
+          emailController.text =
+              user.email ?? "";
+          debugPrint(user.uid);
+
+          Get.offNamed(
+            AppRoutes.registerAccountScreen,
+          );
 
           Get.offNamed(AppRoutes.registerAccountScreen);
         } else {
@@ -228,7 +233,7 @@ class AuthController extends GetxController {
           "Error",
           "Please agree to the Terms and Privacy Policy",
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha:0.1),
+          backgroundColor: Colors.red.withOpacity(0.1),
           colorText: Colors.red,
         );
         return;
@@ -308,7 +313,7 @@ class AuthController extends GetxController {
             "Hey, we just sent an OTP to ${mobileController.text.trim()}",
             style: TextStyle(
               fontSize: 14,
-              color: Colors.white.withValues(alpha:
+              color: Colors.white.withOpacity(
                 0.9,
               ), // Slightly faded for contrast
               height: 1.4, // Better line spacing
@@ -336,7 +341,7 @@ class AuthController extends GetxController {
               20, // Adds a subtle glassmorphism effect if background is slightly transparent
           boxShadows: [
             BoxShadow(
-              color: const Color(0xFF2E7D32).withValues(alpha:0.3),
+              color: const Color(0xFF2E7D32).withOpacity(0.3),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -458,7 +463,6 @@ class AuthController extends GetxController {
 
   Future<void> verifyOtpAndLogin() async {
     isOtpVerifyLoading.value = true;
-
     final requestData = {
       "phone": mobileController.text.trim(),
       "otp": otpController.text.trim(),
@@ -469,18 +473,10 @@ class AuthController extends GetxController {
     result.fold(
       (success) async {
         final userModel = success.data?.userModel;
-
-        /// =========================
-        /// SAVE SESSION
-        /// =========================
         await SessionManager.instance.setSession(
           jwtAccessToken: success.data?.token,
           userData: success.data?.userModel,
         );
-
-        /// =========================
-        /// SAVE RISK PROFILE
-        /// =========================
         if (userModel?.riskProfileModel != null) {
           final profile = userModel!.riskProfileModel!;
 
@@ -491,68 +487,42 @@ class AuthController extends GetxController {
             profileName: profile.profileName ?? '',
           );
 
+          // This triggers the Obx in your Upgradebanner
           await SessionManager.instance.saveRiskScore(riskResult);
         } else {
+          // Clear it if they are a new user without a profile
           await SessionManager.instance.saveRiskScore(null);
-        }
-
-        /// =========================
-        /// SAVE FCM TOKEN API
-        /// =========================
-        try {
-          final fcmToken = await FirebaseMessaging.instance.getToken();
-
-          if (fcmToken != null) {
-            final fcmResult = await _authUseCases.fcmDeviceTokenUseCase.call({
-              "fcm_token": fcmToken,
-            });
-
-            fcmResult.fold(
-              (success) {
-                createLog(
-                  "FCM TOKEN SAVED => "
-                  "${success.data?.message}",
-                );
-              },
-              (error) {
-                createLog(
-                  "FCM TOKEN ERROR => "
-                  "${error.message}",
-                );
-              },
-            );
-          }
-        } catch (e) {
-          createLog("FCM TOKEN EXCEPTION => $e");
         }
 
         isOtpVerifyLoading.value = false;
 
         user.value = success.data!.userModel.toEntity();
 
+        // Get.snackbar(
+        //   "Verify Otp Success",
+        //   "OTP Verified Successfully",
+        //   colorText: Colors.white,
+        //   backgroundColor: Colors.green,
+        // );
         ULoaders.success(
           title: 'Verify Otp Success',
           message: 'OTP Verified Successfully',
         );
-
         await Future.delayed(const Duration(seconds: 2));
-
         Get.offAllNamed(AppRoutes.navMenuBar);
       },
       (error) {
         isOtpError.value = true;
-
         otpController.clear();
 
         createLog("Verify Otp Error $error");
-
         Get.snackbar(
           "Invalid OTP",
           "The OTP you entered is incorrect. Please try again.",
+
           backgroundColor: Colors.red,
           colorText: Colors.white,
         );
-
         isOtpVerifyLoading.value = false;
       },
     );

@@ -1,7 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-import '../../data/model/notification_model.dart';
-
 class AppNotificationEntity extends Equatable {
   final String id;
   final String title;
@@ -41,5 +39,3 @@ extension NotificationEntityToModel on AppNotificationEntity {
     };
   }
 }
-
-

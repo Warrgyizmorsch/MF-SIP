@@ -220,7 +220,7 @@
 //           border: Border.all(color: Colors.grey.shade200),
 //           boxShadow: [
 //             BoxShadow(
-//               color: Colors.black.withValues(alpha:0.02),
+//               color: Colors.black.withOpacity(0.02),
 //               blurRadius: 8,
 //               offset: const Offset(0, 2),
 //             ),
@@ -367,7 +367,7 @@
 //                   //   child: ElevatedButton(
 //                   //     onPressed: onInvestTap,
 //                   //     style: ElevatedButton.styleFrom(
-//                   //       backgroundColor: primaryColor.withValues(alpha:0.1),
+//                   //       backgroundColor: primaryColor.withOpacity(0.1),
 //                   //       foregroundColor: primaryColor,
 //                   //       elevation: 0,
 //                   //       shape: RoundedRectangleBorder(
@@ -477,7 +477,7 @@ class NfoListPage extends GetView<NfoController> {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha:0.05),
+                  color: Colors.black.withOpacity(0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -646,7 +646,7 @@ class NfoCard extends StatelessWidget {
           border: Border.all(color: Colors.grey.shade200),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha:0.02),
+              color: Colors.black.withOpacity(0.02),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),

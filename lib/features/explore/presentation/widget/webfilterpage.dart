@@ -13,7 +13,7 @@ class WebFilterDrawer {
       context: context,
       barrierDismissible: true,
       barrierLabel: 'WebFilterDrawer',
-      barrierColor: Colors.black.withValues(alpha:0.2),
+      barrierColor: Colors.black.withOpacity(0.2),
       transitionDuration: const Duration(milliseconds: 300),
       pageBuilder: (context, animation, secondaryAnimation) {
         return Align(
@@ -143,7 +143,7 @@ class WebFilterContent extends StatelessWidget {
             border: Border(top: BorderSide(color: Colors.grey.shade200)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha:0.05),
+                color: Colors.black.withOpacity(0.05),
                 blurRadius: 10,
                 offset: const Offset(0, -5),
               ),

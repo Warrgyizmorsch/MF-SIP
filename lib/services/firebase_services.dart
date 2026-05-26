@@ -1,7 +1,4 @@
-import 'dart:convert';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../features/home/presentation/controllers/home_controller.dart';
@@ -9,14 +6,15 @@ import '../features/home/presentation/controllers/home_controller.dart';
 class NotificationService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   Future<void> init() async {
+    // Permission mangna
     await _firebaseMessaging.requestPermission();
 
     // Token lena
     String? token = await _firebaseMessaging.getToken();
 
     if (token != null) {
-      debugPrint("--- COPY THIS JSON FOR TESTING ---");
-      debugPrint(jsonEncode({
+      print("--- COPY THIS JSON FOR TESTING ---");
+      print({
         "message": {
           "token": token,
           "notification": {
@@ -29,24 +27,8 @@ class NotificationService {
             "id": "123"
           }
         }
-      }));
-
-// ✅ Option 2 — .toString() (quick and simple)
-      debugPrint({
-        "message": {
-          "token": token,
-          "notification": {
-            "title": "MF SIP",
-            "body": "Dear Customer, this is a reminder to complete your monthly mutual fund investment."
-          },
-          "data": {
-            "click_action": "FLUTTER_NOTIFICATION_CLICK",
-            "screen": "home",
-            "id": "123"
-          }
-        }
-      }.toString());
-      debugPrint("----------------------------------");
+      });
+      print("----------------------------------");
     }
 
     final controller = Get.find<HomeController>();
@@ -64,7 +46,7 @@ class NotificationService {
         body = message.data['body'] ?? body;
       }
 
-      debugPrint("Received JSON - Title: $title, Body: $body");
+      print("Received JSON - Title: $title, Body: $body");
 
       // Controller mein add karein
       final controller = Get.find<HomeController>();

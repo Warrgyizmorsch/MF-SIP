@@ -10,5 +10,4 @@ abstract class AuthRepository {
   Future<Either<Result<RegisterResponseEntity>,ApiError>>registerUser(Map<String,dynamic> data);
   Future<Either<Result<String>,ApiError>>sendOtpForLogin(Map<String,dynamic> data);
   Future<Either<Result<LoginResponseEntity>,ApiError>>verifyOtpForLogin(Map<String,dynamic> data);
-  Future<Either<Result<FcmDeviceTokenEntity>, ApiError>> fcmDeviceToken(Map<String, dynamic> data,);
 }

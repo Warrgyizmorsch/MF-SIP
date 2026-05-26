@@ -174,7 +174,7 @@ class RiskProfile extends GetView<PersonalisationController> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Ucolors.blue.withValues(alpha:0.08),
+              color: Ucolors.blue.withOpacity(0.08),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -225,7 +225,7 @@ class RiskProfile extends GetView<PersonalisationController> {
                     ),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? Ucolors.blue.withValues(alpha:0.05)
+                          ? Ucolors.blue.withOpacity(0.05)
                           : Colors.white,
                       border: Border.all(
                         color: isSelected ? Ucolors.blue : Colors.grey.shade200,
@@ -235,14 +235,14 @@ class RiskProfile extends GetView<PersonalisationController> {
                       boxShadow: isSelected
                           ? [
                               BoxShadow(
-                                color: Ucolors.blue.withValues(alpha:0.12),
+                                color: Ucolors.blue.withOpacity(0.12),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
                             ]
                           : [
                               BoxShadow(
-                                color: Colors.grey.withValues(alpha:0.05),
+                                color: Colors.grey.withOpacity(0.05),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -373,7 +373,7 @@ class _RiskAnalyzingViewState extends State<_RiskAnalyzingView>
                     child: Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Ucolors.blue.withValues(alpha:0.05),
+                        color: Ucolors.blue.withOpacity(0.05),
                       ),
                     ),
                   ),
@@ -395,7 +395,7 @@ class _RiskAnalyzingViewState extends State<_RiskAnalyzingView>
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Ucolors.blue.withValues(alpha:0.1),
+                          color: Ucolors.blue.withOpacity(0.1),
                           blurRadius: 20,
                           spreadRadius: 5,
                         ),

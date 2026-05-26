@@ -4,8 +4,6 @@ import 'dart:math';
 import 'package:my_sip/features/fund_details/domain/entity/nav_history_entity.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-import '../../../../core/utils/constant/text_style.dart';
-
 class SchemeLineChart extends StatefulWidget {
   final List<NavEntryEntity> navData;
 
@@ -76,7 +74,6 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
                     '₹${value.toStringAsFixed(0)}',
                     style: TextStyle(
                       fontSize: 11,
-                      fontFamily: FontFamily.medium,
                       color: Colors.grey.shade600,
                       fontWeight: FontWeight.w500,
                     ),
@@ -102,7 +99,7 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
                         padding: const EdgeInsets.only(top: 8),
                         child: Text(
                           '${parts[2]}/${parts[1]}',
-                          style: TextStyle(fontSize: 11, color: Colors.grey.shade600, fontFamily: FontFamily.medium),
+                          style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
                         ),
                       );
                     }
@@ -120,7 +117,7 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
               return spotIndexes.map((index) {
                 return TouchedSpotIndicatorData(
                   FlLine(
-                    color: const Color(0xFF1E5DB9).withValues(alpha:0.5),
+                    color: const Color(0xFF1E5DB9).withOpacity(0.5),
                     strokeWidth: 2,
                     dashArray: [5, 5],
                   ),
@@ -148,7 +145,6 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
                     '$date\n₹${spot.y.toStringAsFixed(2)}',
                     const TextStyle(
                       color: Colors.white,
-                      fontFamily: FontFamily.medium,
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                     ),
@@ -187,8 +183,8 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
                 show: true,
                 gradient: LinearGradient(
                   colors: [
-                    const Color(0xFF1E5DB9).withValues(alpha:0.15),
-                    const Color(0xFF1E5DB9).withValues(alpha:0.01),
+                    const Color(0xFF1E5DB9).withOpacity(0.15),
+                    const Color(0xFF1E5DB9).withOpacity(0.01),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -215,7 +211,7 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
             const SizedBox(height: 12),
             Text(
               "No data available",
-              style: TextStyle(color: Colors.grey.shade500, fontSize: 14, fontFamily: FontFamily.medium),
+              style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
             ),
           ],
         ),
@@ -364,7 +360,7 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
 //                   return spotIndexes.map((index) {
 //                     return TouchedSpotIndicatorData(
 //                       FlLine(
-//                         color: const Color(0xFF1E5DB9).withValues(alpha:0.5),
+//                         color: const Color(0xFF1E5DB9).withOpacity(0.5),
 //                         strokeWidth: isDesktop ? 2 : 1.5,
 //                         dashArray: [5, 5],
 //                       ),
@@ -440,8 +436,8 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
 //                 show: true,
 //                 gradient: LinearGradient(
 //                   colors: [
-//                     const Color(0xFF1E5DB9).withValues(alpha:0.15),
-//                     const Color(0xFF1E5DB9).withValues(alpha:0.05),
+//                     const Color(0xFF1E5DB9).withOpacity(0.15),
+//                     const Color(0xFF1E5DB9).withOpacity(0.05),
 //                   ],
 //                   begin: Alignment.topCenter,
 //                   end: Alignment.bottomCenter,

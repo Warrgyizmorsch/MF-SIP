@@ -1109,7 +1109,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha:0.05),
+                  color: Colors.black.withOpacity(0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -1361,7 +1361,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                                       mutualController.setSearchFocus(false);
                                     },
                                     focusNode: searchFocus,
-                                    backgroundColor: WidgetStateProperty.all(
+                                    backgroundColor: MaterialStateProperty.all(
                                       Colors.grey.shade50,
                                     ),
                                     leading: Icon(
@@ -1369,7 +1369,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                                       color: Colors.grey.shade600,
                                     ),
                                     hintText: 'Search mutual funds...',
-                                    hintStyle: WidgetStateProperty.all(
+                                    hintStyle: MaterialStateProperty.all(
                                       TextStyle(
                                         color: Colors.grey.shade500,
                                         fontSize: 14,
@@ -1377,8 +1377,8 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                                     ),
                                     onChanged: (value) => mutualController
                                         .onSearchQueryChanged(value),
-                                    elevation: WidgetStateProperty.all(0),
-                                    side: WidgetStateProperty.all(
+                                    elevation: MaterialStateProperty.all(0),
+                                    side: MaterialStateProperty.all(
                                       BorderSide(color: Colors.grey.shade200),
                                     ),
                                   ),
@@ -1496,7 +1496,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                                           vertical: 8,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Ucolors.primary.withValues(alpha:
+                                          color: Ucolors.primary.withOpacity(
                                             0.05,
                                           ),
                                           borderRadius: BorderRadius.circular(
@@ -1537,7 +1537,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha:0.05),
+                        color: Colors.black.withOpacity(0.05),
                         blurRadius: 10,
                         offset: const Offset(0, -5),
                       ),
@@ -1677,15 +1677,15 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
   //                                     mutualController.setSearchFocus(false);
   //                                   },
   //                                   focusNode: searchFocus,
-  //                                   backgroundColor: WidgetStateProperty.all(
+  //                                   backgroundColor: MaterialStateProperty.all(
   //                                     Colors.white,
   //                                   ),
   //                                   leading: const Icon(Icons.search),
   //                                   hintText: 'Search',
   //                                   onChanged: (value) => mutualController
   //                                       .onSearchQueryChanged(value),
-  //                                   elevation: WidgetStateProperty.all(0),
-  //                                   side: WidgetStateProperty.all(
+  //                                   elevation: MaterialStateProperty.all(0),
+  //                                   side: MaterialStateProperty.all(
   //                                     BorderSide(color: Colors.grey.shade300),
   //                                   ),
   //                                 ),
@@ -1988,7 +1988,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha:0.05),
+              color: Colors.black.withOpacity(0.05),
               blurRadius: 10,
               spreadRadius: 2,
             ),
@@ -2081,7 +2081,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: isSelected
-                ? Ucolors.primary.withValues(alpha:0.05)
+                ? Ucolors.primary.withOpacity(0.05)
                 : Colors.white,
             border: Border.all(
               color: isSelected ? Ucolors.primary : Colors.grey.shade300,

@@ -1,4 +1,4 @@
-
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -261,7 +261,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
                         labelText: widget.label,
                         labelStyle: TextStyle(
                           color: widget.labelColor,
-                          fontFamily: FontFamily.medium,
                           fontSize: widget.labelSize,
                         ),
                         helper: widget.helperText != null
@@ -271,7 +270,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
                                   widget.helperText!,
                                   style: TextStyle(
                                     fontSize: 12,
-                                    fontFamily: FontFamily.medium,
                                     color: widget.onHelperTap != null
                                         ? Colors.blue.shade700
                                         : Colors.grey.shade600,
@@ -288,13 +286,12 @@ class _CustomTextFieldState extends State<CustomTextField> {
                           color: widget.isEnabled
                               ? widget.hintColor
                               : Colors.grey,
-                          fontFamily: FontFamily.medium,
                           fontSize: widget.hintSize,
                         ),
 
                         // We hide the default error because we render a custom one below
                         errorText: null,
-                        errorStyle: const TextStyle(height: 0, fontSize: 0, fontFamily: FontFamily.medium,),
+                        errorStyle: const TextStyle(height: 0, fontSize: 0),
 
                         prefixIcon: widget.leading != null
                             ? GestureDetector(
@@ -395,7 +392,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 padding: const EdgeInsets.only(left: 12, top: 4),
                 child: Text(
                   displayedError,
-                  style: const TextStyle(color: Colors.red, fontSize: 10, fontFamily: FontFamily.medium,),
+                  style: const TextStyle(color: Colors.red, fontSize: 10),
                 ),
               ),
           ],

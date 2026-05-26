@@ -15,7 +15,6 @@ import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/si
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/piechart_with_value.dart';
 import 'package:responsive_framework/responsive_framework.dart'; // Import Responsive Framework
 
-import '../../../../../core/utils/constant/text_style.dart';
 import '../../../../../core/utils/helper/helpers.dart';
 import '../../../../fund_details/presentation/pages/fund_deatails.dart';
 
@@ -96,7 +95,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
     return Scaffold(
       backgroundColor: isDesktop
           ? const Color(0xFFF5F7FA)
-          : Colors.white.withValues(alpha:0.96),
+          : Colors.white.withOpacity(0.96),
       appBar: CustomAppBarNormal(title: 'SIP Calculator', backIcon: true,backgroundColor: Ucolors.light,),
       body: SingleChildScrollView(
         padding: isDesktop
@@ -125,16 +124,16 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
                   labelPadding: const EdgeInsets.symmetric(vertical: 8),
                   indicator: BoxDecoration(
                     borderRadius: BorderRadius.circular(25),
-                    color: Ucolors.primary.withValues(alpha:0.1),
+                    color: Ucolors.primary.withOpacity(0.1),
                   ),
                   tabs: const [
                     Text(
                       'SIP',
-                      style: TextStyle(fontWeight: FontWeight.bold,  fontFamily: FontFamily.medium,),
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
                       'Lumpsum',
-                      style: TextStyle(fontWeight: FontWeight.bold,  fontFamily: FontFamily.medium,),
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -183,7 +182,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
           if (isDesktop)
             const Text(
               "Input Details",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,  fontFamily: FontFamily.medium,),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           if (isDesktop) const Gap(20),
           SipSliderTile2(
@@ -223,7 +222,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: Ucolors.borderside),
         boxShadow: isDesktop
-            ? [BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 10)]
+            ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)]
             : null,
       ),
       child: DefaultTabController(
@@ -248,7 +247,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha:0.05),
+                      color: Colors.black.withOpacity(0.05),
                       blurRadius: 4,
                     ),
                   ],
@@ -292,7 +291,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
                     ],
                     piechartvalue1: sipResult.returns,
                     piechartvalue2: sipResult.invested,
-                    piechartcolor2: Ucolors.primary.withValues(alpha:0.2),
+                    piechartcolor2: Ucolors.primary.withOpacity(0.2),
                     piechartcolor1: Ucolors.primary,
                   ),
 
@@ -369,7 +368,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
           if (isDesktop)
              Text(
               "Input Details",
-              style: TextStyle(fontSize:isDesktop?22: 18, fontWeight: FontWeight.bold,  fontFamily: FontFamily.medium,),
+              style: TextStyle(fontSize:isDesktop?22: 18, fontWeight: FontWeight.bold),
             ),
           if (isDesktop) const Gap(20),
           SipSliderTile2(
@@ -411,7 +410,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Ucolors.borderside),
         boxShadow: isDesktop
-            ? [BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 10)]
+            ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)]
             : null,
       ),
       child: PieChartWithValue(
@@ -439,7 +438,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
         ],
         piechartvalue1: lumpsumResult.returns,
         piechartvalue2: lumpsumResult.invested,
-        piechartcolor2: Ucolors.primary.withValues(alpha:0.2),
+        piechartcolor2: Ucolors.primary.withOpacity(0.2),
         piechartcolor1: Ucolors.primary,
       ),
     );
@@ -471,7 +470,7 @@ class _SipCalculatorPageState extends State<SipCalculatorPage> with SingleTicker
       borderRadius: BorderRadius.circular(16),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha:0.05),
+          color: Colors.black.withOpacity(0.05),
           blurRadius: 10,
           offset: const Offset(0, 4),
         ),

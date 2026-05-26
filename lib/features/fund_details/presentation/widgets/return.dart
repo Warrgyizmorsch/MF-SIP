@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:my_sip/features/fund_details/data/models/return_model.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-import '../../../../core/utils/constant/text_style.dart';
 import '../../../../core/utils/helper/helpers.dart';
 import '../pages/fund_deatails.dart';
 
@@ -55,7 +54,6 @@ class ReturnsTableRow extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: isDesktop ? 14 : 12,
-                    fontFamily: FontFamily.medium,
                     fontWeight: isDesktop ? FontWeight.w500 : FontWeight.w400,
                     color: Colors.grey.shade800,
                   ),
@@ -71,7 +69,6 @@ class ReturnsTableRow extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: fontSize ?? (isDesktop ? 14 : 12),
-                    fontFamily: FontFamily.medium,
                     color: _valueColor(data.scheme),
                     fontWeight: isDesktop ? FontWeight.w600 : FontWeight.w400,
                   ),
@@ -86,7 +83,6 @@ class ReturnsTableRow extends StatelessWidget {
                       : formatCurrency(data.category.toDouble()),
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontFamily: FontFamily.medium,
                     fontSize: fontSize ?? (isDesktop ? 14 : 12),
                     color: color3 ?? _valueColor(data.category),
                     fontWeight: isDesktop ? FontWeight.w600 : FontWeight.w400,
@@ -102,7 +98,6 @@ class ReturnsTableRow extends StatelessWidget {
                       : formatCurrency(data.benchmark.toDouble()),
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontFamily: FontFamily.medium,
                     fontSize: fontSize ?? (isDesktop ? 14 : 12),
                     color: color4 ?? _valueColor(data.benchmark),
                     fontWeight: isDesktop ? FontWeight.w600 : FontWeight.w400,
@@ -119,7 +114,6 @@ class ReturnsTableRow extends StatelessWidget {
                         : formatIndianNumber(data.extra!.toDouble()),
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontFamily: FontFamily.medium,
                       fontSize: fontSize ?? (isDesktop ? 14 : 12),
                       color: color5 ?? _valueColor(data.category),
                       fontWeight: isDesktop ? FontWeight.w600 : FontWeight.w400,

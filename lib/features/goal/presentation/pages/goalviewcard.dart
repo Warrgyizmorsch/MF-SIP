@@ -134,7 +134,6 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
                           '33%',
                           style: TextStyle(
                             fontSize: 22,
-                            fontFamily: FontFamily.medium,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

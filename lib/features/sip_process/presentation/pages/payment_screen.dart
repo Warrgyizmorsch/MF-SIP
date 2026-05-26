@@ -138,7 +138,7 @@ class PaymentScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha:0.06),
+                color: Colors.black.withOpacity(0.06),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -226,14 +226,14 @@ class _MethodTab extends StatelessWidget {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFF4F46E5).withValues(alpha:0.28),
+                    color: const Color(0xFF4F46E5).withOpacity(0.28),
                     blurRadius: 14,
                     offset: const Offset(0, 5),
                   ),
                 ]
               : [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha:0.04),
+                    color: Colors.black.withOpacity(0.04),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -292,7 +292,7 @@ class _UpiPanel extends StatelessWidget {
                 width: 46,
                 height: 46,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF4F46E5).withValues(alpha:0.1),
+                  color: const Color(0xFF4F46E5).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -331,7 +331,7 @@ class _UpiPanel extends StatelessWidget {
                   vertical: 5,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withValues(alpha:0.1),
+                  color: const Color(0xFF10B981).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text(
@@ -483,7 +483,7 @@ class _NetBankingPanel extends StatelessWidget {
             width: 46,
             height: 46,
             decoration: BoxDecoration(
-              color: const Color(0xFF4F46E5).withValues(alpha:0.1),
+              color: const Color(0xFF4F46E5).withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
@@ -519,7 +519,7 @@ class _NetBankingPanel extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: const Color(0xFF10B981).withValues(alpha:0.1),
+              color: const Color(0xFF10B981).withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Text(
@@ -551,7 +551,7 @@ class _PanelCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),
@@ -576,7 +576,7 @@ class _BottomBar extends StatelessWidget {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha:0.06),
+              color: Colors.black.withOpacity(0.06),
               blurRadius: 16,
               offset: const Offset(0, -4),
             ),
@@ -692,7 +692,7 @@ void _showMandateSheet(BuildContext context, String amount) {
                 borderRadius: BorderRadius.circular(22),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF4F46E5).withValues(alpha:0.30),
+                    color: const Color(0xFF4F46E5).withOpacity(0.30),
                     blurRadius: 18,
                     offset: const Offset(0, 6),
                   ),
@@ -920,7 +920,7 @@ Widget _mandateRow(
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            // color: const Color(0xFF4F46E5).withValues(alpha:0.08),
+            // color: const Color(0xFF4F46E5).withOpacity(0.08),
             color: Ucolors.skyblue,
             borderRadius: BorderRadius.circular(10),
           ),

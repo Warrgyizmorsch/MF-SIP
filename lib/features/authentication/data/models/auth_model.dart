@@ -278,18 +278,3 @@ class CustomerDetailsModel1 {
     };
   }
 }
-class FcmDeviceTokenModel {
-  final String status;
-  final String message;
-  FcmDeviceTokenModel({required this.status, required this.message});
-  Map<String, dynamic> toJson() {
-    return {'status': status, 'message': message};
-  }
-
-  factory FcmDeviceTokenModel.fromJson(Map<String, dynamic> json) {
-    return FcmDeviceTokenModel(
-      status: json.parse<String>('status') ?? '',
-      message: json.parse<String>('message') ?? '',
-    );
-  }
-}

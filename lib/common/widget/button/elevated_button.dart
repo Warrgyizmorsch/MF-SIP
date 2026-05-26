@@ -38,7 +38,7 @@ class UElevatedButton2 extends StatelessWidget {
               ? null
               : [
             BoxShadow(
-              color: Colors.black.withValues(alpha:0.05),
+              color: Colors.black.withOpacity(0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             )
@@ -49,8 +49,8 @@ class UElevatedButton2 extends StatelessWidget {
           child: InkWell(
             onTap: onPressed,
             borderRadius: BorderRadius.circular(borderRadiusValue),
-            highlightColor: Colors.black.withValues(alpha:0.05),
-            splashColor: Colors.black.withValues(alpha:0.1),
+            highlightColor: Colors.black.withOpacity(0.05),
+            splashColor: Colors.black.withOpacity(0.1),
             child: Padding(
               // Professional buttons need horizontal breathing room
               padding: const EdgeInsets.symmetric(horizontal: 8),

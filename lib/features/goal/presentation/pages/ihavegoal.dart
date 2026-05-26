@@ -209,7 +209,7 @@ class _WebLayoutState extends State<_WebLayout> {
 
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha:.08),
+                  color: Colors.black.withOpacity(.08),
                   blurRadius: 30,
                   offset: const Offset(-4, 10),
                 ),
@@ -319,7 +319,7 @@ class _WebLayoutState extends State<_WebLayout> {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha:.04),
+                                  color: Colors.black.withOpacity(.04),
                                   blurRadius: 20,
                                   offset: const Offset(0, 10),
                                 ),
@@ -363,7 +363,7 @@ class _WebLayoutState extends State<_WebLayout> {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha:.04),
+                                  color: Colors.black.withOpacity(.04),
                                   blurRadius: 20,
                                   offset: const Offset(0, 10),
                                 ),
@@ -397,7 +397,7 @@ class _WebLayoutState extends State<_WebLayout> {
                                       ),
                                       decoration: BoxDecoration(
                                         color: Colors.green
-                                            .withValues(alpha:.08),
+                                            .withOpacity(.08),
                                         borderRadius:
                                         BorderRadius.circular(12),
                                       ),
@@ -405,7 +405,6 @@ class _WebLayoutState extends State<_WebLayout> {
                                         "Top Performing Funds",
                                         style: TextStyle(
                                           color: Colors.green,
-                                          fontFamily: FontFamily.medium,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
@@ -449,7 +448,7 @@ class _WebLayoutState extends State<_WebLayout> {
             height: 120,
             width: 120,
             decoration: BoxDecoration(
-              color: Ucolors.primary.withValues(alpha:.08),
+              color: Ucolors.primary.withOpacity(.08),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -465,7 +464,6 @@ class _WebLayoutState extends State<_WebLayout> {
             "No Goal Created Yet",
             style: TextStyle(
               fontSize: 28,
-              fontFamily: FontFamily.medium,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -478,7 +476,6 @@ class _WebLayoutState extends State<_WebLayout> {
             style: TextStyle(
               fontSize: 15,
               height: 1.6,
-              fontFamily: FontFamily.medium,
               color: Colors.grey.shade600,
             ),
           ),
@@ -664,7 +661,6 @@ class _MobileLayout extends StatelessWidget {
                             "Search and select funds for your goal.",
                             style: TextStyle(
                               fontSize: 13,
-                              fontFamily: FontFamily.medium,
                               color: Colors.grey.shade500,
                               fontWeight: FontWeight.w500,
                             ),
@@ -706,7 +702,6 @@ class _MobileLayout extends StatelessWidget {
                             '$filterCount',
                             style: const TextStyle(
                               color: Colors.white,
-                              fontFamily: FontFamily.medium,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                             ),
@@ -757,7 +752,7 @@ class _MobileLayout extends StatelessWidget {
                                       mutualController.setSearchFocus(false);
                                     },
                                     focusNode: searchFocus,
-                                    backgroundColor: WidgetStateProperty.all(
+                                    backgroundColor: MaterialStateProperty.all(
                                       Colors.grey.shade50,
                                     ),
                                     leading: Icon(
@@ -765,17 +760,16 @@ class _MobileLayout extends StatelessWidget {
                                       color: Colors.grey.shade600,
                                     ),
                                     hintText: 'Search mutual funds...',
-                                    hintStyle: WidgetStateProperty.all(
+                                    hintStyle: MaterialStateProperty.all(
                                       TextStyle(
-                                        fontFamily: FontFamily.medium,
                                         color: Colors.grey.shade500,
                                         fontSize: 14,
                                       ),
                                     ),
                                     onChanged: (value) => mutualController
                                         .onSearchQueryChanged(value),
-                                    elevation: WidgetStateProperty.all(0),
-                                    side: WidgetStateProperty.all(
+                                    elevation: MaterialStateProperty.all(0),
+                                    side: MaterialStateProperty.all(
                                       BorderSide(color: Colors.grey.shade200),
                                     ),
                                   ),
@@ -922,7 +916,7 @@ class _MobileLayout extends StatelessWidget {
                                           vertical: 10,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Ucolors.primary.withValues(alpha:
+                                          color: Ucolors.primary.withOpacity(
                                             0.05,
                                           ),
                                           borderRadius: BorderRadius.circular(
@@ -952,7 +946,7 @@ class _MobileLayout extends StatelessWidget {
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha:0.05),
+                        color: Colors.black.withOpacity(0.05),
                         blurRadius: 10,
                         offset: const Offset(0, -5),
                       ),
@@ -1025,7 +1019,7 @@ class GoalDetailsFormCard extends StatelessWidget {
                     height: 30,
                     width: 30,
                     decoration: BoxDecoration(
-                      color: Ucolors.primary.withValues(alpha:.08),
+                      color: Ucolors.primary.withOpacity(.08),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(
@@ -1280,7 +1274,7 @@ class PopularFund extends StatelessWidget {
                       //   vertical: 10,
                       // ),
                       decoration: BoxDecoration(
-                        color: Ucolors.primary.withValues(alpha:0.05),
+                        color: Ucolors.primary.withOpacity(0.05),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: Ucolors.primary, width: 2),
                       ),

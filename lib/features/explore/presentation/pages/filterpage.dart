@@ -259,7 +259,7 @@ class _FilterpageState extends State<Filterpage>
                                 height: 18,
                                 decoration: BoxDecoration(
                                   color: isActive
-                                      ? Colors.white.withValues(alpha:0.25)
+                                      ? Colors.white.withOpacity(0.25)
                                       : _T.primary,
                                   shape: BoxShape.circle,
                                 ),
@@ -329,7 +329,7 @@ class _FilterpageState extends State<Filterpage>
                           vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha:0.2),
+                          color: Colors.white.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -379,7 +379,7 @@ class _FilterpageState extends State<Filterpage>
               //             vertical: 3,
               //           ),
               //           decoration: BoxDecoration(
-              //             color: Colors.white.withValues(alpha:0.2),
+              //             color: Colors.white.withOpacity(0.2),
               //             borderRadius: BorderRadius.circular(8),
               //           ),
               //           child: Text(
@@ -1151,7 +1151,7 @@ class ReturnRangePanel extends StatelessWidget {
                     activeTrackColor: _T.primary,
                     inactiveTrackColor: _T.surface2,
                     thumbColor: Colors.white,
-                    overlayColor: _T.primary.withValues(alpha:0.12),
+                    overlayColor: _T.primary.withOpacity(0.12),
                     trackHeight: 4,
                     // thumbShape: _CustomThumb(),
                   ),
@@ -1969,7 +1969,7 @@ class _CustomThumb extends RangeSliderThumbShape {
 //                   label: Text("${year}Y"),
 //                   selected: isSelected,
 //                   onSelected: (_) => controller.setFilterReturnYear(year),
-//                   selectedColor: Ucolors.primary.withValues(alpha:0.2),
+//                   selectedColor: Ucolors.primary.withOpacity(0.2),
 //                   labelStyle: TextStyle(
 //                     color: isSelected ? Ucolors.primary : Colors.black,
 //                   ),

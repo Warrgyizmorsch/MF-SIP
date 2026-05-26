@@ -111,7 +111,7 @@ class NfoDetailsPage1 extends StatelessWidget {
       appBar: isDesktop
           ? null
           : AppBar(
-              backgroundColor: Colors.white.withValues(alpha:0.9),
+              backgroundColor: Colors.white.withOpacity(0.9),
               elevation: 0,
               centerTitle: true,
               iconTheme: const IconThemeData(color: textDark),
@@ -155,7 +155,7 @@ class NfoDetailsPage1 extends StatelessWidget {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha:0.05),
+                  color: Colors.black.withOpacity(0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -265,7 +265,7 @@ class NfoDetailsPage1 extends StatelessWidget {
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.02),
+            color: Colors.black.withOpacity(0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -427,7 +427,7 @@ class NfoDetailsPage1 extends StatelessWidget {
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.02),
+            color: Colors.black.withOpacity(0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -443,7 +443,7 @@ class NfoDetailsPage1 extends StatelessWidget {
               height: 192,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.blue.shade500.withValues(alpha:0.1),
+                color: Colors.blue.shade500.withOpacity(0.1),
               ),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
@@ -669,7 +669,7 @@ class NfoDetailsPage1 extends StatelessWidget {
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.02),
+            color: Colors.black.withOpacity(0.02),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -721,7 +721,7 @@ class NfoDetailsPage1 extends StatelessWidget {
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.02),
+            color: Colors.black.withOpacity(0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -891,7 +891,7 @@ class NfoDetailsPage1 extends StatelessWidget {
   //           ? null
   //           : [
   //               BoxShadow(
-  //                 color: Colors.black.withValues(alpha:0.05),
+  //                 color: Colors.black.withOpacity(0.05),
   //                 blurRadius: 10,
   //                 offset: const Offset(0, -4),
   //               ),
@@ -954,7 +954,7 @@ class NfoDetailsPage1 extends StatelessWidget {
   //                 foregroundColor: Colors.white,
   //                 padding: const EdgeInsets.symmetric(vertical: 16),
   //                 elevation: 4,
-  //                 shadowColor: primaryColor.withValues(alpha:0.4),
+  //                 shadowColor: primaryColor.withOpacity(0.4),
   //                 shape: RoundedRectangleBorder(
   //                   borderRadius: BorderRadius.circular(12),
   //                 ),
@@ -980,7 +980,7 @@ class NfoDetailsPage1 extends StatelessWidget {
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 16),
         elevation: 4,
-        shadowColor: primaryColor.withValues(alpha:0.4),
+        shadowColor: primaryColor.withOpacity(0.4),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       child: const Text(
@@ -1005,7 +1005,7 @@ class NfoDetailsPage1 extends StatelessWidget {
             ? null
             : [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha:0.05),
+                  color: Colors.black.withOpacity(0.05),
                   blurRadius: 10,
                   offset: const Offset(0, -4),
                 ),
@@ -1155,7 +1155,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //     return Scaffold(
 //       backgroundColor: backgroundColor,
 //       appBar: AppBar(
-//         backgroundColor: Colors.white.withValues(alpha:0.9),
+//         backgroundColor: Colors.white.withOpacity(0.9),
 //         elevation: 0,
 //         centerTitle: true,
 //         iconTheme: const IconThemeData(color: textDark),
@@ -1211,7 +1211,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //         border: Border.all(color: const Color(0xFFF3F4F6)), // borderColor
 //         boxShadow: [
 //           BoxShadow(
-//             color: Colors.black.withValues(alpha:0.02),
+//             color: Colors.black.withOpacity(0.02),
 //             blurRadius: 8,
 //             offset: const Offset(0, 2),
 //           ),
@@ -1385,7 +1385,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //         borderRadius: BorderRadius.circular(24),
 //         boxShadow: [
 //           BoxShadow(
-//             color: Colors.black.withValues(alpha:0.05),
+//             color: Colors.black.withOpacity(0.05),
 //             blurRadius: 20,
 //             offset: const Offset(0, 4),
 //           ),
@@ -1402,7 +1402,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //               height: 192,
 //               decoration: BoxDecoration(
 //                 shape: BoxShape.circle,
-//                 color: Colors.blue.shade500.withValues(alpha:0.1),
+//                 color: Colors.blue.shade500.withOpacity(0.1),
 //               ),
 //               child: BackdropFilter(
 //                 filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
@@ -1429,7 +1429,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //                         border: Border.all(color: borderColor),
 //                         boxShadow: [
 //                           BoxShadow(
-//                             color: Colors.black.withValues(alpha:0.02),
+//                             color: Colors.black.withOpacity(0.02),
 //                             blurRadius: 4,
 //                             offset: const Offset(0, 2),
 //                           ),
@@ -1686,7 +1686,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //         border: Border.all(color: borderColor),
 //         boxShadow: [
 //           BoxShadow(
-//             color: Colors.black.withValues(alpha:0.02),
+//             color: Colors.black.withOpacity(0.02),
 //             blurRadius: 4,
 //             offset: const Offset(0, 2),
 //           ),
@@ -1739,7 +1739,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //         border: Border.all(color: borderColor),
 //         boxShadow: [
 //           BoxShadow(
-//             color: Colors.black.withValues(alpha:0.02),
+//             color: Colors.black.withOpacity(0.02),
 //             blurRadius: 8,
 //             offset: const Offset(0, 2),
 //           ),
@@ -1902,7 +1902,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //         border: const Border(top: BorderSide(color: borderColor)),
 //         boxShadow: [
 //           BoxShadow(
-//             color: Colors.black.withValues(alpha:0.05),
+//             color: Colors.black.withOpacity(0.05),
 //             blurRadius: 10,
 //             offset: const Offset(0, -4),
 //           ),
@@ -1936,7 +1936,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //                 foregroundColor: Colors.white,
 //                 padding: const EdgeInsets.symmetric(vertical: 16),
 //                 elevation: 4,
-//                 shadowColor: primaryColor.withValues(alpha:0.4),
+//                 shadowColor: primaryColor.withOpacity(0.4),
 //                 shape: RoundedRectangleBorder(
 //                   borderRadius: BorderRadius.circular(12),
 //                 ),
@@ -2005,7 +2005,7 @@ class NfoDetailsPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white.withValues(alpha:0.9),
+        backgroundColor: Colors.white.withOpacity(0.9),
         elevation: 0,
         centerTitle: true,
         iconTheme: const IconThemeData(color: textDark),
@@ -2045,7 +2045,7 @@ class NfoDetailsPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -2408,7 +2408,7 @@ class NfoDetailsPage extends StatelessWidget {
         border: const Border(top: BorderSide(color: borderColor)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, -4),
           ),
@@ -2442,7 +2442,7 @@ class NfoDetailsPage extends StatelessWidget {
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 elevation: 4,
-                shadowColor: primaryColor.withValues(alpha:0.4),
+                shadowColor: primaryColor.withOpacity(0.4),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -2508,7 +2508,7 @@ class NfoDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white.withValues(alpha:0.9),
+        backgroundColor: Colors.white.withOpacity(0.9),
         elevation: 0,
         centerTitle: true,
         iconTheme: const IconThemeData(color: textDark),
@@ -2555,7 +2555,7 @@ class NfoDetailScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -2576,7 +2576,7 @@ class NfoDetailScreen extends StatelessWidget {
                   border: Border.all(color: borderColor),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha:0.02),
+                      color: Colors.black.withOpacity(0.02),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -2927,7 +2927,7 @@ class NfoDetailScreen extends StatelessWidget {
         border: const Border(top: BorderSide(color: borderColor)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, -4),
           ),
@@ -2961,7 +2961,7 @@ class NfoDetailScreen extends StatelessWidget {
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 elevation: 4,
-                shadowColor: primaryColor.withValues(alpha:0.4),
+                shadowColor: primaryColor.withOpacity(0.4),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),

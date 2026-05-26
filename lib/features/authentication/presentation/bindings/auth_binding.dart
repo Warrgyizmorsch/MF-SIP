@@ -8,7 +8,6 @@ import 'package:my_sip/features/authentication/domain/usecases/send_otp_use_case
 import '../../data/datasources/auth_remote_data_source.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
-import '../../domain/usecases/firebase_token.dart';
 import '../../domain/usecases/login_use_case.dart';
 import '../../domain/usecases/verify_otp_use_case.dart';
 import '../controllers/auth/auth_controller.dart';
@@ -38,12 +37,6 @@ class AuthBinding extends Bindings {
       () => VerifyOtpUseCase(authRepository: Get.find<AuthRepository>()),
     );
 
-    Get.lazyPut<FcmDeviceTokenUseCase>(
-          () => FcmDeviceTokenUseCase(
-        Get.find<AuthRepository>(),
-      ),
-    );
-
     // 4. Wrapper Use Case (Depends on LoginUseCase)
     // Get.lazyPut(
 
@@ -62,7 +55,6 @@ class AuthBinding extends Bindings {
         registerUseCase: Get.find<RegisterUseCase>(),
         sendOtpUseCase: Get.find<SendOtpUseCase>(),
         verifyOtpUseCase: Get.find<VerifyOtpUseCase>(),
-        fcmDeviceTokenUseCase: Get.find<FcmDeviceTokenUseCase>(),
       ),
       permanent: true,
     );
@@ -76,6 +68,5 @@ class AuthBinding extends Bindings {
       AuthController(authUseCases: Get.find<AuthUseCases>()),
       permanent: true,
     );
-
   }
 }

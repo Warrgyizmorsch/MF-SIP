@@ -2,8 +2,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-import '../../../../core/utils/constant/text_style.dart';
-
 class GroupedPerformanceBarChart extends StatefulWidget {
   final List<dynamic> data;
 
@@ -36,7 +34,7 @@ class _GroupedPerformanceBarChartState
         boxShadow: isDesktop
             ? [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha:0.03),
+                  color: Colors.black.withOpacity(0.03),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -56,7 +54,6 @@ class _GroupedPerformanceBarChartState
                   'Performance Comparison',
                   style: TextStyle(
                     fontSize: 18,
-                    fontFamily: FontFamily.medium,
                     fontWeight: FontWeight.w600,
                     color: Colors.grey.shade900,
                   ),
@@ -94,7 +91,6 @@ class _GroupedPerformanceBarChartState
                                 widget.data[index].period,
                                 style: TextStyle(
                                   color: Colors.grey.shade700,
-                                  fontFamily: FontFamily.medium,
                                   fontWeight: FontWeight.w600,
                                   fontSize: isDesktop ? 12 : 10,
                                 ),
@@ -117,7 +113,6 @@ class _GroupedPerformanceBarChartState
                           '${value.toInt()}%',
                           style: TextStyle(
                             color: Colors.grey.shade500,
-                            fontFamily: FontFamily.medium,
                             fontSize: isDesktop ? 12 : 10,
                             fontWeight: FontWeight.w500,
                           ),
@@ -159,7 +154,6 @@ class _GroupedPerformanceBarChartState
                         '$label\n',
                         const TextStyle(
                           color: Colors.white,
-                          fontFamily: FontFamily.medium,
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
                         ),
@@ -168,7 +162,6 @@ class _GroupedPerformanceBarChartState
                             text: '${rod.toY.toStringAsFixed(2)}%',
                             style: const TextStyle(
                               color: Colors.yellowAccent,
-                              fontFamily: FontFamily.medium,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
@@ -247,7 +240,6 @@ class _GroupedPerformanceBarChartState
           label,
           style: TextStyle(
             fontSize: 12,
-            fontFamily: FontFamily.medium,
             color: Colors.grey.shade700,
             fontWeight: FontWeight.w500,
           ),

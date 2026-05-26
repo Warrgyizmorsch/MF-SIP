@@ -144,11 +144,8 @@ class _SipSliderWithBgState extends State<SipSliderWithBg> {
                           controller: _controller,
                           keyboardType: TextInputType.number,
                           textAlign: TextAlign.right,
-
                           decoration: const InputDecoration(
                             border: InputBorder.none,
-                            labelStyle: TextStyle( fontFamily: FontFamily.medium,),
-                          hintStyle: TextStyle( fontFamily: FontFamily.medium,),
                             isDense: true,
                             contentPadding: EdgeInsets.zero,
                           ),

@@ -73,7 +73,7 @@
 //             height: 60,
 //             width: 60,
 //             decoration: BoxDecoration(
-//               color: color.withValues(alpha:0.1),
+//               color: color.withOpacity(0.1),
 //               shape: BoxShape.circle,
 //             ),
 //             child: Icon(icon, color: color, size: 28),
@@ -89,8 +89,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:iconsax/iconsax.dart';
-
-import '../../../core/utils/constant/text_style.dart';
 
 class UImagePicker {
   /// Custom Image Source Picker usable on any screen
@@ -122,7 +120,7 @@ class UImagePicker {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: FontFamily.medium,),
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     IconButton(
                       icon: const Icon(Icons.close),
@@ -239,13 +237,13 @@ class UImagePicker {
               height: 60,
               width: 60,
               decoration: BoxDecoration(
-                color: color.withValues(alpha:0.1),
+                color: color.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: color, size: 28),
             ),
             const SizedBox(height: 8),
-            Text(label, style: const TextStyle(fontWeight: FontWeight.w500, fontFamily: FontFamily.medium,)),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
           ],
         ),
       ),

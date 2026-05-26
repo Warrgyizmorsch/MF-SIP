@@ -167,7 +167,7 @@
 //           BoxShadow(
 //             color: const Color(
 //               0xFF0F172A,
-//             ).withValues(alpha:0.04), // Ultra-soft shadow
+//             ).withOpacity(0.04), // Ultra-soft shadow
 //             blurRadius: 15,
 //             offset: const Offset(0, 4),
 //           ),
@@ -187,7 +187,7 @@
 //         color: Colors.white,
 //         boxShadow: [
 //           BoxShadow(
-//             color: Colors.black.withValues(alpha:0.05),
+//             color: Colors.black.withOpacity(0.05),
 //             blurRadius: 10,
 //             offset: const Offset(0, -5), // Shadow points UP
 //           ),
@@ -514,7 +514,7 @@ class AdditionalInfoScreen extends StatelessWidget {
         border: Border.all(color: const Color(0xFFE2E8F0)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F172A).withValues(alpha:0.04),
+            color: const Color(0xFF0F172A).withOpacity(0.04),
             blurRadius: 15,
             offset: const Offset(0, 4),
           ),
@@ -534,7 +534,7 @@ class AdditionalInfoScreen extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, -5), // Shadow points UP
           ),

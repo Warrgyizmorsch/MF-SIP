@@ -253,33 +253,3 @@ extension CustomerDetailsEntityX on CustomerDetailsModel1 {
     );
   }
 }
-
-
-
-class FcmDeviceTokenEntity extends Equatable {
-  final String? status;
-  final String? message;
-
-  const FcmDeviceTokenEntity({
-    required this.status,
-    required this.message,
-  });
-
-  @override
-  List<Object?> get props => [
-    status,
-    message,
-  ];
-}
-/// ===============================
-/// MODEL TO ENTITY EXTENSION
-/// ===============================
-
-extension FcmDeviceTokenModelX on FcmDeviceTokenModel {
-  FcmDeviceTokenEntity toEntity() {
-    return FcmDeviceTokenEntity(
-      status: status,
-      message: message,
-    );
-  }
-}

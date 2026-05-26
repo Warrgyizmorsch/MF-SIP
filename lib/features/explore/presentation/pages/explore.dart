@@ -411,7 +411,7 @@
 //           borderRadius: BorderRadius.circular(16),
 //           boxShadow: [
 //             BoxShadow(
-//               color: Colors.black.withValues(alpha:0.15),
+//               color: Colors.black.withOpacity(0.15),
 //               blurRadius: 10,
 //               offset: const Offset(0, 4),
 //             ),
@@ -793,7 +793,7 @@ class _WebHoverRowState extends State<WebHoverRow> {
           duration: const Duration(milliseconds: 150),
           decoration: BoxDecoration(
             color: _isHovered
-                ? Ucolors.primary.withValues(alpha:0.04)
+                ? Ucolors.primary.withOpacity(0.04)
                 : Colors.white,
             border: Border(
               bottom: BorderSide(color: Colors.grey.shade200, width: 1),
@@ -1142,7 +1142,7 @@ class _ResponsiveFundCardState
               //
               border: Border.all(
                 color: isHover
-                    ? Ucolors.primary.withValues(alpha:.35)
+                    ? Ucolors.primary.withOpacity(.35)
                     : Colors.grey.shade200,
                 width: 1.2,
               ),
@@ -1158,8 +1158,8 @@ class _ResponsiveFundCardState
                   offset: Offset(0, isHover ? 10 : 4),
 
                   color: isHover
-                      ? Ucolors.primary.withValues(alpha:.10)
-                      : Colors.black.withValues(alpha:.03),
+                      ? Ucolors.primary.withOpacity(.10)
+                      : Colors.black.withOpacity(.03),
                 ),
               ],
             ),
@@ -1242,7 +1242,7 @@ class _ResponsiveFundCardState
                           BoxShadow(
                             blurRadius: 10,
                             color: Ucolors.primary
-                                .withValues(alpha:.18),
+                                .withOpacity(.18),
                           ),
                         ]
                             : [],
@@ -1671,7 +1671,7 @@ class _ResponsiveFundCardState
       ),
 
       decoration: BoxDecoration(
-        color: risk.color.withValues(alpha:.1),
+        color: risk.color.withOpacity(.1),
 
         borderRadius:
         BorderRadius.circular(20),
@@ -1782,7 +1782,7 @@ class _ResponsiveFundCardState
 //                       IconButton(
 //                         onPressed: () => Get.toNamed(AppRoutes.cart),
 //                         icon: const Icon(Iconsax.shopping_cart),
-//                         hoverColor: Ucolors.primary.withValues(alpha:0.1),
+//                         hoverColor: Ucolors.primary.withOpacity(0.1),
 //                       ),
 //                       if (cartController.generalItemsCount > 0)
 //                         Positioned(
@@ -2040,12 +2040,12 @@ class _ResponsiveFundCardState
 //                       // color: Colors.blue.shade200,
 //                       color: getRiskMeter(
 //                         entity.riskLevel,
-//                       ).color.withValues(alpha:0.1),
+//                       ).color.withOpacity(0.1),
 //                       borderRadius: BorderRadius.circular(15),
 //                       border: Border.all(
 //                         color: getRiskMeter(
 //                           entity.riskLevel,
-//                         ).color.withValues(alpha:0.1),
+//                         ).color.withOpacity(0.1),
 //                       ),
 //                     ),
 //                     child: Text(
@@ -2446,7 +2446,7 @@ class MutualFundCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha:0.15),
+              color: Colors.black.withOpacity(0.15),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

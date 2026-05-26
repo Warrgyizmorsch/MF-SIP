@@ -37,7 +37,7 @@ class FundComparisonChartWidget extends StatelessWidget {
         border: Border.all(color: Ucolors.darkgrey),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05), // Softer shadow for web
+            color: Colors.black.withOpacity(0.05), // Softer shadow for web
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -226,7 +226,7 @@ class FundComparisonChartWidget extends StatelessWidget {
             ),
             belowBarData: BarAreaData(
               show: true,
-              color: Colors.green.withValues(alpha:0.12),
+              color: Colors.green.withOpacity(0.12),
             ),
           ),
           // Benchmark (Blue)
@@ -239,14 +239,14 @@ class FundComparisonChartWidget extends StatelessWidget {
             dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
-              color: Colors.blue.withValues(alpha:0.05),
+              color: Colors.blue.withOpacity(0.05),
             ),
           ),
         ],
         lineTouchData: LineTouchData(
           enabled: true,
           touchTooltipData: LineTouchTooltipData(
-            getTooltipColor: (touchedSpots) => Colors.black.withValues(alpha:0.8),
+            getTooltipColor: (touchedSpots) => Colors.black.withOpacity(0.8),
             tooltipBorderRadius: BorderRadius.circular(8),
             tooltipPadding: const EdgeInsets.all(12),
             fitInsideHorizontally: true,
@@ -271,7 +271,7 @@ class FundComparisonChartWidget extends StatelessWidget {
             return spotIndexes.map((index) {
               return TouchedSpotIndicatorData(
                 FlLine(
-                    color: Colors.grey.withValues(alpha:0.5),
+                    color: Colors.grey.withOpacity(0.5),
                     strokeWidth: 1,
                     dashArray: [5, 5]
                 ),

@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
-import '../../../core/utils/constant/text_style.dart';
-
 class ULoaders {
   /// --- CORE CUSTOM OVERLAY ---
   /// This is the base method that handles the glassmorphism and animations.
@@ -36,12 +34,12 @@ class ULoaders {
                   ),
                   margin: const EdgeInsets.symmetric(horizontal: 20),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha:0.95),
+                    color: Colors.white.withOpacity(0.95),
                     borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: Colors.white.withValues(alpha:0.5)),
+                    border: Border.all(color: Colors.white.withOpacity(0.5)),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha:0.08),
+                        color: Colors.black.withOpacity(0.08),
                         blurRadius: 25,
                         offset: const Offset(0, 10),
                       ),
@@ -54,7 +52,7 @@ class ULoaders {
                       Container(
                         padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
-                          color: color.withValues(alpha:0.12),
+                          color: color.withOpacity(0.12),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(icon, color: color, size: 45),
@@ -65,7 +63,6 @@ class ULoaders {
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 20,
-                          fontFamily: FontFamily.medium,
                           fontWeight: FontWeight.w800,
                           color: Colors.black,
                           letterSpacing: -0.5,
@@ -78,7 +75,6 @@ class ULoaders {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 14,
-                            fontFamily: FontFamily.medium,
                             fontWeight: FontWeight.w500,
                             color: Colors.grey.shade600,
                             height: 1.4,
@@ -156,11 +152,11 @@ class ULoaders {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha:0.95),
+                color: Colors.white.withOpacity(0.95),
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha:0.1),
+                    color: Colors.black.withOpacity(0.1),
                     blurRadius: 20,
                     offset: const Offset(0, 5),
                   ),
@@ -191,7 +187,6 @@ class ULoaders {
                     message,
                     style: const TextStyle(
                       fontSize: 15,
-                      fontFamily: FontFamily.medium,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
                       decoration: TextDecoration.none,
@@ -205,7 +200,7 @@ class ULoaders {
         ),
       ),
       barrierDismissible: false, // Prevents tapping outside to close
-      barrierColor: Colors.black.withValues(alpha:0.3), // Soft dark overlay
+      barrierColor: Colors.black.withOpacity(0.3), // Soft dark overlay
     );
   }
 

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/utils/constant/text_style.dart';
-
 class CustomDropdown<T> extends StatelessWidget {
   final String hintText;
   final List<T> items;
@@ -25,7 +23,6 @@ class CustomDropdown<T> extends StatelessWidget {
       isExpanded: true, // Prevents overflow errors
       decoration: InputDecoration(
         labelText: hintText,
-        labelStyle: TextStyle( fontFamily: FontFamily.medium,),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
@@ -34,7 +31,7 @@ class CustomDropdown<T> extends StatelessWidget {
           value: item,
           child: Text(
             displayItem != null ? displayItem!(item) : item.toString(),
-            style: const TextStyle(fontSize: 14, fontFamily: FontFamily.medium,),
+            style: const TextStyle(fontSize: 14),
           ),
         );
       }).toList(),

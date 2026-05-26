@@ -206,7 +206,7 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
       //             border: Border.all(color: Colors.grey.shade300, width: 1),
       //             boxShadow: [
       //               BoxShadow(
-      //                 color: Colors.black.withValues(alpha:0.1),
+      //                 color: Colors.black.withOpacity(0.1),
       //                 blurRadius: 12,
       //                 offset: const Offset(0, 4),
       //               ),
@@ -297,7 +297,7 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
             const Gap(20),
             Text(
               'Loading fund details...',
-              style: TextStyle(fontSize: 16, color: Ucolors.primary, fontFamily: FontFamily.medium,),
+              style: TextStyle(fontSize: 16, color: Ucolors.primary),
             ),
           ],
         ),
@@ -316,7 +316,7 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                 const Gap(16),
                 Text(
                   'Loading fund details...',
-                  style: TextStyle(color: Ucolors.darkgrey, fontFamily: FontFamily.medium,),
+                  style: TextStyle(color: Ucolors.darkgrey),
                 ),
               ],
             ),
@@ -350,7 +350,6 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
               style: TextStyle(
                 fontSize: isDesktop ? 20 : 18,
                 fontWeight: FontWeight.bold,
-                fontFamily: FontFamily.medium,
               ),
             ),
             Gap(8),
@@ -358,7 +357,6 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
               controller.errorMessage.value,
               style: TextStyle(
                 fontSize: isDesktop ? 16 : 14,
-                fontFamily: FontFamily.medium,
                 color: Colors.grey.shade700,
               ),
               textAlign: TextAlign.center,
@@ -367,7 +365,7 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
             ElevatedButton.icon(
               onPressed: controller.retryFetchingDetails,
               icon: const Icon(Icons.refresh),
-              label: const Text("Retry",style: TextStyle(fontFamily: FontFamily.medium),),
+              label: const Text("Retry"),
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(
                   horizontal: isDesktop ? 32 : 24,
@@ -407,7 +405,6 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
               "Data not available",
               style: TextStyle(
                 fontSize: isDesktop ? 18 : 16,
-                fontFamily: FontFamily.medium,
                 color: Colors.grey.shade600,
               ),
             ),
@@ -789,7 +786,6 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                                   fund?.schemeCategory ?? 'Mutual Fund',
                                   style: TextStyle(
                                     fontSize: 12,
-                                    fontFamily: FontFamily.medium,
                                     color: Colors.grey.shade600,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -905,7 +901,7 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withValues(alpha:0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -926,7 +922,6 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
             style: TextStyle(
               color: color,
               fontSize: 11,
-              fontFamily: FontFamily.medium,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.5,
             ),
@@ -1146,7 +1141,6 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey,
-                                  fontFamily: FontFamily.medium,
                                 ),
                               ),
                               ReadMoreText(
@@ -1261,7 +1255,6 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                                         "Returns vs Benchmark",
                                         style: TextStyle(
                                           fontSize: 12,
-                                          fontFamily: FontFamily.medium,
                                           color: Colors.grey.shade500,
                                         ),
                                       ),
@@ -1385,7 +1378,7 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                   Text(
                     'Suitable for aggressive investors and investors with very high-risk tolerance.',
                     textAlign: TextAlign.center,
-                    style: UTextStyles.small.copyWith(color: Ucolors.darkgrey, fontFamily: FontFamily.medium,),
+                    style: UTextStyles.small.copyWith(color: Ucolors.darkgrey),
                   ),
                   const Gap(8),
                   DashedLine(color: Colors.grey.shade400),
@@ -1538,7 +1531,6 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                                             'VS',
                                             style: TextStyle(
                                               color: Colors.grey,
-                                              fontFamily: FontFamily.medium,
                                               fontSize: 10,
                                               fontWeight: FontWeight.w600,
                                             ),
@@ -1643,7 +1635,6 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                                           overflow: TextOverflow.ellipsis,
                                           style: const TextStyle(
                                             fontSize: 13,
-                                            fontFamily: FontFamily.medium,
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
@@ -1931,7 +1922,7 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
         ),
         labelColor: Colors.white,
         unselectedLabelColor: Colors.grey.shade600,
-        labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12, fontFamily: FontFamily.medium,),
+        labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
         dividerColor: Colors.transparent,
         indicatorSize: TabBarIndicatorSize.tab,
         padding: EdgeInsets.zero,
@@ -1978,7 +1969,6 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
               style: TextStyle(
                 fontSize: 15,
                 color: Ucolors.dark,
-                fontFamily: FontFamily.medium,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -2243,7 +2233,6 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                 'Stock Allocation',
                 style: TextStyle(
                   fontSize: 12,
-                  fontFamily: FontFamily.medium,
                   fontWeight: FontWeight.w400,
                   color: Ucolors.darkgrey,
                 ),
@@ -2252,7 +2241,6 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
                 'Holding %',
                 style: TextStyle(
                   fontSize: 12,
-                  fontFamily: FontFamily.medium,
                   fontWeight: FontWeight.w400,
                   color: Ucolors.darkgrey,
                 ),
@@ -2292,7 +2280,7 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha:0.04),
+                  color: Colors.black.withOpacity(0.04),
                   blurRadius: 8,
                   spreadRadius: 2,
                 ),
@@ -2309,7 +2297,6 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
             'Chart Unavailable',
             style: TextStyle(
               fontSize: 14,
-              fontFamily: FontFamily.medium,
               fontWeight: FontWeight.w600,
               color: Colors.grey.shade800,
             ),
@@ -2317,7 +2304,7 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
           const SizedBox(height: 4),
           Text(
             'We couldn\'t fetch the NAV history right now.',
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade500, fontFamily: FontFamily.medium,),
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
           ),
           const SizedBox(height: 12),
           TextButton.icon(
@@ -2336,7 +2323,6 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
               'Retry',
               style: TextStyle(
                 fontSize: 13,
-                fontFamily: FontFamily.medium,
                 fontWeight: FontWeight.w600,
                 color: Colors.blue.shade700,
               ),
@@ -2364,7 +2350,6 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
           label,
           style: TextStyle(
             fontSize: 10,
-            fontFamily: FontFamily.medium,
             color: Colors.grey.shade600,
             fontWeight: FontWeight.w500,
           ),
@@ -2373,7 +2358,7 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
         Text(
           value,
           style: TextStyle(
-            fontSize: 12, fontFamily: FontFamily.medium,
+            fontSize: 12,
             color: Colors.green.shade800,
             fontWeight: FontWeight.bold,
           ),
@@ -2391,12 +2376,12 @@ class WebOverviewScreen extends GetView<FundDetailsController> {
           const SizedBox(width: 10),
           Text(
             label,
-            style: TextStyle(color: Colors.grey.shade700, fontSize: 12, fontFamily: FontFamily.medium,),
+            style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
           ),
           const Spacer(),
           Text(
             value,
-            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12, fontFamily: FontFamily.medium,),
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
           ),
         ],
       ),
@@ -2524,7 +2509,7 @@ class _DesktopFundHeader extends StatelessWidget {
 
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha:.04),
+              color: Colors.black.withOpacity(.04),
               blurRadius: 14,
               offset: const Offset(0, 6),
             ),
@@ -2553,7 +2538,7 @@ class _DesktopFundHeader extends StatelessWidget {
 
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha:.03),
+                    color: Colors.black.withOpacity(.03),
                     blurRadius: 8,
                   ),
                 ],
@@ -2584,7 +2569,6 @@ class _DesktopFundHeader extends StatelessWidget {
 
                     style: const TextStyle(
                       fontSize: 26,
-                      fontFamily: FontFamily.medium,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF1B1B1B),
                       height: 1.3,
@@ -2599,7 +2583,6 @@ class _DesktopFundHeader extends StatelessWidget {
 
                     style: TextStyle(
                       fontSize: 14,
-                      fontFamily: FontFamily.medium,
                       color: Colors.grey.shade700,
                       fontWeight: FontWeight.w500,
                     ),
@@ -2685,11 +2668,11 @@ class _DesktopFundHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
 
       decoration: BoxDecoration(
-        color: color.withValues(alpha:.08),
+        color: color.withOpacity(.08),
 
         borderRadius: BorderRadius.circular(30),
 
-        border: Border.all(color: color.withValues(alpha:.18)),
+        border: Border.all(color: color.withOpacity(.18)),
       ),
 
       child: Row(
@@ -2713,7 +2696,6 @@ class _DesktopFundHeader extends StatelessWidget {
 
             style: TextStyle(
               fontSize: 15,
-              fontFamily: FontFamily.medium,
               fontWeight: FontWeight.w700,
               color: color,
               letterSpacing: .4,
@@ -2738,7 +2720,6 @@ class _DesktopFundHeader extends StatelessWidget {
 
           style: TextStyle(
             fontSize: 12,
-            fontFamily: FontFamily.medium,
             color: Colors.grey.shade500,
             fontWeight: FontWeight.w500,
           ),
@@ -2758,7 +2739,6 @@ class _DesktopFundHeader extends StatelessWidget {
 
             style: const TextStyle(
               fontSize: 14,
-              fontFamily: FontFamily.medium,
               fontWeight: FontWeight.w700,
               color: Color(0xFF222222),
             ),
@@ -2885,7 +2865,7 @@ class _DesktopPerformanceSection extends StatelessWidget {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha:0.04),
+                              color: Colors.black.withOpacity(0.04),
                               blurRadius: 8,
                               spreadRadius: 2,
                             ),
@@ -2905,7 +2885,6 @@ class _DesktopPerformanceSection extends StatelessWidget {
                         'Chart Unavailable',
                         style: TextStyle(
                           fontSize: 14,
-                          fontFamily: FontFamily.medium,
                           fontWeight: FontWeight.w600,
                           color: Colors.grey.shade800,
                         ),
@@ -2917,7 +2896,6 @@ class _DesktopPerformanceSection extends StatelessWidget {
                         'We couldn\'t fetch the NAV history right now.',
                         style: TextStyle(
                           fontSize: 12,
-                          fontFamily: FontFamily.medium,
                           color: Colors.grey.shade500,
                         ),
                       ),
@@ -2940,7 +2918,6 @@ class _DesktopPerformanceSection extends StatelessWidget {
                           'Retry',
                           style: TextStyle(
                             fontSize: 13,
-                            fontFamily: FontFamily.medium,
                             fontWeight: FontWeight.w600,
                             color: Colors
                                 .blue
@@ -2993,7 +2970,6 @@ class _DesktopPerformanceSection extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 13,
-            fontFamily: FontFamily.medium,
             color: Colors.grey.shade600,
             fontWeight: FontWeight.w500,
           ),
@@ -3008,7 +2984,6 @@ class _DesktopPerformanceSection extends StatelessWidget {
               value,
               style: TextStyle(
                 fontSize: 28,
-                fontFamily: FontFamily.medium,
                 fontWeight: FontWeight.w700,
                 color: color,
               ),
@@ -3018,7 +2993,6 @@ class _DesktopPerformanceSection extends StatelessWidget {
                 suffix,
                 style: TextStyle(
                   fontSize: 18,
-                  fontFamily: FontFamily.medium,
                   fontWeight: FontWeight.w600,
                   color: color,
                 ),
@@ -3063,7 +3037,6 @@ class _DesktopOverviewCard extends StatelessWidget {
                   'Exit Load:',
                   style: TextStyle(
                     fontSize: 14,
-                    fontFamily: FontFamily.medium,
                     fontWeight: FontWeight.w600,
                     color: Colors.grey.shade700,
                   ),
@@ -3078,7 +3051,6 @@ class _DesktopOverviewCard extends StatelessWidget {
                   colorClickableText: Ucolors.primary,
                   style: TextStyle(
                     fontSize: 14,
-                    fontFamily: FontFamily.medium,
                     color: Colors.grey.shade600,
                     height: 1.5,
                   ),
@@ -3111,7 +3083,6 @@ class _DesktopOverviewCard extends StatelessWidget {
               item['label'],
               style: TextStyle(
                 fontSize: 13,
-                fontFamily: FontFamily.medium,
                 color: Colors.grey.shade600,
                 fontWeight: FontWeight.w500,
               ),
@@ -3121,7 +3092,6 @@ class _DesktopOverviewCard extends StatelessWidget {
               item['value'],
               style: TextStyle(
                 fontSize: 16,
-                fontFamily: FontFamily.medium,
                 fontWeight: FontWeight.w700,
                 color: Colors.grey.shade900,
               ),
@@ -3166,7 +3136,7 @@ class _DesktopReturnsCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(18),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha:0.06),
+                        color: Colors.black.withOpacity(0.06),
                         blurRadius: 8,
                       ),
                     ],
@@ -3175,7 +3145,6 @@ class _DesktopReturnsCard extends StatelessWidget {
                   unselectedLabelColor: Colors.grey.shade600,
                   labelStyle: const TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontFamily: FontFamily.medium,
                     fontSize: 14,
                   ),
                   dividerColor: Colors.transparent,
@@ -3223,28 +3192,28 @@ class _DesktopReturnsCard extends StatelessWidget {
             width: 120,
             child: Text(
               'Period',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, fontFamily: FontFamily.medium),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
             ),
           ),
           const Expanded(
             child: Text(
               'Scheme',
               textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, fontFamily: FontFamily.medium),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
             ),
           ),
           const Expanded(
             child: Text(
               'Category',
               textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, fontFamily: FontFamily.medium),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
             ),
           ),
           const Expanded(
             child: Text(
               'Benchmark',
               textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, fontFamily: FontFamily.medium),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
             ),
           ),
         ],
@@ -3284,7 +3253,6 @@ class _DesktopRiskCard extends StatelessWidget {
                       'Yearly Returns',
                       style: TextStyle(
                         fontSize: 16,
-                        fontFamily: FontFamily.medium,
                         fontWeight: FontWeight.w600,
                         color: Colors.grey.shade800,
                       ),
@@ -3315,7 +3283,6 @@ class _DesktopRiskCard extends StatelessWidget {
                     'Risk Level',
                     style: TextStyle(
                       fontSize: 16,
-                      fontFamily: FontFamily.medium,
                       fontWeight: FontWeight.w600,
                       color: Colors.grey.shade800,
                     ),
@@ -3326,12 +3293,12 @@ class _DesktopRiskCard extends StatelessWidget {
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [risk.color.withValues(alpha:0.08), Colors.white],
+                        colors: [risk.color.withOpacity(0.08), Colors.white],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                       ),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: risk.color.withValues(alpha:0.3)),
+                      border: Border.all(color: risk.color.withOpacity(0.3)),
                     ),
                     child: Column(
                       children: [
@@ -3411,7 +3378,6 @@ class _DesktopRiskCard extends StatelessWidget {
                           risk.label,
                           style: TextStyle(
                             fontSize: 24,
-                            fontFamily: FontFamily.medium,
                             fontWeight: FontWeight.w800,
                             color: risk.color,
                             letterSpacing: 0.5,
@@ -3422,7 +3388,6 @@ class _DesktopRiskCard extends StatelessWidget {
                           "Investors with high risk appetite",
                           style: TextStyle(
                             fontSize: 12,
-                            fontFamily: FontFamily.medium,
                             color: Colors.grey.shade600,
                           ),
                         ),
@@ -3476,14 +3441,14 @@ class _DesktopActionCard extends StatelessWidget {
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Ucolors.primary, Ucolors.primary.withValues(alpha:0.8)],
+          colors: [Ucolors.primary, Ucolors.primary.withOpacity(0.8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Ucolors.primary.withValues(alpha:0.3),
+            color: Ucolors.primary.withOpacity(0.3),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
@@ -3495,9 +3460,8 @@ class _DesktopActionCard extends StatelessWidget {
           Text(
             "Current NAV",
             style: TextStyle(
-              color: Colors.white.withValues(alpha:0.9),
+              color: Colors.white.withOpacity(0.9),
               fontSize: 14,
-              fontFamily: FontFamily.medium,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -3506,7 +3470,6 @@ class _DesktopActionCard extends StatelessWidget {
             "₹ ${fund?.nav}",
             style: const TextStyle(
               fontSize: 36,
-              fontFamily: FontFamily.medium,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -3515,14 +3478,13 @@ class _DesktopActionCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha:0.2),
+              color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               "${fund?.navChangePercentage}% (1D)",
               style: const TextStyle(
                 color: Colors.white,
-                fontFamily: FontFamily.medium,
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
               ),
@@ -3565,7 +3527,7 @@ class _DesktopActionCard extends StatelessWidget {
               ),
               child: const Text(
                 "Start SIP",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: FontFamily.medium,),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -3589,7 +3551,7 @@ class _DesktopActionCard extends StatelessWidget {
               ),
               child: const Text(
                 "Lumpsum Invest",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: FontFamily.medium,),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -3633,7 +3595,6 @@ class _DesktopQuickLookCard extends StatelessWidget {
             fontSize: 14,
             color: Colors.grey.shade600,
             fontWeight: FontWeight.w500,
-            fontFamily: FontFamily.medium,
           ),
         ),
         Text(
@@ -3641,7 +3602,6 @@ class _DesktopQuickLookCard extends StatelessWidget {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w700,
-            fontFamily: FontFamily.medium,
             color: color,
           ),
         ),
@@ -3703,7 +3663,7 @@ class _DesktopAllocationCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(18),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha:0.06),
+                        color: Colors.black.withOpacity(0.06),
                         blurRadius: 8,
                       ),
                     ],
@@ -3712,7 +3672,6 @@ class _DesktopAllocationCard extends StatelessWidget {
                   unselectedLabelColor: Colors.grey.shade600,
                   labelStyle: const TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontFamily: FontFamily.medium,
                     fontSize: 13,
                   ),
                   dividerColor: Colors.transparent,
@@ -3787,7 +3746,6 @@ class _DesktopAllocationCard extends StatelessWidget {
                   centerText,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontFamily: FontFamily.medium,
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                   ),
@@ -3849,7 +3807,6 @@ class _DesktopAllocationCard extends StatelessWidget {
                   'Stock Name',
                   style: TextStyle(
                     fontSize: 13,
-                    fontFamily: FontFamily.medium,
                     fontWeight: FontWeight.w700,
                     color: Colors.grey,
                   ),
@@ -3858,7 +3815,6 @@ class _DesktopAllocationCard extends StatelessWidget {
                   'Holding %',
                   style: TextStyle(
                     fontSize: 13,
-                    fontFamily: FontFamily.medium,
                     fontWeight: FontWeight.w700,
                     color: Colors.grey,
                   ),
@@ -3924,14 +3880,13 @@ class _DesktopAboutCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 15,
               height: 1.6,
-              fontFamily: FontFamily.medium,
               color: Colors.grey.shade700,
             ),
           ),
           const Gap(24),
           const Text(
             'Fund Manager(s)',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, fontFamily: FontFamily.medium,),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
           ),
           const Gap(16),
           if (managers.isNotEmpty)
@@ -3945,7 +3900,7 @@ class _DesktopAboutCard extends StatelessWidget {
           else
             Text(
               'No manager details available',
-              style: TextStyle(color: Colors.grey.shade600, fontFamily: FontFamily.medium,),
+              style: TextStyle(color: Colors.grey.shade600),
             ),
         ],
       ),
@@ -3969,7 +3924,6 @@ class _DesktopAboutCard extends StatelessWidget {
             name,
             style: TextStyle(
               fontSize: 14,
-              fontFamily: FontFamily.medium,
               fontWeight: FontWeight.w600,
               color: Colors.blue.shade700,
             ),
@@ -4062,7 +4016,6 @@ class _DesktopComparisonSection extends StatelessWidget {
                               'VS',
                               style: TextStyle(
                                 color: Colors.grey,
-                                fontFamily: FontFamily.medium,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -4095,7 +4048,7 @@ class _DesktopComparisonSection extends StatelessWidget {
                         child: OutlinedButton(
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(
-                              color: Ucolors.primary.withValues(alpha:0.5),
+                              color: Ucolors.primary.withOpacity(0.5),
                             ),
                           ),
                           // onPressed: () => Get.toNamed(AppRoutes.comparefund ),
@@ -4106,14 +4059,14 @@ class _DesktopComparisonSection extends StatelessWidget {
                               Text(
                                 'Compare Funds',
                                 style: UTextStyles.buttonText.copyWith(
-                                  // color: Ucolors.primary.withValues(alpha:0.5),
+                                  // color: Ucolors.primary.withOpacity(0.5),
                                   color: Ucolors.primary,
                                 ),
                               ),
                               SizedBox(width: 10),
                               Icon(
                                 Icons.arrow_forward,
-                                color: Ucolors.primary.withValues(alpha:0.5),
+                                color: Ucolors.primary.withOpacity(0.5),
                               ),
                             ],
                           ),
@@ -4135,14 +4088,13 @@ class _DesktopComparisonSection extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontFamily: FontFamily.medium,),
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
         ),
         const Gap(4),
         Text(
           value,
           style: TextStyle(
             fontSize: 16,
-            fontFamily: FontFamily.medium,
             fontWeight: FontWeight.w700,
             color: color,
           ),
@@ -4186,14 +4138,13 @@ class _DesktopInvestmentDetailsCard extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 14,
-            fontFamily: FontFamily.medium,
             color: Colors.grey.shade600,
             fontWeight: FontWeight.w500,
           ),
         ),
         Text(
           value,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, fontFamily: FontFamily.medium,),
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
         ),
       ],
     );
@@ -4218,7 +4169,7 @@ class _DesktopCard extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.04),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -4234,7 +4185,6 @@ class _DesktopCard extends StatelessWidget {
                 title,
                 style: const TextStyle(
                   fontSize: 20,
-                  fontFamily: FontFamily.medium,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -4438,7 +4388,6 @@ class _MobileFundDetailsLayout extends StatelessWidget {
                               fund?.schemeCategory ?? 'Mutual Fund',
                               style: TextStyle(
                                 fontSize: 12,
-                                fontFamily: FontFamily.medium,
                                 color: Colors.grey.shade600,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -4486,7 +4435,7 @@ class _MobileFundDetailsLayout extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withValues(alpha:0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -4507,7 +4456,6 @@ class _MobileFundDetailsLayout extends StatelessWidget {
             style: TextStyle(
               color: color,
               fontSize: 11,
-              fontFamily: FontFamily.medium,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.5,
             ),
@@ -4666,7 +4614,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha:0.04),
+                                  color: Colors.black.withOpacity(0.04),
                                   blurRadius: 8,
                                   spreadRadius: 2,
                                 ),
@@ -4686,7 +4634,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
                             'Chart Unavailable',
                             style: TextStyle(
                               fontSize: 14,
-                              fontFamily: FontFamily.medium,
                               fontWeight: FontWeight.w600,
                               color: Colors.grey.shade800,
                             ),
@@ -4698,7 +4645,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
                             'We couldn\'t fetch the NAV history right now.',
                             style: TextStyle(
                               fontSize: 12,
-                              fontFamily: FontFamily.medium,
                               color: Colors.grey.shade500,
                             ),
                           ),
@@ -4721,7 +4667,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
                               'Retry',
                               style: TextStyle(
                                 fontSize: 13,
-                                fontFamily: FontFamily.medium,
                                 fontWeight: FontWeight.w600,
                                 color: Colors
                                     .blue
@@ -4803,7 +4748,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                   const SizedBox(height: 10),
                   const Text(
                     'Exit Load:',
-                    style: TextStyle(fontSize: 12, color: Colors.grey, fontFamily: FontFamily.medium,),
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                   ReadMoreText(
                     fund?.exitLoad.toString() ??
@@ -4885,7 +4830,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
                         unselectedLabelColor: Colors.grey.shade600,
                         labelStyle: const TextStyle(
                           fontWeight: FontWeight.w600,
-                          fontFamily: FontFamily.medium,
                           fontSize: 12,
                         ),
                         dividerColor: Colors.transparent,
@@ -4936,7 +4880,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                   "Returns vs Benchmark",
                                   style: TextStyle(
                                     fontSize: 12,
-                                    fontFamily: FontFamily.medium,
                                     color: Colors.grey.shade500,
                                   ),
                                 ),
@@ -5245,7 +5188,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
                               labelStyle: const TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 12,
-                                fontFamily: FontFamily.medium,
                               ),
                               dividerColor: Colors.transparent,
                               indicatorSize: TabBarIndicatorSize.tab,
@@ -5307,7 +5249,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
                           unselectedLabelColor: Colors.grey.shade600,
                           labelStyle: const TextStyle(
                             fontWeight: FontWeight.w600,
-                            fontFamily: FontFamily.medium,
                             fontSize: 12,
                           ),
                           dividerColor: Colors.transparent,
@@ -5533,7 +5474,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                             'Stock Allocation',
                                             style: TextStyle(
                                               fontSize: 12,
-                                              fontFamily: FontFamily.medium,
                                               fontWeight: FontWeight.w400,
                                               color: Ucolors.darkgrey,
                                             ),
@@ -5542,7 +5482,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                             'Holding %',
                                             style: TextStyle(
                                               fontSize: 12,
-                                              fontFamily: FontFamily.medium,
                                               fontWeight: FontWeight.w400,
                                               color: Ucolors.darkgrey,
                                             ),
@@ -5669,7 +5608,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                 'VS',
                                 style: TextStyle(
                                   color: Colors.grey,
-                                  fontFamily: FontFamily.medium,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -5703,7 +5641,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                           child: OutlinedButton(
                             style: OutlinedButton.styleFrom(
                               side: BorderSide(
-                                color: Ucolors.primary.withValues(alpha:0.5),
+                                color: Ucolors.primary.withOpacity(0.5),
                               ),
                             ),
                             // onPressed: () => Get.toNamed(AppRoutes.comparefund ),
@@ -5714,14 +5652,14 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                 Text(
                                   'Compare Funds',
                                   style: UTextStyles.buttonText.copyWith(
-                                    // color: Ucolors.primary.withValues(alpha:0.5),
+                                    // color: Ucolors.primary.withOpacity(0.5),
                                     color: Ucolors.primary,
                                   ),
                                 ),
                                 SizedBox(width: 10),
                                 Icon(
                                   Icons.arrow_forward,
-                                  color: Ucolors.primary.withValues(alpha:0.5),
+                                  color: Ucolors.primary.withOpacity(0.5),
                                 ),
                               ],
                             ),
@@ -5803,7 +5741,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
                                         fontSize: 13,
-                                        fontFamily: FontFamily.medium,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -5943,7 +5880,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
                     "Investment Details",
                     style: TextStyle(
                       fontSize: 15,
-                      fontFamily: FontFamily.medium,
                       color: Ucolors.dark,
                       fontWeight: FontWeight.w600, // Semibold
                     ),
@@ -6024,7 +5960,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
                     "Basic Details",
                     style: TextStyle(
                       fontSize: 15,
-                      fontFamily: FontFamily.medium,
                       color: Ucolors.dark,
                       fontWeight: FontWeight.w600, // Semibold
                     ),
@@ -6117,7 +6052,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
                     "AMC Information",
                     style: TextStyle(
                       fontSize: 15,
-                      fontFamily: FontFamily.medium,
                       color: Ucolors.dark,
                       fontWeight: FontWeight.w600, // Semibold
                     ),
@@ -6175,7 +6109,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
           label,
           style: TextStyle(
             fontSize: 10,
-            fontFamily: FontFamily.medium,
             color: Colors.grey.shade600,
             fontWeight: FontWeight.w500,
           ),
@@ -6185,7 +6118,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
           value,
           style: TextStyle(
             fontSize: 12,
-            fontFamily: FontFamily.medium,
             color: Colors.green.shade800,
             fontWeight: FontWeight.bold,
           ),
@@ -6204,12 +6136,12 @@ class OverviewScreen extends GetView<FundDetailsController> {
           const SizedBox(width: 10),
           Text(
             label,
-            style: TextStyle(color: Colors.grey.shade700, fontSize: 12, fontFamily: FontFamily.medium,),
+            style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
           ),
           const Spacer(),
           Text(
             value,
-            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12, fontFamily: FontFamily.medium,),
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
           ),
         ],
       ),
@@ -6420,7 +6352,6 @@ class FundComparisonItem extends StatelessWidget {
                     'Nippon India Large Cap Fund- Growth Plan- Growth Option',
                 style: TextStyle(
                   fontSize: 12,
-                  fontFamily: FontFamily.medium,
                   fontWeight: FontWeight.w600,
                   height: 1.3,
                 ),
@@ -6438,7 +6369,6 @@ class FundComparisonItem extends StatelessWidget {
                 text: '3Y Return :',
                 style: TextStyle(
                   fontSize: 10,
-                  fontFamily: FontFamily.medium,
                   fontWeight: FontWeight.w500,
                   color: Ucolors.darkgrey,
                 ),
@@ -6448,7 +6378,6 @@ class FundComparisonItem extends StatelessWidget {
                 text: '$year%',
                 style: TextStyle(
                   fontSize: 10,
-                  fontFamily: FontFamily.medium,
                   fontWeight: FontWeight.w500,
                   color: Ucolors.success,
                 ),
@@ -6828,16 +6757,13 @@ Widget _infoItem(String title, String value, Color? color) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(title, style: TextStyle(fontSize: 12, color: Ucolors.darkgrey,
-        fontFamily: FontFamily.medium,
-      )),
-      const SizedBox(height: 2),
+      Text(title, style: TextStyle(fontSize: 14, color: Ucolors.darkgrey)),
+      const SizedBox(height: 8),
       Text(
         value,
         style: TextStyle(
-          fontSize: 14,
-          fontFamily: FontFamily.bold,
-
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
           color: color,
         ),
       ),
@@ -6921,7 +6847,7 @@ class DesktopSideTabs extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? Ucolors.primary.withValues(alpha:.08)
+                          ? Ucolors.primary.withOpacity(.08)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
@@ -6951,7 +6877,6 @@ class DesktopSideTabs extends StatelessWidget {
                             tabs[index],
                             style: TextStyle(
                               fontSize: 14,
-                              fontFamily: FontFamily.medium,
                               fontWeight: isSelected
                                   ? FontWeight.w700
                                   : FontWeight.w500,
@@ -7069,7 +6994,6 @@ class WebSliverPageTabs extends SliverPersistentHeaderDelegate {
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontFamily: FontFamily.medium,
                       fontSize: isDesktop ? 14 : 12,
                       fontWeight: isSelected
                           ? FontWeight.w600
@@ -7211,7 +7135,7 @@ class SliverPageTabs extends SliverPersistentHeaderDelegate {
 }
 
 Widget _dot() {
-  return const Text('•', style: TextStyle(fontSize: 12, color: Colors.grey, fontFamily: FontFamily.medium,));
+  return const Text('•', style: TextStyle(fontSize: 12, color: Colors.grey));
 }
 
 Widget _metaText(
@@ -7221,7 +7145,7 @@ Widget _metaText(
 }) {
   return Text(
     text,
-    style: TextStyle(fontSize: 10, color: color, fontWeight: fontWeight, fontFamily: FontFamily.medium,),
+    style: TextStyle(fontSize: 10, color: color, fontWeight: fontWeight),
   );
 }
 
@@ -7354,7 +7278,7 @@ class _AnimatedPortfolioAllocationState
             const Gap(10),
             const Text(
               "No data available",
-              style: TextStyle(color: Colors.grey, fontFamily: FontFamily.medium),
+              style: TextStyle(color: Colors.grey),
             ),
           ],
         ),
@@ -7421,7 +7345,6 @@ class _AnimatedPortfolioAllocationState
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
-                      fontFamily: FontFamily.medium,
                       color: Colors.black87,
                     ),
                   ),
@@ -7460,7 +7383,6 @@ class _AnimatedPortfolioAllocationState
                           title,
                           style: TextStyle(
                             fontSize: 12,
-                            fontFamily: FontFamily.medium,
                             color: Colors.grey.shade700,
                             fontWeight: FontWeight.w500,
                           ),
@@ -7472,7 +7394,6 @@ class _AnimatedPortfolioAllocationState
                         percentage,
                         style: const TextStyle(
                           fontSize: 12,
-                          fontFamily: FontFamily.medium,
                           fontWeight: FontWeight.bold,
                           color: Colors.black87,
                         ),
@@ -7502,7 +7423,7 @@ class _AnimatedPortfolioAllocationState
         ),
         labelColor: Colors.white,
         unselectedLabelColor: Colors.grey.shade600,
-        labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12, fontFamily: FontFamily.medium,),
+        labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
         dividerColor: Colors.transparent,
         indicatorSize: TabBarIndicatorSize.tab,
         tabs: const [
@@ -7524,11 +7445,11 @@ class _AnimatedPortfolioAllocationState
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const Gap(8),
-          Text(title, style: const TextStyle(fontSize: 12, fontFamily: FontFamily.medium,)),
+          Text(title, style: const TextStyle(fontSize: 12)),
           const Spacer(),
           Text(
             value,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, fontFamily: FontFamily.medium,),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
           ),
         ],
       ),
