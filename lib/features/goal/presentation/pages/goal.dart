@@ -346,6 +346,7 @@ class CircularUploadIndicator extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
+                            fontFamily: FontFamily.medium,
                           ),
                         ),
                       ),

@@ -107,4 +107,28 @@ class AuthRepositoryImpl extends AuthRepository {
       return Right(ApiError(message: 'Login Failed $e'));
     }
   }
+  @override
+  Future<Either<Result<FcmDeviceTokenEntity>, ApiError>> fcmDeviceToken(
+      Map<String, dynamic> data,) async {
+    try {
+      final result = await _remoteDataSource.fcmDeviceToken(data);
+
+      return result.fold(
+            (success) {
+          if (success.isSuccess) {
+            final result = success.data?.toEntity();
+
+            return Left(Result.success(result));
+          } else {
+            return Right(ApiError(message: 'FCM Device Token Failed'));
+          }
+        },
+            (error) {
+          return Right(ApiError(message: 'FCM Device Token Failed $error'));
+        },
+      );
+    } catch (e) {
+      return Right(ApiError(message: 'FCM Device Token Failed $e'));
+    }
+  }
 }

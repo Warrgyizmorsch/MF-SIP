@@ -92,7 +92,6 @@ class UShimmerEffect extends StatelessWidget {
   }
 }
 
-
 class SchemeChartShimmer extends StatelessWidget {
   const SchemeChartShimmer({super.key});
 
@@ -109,10 +108,10 @@ class SchemeChartShimmer extends StatelessWidget {
       padding: isDesktop ? const EdgeInsets.all(20) : const EdgeInsets.all(12),
       decoration: isDesktop
           ? BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        // border: Border.all(color: Colors.grey.shade200),
-      )
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              // border: Border.all(color: Colors.grey.shade200),
+            )
           : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,18 +127,19 @@ class SchemeChartShimmer extends StatelessWidget {
           const Spacer(),
           // Mimic the Line Chart drawing area
           _BaseShimmer(
-              width: double.infinity,
-              height: chartHeight * 0.6,
-              radius: 8
+            width: double.infinity,
+            height: chartHeight * 0.6,
+            radius: 8,
           ),
           const Spacer(),
           // Mimic the Bottom Labels (Dates)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(5, (index) =>
-                _BaseShimmer(width: 40, height: 10, radius: 2)
+            children: List.generate(
+              5,
+              (index) => _BaseShimmer(width: 40, height: 10, radius: 2),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -152,7 +152,11 @@ class _BaseShimmer extends StatelessWidget {
   final double height;
   final double radius;
 
-  const _BaseShimmer({required this.width, required this.height, required this.radius});
+  const _BaseShimmer({
+    required this.width,
+    required this.height,
+    required this.radius,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -168,8 +172,6 @@ class _BaseShimmer extends StatelessWidget {
   }
 }
 
-
-
 class ShimmerListView extends StatelessWidget {
   const ShimmerListView({super.key});
 
@@ -184,10 +186,7 @@ class ShimmerListView extends StatelessWidget {
           child: Row(
             children: [
               // 1. Icon/Image Placeholder
-              const CustomShimmer.rectangular(
-                height: 50,
-                width: 50,
-              ),
+              const CustomShimmer.rectangular(height: 50, width: 50),
               const SizedBox(width: 12),
 
               // 2. Text Column Placeholder
@@ -195,7 +194,10 @@ class ShimmerListView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const CustomShimmer.rectangular(height: 14, width: 120), // Title
+                    const CustomShimmer.rectangular(
+                      height: 14,
+                      width: 120,
+                    ), // Title
                     const SizedBox(height: 8),
                     const CustomShimmer.rectangular(height: 10), // Subtitle
                   ],
@@ -208,7 +210,6 @@ class ShimmerListView extends StatelessWidget {
     );
   }
 }
-
 
 class CustomShimmer extends StatelessWidget {
   final double width;
@@ -251,9 +252,6 @@ class CustomShimmer extends StatelessWidget {
   }
 }
 
-
-
-
 class FundShimmerLoading extends StatelessWidget {
   final int crossAxisCount;
   const FundShimmerLoading({super.key, required this.crossAxisCount});
@@ -287,15 +285,30 @@ class FundShimmerLoading extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Container(height: 46, width: 46, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+                      Container(
+                        height: 46,
+                        width: 46,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(height: 12, width: double.infinity, color: Colors.white),
+                            Container(
+                              height: 12,
+                              width: double.infinity,
+                              color: Colors.white,
+                            ),
                             const SizedBox(height: 8),
-                            Container(height: 12, width: 120, color: Colors.white),
+                            Container(
+                              height: 12,
+                              width: 120,
+                              color: Colors.white,
+                            ),
                           ],
                         ),
                       ),
@@ -305,7 +318,10 @@ class FundShimmerLoading extends StatelessWidget {
                   Container(
                     height: 46,
                     width: double.infinity,
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ],
               ),
@@ -316,6 +332,7 @@ class FundShimmerLoading extends StatelessWidget {
     );
   }
 }
+
 /// =========================================================
 
 class FundShimmerCard extends StatelessWidget {
@@ -323,8 +340,7 @@ class FundShimmerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isMobile =
-        MediaQuery.of(context).size.width < 700;
+    final bool isMobile = MediaQuery.of(context).size.width < 700;
 
     return Shimmer.fromColors(
       baseColor: Colors.grey.shade200,
@@ -335,9 +351,7 @@ class FundShimmerCard extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(22),
         ),
-        child: isMobile
-            ? _mobileShimmer()
-            : _desktopShimmer(),
+        child: isMobile ? _mobileShimmer() : _desktopShimmer(),
       ),
     );
   }
@@ -367,16 +381,14 @@ class FundShimmerCard extends StatelessWidget {
 
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
                       height: 14,
                       width: double.infinity,
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius:
-                        BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
 
@@ -387,8 +399,7 @@ class FundShimmerCard extends StatelessWidget {
                       width: 140,
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius:
-                        BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
                   ],
@@ -461,16 +472,14 @@ class FundShimmerCard extends StatelessWidget {
 
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     height: 14,
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius:
-                      BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
 
@@ -481,8 +490,7 @@ class FundShimmerCard extends StatelessWidget {
                     width: 140,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius:
-                      BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                 ],
@@ -494,13 +502,8 @@ class FundShimmerCard extends StatelessWidget {
         const Gap(20),
 
         Row(
-          mainAxisAlignment:
-          MainAxisAlignment.spaceBetween,
-          children: [
-            _miniBox(),
-            _miniBox(),
-            _miniBox(),
-          ],
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [_miniBox(), _miniBox(), _miniBox()],
         ),
 
         const Gap(18),
@@ -512,8 +515,7 @@ class FundShimmerCard extends StatelessWidget {
                 height: 38,
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius:
-                  BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(30),
                 ),
               ),
             ),
@@ -525,8 +527,7 @@ class FundShimmerCard extends StatelessWidget {
                 height: 42,
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius:
-                  BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
             ),
@@ -574,6 +575,111 @@ class FundShimmerCard extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class GoalShimmerGrid extends StatelessWidget {
+  const GoalShimmerGrid({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header shimmer
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+            child: Container(
+              width: 120,
+              height: 14,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
+          ),
+        ),
+
+        // Grid shimmer
+        Expanded(
+          child: GridView.builder(
+            padding: const EdgeInsets.all(12),
+            itemCount: 9,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              childAspectRatio: 0.82,
+            ),
+            itemBuilder: (context, index) => const _GoalShimmerCard(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _GoalShimmerCard extends StatelessWidget {
+  const _GoalShimmerCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade300,
+      highlightColor: Colors.grey.shade100,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            // Circle shimmer
+            Container(
+              width: 90,
+              height: 90,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+            ),
+
+            // Goal name shimmer
+            Container(
+              width: 80,
+              height: 12,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
+
+            // Amount shimmer
+            Container(
+              width: 60,
+              height: 10,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
