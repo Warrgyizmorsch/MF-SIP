@@ -89,7 +89,7 @@ class InvestNowPage extends GetView<CartController> {
     return Container(
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.blueAccent.withOpacity(0.1),
+        color: Colors.blueAccent.withValues(alpha:0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(

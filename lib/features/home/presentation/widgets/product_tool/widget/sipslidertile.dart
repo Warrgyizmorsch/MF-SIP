@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 
+import '../../../../../../core/utils/constant/text_style.dart';
 import 'image_slider_thumb.dart';
 
 class SipSliderTile2 extends StatefulWidget {
@@ -75,7 +76,7 @@ class _SipSliderTileState extends State<SipSliderTile2> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(widget.title, style: const TextStyle(fontSize: 12)),
+            Text(widget.title, style: const TextStyle(fontSize: 12,  fontFamily: FontFamily.medium,)),
 
             /// Editable Value Box
             Container(
@@ -83,7 +84,7 @@ class _SipSliderTileState extends State<SipSliderTile2> {
               padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
                 // Use effectiveColor for background tint
-                color: effectiveColor.withOpacity(0.1),
+                color: effectiveColor.withValues(alpha:0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Row(
@@ -92,6 +93,7 @@ class _SipSliderTileState extends State<SipSliderTile2> {
                     Text(
                       widget.prefix.toString(),
                       style: TextStyle(
+                        fontFamily: FontFamily.medium,
                         color: effectiveColor, // Use effectiveColor
                         fontWeight: FontWeight.w600,
                       ),
@@ -100,7 +102,8 @@ class _SipSliderTileState extends State<SipSliderTile2> {
                   Expanded(
                     child: TextField(
                       style: TextStyle(
-                        color: effectiveColor, // Use effectiveColor
+                        color: effectiveColor,
+                        fontFamily: FontFamily.medium,// Use effectiveColor
                       ),
                       controller: _controller,
                       keyboardType: TextInputType.number,
@@ -117,6 +120,7 @@ class _SipSliderTileState extends State<SipSliderTile2> {
                     Text(
                       widget.suffix.toString(),
                       style: TextStyle(
+                        fontFamily: FontFamily.medium,
                         color: effectiveColor, // Use effectiveColor
                         fontWeight: FontWeight.w600,
                       ),
@@ -272,7 +276,7 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
           children: [
             Row(
               children: [
-                Text(widget.title, style: const TextStyle(fontSize: 12)),
+                Text(widget.title, style: const TextStyle(fontSize: 12,  fontFamily: FontFamily.medium,)),
                 const SizedBox(width: 4),
                 Transform.scale(
                   scale: 0.8,
@@ -297,7 +301,7 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
               width: 115,
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: effectiveColor.withOpacity(0.1),
+                color: effectiveColor.withValues(alpha:0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Row(
@@ -316,6 +320,7 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.right,
                       style: TextStyle(
+                        fontFamily: FontFamily.medium,
                         color: effectiveColor,
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -337,6 +342,7 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
                         "%",
                         style: TextStyle(
                           color: effectiveColor,
+                          fontFamily: FontFamily.medium,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

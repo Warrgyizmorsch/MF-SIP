@@ -27,7 +27,7 @@ class SubtitleText extends StatelessWidget {
         color: textcolor ?? Colors.grey[600],
         fontWeight: fontWeight,
         fontSize: fontSize ?? (Get.width * 0.035).clamp(12, 14),
-        fontFamily: UTextStyles.font,
+        fontFamily: FontFamily.medium,
       ),
       textAlign: textAlignCenter ?? TextAlign.center,
     );

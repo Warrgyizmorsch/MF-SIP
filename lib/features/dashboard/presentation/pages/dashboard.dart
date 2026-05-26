@@ -231,7 +231,7 @@ class _WebDashboardLayout extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
+                                      color: Colors.black.withValues(alpha:0.05),
                                       blurRadius: 10,
                                     ),
                                   ],
@@ -288,7 +288,7 @@ class _WebDashboardLayout extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
+                                      color: Colors.black.withValues(alpha:0.05),
                                       blurRadius: 10,
                                     ),
                                   ],
@@ -341,7 +341,7 @@ class _WebDashboardLayout extends StatelessWidget {
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.04),
+                                      color: Colors.black.withValues(alpha:0.04),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     ),
@@ -424,7 +424,7 @@ class _WebDashboardLayout extends StatelessWidget {
                                                     vertical: 8,
                                                   ),
                                               decoration: BoxDecoration(
-                                                color: Colors.blue.withOpacity(
+                                                color: Colors.blue.withValues(alpha:
                                                   0.08,
                                                 ),
                                                 borderRadius:
@@ -512,7 +512,7 @@ class _WebDashboardLayout extends StatelessWidget {
                               //     borderRadius: BorderRadius.circular(20),
                               //     boxShadow: [
                               //       BoxShadow(
-                              //         color: Colors.black.withOpacity(0.05),
+                              //         color: Colors.black.withValues(alpha:0.05),
                               //         blurRadius: 10,
                               //       ),
                               //     ],
@@ -1052,15 +1052,15 @@ class _WebStatCardState extends State<_WebStatCard> {
 
         decoration: BoxDecoration(
           /// LIGHT PREMIUM BACKGROUND
-          color: widget.color.withOpacity(0.04),
+          color: widget.color.withValues(alpha:0.04),
 
           borderRadius: BorderRadius.circular(20),
 
-          border: Border.all(color: widget.color.withOpacity(0.08)),
+          border: Border.all(color: widget.color.withValues(alpha:0.08)),
 
           boxShadow: [
             BoxShadow(
-              color: widget.color.withOpacity(isHovered ? 0.10 : 0.04),
+              color: widget.color.withValues(alpha:isHovered ? 0.10 : 0.04),
               blurRadius: 18,
               offset: const Offset(0, 8),
             ),
@@ -1181,7 +1181,7 @@ class _CardWavePainter extends CustomPainter {
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [color.withOpacity(0.15), color.withOpacity(0.03)],
+        colors: [color.withValues(alpha:0.15), color.withValues(alpha:0.03)],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
     // Main wave path
@@ -1223,7 +1223,7 @@ class _CardWavePainter extends CustomPainter {
     canvas.drawPath(wavePath, gradientPaint);
 
     // Optional highlight wave for depth
-    final highlightPaint = Paint()..color = color.withOpacity(0.08);
+    final highlightPaint = Paint()..color = color.withValues(alpha:0.08);
     final highlightPath = Path();
     highlightPath.moveTo(0, size.height * 0.9);
     highlightPath.quadraticBezierTo(
@@ -1268,7 +1268,7 @@ class _WebActionButton extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha:0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color),
@@ -1668,7 +1668,7 @@ class TransactionCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha:0.08),
                   blurRadius: 12,
                   offset: const Offset(0, 6),
                 ),
@@ -1752,7 +1752,7 @@ class PortfolioCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.15),
+              color: Colors.black.withValues(alpha:0.15),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

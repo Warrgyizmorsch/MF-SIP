@@ -145,7 +145,7 @@
 //                 color: Colors.white,
 //                 boxShadow: [
 //                   BoxShadow(
-//                     color: Colors.grey.withOpacity(0.1),
+//                     color: Colors.grey.withValues(alpha:0.1),
 //                     blurRadius: 10,
 //                     offset: const Offset(0, -4),
 //                   ),
@@ -277,7 +277,7 @@
 //                 border: Border.all(color: Colors.grey.shade200),
 //                 boxShadow: [
 //                   BoxShadow(
-//                     color: Colors.grey.withOpacity(0.08),
+//                     color: Colors.grey.withValues(alpha:0.08),
 //                     blurRadius: 20,
 //                     offset: const Offset(0, 4),
 //                   ),
@@ -381,7 +381,7 @@
 //                   //         height: 50,
 //                   //         width: 50,
 //                   //         decoration: BoxDecoration(
-//                   //           color: Ucolors.blue.withOpacity(0.1),
+//                   //           color: Ucolors.blue.withValues(alpha:0.1),
 //                   //           borderRadius: BorderRadius.circular(10),
 //                   //         ),
 //                   //         child: const Icon(Icons.refresh, color: Ucolors.blue),
@@ -453,7 +453,7 @@
 //                 border: Border.all(color: Colors.grey.shade200),
 //                 boxShadow: [
 //                   BoxShadow(
-//                     color: Colors.grey.withOpacity(0.08),
+//                     color: Colors.grey.withValues(alpha:0.08),
 //                     blurRadius: 20,
 //                     offset: const Offset(0, 4),
 //                   ),
@@ -535,7 +535,7 @@
 //                 border: Border.all(color: Colors.grey.shade200),
 //                 boxShadow: [
 //                   BoxShadow(
-//                     color: Colors.grey.withOpacity(0.08),
+//                     color: Colors.grey.withValues(alpha:0.08),
 //                     blurRadius: 20,
 //                     offset: const Offset(0, 4),
 //                   ),
@@ -686,7 +686,7 @@
 //                 border: Border.all(color: Colors.grey.shade200),
 //                 boxShadow: [
 //                   BoxShadow(
-//                     color: Colors.grey.withOpacity(0.08),
+//                     color: Colors.grey.withValues(alpha:0.08),
 //                     blurRadius: 20,
 //                     offset: const Offset(0, 4),
 //                   ),
@@ -791,7 +791,7 @@
 //                 border: Border.all(color: Colors.grey.shade200),
 //                 boxShadow: [
 //                   BoxShadow(
-//                     color: Colors.grey.withOpacity(0.08),
+//                     color: Colors.grey.withValues(alpha:0.08),
 //                     blurRadius: 20,
 //                     offset: const Offset(0, 4),
 //                   ),
@@ -911,11 +911,11 @@
 //                         color: Colors.white,
 //                         borderRadius: BorderRadius.circular(16),
 //                         border: Border.all(
-//                           color: Ucolors.blue.withOpacity(0.3),
+//                           color: Ucolors.blue.withValues(alpha:0.3),
 //                         ),
 //                         boxShadow: [
 //                           BoxShadow(
-//                             color: Colors.grey.withOpacity(0.1),
+//                             color: Colors.grey.withValues(alpha:0.1),
 //                             blurRadius: 10,
 //                             offset: const Offset(0, 4),
 //                           ),
@@ -1013,10 +1013,10 @@
 //                     width: double.infinity,
 //                     padding: const EdgeInsets.symmetric(vertical: 30),
 //                     decoration: BoxDecoration(
-//                       color: Ucolors.blue.withOpacity(0.05),
+//                       color: Ucolors.blue.withValues(alpha:0.05),
 //                       borderRadius: BorderRadius.circular(16),
 //                       border: Border.all(
-//                         color: Ucolors.blue.withOpacity(0.5),
+//                         color: Ucolors.blue.withValues(alpha:0.5),
 //                         width: 1.5,
 //                       ),
 //                     ),
@@ -1026,7 +1026,7 @@
 //                         Container(
 //                           padding: const EdgeInsets.all(16),
 //                           decoration: BoxDecoration(
-//                             color: Ucolors.blue.withOpacity(0.1),
+//                             color: Ucolors.blue.withValues(alpha:0.1),
 //                             shape: BoxShape.circle,
 //                           ),
 //                           child: Icon(
@@ -1090,10 +1090,10 @@
 //           //         width: double.infinity,
 //           //         height: 200,
 //           //         decoration: BoxDecoration(
-//           //           color: Ucolors.blue.withOpacity(0.05),
+//           //           color: Ucolors.blue.withValues(alpha:0.05),
 //           //           borderRadius: BorderRadius.circular(20),
 //           //           border: Border.all(
-//           //             color: Ucolors.blue.withOpacity(0.4),
+//           //             color: Ucolors.blue.withValues(alpha:0.4),
 //           //             width: 1.5,
 //           //           ),
 //           //         ),
@@ -1163,7 +1163,7 @@
 //           //               // ),
 //           //               // Success Overlay
 //           //               Container(
-//           //                 color: Colors.black.withOpacity(0.3),
+//           //                 color: Colors.black.withValues(alpha:0.3),
 //           //                 child: const Center(
 //           //                   child: Column(
 //           //                     mainAxisAlignment: MainAxisAlignment.center,
@@ -1215,10 +1215,10 @@
 //           //         width: double.infinity,
 //           //         height: 200,
 //           //         decoration: BoxDecoration(
-//           //           color: Ucolors.blue.withOpacity(0.05),
+//           //           color: Ucolors.blue.withValues(alpha:0.05),
 //           //           borderRadius: BorderRadius.circular(20),
 //           //           border: Border.all(
-//           //             color: Ucolors.blue.withOpacity(0.4),
+//           //             color: Ucolors.blue.withValues(alpha:0.4),
 //           //             width: 1.5,
 //           //           ),
 //           //         ),
@@ -1232,7 +1232,7 @@
 //           //                 shape: BoxShape.circle,
 //           //                 boxShadow: [
 //           //                   BoxShadow(
-//           //                     color: Ucolors.blue.withOpacity(0.1),
+//           //                     color: Ucolors.blue.withValues(alpha:0.1),
 //           //                     blurRadius: 10,
 //           //                     spreadRadius: 2,
 //           //                   ),
@@ -1276,10 +1276,10 @@
 //                   width: double.infinity,
 //                   height: 200,
 //                   decoration: BoxDecoration(
-//                     color: Ucolors.blue.withOpacity(0.05),
+//                     color: Ucolors.blue.withValues(alpha:0.05),
 //                     borderRadius: BorderRadius.circular(20),
 //                     border: Border.all(
-//                       color: Ucolors.blue.withOpacity(0.4),
+//                       color: Ucolors.blue.withValues(alpha:0.4),
 //                       width: 1.5,
 //                     ),
 //                   ),
@@ -1320,7 +1320,7 @@
 //                         // Success Overlay
 //                         Container(
 //                           decoration: BoxDecoration(
-//                             color: Colors.black.withOpacity(0.3),
+//                             color: Colors.black.withValues(alpha:0.3),
 //                             borderRadius: BorderRadius.circular(18),
 //                           ),
 //                           child: const Center(
@@ -1365,10 +1365,10 @@
 //                   width: double.infinity,
 //                   height: 200,
 //                   decoration: BoxDecoration(
-//                     color: Ucolors.blue.withOpacity(0.05),
+//                     color: Ucolors.blue.withValues(alpha:0.05),
 //                     borderRadius: BorderRadius.circular(20),
 //                     border: Border.all(
-//                       color: Ucolors.blue.withOpacity(0.4),
+//                       color: Ucolors.blue.withValues(alpha:0.4),
 //                       width: 1.5,
 //                     ),
 //                   ),
@@ -1382,7 +1382,7 @@
 //                           shape: BoxShape.circle,
 //                           boxShadow: [
 //                             BoxShadow(
-//                               color: Ucolors.blue.withOpacity(0.1),
+//                               color: Ucolors.blue.withValues(alpha:0.1),
 //                               blurRadius: 10,
 //                               spreadRadius: 2,
 //                             ),
@@ -1451,10 +1451,10 @@
 //             () => Container(
 //               padding: const EdgeInsets.all(30),
 //               decoration: BoxDecoration(
-//                 color: Ucolors.blue.withOpacity(0.05),
+//                 color: Ucolors.blue.withValues(alpha:0.05),
 //                 shape: BoxShape.circle,
 //                 border: Border.all(
-//                   color: Ucolors.blue.withOpacity(0.2),
+//                   color: Ucolors.blue.withValues(alpha:0.2),
 //                   width: 2,
 //                 ),
 //               ),
@@ -1542,9 +1542,9 @@
 //     return Container(
 //       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
 //       decoration: BoxDecoration(
-//         color: Ucolors.blue.withOpacity(0.05),
+//         color: Ucolors.blue.withValues(alpha:0.05),
 //         borderRadius: BorderRadius.circular(12),
-//         border: Border.all(color: Ucolors.blue.withOpacity(0.1)),
+//         border: Border.all(color: Ucolors.blue.withValues(alpha:0.1)),
 //       ),
 //       child: Row(
 //         mainAxisSize: MainAxisSize.min,
@@ -1619,7 +1619,7 @@
 //         return CustomPaint(
 //           painter: RipplePainter(
 //             animationValue: _animation.value,
-//             color: Ucolors.blue.withOpacity(0.15), // Slightly visible blue
+//             color: Ucolors.blue.withValues(alpha:0.15), // Slightly visible blue
 //           ),
 //           child: Container(),
 //         );
@@ -1640,7 +1640,7 @@
 
 //     // Fade out as it grows
 //     final Paint paint = Paint()
-//       ..color = color.withOpacity((1.0 - animationValue) * 0.5)
+//       ..color = color.withValues(alpha:(1.0 - animationValue) * 0.5)
 //       ..style = PaintingStyle.fill;
 
 //     // Center the ripple
@@ -1810,7 +1810,7 @@
 //                   boxShadow: isActive
 //                       ? [
 //                           BoxShadow(
-//                             color: Ucolors.blue.withOpacity(0.4),
+//                             color: Ucolors.blue.withValues(alpha:0.4),
 //                             blurRadius: 10,
 //                             offset: const Offset(0, 4),
 //                           ),
@@ -2046,7 +2046,7 @@ class KycScreen extends GetView<KycController> {
             color: Colors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: Colors.grey.withValues(alpha:0.1),
                 blurRadius: 10,
                 offset: const Offset(0, -4),
               ),
@@ -2155,7 +2155,7 @@ class KycScreen extends GetView<KycController> {
                 border: Border.all(color: Colors.grey.shade200),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.08),
+                    color: Colors.grey.withValues(alpha:0.08),
                     blurRadius: 20,
                     offset: const Offset(0, 4),
                   ),
@@ -2237,12 +2237,12 @@ class KycScreen extends GetView<KycController> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: Ucolors.blue.withOpacity(0.3),
+                      color: Ucolors.blue.withValues(alpha:0.3),
                       width: 3,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha:0.1),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -2274,7 +2274,7 @@ class KycScreen extends GetView<KycController> {
                 border: Border.all(color: Colors.grey.shade200),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.08),
+                    color: Colors.grey.withValues(alpha:0.08),
                     blurRadius: 20,
                     offset: const Offset(0, 4),
                   ),
@@ -2460,7 +2460,7 @@ class KycScreen extends GetView<KycController> {
   //               border: Border.all(color: Colors.grey.shade200),
   //               boxShadow: [
   //                 BoxShadow(
-  //                   color: Colors.grey.withOpacity(0.08),
+  //                   color: Colors.grey.withValues(alpha:0.08),
   //                   blurRadius: 20,
   //                   offset: const Offset(0, 4),
   //                 ),
@@ -2568,7 +2568,7 @@ class KycScreen extends GetView<KycController> {
                 border: Border.all(color: Colors.grey.shade200),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.08),
+                    color: Colors.grey.withValues(alpha:0.08),
                     blurRadius: 20,
                     offset: const Offset(0, 4),
                   ),
@@ -2761,7 +2761,7 @@ class KycScreen extends GetView<KycController> {
                 border: Border.all(color: Colors.grey.shade200),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.08),
+                    color: Colors.grey.withValues(alpha:0.08),
                     blurRadius: 20,
                     offset: const Offset(0, 4),
                   ),
@@ -2866,7 +2866,7 @@ class KycScreen extends GetView<KycController> {
                 border: Border.all(color: Colors.grey.shade200),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.08),
+                    color: Colors.grey.withValues(alpha:0.08),
                     blurRadius: 20,
                     offset: const Offset(0, 4),
                   ),
@@ -2978,10 +2978,10 @@ class KycScreen extends GetView<KycController> {
                   width: double.infinity,
                   height: 200,
                   decoration: BoxDecoration(
-                    color: Ucolors.blue.withOpacity(0.05),
+                    color: Ucolors.blue.withValues(alpha:0.05),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: Ucolors.blue.withOpacity(0.4),
+                      color: Ucolors.blue.withValues(alpha:0.4),
                       width: 1.5,
                     ),
                   ),
@@ -3018,7 +3018,7 @@ class KycScreen extends GetView<KycController> {
                         ),
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.3),
+                            color: Colors.black.withValues(alpha:0.3),
                             borderRadius: BorderRadius.circular(18),
                           ),
                           child: const Center(
@@ -3062,10 +3062,10 @@ class KycScreen extends GetView<KycController> {
                   width: double.infinity,
                   height: 200,
                   decoration: BoxDecoration(
-                    color: Ucolors.blue.withOpacity(0.05),
+                    color: Ucolors.blue.withValues(alpha:0.05),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: Ucolors.blue.withOpacity(0.4),
+                      color: Ucolors.blue.withValues(alpha:0.4),
                       width: 1.5,
                     ),
                   ),
@@ -3079,7 +3079,7 @@ class KycScreen extends GetView<KycController> {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Ucolors.blue.withOpacity(0.1),
+                              color: Ucolors.blue.withValues(alpha:0.1),
                               blurRadius: 10,
                               spreadRadius: 2,
                             ),
@@ -3125,10 +3125,10 @@ class KycScreen extends GetView<KycController> {
                   width: double.infinity,
                   height: 200,
                   decoration: BoxDecoration(
-                    color: Ucolors.blue.withOpacity(0.05),
+                    color: Ucolors.blue.withValues(alpha:0.05),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: Ucolors.blue.withOpacity(0.4),
+                      color: Ucolors.blue.withValues(alpha:0.4),
                       width: 1.5,
                     ),
                   ),
@@ -3198,7 +3198,7 @@ class KycScreen extends GetView<KycController> {
                         // ),
                         // Success Overlay
                         Container(
-                          color: Colors.black.withOpacity(0.3),
+                          color: Colors.black.withValues(alpha:0.3),
                           child: const Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -3250,10 +3250,10 @@ class KycScreen extends GetView<KycController> {
                   width: double.infinity,
                   height: 200,
                   decoration: BoxDecoration(
-                    color: Ucolors.blue.withOpacity(0.05),
+                    color: Ucolors.blue.withValues(alpha:0.05),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: Ucolors.blue.withOpacity(0.4),
+                      color: Ucolors.blue.withValues(alpha:0.4),
                       width: 1.5,
                     ),
                   ),
@@ -3267,7 +3267,7 @@ class KycScreen extends GetView<KycController> {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Ucolors.blue.withOpacity(0.1),
+                              color: Ucolors.blue.withValues(alpha:0.1),
                               blurRadius: 10,
                               spreadRadius: 2,
                             ),
@@ -3332,10 +3332,10 @@ class KycScreen extends GetView<KycController> {
             () => Container(
               padding: const EdgeInsets.all(30),
               decoration: BoxDecoration(
-                color: Ucolors.blue.withOpacity(0.05),
+                color: Ucolors.blue.withValues(alpha:0.05),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: Ucolors.blue.withOpacity(0.2),
+                  color: Ucolors.blue.withValues(alpha:0.2),
                   width: 2,
                 ),
               ),
@@ -3423,9 +3423,9 @@ class KycScreen extends GetView<KycController> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Ucolors.blue.withOpacity(0.05),
+        color: Ucolors.blue.withValues(alpha:0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Ucolors.blue.withOpacity(0.1)),
+        border: Border.all(color: Ucolors.blue.withValues(alpha:0.1)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -3462,7 +3462,7 @@ class KycScreen extends GetView<KycController> {
               border: Border.all(color: kWebBorder),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha:0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 4),
                 ),
@@ -3639,7 +3639,7 @@ class KycScreen extends GetView<KycController> {
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: kWebTextPrimary,
-            fontFamily: UTextStyles.font,
+            fontFamily: FontFamily.medium,
           ),
         ),
         const SizedBox(height: 6),
@@ -3652,7 +3652,7 @@ class KycScreen extends GetView<KycController> {
               fontSize: 13,
               color: kWebTextSecondary,
               height: 1.4,
-              fontFamily: UTextStyles.font,
+              fontFamily: FontFamily.medium,
             ),
           ),
         ),
@@ -3682,7 +3682,7 @@ class KycScreen extends GetView<KycController> {
       decoration: BoxDecoration(
         color: const Color(0xFFE6F1FB),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: kWebPrimary.withOpacity(0.15)),
+        border: Border.all(color: kWebPrimary.withValues(alpha:0.15)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -3695,8 +3695,7 @@ class KycScreen extends GetView<KycController> {
               color: kWebPrimary,
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              fontFamily: UTextStyles.font,
-            ),
+              fontFamily: FontFamily.medium,)
           ),
         ],
       ),
@@ -3716,7 +3715,7 @@ class KycScreen extends GetView<KycController> {
               fontWeight: FontWeight.w600,
               color: kWebTextSecondary,
               letterSpacing: 0.5,
-              fontFamily: UTextStyles.font,
+              fontFamily: FontFamily.medium,
             ),
           ),
           const SizedBox(height: 6),
@@ -3754,7 +3753,7 @@ class KycScreen extends GetView<KycController> {
                   option,
                   style: TextStyle(
                     fontSize: 13,
-                    fontFamily: UTextStyles.font,
+                    fontFamily: FontFamily.medium,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                     color: isSelected ? kWebPrimary : kWebTextSecondary,
                   ),
@@ -4358,10 +4357,10 @@ class KycScreen extends GetView<KycController> {
                 width: double.infinity,
                 height: 180,
                 decoration: BoxDecoration(
-                  color: kWebPrimary.withOpacity(0.05),
+                  color: kWebPrimary.withValues(alpha:0.05),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: kWebPrimary.withOpacity(0.4),
+                    color: kWebPrimary.withValues(alpha:0.4),
                     width: 1.5,
                   ),
                 ),
@@ -4379,7 +4378,7 @@ class KycScreen extends GetView<KycController> {
                   width: double.infinity,
                   height: 180,
                   decoration: BoxDecoration(
-                    color: kWebSuccess.withOpacity(0.08),
+                    color: kWebSuccess.withValues(alpha:0.08),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: kWebSuccess, width: 1.5),
                   ),
@@ -4428,10 +4427,10 @@ class KycScreen extends GetView<KycController> {
                 width: double.infinity,
                 height: 180,
                 decoration: BoxDecoration(
-                  color: kWebPrimary.withOpacity(0.03),
+                  color: kWebPrimary.withValues(alpha:0.03),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: kWebPrimary.withOpacity(0.35),
+                    color: kWebPrimary.withValues(alpha:0.35),
                     width: 1.5,
                   ),
                 ),
@@ -4489,10 +4488,10 @@ class KycScreen extends GetView<KycController> {
               width: 130,
               height: 130,
               decoration: BoxDecoration(
-                color: kWebPrimary.withOpacity(0.05),
+                color: kWebPrimary.withValues(alpha:0.05),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: kWebPrimary.withOpacity(0.18),
+                  color: kWebPrimary.withValues(alpha:0.18),
                   width: 2,
                 ),
               ),
@@ -4751,7 +4750,7 @@ class _WaterRippleBackgroundState extends State<WaterRippleBackground>
         return CustomPaint(
           painter: RipplePainter(
             animationValue: _animation.value,
-            color: Ucolors.blue.withOpacity(0.15),
+            color: Ucolors.blue.withValues(alpha:0.15),
           ),
           child: Container(),
         );
@@ -4770,7 +4769,7 @@ class RipplePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (animationValue == 0 || animationValue == 1) return;
     final Paint paint = Paint()
-      ..color = color.withOpacity((1.0 - animationValue) * 0.5)
+      ..color = color.withValues(alpha:(1.0 - animationValue) * 0.5)
       ..style = PaintingStyle.fill;
     final Offset center = Offset(size.width / 2, size.height / 1);
     final double maxRadius = size.height > size.width
@@ -4922,7 +4921,7 @@ class _AnimatedStepBubble extends StatelessWidget {
                   boxShadow: isActive
                       ? [
                           BoxShadow(
-                            color: Ucolors.blue.withOpacity(0.4),
+                            color: Ucolors.blue.withValues(alpha:0.4),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -5069,7 +5068,7 @@ class KycScreen extends GetView<KycController> {
                     boxShadow: isDesktop
                         ? [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha:0.05),
                               blurRadius: 20,
                               offset: const Offset(0, 4),
                             ),
@@ -5293,7 +5292,7 @@ class KycScreen extends GetView<KycController> {
       decoration: BoxDecoration(
         color: const Color(0xFFE6F1FB),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: kPrimaryBlue.withOpacity(0.15)),
+        border: Border.all(color: kPrimaryBlue.withValues(alpha:0.15)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -5923,10 +5922,10 @@ class KycScreen extends GetView<KycController> {
                 width: double.infinity,
                 height: 180,
                 decoration: BoxDecoration(
-                  color: kPrimaryBlue.withOpacity(0.05),
+                  color: kPrimaryBlue.withValues(alpha:0.05),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: kPrimaryBlue.withOpacity(0.4),
+                    color: kPrimaryBlue.withValues(alpha:0.4),
                     width: 1.5,
                   ),
                 ),
@@ -5944,7 +5943,7 @@ class KycScreen extends GetView<KycController> {
                   width: double.infinity,
                   height: 180,
                   decoration: BoxDecoration(
-                    color: kSuccessGreen.withOpacity(0.08),
+                    color: kSuccessGreen.withValues(alpha:0.08),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: kSuccessGreen, width: 1.5),
                   ),
@@ -5990,10 +5989,10 @@ class KycScreen extends GetView<KycController> {
                 width: double.infinity,
                 height: 180,
                 decoration: BoxDecoration(
-                  color: kPrimaryBlue.withOpacity(0.03),
+                  color: kPrimaryBlue.withValues(alpha:0.03),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: kPrimaryBlue.withOpacity(0.35),
+                    color: kPrimaryBlue.withValues(alpha:0.35),
                     width: 1.5,
                     style: BorderStyle.solid,
                   ),
@@ -6055,10 +6054,10 @@ class KycScreen extends GetView<KycController> {
               width: 130,
               height: 130,
               decoration: BoxDecoration(
-                color: kPrimaryBlue.withOpacity(0.05),
+                color: kPrimaryBlue.withValues(alpha:0.05),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: kPrimaryBlue.withOpacity(0.18),
+                  color: kPrimaryBlue.withValues(alpha:0.18),
                   width: 2,
                 ),
               ),

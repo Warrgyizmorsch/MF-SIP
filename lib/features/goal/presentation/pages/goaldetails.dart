@@ -83,7 +83,7 @@ class GoaldetailsPage extends GetView<GoalSipController> {
                     SizedBox(width: 8),
                     Text(
                       'Delete',
-                      style: TextStyle(color: Colors.red),
+                      style: TextStyle(color: Colors.red,  fontFamily: FontFamily.medium,),
                     ),
                   ],
                 ),
@@ -268,6 +268,7 @@ class GoaldetailsPage extends GetView<GoalSipController> {
             "Are you sure you want to edit this goal?",
             style: TextStyle(
               fontSize: 15,
+              fontFamily: FontFamily.medium,
             ),
           ),
 
@@ -386,13 +387,14 @@ class GoaldetailsPage extends GetView<GoalSipController> {
                         children: [
                           Text(
                             "Explore Funds",
-                            style: AppTextStyles.h2(color: Ucolors.dark),
+                            style: AppTextStyles.h2(color: Ucolors.dark,),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             "Search and select funds for your goal.",
                             style: TextStyle(
                               fontSize: 13,
+                              fontFamily: FontFamily.medium,
                               color: Colors.grey.shade500,
                               fontWeight: FontWeight.w500,
                             ),
@@ -434,6 +436,7 @@ class GoaldetailsPage extends GetView<GoalSipController> {
                             '$filterCount',
                             style: const TextStyle(
                               color: Colors.white,
+                              fontFamily: FontFamily.medium,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                             ),
@@ -484,7 +487,7 @@ class GoaldetailsPage extends GetView<GoalSipController> {
                                       mutualController.setSearchFocus(false);
                                     },
                                     focusNode: searchFocus,
-                                    backgroundColor: MaterialStateProperty.all(
+                                    backgroundColor: WidgetStateProperty.all(
                                       Colors.grey.shade50,
                                     ),
                                     leading: Icon(
@@ -492,16 +495,17 @@ class GoaldetailsPage extends GetView<GoalSipController> {
                                       color: Colors.grey.shade600,
                                     ),
                                     hintText: 'Search mutual funds...',
-                                    hintStyle: MaterialStateProperty.all(
+                                    hintStyle: WidgetStateProperty.all(
                                       TextStyle(
+                                        fontFamily: FontFamily.medium,
                                         color: Colors.grey.shade500,
                                         fontSize: 14,
                                       ),
                                     ),
                                     onChanged: (value) => mutualController
                                         .onSearchQueryChanged(value),
-                                    elevation: MaterialStateProperty.all(0),
-                                    side: MaterialStateProperty.all(
+                                    elevation: WidgetStateProperty.all(0),
+                                    side: WidgetStateProperty.all(
                                       BorderSide(color: Colors.grey.shade200),
                                     ),
                                   ),
@@ -532,7 +536,7 @@ class GoaldetailsPage extends GetView<GoalSipController> {
                       return Center(
                         child: Text(
                           "No mutual funds found",
-                          style: TextStyle(color: Colors.grey.shade600),
+                          style: TextStyle(color: Colors.grey.shade600,  fontFamily: FontFamily.medium,),
                         ),
                       );
                     }
@@ -652,7 +656,7 @@ class GoaldetailsPage extends GetView<GoalSipController> {
                                           vertical: 10,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Ucolors.primary.withOpacity(
+                                          color: Ucolors.primary.withValues(alpha:
                                             0.05,
                                           ),
                                           borderRadius: BorderRadius.circular(
@@ -682,7 +686,7 @@ class GoaldetailsPage extends GetView<GoalSipController> {
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha:0.05),
                         blurRadius: 10,
                         offset: const Offset(0, -5),
                       ),
@@ -923,7 +927,7 @@ class GoalDetailSection extends StatelessWidget {
                   if (linkedFunds.isEmpty)
                     const Text(
                       'No mutual funds linked yet.',
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(color: Colors.grey,  fontFamily: FontFamily.medium,),
                     ),
 
                   ...linkedFunds.map((fund) {

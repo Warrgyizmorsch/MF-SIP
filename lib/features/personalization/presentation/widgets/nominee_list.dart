@@ -340,7 +340,7 @@ class NomineeDetailsCard extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: isDark
-                                  ? Colors.blue.withOpacity(0.15)
+                                  ? Colors.blue.withValues(alpha:0.15)
                                   : const Color(0xFFEFF6FF),
                               borderRadius: BorderRadius.circular(20),
                             ),
@@ -478,7 +478,7 @@ class NomineeDetailsCard extends StatelessWidget {
             : Border(
                 bottom: BorderSide(
                   color: isDark
-                      ? const Color(0xFF334155).withOpacity(0.5)
+                      ? const Color(0xFF334155).withValues(alpha:0.5)
                       : const Color(0xFFF8FAFC),
                 ),
               ),
@@ -490,7 +490,7 @@ class NomineeDetailsCard extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
+              color: iconColor.withValues(alpha:0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: iconColor, size: 16),
@@ -612,7 +612,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //                             ),
 //                             decoration: BoxDecoration(
 //                               color: isDark
-//                                   ? Colors.blue.withOpacity(0.15)
+//                                   ? Colors.blue.withValues(alpha:0.15)
 //                                   : const Color(0xFFEFF6FF),
 //                               borderRadius: BorderRadius.circular(20),
 //                             ),
@@ -753,7 +753,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //             : Border(
 //                 bottom: BorderSide(
 //                   color: isDark
-//                       ? const Color(0xFF334155).withOpacity(0.5)
+//                       ? const Color(0xFF334155).withValues(alpha:0.5)
 //                       : const Color(0xFFF8FAFC),
 //                 ),
 //               ),
@@ -766,7 +766,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //             width: 36,
 //             height: 36,
 //             decoration: BoxDecoration(
-//               color: iconColor.withOpacity(0.1),
+//               color: iconColor.withValues(alpha:0.1),
 //               borderRadius: BorderRadius.circular(10),
 //             ),
 //             child: Icon(icon, color: iconColor, size: 16),
@@ -1122,7 +1122,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //                             ),
 //                             decoration: BoxDecoration(
 //                               color: isDark
-//                                   ? Colors.blue.withOpacity(0.15)
+//                                   ? Colors.blue.withValues(alpha:0.15)
 //                                   : const Color(0xFFEFF6FF),
 //                               borderRadius: BorderRadius.circular(20),
 //                             ),
@@ -1254,7 +1254,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //               : Border(
 //                   bottom: BorderSide(
 //                     color: isDark
-//                         ? const Color(0xFF334155).withOpacity(0.5)
+//                         ? const Color(0xFF334155).withValues(alpha:0.5)
 //                         : const Color(0xFFF8FAFC),
 //                   ),
 //                 ),
@@ -1266,7 +1266,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //               width: 40,
 //               height: 40,
 //               decoration: BoxDecoration(
-//                 color: iconColor.withOpacity(0.1),
+//                 color: iconColor.withValues(alpha:0.1),
 //                 borderRadius: BorderRadius.circular(12),
 //               ),
 //               child: Icon(icon, color: iconColor, size: 15),
@@ -1388,7 +1388,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //                             ),
 //                             decoration: BoxDecoration(
 //                               color: isDark
-//                                   ? Colors.blue.withOpacity(0.15)
+//                                   ? Colors.blue.withValues(alpha:0.15)
 //                                   : const Color(0xFFEFF6FF),
 //                               borderRadius: BorderRadius.circular(20),
 //                             ),
@@ -1535,7 +1535,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //             : Border(
 //                 bottom: BorderSide(
 //                   color: isDark
-//                       ? const Color(0xFF334155).withOpacity(0.5)
+//                       ? const Color(0xFF334155).withValues(alpha:0.5)
 //                       : const Color(0xFFF8FAFC),
 //                 ),
 //               ),
@@ -1547,7 +1547,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //             width: 40,
 //             height: 40,
 //             decoration: BoxDecoration(
-//               color: iconColor.withOpacity(0.1),
+//               color: iconColor.withValues(alpha:0.1),
 //               borderRadius: BorderRadius.circular(12),
 //             ),
 //             child: Icon(icon, color: iconColor, size: 20),
@@ -1637,7 +1637,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //         ),
 //         boxShadow: [
 //           BoxShadow(
-//             color: Colors.black.withOpacity(0.05),
+//             color: Colors.black.withValues(alpha:0.05),
 //             blurRadius: 10,
 //             offset: const Offset(0, 4),
 //           ),
@@ -1672,7 +1672,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //                           ),
 //                           decoration: BoxDecoration(
 //                             color: isDark
-//                                 ? Colors.blue.withOpacity(0.2)
+//                                 ? Colors.blue.withValues(alpha:0.2)
 //                                 : const Color(0xFFEFF6FF),
 //                             borderRadius: BorderRadius.circular(6),
 //                           ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/utils/constant/text_style.dart';
+
 Future<String?> showSelectionBottomSheet({
   required BuildContext context,
   required String title,
@@ -71,6 +73,7 @@ Future<String?> showSelectionBottomSheet({
                             title,
                             style: const TextStyle(
                               fontSize: 20,
+                              fontFamily: FontFamily.medium,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -103,6 +106,8 @@ Future<String?> showSelectionBottomSheet({
                           },
                           decoration: InputDecoration(
                             hintText: 'Search',
+                            hintStyle: TextStyle( fontFamily: FontFamily.medium,),
+                            labelStyle: TextStyle( fontFamily: FontFamily.medium,),
                             prefixIcon: const Icon(Icons.search),
                             filled: true,
                             fillColor: const Color(0xFFF4F7FB),
@@ -137,7 +142,7 @@ Future<String?> showSelectionBottomSheet({
                                         backgroundImage: NetworkImage(bankLogo),
                                       )
                                     : null,
-                                title: Text(bankName),
+                                title: Text(bankName, style: TextStyle( fontFamily: FontFamily.medium,),),
                                 trailing: selected == bankName
                                     ? const Icon(
                                         Icons.check_circle,
@@ -204,6 +209,7 @@ Future<String?> showSelectionBottomSheet({
                       title,
                       style: const TextStyle(
                         fontSize: 18,
+                        fontFamily: FontFamily.medium,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -228,6 +234,8 @@ Future<String?> showSelectionBottomSheet({
                           },
                           decoration: InputDecoration(
                             hintText: 'Search',
+                            hintStyle: TextStyle( fontFamily: FontFamily.medium,),
+                            labelStyle: TextStyle( fontFamily: FontFamily.medium,),
                             prefixIcon: const Icon(Icons.search),
                             filled: true,
                             fillColor: const Color(0xFFF4F7FB),
@@ -263,7 +271,7 @@ Future<String?> showSelectionBottomSheet({
                                       backgroundImage: NetworkImage(bankLogo),
                                     )
                                   : null,
-                              title: Text(bankName),
+                              title: Text(bankName, style: TextStyle( fontFamily: FontFamily.medium,),),
                               trailing: Radio<String>(
                                 value: bankName,
                                 groupValue: selected,

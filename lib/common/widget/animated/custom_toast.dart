@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/utils/constant/text_style.dart';
+
 void showCustomToast({
   required String title,
   required String message,
@@ -23,7 +25,7 @@ void showCustomToast({
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: backgroundColor.withOpacity(0.9),
+          color: backgroundColor.withValues(alpha:0.9),
           borderRadius: BorderRadius.circular(25),
         ),
         child: Row(
@@ -35,6 +37,7 @@ void showCustomToast({
               title,
               style: const TextStyle(
                 color: Colors.white,
+                fontFamily: FontFamily.medium,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
               ),
@@ -99,7 +102,7 @@ class CustomSnackbar {
         message,
         style: TextStyle(
           fontSize: 14,
-          color: Colors.white.withOpacity(0.9),
+          color: Colors.white.withValues(alpha:0.9),
           height: 1.4,
         ),
       ),
@@ -119,7 +122,7 @@ class CustomSnackbar {
       barBlur: 20,
       boxShadows: [
         BoxShadow(
-          color: backgroundColor.withOpacity(0.3),
+          color: backgroundColor.withValues(alpha:0.3),
           blurRadius: 20,
           offset: const Offset(0, 10),
         ),

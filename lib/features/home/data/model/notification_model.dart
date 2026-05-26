@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../../../../core/utils/helper/custom_json_parser.dart';
 import '../../domain/entity/notification_entity.dart';
 
 class AppNotificationModel {

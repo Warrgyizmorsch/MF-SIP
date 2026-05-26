@@ -148,7 +148,7 @@ Future<void> showDOBPickerBottomSheet({
 
               const Text(
                 'Select Date Of Birth',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, fontFamily: FontFamily.medium,),
               ),
 
               Expanded(

@@ -108,4 +108,24 @@ class AuthRemoteDataSource {
       return Right(ApiError(message: e.toString()));
     }
   }
+
+  Future<Either<Result<FcmDeviceTokenModel>, ApiError>>
+  fcmDeviceToken(Map<String, dynamic> data,) async {
+    try {
+      final resp = await _apiService.postFormData(
+        "${Appurl.baseUrl}/api/v1/device-token",
+        data,
+      );
+
+      createLog(
+        "[Home Remote Data Source] FCM Device Token Response: $resp",
+      );
+
+      final result = FcmDeviceTokenModel.fromJson(resp);
+
+      return Left(Result.success(result));
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
+  }
 }

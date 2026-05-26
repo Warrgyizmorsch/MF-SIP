@@ -378,7 +378,7 @@ class CartPage extends GetView<CartController> {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha:0.04),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -679,7 +679,7 @@ class FundHeader extends StatelessWidget {
                   height: 40,
                   width: 40,
                   decoration: BoxDecoration(
-                    color: Colors.redAccent.withOpacity(0.1),
+                    color: Colors.redAccent.withValues(alpha:0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Padding(
@@ -778,7 +778,7 @@ class FundHeader extends StatelessWidget {
         //     );
         //   },
         //   // delete: () => controller.removeItem(index),
-        //   containercolor: Colors.redAccent.withOpacity(0.1),
+        //   containercolor: Colors.redAccent.withValues(alpha:0.1),
         // ),
       ],
     );

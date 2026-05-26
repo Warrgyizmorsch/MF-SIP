@@ -213,7 +213,7 @@
 //           color: Colors.white,
 //           boxShadow: [
 //             BoxShadow(
-//               color: Colors.black.withOpacity(0.05),
+//               color: Colors.black.withValues(alpha:0.05),
 //               blurRadius: 10,
 //               offset: const Offset(0, -5),
 //             ),
@@ -318,7 +318,7 @@
 //         decoration: BoxDecoration(
 //           boxShadow: [
 //             BoxShadow(
-//               color: Colors.black.withOpacity(0.3),
+//               color: Colors.black.withValues(alpha:0.3),
 //               offset: const Offset(0, 4),
 //               blurRadius: 24,
 //               spreadRadius: -1,
@@ -414,7 +414,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha:0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -748,7 +748,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha:0.3),
               offset: const Offset(0, 4),
               blurRadius: 24,
               spreadRadius: -1,
@@ -806,7 +806,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),

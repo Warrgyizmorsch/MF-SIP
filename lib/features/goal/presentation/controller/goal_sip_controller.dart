@@ -18,6 +18,39 @@ import '../../domain/entity/goal_master_entity.dart';
 
 class GoalSipController extends GetxController {
   final GoalUseCases goalUseCases;
+  // ── Investment Mode ───────────────────────────────────────────────────────────
+  final RxString investmentMode = 'sip'.obs; // 'sip' | 'lumpsum'
+
+// ── Lumpsum Observables ───────────────────────────────────────────────────────
+  final RxDouble lumpsumAmount = 500.0.obs;
+  final RxDouble lumpsumFutureValue = 0.0.obs;
+  final RxDouble lumpsumTotalReturn = 0.0.obs;
+  final RxDouble lumpsumReturnPercent = 0.0.obs;
+
+// ── Lumpsum Setter ────────────────────────────────────────────────────────────
+  void setLumpsumAmount(double value) {
+    lumpsumAmount.value = value;
+    recalculateLumpsum();
+  }
+
+// ── Lumpsum Calculation ───────────────────────────────────────────────────────
+// Call this inside setYears() and setRate() bhi — taaki slider change pe update ho
+  void recalculateLumpsum() {
+    final double fv = lumpsumFutureValue.value; // ← FV fixed rahega (goal.targetAmount)
+    final double r = annualRate.value / 100;
+    final int n = years.value.toInt();
+
+    if (fv <= 0 || r <= 0 || n <= 0) return;
+
+    // PV = FV / (1 + r)^n
+    final double pv = fv / pow(1 + r, n);
+    lumpsumAmount.value = pv;                          // Invest Once update
+    lumpsumTotalReturn.value = fv - pv;
+    lumpsumReturnPercent.value = ((fv - pv) / pv) * 100;
+  }
+
+
+
   final RxBool isMasterGoalLoading = false.obs;
   /// =======================================
   /// USE EXISTING VARIABLES ONLY
@@ -44,7 +77,12 @@ class GoalSipController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    investmentMode.value = 'sip';
     _recalculate();
+
+
+    // Initial calculation
+    recalculateLumpsum();
   }
 
   final cartController = Get.find<CartController>();
@@ -60,7 +98,7 @@ class GoalSipController extends GetxController {
   final targetAmount = 0.0.obs;
   final years = 1.0.obs;
   final annualRate = 12.0.obs;
-   RxList<MutualFundListEntity> fundList= <MutualFundListEntity>[].obs;
+  RxList<MutualFundListEntity> fundList= <MutualFundListEntity>[].obs;
   // Outputs (WHOLE NUMBERS like website)
   final monthlySip = 0.obs;
   final invested = 0.obs;
@@ -388,11 +426,11 @@ class GoalSipController extends GetxController {
     try {
       final result = await goalUseCases.getGoalsUseCase.call();
       return result.fold(
-        (success) {
+            (success) {
           goalResponse.value = success.data;
           return true;
         },
-        (error) {
+            (error) {
           Get.snackbar("Error", error.message);
           return false;
         },
@@ -446,7 +484,7 @@ class GoalSipController extends GetxController {
 
     final result = await goalUseCases.saveGoalUseCase.call(requestData);
     return result.fold(
-      (success) async {
+          (success) async {
         // Get.snackbar("Success", success.data ?? '');
         Get.snackbar("Success", 'Goal saved successfully,');
         await fetchCount();
@@ -457,7 +495,7 @@ class GoalSipController extends GetxController {
 
         print('goal id save ${success.data}');
       },
-      (error) {
+          (error) {
         Get.snackbar("Error", error.message);
         isGoalSaved.value = true;
       },
@@ -487,7 +525,7 @@ class GoalSipController extends GetxController {
     final result = await goalUseCases.saveGoalFundUseCase.call(fundData);
 
     result.fold(
-      (success) async {
+          (success) async {
         // 2. Highlight the card in the UI
         toggleFund(fundName);
 
@@ -508,7 +546,7 @@ class GoalSipController extends GetxController {
         );
         await getAllGoals();
       },
-      (error) {
+          (error) {
         // Get.snackbar("Errorrr", "${error.message}");
         showCustomToast(
           title: "Already in Goal",
@@ -526,7 +564,7 @@ class GoalSipController extends GetxController {
     final result = await goalUseCases.deleteGoalFundUseCase(id: id);
 
     result.fold(
-      (success) {
+          (success) {
         // // Remove from local list instantly — no extra fetch needed
         final goals = goalResponse.value?.data;
         if (goals != null) {
@@ -537,7 +575,7 @@ class GoalSipController extends GetxController {
           // 3. Trigger Rx update
           goalResponse.refresh();
         }
-        Get.back();
+
         Get.back();
         // goalResponse.value?.data.removeWhere((item) => item.id == id);
         ULoaders.success(
@@ -545,7 +583,7 @@ class GoalSipController extends GetxController {
           message: success.data?.message ?? '',
         );
       },
-      (error) {
+          (error) {
         ULoaders.error(
           title: 'Error',
           message: error.message ?? 'Delete failed',
@@ -561,7 +599,7 @@ class GoalSipController extends GetxController {
     final result = await goalUseCases.deleteGoalUseCase(id: id);
 
     result.fold(
-      (success) async {
+          (success) async {
         // // Remove from local list instantly — no extra fetch needed
         final goals = goalResponse.value?.data;
         if (goals != null) {
@@ -581,7 +619,7 @@ class GoalSipController extends GetxController {
           message: success.data?.message ?? '',
         );
       },
-      (error) {
+          (error) {
         ULoaders.error(
           title: 'Error',
           message: error.message ?? 'Delete failed',
@@ -623,12 +661,14 @@ class GoalSipController extends GetxController {
     years.value = value;
     _recalculate();
     checkForChanges();
+    recalculateLumpsum();
   }
 
   void setRate(double value) {
     annualRate.value = value;
     _recalculate();
     checkForChanges();
+    recalculateLumpsum();
   }
 
   // same as website
@@ -765,10 +805,12 @@ class GoalSipController extends GetxController {
   Future<void> fetchCount() async {
     Map<String, dynamic> params = {
       "return_max":annualRate.value,
-      "sort_order":"",
+      "sort_order":"desc",
+      "return_year":years.value.toInt()
     };
     Get.find<MutualFundController>().applyFilters(
       params,);
+
     final result = await Get.find<MutualFundController>().fetchData(
 
     );

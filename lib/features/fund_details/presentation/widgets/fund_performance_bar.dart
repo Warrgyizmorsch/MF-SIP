@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/fund_details/presentation/widgets/timeselecter.dart';
 
+import '../../../../core/utils/constant/text_style.dart';
 import '../../../../core/utils/helper/helpers.dart';
 import '../../data/models/return_model.dart';
 import '../controllers/chartInvestment_controller.dart';
@@ -99,6 +100,7 @@ class YearlyReturnsChart extends StatelessWidget {
                                 style: const TextStyle(
                                   color: Colors.green,
                                   fontSize: 10,
+                                  fontFamily: FontFamily.medium,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ), Text(
@@ -106,12 +108,13 @@ class YearlyReturnsChart extends StatelessWidget {
                                 style: const TextStyle(
                                   color: Colors.green,
                                   fontSize: 10,
+                                  fontFamily: FontFamily.medium,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               Text(
                                 xLabels[index],
-                                style: TextStyle(color: Colors.grey.shade600, fontSize: 10),
+                                style: TextStyle(color: Colors.grey.shade600,  fontFamily: FontFamily.medium,fontSize: 10),
                               ),
                             ],
                           ),
@@ -171,27 +174,28 @@ class YearlyReturnsChart extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("Invested", style: TextStyle(color: Colors.grey, fontSize: 10)),
-                    Text(isLoss ? "Loss" : "Gain", style: const TextStyle(color: Colors.grey, fontSize: 10)),
+                    const Text("Invested", style: TextStyle(color: Colors.grey, fontSize: 10, fontFamily: FontFamily.medium,)),
+                    Text(isLoss ? "Loss" : "Gain", style: const TextStyle(color: Colors.grey, fontSize: 10, fontFamily: FontFamily.medium,)),
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("₹${currentInv.toStringAsFixed(0)}",
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                    Text(formatCurrency(currentInv),
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, fontFamily: FontFamily.medium,)),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text("₹${gainAmount.toStringAsFixed(2)}",
+                        Text(formatCurrency(gainAmount),
                             style: TextStyle(
                                 color: isLoss ? Colors.red : Colors.green,
                                 fontWeight: FontWeight.bold,
+                                fontFamily: FontFamily.medium,
                                 fontSize: 14
                             )),
                         Text("(${selectedData.scheme.toStringAsFixed(2)}%)",
-                            style: TextStyle(color: isLoss ? Colors.red : Colors.green, fontSize: 12)),
+                            style: TextStyle(color: isLoss ? Colors.red : Colors.green, fontSize: 12, fontFamily: FontFamily.medium)),
                       ],
                     ),
                   ],

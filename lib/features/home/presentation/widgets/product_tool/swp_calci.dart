@@ -11,6 +11,7 @@ import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/pi
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/sipslidertile.dart';
 import 'package:responsive_framework/responsive_framework.dart'; // Import Responsive
 
+import '../../../../../core/utils/constant/text_style.dart';
 import '../../../../../core/utils/helper/helpers.dart';
 import '../../../../fund_details/data/models/return_model.dart';
 import '../../../../fund_details/presentation/pages/fund_deatails.dart';
@@ -42,7 +43,7 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
     );
 
     return Scaffold(
-      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white.withOpacity(0.96),
+      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white.withValues(alpha:0.96),
       appBar: CustomAppBarNormal(title: 'SWP Calculator'),
       body: SingleChildScrollView(
         padding: isDesktop
@@ -91,7 +92,7 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (isDesktop) ...[
-            const Text("Input Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text("Input Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,  fontFamily: FontFamily.medium,)),
             const Gap(20),
           ],
           SipSliderTile2(
@@ -143,7 +144,7 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
         color: Ucolors.light,
         borderRadius: BorderRadius.circular(isDesktop ? 16 : 10),
         border: Border.all(color: Ucolors.borderside),
-        boxShadow: isDesktop ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)] : null,
+        boxShadow: isDesktop ? [BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 10)] : null,
       ),
       child: DefaultTabController(
         length: 2,
@@ -164,7 +165,7 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
                 indicator: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                     color: Colors.white,
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)]
+                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 4)]
                 ),
                 tabs: const [
                   Tab(text: 'Visual Rep.'),
@@ -210,7 +211,7 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
                         ),
                       ],
                       piechartcolor1: Ucolors.primary,
-                      piechartcolor2: Ucolors.primary.withOpacity(0.1),
+                      piechartcolor2: Ucolors.primary.withValues(alpha:0.1),
                     ),
                   ),
 
@@ -272,7 +273,7 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
       color: Colors.white,
       borderRadius: BorderRadius.circular(16),
       boxShadow: [
-        BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+        BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 10, offset: const Offset(0, 4)),
       ],
       border: Border.all(color: Colors.grey.shade200),
     );

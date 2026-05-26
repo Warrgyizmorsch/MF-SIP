@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:my_sip/common/widget/video/custom_inline_youtube_player.dart';
 
+import '../../../../core/utils/constant/text_style.dart';
+
 class VideoListScreen extends StatelessWidget {
   const VideoListScreen({super.key});
 
@@ -20,6 +22,7 @@ class VideoListScreen extends StatelessWidget {
           "Videos & Blogs",
           style: TextStyle(
             color: Colors.black87,
+            fontFamily: FontFamily.medium,
             fontWeight: FontWeight.w600,
             fontSize: 18,
           ),
@@ -50,6 +53,7 @@ class VideoListScreen extends StatelessWidget {
                 "Educational Finance Video ${index + 1}",
                 style: const TextStyle(
                   fontSize: 16,
+                  fontFamily: FontFamily.medium,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
@@ -57,7 +61,7 @@ class VideoListScreen extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 "Learn more about mutual funds and SIP strategies.",
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade600,  fontFamily: FontFamily.medium,),
               ),
             ],
           );

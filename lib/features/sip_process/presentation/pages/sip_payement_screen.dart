@@ -46,7 +46,7 @@ class SipSetupScreenStatic extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF1A1A1E),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha:0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,7 +67,7 @@ class SipSetupScreenStatic extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withOpacity(0.1),
+                  color: Colors.amber.withValues(alpha:0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -98,7 +98,7 @@ class SipSetupScreenStatic extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
+                  color: Colors.orange.withValues(alpha:0.1),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: const Text(
@@ -209,9 +209,9 @@ class SipSetupScreenStatic extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.05),
+            color: Colors.white.withValues(alpha:0.05),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.white.withOpacity(0.05)),
+            border: Border.all(color: Colors.white.withValues(alpha:0.05)),
           ),
           child: Center(
             child: Text(
@@ -310,7 +310,7 @@ class SipSetupScreenStatic extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           color: isSelected
-              ? Colors.blueAccent.withOpacity(0.15)
+              ? Colors.blueAccent.withValues(alpha:0.15)
               : const Color(0xFF1A1A1E),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
@@ -336,7 +336,7 @@ class SipSetupScreenStatic extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1E).withOpacity(0.6),
+        color: const Color(0xFF1A1A1E).withValues(alpha:0.6),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

@@ -11,6 +11,7 @@ import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
+import '../../../../common/widget/shimmer/shimmer.dart';
 import '../../../../core/utils/constant/appUrl.dart';
 import '../controller/goal_sip_controller.dart';
 import 'ihavegoal.dart';
@@ -39,7 +40,7 @@ class GoalScreen extends GetView<GoalSipController> {
 
       body: Obx(() {
         if (controller.isLoadingGoals.value) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: GoalShimmerGrid());
         }
 
         final goals = controller.goalResponse.value?.data ?? [];
@@ -86,61 +87,61 @@ class GoalScreen extends GetView<GoalSipController> {
 
         return RefreshIndicator(
           onRefresh: () => controller.getAllGoals(),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ✅ Static header outside scroll
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
                   '${goals.length} Active Goal${goals.length == 1 ? '' : 's'}',
                   style: UTextStyles.bodySmall,
                 ),
-                const SizedBox(height: 16),
+              ),
 
-                Expanded(
-                  child: GridView.builder(
-                    itemCount: goals.length,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    gridDelegate:
-                    const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
-                      childAspectRatio: 0.88,
+              // ✅ Expanded so CustomScrollView takes remaining space
+              Expanded(
+                child: CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.all(12),
+                      sliver: SliverGrid(
+                        delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                            final goal = goals[index];
+                            final double target = double.tryParse(
+                                goal.goalType?.targetAmount.toString() ?? '0') ??
+                                0.0;
+                            final double invested = double.tryParse(
+                                goal.goalType?.investedAmount.toString() ?? '0') ??
+                                0.0;
+                            final String name = goal.goalName ?? 'Goal ${index + 1}';
+                            final String logo = goal.goalType?.logo ?? '';
+
+                            return CircularUploadIndicator(
+                              goalEntity: goal,
+                              goalName: name,
+                              targetAmount: target,
+                              investedAmount: invested,
+                              iconUrl: logo,
+                            );
+                          },
+                          childCount: goals.length,
+                        ),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
+                          childAspectRatio: 0.82,
+                        ),
+                      ),
                     ),
-                    itemBuilder: (context, index) {
-                      final goal = goals[index];
-
-                      final double target =
-                          double.tryParse(goal.goalType?.targetAmount
-                              .toString() ??
-                              '0') ??
-                              0.0;
-
-                      final double invested =
-                          double.tryParse(goal.goalType?.investedAmount
-                              .toString() ??
-                              '0') ??
-                              0.0;
-
-                      final String name =
-                          goal.goalName ?? 'Goal ${index + 1}';
-
-                      final String logo =
-                          goal.goalType?.logo ?? '';
-
-                      return CircularUploadIndicator(
-                        goalEntity: goal,
-                        goalName: name,
-                        targetAmount: target,
-                        investedAmount: invested,
-                        iconUrl: logo,
-                      );
-                    },
-                  ),
+                    const SliverToBoxAdapter(child: SizedBox(height: 80)),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       }),
@@ -212,7 +213,7 @@ class CircularUploadIndicator extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha:0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -345,6 +346,7 @@ class CircularUploadIndicator extends StatelessWidget {
                           percentString,
                           style: const TextStyle(
                             fontSize: 10,
+                            fontFamily: FontFamily.medium,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -620,7 +622,7 @@ class CircularUploadIndicator extends StatelessWidget {
 //           borderRadius: BorderRadius.circular(16),
 //           boxShadow: [
 //             BoxShadow(
-//               color: Colors.black.withOpacity(0.05),
+//               color: Colors.black.withValues(alpha:0.05),
 //               blurRadius: 10,
 //               offset: const Offset(0, 4),
 //             ),

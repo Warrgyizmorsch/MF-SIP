@@ -204,8 +204,8 @@ class CartController extends GetxController {
   // Inside CartController
   int get generalItemsCount {
     return cartResponseEntity.value?.items
-            .where((item) => item.goalId == null)
-            .length ??
+        .where((item) => item.goalId == null)
+        .length ??
         0;
   }
 
@@ -299,23 +299,23 @@ class CartController extends GetxController {
 
   // Add to cart with duplicate check and custom toast
   Future<void> addToCart(
-    String schemeCode,
-    String schemeName,
-    int minSipAmount,
+      String schemeCode,
+      String schemeName,
+      int minSipAmount,
 
-    int? goalId, {
-    String transType = 'sip',
-    String title = 'Cart',
-  }) async {
+      int? goalId, {
+        String transType = 'sip',
+        String title = 'Cart',
+      }) async {
     HapticFeedback.successNotification();
     bool alreadyInCart =
         cartResponseEntity.value?.items.any(
-          (item) =>
-              item.schemeCode.toString() == schemeCode &&
+              (item) =>
+          item.schemeCode.toString() == schemeCode &&
               item.goalId == goalId &&
               item.transType.toString() == transType,
         ) ??
-        false;
+            false;
 
     if (alreadyInCart) {
       showCustomToast(
@@ -361,14 +361,14 @@ class CartController extends GetxController {
       final result = await cartUsecases.addToCartUsecases.call(requestData);
 
       result.fold(
-        (success) async {
+            (success) async {
           // 3. REFRESH: Get actual data from server
           await fetchCart();
 
           // Reset optimistic count once data is synced
           optimisticBadgeCount.value = 0;
         },
-        (failure) {
+            (failure) {
           _rollbackOptimisticCount();
           // Check if the backend also reports a duplicate (Safety Check)
           if (failure.message.toString().contains("already in your cart")) {
@@ -409,8 +409,8 @@ class CartController extends GetxController {
       });
 
       result.fold(
-        (success) => cartResponseEntity.value = success.data,
-        (error) => errorMessage.value = error.message,
+            (success) => cartResponseEntity.value = success.data,
+            (error) => errorMessage.value = error.message,
       );
     } finally {
       isLoading(false);
@@ -471,10 +471,10 @@ class CartController extends GetxController {
     });
 
     result.fold(
-      (success) async {
+          (success) async {
         await fetchCart();
       },
-      (failure) {
+          (failure) {
         // 4. Rollback: If API fails, revert to the original state
         cartResponseEntity.value = originalState;
         Get.snackbar("Sync Error", "Failed to save changes. Reverting...");
@@ -501,7 +501,7 @@ class CartController extends GetxController {
       });
 
       result.fold(
-        (success) async {
+            (success) async {
           // 3. Remove item from local list instantly
           if (cartResponseEntity.value != null) {
             final updatedItems = cartResponseEntity.value!.items
@@ -525,7 +525,7 @@ class CartController extends GetxController {
           // 5. Refresh totals from server in background
           await fetchCart();
         },
-        (failure) {
+            (failure) {
           log("🔴 API DELETE FAILED: ${failure.message}");
           Get.snackbar("Error", failure.message.toString());
         },
@@ -570,7 +570,7 @@ class CartController extends GetxController {
             double.tryParse(item.topUpAmount?.toString() ?? '0')?.toInt() ?? 0;
         int minTop =
             double.tryParse(item.minTopupAmount?.toString() ?? '0')?.toInt() ??
-            500;
+                500;
 
         if (topup < minTop || topup % 100 != 0) return false;
       }
@@ -612,7 +612,7 @@ void showCustomToast1({
       style: const TextStyle(color: Colors.white, fontSize: 12),
     ),
     icon: Icon(icon, color: Colors.white, size: 28),
-    backgroundColor: backgroundColor.withOpacity(0.9),
+    backgroundColor: backgroundColor.withValues(alpha:0.9),
     borderRadius: 15,
     margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 80),
     // snackPosition: SnackPosition.BOTTOM,
@@ -645,7 +645,7 @@ void showCustomToast({
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: backgroundColor.withOpacity(0.9),
+          color: backgroundColor.withValues(alpha:0.9),
           borderRadius: BorderRadius.circular(25),
         ),
         child: Row(

@@ -230,21 +230,21 @@
 //       canvas,
 //       Offset(size.width * 0.85, size.height * 0.08),
 //       180 + 20 * math.sin(t * math.pi * 2),
-//       const Color(0xFF2563EB).withOpacity(0.07),
+//       const Color(0xFF2563EB).withValues(alpha:0.07),
 //     );
 //     // Blob 2 — mid left cyan
 //     _drawBlob(
 //       canvas,
 //       Offset(size.width * 0.1, size.height * 0.38),
 //       140 + 15 * math.cos(t * math.pi * 2),
-//       const Color(0xFF06B6D4).withOpacity(0.06),
+//       const Color(0xFF06B6D4).withValues(alpha:0.06),
 //     );
 //     // Blob 3 — bottom right
 //     _drawBlob(
 //       canvas,
 //       Offset(size.width * 0.78, size.height * 0.72),
 //       160 + 12 * math.sin(t * math.pi * 2 + 1),
-//       const Color(0xFF818CF8).withOpacity(0.07),
+//       const Color(0xFF818CF8).withValues(alpha:0.07),
 //     );
 //   }
 
@@ -322,9 +322,9 @@
 //     return Container(
 //       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
 //       decoration: BoxDecoration(
-//         color: AppColors.danger.withOpacity(0.08),
+//         color: AppColors.danger.withValues(alpha:0.08),
 //         borderRadius: BorderRadius.circular(20),
-//         border: Border.all(color: AppColors.danger.withOpacity(0.2)),
+//         border: Border.all(color: AppColors.danger.withValues(alpha:0.2)),
 //       ),
 //       child: Row(
 //         mainAxisSize: MainAxisSize.min,
@@ -386,7 +386,7 @@
 //               borderRadius: BorderRadius.circular(14),
 //               boxShadow: [
 //                 BoxShadow(
-//                   color: AppColors.primary.withOpacity(0.35),
+//                   color: AppColors.primary.withValues(alpha:0.35),
 //                   blurRadius: 12,
 //                   offset: const Offset(0, 5),
 //                 ),
@@ -491,7 +491,7 @@
 //         borderRadius: BorderRadius.circular(24),
 //         boxShadow: [
 //           BoxShadow(
-//             color: AppColors.primary.withOpacity(0.35),
+//             color: AppColors.primary.withValues(alpha:0.35),
 //             blurRadius: 28,
 //             offset: const Offset(0, 10),
 //           ),
@@ -508,7 +508,7 @@
 //               height: 110,
 //               decoration: BoxDecoration(
 //                 shape: BoxShape.circle,
-//                 color: Colors.white.withOpacity(0.06),
+//                 color: Colors.white.withValues(alpha:0.06),
 //               ),
 //             ),
 //           ),
@@ -520,7 +520,7 @@
 //               height: 130,
 //               decoration: BoxDecoration(
 //                 shape: BoxShape.circle,
-//                 color: Colors.white.withOpacity(0.04),
+//                 color: Colors.white.withValues(alpha:0.04),
 //               ),
 //             ),
 //           ),
@@ -530,7 +530,7 @@
 //               Text(
 //                 'Monthly Investment',
 //                 style: TextStyle(
-//                   color: Colors.white.withOpacity(0.65),
+//                   color: Colors.white.withValues(alpha:0.65),
 //                   fontSize: 12,
 //                   fontWeight: FontWeight.w600,
 //                   letterSpacing: 0.8,
@@ -546,7 +546,7 @@
 //                       TextSpan(
 //                         text: '₹ ',
 //                         style: TextStyle(
-//                           color: Colors.white.withOpacity(0.6),
+//                           color: Colors.white.withValues(alpha:0.6),
 //                           fontSize: 28,
 //                           fontWeight: FontWeight.w300,
 //                         ),
@@ -573,13 +573,13 @@
 //                   vertical: 4,
 //                 ),
 //                 decoration: BoxDecoration(
-//                   color: Colors.white.withOpacity(0.12),
+//                   color: Colors.white.withValues(alpha:0.12),
 //                   borderRadius: BorderRadius.circular(20),
 //                 ),
 //                 child: Text(
 //                   'per month',
 //                   style: TextStyle(
-//                     color: Colors.white.withOpacity(0.75),
+//                     color: Colors.white.withValues(alpha:0.75),
 //                     fontSize: 12,
 //                     fontWeight: FontWeight.w600,
 //                   ),
@@ -636,15 +636,15 @@
 //       child: Container(
 //         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
 //         decoration: BoxDecoration(
-//           color: highlight ? Colors.white : Colors.white.withOpacity(0.12),
+//           color: highlight ? Colors.white : Colors.white.withValues(alpha:0.12),
 //           borderRadius: BorderRadius.circular(12),
 //           border: highlight
 //               ? null
-//               : Border.all(color: Colors.white.withOpacity(0.2)),
+//               : Border.all(color: Colors.white.withValues(alpha:0.2)),
 //           boxShadow: highlight
 //               ? [
 //                   BoxShadow(
-//                     color: Colors.black.withOpacity(0.12),
+//                     color: Colors.black.withValues(alpha:0.12),
 //                     blurRadius: 8,
 //                     offset: const Offset(0, 3),
 //                   ),
@@ -689,7 +689,7 @@
 //         border: Border.all(color: AppColors.border),
 //         boxShadow: [
 //           BoxShadow(
-//             color: AppColors.shadow.withOpacity(0.5),
+//             color: AppColors.shadow.withValues(alpha:0.5),
 //             blurRadius: 10,
 //             offset: const Offset(0, 3),
 //           ),
@@ -701,7 +701,7 @@
 //             width: 42,
 //             height: 42,
 //             decoration: BoxDecoration(
-//               color: iconColor.withOpacity(0.1),
+//               color: iconColor.withValues(alpha:0.1),
 //               borderRadius: BorderRadius.circular(12),
 //             ),
 //             child: Icon(icon, color: iconColor, size: 20),
@@ -762,9 +762,9 @@
 //     return Container(
 //       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
 //       decoration: BoxDecoration(
-//         color: color.withOpacity(0.1),
+//         color: color.withValues(alpha:0.1),
 //         borderRadius: BorderRadius.circular(8),
-//         border: Border.all(color: color.withOpacity(0.25)),
+//         border: Border.all(color: color.withValues(alpha:0.25)),
 //       ),
 //       child: Text(
 //         label,
@@ -787,7 +787,7 @@
 //       decoration: BoxDecoration(
 //         color: AppColors.primaryLight,
 //         borderRadius: BorderRadius.circular(16),
-//         border: Border.all(color: AppColors.primaryMid.withOpacity(0.5)),
+//         border: Border.all(color: AppColors.primaryMid.withValues(alpha:0.5)),
 //       ),
 //       child: Row(
 //         crossAxisAlignment: CrossAxisAlignment.start,
@@ -796,7 +796,7 @@
 //             width: 34,
 //             height: 34,
 //             decoration: BoxDecoration(
-//               color: AppColors.primary.withOpacity(0.1),
+//               color: AppColors.primary.withValues(alpha:0.1),
 //               borderRadius: BorderRadius.circular(10),
 //             ),
 //             child: const Icon(
@@ -848,11 +848,11 @@
 //             16 + MediaQuery.of(context).padding.bottom,
 //           ),
 //           decoration: BoxDecoration(
-//             color: Colors.white.withOpacity(0.88),
+//             color: Colors.white.withValues(alpha:0.88),
 //             border: Border(top: BorderSide(color: AppColors.border)),
 //             boxShadow: [
 //               BoxShadow(
-//                 color: AppColors.primary.withOpacity(0.08),
+//                 color: AppColors.primary.withValues(alpha:0.08),
 //                 blurRadius: 24,
 //                 offset: const Offset(0, -6),
 //               ),
@@ -878,7 +878,7 @@
 //                       vertical: 3,
 //                     ),
 //                     decoration: BoxDecoration(
-//                       color: AppColors.success.withOpacity(0.1),
+//                       color: AppColors.success.withValues(alpha:0.1),
 //                       borderRadius: BorderRadius.circular(6),
 //                     ),
 //                     child: const Text(
@@ -910,7 +910,7 @@
 //                     borderRadius: BorderRadius.circular(16),
 //                     boxShadow: [
 //                       BoxShadow(
-//                         color: AppColors.primary.withOpacity(0.4),
+//                         color: AppColors.primary.withValues(alpha:0.4),
 //                         blurRadius: 20,
 //                         offset: const Offset(0, 8),
 //                       ),
@@ -933,7 +933,7 @@
 //                         width: 30,
 //                         height: 30,
 //                         decoration: BoxDecoration(
-//                           color: Colors.white.withOpacity(0.18),
+//                           color: Colors.white.withValues(alpha:0.18),
 //                           borderRadius: BorderRadius.circular(9),
 //                         ),
 //                         child: const Icon(
@@ -2027,7 +2027,7 @@ class _InvTypeSelector extends StatelessWidget {
                   boxShadow: active
                       ? [
                           BoxShadow(
-                            color: _C.primary.withOpacity(0.3),
+                            color: _C.primary.withValues(alpha:0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -2150,7 +2150,7 @@ class _AmountCardState extends State<_AmountCard> {
         borderRadius: BorderRadius.circular(24),
         // boxShadow: [
         //   BoxShadow(
-        //     color: _C.primary.withOpacity(0.35),
+        //     color: _C.primary.withValues(alpha:0.35),
         //     blurRadius: 28,
         //     offset: const Offset(0, 10),
         //   ),
@@ -2166,7 +2166,7 @@ class _AmountCardState extends State<_AmountCard> {
               height: 100,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.06),
+                color: Colors.white.withValues(alpha:0.06),
               ),
             ),
           ),
@@ -2178,7 +2178,7 @@ class _AmountCardState extends State<_AmountCard> {
               height: 120,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.04),
+                color: Colors.white.withValues(alpha:0.04),
               ),
             ),
           ),
@@ -2200,7 +2200,7 @@ class _AmountCardState extends State<_AmountCard> {
                             child: Text(
                               '₹ ',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.6),
+                                color: Colors.white.withValues(alpha:0.6),
                                 fontSize: 28,
                                 fontWeight: FontWeight.w300,
                               ),
@@ -2249,7 +2249,7 @@ class _AmountCardState extends State<_AmountCard> {
                           Text(
                             'tap to edit',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.45),
+                              color: Colors.white.withValues(alpha:0.45),
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
                             ),
@@ -2258,7 +2258,7 @@ class _AmountCardState extends State<_AmountCard> {
                           Icon(
                             Icons.edit_rounded,
                             size: 11,
-                            color: Colors.white.withOpacity(0.45),
+                            color: Colors.white.withValues(alpha:0.45),
                           ),
                         ],
                       ),
@@ -2275,9 +2275,9 @@ class _AmountCardState extends State<_AmountCard> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: _C.danger.withOpacity(0.15),
+                    color: _C.danger.withValues(alpha:0.15),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: _C.danger.withOpacity(0.3)),
+                    border: Border.all(color: _C.danger.withValues(alpha:0.3)),
                   ),
                   child: Text(
                     widget.error!,
@@ -2338,7 +2338,7 @@ class _AmountCardState extends State<_AmountCard> {
 //         borderRadius: BorderRadius.circular(24),
 //         boxShadow: [
 //           BoxShadow(
-//             color: _C.primary.withOpacity(0.35),
+//             color: _C.primary.withValues(alpha:0.35),
 //             blurRadius: 28,
 //             offset: const Offset(0, 10),
 //           ),
@@ -2354,7 +2354,7 @@ class _AmountCardState extends State<_AmountCard> {
 //               height: 100,
 //               decoration: BoxDecoration(
 //                 shape: BoxShape.circle,
-//                 color: Colors.white.withOpacity(0.06),
+//                 color: Colors.white.withValues(alpha:0.06),
 //               ),
 //             ),
 //           ),
@@ -2366,7 +2366,7 @@ class _AmountCardState extends State<_AmountCard> {
 //               height: 120,
 //               decoration: BoxDecoration(
 //                 shape: BoxShape.circle,
-//                 color: Colors.white.withOpacity(0.04),
+//                 color: Colors.white.withValues(alpha:0.04),
 //               ),
 //             ),
 //           ),
@@ -2386,7 +2386,7 @@ class _AmountCardState extends State<_AmountCard> {
 //                             TextSpan(
 //                               text: '₹ ',
 //                               style: TextStyle(
-//                                 color: Colors.white.withOpacity(0.6),
+//                                 color: Colors.white.withValues(alpha:0.6),
 //                                 fontSize: 28,
 //                                 fontWeight: FontWeight.w300,
 //                               ),
@@ -2411,7 +2411,7 @@ class _AmountCardState extends State<_AmountCard> {
 //                           Text(
 //                             'tap to edit',
 //                             style: TextStyle(
-//                               color: Colors.white.withOpacity(0.45),
+//                               color: Colors.white.withValues(alpha:0.45),
 //                               fontSize: 11,
 //                               fontWeight: FontWeight.w500,
 //                             ),
@@ -2420,7 +2420,7 @@ class _AmountCardState extends State<_AmountCard> {
 //                           Icon(
 //                             Icons.edit_rounded,
 //                             size: 11,
-//                             color: Colors.white.withOpacity(0.45),
+//                             color: Colors.white.withValues(alpha:0.45),
 //                           ),
 //                         ],
 //                       ),
@@ -2437,9 +2437,9 @@ class _AmountCardState extends State<_AmountCard> {
 //                     vertical: 4,
 //                   ),
 //                   decoration: BoxDecoration(
-//                     color: _C.danger.withOpacity(0.15),
+//                     color: _C.danger.withValues(alpha:0.15),
 //                     borderRadius: BorderRadius.circular(8),
-//                     border: Border.all(color: _C.danger.withOpacity(0.3)),
+//                     border: Border.all(color: _C.danger.withValues(alpha:0.3)),
 //                   ),
 //                   child: Text(
 //                     error!,
@@ -2591,15 +2591,15 @@ class _AddBtn extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
         decoration: BoxDecoration(
-          color: highlight ? Colors.white : Colors.white.withOpacity(0.12),
+          color: highlight ? Colors.white : Colors.white.withValues(alpha:0.12),
           borderRadius: BorderRadius.circular(11),
           border: highlight
               ? null
-              : Border.all(color: Colors.white.withOpacity(0.2)),
+              : Border.all(color: Colors.white.withValues(alpha:0.2)),
           boxShadow: highlight
               ? [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha:0.1),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -2775,7 +2775,7 @@ class _StepUpSection extends StatelessWidget {
           decoration: BoxDecoration(
             color: _C.stepBg,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: _C.primary.withOpacity(0.12)),
+            border: Border.all(color: _C.primary.withValues(alpha:0.12)),
           ),
           child: Column(
             children: [
@@ -2836,7 +2836,7 @@ class _StepUpSection extends StatelessWidget {
               ),
 
               const SizedBox(height: 16),
-              Divider(color: _C.primary.withOpacity(0.1)),
+              Divider(color: _C.primary.withValues(alpha:0.1)),
               const SizedBox(height: 16),
 
               // ── Row 2: Cap limit ──────────────────────────────────────────
@@ -3221,7 +3221,7 @@ class _DetailTile extends StatelessWidget {
         border: Border.all(color: _C.border),
         boxShadow: [
           BoxShadow(
-            color: _C.shadow.withOpacity(0.5),
+            color: _C.shadow.withValues(alpha:0.5),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -3241,7 +3241,7 @@ class _DetailTile extends StatelessWidget {
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    color: iconColor.withOpacity(0.1),
+                    color: iconColor.withValues(alpha:0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(icon, color: iconColor, size: 20),
@@ -3293,9 +3293,9 @@ class _Chip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha:0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.25)),
+        border: Border.all(color: color.withValues(alpha:0.25)),
       ),
       child: Text(
         label,
@@ -3332,7 +3332,7 @@ class _InfoBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: _C.pLight,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _C.pMid.withOpacity(0.5)),
+        border: Border.all(color: _C.pMid.withValues(alpha:0.5)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -3341,7 +3341,7 @@ class _InfoBanner extends StatelessWidget {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: _C.primary.withOpacity(0.1),
+              color: _C.primary.withValues(alpha:0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(
@@ -3397,19 +3397,19 @@ class _MeshPainter extends CustomPainter {
       canvas,
       Offset(s.width * .85, s.height * .08),
       180 + 20 * math.sin(t * math.pi * 2),
-      const Color(0xFF2563EB).withOpacity(0.07),
+      const Color(0xFF2563EB).withValues(alpha:0.07),
     );
     _b(
       canvas,
       Offset(s.width * .1, s.height * .38),
       140 + 15 * math.cos(t * math.pi * 2),
-      const Color(0xFF06B6D4).withOpacity(0.06),
+      const Color(0xFF06B6D4).withValues(alpha:0.06),
     );
     _b(
       canvas,
       Offset(s.width * .78, s.height * .72),
       160 + 12 * math.sin(t * math.pi * 2 + 1),
-      const Color(0xFF818CF8).withOpacity(0.07),
+      const Color(0xFF818CF8).withValues(alpha:0.07),
     );
   }
 
@@ -3443,10 +3443,10 @@ class _ModernRiskBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha:0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha:0.2),
         ), // Optional: Adds a nice crisp edge
       ),
       child: Row(
@@ -3642,11 +3642,11 @@ class _BottomCta extends StatelessWidget {
             16 + MediaQuery.of(context).padding.bottom,
           ),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.9),
+            color: Colors.white.withValues(alpha:0.9),
             border: const Border(top: BorderSide(color: _C.border)),
             boxShadow: [
               BoxShadow(
-                color: _C.primary.withOpacity(0.07),
+                color: _C.primary.withValues(alpha:0.07),
                 blurRadius: 24,
                 offset: const Offset(0, -6),
               ),
@@ -3677,7 +3677,7 @@ class _BottomCta extends StatelessWidget {
                     boxShadow: canTap
                         ? [
                             BoxShadow(
-                              color: _C.primary.withOpacity(0.35),
+                              color: _C.primary.withValues(alpha:0.35),
                               blurRadius: 18,
                               offset: const Offset(0, 8),
                             ),

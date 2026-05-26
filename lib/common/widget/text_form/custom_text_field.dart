@@ -57,7 +57,7 @@ class TextFormFieldCustom extends StatelessWidget {
                   style: TextStyle(
                     fontSize: hintTextSize ?? 14,
                     color: hintTextColor ?? Ucolors.primary,
-                    fontFamily: hintTextStyle ?? UTextStyles.font,
+                    fontFamily: hintTextStyle ?? FontFamily.medium,
                   ),
                 ).paddingOnly(left: 5, bottom: 5),
                 isRequired==true?
@@ -66,7 +66,7 @@ class TextFormFieldCustom extends StatelessWidget {
                   style: TextStyle(
                     fontSize: hintTextSize ?? 14,
                     color:  Ucolors.red,
-                    fontFamily: UTextStyles.font,
+                    fontFamily: FontFamily.medium,
                   ),
                 ).paddingOnly(left: 5, ):SizedBox.shrink(),
               ],
@@ -206,7 +206,7 @@ class TextFieldCustom extends StatelessWidget {
         onFieldSubmitted: onSubmitted,
         style: TextStyle(
           fontSize: hintTextSize ?? 15,
-          fontFamily: hintTextStyle ??UTextStyles.font,
+          fontFamily: hintTextStyle ??FontFamily.medium,
           color: Ucolors.darkgrey,
         ),
         onChanged: onChanged,
@@ -220,13 +220,13 @@ class TextFieldCustom extends StatelessWidget {
           contentPadding: contentPadding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           errorStyle: TextStyle(
             fontSize: 12,
-            fontFamily: UTextStyles.font,
+              fontFamily: FontFamily.medium,
             color: Ucolors.red
           ),
           hintStyle: TextStyle(
             color: hintTextColor ??Ucolors.darkgrey,
             fontSize: hintTextSize ?? 14,
-            fontFamily: hintTextStyle ?? UTextStyles.font,
+            fontFamily: hintTextStyle ??FontFamily.medium,
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
