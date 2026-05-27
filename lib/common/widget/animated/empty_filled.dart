@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 
+import '../../../core/utils/constant/text_style.dart';
+
 // class AnimatedEmptyState extends StatefulWidget {
 //   const AnimatedEmptyState({super.key});
 
@@ -58,7 +60,7 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 //       child: Column(
 //         mainAxisAlignment: MainAxisAlignment.center,
 //         children: [tion(
-//                 color: Ucolors.primary.withOpacity(0.08), // Soft background circle
+//                 color: Ucolors.primary.withValues(alpha:0.08), // Soft background circle
 //                 shape: BoxShape.circle,
 //               ),
 //               child: Icon(
@@ -87,7 +89,7 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 //               width: 100,
 //               decoration: BoxDecora
 //                 decoration: BoxDecoration(
-//                   color: Colors.black.withOpacity(0.1),
+//                   color: Colors.black.withValues(alpha:0.1),
 //                   borderRadius: BorderRadius.circular(100), // Makes it an oval
 //                 ),
 //               ),
@@ -196,7 +198,7 @@ class _AnimatedEmptyStateState extends State<AnimatedEmptyState>
               height: 100,
               width: 100,
               decoration: BoxDecoration(
-                color: Ucolors.primary.withOpacity(0.08),
+                color: Ucolors.primary.withValues(alpha:0.08),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -218,7 +220,7 @@ class _AnimatedEmptyStateState extends State<AnimatedEmptyState>
                 height: 8,
                 width: 60,
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha:0.1),
                   borderRadius: BorderRadius.circular(100),
                 ),
               ),
@@ -232,6 +234,7 @@ class _AnimatedEmptyStateState extends State<AnimatedEmptyState>
             widget.title, // Using the passed title
             textAlign: TextAlign.center,
             style: const TextStyle(
+              fontFamily: FontFamily.medium,
               fontSize: 18,
               fontWeight: FontWeight.w600,
               color: Colors.black87,
@@ -243,6 +246,7 @@ class _AnimatedEmptyStateState extends State<AnimatedEmptyState>
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 13,
+              fontFamily: FontFamily.medium,
               fontWeight: FontWeight.w400,
               color: Colors.grey,
               height: 1.4,

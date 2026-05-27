@@ -249,7 +249,7 @@ class ClickableYoutubeThumbnail extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha:0.1),
               blurRadius: 8,
               offset: const Offset(0, 4),
             )
@@ -263,9 +263,9 @@ class ClickableYoutubeThumbnail extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.6), // Dark translucent background
+              color: Colors.black.withValues(alpha:0.6), // Dark translucent background
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withOpacity(0.5), width: 1.5),
+              border: Border.all(color: Colors.white.withValues(alpha:0.5), width: 1.5),
             ),
             child: const Icon(
               Icons.play_arrow_rounded,

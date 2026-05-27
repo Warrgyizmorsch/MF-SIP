@@ -127,4 +127,23 @@ class AuthRemoteDataSource {
       return Right(ApiError(message: e.toString()));
     }
   }
+  Future<Either<Result<LoginResponseModel>, ApiError>>
+  signWithGoogle(Map<String, dynamic> data,) async {
+    try {
+      final resp = await _apiService.postFormData(
+        "${Appurl.baseUrl}/api/auth/google",
+        data,
+      );
+
+      createLog(
+        "[Google SignIn Remote Data Source] Google SignIn Token Response: $resp",
+      );
+
+      final result = LoginResponseModel.fromJson(resp);
+
+      return Left(Result.success(result));
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
+  }
 }

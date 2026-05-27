@@ -4,7 +4,7 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/fund_details/presentation/controllers/fund_details_controller.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-import '../../data/models/fund_performance.dart';
+import '../../../../core/utils/constant/text_style.dart';
 import '../../data/models/return_model.dart';
 import '../controllers/chartInvestment_controller.dart';
 
@@ -26,7 +26,7 @@ class PeriodSelector extends GetView<FundDetailsController> {
         boxShadow: isDesktop
             ? [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha:0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
           )
@@ -119,7 +119,7 @@ class PeriodSelectorBarChart extends GetView<ChartInvestmentController> {
         boxShadow: isDesktop
             ? [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha:0.03),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -258,7 +258,7 @@ class _PeriodButton extends StatelessWidget {
           boxShadow: isSelected && isDesktop
               ? [
             BoxShadow(
-              color: Ucolors.primary.withOpacity(0.2),
+              color: Ucolors.primary.withValues(alpha:0.2),
               blurRadius: 8,
               offset: const Offset(0, 2),
             )
@@ -266,7 +266,7 @@ class _PeriodButton extends StatelessWidget {
               : isSelected && !isDesktop
               ? [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha:0.05),
               blurRadius: 4,
               offset: const Offset(0, 2),
             )
@@ -278,6 +278,7 @@ class _PeriodButton extends StatelessWidget {
             period,
             style: TextStyle(
               fontSize: isDesktop ? 14 : 10,
+              fontFamily: FontFamily.medium,
               fontWeight: FontWeight.w600,
               color: isSelected
                   ? (isDesktop ? Colors.white : Ucolors.primary)

@@ -178,7 +178,7 @@ class ShimmerListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: 8, // Jitne items dikhane hain
+      itemCount: 8,
       padding: const EdgeInsets.all(16),
       itemBuilder: (context, index) {
         return Padding(

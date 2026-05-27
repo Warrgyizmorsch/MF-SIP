@@ -40,7 +40,7 @@ class SectionHeading extends StatelessWidget {
                   fontSize: fontSize ?? (Get.width * 0.045).clamp(16, 20),
                   fontWeight: fontWeight ?? FontWeight.w500,
                   color: textcolor ?? Ucolors.dark,
-                  fontFamily: UTextStyles.font,
+                  fontFamily: FontFamily.medium,
                 ),
               ),
         // Spacer(),

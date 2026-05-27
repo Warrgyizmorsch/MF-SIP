@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:my_sip/features/authentication/domain/usecases/google_sign_in_use_case.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
 import 'package:my_sip/features/cart/data/datasources/cart_remote_ds.dart';
 import 'package:my_sip/features/cart/data/repositories/cart_repo_imp.dart';
@@ -80,6 +81,11 @@ class UBinding extends Bindings {
         Get.find<AuthRepository>(),
       ),
     );
+    Get.lazyPut<GoogleSignInUseCase>(
+          () => GoogleSignInUseCase(
+        Get.find<AuthRepository>(),
+      ),
+    );
     Get.put<AuthUseCases>(
       AuthUseCases(
         loginUseCase: Get.find<LoginUseCase>(),
@@ -87,6 +93,7 @@ class UBinding extends Bindings {
         sendOtpUseCase: Get.find<SendOtpUseCase>(),
         verifyOtpUseCase: Get.find<VerifyOtpUseCase>(),
         fcmDeviceTokenUseCase: Get.find<FcmDeviceTokenUseCase>(),
+        googleSignInUseCase: Get.find<GoogleSignInUseCase>(),
       ),
       permanent: true,
     );

@@ -5,7 +5,6 @@ import 'package:my_sip/features/authentication/data/datasources/auth_remote_data
 import 'package:my_sip/features/authentication/domain/entitites/auth_entity.dart';
 import 'package:my_sip/features/authentication/domain/repositories/auth_repository.dart';
 
-import '../models/auth_model.dart';
 
 class AuthRepositoryImpl extends AuthRepository {
   final AuthRemoteDataSource _remoteDataSource;
@@ -112,6 +111,31 @@ class AuthRepositoryImpl extends AuthRepository {
       Map<String, dynamic> data,) async {
     try {
       final result = await _remoteDataSource.fcmDeviceToken(data);
+
+      return result.fold(
+            (success) {
+          if (success.isSuccess) {
+            final result = success.data?.toEntity();
+
+            return Left(Result.success(result));
+          } else {
+            return Right(ApiError(message: 'FCM Device Token Failed'));
+          }
+        },
+            (error) {
+          return Right(ApiError(message: 'FCM Device Token Failed $error'));
+        },
+      );
+    } catch (e) {
+      return Right(ApiError(message: 'FCM Device Token Failed $e'));
+    }
+  }
+
+  @override
+  Future<Either<Result<LoginResponseEntity>, ApiError>> signWithGoogle(
+      Map<String, dynamic> data,) async {
+    try {
+      final result = await _remoteDataSource.signWithGoogle(data);
 
       return result.fold(
             (success) {
