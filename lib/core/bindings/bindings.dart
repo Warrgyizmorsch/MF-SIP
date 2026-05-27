@@ -24,6 +24,7 @@ import '../../features/authentication/data/datasources/auth_remote_data_source.d
 import '../../features/authentication/data/repositories/auth_repository_impl.dart';
 import '../../features/authentication/domain/repositories/auth_repository.dart';
 import '../../features/authentication/domain/usecases/auth_use_cases.dart';
+import '../../features/authentication/domain/usecases/firebase_token_usecase.dart';
 import '../../features/authentication/domain/usecases/login_use_case.dart';
 import '../../features/authentication/domain/usecases/register_use_case.dart';
 import '../../features/authentication/domain/usecases/send_otp_use_case.dart';
@@ -74,13 +75,18 @@ class UBinding extends Bindings {
     );
      Get.put(NotificationService()).init();
 
-   
+    Get.lazyPut<FcmDeviceTokenUseCase>(
+          () => FcmDeviceTokenUseCase(
+        Get.find<AuthRepository>(),
+      ),
+    );
     Get.put<AuthUseCases>(
       AuthUseCases(
         loginUseCase: Get.find<LoginUseCase>(),
         registerUseCase: Get.find<RegisterUseCase>(),
         sendOtpUseCase: Get.find<SendOtpUseCase>(),
         verifyOtpUseCase: Get.find<VerifyOtpUseCase>(),
+        fcmDeviceTokenUseCase: Get.find<FcmDeviceTokenUseCase>(),
       ),
       permanent: true,
     );

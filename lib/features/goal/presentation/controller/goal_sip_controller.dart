@@ -98,7 +98,7 @@ class GoalSipController extends GetxController {
   final targetAmount = 0.0.obs;
   final years = 1.0.obs;
   final annualRate = 12.0.obs;
-   RxList<MutualFundListEntity> fundList= <MutualFundListEntity>[].obs;
+  RxList<MutualFundListEntity> fundList= <MutualFundListEntity>[].obs;
   // Outputs (WHOLE NUMBERS like website)
   final monthlySip = 0.obs;
   final invested = 0.obs;
@@ -426,11 +426,11 @@ class GoalSipController extends GetxController {
     try {
       final result = await goalUseCases.getGoalsUseCase.call();
       return result.fold(
-        (success) {
+            (success) {
           goalResponse.value = success.data;
           return true;
         },
-        (error) {
+            (error) {
           Get.snackbar("Error", error.message);
           return false;
         },
@@ -484,7 +484,7 @@ class GoalSipController extends GetxController {
 
     final result = await goalUseCases.saveGoalUseCase.call(requestData);
     return result.fold(
-      (success) async {
+          (success) async {
         // Get.snackbar("Success", success.data ?? '');
         Get.snackbar("Success", 'Goal saved successfully,');
         await fetchCount();
@@ -495,7 +495,7 @@ class GoalSipController extends GetxController {
 
         print('goal id save ${success.data}');
       },
-      (error) {
+          (error) {
         Get.snackbar("Error", error.message);
         isGoalSaved.value = true;
       },
@@ -525,7 +525,7 @@ class GoalSipController extends GetxController {
     final result = await goalUseCases.saveGoalFundUseCase.call(fundData);
 
     result.fold(
-      (success) async {
+          (success) async {
         // 2. Highlight the card in the UI
         toggleFund(fundName);
 
@@ -546,7 +546,7 @@ class GoalSipController extends GetxController {
         );
         await getAllGoals();
       },
-      (error) {
+          (error) {
         // Get.snackbar("Errorrr", "${error.message}");
         showCustomToast(
           title: "Already in Goal",
@@ -564,7 +564,7 @@ class GoalSipController extends GetxController {
     final result = await goalUseCases.deleteGoalFundUseCase(id: id);
 
     result.fold(
-      (success) {
+          (success) {
         // // Remove from local list instantly — no extra fetch needed
         final goals = goalResponse.value?.data;
         if (goals != null) {
@@ -583,7 +583,7 @@ class GoalSipController extends GetxController {
           message: success.data?.message ?? '',
         );
       },
-      (error) {
+          (error) {
         ULoaders.error(
           title: 'Error',
           message: error.message ?? 'Delete failed',
@@ -599,7 +599,7 @@ class GoalSipController extends GetxController {
     final result = await goalUseCases.deleteGoalUseCase(id: id);
 
     result.fold(
-      (success) async {
+          (success) async {
         // // Remove from local list instantly — no extra fetch needed
         final goals = goalResponse.value?.data;
         if (goals != null) {
@@ -619,7 +619,7 @@ class GoalSipController extends GetxController {
           message: success.data?.message ?? '',
         );
       },
-      (error) {
+          (error) {
         ULoaders.error(
           title: 'Error',
           message: error.message ?? 'Delete failed',

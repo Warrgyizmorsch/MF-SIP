@@ -86,61 +86,61 @@ class GoalScreen extends GetView<GoalSipController> {
 
         return RefreshIndicator(
           onRefresh: () => controller.getAllGoals(),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ✅ Static header outside scroll
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
                   '${goals.length} Active Goal${goals.length == 1 ? '' : 's'}',
                   style: UTextStyles.bodySmall,
                 ),
-                const SizedBox(height: 16),
+              ),
 
-                Expanded(
-                  child: GridView.builder(
-                    itemCount: goals.length,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    gridDelegate:
-                    const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
-                      childAspectRatio: 0.88,
+              // ✅ Expanded so CustomScrollView takes remaining space
+              Expanded(
+                child: CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.all(12),
+                      sliver: SliverGrid(
+                        delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                            final goal = goals[index];
+                            final double target = double.tryParse(
+                                goal.goalType?.targetAmount.toString() ?? '0') ??
+                                0.0;
+                            final double invested = double.tryParse(
+                                goal.goalType?.investedAmount.toString() ?? '0') ??
+                                0.0;
+                            final String name = goal.goalName ?? 'Goal ${index + 1}';
+                            final String logo = goal.goalType?.logo ?? '';
+
+                            return CircularUploadIndicator(
+                              goalEntity: goal,
+                              goalName: name,
+                              targetAmount: target,
+                              investedAmount: invested,
+                              iconUrl: logo,
+                            );
+                          },
+                          childCount: goals.length,
+                        ),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
+                          childAspectRatio: 0.82,
+                        ),
+                      ),
                     ),
-                    itemBuilder: (context, index) {
-                      final goal = goals[index];
-
-                      final double target =
-                          double.tryParse(goal.goalType?.targetAmount
-                              .toString() ??
-                              '0') ??
-                              0.0;
-
-                      final double invested =
-                          double.tryParse(goal.goalType?.investedAmount
-                              .toString() ??
-                              '0') ??
-                              0.0;
-
-                      final String name =
-                          goal.goalName ?? 'Goal ${index + 1}';
-
-                      final String logo =
-                          goal.goalType?.logo ?? '';
-
-                      return CircularUploadIndicator(
-                        goalEntity: goal,
-                        goalName: name,
-                        targetAmount: target,
-                        investedAmount: invested,
-                        iconUrl: logo,
-                      );
-                    },
-                  ),
+                    const SliverToBoxAdapter(child: SizedBox(height: 80)),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       }),
@@ -346,6 +346,7 @@ class CircularUploadIndicator extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
+                            fontFamily: FontFamily.medium,
                           ),
                         ),
                       ),

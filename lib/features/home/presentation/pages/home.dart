@@ -323,7 +323,7 @@ class _WebDashboardLayout extends StatelessWidget {
               border: Border.all(color: Colors.grey.shade100),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha:0.02),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 ),
@@ -366,6 +366,8 @@ class _WebDashboardLayout extends StatelessWidget {
                           style: TextStyle(
                             color: Colors.grey.shade600,
                             fontSize: 15,
+                            fontFamily: FontFamily.medium,
+
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -373,6 +375,8 @@ class _WebDashboardLayout extends StatelessWidget {
                         Text(
                           "Your history will appear here.",
                           style: TextStyle(
+                              fontFamily: FontFamily.medium,
+
                             color: Colors.grey.shade400,
                             fontSize: 13,
                           ),
@@ -383,14 +387,13 @@ class _WebDashboardLayout extends StatelessWidget {
                 /// 3. DATA LOADED (Sirf 2 Rows dikhenge, baki ke liye Scroll hoga)
                 else
                   SizedBox(
-                    // 2 rows ki height = (160 * 2) + 18 (spacing) = 338
-                    // thoda extra padding ke sath 345 ya 350 perfect rahega
+
                     height: 345,
                     child: GridView.builder(
                       shrinkWrap:
-                          false, // Ab yeh parent SizedBox ki height lega
+                          false,
                       physics:
-                          const BouncingScrollPhysics(), // Scroll enable kiya
+                          const BouncingScrollPhysics(),
                       itemCount: recentList.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: crossAxisCount,
@@ -466,7 +469,7 @@ class _WebDashboardLayout extends StatelessWidget {
             border: Border.all(color: Colors.grey.shade100),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.02),
+                color: Colors.black.withValues(alpha:0.02),
                 blurRadius: 15,
                 offset: const Offset(0, 5),
               ),
@@ -478,7 +481,8 @@ class _WebDashboardLayout extends StatelessWidget {
               // Title inside the card
               const Text(
                 "Learn & Grow",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, fontFamily: FontFamily.medium,
+                ),
               ),
               const SizedBox(height: 20),
 
@@ -564,7 +568,7 @@ class _WebDashboardLayout extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha:0.04),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -577,7 +581,8 @@ class _WebDashboardLayout extends StatelessWidget {
           /// TITLE
           const Text(
             "Plan Your Goals",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, fontFamily: FontFamily.medium,
+            ),
           ),
 
           const Gap(20),
@@ -680,14 +685,14 @@ class _WebDashboardLayout extends StatelessWidget {
 
               decoration: BoxDecoration(
                 color: isHovered
-                    ? Ucolors.primary.withOpacity(0.06)
+                    ? Ucolors.primary.withValues(alpha:0.06)
                     : Colors.grey.shade50,
 
                 borderRadius: BorderRadius.circular(14),
 
                 border: Border.all(
                   color: isHovered
-                      ? Ucolors.primary.withOpacity(0.15)
+                      ? Ucolors.primary.withValues(alpha:0.15)
                       : Colors.grey.shade200,
                 ),
               ),
@@ -700,7 +705,7 @@ class _WebDashboardLayout extends StatelessWidget {
                     width: iconBoxSize,
                     decoration: BoxDecoration(
                       color: isHovered
-                          ? Ucolors.primary.withOpacity(0.12)
+                          ? Ucolors.primary.withValues(alpha:0.12)
                           : Colors.white,
 
                       borderRadius: BorderRadius.circular(12),
@@ -724,6 +729,8 @@ class _WebDashboardLayout extends StatelessWidget {
                       style: TextStyle(
                         fontSize: titleFontSize,
                         height: 1.2,
+                        fontFamily: FontFamily.medium,
+
                         fontWeight: isHovered
                             ? FontWeight.w600
                             : FontWeight.w500,
@@ -785,7 +792,7 @@ class _WebDashboardLayout extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha:0.04),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -798,7 +805,8 @@ class _WebDashboardLayout extends StatelessWidget {
           /// TITLE
           const Text(
             "Financial Tools",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, fontFamily: FontFamily.medium,
+            ),
           ),
 
           const Gap(20),
@@ -889,14 +897,14 @@ class _WebDashboardLayout extends StatelessWidget {
               ),
               decoration: BoxDecoration(
                 color: isHovered
-                    ? Ucolors.primary.withOpacity(0.06)
+                    ? Ucolors.primary.withValues(alpha:0.06)
                     : Colors.grey.shade50,
 
                 borderRadius: BorderRadius.circular(14),
 
                 border: Border.all(
                   color: isHovered
-                      ? Ucolors.primary.withOpacity(0.15)
+                      ? Ucolors.primary.withValues(alpha:0.15)
                       : Colors.grey.shade200,
                 ),
               ),
@@ -926,6 +934,8 @@ class _WebDashboardLayout extends StatelessWidget {
                       style: TextStyle(
                         fontSize: titleFontSize,
                         height: 1.2,
+                        fontFamily: FontFamily.medium,
+
                         fontWeight: isHovered
                             ? FontWeight.w600
                             : FontWeight.w500,
@@ -978,12 +988,14 @@ class _WebDashboardLayout extends StatelessWidget {
                 children: [
                   const Text(
                     "For security and verification purposes, the KYC process can only be completed via our Mobile Application.",
-                    style: TextStyle(fontSize: 15),
+                    style: TextStyle(fontSize: 15, fontFamily: FontFamily.medium,
+                    ),
                   ),
                   const SizedBox(height: 15),
                   Text(
                     "Please download the app from the Play Store or App Store to continue.",
-                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 14, fontFamily: FontFamily.medium,
+                    ),
                   ),
                 ],
               ),
@@ -992,7 +1004,8 @@ class _WebDashboardLayout extends StatelessWidget {
                   onPressed: () => Get.back(),
                   child: const Text(
                     "Got it",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontFamily: FontFamily.medium,
+                    ),
                   ),
                 ),
               ],
@@ -1016,7 +1029,7 @@ class _WebDashboardLayout extends StatelessWidget {
           borderRadius: BorderRadius.circular(22),
           boxShadow: [
             BoxShadow(
-              color: Ucolors.primary.withOpacity(0.2),
+              color: Ucolors.primary.withValues(alpha:0.2),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -1051,7 +1064,7 @@ class _WebDashboardLayout extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.12),
+                color: Colors.white.withValues(alpha:0.12),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: Colors.white24),
               ),
@@ -1066,7 +1079,8 @@ class _WebDashboardLayout extends StatelessWidget {
                     children: [
                       const Text(
                         "KYC Status",
-                        style: TextStyle(color: Colors.white70, fontSize: 12),
+                        style: TextStyle(color: Colors.white70, fontSize: 12, fontFamily: FontFamily.medium,
+                        ),
                       ),
 
                       Text(
@@ -1298,7 +1312,7 @@ class _WebDashboardLayout extends StatelessWidget {
             border: Border.all(color: Colors.grey.shade100),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.02),
+                color: Colors.black.withValues(alpha:0.02),
                 blurRadius: 15,
                 offset: const Offset(0, 5),
               ),
@@ -1312,6 +1326,8 @@ class _WebDashboardLayout extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 22, // Slightly adjusted for card look
                   fontWeight: FontWeight.bold,
+                  fontFamily: FontFamily.medium,
+
                 ),
               ),
               const SizedBox(height: 20),
@@ -1372,7 +1388,7 @@ class _WebDashboardLayout extends StatelessWidget {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha:0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -1383,7 +1399,8 @@ class _WebDashboardLayout extends StatelessWidget {
               children: [
                 const Text(
                   "Popular Funds",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, fontFamily: FontFamily.medium,
+                  ),
                 ),
                 const SizedBox(height: 20),
 
@@ -1406,6 +1423,8 @@ class _WebDashboardLayout extends StatelessWidget {
                             "No Funds Found",
                             style: TextStyle(
                               fontSize: 18,
+                              fontFamily: FontFamily.medium,
+
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -1413,6 +1432,8 @@ class _WebDashboardLayout extends StatelessWidget {
                             "Try exploring other funds or check back later.",
                             style: TextStyle(
                               fontSize: 14,
+                              fontFamily: FontFamily.medium,
+
                               color: Colors.grey.shade500,
                             ),
                           ),
@@ -1542,7 +1563,7 @@ class _WebQuickActionItemState extends State<_WebQuickActionItem> {
           child: InkWell(
             borderRadius: BorderRadius.circular(22),
 
-            splashColor: Ucolors.primary.withOpacity(0.08),
+            splashColor: Ucolors.primary.withValues(alpha:0.08),
             hoverColor: Colors.transparent,
             highlightColor: Colors.transparent,
 
@@ -1576,14 +1597,14 @@ class _WebQuickActionItemState extends State<_WebQuickActionItem> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: isHovered
-                      ? [Colors.white, Ucolors.primary.withOpacity(0.04)]
+                      ? [Colors.white, Ucolors.primary.withValues(alpha:0.04)]
                       : [Colors.white, Colors.white],
                 ),
 
                 /// BORDER
                 border: Border.all(
                   color: isHovered
-                      ? Ucolors.primary.withOpacity(0.15)
+                      ? Ucolors.primary.withValues(alpha:0.15)
                       : Colors.grey.shade200,
                 ),
 
@@ -1591,8 +1612,8 @@ class _WebQuickActionItemState extends State<_WebQuickActionItem> {
                 boxShadow: [
                   BoxShadow(
                     color: isHovered
-                        ? Ucolors.primary.withOpacity(0.14)
-                        : Colors.black.withOpacity(0.04),
+                        ? Ucolors.primary.withValues(alpha:0.14)
+                        : Colors.black.withValues(alpha:0.04),
                     blurRadius: isHovered ? 18 : 8,
                     spreadRadius: isHovered ? 1 : 0,
                     offset: Offset(0, isHovered ? 8 : 4),
@@ -1616,17 +1637,17 @@ class _WebQuickActionItemState extends State<_WebQuickActionItem> {
                         colors: isHovered
                             ? [
                                 Ucolors.primary,
-                                Ucolors.primary.withOpacity(0.85),
+                                Ucolors.primary.withValues(alpha:0.85),
                               ]
                             : [
                                 Ucolors.primary,
-                                Ucolors.primary.withOpacity(0.92),
+                                Ucolors.primary.withValues(alpha:0.92),
                               ],
                       ),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Ucolors.primary.withOpacity(
+                          color: Ucolors.primary.withValues(alpha:
                             isHovered ? 0.30 : 0.18,
                           ),
                           blurRadius: isHovered ? 18 : 10,
@@ -1655,6 +1676,7 @@ class _WebQuickActionItemState extends State<_WebQuickActionItem> {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: fontSize,
+                      fontFamily: FontFamily.medium,
                       fontWeight: FontWeight.w600,
                       height: 1.3,
                       color: isHovered ? Ucolors.primary : Colors.black87,
@@ -1688,7 +1710,7 @@ class _WebGoalTile extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isHovered
-              ? Ucolors.blue.withOpacity(0.05)
+              ? Ucolors.blue.withValues(alpha:0.05)
               : Colors.transparent,
           border: Border.all(
             color: isHovered ? Ucolors.blue : Colors.transparent,
@@ -1699,7 +1721,8 @@ class _WebGoalTile extends StatelessWidget {
           children: [
             Icon(icon, color: Ucolors.blue, size: 20),
             const Gap(12),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.w500, fontFamily: FontFamily.medium,
+            )),
             const Spacer(),
             Icon(
               Icons.arrow_forward_ios,
@@ -1829,7 +1852,7 @@ class _MobileLayout extends StatelessWidget {
                       //               null;
                       //           Get.toNamed(AppRoutes.cart);
                       //         },
-                      //         hoverColor: Ucolors.primary.withOpacity(0.1),
+                      //         hoverColor: Ucolors.primary.withValues(alpha:0.1),
                       //       ),
                       //       // Use the new getter here
                       //       if (cartController.generalItemsCount > 0)
@@ -1997,7 +2020,7 @@ class _MobileLayout extends StatelessWidget {
                     bgColor = Ucolors.blue; // or any color you prefer
                     iconColor = Ucolors.light;
                     titleColor = Ucolors.light;
-                    subTextColor = Ucolors.light.withOpacity(0.8);
+                    subTextColor = Ucolors.light.withValues(alpha:0.8);
                     leftIcon = Icons.assignment_ind_rounded;
                     rightIcon = Icons.arrow_forward_ios;
                     titleText = 'Complete Profile Details';
@@ -2009,7 +2032,7 @@ class _MobileLayout extends StatelessWidget {
                     bgColor = Ucolors.blue;
                     iconColor = Ucolors.light;
                     titleColor = Ucolors.light;
-                    subTextColor = Ucolors.light.withOpacity(0.8);
+                    subTextColor = Ucolors.light.withValues(alpha:0.8);
                     customLeftIcon = CircleAvatar(
                       backgroundColor: Colors.amber,
                       backgroundImage: AssetImage(UImages.crown),
@@ -2038,7 +2061,7 @@ class _MobileLayout extends StatelessWidget {
                     bgColor = Ucolors.primary;
                     iconColor = Ucolors.light;
                     titleColor = Ucolors.light;
-                    subTextColor = Ucolors.light.withOpacity(0.8);
+                    subTextColor = Ucolors.light.withValues(alpha:0.8);
                     leftIcon = Icons.account_balance;
                     customLeftIcon = null;
                     rightIcon = Icons.arrow_forward_ios;
@@ -2141,7 +2164,7 @@ class _MobileLayout extends StatelessWidget {
                             borderRadius: BorderRadius.circular(15),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.15),
+                                color: Colors.black.withValues(alpha:0.15),
                                 blurRadius: 5,
                                 offset: const Offset(0, 4),
                               ),
@@ -2396,7 +2419,7 @@ class _MobileLayout extends StatelessWidget {
                       border: Border.all(color: Ucolors.borderColor, width: 1),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
+                          color: Colors.black.withValues(alpha:0.03),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -2423,7 +2446,8 @@ class _MobileLayout extends StatelessWidget {
                             'Custom Goal',
                             style: UTextStyles.small.copyWith(
                               color: Ucolors.dark,
-                              fontSize: 13,
+                              fontSize: 11,
+                              fontFamily:FontFamily.medium,
                               fontWeight: FontWeight.w500,
                             ),
                             maxLines: 1,
@@ -2963,6 +2987,8 @@ class _MobileLayout extends StatelessWidget {
                             "Search and discover mutual funds.",
                             style: TextStyle(
                               fontSize: 13,
+                              fontFamily: FontFamily.medium,
+
                               color: Colors.grey.shade500,
                               fontWeight: FontWeight.w500,
                             ),
@@ -3005,6 +3031,8 @@ class _MobileLayout extends StatelessWidget {
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
+                              fontFamily: FontFamily.medium,
+
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -3055,7 +3083,7 @@ class _MobileLayout extends StatelessWidget {
                                       mutualController.setSearchFocus(false);
                                     },
                                     focusNode: searchFocus,
-                                    backgroundColor: MaterialStateProperty.all(
+                                    backgroundColor: WidgetStateProperty.all(
                                       Colors.grey.shade50,
                                     ),
                                     leading: Icon(
@@ -3063,16 +3091,18 @@ class _MobileLayout extends StatelessWidget {
                                       color: Colors.grey.shade600,
                                     ),
                                     hintText: 'Search mutual funds...',
-                                    hintStyle: MaterialStateProperty.all(
+                                    hintStyle: WidgetStateProperty.all(
                                       TextStyle(
                                         color: Colors.grey.shade500,
                                         fontSize: 15,
+                                        fontFamily: FontFamily.medium,
+
                                       ),
                                     ),
                                     onChanged: (value) => mutualController
                                         .onSearchQueryChanged(value),
-                                    elevation: MaterialStateProperty.all(0),
-                                    side: MaterialStateProperty.all(
+                                    elevation: WidgetStateProperty.all(0),
+                                    side: WidgetStateProperty.all(
                                       BorderSide(color: Colors.grey.shade200),
                                     ),
                                   ),
@@ -3122,7 +3152,8 @@ class _MobileLayout extends StatelessWidget {
                       return Center(
                         child: Text(
                           "No mutual funds found",
-                          style: TextStyle(color: Colors.grey.shade600),
+                          style: TextStyle(color: Colors.grey.shade600, fontFamily: FontFamily.medium,
+                          ),
                         ),
                       );
                     }
@@ -3235,7 +3266,7 @@ class YoutubeThumbnail extends StatelessWidget {
           borderRadius: BorderRadius.circular(borderRadius),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.12),
+              color: Colors.black.withValues(alpha:0.12),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -3259,7 +3290,7 @@ class YoutubeThumbnail extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.black.withOpacity(0.6)],
+                    colors: [Colors.transparent, Colors.black.withValues(alpha:0.6)],
                     stops: const [0.4, 1.0],
                   ),
                 ),
@@ -3273,7 +3304,7 @@ class YoutubeThumbnail extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.red.withOpacity(0.5),
+                        color: Colors.red.withValues(alpha:0.5),
                         blurRadius: 12,
                         spreadRadius: 2,
                       ),
@@ -3374,7 +3405,7 @@ class _PopularFundCardState extends State<PopularFundCard> {
           child: InkWell(
             borderRadius: BorderRadius.circular(borderRadius),
 
-            splashColor: Ucolors.primary.withOpacity(0.08),
+            splashColor: Ucolors.primary.withValues(alpha:0.08),
             hoverColor: Colors.transparent,
             highlightColor: Colors.transparent,
 
@@ -3402,7 +3433,7 @@ class _PopularFundCardState extends State<PopularFundCard> {
                 /// BORDER
                 border: Border.all(
                   color: isHovered
-                      ? Ucolors.primary.withOpacity(0.18)
+                      ? Ucolors.primary.withValues(alpha:0.18)
                       : Colors.grey.shade200,
                 ),
 
@@ -3410,8 +3441,8 @@ class _PopularFundCardState extends State<PopularFundCard> {
                 boxShadow: [
                   BoxShadow(
                     color: isHovered
-                        ? Ucolors.primary.withOpacity(0.12)
-                        : Colors.black.withOpacity(0.04),
+                        ? Ucolors.primary.withValues(alpha:0.12)
+                        : Colors.black.withValues(alpha:0.04),
                     blurRadius: isHovered ? 18 : 8,
                     spreadRadius: isHovered ? 1 : 0,
                     offset: Offset(0, isHovered ? 8 : 4),
@@ -3435,7 +3466,7 @@ class _PopularFundCardState extends State<PopularFundCard> {
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
                             color: isHovered
-                                ? Ucolors.primary.withOpacity(0.06)
+                                ? Ucolors.primary.withValues(alpha:0.06)
                                 : Colors.grey.shade50,
                             shape: BoxShape.circle,
                           ),
@@ -3494,6 +3525,8 @@ class _PopularFundCardState extends State<PopularFundCard> {
                             fontSize: isMobile ? 10 : 11,
                             color: Colors.grey.shade600,
                             fontWeight: FontWeight.w500,
+                            fontFamily: FontFamily.medium,
+
                           ),
                         ),
 
@@ -3504,7 +3537,7 @@ class _PopularFundCardState extends State<PopularFundCard> {
                             Container(
                               padding: const EdgeInsets.all(2),
                               decoration: BoxDecoration(
-                                color: Ucolors.success.withOpacity(0.12),
+                                color: Ucolors.success.withValues(alpha:0.12),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -3522,6 +3555,8 @@ class _PopularFundCardState extends State<PopularFundCard> {
                                 fontSize: isMobile ? 13 : 15,
                                 fontWeight: FontWeight.bold,
                                 color: Ucolors.success,
+                                fontFamily: FontFamily.medium,
+
                               ),
                             ),
                           ],
@@ -3569,7 +3604,7 @@ class PopularFundCardMob extends StatelessWidget {
           border: Border.all(color: Colors.grey.shade100),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha:0.04),
               blurRadius: 6,
               offset: const Offset(0, 3),
             ),
@@ -3581,7 +3616,7 @@ class PopularFundCardMob extends StatelessWidget {
         //   border: Border.all(color: borderColor),
         //   boxShadow: [
         //     BoxShadow(
-        //       color: Colors.black.withOpacity(0.04),
+        //       color: Colors.black.withValues(alpha:0.04),
         //       blurRadius: 10,
         //       offset: const Offset(0, 3),
         //     ),
@@ -3687,7 +3722,7 @@ class GoalBaseSIPCard extends StatelessWidget {
             border: Border.all(color: Ucolors.borderColor, width: 1),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.03),
+                color: Colors.black.withValues(alpha:0.03),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -3711,7 +3746,7 @@ class GoalBaseSIPCard extends StatelessWidget {
                   style: UTextStyles.small.copyWith(
                     color: Ucolors.dark,
                     fontSize: 11,
-                    fontFamily: UTextStyles.font,
+                     fontFamily: FontFamily.medium,
                     fontWeight: FontWeight.w500,
                   ),
                   maxLines: 1,
@@ -3761,7 +3796,7 @@ class ToolsItem extends StatelessWidget {
               title,
               style: UTextStyles.medium.copyWith(
                 color: Ucolors.secondary,
-                fontSize: 13,
+                fontSize: 12,
               ),
             ),
           ),
@@ -3811,14 +3846,14 @@ class _CollectionItemMobState extends State<CollectionItemMob> {
           borderRadius: BorderRadius.circular(14),
           gradient: isPressed
               ? RadialGradient(
-                  colors: [Colors.blue.withOpacity(0.15), Colors.transparent],
+                  colors: [Colors.blue.withValues(alpha:0.15), Colors.transparent],
                   radius: 0.8,
                 )
               : null,
           boxShadow: isPressed
               ? [
                   BoxShadow(
-                    color: Colors.blue.withOpacity(0.25),
+                    color: Colors.blue.withValues(alpha:0.25),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -3829,7 +3864,7 @@ class _CollectionItemMobState extends State<CollectionItemMob> {
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(14),
-            splashColor: Colors.blue.withOpacity(0.2),
+            splashColor: Colors.blue.withValues(alpha:0.2),
             highlightColor: Colors
                 .transparent, // Hide default highlight to see your custom animation
             // Trigger animation on press
@@ -3863,7 +3898,8 @@ class _CollectionItemMobState extends State<CollectionItemMob> {
                     style: const TextStyle(
                       fontSize: 11,
                       height: 1.1,
-                      fontWeight: FontWeight.w500,
+                      fontFamily: FontFamily.medium,
+                      // fontWeight: FontWeight.w500,
                       color: Color(0xff2A7BBF),
                     ),
                   ),
@@ -3969,7 +4005,7 @@ class _WebActionCardState extends State<WebActionCard> {
           borderRadius: BorderRadius.circular(24),
           child: InkWell(
             borderRadius: BorderRadius.circular(24),
-            splashColor: widget.color.withOpacity(0.08),
+            splashColor: widget.color.withValues(alpha:0.08),
             hoverColor: Colors.transparent,
             highlightColor: Colors.transparent,
 
@@ -3999,26 +4035,26 @@ class _WebActionCardState extends State<WebActionCard> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: isHovered
-                      ? [Colors.white, widget.color.withOpacity(0.06)]
+                      ? [Colors.white, widget.color.withValues(alpha:0.06)]
                       : [
-                          widget.color.withOpacity(0.08),
-                          widget.color.withOpacity(0.03),
+                          widget.color.withValues(alpha:0.08),
+                          widget.color.withValues(alpha:0.03),
                         ],
                 ),
 
                 /// BORDER
                 border: Border.all(
                   color: isHovered
-                      ? widget.color.withOpacity(0.18)
-                      : widget.color.withOpacity(0.10),
+                      ? widget.color.withValues(alpha:0.18)
+                      : widget.color.withValues(alpha:0.10),
                 ),
 
                 /// SHADOW
                 boxShadow: [
                   BoxShadow(
                     color: isHovered
-                        ? widget.color.withOpacity(0.14)
-                        : Colors.black.withOpacity(0.04),
+                        ? widget.color.withValues(alpha:0.14)
+                        : Colors.black.withValues(alpha:0.04),
                     blurRadius: isHovered ? 18 : 8,
                     spreadRadius: isHovered ? 1 : 0,
                     offset: Offset(0, isHovered ? 8 : 4),
@@ -4044,13 +4080,13 @@ class _WebActionCardState extends State<WebActionCard> {
                             end: Alignment.bottomRight,
                             colors: [
                               widget.color,
-                              widget.color.withOpacity(0.85),
+                              widget.color.withValues(alpha:0.85),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(18),
                           boxShadow: [
                             BoxShadow(
-                              color: widget.color.withOpacity(
+                              color: widget.color.withValues(alpha:
                                 isHovered ? 0.28 : 0.16,
                               ),
                               blurRadius: isHovered ? 18 : 10,
@@ -4089,6 +4125,7 @@ class _WebActionCardState extends State<WebActionCard> {
                     style: TextStyle(
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.w700,
+                      fontFamily: FontFamily.medium,
                       height: 1.3,
                       color: isHovered ? widget.color : const Color(0xff1E293B),
                     ),
@@ -4104,6 +4141,7 @@ class _WebActionCardState extends State<WebActionCard> {
                     style: TextStyle(
                       fontSize: subtitleFontSize,
                       height: 1.5,
+                      fontFamily: FontFamily.medium,
                       fontWeight: FontWeight.w400,
                       color: Colors.grey.shade600,
                     ),
@@ -4185,19 +4223,19 @@ class _CollectionItemState extends State<CollectionItem> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: isHovered
-                      ? [Colors.white, Ucolors.primary.withOpacity(0.04)]
+                      ? [Colors.white, Ucolors.primary.withValues(alpha:0.04)]
                       : [Colors.grey.shade50, Colors.grey.shade200],
                 ),
                 border: Border.all(
                   color: isHovered
-                      ? Ucolors.primary.withOpacity(0.18)
+                      ? Ucolors.primary.withValues(alpha:0.18)
                       : Colors.grey.shade200,
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: isHovered
-                        ? Ucolors.primary.withOpacity(0.12)
-                        : Colors.black.withOpacity(0.03),
+                        ? Ucolors.primary.withValues(alpha:0.12)
+                        : Colors.black.withValues(alpha:0.03),
                     blurRadius: isHovered ? 18 : 8,
                     spreadRadius: isHovered ? 1 : 0,
                     offset: Offset(0, isHovered ? 8 : 4),
@@ -4209,7 +4247,7 @@ class _CollectionItemState extends State<CollectionItem> {
                 borderRadius: BorderRadius.circular(borderRadius),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(borderRadius),
-                  splashColor: Ucolors.primary.withOpacity(0.10),
+                  splashColor: Ucolors.primary.withValues(alpha:0.10),
                   hoverColor: Colors.transparent,
                   highlightColor: Colors.transparent,
                   onTapDown: (_) => _updatePressed(true),
@@ -4234,7 +4272,7 @@ class _CollectionItemState extends State<CollectionItem> {
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
                             color: isHovered
-                                ? Ucolors.primary.withOpacity(0.08)
+                                ? Ucolors.primary.withValues(alpha:0.08)
                                 : Colors.grey.shade50,
                             borderRadius: BorderRadius.circular(18),
                           ),
@@ -4256,6 +4294,7 @@ class _CollectionItemState extends State<CollectionItem> {
                           style: TextStyle(
                             fontSize: fontSize,
                             height: 1.2,
+                            fontFamily: FontFamily.medium,
                             fontWeight: FontWeight.w600,
                             color: isHovered
                                 ? Ucolors.primary

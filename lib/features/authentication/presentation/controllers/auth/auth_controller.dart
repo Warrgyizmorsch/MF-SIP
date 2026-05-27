@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:my_sip/common/widget/animated/popups.dart';
@@ -466,68 +467,142 @@ class AuthController extends GetxController {
 
   Future<void> verifyOtpAndLogin() async {
     isOtpVerifyLoading.value = true;
+
     final requestData = {
       "phone": mobileController.text.trim(),
       "otp": otpController.text.trim(),
     };
 
-    final result = await _authUseCases.verifyOtpUseCase.call(requestData);
+    final result =
+    await _authUseCases.verifyOtpUseCase.call(
+      requestData,
+    );
 
     result.fold(
-      (success) async {
-        final userModel = success.data?.userModel;
-        await SessionManager.instance.setSession(
-          jwtAccessToken: success.data?.token,
-          userData: success.data?.userModel,
-        );
-        if (userModel?.riskProfileModel != null) {
-          final profile = userModel!.riskProfileModel!;
+          (success) async {
+        final userModel =
+            success.data?.userModel;
 
-          final riskResult = RiskResultModel(
+        /// =========================
+        /// SAVE SESSION
+        /// =========================
+        await SessionManager.instance
+            .setSession(
+          jwtAccessToken:
+          success.data?.token,
+          userData:
+          success.data?.userModel,
+        );
+
+        /// =========================
+        /// SAVE RISK PROFILE
+        /// =========================
+        if (userModel?.riskProfileModel !=
+            null) {
+          final profile =
+          userModel!.riskProfileModel!;
+
+          final riskResult =
+          RiskResultModel(
             status: true,
-            totalScore: int.tryParse(userModel.riskScore.toString()) ?? 0,
-            riskSlabId: profile.id ?? 0,
-            profileName: profile.profileName ?? '',
+            totalScore: int.tryParse(
+                userModel.riskScore
+                    .toString()) ??
+                0,
+            riskSlabId:
+            profile.id ?? 0,
+            profileName:
+            profile.profileName ??
+                '',
           );
 
-          // This triggers the Obx in your Upgradebanner
-          await SessionManager.instance.saveRiskScore(riskResult);
-          
+          await SessionManager.instance
+              .saveRiskScore(
+            riskResult,
+          );
         } else {
-          // Clear it if they are a new user without a profile
-          await SessionManager.instance.saveRiskScore(null);
+          await SessionManager.instance
+              .saveRiskScore(null);
         }
 
-        isOtpVerifyLoading.value = false;
+        /// =========================
+        /// SAVE FCM TOKEN API
+        /// =========================
+        try {
+          final fcmToken =
+          await FirebaseMessaging
+              .instance
+              .getToken();
 
-        user.value = success.data!.userModel.toEntity();
+          if (fcmToken != null) {
+            final fcmResult =
+            await _authUseCases
+                .fcmDeviceTokenUseCase
+                .call({
+              "fcm_token":
+              fcmToken,
+            });
 
-        // Get.snackbar(
-        //   "Verify Otp Success",
-        //   "OTP Verified Successfully",
-        //   colorText: Colors.white,
-        //   backgroundColor: Colors.green,
-        // );
+            fcmResult.fold(
+                  (success) {
+                createLog(
+                  "FCM TOKEN SAVED => "
+                      "${success.data?.message}",
+                );
+              },
+                  (error) {
+                createLog(
+                  "FCM TOKEN ERROR => "
+                      "${error.message}",
+                );
+              },
+            );
+          }
+        } catch (e) {
+          createLog(
+            "FCM TOKEN EXCEPTION => $e",
+          );
+        }
+
+        isOtpVerifyLoading.value =
+        false;
+
+        user.value = success
+            .data!.userModel
+            .toEntity();
+
         ULoaders.success(
           title: 'Verify Otp Success',
-          message: 'OTP Verified Successfully',
+          message:
+          'OTP Verified Successfully',
         );
-        await Future.delayed(const Duration(seconds: 2));
-        Get.offAllNamed(AppRoutes.navMenuBar);
+
+        await Future.delayed(
+          const Duration(seconds: 2),
+        );
+
+        Get.offAllNamed(
+          AppRoutes.navMenuBar,
+        );
       },
-      (error) {
+          (error) {
         isOtpError.value = true;
+
         otpController.clear();
 
-        createLog("Verify Otp Error $error");
+        createLog(
+          "Verify Otp Error $error",
+        );
+
         Get.snackbar(
           "Invalid OTP",
           "The OTP you entered is incorrect. Please try again.",
-
           backgroundColor: Colors.red,
           colorText: Colors.white,
         );
-        isOtpVerifyLoading.value = false;
+
+        isOtpVerifyLoading.value =
+        false;
       },
     );
   }
