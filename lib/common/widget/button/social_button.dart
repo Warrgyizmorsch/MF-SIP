@@ -6,21 +6,38 @@ import '../../../features/authentication/presentation/controllers/auth/auth_cont
 
 // ignore: must_be_immutable
 class USocialButton extends StatelessWidget {
-  AuthController authController = Get.find<AuthController>();
-   USocialButton({super.key});
+
+  const USocialButton({super.key});
 
   @override
   Widget build(BuildContext context) {
+    AuthController authController = Get.find<AuthController>();
     return Row(
       children: [
-        Expanded(child: _socialButton(UImages.google, () async => await authController.signInWithGoogle())),
+        Expanded(
+          child: Obx(() {
+            return _socialButton(
+              UImages.google,
+              authController.isGoogleSignInLoading.value
+                  ? null
+                  : () async {
+                await authController.signInWithGoogle();
+              },
+              isLoading: authController.isGoogleSignInLoading.value,
+            );
+          }),
+        ),
         SizedBox(width: 15),
         Expanded(child: _socialButton(UImages.apple, () {})),
       ],
     );
   }
 
-  Widget _socialButton(String imagePath, VoidCallback onTap) {
+  Widget _socialButton(
+      String imagePath,
+      VoidCallback? onTap, {
+        bool isLoading = false,
+      }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -29,7 +46,20 @@ class USocialButton extends StatelessWidget {
           border: Border.all(color: const Color(0xffE7E7E7)),
           borderRadius: BorderRadius.circular(14),
         ),
-        child: Center(child: Image.asset(imagePath, height: 28)),
+        child: Center(
+          child: isLoading
+              ? const SizedBox(
+            height: 22,
+            width: 22,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+            ),
+          )
+              : Image.asset(
+            imagePath,
+            height: 28,
+          ),
+        ),
       ),
     );
   }

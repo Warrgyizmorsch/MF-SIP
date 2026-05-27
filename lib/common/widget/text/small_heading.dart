@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 
+import '../../../core/utils/constant/text_style.dart';
+
 class SmallHeading extends StatelessWidget {
   const SmallHeading({
     super.key,
@@ -22,6 +24,7 @@ class SmallHeading extends StatelessWidget {
       smallheading,
       style: TextStyle(
         fontWeight: fontWeight,
+        fontFamily: FontFamily.medium,
         color: color ?? Ucolors.darkgrey,
         fontSize: fontsize ?? (Get.width * 0.035).clamp(12, 14),
       ),

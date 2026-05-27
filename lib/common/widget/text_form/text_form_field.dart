@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 
+import '../../../core/utils/constant/text_style.dart';
+
 class UTextFormField extends StatelessWidget {
   const UTextFormField({
     super.key,
@@ -50,13 +52,15 @@ class UTextFormField extends StatelessWidget {
           // visualDensity: VisualDensity(vertical: 1),
           labelText: labelText,
           labelStyle: TextStyle(
-            color: Ucolors.darkgrey,
+            color: Ucolors.black,
+            fontFamily: FontFamily.medium,
             fontSize: (Get.width * 0.035).clamp(12, 14),
           ),
-          floatingLabelStyle: TextStyle(color: Ucolors.textFormEnabled),
+          floatingLabelStyle: TextStyle(color: Ucolors.textFormEnabled, fontFamily: FontFamily.medium,),
           hintText: hintText,
           hintStyle: TextStyle(
-            color: Ucolors.darkgrey.withOpacity(0.8),
+            fontFamily: FontFamily.medium,
+            color: Ucolors.darkgrey.withValues(alpha:0.8),
             fontSize: (Get.width * 0.035).clamp(12, 14),
           ),
           prefixIcon: prefixIcon != null

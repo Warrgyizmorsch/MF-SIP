@@ -19,9 +19,6 @@ class UTextStyles {
   UTextStyles._(); // private constructor
   static const double _h1 = 28;
   static const double _h2 = 24;
-  static const double _h3 = 20;
-  static const double _h4 = 18;
-  static const double _body1 = 16;
   static const double _body2 = 12;
   static const double _caption = 14;
   static const double _small = 10;

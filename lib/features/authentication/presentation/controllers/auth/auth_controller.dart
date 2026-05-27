@@ -22,6 +22,7 @@ class AuthController extends GetxController {
   final RxBool isVerifyLoading = false.obs;
   final RxBool isOtpSendLoading = false.obs;
   final RxBool isOtpVerifyLoading = false.obs;
+  final RxBool isGoogleSignInLoading = false.obs;
   final RxBool isNumberValid = true.obs;
   final RxBool isOtpError = false.obs;
   final RxBool isPhoneNotRegistered = false.obs;
@@ -55,12 +56,21 @@ class AuthController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final GoogleSignIn _googleSignIn = GoogleSignIn.standard();
+  RxString applicationId =''.obs;
+  /// GOOGLE SIGN IN
+  /// GOOGLE SIGN IN
 
-  /// GOOGLE SIGN IN
-  /// GOOGLE SIGN IN
   Future<void> signInWithGoogle() async {
+
+    if (isGoogleSignInLoading.value) return;
+
     try {
-      debugPrint("========== GOOGLE SIGN IN START ==========");
+
+      isGoogleSignInLoading.value = true;
+
+      debugPrint(
+        "========== GOOGLE SIGN IN START ==========",
+      );
 
       /// CLEAR PREVIOUS ACCOUNT
       await _googleSignIn.signOut();
@@ -73,20 +83,43 @@ class AuthController extends GetxController {
 
       /// USER CANCELLED
       if (googleUser == null) {
+
         debugPrint("USER CANCELLED LOGIN");
+
+        isGoogleSignInLoading.value = false;
+
         return;
       }
 
-      debugPrint("SELECTED EMAIL : ${googleUser.email}");
+      debugPrint(
+        "SELECTED EMAIL : ${googleUser.email}",
+      );
 
-      /// AUTH
+      /// GOOGLE AUTH
       final GoogleSignInAuthentication googleAuth =
       await googleUser.authentication;
 
-      /// CREDENTIAL
-      final credential = GoogleAuthProvider.credential(
+      /// ID TOKEN
+      final String idToken =
+          googleAuth.idToken ?? "";
+
+      if (idToken.isEmpty) {
+
+        isGoogleSignInLoading.value = false;
+
+        Get.snackbar(
+          "Error",
+          "Google ID Token not found",
+        );
+
+        return;
+      }
+
+      /// FIREBASE CREDENTIAL
+      final credential =
+      GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+        idToken: idToken,
       );
 
       /// FIREBASE LOGIN
@@ -95,48 +128,36 @@ class AuthController extends GetxController {
         credential,
       );
 
-      /// USER
-      final User? user = userCredential.user;
+      /// FIREBASE USER
+      final User? user =
+          userCredential.user;
 
       if (user != null) {
 
-        Map<String, dynamic> userJson = {
-          "uid": user.uid,
-          "email": user.email,
-          "displayName": user.displayName,
-          "photoURL": user.photoURL,
-          "emailVerified": user.emailVerified,
-          "phoneNumber": user.phoneNumber,
-          "isAnonymous": user.isAnonymous,
-          "metadata": {
-            "creationTime":
-            user.metadata.creationTime?.toIso8601String(),
-            "lastSignInTime":
-            user.metadata.lastSignInTime?.toIso8601String(),
-          },
-          "providerData": user.providerData.map((info) => {
-            "providerId": info.providerId,
-            "uid": info.uid,
-            "displayName": info.displayName,
-            "email": info.email,
-            "photoURL": info.photoURL,
-          }).toList(),
-        };
-
-        debugPrint("========== NEW USER JSON DATA ==========");
-        debugPrint(userJson.toString());
-
+        /// CHECK NEW USER
         final bool isNewUser =
-            userCredential.additionalUserInfo?.isNewUser ?? false;
+            userCredential
+                .additionalUserInfo
+                ?.isNewUser ??
+                false;
 
         /// NEW USER
         if (isNewUser) {
 
+          /// GOOGLE DATA
           nameController.text =
-              user.displayName ?? "";
+              googleUser.displayName ?? "";
 
           emailController.text =
-              user.email ?? "";
+              googleUser.email;
+
+          /// MOSTLY EMPTY IN GOOGLE LOGIN
+          mobileController.text =
+              user.phoneNumber ?? "";
+
+          applicationId.value = idToken;
+
+          isGoogleSignInLoading.value = false;
 
           Get.offNamed(
             AppRoutes.registerAccountScreen,
@@ -144,16 +165,122 @@ class AuthController extends GetxController {
 
         } else {
 
-          /// OLD USER
-          // Get.offAllNamed(AppRoutes.bottomBar);
+          /// EXISTING USER API LOGIN
+          final fcmToken =
+          await FirebaseMessaging.instance
+              .getToken();
 
+          final requestData = {
+            "google_token": idToken,
+            "fcm_token": fcmToken,
+          };
+
+          final result =
+          await _authUseCases
+              .googleSignInUseCase
+              .call(requestData);
+
+          result.fold(
+
+            /// SUCCESS
+                (success) async {
+
+              final userModel =
+                  success.data?.userModel;
+
+              /// SAVE SESSION
+              await SessionManager.instance
+                  .setSession(
+                jwtAccessToken:
+                success.data?.token,
+                userData: userModel,
+              );
+
+              /// SAVE RISK PROFILE
+              if (userModel?.riskProfileModel !=
+                  null) {
+
+                final profile =
+                userModel!.riskProfileModel!;
+
+                final riskResult =
+                RiskResultModel(
+                  status: true,
+                  totalScore: int.tryParse(
+                    userModel.riskScore
+                        .toString(),
+                  ) ??
+                      0,
+                  riskSlabId:
+                  profile.id ?? 0,
+                  profileName:
+                  profile.profileName ??
+                      '',
+                );
+
+                await SessionManager.instance
+                    .saveRiskScore(
+                  riskResult,
+                );
+
+              } else {
+
+                await SessionManager.instance
+                    .saveRiskScore(null);
+              }
+
+              isGoogleSignInLoading.value =
+              false;
+
+              Get.offAllNamed(
+                AppRoutes.navMenuBar,
+              );
+            },
+
+            /// ERROR
+                (error) async {
+
+              isGoogleSignInLoading.value =
+              false;
+
+              debugPrint(
+                "GOOGLE LOGIN API ERROR : ${error.message}",
+              );
+
+              /// OPTIONAL LOGOUT ON API FAIL
+              await _auth.signOut();
+
+              await _googleSignIn.signOut();
+
+              Get.snackbar(
+                "Error",
+                error.message ,
+              );
+            },
+          );
         }
+      } else {
+
+        isGoogleSignInLoading.value = false;
+
+        Get.snackbar(
+          "Error",
+          "Firebase user not found",
+        );
       }
 
     } catch (e) {
 
-      debugPrint("GOOGLE LOGIN ERROR : $e");
+      isGoogleSignInLoading.value = false;
 
+      debugPrint(
+        "GOOGLE LOGIN ERROR : $e",
+      );
+
+      Get.snackbar(
+        "Error",
+        "Google Sign-In failed",
+      );
     }
   }
 
@@ -237,7 +364,7 @@ class AuthController extends GetxController {
           "Error",
           "Please agree to the Terms and Privacy Policy",
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withOpacity(0.1),
+          backgroundColor: Colors.red.withValues(alpha:0.1),
           colorText: Colors.red,
         );
         return;
@@ -249,6 +376,8 @@ class AuthController extends GetxController {
         mobileController.text.trim(),
         panController.text.trim(),
         passwordController.text.trim(),
+        applicationId.value
+
       );
     }
   }
@@ -317,7 +446,7 @@ class AuthController extends GetxController {
             "Hey, we just sent an OTP to ${mobileController.text.trim()}",
             style: TextStyle(
               fontSize: 14,
-              color: Colors.white.withOpacity(
+              color: Colors.white.withValues(alpha:
                 0.9,
               ), // Slightly faded for contrast
               height: 1.4, // Better line spacing
@@ -345,7 +474,7 @@ class AuthController extends GetxController {
               20, // Adds a subtle glassmorphism effect if background is slightly transparent
           boxShadows: [
             BoxShadow(
-              color: const Color(0xFF2E7D32).withOpacity(0.3),
+              color: const Color(0xFF2E7D32).withValues(alpha:0.3),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -473,126 +602,87 @@ class AuthController extends GetxController {
       "otp": otpController.text.trim(),
     };
 
-    final result =
-    await _authUseCases.verifyOtpUseCase.call(
-      requestData,
-    );
+    final result = await _authUseCases.verifyOtpUseCase.call(requestData);
 
     result.fold(
-          (success) async {
-        final userModel =
-            success.data?.userModel;
+      (success) async {
+        final userModel = success.data?.userModel;
 
         /// =========================
         /// SAVE SESSION
         /// =========================
-        await SessionManager.instance
-            .setSession(
-          jwtAccessToken:
-          success.data?.token,
-          userData:
-          success.data?.userModel,
+        await SessionManager.instance.setSession(
+          jwtAccessToken: success.data?.token,
+          userData: success.data?.userModel,
         );
 
         /// =========================
         /// SAVE RISK PROFILE
         /// =========================
-        if (userModel?.riskProfileModel !=
-            null) {
-          final profile =
-          userModel!.riskProfileModel!;
+        if (userModel?.riskProfileModel != null) {
+          final profile = userModel!.riskProfileModel!;
 
-          final riskResult =
-          RiskResultModel(
+          final riskResult = RiskResultModel(
             status: true,
-            totalScore: int.tryParse(
-                userModel.riskScore
-                    .toString()) ??
-                0,
-            riskSlabId:
-            profile.id ?? 0,
-            profileName:
-            profile.profileName ??
-                '',
+            totalScore: int.tryParse(userModel.riskScore.toString()) ?? 0,
+            riskSlabId: profile.id ?? 0,
+            profileName: profile.profileName ?? '',
           );
 
-          await SessionManager.instance
-              .saveRiskScore(
-            riskResult,
-          );
+          await SessionManager.instance.saveRiskScore(riskResult);
         } else {
-          await SessionManager.instance
-              .saveRiskScore(null);
+          await SessionManager.instance.saveRiskScore(null);
         }
 
         /// =========================
         /// SAVE FCM TOKEN API
         /// =========================
         try {
-          final fcmToken =
-          await FirebaseMessaging
-              .instance
-              .getToken();
+          final fcmToken = await FirebaseMessaging.instance.getToken();
 
           if (fcmToken != null) {
-            final fcmResult =
-            await _authUseCases
-                .fcmDeviceTokenUseCase
-                .call({
-              "fcm_token":
-              fcmToken,
+            final fcmResult = await _authUseCases.fcmDeviceTokenUseCase.call({
+              "fcm_token": fcmToken,
             });
 
             fcmResult.fold(
-                  (success) {
+              (success) {
                 createLog(
                   "FCM TOKEN SAVED => "
-                      "${success.data?.message}",
+                  "${success.data?.message}",
                 );
               },
-                  (error) {
+              (error) {
                 createLog(
                   "FCM TOKEN ERROR => "
-                      "${error.message}",
+                  "${error.message}",
                 );
               },
             );
           }
         } catch (e) {
-          createLog(
-            "FCM TOKEN EXCEPTION => $e",
-          );
+          createLog("FCM TOKEN EXCEPTION => $e");
         }
 
-        isOtpVerifyLoading.value =
-        false;
+        isOtpVerifyLoading.value = false;
 
-        user.value = success
-            .data!.userModel
-            .toEntity();
+        user.value = success.data!.userModel.toEntity();
 
         ULoaders.success(
           title: 'Verify Otp Success',
-          message:
-          'OTP Verified Successfully',
+          message: 'OTP Verified Successfully',
         );
 
-        await Future.delayed(
-          const Duration(seconds: 2),
-        );
+        await Future.delayed(const Duration(seconds: 2));
 
-        Get.offAllNamed(
-          AppRoutes.navMenuBar,
-        );
+        Get.offAllNamed(AppRoutes.navMenuBar);
       },
-          (error) {
+      (error) {
         isOtpError.value = true;
 
         otpController.clear();
 
-        createLog(
-          "Verify Otp Error $error",
-        );
+        createLog("Verify Otp Error $error");
 
         Get.snackbar(
           "Invalid OTP",
@@ -601,8 +691,7 @@ class AuthController extends GetxController {
           colorText: Colors.white,
         );
 
-        isOtpVerifyLoading.value =
-        false;
+        isOtpVerifyLoading.value = false;
       },
     );
   }
@@ -618,6 +707,7 @@ class AuthController extends GetxController {
     String mobile,
     String pan,
     String password,
+    String applicationId,
   ) async {
     isRegisterLoading.value = true;
     final requestData = {
@@ -625,6 +715,7 @@ class AuthController extends GetxController {
       "email": email,
       "mobile": mobile,
       "pan_card": pan,
+      "application_id":applicationId
       // "password": password,
     };
 

@@ -14,45 +14,94 @@ import '../../domain/usecases/get_goal_master_use_case.dart';
 class GoalBinding extends Bindings {
   @override
   void dependencies() {
+
     Get.lazyPut(
-      () => GoalRemoteDataSource(apiService: Get.find<NetworkServicesApi>()),
-    );
-    Get.lazyPut(
-      () => GoalRepositoryImpl(
-        goalRemoteDataSource: Get.find<GoalRemoteDataSource>(),
+          () => GoalRemoteDataSource(
+        apiService: Get.find<NetworkServicesApi>(),
       ),
+      fenix: true,
     );
+
     Get.lazyPut(
-      () => SaveGoalUseCase(goalRepository: Get.find<GoalRepositoryImpl>()),
-    );
-    Get.lazyPut(
-      () => GetGoalsUseCase(goalRepository: Get.find<GoalRepositoryImpl>()),
-    );
-    Get.lazyPut(
-      () => SaveGoalFundUseCase(repository: Get.find<GoalRepositoryImpl>()),
-    );
-    Get.lazyPut(
-      () => DeleteGoalFundUseCase(goalRepository: Get.find<GoalRepositoryImpl>()),
-    );
-    Get.lazyPut(
-          () => DeleteGoalUseCase(goalRepository: Get.find<GoalRepositoryImpl>()),
-    );
-    Get.lazyPut(
-          () => GetMasterGoalsUseCase(goalRepository: Get.find<GoalRepositoryImpl>()),
-    );
-    Get.lazyPut(
-      () => GoalUseCases(
-        saveGoalUseCase: Get.find<SaveGoalUseCase>(),
-        getGoalsUseCase: Get.find<GetGoalsUseCase>(),
-        saveGoalFundUseCase: Get.find<SaveGoalFundUseCase>(),
-        deleteGoalFundUseCase: Get.find<DeleteGoalFundUseCase>(),
-          deleteGoalUseCase: Get.find<DeleteGoalUseCase>(),
-          getMasterGoalsUseCase: Get.find<GetMasterGoalsUseCase>(),
+          () => GoalRepositoryImpl(
+        goalRemoteDataSource:
+        Get.find<GoalRemoteDataSource>(),
       ),
+      fenix: true,
     );
+
+    Get.lazyPut(
+          () => SaveGoalUseCase(
+        goalRepository:
+        Get.find<GoalRepositoryImpl>(),
+      ),
+      fenix: true,
+    );
+
+    Get.lazyPut(
+          () => GetGoalsUseCase(
+        goalRepository:
+        Get.find<GoalRepositoryImpl>(),
+      ),
+      fenix: true,
+    );
+
+    Get.lazyPut(
+          () => SaveGoalFundUseCase(
+        repository:
+        Get.find<GoalRepositoryImpl>(),
+      ),
+      fenix: true,
+    );
+
+    Get.lazyPut(
+          () => DeleteGoalFundUseCase(
+        goalRepository:
+        Get.find<GoalRepositoryImpl>(),
+      ),
+      fenix: true,
+    );
+
+    Get.lazyPut(
+          () => DeleteGoalUseCase(
+        goalRepository:
+        Get.find<GoalRepositoryImpl>(),
+      ),
+      fenix: true,
+    );
+
+    Get.lazyPut(
+          () => GetMasterGoalsUseCase(
+        goalRepository:
+        Get.find<GoalRepositoryImpl>(),
+      ),
+      fenix: true,
+    );
+
+    // FIRST REGISTER GoalUseCases
+    Get.lazyPut<GoalUseCases>(
+          () => GoalUseCases(
+        saveGoalUseCase:
+        Get.find<SaveGoalUseCase>(),
+        getGoalsUseCase:
+        Get.find<GetGoalsUseCase>(),
+        saveGoalFundUseCase:
+        Get.find<SaveGoalFundUseCase>(),
+        deleteGoalFundUseCase:
+        Get.find<DeleteGoalFundUseCase>(),
+        deleteGoalUseCase:
+        Get.find<DeleteGoalUseCase>(),
+        getMasterGoalsUseCase:
+        Get.find<GetMasterGoalsUseCase>(),
+      ),
+      fenix: true,
+    );
+
+    // THEN CONTROLLER
     Get.lazyPut<GoalSipController>(
           () => GoalSipController(
-        goalUseCases: Get.find<GoalUseCases>(),
+        goalUseCases:
+        Get.find<GoalUseCases>(),
       ),
       fenix: true,
     );

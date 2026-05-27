@@ -11,4 +11,5 @@ abstract class AuthRepository {
   Future<Either<Result<String>,ApiError>>sendOtpForLogin(Map<String,dynamic> data);
   Future<Either<Result<LoginResponseEntity>,ApiError>>verifyOtpForLogin(Map<String,dynamic> data);
   Future<Either<Result<FcmDeviceTokenEntity>, ApiError>> fcmDeviceToken(Map<String, dynamic> data,);
+  Future<Either<Result<LoginResponseEntity>, ApiError>> signWithGoogle(Map<String, dynamic> data,);
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/utils/constant/text_style.dart';
+
 class TableHeader extends StatelessWidget {
   const TableHeader({
     super.key,
@@ -31,6 +33,7 @@ class TableHeader extends StatelessWidget {
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 12,
+                fontFamily: FontFamily.medium,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -41,6 +44,7 @@ class TableHeader extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.black,
+                fontFamily: FontFamily.medium,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
@@ -52,6 +56,7 @@ class TableHeader extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.black,
+                fontFamily: FontFamily.medium,
                 fontWeight: FontWeight.w600,
                 fontSize: 12,
               ),
@@ -63,6 +68,7 @@ class TableHeader extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.black,
+                fontFamily: FontFamily.medium,
                 fontWeight: FontWeight.w600,
                 fontSize: 12,
               ),
@@ -75,6 +81,7 @@ class TableHeader extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.black,
+                  fontFamily: FontFamily.medium,
                   fontWeight: FontWeight.w600,
                   fontSize: 12,
                 ),
@@ -132,6 +139,7 @@ class TableHeader2 extends StatelessWidget {
       textAlign: TextAlign.center,
       style: const TextStyle(
         fontSize: 12,
+        fontFamily: FontFamily.medium,
         fontWeight: FontWeight.w600,
         color: Colors.black,
       ),

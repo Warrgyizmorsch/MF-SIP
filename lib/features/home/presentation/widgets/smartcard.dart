@@ -1,5 +1,7 @@
-import 'dart:async';
+
 import 'package:flutter/material.dart';
+
+import '../../../../core/utils/constant/text_style.dart';
 
 class SmartDiscoverySwitcher extends StatelessWidget {
   @override
@@ -63,6 +65,7 @@ class _TaxCountdownCardState extends State<TaxCountdownCard> {
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
+                        fontFamily: FontFamily.medium,
                         color: Colors.orange.shade900,
                         letterSpacing: 1.2,
                       ),
@@ -78,6 +81,7 @@ class _TaxCountdownCardState extends State<TaxCountdownCard> {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 10,
+                          fontFamily: FontFamily.medium,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -86,11 +90,11 @@ class _TaxCountdownCardState extends State<TaxCountdownCard> {
                 ),
                 Text(
                   "Save ₹46,800 in Tax",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, fontFamily: FontFamily.medium,),
                 ),
                 Text(
                   "Invest in ELSS before March 31st.",
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade700, fontFamily: FontFamily.medium,),
                 ),
               ],
             ),
@@ -113,7 +117,7 @@ class FeaturedFundCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.blue.shade100),
         boxShadow: [
-          BoxShadow(color: Colors.blue.withOpacity(0.05), blurRadius: 10),
+          BoxShadow(color: Colors.blue.withValues(alpha:0.05), blurRadius: 10),
         ],
       ),
       child: Row(
@@ -131,17 +135,18 @@ class FeaturedFundCard extends StatelessWidget {
                   "FEATURED FUND",
                   style: TextStyle(
                     fontSize: 10,
+                    fontFamily: FontFamily.medium,
                     fontWeight: FontWeight.bold,
                     color: Colors.blue.shade300,
                   ),
                 ),
                 Text(
                   "Nifty 50 Index Fund",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, fontFamily: FontFamily.medium,),
                 ),
                 Text(
                   "Low cost • 14.2% Annual Return",
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontFamily: FontFamily.medium,),
                 ),
               ],
             ),

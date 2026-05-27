@@ -178,7 +178,7 @@ class ShimmerListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: 8, // Jitne items dikhane hain
+      itemCount: 8,
       padding: const EdgeInsets.all(16),
       itemBuilder: (context, index) {
         return Padding(
@@ -616,7 +616,7 @@ class GoalShimmerGrid extends StatelessWidget {
               crossAxisSpacing: 16,
               childAspectRatio: 0.82,
             ),
-            itemBuilder: (context, index) => const _GoalShimmerCard(),
+            itemBuilder: (context, index) => const GoalShimmerCard(),
           ),
         ),
       ],
@@ -624,8 +624,8 @@ class GoalShimmerGrid extends StatelessWidget {
   }
 }
 
-class _GoalShimmerCard extends StatelessWidget {
-  const _GoalShimmerCard();
+class GoalShimmerCard extends StatelessWidget {
+  const GoalShimmerCard({super.key});
 
   @override
   Widget build(BuildContext context) {

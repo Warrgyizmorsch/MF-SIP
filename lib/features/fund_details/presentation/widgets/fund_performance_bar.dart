@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/fund_details/presentation/widgets/timeselecter.dart';
 
+import '../../../../core/utils/constant/text_style.dart';
 import '../../../../core/utils/helper/helpers.dart';
 import '../../data/models/return_model.dart';
 import '../controllers/chartInvestment_controller.dart';
@@ -96,14 +97,14 @@ class YearlyReturnsChart extends StatelessWidget {
                             children: [
                               Text(
                                 formatCurrency(totalAmount),
-                                style: const TextStyle(
+                                style: const  TextStyle(fontFamily: FontFamily.medium,
                                   color: Colors.green,
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ), Text(
                         "${returnPercents[index].toStringAsFixed(2)}%",
-                                style: const TextStyle(
+                                style: const  TextStyle(fontFamily: FontFamily.medium,
                                   color: Colors.green,
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
@@ -111,7 +112,7 @@ class YearlyReturnsChart extends StatelessWidget {
                               ),
                               Text(
                                 xLabels[index],
-                                style: TextStyle(color: Colors.grey.shade600, fontSize: 10),
+                                style:  TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600, fontSize: 10),
                               ),
                             ],
                           ),
@@ -171,8 +172,8 @@ class YearlyReturnsChart extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("Invested", style: TextStyle(color: Colors.grey, fontSize: 10)),
-                    Text(isLoss ? "Loss" : "Gain", style: const TextStyle(color: Colors.grey, fontSize: 10)),
+                    const Text("Invested", style:  TextStyle(fontFamily: FontFamily.medium,color: Colors.grey, fontSize: 10)),
+                    Text(isLoss ? "Loss" : "Gain", style: const  TextStyle(fontFamily: FontFamily.medium,color: Colors.grey, fontSize: 10)),
                   ],
                 ),
                 Row(
@@ -180,18 +181,18 @@ class YearlyReturnsChart extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text("₹${currentInv.toStringAsFixed(0)}",
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                        style: const  TextStyle(fontFamily: FontFamily.medium,fontSize: 14, fontWeight: FontWeight.bold)),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text("₹${gainAmount.toStringAsFixed(2)}",
-                            style: TextStyle(
+                            style:  TextStyle(fontFamily: FontFamily.medium,
                                 color: isLoss ? Colors.red : Colors.green,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14
                             )),
                         Text("(${selectedData.scheme.toStringAsFixed(2)}%)",
-                            style: TextStyle(color: isLoss ? Colors.red : Colors.green, fontSize: 12)),
+                            style:  TextStyle(fontFamily: FontFamily.medium,color: isLoss ? Colors.red : Colors.green, fontSize: 12)),
                       ],
                     ),
                   ],
@@ -287,7 +288,7 @@ class YearlyReturnsChart extends StatelessWidget {
 //                   getTooltipItem: (group, groupIndex, rod, rodIndex) {
 //                     return BarTooltipItem(
 //                       '${yearlyData[group.x.toInt()].year}\n${rod.toY.toStringAsFixed(2)}%',
-//                       const TextStyle(
+//                       const  TextStyle(fontFamily: FontFamily.medium,
 //                         color: Colors.white,
 //                         fontWeight: FontWeight.w600,
 //                         fontSize: 12,
@@ -304,7 +305,7 @@ class YearlyReturnsChart extends StatelessWidget {
 //                     getTitlesWidget: (value, meta) {
 //                       return Text(
 //                         '${value.toInt()}%',
-//                         style: TextStyle(
+//                         style:  TextStyle(fontFamily: FontFamily.medium,
 //                           fontSize: 11,
 //                           color: Colors.grey.shade600,
 //                         ),
@@ -327,7 +328,7 @@ class YearlyReturnsChart extends StatelessWidget {
 //                         child: FittedBox(
 //                           child: Text(
 //                             yearlyData[value.toInt()].year,
-//                             style: TextStyle(
+//                             style:  TextStyle(fontFamily: FontFamily.medium,
 //                               fontSize: isDesktop ? 11 : 11,
 //                               fontWeight: isDesktop ? FontWeight.w500 : FontWeight.normal,
 //                               color: Colors.black87,
@@ -381,7 +382,7 @@ class YearlyReturnsChart extends StatelessWidget {
 //                         '${value.toStringAsFixed(2)}%',
 //                         textAlign: TextAlign.center,
 //                         maxLines: 1,
-//                         style: const TextStyle(
+//                         style: const  TextStyle(fontFamily: FontFamily.medium,
 //                           overflow: TextOverflow.ellipsis,
 //                           fontSize: 8,
 //                           fontWeight: FontWeight.w600,

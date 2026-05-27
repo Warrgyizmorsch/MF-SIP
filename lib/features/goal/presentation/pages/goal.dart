@@ -11,6 +11,7 @@ import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
+import '../../../../common/widget/shimmer/shimmer.dart';
 import '../../../../core/utils/constant/appUrl.dart';
 import '../controller/goal_sip_controller.dart';
 import 'ihavegoal.dart';
@@ -39,7 +40,7 @@ class GoalScreen extends GetView<GoalSipController> {
 
       body: Obx(() {
         if (controller.isLoadingGoals.value) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: GoalShimmerGrid());
         }
 
         final goals = controller.goalResponse.value?.data ?? [];

@@ -33,7 +33,7 @@ class USectionHeading extends StatelessWidget {
             // fontSize: fontSize ?? (Get.width * 0.045).clamp(16, 20),
             fontWeight: fontWeight ?? FontWeight.w600,
             color: textcolor ?? Ucolors.dark,
-            fontFamily: UTextStyles.font
+            fontFamily: FontFamily.medium,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
