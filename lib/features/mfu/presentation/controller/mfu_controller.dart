@@ -17,7 +17,9 @@ import 'package:my_sip/features/mfu/domain/entity/emandate_status_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/mandate_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/mfu_bank_validation_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/normal_txn_entity.dart';
+import 'package:my_sip/features/dashboard/domain/entity/portfolio_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/systematic_txn_entity.dart';
+import 'package:my_sip/features/dashboard/domain/entity/transactionlist_entity.dart';
 import 'package:my_sip/features/mfu/domain/usecases/mfu_usecases.dart';
 import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
 import 'package:my_sip/services/session_manager.dart';
@@ -48,6 +50,7 @@ class MfuController extends GetxController {
   final isSubmittingTxn = false.obs;
   final isSubmittingSystematicTxn = false.obs;
   final isValidatingCanBank = false.obs;
+ 
 
   // ─── Redeem State ────────────────────────────────────────────────────────────
 
@@ -65,6 +68,7 @@ class MfuController extends GetxController {
   final normalTxnResponse = Rxn<MfuNormalTxnEntity>();
   final systematicTxnResponse = Rxn<MfuSystematicTxnEntity>();
   final canBankValidationResponse = Rxn<MfuCanBankValidationEntity>();
+
 
   final errorMessage = ''.obs;
   final selectedMethod = 'upi'.obs; // 'upi' | 'netbanking'
@@ -921,6 +925,7 @@ class MfuController extends GetxController {
     return '${_toWords(n ~/ 10000000)} Crore${n % 10000000 > 0 ? ' ${_toWords(n % 10000000)}' : ''}';
   }
 
+  
   @override
   void onClose() {
     _stopCanStatusPolling();

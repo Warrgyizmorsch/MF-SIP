@@ -50,4 +50,8 @@ abstract class MfuRepository {
 
   Future<Either<Result<MfuSystematicTxnEntity>, ApiError>>
   systematicTransaction(MfuSystematicTxnRequest request);
+
+  
+
+
 }

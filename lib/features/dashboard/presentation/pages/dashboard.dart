@@ -10,8 +10,8 @@ import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/dashboard/domain/entity/transactionlist_entity.dart';
 import 'package:my_sip/features/mfu/presentation/pages/redeem_page.dart';
-import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
@@ -118,16 +118,15 @@ class BottomWaveClipper extends CustomClipper<Path> {
 }
 
 // --- 1. MAIN SCREEN WRAPPER ---
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends GetView<DashboardController> {
   DashboardScreen({super.key});
 
-  final AuthController controller = Get.find<AuthController>();
+  final AuthController authController = Get.find<AuthController>();
   final CartController cartController = Get.find();
 
   @override
   Widget build(BuildContext context) {
     // Initialize controller
-    Get.put(PortfolioTabController());
 
     // Detect Desktop
     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
@@ -1345,9 +1344,6 @@ class _WebPortfolioRow extends StatelessWidget {
   }
 }
 
-// ==========================================
-// 📱 MOBILE DASHBOARD LAYOUT (Preserved)
-// ==========================================
 class _MobileDashboardLayout extends StatelessWidget {
   final CartController cartController;
   const _MobileDashboardLayout({required this.cartController});
@@ -1363,7 +1359,6 @@ class _MobileDashboardLayout extends StatelessWidget {
           floating: false,
           pinned: true,
           flexibleSpace: CustomProfileAppbar(
-            // onProfiletap: () => Get.to(() => ProfileScreen()),
             onProfiletap: () => Get.toNamed(AppRoutes.personaldetails),
             backgroundColor: const Color(0xffE8F5FF),
             greetingName: 'Pratik',
@@ -1378,35 +1373,7 @@ class _MobileDashboardLayout extends StatelessWidget {
                 onPressed: () => Get.toNamed(AppRoutes.notification),
                 iconColor: Ucolors.dark,
               ),
-              // Obx(
-              //       () => Stack(
-              //     children: [
-              //       CompactIcon(
-              //         icon: Iconsax.shopping_cart,
-              //         onPressed: () => Get.toNamed(AppRoutes.cart),
-              //         iconColor: Ucolors.dark,
-              //       ),
-              //       if (cartController.itemsCount > 0)
-              //         Positioned(
-              //           right: 0,
-              //           top: -5,
-              //           child: Container(
-              //             padding: const EdgeInsets.all(5),
-              //             decoration: const BoxDecoration(
-              //               color: Ucolors.red,
-              //               shape: BoxShape.circle,
-              //             ),
-              //             child: Text(
-              //               cartController.itemsCount.toString(),
-              //               style: UTextStyles.buttonText.copyWith(
-              //                 fontSize: 10,
-              //               ),
-              //             ),
-              //           ),
-              //         ),
-              //     ],
-              //   ),
-              // ),
+
               Obx(
                 () => Stack(
                   children: [
@@ -1538,7 +1505,7 @@ class _MobileDashboardLayout extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Obx(() {
-                final controller = Get.find<PortfolioTabController>();
+                final controller = Get.find<DashboardController>();
 
                 return Row(
                   children: [
@@ -1602,7 +1569,7 @@ class _MobileDashboardLayout extends StatelessWidget {
         const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
         Obx(() {
-          final controller = Get.find<PortfolioTabController>();
+          final controller = Get.find<DashboardController>();
 
           if (controller.selectedIndex.value == 0) {
             /// 🟦 MY PORTFOLIO TAB
@@ -1621,6 +1588,24 @@ class _MobileDashboardLayout extends StatelessWidget {
               ]),
             );
           } else {
+            if (controller.isLoadingTransactions.value) {
+              return const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(32.0),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              );
+            }
+            final txns = controller.transactionList.value?.transactions ?? [];
+            if (txns.isEmpty) {
+              return const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(32.0),
+                  child: Center(child: Text("No transactions found.")),
+                ),
+              );
+            }
+
             /// 🟩 TRANSACTIONS TAB
             return SliverList(
               delegate: SliverChildListDelegate([
@@ -1633,7 +1618,10 @@ class _MobileDashboardLayout extends StatelessWidget {
                     textcolor: const Color(0xff787878),
                   ),
                 ),
-                ...List.generate(6, (index) => const TransactionCard()),
+                // ...List.generate(6, (index) => const TransactionCard()),
+                ...txns
+                    .map((txn) => TransactionCardDash(transaction: txn))
+                    .toList(),
               ]),
             );
           }
@@ -1648,6 +1636,101 @@ class _MobileDashboardLayout extends StatelessWidget {
 // ==========================================
 // 🛠 MODIFIED HELPER CARDS (Adapts to Web)
 // ==========================================
+
+class TransactionCardDash extends StatelessWidget {
+  final bool isWebCompact;
+  final MfuTransactionEntity transaction;
+
+  const TransactionCardDash({
+    super.key,
+    this.isWebCompact = false,
+    required this.transaction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Determine the color based on your entity's computed status getters
+    Color amountColor;
+    if (transaction.isSuccess) {
+      amountColor =
+          Ucolors.success; // Assuming you have a success color defined
+    } else if (transaction.isFailed) {
+      amountColor = Ucolors.red; // Assuming you have a red/error color defined
+    } else {
+      amountColor = const Color(0xffF2994A); // Orange for Pending/Processing
+    }
+
+    return Container(
+      margin: isWebCompact
+          ? EdgeInsets.zero
+          : const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+      padding: isWebCompact ? EdgeInsets.zero : const EdgeInsets.all(16),
+      decoration: isWebCompact
+          ? null
+          : BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                transaction.txnDate,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge!.copyWith(fontSize: 14),
+              ),
+              Text(
+                '₹${transaction.amount.toStringAsFixed(2)}',
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  color: amountColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Text(
+                  // E.g., "SIP - Systematic" or "Normal - Lumpsum"
+                  '${transaction.investmentType.toUpperCase()} - ${transaction.txtType.toUpperCase()}',
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: UTextStyles.small.copyWith(
+                    color: const Color(0xff9A9A9A),
+                  ),
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  'Order: ${transaction.mfOrderId}',
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: UTextStyles.small.copyWith(
+                    color: const Color(0xff9A9A9A),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class TransactionCard extends StatelessWidget {
   final bool isWebCompact;
@@ -1726,10 +1809,6 @@ class TransactionCard extends StatelessWidget {
   }
 }
 
-// ... Keep existing PortfolioCard, PopMenuItem, Painters unchanged ...
-// (Retain all original classes below this point from your dashboard.dart file)
-// Make sure to include PortfolioCard, StatItem1, SummaryItem, BottomDashedLinePainter, BottomWaveClipper
-// exactly as they were in your uploaded file.
 class PortfolioCard extends StatelessWidget {
   const PortfolioCard({
     super.key,

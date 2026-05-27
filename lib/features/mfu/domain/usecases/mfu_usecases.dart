@@ -14,6 +14,8 @@ class MfuUseCases {
   final MfuNormalTxnUseCase mfuNormalTxnUseCase;
   final MfuSystematicTxnUseCase mfuSystematicTxnUseCase;
   final MfuCanBankValidationUseCase mfuCanBankValidationUseCase;
+  // final GetTransactionsUseCase getTransactionsUseCase;
+  // final GetPortfolioUseCase getPortfolioUseCase; // 👈
 
   MfuUseCases({
     required this.canRegisterUseCase,
@@ -23,5 +25,7 @@ class MfuUseCases {
     required this.mfuNormalTxnUseCase,
     required this.mfuSystematicTxnUseCase,
     required this.mfuCanBankValidationUseCase,
+    // required this.getTransactionsUseCase,
+    // required this.getPortfolioUseCase,
   });
 }

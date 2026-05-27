@@ -5,6 +5,7 @@ import 'package:my_sip/features/authentication/presentation/bindings/auth_bindin
 import 'package:my_sip/features/authentication/presentation/pages/login/login_page.dart';
 import 'package:my_sip/features/authentication/presentation/pages/login/otp_verification.dart';
 import 'package:my_sip/features/authentication/presentation/pages/signup/register_account.dart';
+import 'package:my_sip/features/dashboard/presentation/bindings/dashboard_binding.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
 import 'package:my_sip/features/explore/presentation/bindings/fundhousebinding.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
@@ -76,6 +77,7 @@ class AppPages {
         // SipProcessBinding(),
         GoalBinding(),
         MfuBindings(),
+        DashboardBinding(),
       ],
       name: AppRoutes.navMenuBar,
       page: () => const NavigationMenuBar(),

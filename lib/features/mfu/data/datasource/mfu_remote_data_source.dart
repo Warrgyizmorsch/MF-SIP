@@ -13,8 +13,10 @@ import 'package:my_sip/features/mfu/data/model/mandate_status_req.dart';
 import 'package:my_sip/features/mfu/data/model/mfu_mandate_create_req.dart';
 import 'package:my_sip/features/mfu/data/model/normal_txn_model.dart';
 import 'package:my_sip/features/mfu/data/model/normal_txn_req_model.dart';
+import 'package:my_sip/features/dashboard/data/model/portfolio_model.dart';
 import 'package:my_sip/features/mfu/data/model/systematic_txn_model.dart';
 import 'package:my_sip/features/mfu/data/model/systematic_txn_req_model.dart';
+import 'package:my_sip/features/dashboard/data/model/transactionlist_model.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 class MfuRemoteDataSource {
@@ -105,35 +107,38 @@ class MfuRemoteDataSource {
     }
   }
 
-  Future<Either<Result<MfuCanBankValidationModel>, ApiError>> canBankValidation({
-  required int uid,
-}) async {
-  try {
-    final body = {"uid": uid};
+  Future<Either<Result<MfuCanBankValidationModel>, ApiError>>
+  canBankValidation({required int uid}) async {
+    try {
+      final body = {"uid": uid};
 
-    createLog("[MfuRemoteDataSource] canBankValidation Request: $body");
+      createLog("[MfuRemoteDataSource] canBankValidation Request: $body");
 
-    final resp = await _apiService.postApi(
-      "${Appurl.baseUrl}/api/mfu/can-bank-validation",
-      data: body,
-    );
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/mfu/can-bank-validation",
+        data: body,
+      );
 
-    createLog("[MfuRemoteDataSource] canBankValidation Response: $resp");
+      createLog("[MfuRemoteDataSource] canBankValidation Response: $resp");
 
-    if (resp != null) {
-      final result = MfuCanBankValidationModel.fromJson(resp);
-      if (result.success == true) {
-        return Left(Result.success(result));
+      if (resp != null) {
+        final result = MfuCanBankValidationModel.fromJson(resp);
+        if (result.success == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(message: result.message ?? 'CAN Bank Validation Failed'),
+          );
+        }
       } else {
-        return Right(ApiError(message: result.message ?? 'CAN Bank Validation Failed'));
+        return Right(
+          ApiError(message: 'canBankValidation: Invalid response structure'),
+        );
       }
-    } else {
-      return Right(ApiError(message: 'canBankValidation: Invalid response structure'));
+    } catch (e) {
+      return Right(ApiError(message: 'canBankValidation Exception: $e'));
     }
-  } catch (e) {
-    return Right(ApiError(message: 'canBankValidation Exception: $e'));
   }
-}
 
   // Future<Either<Result<MfuMandateCreateModel>, ApiError>> createMandate({
   //   required int uid,
@@ -350,4 +355,6 @@ class MfuRemoteDataSource {
       return Right(ApiError(message: 'systematicTransaction Exception: $e'));
     }
   }
+
+  
 }

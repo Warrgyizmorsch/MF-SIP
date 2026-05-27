@@ -159,7 +159,7 @@ class KycDetailsScreen extends StatelessWidget {
           // subtitle: ProfileUtils.getWealthSourceName(
           //   int.tryParse(user?.customerDetailsModel?.wealthSource ?? ''),
           // ),
-          subtitle: user?.kycStatus ?? '',
+          subtitle: user?.kycStatus ?? 'NO KYC',
           trailing: user?.kycStatus?.toLowerCase() == 'approved'
               ? Icon(Icons.verified, color: Colors.green)
               : null,

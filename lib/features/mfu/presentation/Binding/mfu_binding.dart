@@ -36,10 +36,10 @@ class MfuBindings extends Bindings {
       () => GetCanStatusUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
     );
     Get.lazyPut(
-  () => MfuCanBankValidationUseCase(
-    mfuRepository: Get.find<MfuRepositoryImpl>(),
-  ),
-);
+      () => MfuCanBankValidationUseCase(
+        mfuRepository: Get.find<MfuRepositoryImpl>(),
+      ),
+    );
 
     Get.lazyPut(
       () =>
@@ -59,6 +59,13 @@ class MfuBindings extends Bindings {
       () =>
           MfuSystematicTxnUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
     );
+    // Get.lazyPut(
+    //   () =>
+    //       GetTransactionsUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+    // );
+    // Get.lazyPut(
+    //   () => GetPortfolioUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+    // );
 
     // 4. Use Cases Wrapper
     Get.lazyPut(
@@ -70,6 +77,7 @@ class MfuBindings extends Bindings {
         mfuMandateStatusUseCase: Get.find<MfuMandateStatusUseCase>(),
         mfuNormalTxnUseCase: Get.find<MfuNormalTxnUseCase>(),
         mfuSystematicTxnUseCase: Get.find<MfuSystematicTxnUseCase>(),
+        
       ),
     );
 
