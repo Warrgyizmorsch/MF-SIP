@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_null_aware_operator, dead_null_aware_expression, dead_code
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/config/routes/app_routes.dart';

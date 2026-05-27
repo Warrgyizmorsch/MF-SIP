@@ -315,11 +315,11 @@ class CartController extends GetxController {
   /// ---------------- Cart -----------  /////
   final RxInt optimisticBadgeCount = 0.obs;
 
-  @override
-  int get itemsCount1 {
-    int serverCount = cartResponseEntity.value?.items.length ?? 0;
-    return serverCount + optimisticBadgeCount.value;
-  }
+  // @override
+  // int get itemsCount1 {
+  //   int serverCount = cartResponseEntity.value?.items.length ?? 0;
+  //   return serverCount + optimisticBadgeCount.value;
+  // }
 
   // int get itemsCount => items.length;
 

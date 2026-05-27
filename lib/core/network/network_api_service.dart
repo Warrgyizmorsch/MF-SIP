@@ -423,7 +423,9 @@ class _HeadersInterceptor extends Interceptor {
       createLog("[API] Request: ${options.method} ${options.uri}");
       return super.onRequest(options, handler);
     }
+    // ignore: unused_local_variable
     final version = await _getAppVersion();
+    // ignore: unused_local_variable
     final platform = _getPlatformHeader();
 
     // options.headers.addAll({

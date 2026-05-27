@@ -11,6 +11,7 @@ import 'package:my_sip/common/widget/animated/custom_footer.dart';
 import 'package:my_sip/common/widget/animated/empty_filled.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
+import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/wishlist/presentation/controller/wishlist_controller.dart';
 import 'package:readmore/readmore.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -122,9 +123,58 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                               );
                             },
                             secondButtonP: () async {
-                              debugPrint(
-                                "sip: ${controller.fundDetail.value?.sipMinimumAmount}",
-                              );
+                              final userCtrl =
+                                  Get.find<PersonalisationController>();
+
+                              if (!userCtrl.hasApprovedMandate) {
+                                Get.dialog(
+                                  AlertDialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    title: const Text('Auto Pay Required'),
+                                    content: const Text(
+                                      'Please set up your Auto Pay mandate to continue with your purchase.',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Get.back(),
+                                        child: const Text(
+                                          'Close',
+                                          style: TextStyle(color: Colors.grey),
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Get.back(); // Close dialog
+
+                                          Get.toNamed(
+                                            AppRoutes.paymentScreen,
+                                            arguments: {
+                                              'isMandate': true,
+                                              'amount': '100000',
+                                            },
+                                          );
+                                        },
+                                        child: const Text(
+                                          'Set Up Auto Pay',
+                                          style: TextStyle(
+                                            color: Color.fromARGB(
+                                              255,
+                                              7,
+                                              72,
+                                              125,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  barrierDismissible: false,
+                                );
+                                return;
+                              }
+
                               final argVal = controller.fundDetail.value;
 
                               final purchaseArgs = SipPurchaseArgs(

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:my_sip/common/widget/images/image_select.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
@@ -64,7 +65,9 @@ class CustomProfileAppbar extends StatelessWidget
                     // backgroundColor: Colors.pink,
                     backgroundImage: avatar ?? AssetImage(UImages.imp),
 
-                    child: img,
+                    child:
+                        img ??
+                        UCircularImage(image: (user?.img ?? UImages.avatar)),
                   ),
                   const SizedBox(width: 5),
                   Column(

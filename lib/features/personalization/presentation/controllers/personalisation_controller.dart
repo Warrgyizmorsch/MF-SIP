@@ -1,3 +1,5 @@
+// ignore_for_file: dead_null_aware_expression, dead_code
+
 import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
@@ -113,7 +115,27 @@ class PersonalisationController extends GetxController {
 
   final userData = Rxn<profileEntity.ProfileDataEntity>();
 
+  // ------------ Mandate status  -------------        /////
+  // 1. Check if a mandate is currently processing
+  bool get hasPendingMandate {
+    final status = userData.value?.mfuMandate?.status?.toLowerCase();
+    return status == 'pending';
+  }
 
+  // 2. Check if a mandate is fully approved and active
+  bool get hasApprovedMandate {
+    final status = userData.value?.mfuMandate?.status?.toLowerCase();
+    return status == 'approved' || status == 'success' || status == 'initiated';
+  }
+
+  // 3. Grab the MMRN or MMURN to pass into the SIP API
+  String? get activeMmrn {
+    return userData.value?.mfuMandate?.mmrn;
+  }
+
+  String? get activeMmurn {
+    return userData.value?.mfuMandate?.mumrn;
+  }
 
   final nomineeDocumentSelectionList = [
     "Pan",
@@ -230,7 +252,6 @@ class PersonalisationController extends GetxController {
   final RxBool isFetchingIFSC = false.obs;
   final RxString resolvedBranch = ''.obs;
   final RxString autoFetchedBank = ''.obs;
-  
 
   // ------------------------ Add Bank Account State --------------------------///
   final isBankAdding = false.obs;

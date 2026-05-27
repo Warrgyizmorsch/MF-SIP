@@ -1,3 +1,5 @@
+// ignore_for_file: dead_null_aware_expression, dead_code
+
 import 'dart:developer';
 
 import 'package:get/get.dart';
@@ -15,19 +17,26 @@ class DashboardController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    getTransactions();
+    // getTransactions();
+    getPortfolio();
   }
 
   final isLoadingTransactions = false.obs;
   final isLoadingPortfolio = false.obs;
   final errorMessageTranscation = ''.obs;
   final errorMessagePortfolio = ''.obs;
+  final isBalanceVisible = false.obs;
 
   /// 0 = My Portfolio, 1 = Transactions
   final selectedIndex = 0.obs;
 
   void changeTab(int index) {
     selectedIndex.value = index;
+    if (index == 1) {
+      if (transactionList.value == null) {
+        getTransactions();
+      }
+    }
   }
 
   final transactionList = Rxn<MfuTransactionListEntity>();

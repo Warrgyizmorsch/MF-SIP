@@ -4,6 +4,7 @@ import 'package:my_sip/core/utils/constant/images.dart';
 
 import '../../../features/authentication/presentation/controllers/auth/auth_controller.dart';
 
+// ignore: must_be_immutable
 class USocialButton extends StatelessWidget {
   AuthController authController = Get.find<AuthController>();
    USocialButton({super.key});

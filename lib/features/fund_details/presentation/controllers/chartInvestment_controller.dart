@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:get/get.dart';
 
-import '../../data/models/fund_performance.dart';
 
 class ChartInvestmentController extends GetxController {
   RxDouble investment = 100000.0.obs;

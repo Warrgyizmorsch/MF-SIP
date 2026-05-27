@@ -135,7 +135,10 @@ class DashboardScreen extends GetView<DashboardController> {
       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Ucolors.light,
       body: isDesktop
           ? _WebDashboardLayout(cartController: cartController)
-          : _MobileDashboardLayout(cartController: cartController),
+          : _MobileDashboardLayout(
+              cartController: cartController,
+              dashboardController: controller,
+            ),
     );
   }
 }
@@ -1346,7 +1349,11 @@ class _WebPortfolioRow extends StatelessWidget {
 
 class _MobileDashboardLayout extends StatelessWidget {
   final CartController cartController;
-  const _MobileDashboardLayout({required this.cartController});
+  final DashboardController dashboardController;
+  const _MobileDashboardLayout({
+    required this.cartController,
+    required this.dashboardController,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1367,6 +1374,7 @@ class _MobileDashboardLayout extends StatelessWidget {
             iconColor: Ucolors.blue,
             roleColor: Ucolors.blue,
             greetingNameColor: Ucolors.blue,
+
             action: [
               CompactIcon(
                 icon: Iconsax.notification,
@@ -1428,56 +1436,101 @@ class _MobileDashboardLayout extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
                 child: ClipPath(
                   clipper: BottomWaveClipper(),
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xff0B3C5D), Color(0xff072A40)],
+                  child: Obx(() {
+                    final summary =
+                        dashboardController.portfolioData.value?.summary;
+                    final isVisible =
+                        dashboardController.isBalanceVisible.value;
+
+                    // 2. Extract values with safe fallbacks (default to 0.0)
+                    final currentValue = summary?.totalCurrentValue ?? 0.0;
+                    final invested = summary?.totalInvested ?? 0.0;
+                    final totalReturns = summary?.totalGainLoss ?? 0.0;
+                    final isProfit = summary?.isOverallProfit ?? true;
+
+                    return Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xff0B3C5D), Color(0xff072A40)],
+                        ),
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Current Value',
-                          style: Theme.of(context).textTheme.titleMedium!
-                              .copyWith(color: Ucolors.skyblue, fontSize: 15),
-                        ),
-                        const SizedBox(height: 6),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              '₹32,580',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.w500,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Current Value',
+                            style: Theme.of(context).textTheme.titleMedium!
+                                .copyWith(color: Ucolors.skyblue, fontSize: 15),
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                // '₹${currentValue.toStringAsFixed(2)}',
+                                isVisible
+                                    ? '₹${currentValue.toStringAsFixed(2)}'
+                                    : '₹ ••••••',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
-                            CompactIcon(
-                              icon: Icons.remove_red_eye,
-                              onPressed: () {},
-                              iconColor: Ucolors.light,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
-                            SummaryItem(title: 'Invested', value: '₹30,000'),
-                            SummaryItem(
-                              title: 'Total Returns',
-                              value: '₹2,580',
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 18),
-                      ],
-                    ),
-                  ),
+                              CompactIcon(
+                                icon: isVisible
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                                onPressed: () {
+                                  dashboardController.isBalanceVisible.toggle();
+                                },
+                                iconColor: Ucolors.light,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // SummaryItem(
+                              //   title: 'Invested',
+                              //   // value: '₹${invested.toStringAsFixed(2)}',
+                              //   value: isVisible
+                              //       ? '₹${invested.toStringAsFixed(2)}'
+                              //       : '₹ ••••••',
+                              // ),
+                              // SummaryItem(
+                              //   // isProfit: isProfit,
+                              //   isProfit: isVisible ? isProfit : null,
+                              //   title: 'Total Returns',
+
+                              //   // value:
+                              //   //     '₹${totalReturns.abs().toStringAsFixed(2)}',
+                              //   value: isVisible
+                              //       ? '₹${totalReturns.abs().toStringAsFixed(2)}'
+                              //       : '₹ ••••••',
+                              // ),
+                              SummaryItem(
+                                title: 'Invested',
+                                amount: invested, // Pass the raw double
+                                isVisible:
+                                    isVisible, // Pass the reactive visibility state
+                              ),
+                              SummaryItem(
+                                title: 'Total Returns',
+                                amount: totalReturns, // Pass the raw double
+                                isProfit: isProfit,
+                                isVisible: isVisible,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 18),
+                        ],
+                      ),
+                    );
+                  }),
                 ),
               ),
             ),
@@ -1592,7 +1645,9 @@ class _MobileDashboardLayout extends StatelessWidget {
               return const SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.all(32.0),
-                  child: Center(child: CircularProgressIndicator()),
+                  child: Center(
+                    child: CircularProgressIndicator(color: Colors.blue),
+                  ),
                 ),
               );
             }
@@ -2067,36 +2122,153 @@ class StatItem1 extends StatelessWidget {
   }
 }
 
-/// 🔹 Summary Item Widget
 class SummaryItem extends StatelessWidget {
   final String title;
-  final String value;
+  final double amount; // Changed from String to double for animation
+  final bool? isProfit;
+  final bool
+  isVisible; // Now handles visibility internally for smoother animations
 
-  const SummaryItem({required this.title, required this.value});
+  const SummaryItem({
+    super.key,
+    required this.title,
+    required this.amount,
+    this.isProfit,
+    this.isVisible = true,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final isSpecial = isProfit != null;
+    final valueColor = isSpecial
+        ? (isProfit! ? Colors.greenAccent : Colors.redAccent)
+        : Colors.white;
+
+    final icon = isSpecial
+        ? (isProfit!
+              ? Icons.arrow_upward_rounded
+              : Icons.arrow_downward_rounded)
+        : null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          //  style: const TextStyle(color: Colors.white70)
           style: Theme.of(context).textTheme.titleMedium!.copyWith(
             color: Ucolors.skyblue,
             fontSize: 14,
           ),
         ),
-        const SizedBox(height: 2),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
+        const SizedBox(height: 6),
+        // 1. AnimatedContainer smoothly transitions the background pill
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+          padding: isSpecial
+              ? const EdgeInsets.symmetric(horizontal: 8, vertical: 4)
+              : EdgeInsets.zero,
+          // decoration: BoxDecoration(
+          //   color: isSpecial && isVisible
+          //       ? valueColor.withOpacity(0.15)
+          //       : Colors.transparent,
+          //   borderRadius: BorderRadius.circular(6),
+          // ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 2. AnimatedSwitcher for smooth hide/show transitions
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0.2),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  ),
+                ),
+                child: isVisible
+                    ? Row(
+                        key: const ValueKey('visible'),
+                        children: [
+                          if (icon != null) ...[
+                            Icon(icon, color: valueColor, size: 14),
+                            const SizedBox(width: 4),
+                          ],
+                          // 3. TweenAnimationBuilder creates the "Number Counter" effect
+                          TweenAnimationBuilder<double>(
+                            tween: Tween<double>(begin: 0, end: amount.abs()),
+                            duration: const Duration(milliseconds: 800),
+                            curve: Curves.easeOutQuart,
+                            builder: (context, value, child) {
+                              return Text(
+                                '₹${value.toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  color: valueColor,
+                                  fontSize: 14,
+                                  fontWeight: isSpecial
+                                      ? FontWeight.w600
+                                      : FontWeight.w500,
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      )
+                    : Text(
+                        '₹ ••••••',
+                        key: const ValueKey('hidden'),
+                        style: TextStyle(
+                          color: isSpecial
+                              ? valueColor.withOpacity(0.5)
+                              : Colors.white70,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 2,
+                        ),
+                      ),
+              ),
+            ],
           ),
         ),
       ],
     );
   }
 }
+
+/// 🔹 Summary Item Widget
+// class SummaryItem extends StatelessWidget {
+//   final String title;
+//   final String value;
+
+//   const SummaryItem({required this.title, required this.value});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text(
+//           title,
+//           //  style: const TextStyle(color: Colors.white70)
+//           style: Theme.of(context).textTheme.titleMedium!.copyWith(
+//             color: Ucolors.skyblue,
+//             fontSize: 14,
+//           ),
+//         ),
+//         const SizedBox(height: 2),
+//         Text(
+//           value,
+//           style: const TextStyle(
+//             color: Colors.white,
+//             fontSize: 14,
+//             fontWeight: FontWeight.w400,
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }

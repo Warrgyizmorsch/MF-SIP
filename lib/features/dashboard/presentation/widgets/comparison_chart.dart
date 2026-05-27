@@ -1,6 +1,5 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart'; // Assuming you use GetX for size/utils
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:responsive_framework/responsive_framework.dart'; // Import Responsive Framework
 

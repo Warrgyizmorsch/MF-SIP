@@ -5,7 +5,6 @@ import 'package:my_sip/features/authentication/data/datasources/auth_remote_data
 import 'package:my_sip/features/authentication/domain/entitites/auth_entity.dart';
 import 'package:my_sip/features/authentication/domain/repositories/auth_repository.dart';
 
-import '../models/auth_model.dart';
 
 class AuthRepositoryImpl extends AuthRepository {
   final AuthRemoteDataSource _remoteDataSource;

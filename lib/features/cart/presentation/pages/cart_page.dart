@@ -1,13 +1,13 @@
-import 'dart:async';
-import 'dart:developer';
+// ignore_for_file: deprecated_member_use, unused_local_variable
 
-import 'package:flutter/foundation.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:iconsax/iconsax.dart';
-import 'package:my_sip/common/widget/animated/custom_footer.dart';
+import 'package:my_sip/common/widget/animated/custom_toast.dart';
+
 import 'package:my_sip/common/widget/animated/empty_filled.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
@@ -24,28 +24,78 @@ import 'package:my_sip/features/cart/presentation/controllers/cart_controller.da
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
 import 'package:my_sip/features/home/presentation/pages/home.dart';
+import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
 
 class CartPage extends GetView<CartController> {
   const CartPage({super.key});
+  // void _handlePurchase() {
+  //   if (!controller.isCartValid1) return;
+  //   final bool isDesktop = Get.width > 600;
+  //   Get.toNamed(
+  //     AppRoutes.paymentScreen,
+  //     // arguments: {'amount': controller.totalAmount},
+  //     id: isDesktop ? 1 : null,
+  //   );
+  // }
   void _handlePurchase() {
     if (!controller.isCartValid1) return;
+
     final bool isDesktop = Get.width > 600;
-    Get.toNamed(
-      AppRoutes.paymentScreen,
-      // arguments: {'amount': controller.totalAmount},
-      id: isDesktop ? 1 : null,
-    );
+
+    // 🚀 Access the user data controller to check mandate status
+    final userCtrl = Get.find<PersonalisationController>();
+
+    if (userCtrl.hasApprovedMandate) {
+      Get.toNamed(
+        AppRoutes.paymentScreen,
+        arguments: {
+          'isMandate': false,
+          'amount': controller.totalAmount.toString(),
+        },
+        id: isDesktop ? 1 : null,
+      );
+    } else {
+      Get.dialog(
+        AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: const Text('Auto Pay Required'),
+          content: const Text(
+            'Please set up your Auto Pay mandate to continue with your purchase.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: const Text('Close', style: TextStyle(color: Colors.grey)),
+            ),
+            TextButton(
+              onPressed: () {
+                Get.back(); // Close dialog
+                Get.toNamed(
+                  AppRoutes.paymentScreen,
+                  arguments: {'isMandate': true, 'amount': '100000'},
+                );
+              },
+              child: const Text(
+                'Set Up Auto Pay',
+                style: TextStyle(color: Colors.blue),
+              ),
+            ),
+          ],
+        ),
+        barrierDismissible: false,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
     return GetBuilder<CartController>(
-
-        builder: (controller) {
+      builder: (controller) {
         return Scaffold(
           backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
           appBar: isDesktop ? null : const CustomAppBarNormal(title: 'Cart'),
@@ -56,23 +106,23 @@ class CartPage extends GetView<CartController> {
               : [const TermAndPolicy(term: 'By Proceeding I accept the ')],
           bottomNavigationBar: isDesktop
               ? null
-              :SafeArea(
-            top: false,
-            child: Obx(() {
+              : SafeArea(
+                  top: false,
+                  child: Obx(() {
+                    final isLoading =
+                        (controller.isLoading.value &&
+                            controller.items.isEmpty) ||
+                        controller.isInitLoading.value;
 
-              final isLoading =
-                  (controller.isLoading.value && controller.items.isEmpty) ||
-                      controller.isInitLoading.value;
-
-              return CartBottomBar(
-                isValid: controller.isCartValid1,
-                amount: isLoading
-                    ? '0'
-                    : controller.totalAmount.toString(),
-                ontap: _handlePurchase,
-              );
-            }),
-          ),
+                    return CartBottomBar(
+                      isValid: controller.isCartValid1,
+                      amount: isLoading
+                          ? '0'
+                          : controller.totalAmount.toString(),
+                      ontap: _handlePurchase,
+                    );
+                  }),
+                ),
 
           body: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
@@ -80,7 +130,8 @@ class CartPage extends GetView<CartController> {
             child: Obx(() {
               final items = controller.displayedItems;
 
-              if (controller.isLoading.value && items.isEmpty || controller.isInitLoading.value) {
+              if (controller.isLoading.value && items.isEmpty ||
+                  controller.isInitLoading.value) {
                 return Center(child: CircularProgressIndicator());
               }
 
@@ -91,7 +142,6 @@ class CartPage extends GetView<CartController> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-
                       Center(
                         child: controller.filterGoalId.value != null
                             ? const Text("No funds for this goal")
@@ -178,7 +228,10 @@ class CartPage extends GetView<CartController> {
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate((context, index) {
-                        return CartItemCard(index: index, itemEntity: items[index]);
+                        return CartItemCard(
+                          index: index,
+                          itemEntity: items[index],
+                        );
                       }, childCount: items.length),
                     ),
                   ),
@@ -224,7 +277,7 @@ class CartPage extends GetView<CartController> {
             }),
           ),
         );
-      }
+      },
     );
   }
 
@@ -398,9 +451,8 @@ class CartPage extends GetView<CartController> {
                 style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
               ),
               Obx(
-                    () => Text(
-                  controller.isLoading.value ||
-                      controller.isInitLoading.value
+                () => Text(
+                  controller.isLoading.value || controller.isInitLoading.value
                       ? '₹ 0'
                       : '₹ ${controller.totalAmount}',
                   style: const TextStyle(
@@ -439,6 +491,7 @@ class CartPage extends GetView<CartController> {
     );
   }
 }
+
 class CartBottomBar extends StatelessWidget {
   const CartBottomBar({
     super.key,
@@ -461,25 +514,18 @@ class CartBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset =
-        MediaQuery.of(context).viewPadding.bottom;
+    final bottomInset = MediaQuery.of(context).viewPadding.bottom;
 
     return Padding(
       padding: EdgeInsets.only(bottom: bottomInset),
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
-        decoration: const BoxDecoration(
-          color: Color(0xffE8F4FF),
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: const BoxDecoration(color: Color(0xffE8F4FF)),
         child: Row(
           children: [
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
@@ -490,12 +536,11 @@ class CartBottomBar extends StatelessWidget {
                     ),
                   ),
                   Text(
-                      '₹ ${amount ?? 0}',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Ucolors.success,
-
+                    '₹ ${amount ?? 0}',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Ucolors.success,
                     ),
                   ),
                 ],
@@ -504,16 +549,12 @@ class CartBottomBar extends StatelessWidget {
 
             Expanded(
               child: UElevatedBUtton(
-                color: isValid
-                    ? null
-                    : Colors.grey,
-                onPressed:
-                isValid ? ontap : null,
+                color: isValid ? null : Colors.grey,
+                onPressed: isValid ? ontap : null,
                 child: Center(
                   child: Text(
                     buttonText ?? 'Purchase',
-                    style:
-                    UTextStyles.buttonText,
+                    style: UTextStyles.buttonText,
                   ),
                 ),
               ),
@@ -1049,11 +1090,13 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                         );
                       },
                       customValidator: (value) {
-                        if (value == null || value.trim().isEmpty)
+                        if (value == null || value.trim().isEmpty) {
                           return 'Required';
+                        }
                         final amount = int.tryParse(value) ?? 0;
-                        if (amount < currentMinLimit)
+                        if (amount < currentMinLimit) {
                           return 'Min ₹$currentMinLimit';
+                        }
                         if (amount % 100 != 0) return 'Multiple of ₹100';
                         return null;
                       },
@@ -1326,8 +1369,9 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
 
                           // 3. Only send API call if there are no errors
                           if (!hasError) {
-                            if (_debounce?.isActive ?? false)
+                            if (_debounce?.isActive ?? false) {
                               _debounce!.cancel();
+                            }
 
                             _debounce = Timer(
                               const Duration(milliseconds: 800),
@@ -1366,8 +1410,9 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                         //   }
                         // },
                         customValidator: (value) {
-                          if (value == null || value.trim().isEmpty)
+                          if (value == null || value.trim().isEmpty) {
                             return 'Required';
+                          }
                           final amt = int.tryParse(value) ?? 0;
 
                           if (stepUpType.value == 'amount') {
@@ -1698,8 +1743,9 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                                 //   },
                                 // );
                                 if (!hasError) {
-                                  if (_debounce?.isActive ?? false)
+                                  if (_debounce?.isActive ?? false) {
                                     _debounce!.cancel();
+                                  }
                                   _debounce = Timer(
                                     const Duration(milliseconds: 800),
                                     () {
@@ -1714,8 +1760,9 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                               },
                               // customValidator: (value) => null,
                               customValidator: (value) {
-                                if (value == null || value.trim().isEmpty)
+                                if (value == null || value.trim().isEmpty) {
                                   return 'Required';
+                                }
                                 final capAmt = int.tryParse(value) ?? 0;
 
                                 final int minSip = _parseAmount(
@@ -1730,10 +1777,12 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                                 // Show error if it is not greater than the baseline
                                 // if (capAmt <= absoluteMinCap)
                                 //   return 'Must be > ₹$absoluteMinCap';
-                                if (capAmt <= absoluteMinCap)
+                                if (capAmt <= absoluteMinCap) {
                                   return 'Must be > ₹$absoluteMinCap';
-                                if (capAmt % 100 != 0)
+                                }
+                                if (capAmt % 100 != 0) {
                                   return 'Multiple of ₹100';
+                                }
                                 return null;
                               },
                               // onSubmitted: (val) {
@@ -2463,6 +2512,7 @@ class InputBox extends StatelessWidget {
     );
   }
 }
+
 class DistributionRemainderCard extends StatelessWidget {
   const DistributionRemainderCard({super.key});
 
@@ -2476,21 +2526,19 @@ class DistributionRemainderCard extends StatelessWidget {
       // Remainder 0 hai toh hide karo
       if (remainder == 0) return const SizedBox.shrink();
 
-      final bool isExtra = remainder < 0;  // assigned > total
-      final bool isSaved = remainder > 0;  // assigned < total
+      final bool isExtra = remainder < 0; // assigned > total
+      final bool isSaved = remainder > 0; // assigned < total
 
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: isExtra
-              ? const Color(0xFFFFF3F3)   // extra laga → red tint
-              : const Color(0xFFF0FFF4),  // bacha → green tint
+              ? const Color(0xFFFFF3F3) // extra laga → red tint
+              : const Color(0xFFF0FFF4), // bacha → green tint
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isExtra
-                ? Colors.red.shade200
-                : Colors.green.shade200,
+            color: isExtra ? Colors.red.shade200 : Colors.green.shade200,
           ),
         ),
         child: Row(
@@ -2498,15 +2546,11 @@ class DistributionRemainderCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: isExtra
-                    ? Colors.red.shade50
-                    : Colors.green.shade50,
+                color: isExtra ? Colors.red.shade50 : Colors.green.shade50,
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                isExtra
-                    ? Icons.arrow_upward_rounded
-                    : Icons.savings_outlined,
+                isExtra ? Icons.arrow_upward_rounded : Icons.savings_outlined,
                 color: isExtra ? Colors.red : Colors.green,
                 size: 18,
               ),
@@ -2533,10 +2577,7 @@ class DistributionRemainderCard extends StatelessWidget {
                     isSaved
                         ? '₹${remainder.abs()} distribute nahi hua (100 ke multiple rounding ke wajah se)'
                         : 'Funds ki min SIP se ₹${remainder.abs()} zyada lag raha hai',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey.shade600,
-                    ),
+                    style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
                   ),
                 ],
               ),

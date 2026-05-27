@@ -1,3 +1,5 @@
+// ignore_for_file: dead_code, dead_null_aware_expression
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/features/explore/domain/entities/categories_filter_entity.dart';
@@ -85,8 +87,9 @@ class FundhouseController extends GetxController {
 
     // 3. Standard filters
     if (selectedAmcIds.isNotEmpty) params['amc_id'] = selectedAmcIds.join(',');
-    if (selectedRisks.isNotEmpty)
+    if (selectedRisks.isNotEmpty) {
       params['risk_level'] = selectedRisks.join(',');
+    }
     if (selectedRating.value != null) params['rating'] = selectedRating.value;
 
     // 4. Search operates independently now

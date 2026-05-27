@@ -1,3 +1,5 @@
+// ignore_for_file: dead_code, dead_null_aware_expression
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
@@ -42,7 +44,7 @@ class InvestNowPage extends GetView<CartController> {
                       Obx(
                         () => ClipOval(
                           child: CustomCachedImage(
-                            imageUrl: '${controller.amcImage.value}',
+                            imageUrl: controller.amcImage.value,
                             radius: 16,
                           ),
                         ),

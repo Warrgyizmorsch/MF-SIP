@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_final_fields, dead_null_aware_expression, dead_code
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';

@@ -115,6 +115,7 @@ class UsNumberTextInputFormatter extends TextInputFormatter {
   }
 }
 
+// ignore: must_be_immutable
 class TextFieldCustom extends StatelessWidget {
   Widget? suffixIcon;
   Widget? prefixIcon;

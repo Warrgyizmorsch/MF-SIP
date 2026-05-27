@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gap/gap.dart';
 import 'package:my_sip/common/widget/animated/custom_footer.dart';
+import 'package:my_sip/common/widget/animated/custom_toast.dart';
+import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart'
+    hide showCustomToast;
 import 'package:my_sip/features/mfu/data/model/mfu_mandate_create_req.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
@@ -23,13 +26,14 @@ class PaymentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic>? arg = Get.arguments as Map<String, dynamic>?;
+    final bool isMandateFlow = arg?['isMandate'] ?? false;
     final String amount =
         arg?['amount']?.toString() ?? cartController.totalAmount.toString();
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
       // backgroundColor: const Color(0xFFF6F7FB),
-      appBar: _buildAppBar(context),
+      appBar: _buildAppBar(context, isMandateFlow),
 
       body: SingleChildScrollView(
         // padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -120,13 +124,15 @@ class PaymentScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: _BottomBar(amount: amount),
+      bottomNavigationBar: _BottomBar(
+        amount: amount,
+        isMandateFlow: isMandateFlow,
+      ),
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
+  PreferredSizeWidget _buildAppBar(BuildContext context, bool isMandateFlow) {
     return AppBar(
-      backgroundColor: const Color(0xFFF6F7FB),
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: GestureDetector(
@@ -151,8 +157,8 @@ class PaymentScreen extends StatelessWidget {
           ),
         ),
       ),
-      title: const Text(
-        'Payment',
+      title: Text(
+        isMandateFlow ? 'Setup Auto Pay' : 'Payment',
         style: TextStyle(
           color: Color(0xFF1A1D2E),
           fontSize: 18,
@@ -563,8 +569,9 @@ class _PanelCard extends StatelessWidget {
 }
 
 class _BottomBar extends StatelessWidget {
-  const _BottomBar({required this.amount});
+  const _BottomBar({required this.amount, required this.isMandateFlow});
   final String amount;
+  final bool isMandateFlow;
 
   @override
   Widget build(BuildContext context) {
@@ -598,10 +605,6 @@ class _BottomBar extends StatelessWidget {
             ),
             const Gap(5),
 
-            // Obx(
-            //   () => Get.find<MfuController>().isCreatingMandate.value
-            //       ? const CircularProgressIndicator()
-            //       :
             UElevatedBUtton(
               height: 54,
               onPressed: () {
@@ -615,37 +618,54 @@ class _BottomBar extends StatelessWidget {
                   );
                   return;
                 }
-                _showMandateSheet(context, amount);
+                // _showMandateSheet(context, amount);
+                if (isMandateFlow) {
+                  // Flow A: Open the Mandate Confirmation Sheet
+                  _showMandateSheet(context, amount);
+                } else {
+                  // Flow B: Process Cart Payment directly
+                  // Call your Cart Checkout or normalTransaction API here!
+                  _processCartPayment();
+                }
               },
 
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Pay  ',
+                    isMandateFlow ? 'Enable Auto Pay' : 'Pay  ',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
                     ),
                   ),
-                  Text(
-                    '₹$amount',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
+                  if (!isMandateFlow)
+                    Text(
+                      '₹$amount',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
 
-            // ),
             CustomFooter(),
           ],
         ),
       ),
+    );
+  }
+
+  void _processCartPayment() {
+    // TODO: Insert your actual Cart payment API logic here.
+    // For example: controller.normalTransaction(request);
+    CustomSnackbar.info(
+      title: "Processing",
+      message: "Initializing secure cart checkout...",
     );
   }
 }
@@ -830,6 +850,13 @@ void _showMandateSheet(BuildContext context, String amount) {
                       final String? enteredUpi = method == 'upi'
                           ? controller.upiId.value.trim()
                           : null;
+                      if (uid == 0) {
+                        ULoaders.error(
+                          title: "Error",
+                          message: "User session not found.",
+                        );
+                        return;
+                      }
 
                       if (method == 'upi') {
                         final String upiId = controller.upiId.value.trim();
