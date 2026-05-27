@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
-import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
@@ -31,12 +30,11 @@ class CompareFundsPage extends GetView<CompareFundController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white.withOpacity(0.985),
+      backgroundColor: Colors.white.withValues(alpha:0.985),
       appBar: AppBar(
         centerTitle: true,
         leading: const BackButton(),
-        title: const Text("Compare Funds"),
-      ),
+        title: const Text("Compare Funds",style:  TextStyle(fontFamily: FontFamily.medium))),
       body: SingleChildScrollView(
         child: Obx(() {
           // Listen to Controller State
@@ -274,7 +272,7 @@ class CompareFundsPage extends GetView<CompareFundController> {
                   child: const Center(
                     child: Text(
                       "SEARCH MUTUAL FUNDS",
-                      style: TextStyle(
+                      style:  TextStyle(fontFamily: FontFamily.medium,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
@@ -375,7 +373,7 @@ class CompareFundsPage extends GetView<CompareFundController> {
                             ),
                             title: Text(
                               item.baseSchemeName ?? '',
-                              style: const TextStyle(
+                              style: const  TextStyle(fontFamily: FontFamily.medium,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -408,11 +406,11 @@ class CompareFundsPage extends GetView<CompareFundController> {
         children: const [
           Text(
             "Compare Funds",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style:  TextStyle(fontFamily: FontFamily.medium,fontSize: 20, fontWeight: FontWeight.bold),
           ),
           Text(
             "Detailed comparison on parameters...",
-            style: TextStyle(color: Colors.grey, fontSize: 12),
+            style:  TextStyle(fontFamily: FontFamily.medium,color: Colors.grey, fontSize: 12),
           ),
         ],
       ),
@@ -463,7 +461,7 @@ class CompareCard extends StatelessWidget {
                 SizedBox(height: 8),
                 Text(
                   "Add a fund",
-                  style: TextStyle(fontWeight: FontWeight.w500),
+                  style:  TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w500),
                 ),
               ],
             ),
@@ -567,7 +565,7 @@ class FundDetailsTable extends StatelessWidget {
           child: Center(
             child: Text(
               row["title"]!,
-              style: const TextStyle(fontWeight: FontWeight.w500),
+              style: const  TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w500),
             ),
           ),
         ),
@@ -590,7 +588,7 @@ class FundDetailsTable extends StatelessWidget {
       child: Text(
         txt,
         textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 12),
+        style: const  TextStyle(fontFamily: FontFamily.medium,fontSize: 12),
       ),
     ),
   );
@@ -615,7 +613,7 @@ class CompareTable extends StatelessWidget {
               child: Center(
                 child: Text(
                   row["title"],
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  style: const  TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -633,7 +631,7 @@ class CompareTable extends StatelessWidget {
                             // bottom: BorderSide(color: Colors.grey.shade300),
                           ),
                         ),
-                        child: Text(val, style: const TextStyle(fontSize: 13)),
+                        child: Text(val, style: const  TextStyle(fontFamily: FontFamily.medium,fontSize: 13)),
                       ),
                     ),
                   )
@@ -696,7 +694,7 @@ class HoldingsCompareTable extends StatelessWidget {
                   textAlign: TextAlign.center,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: const TextStyle(fontSize: 11),
+                  style: const  TextStyle(fontFamily: FontFamily.medium,fontSize: 11),
                 ),
               ),
             ),
@@ -719,7 +717,7 @@ class HoldingsCompareTable extends StatelessWidget {
                   textAlign: TextAlign.center,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 11),
+                  style: const  TextStyle(fontFamily: FontFamily.medium,fontSize: 11),
                 ),
               ),
             ),
@@ -774,7 +772,7 @@ class CompareExpansion extends StatelessWidget {
   Widget build(BuildContext context) => ExpansionTile(
     dense: true,
     initiallyExpanded: true, // Keep open by default
-    title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+    title: Text(title, style: const  TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600)),
     children: [child],
   );
 }
@@ -835,7 +833,7 @@ class CompareCardOption extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   "Add a fund",
-                  style: TextStyle(
+                  style:  TextStyle(fontFamily: FontFamily.medium,
                     fontWeight: FontWeight.w500,
                     color: Colors.grey.shade700,
                   ),
@@ -850,7 +848,7 @@ class CompareCardOption extends StatelessWidget {
     return Card(
       elevation: 4,
       color: Colors.white,
-      shadowColor: Colors.black.withOpacity(0.1),
+      shadowColor: Colors.black.withValues(alpha:0.1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: SizedBox(
         height: 130,
@@ -916,7 +914,7 @@ class CompareCardOption extends StatelessWidget {
                         const SizedBox(width: 10),
                         const Text(
                           'Add to Cart',
-                          style: TextStyle(
+                          style:  TextStyle(fontFamily: FontFamily.medium,
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
                           ),
@@ -936,7 +934,7 @@ class CompareCardOption extends StatelessWidget {
                         const SizedBox(width: 10),
                         const Text(
                           'Watchlist',
-                          style: TextStyle(
+                          style:  TextStyle(fontFamily: FontFamily.medium,
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
                           ),
@@ -953,7 +951,7 @@ class CompareCardOption extends StatelessWidget {
                         const SizedBox(width: 10),
                         const Text(
                           'Remove',
-                          style: TextStyle(
+                          style:  TextStyle(fontFamily: FontFamily.medium,
                             color: Colors.red,
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
