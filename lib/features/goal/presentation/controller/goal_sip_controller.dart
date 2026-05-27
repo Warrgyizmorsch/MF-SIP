@@ -15,6 +15,7 @@ import 'package:my_sip/services/session_manager.dart';
 import '../../../explore/domain/entities/mutual_fund_list_entity.dart';
 import '../../../explore/presentation/controller/mutual_fund_controller.dart';
 import '../../domain/entity/goal_master_entity.dart';
+import '../pages/master_goals_page.dart';
 
 class GoalSipController extends GetxController {
   final GoalUseCases goalUseCases;
@@ -22,33 +23,48 @@ class GoalSipController extends GetxController {
   final RxString investmentMode = 'sip'.obs; // 'sip' | 'lumpsum'
 
 // ── Lumpsum Observables ───────────────────────────────────────────────────────
-  final RxDouble lumpsumAmount = 500.0.obs;
+  final RxDouble lumpsumAmount = 0.0.obs;
   final RxDouble lumpsumFutureValue = 0.0.obs;
   final RxDouble lumpsumTotalReturn = 0.0.obs;
   final RxDouble lumpsumReturnPercent = 0.0.obs;
 
-// ── Lumpsum Setter ────────────────────────────────────────────────────────────
-  void setLumpsumAmount(double value) {
-    lumpsumAmount.value = value;
-    recalculateLumpsum();
-  }
 
 // ── Lumpsum Calculation ───────────────────────────────────────────────────────
 // Call this inside setYears() and setRate() bhi — taaki slider change pe update ho
   void recalculateLumpsum() {
-    final double fv = lumpsumFutureValue.value; // ← FV fixed rahega (goal.targetAmount)
-    final double r = annualRate.value / 100;
-    final int n = years.value.toInt();
 
-    if (fv <= 0 || r <= 0 || n <= 0) return;
+    final double fv =
+        lumpsumFutureValue.value;
+
+    final double r =
+        annualRate.value / 100;
+
+    final int n =
+    years.value.toInt();
+
+    if (fv <= 0 || r <= 0 || n <= 0) {
+      return;
+    }
 
     // PV = FV / (1 + r)^n
-    final double pv = fv / pow(1 + r, n);
-    lumpsumAmount.value = pv;                          // Invest Once update
-    lumpsumTotalReturn.value = fv - pv;
-    lumpsumReturnPercent.value = ((fv - pv) / pv) * 100;
-  }
+    final double pv =
+        fv / pow(1 + r, n);
 
+    // ONLY ROUND HERE
+    final double roundedPv =
+    smartRoundOff(pv);
+
+    lumpsumAmount.value =
+        roundedPv;
+
+    lumpsumTotalReturn.value =
+        fv - roundedPv;
+
+    lumpsumReturnPercent.value =
+        ((fv - roundedPv) / roundedPv) * 100;
+
+    update();
+  }
 
 
   final RxBool isMasterGoalLoading = false.obs;
@@ -57,6 +73,7 @@ class GoalSipController extends GetxController {
   /// =======================================
 
   final RxBool isEdit = false.obs;
+  final RxBool isHome = false.obs;
   final RxBool hasChanges = false.obs;
 
   final RxDouble existingSipAmount = 0.0.obs;
@@ -65,7 +82,7 @@ class GoalSipController extends GetxController {
   /// NEW ONLY
   final RxDouble dailySipAmount = 0.0.obs;
   final RxDouble weeklySipAmount = 0.0.obs;
-
+  final isInitializing = true.obs;
   /// TRACK OLD VALUES
   double initialTargetAmount = 0;
   double initialYears = 0;
@@ -75,16 +92,48 @@ class GoalSipController extends GetxController {
   final RxInt selectedGoalIndex = (-1).obs;
   final GlobalKey goalDetailsKey = GlobalKey();
   @override
+  @override
   void onInit() {
     super.onInit();
     investmentMode.value = 'sip';
+
     _recalculate();
 
-
-    // Initial calculation
     recalculateLumpsum();
   }
+  void handleHomeGoal(MasterGoalEntity goal) {
+    goalId.value = goal.id;
 
+    selectedGoalType.value = goal.goalType;
+
+    setTarget(goal.targetAmount);
+
+    setYears(goal.goalTenure.toDouble());
+
+    setRate(goal.expectedReturnRate);
+
+    // ── Lumpsum Calculation
+    final double r =
+        goal.expectedReturnRate / 100;
+
+    final int n =
+    goal.goalTenure.toInt();
+
+    final double pv =
+        goal.targetAmount / pow(1 + r, n);
+
+    lumpsumAmount.value =smartRoundOff(pv);
+
+    lumpsumFutureValue.value =
+        goal.targetAmount;
+
+    lumpsumTotalReturn.value =
+        goal.targetAmount - pv;
+
+    debugPrint("init${ lumpsumAmount.value}");
+    update();
+
+  }
   final cartController = Get.find<CartController>();
 
   final savedDatabaseId = RxnInt();
@@ -102,7 +151,8 @@ class GoalSipController extends GetxController {
   // Outputs (WHOLE NUMBERS like website)
   final monthlySip = 0.obs;
   final invested = 0.obs;
-  final futureValue = 0.obs;
+  RxInt futureValue = 0.obs;
+  RxInt targetLumpsumValue = 0.obs;
   final totalReturn = 0.obs;
   RxInt goalId = 0.obs;
   final isGoalSaved = false.obs;
@@ -274,7 +324,6 @@ class GoalSipController extends GetxController {
   /// =======================================
 
   void checkForChanges() {
-
     final bool amountChanged =
         targetAmount.value != initialTargetAmount;
 
@@ -282,33 +331,18 @@ class GoalSipController extends GetxController {
         years.value != initialYears;
 
     final bool rateChanged =
-        annualRate.value != initialRate;
+        (annualRate.value - initialRate).abs() > 0.001;
 
     hasChanges.value =
         amountChanged ||
             yearChanged ||
             rateChanged;
 
-    if (!hasChanges.value) {
-
-      additionalSipAmount.value = 0;
-
-      weeklySipAmount.value = 0;
-
-      dailySipAmount.value = 0;
-
-      update();
-
-      return;
-    }
-
-    final double newSip =
+    final double sip =
     monthlySip.value.toDouble();
 
-    final double oldSip =
-        existingSipAmount.value;
-
-    double diff = newSip - oldSip;
+    double diff =
+        sip - existingSipAmount.value;
 
     if (diff < 0) {
       diff = 0;
@@ -316,11 +350,12 @@ class GoalSipController extends GetxController {
 
     additionalSipAmount.value = diff;
 
+    // TOTAL SIP
     weeklySipAmount.value =
-        diff / 4;
+        sip / 4;
 
     dailySipAmount.value =
-        diff / 30;
+        sip / 30;
 
     update();
   }
@@ -652,23 +687,49 @@ class GoalSipController extends GetxController {
   /// =======================================
 
   void setTarget(double value) {
-    targetAmount.value = value;
+    targetAmount.value =
+        smartRoundOff(value);
     _recalculate();
     checkForChanges();
   }
 
+// ── Lumpsum Setter ────────────────────────────────────────────────────────────
+  void setLumpsumAmount(double value) {
+
+    lumpsumAmount.value = value;
+
+    recalculateLumpsum();
+  }
+  double smartRoundOff(double value) {
+
+    if (value < 1000) {
+      return (value / 100).round() * 100;
+    }
+
+    if (value < 100000) {
+      return (value / 1000).round() * 1000;
+    }
+
+    if (value < 10000000) {
+      return (value / 10000).round() * 10000;
+    }
+
+    return (value / 100000).round() * 100000;
+  }
   void setYears(double value) {
     years.value = value;
     _recalculate();
-    checkForChanges();
     recalculateLumpsum();
+    checkForChanges();
+
   }
 
   void setRate(double value) {
     annualRate.value = value;
     _recalculate();
-    checkForChanges();
     recalculateLumpsum();
+
+    checkForChanges();
   }
 
   // same as website

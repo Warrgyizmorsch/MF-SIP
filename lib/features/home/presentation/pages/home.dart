@@ -667,11 +667,7 @@ class _WebDashboardLayout extends StatelessWidget {
 
         return WebHoverTile(
           onTap: () {
-            Get.toNamed(
-              AppRoutes.ihavegoal,
-              id: 1,
-              arguments: {'goal_type': goalType},
-            );
+
           },
 
           builder: (isHovered) {
@@ -2358,8 +2354,8 @@ class _MobileLayout extends StatelessWidget {
               delegate: SliverChildListDelegate([
                 GoalBaseSIPCard(
                   onTap: () => Get.toNamed(
-                    AppRoutes.ihavegoal,
-                    arguments: {'goalType': 'car'},
+                    AppRoutes.masterGoalsPage,
+                    arguments: {'goalType': 'car','isHome':true},
                   ),
                   // onTap: () => Get.toNamed(AppRoutes.comingSoon),
                   title: 'Car Goal',
@@ -2369,15 +2365,15 @@ class _MobileLayout extends StatelessWidget {
                   title: 'Education',
                   iconData: Icons.menu_book,
                   onTap: () => Get.toNamed(
-                    AppRoutes.ihavegoal,
-                    arguments: {'goalType': 'education'},
+                    AppRoutes.masterGoalsPage,
+                    arguments: {'goalType': 'education','isHome':true},
                   ),
                   // onTap: () => Get.toNamed(AppRoutes.comingSoon),
                 ),
                 GoalBaseSIPCard(
                   onTap: () => Get.toNamed(
-                    AppRoutes.ihavegoal,
-                    arguments: {'goalType': 'marriage'},
+                    AppRoutes.masterGoalsPage,
+                    arguments: {'goalType': 'marriage','isHome':true},
                   ),
 
                   // onTap: () => Get.toNamed(AppRoutes.comingSoon),
@@ -2386,8 +2382,8 @@ class _MobileLayout extends StatelessWidget {
                 ),
                 GoalBaseSIPCard(
                   onTap: () => Get.toNamed(
-                    AppRoutes.ihavegoal,
-                    arguments: {'goalType': 'vacation'},
+                    AppRoutes.masterGoalsPage,
+                    arguments: {'goalType': 'vacation','isHome':true},
                   ),
 
                   // onTap: () => Get.toNamed(AppRoutes.comingSoon),
@@ -2396,8 +2392,8 @@ class _MobileLayout extends StatelessWidget {
                 ),
                 GoalBaseSIPCard(
                   onTap: () => Get.toNamed(
-                    AppRoutes.ihavegoal,
-                    arguments: {'goalType': 'home'},
+                    AppRoutes.masterGoalsPage,
+                    arguments: {'goalType': 'home','isHome':true},
                   ),
 
                   // onTap: () => Get.toNamed(AppRoutes.comingSoon),
@@ -2405,7 +2401,7 @@ class _MobileLayout extends StatelessWidget {
                   iconData: Icons.home_rounded,
                 ),
                 GestureDetector(
-                  onTap: () => Get.toNamed(AppRoutes.ihavegoal),
+                  onTap: () => Get.toNamed(AppRoutes.masterGoalsPage,  arguments: {'goalType': 'other','isHome':true},),
 
                   // onTap: () => Get.toNamed(AppRoutes.comingSoon),
                   child: Container(
