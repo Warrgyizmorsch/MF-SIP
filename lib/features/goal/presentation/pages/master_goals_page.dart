@@ -6,6 +6,7 @@ import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
+import '../../../../common/widget/animated/custom_footer.dart';
 import '../../../../common/widget/appbar/custom_appbar_normal.dart';
 import '../../../../common/widget/appbar/widget/compact_icon.dart';
 import '../../../../common/widget/button/elevated_button.dart';
@@ -150,11 +151,11 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
           }),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -226,55 +227,63 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       bottomNavigationBar: Obx(() {
-        if (!controller.isGoalSaved.value) return const SizedBox.shrink();
-        return SafeArea(
-          top: false,
-          child: CartBottomBar(
-            isValid: controller.selectedPopularFund.isNotEmpty,
-            ontap: () {
-              if (controller.selectedPopularFund.isEmpty) {
-                Get.snackbar("Error", "Please select funds to start SIP");
-                return;
-              }
+        if (!controller.isGoalSaved.value) {
+          return const CustomFooter();
+        }
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CustomFooter(),
+            SafeArea(
+              top: false,
+              child: CartBottomBar(
+                isValid: controller.selectedPopularFund.isNotEmpty,
+                ontap: () {
+                  if (controller.selectedPopularFund.isEmpty) {
+                    Get.snackbar("Error", "Please select funds to start SIP");
+                    return;
+                  }
 
-              // OLD INSTANCE REMOVE
-              if (Get.isRegistered<CartController>()) {
-                Get.delete<CartController>(force: true);
-              }
+                  // OLD INSTANCE REMOVE
+                  if (Get.isRegistered<CartController>()) {
+                    Get.delete<CartController>(force: true);
+                  }
 
-              // NEW INSTANCE CREATE
-              final CartController cartCont = Get.put(
-                CartController(Get.find<CartUsecases>()),
-              );
+                  // NEW INSTANCE CREATE
+                  final CartController cartCont = Get.put(
+                    CartController(Get.find<CartUsecases>()),
+                  );
 
-              cartCont.clearCart();
+                  cartCont.clearCart();
 
-              cartCont.filterGoalId.value =
-                  controller.savedDatabaseId.value;
+                  cartCont.filterGoalId.value =
+                      controller.savedDatabaseId.value;
 
-              cartCont.monthlyAmount.value =
-                  controller.monthlySip.value.toInt();
+                  cartCont.monthlyAmount.value =
+                      controller.monthlySip.value.toInt();
 
-              Get.toNamed(
-                AppRoutes.cart,
-                arguments: {
-                  'monthlyAmount':
-                  controller.monthlySip.value.toInt(),
-                  'goal_id':
-                  controller.savedDatabaseId.value,
-                  'isFromGoal': true,
+                  Get.toNamed(
+                    AppRoutes.cart,
+                    arguments: {
+                      'monthlyAmount':
+                      controller.monthlySip.value.toInt(),
+                      'goal_id':
+                      controller.savedDatabaseId.value,
+                      'isFromGoal': true,
+                    },
+                  );
                 },
-              );
-            },
-            amount: controller.monthlySip.value.toStringAsFixed(0),
-            amountColor: Ucolors.blue,
-            // title: 'Installment Amount',
-            // buttonText: 'Start SIP',
-          ),
+                amount: controller.monthlySip.value.toStringAsFixed(0),
+                amountColor: Ucolors.blue,
+                // title: 'Installment Amount',
+                // buttonText: 'Start SIP',
+              ),
+            ),
+          ],
         );
       }),
     );
@@ -1694,6 +1703,7 @@ class GoalsGridScreen extends GetView<GoalSipController> {
             backIcon: true,
             actionsPadding: 10,
           ),
+          bottomNavigationBar: isDesktop?null:        CustomFooter(),
           body: LayoutBuilder(
             builder: (context, constraints) {
               final width = constraints.maxWidth;

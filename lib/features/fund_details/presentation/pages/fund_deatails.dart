@@ -3273,7 +3273,7 @@ class _DesktopReturnsCard extends StatelessWidget {
 class _DesktopRiskCard extends StatelessWidget {
   final FundDetailsController controller;
 
-  const _DesktopRiskCard({super.key, required this.controller});
+  const _DesktopRiskCard({required this.controller});
 
   @override
   Widget build(BuildContext context) {

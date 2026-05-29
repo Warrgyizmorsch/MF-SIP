@@ -326,7 +326,7 @@ class NavigationMenuBar extends StatelessWidget {
           context: context,
           barrierDismissible: true,
           barrierLabel: "ExitDialog",
-          barrierColor: Colors.black.withOpacity(0.5),
+          barrierColor: Colors.black.withValues(alpha:0.5),
           transitionDuration: const Duration(milliseconds: 200),
           pageBuilder: (context, anim1, anim2) {
             return BackdropFilter(
@@ -336,11 +336,11 @@ class NavigationMenuBar extends StatelessWidget {
                   margin: const EdgeInsets.symmetric(horizontal: 24),
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha:0.9),
                     borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha:0.1),
                         blurRadius: 20,
                         spreadRadius: 5,
                       ),
@@ -354,7 +354,7 @@ class NavigationMenuBar extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.1),
+                            color: Colors.red.withValues(alpha:0.1),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -371,7 +371,7 @@ class NavigationMenuBar extends StatelessWidget {
                             fontWeight: FontWeight.w800,
                             letterSpacing: -0.5,
                             color: Color(0xFF1A1A1A),
-                            fontFamily: UTextStyles.font,
+                              fontFamily: FontFamily.medium
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -380,7 +380,7 @@ class NavigationMenuBar extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 15,
-                            fontFamily: UTextStyles.font,
+                            fontFamily: FontFamily.medium,
                             color: Colors.grey.shade600,
                             height: 1.4,
                           ),
@@ -405,7 +405,7 @@ class NavigationMenuBar extends StatelessWidget {
                                 child: Text(
                                   'Stay here',
                                   style: TextStyle(
-                                    fontFamily: UTextStyles.font,
+                                    fontFamily: FontFamily.medium,
                                     color: Colors.grey.shade700,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -435,7 +435,7 @@ class NavigationMenuBar extends StatelessWidget {
 
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    fontFamily: UTextStyles.font,
+                                    fontFamily: FontFamily.medium,
                                   ),
                                 ),
                               ),
@@ -645,6 +645,7 @@ class WebFooter extends StatelessWidget {
         "ARN : 104807 || Kriti Hinger",
         style: TextStyle(
           fontSize: 13,
+          fontFamily: FontFamily.medium,
           color: Colors.grey.shade800,
           fontWeight: FontWeight.w600,
         ),
@@ -730,6 +731,7 @@ class GlobalTopHeader extends StatelessWidget {
               title,
               style: const TextStyle(
                 fontSize: 22,
+                fontFamily: FontFamily.medium,
                 fontWeight: FontWeight.bold,
                 color: Ucolors.dark,
                 letterSpacing: -0.5,
@@ -745,8 +747,8 @@ class GlobalTopHeader extends StatelessWidget {
                     height: 40,
                     child: SearchBar(
                       // focusNode: searchFocus,
-                      elevation: MaterialStateProperty.all(0),
-                      backgroundColor: MaterialStateProperty.all(
+                      elevation: WidgetStateProperty.all(0),
+                      backgroundColor: WidgetStateProperty.all(
                         const Color(0xFFF0F2F5),
                       ),
                       leading: const Icon(
@@ -758,7 +760,7 @@ class GlobalTopHeader extends StatelessWidget {
 
                       onChanged: (value) =>
                           mutualController.onSearchQueryChanged(value),
-                      padding: MaterialStateProperty.all(
+                      padding: WidgetStateProperty.all(
                         const EdgeInsets.symmetric(horizontal: 10),
                       ),
                     ),
@@ -786,7 +788,7 @@ class GlobalTopHeader extends StatelessWidget {
                   //         borderRadius: BorderRadius.circular(20), // Pill shape
                   //         side: BorderSide(
                   //           color: states.contains(WidgetState.focused)
-                  //               ? Ucolors.primary.withOpacity(
+                  //               ? Ucolors.primary.withValues(alpha:
                   //                   0.5,
                   //                 ) // Focus par primary color ki border
                   //               : Colors
@@ -898,7 +900,7 @@ class GlobalTopHeader extends StatelessWidget {
                         },
                         style: OutlinedButton.styleFrom(
                           backgroundColor: isActive
-                              ? Ucolors.primary.withOpacity(0.08)
+                              ? Ucolors.primary.withValues(alpha:0.08)
                               : Colors.transparent,
                           side: BorderSide(
                             color: isActive
@@ -923,7 +925,7 @@ class GlobalTopHeader extends StatelessWidget {
                             Text(
                               'Filters',
                               style: TextStyle(
-                                fontFamily: UTextStyles.font,
+                                fontFamily: FontFamily.medium,
                                 color: isActive
                                     ? Ucolors.primary
                                     : Ucolors.dark,
@@ -949,6 +951,7 @@ class GlobalTopHeader extends StatelessWidget {
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 11,
+                                    fontFamily: FontFamily.medium,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -999,7 +1002,7 @@ class GlobalTopHeader extends StatelessWidget {
                       IconButton(
                         icon: const Icon(Iconsax.shopping_cart),
                         color: Ucolors.darkgrey,
-                        hoverColor: Ucolors.primary.withOpacity(0.1),
+                        hoverColor: Ucolors.primary.withValues(alpha:0.1),
                         onPressed: () {
                           controller.filterGoalId.value = null;
                           // Get.toNamed(AppRoutes.cart, id: 1);
@@ -1027,6 +1030,7 @@ class GlobalTopHeader extends StatelessWidget {
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
+                                fontFamily: FontFamily.medium,
                               ),
                             ),
                           ),
@@ -1101,7 +1105,7 @@ class _DesktopSideNav extends StatelessWidget {
         border: Border(right: BorderSide(color: Colors.grey.shade200)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha:0.03),
             blurRadius: 10,
             offset: const Offset(2, 0),
           ),
@@ -1139,7 +1143,7 @@ class _DesktopSideNav extends StatelessWidget {
                           fontSize: isCompactDesktop ? 18 : 20,
                           fontWeight: FontWeight.w700,
                           color: Ucolors.dark,
-                          fontFamily: UTextStyles.font,
+                          fontFamily: FontFamily.medium,
                         ),
                       ),
                     ),
@@ -1184,6 +1188,7 @@ class _DesktopSideNav extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 11,
+                                fontFamily: FontFamily.medium,
                                 color: Colors.grey.shade600,
                               ),
                             ),
@@ -1196,6 +1201,7 @@ class _DesktopSideNav extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 14,
+                                fontFamily: FontFamily.medium,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.black87,
                               ),
@@ -1346,6 +1352,7 @@ class _DesktopSideNav extends StatelessWidget {
                       "ARN : 104807",
                       style: TextStyle(
                         fontSize: 11,
+                        fontFamily: FontFamily.medium,
                         color: Colors.grey.shade600,
                         fontWeight: FontWeight.w500,
                       ),
@@ -1372,6 +1379,7 @@ class _DesktopSideNav extends StatelessWidget {
           title,
           style: TextStyle(
             fontSize: 11,
+            fontFamily: FontFamily.medium,
             fontWeight: FontWeight.bold,
             color: Colors.grey.shade500,
             letterSpacing: 0.5,
@@ -1419,6 +1427,7 @@ class _DesktopSideNav extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 13,
+            fontFamily: FontFamily.medium,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
             color: isSelected ? Ucolors.blue : Colors.grey.shade700,
           ),
@@ -1475,14 +1484,14 @@ class _DesktopNavItem extends StatelessWidget {
 
             decoration: BoxDecoration(
               color: isSelected
-                  ? Ucolors.blue.withOpacity(0.08)
+                  ? Ucolors.blue.withValues(alpha:0.08)
                   : Colors.transparent,
 
               borderRadius: BorderRadius.circular(14),
 
               border: Border.all(
                 color: isSelected
-                    ? Ucolors.blue.withOpacity(0.18)
+                    ? Ucolors.blue.withValues(alpha:0.18)
                     : Colors.transparent,
               ),
             ),
@@ -1506,6 +1515,7 @@ class _DesktopNavItem extends StatelessWidget {
 
                       style: TextStyle(
                         fontSize: fontSize,
+                        fontFamily: FontFamily.medium,
                         fontWeight: isSelected
                             ? FontWeight.w600
                             : FontWeight.w500,
@@ -1573,7 +1583,7 @@ class _MobileBottomNavBar extends StatelessWidget {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha:0.05),
                   blurRadius: 10,
                   offset: const Offset(0, -2),
                 ),
@@ -1654,7 +1664,7 @@ class _MobileNavItem extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontSize: 11,
-                  fontFamily: UTextStyles.font,
+                  fontFamily: FontFamily.medium,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                   color: isSelected ? Ucolors.blue : Ucolors.darkgrey,
                 ),
