@@ -1,8 +1,4 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
@@ -12,6 +8,8 @@ import 'package:my_sip/features/personalization/presentation/pages/profile.dart'
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/services/session_manager.dart';
+
+import '../../../../core/utils/constant/text_style.dart';
 
 class KycDetailsScreen extends StatelessWidget {
   const KycDetailsScreen({super.key});
@@ -73,7 +71,7 @@ class KycDetailsScreen extends StatelessWidget {
                   const Text(
                     "Your account is fully verified and ready for investments.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey, fontSize: 13),
+                    style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey, fontSize: 13),
                   ),
                 ],
               ),
@@ -90,7 +88,7 @@ class KycDetailsScreen extends StatelessWidget {
             children: [
               // const Text(
               //   "KYC Information",
-              //   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              //   style: TextStyle(fontFamily: FontFamily.medium,fontSize: 22, fontWeight: FontWeight.bold),
               // ),
               // const SizedBox(height: 20),
               // Grid for displaying cards side by side on Web

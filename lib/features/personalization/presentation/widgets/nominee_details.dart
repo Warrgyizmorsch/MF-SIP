@@ -72,12 +72,12 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
           children: [
             const Text(
               'Add Nominee',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(fontFamily: FontFamily.medium,fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               'Add a nominee to secure your investments for your loved ones.',
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+              style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600, fontSize: 14),
             ),
             const SizedBox(height: 32),
 
@@ -153,7 +153,7 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                   ),
                   child: const Text(
                     "Cancel",
-                    style: TextStyle(color: Colors.grey),
+                    style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -183,7 +183,7 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                           )
                         : const Text(
                             "Save Details",
-                            style: TextStyle(color: Colors.white),
+                            style: TextStyle(fontFamily: FontFamily.medium,color: Colors.white),
                           ),
                   ),
                 ),
@@ -323,7 +323,7 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
             Obx(
               () => Text(
                 "Available: ${controller.remainingAllocation.toStringAsFixed(0)}%",
-                style: TextStyle(
+                style: TextStyle(fontFamily: FontFamily.medium,
                   fontSize: 12,
                   color: controller.remainingAllocation == 0
                       ? Colors.red
@@ -614,7 +614,7 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                 onPressed: () => Get.back(),
                 child: const Text(
                   "Cancel",
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(fontFamily: FontFamily.medium,color: Colors.black),
                 ),
               ),
             ),
@@ -710,7 +710,7 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                 const SizedBox(height: 16),
                 const Text(
                   'Select Date Of Birth',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  style: TextStyle(fontFamily: FontFamily.medium,fontSize: 18, fontWeight: FontWeight.w600),
                 ),
                 Expanded(
                   child: CupertinoDatePicker(
@@ -786,7 +786,7 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: const TextStyle(fontFamily: FontFamily.medium,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -847,7 +847,7 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                     const SizedBox(height: 20),
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: const TextStyle(fontFamily: FontFamily.medium,
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                       ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/utils/constant/text_style.dart';
+
 class SipSetupScreenStatic extends StatelessWidget {
   const SipSetupScreenStatic({Key? key}) : super(key: key);
 
@@ -13,7 +15,7 @@ class SipSetupScreenStatic extends StatelessWidget {
         leading: const Icon(Icons.arrow_back, color: Colors.white),
         title: const Text(
           'SIP Setup',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(fontFamily: FontFamily.medium,color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
       body: SingleChildScrollView(
@@ -46,7 +48,7 @@ class SipSetupScreenStatic extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF1A1A1E),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha:0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,7 +59,7 @@ class SipSetupScreenStatic extends StatelessWidget {
               const Expanded(
                 child: Text(
                   'Nova Growth Equity Fund',
-                  style: TextStyle(
+                  style: TextStyle(fontFamily: FontFamily.medium,
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -67,7 +69,7 @@ class SipSetupScreenStatic extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withOpacity(0.1),
+                  color: Colors.amber.withValues(alpha:0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -76,7 +78,7 @@ class SipSetupScreenStatic extends StatelessWidget {
                     SizedBox(width: 4),
                     Text(
                       '4.8',
-                      style: TextStyle(
+                      style: TextStyle(fontFamily: FontFamily.medium,
                         color: Colors.amber,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -90,7 +92,7 @@ class SipSetupScreenStatic extends StatelessWidget {
           const SizedBox(height: 4),
           const Text(
             'Direct · Growth · Large Cap',
-            style: TextStyle(color: Colors.grey, fontSize: 13),
+            style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey, fontSize: 13),
           ),
           const SizedBox(height: 12),
           Row(
@@ -98,12 +100,12 @@ class SipSetupScreenStatic extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
+                  color: Colors.orange.withValues(alpha:0.1),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: const Text(
                   'Moderate Risk',
-                  style: TextStyle(
+                  style: TextStyle(fontFamily: FontFamily.medium,
                     color: Colors.orange,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -133,11 +135,11 @@ class SipSetupScreenStatic extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+        Text(label, style: const TextStyle(fontFamily: FontFamily.medium,color: Colors.grey, fontSize: 12)),
         const SizedBox(height: 4),
         Text(
           value,
-          style: TextStyle(
+          style: TextStyle(fontFamily: FontFamily.medium,
             color: valueColor,
             fontSize: 15,
             fontWeight: FontWeight.bold,
@@ -154,7 +156,7 @@ class SipSetupScreenStatic extends StatelessWidget {
       children: [
         const Text(
           'Monthly Investment Amount',
-          style: TextStyle(
+          style: TextStyle(fontFamily: FontFamily.medium,
             color: Colors.white70,
             fontSize: 14,
             fontWeight: FontWeight.w500,
@@ -172,7 +174,7 @@ class SipSetupScreenStatic extends StatelessWidget {
             children: const [
               Text(
                 '₹',
-                style: TextStyle(
+                style: TextStyle(fontFamily: FontFamily.medium,
                   color: Colors.white,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -180,7 +182,7 @@ class SipSetupScreenStatic extends StatelessWidget {
               ),
               Text(
                 '2,500',
-                style: TextStyle(
+                style: TextStyle(fontFamily: FontFamily.medium,
                   color: Colors.white,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -209,14 +211,14 @@ class SipSetupScreenStatic extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.05),
+            color: Colors.white.withValues(alpha:0.05),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.white.withOpacity(0.05)),
+            border: Border.all(color: Colors.white.withValues(alpha:0.05)),
           ),
           child: Center(
             child: Text(
               label,
-              style: const TextStyle(
+              style: const TextStyle(fontFamily: FontFamily.medium,
                 color: Colors.white,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -235,7 +237,7 @@ class SipSetupScreenStatic extends StatelessWidget {
       children: [
         const Text(
           'Auto-Debit Date',
-          style: TextStyle(
+          style: TextStyle(fontFamily: FontFamily.medium,
             color: Colors.white70,
             fontSize: 14,
             fontWeight: FontWeight.w500,
@@ -261,7 +263,7 @@ class SipSetupScreenStatic extends StatelessWidget {
                   SizedBox(width: 12),
                   Text(
                     '16 May',
-                    style: TextStyle(
+                    style: TextStyle(fontFamily: FontFamily.medium,
                       color: Colors.white,
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
@@ -284,7 +286,7 @@ class SipSetupScreenStatic extends StatelessWidget {
       children: [
         const Text(
           'Payment Method',
-          style: TextStyle(
+          style: TextStyle(fontFamily: FontFamily.medium,
             color: Colors.white70,
             fontSize: 14,
             fontWeight: FontWeight.w500,
@@ -310,7 +312,7 @@ class SipSetupScreenStatic extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           color: isSelected
-              ? Colors.blueAccent.withOpacity(0.15)
+              ? Colors.blueAccent.withValues(alpha:0.15)
               : const Color(0xFF1A1A1E),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
@@ -320,7 +322,7 @@ class SipSetupScreenStatic extends StatelessWidget {
         child: Center(
           child: Text(
             label,
-            style: TextStyle(
+            style: TextStyle(fontFamily: FontFamily.medium,
               color: isSelected ? Colors.blueAccent : Colors.grey,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               fontSize: 13,
@@ -336,7 +338,7 @@ class SipSetupScreenStatic extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1E).withOpacity(0.6),
+        color: const Color(0xFF1A1A1E).withValues(alpha:0.6),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -362,7 +364,7 @@ class SipSetupScreenStatic extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: TextStyle(fontFamily: FontFamily.medium,
             color: isTotal ? Colors.white : Colors.grey,
             fontSize: isTotal ? 15 : 13,
             fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
@@ -370,7 +372,7 @@ class SipSetupScreenStatic extends StatelessWidget {
         ),
         Text(
           value,
-          style: TextStyle(
+          style: TextStyle(fontFamily: FontFamily.medium,
             color: isTotal ? Colors.blueAccent : Colors.white,
             fontSize: isTotal ? 16 : 14,
             fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
@@ -396,7 +398,7 @@ class SipSetupScreenStatic extends StatelessWidget {
         onPressed: () {},
         child: const Text(
           'Confirm & Pay ₹2,506.25',
-          style: TextStyle(
+          style: TextStyle(fontFamily: FontFamily.medium,
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: Colors.white,

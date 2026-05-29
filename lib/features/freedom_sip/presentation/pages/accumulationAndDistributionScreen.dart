@@ -74,7 +74,7 @@ class _AccumulationanddistributionscreenState
                 Container(
                   height: 60,
                   decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: Colors.grey.withValues(alpha:0.1),
                     borderRadius: BorderRadius.circular(20.0),
                   ),
                   child: TabBar(
@@ -84,7 +84,7 @@ class _AccumulationanddistributionscreenState
                       borderRadius: BorderRadius.circular(20.0),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha:0.05),
                           blurRadius: 4,
                           offset: const Offset(0, 2),
                         ),
@@ -147,7 +147,7 @@ class _AccumulationanddistributionscreenState
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha:0.1),
                       blurRadius: 10,
                       offset: const Offset(0, 5),
                     ),
@@ -221,7 +221,7 @@ class _AccumulationanddistributionscreenState
             child: Container(
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.1),
+                color: Colors.grey.withValues(alpha:0.1),
                 borderRadius: BorderRadius.circular(20.0),
               ),
               child: TabBar(
@@ -233,7 +233,7 @@ class _AccumulationanddistributionscreenState
                   borderRadius: BorderRadius.circular(20.0),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha:0.05),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -394,7 +394,7 @@ class _AccumulationanddistributionscreenState
                           Expanded(
                             child: Text(
                               entry.key,
-                              style: TextStyle(
+                              style: TextStyle(fontFamily: FontFamily.medium,
                                 color: Colors.grey.shade600,
                                 fontSize: isDesktop ? 14 : 12.0,
                               ),
@@ -402,7 +402,7 @@ class _AccumulationanddistributionscreenState
                           ),
                           Text(
                             entry.value,
-                            style: TextStyle(
+                            style: TextStyle(fontFamily: FontFamily.medium,
                               fontWeight: FontWeight.w600,
                               fontSize: isDesktop ? 14 : 12.0,
                             ),
@@ -427,7 +427,7 @@ class _AccumulationanddistributionscreenState
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),

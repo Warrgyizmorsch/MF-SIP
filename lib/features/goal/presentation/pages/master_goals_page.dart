@@ -144,7 +144,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
               },
               child: Text(
                 "View All Goals",
-                style: TextStyle(color: Ucolors.primary),
+                style: TextStyle(fontFamily: FontFamily.medium,color: Ucolors.primary),
               ),
             );
           }),
@@ -361,7 +361,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                           const SizedBox(height: 4),
                           Text(
                             "Search and select funds for your goal.",
-                            style: TextStyle(
+                            style: TextStyle(fontFamily: FontFamily.medium,
                               fontSize: 13,
                               color: Colors.grey.shade500,
                               fontWeight: FontWeight.w500,
@@ -401,7 +401,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                           backgroundColor: Ucolors.primary,
                           label: Text(
                             '$filterCount',
-                            style: const TextStyle(
+                            style: const TextStyle(fontFamily: FontFamily.medium,
                               color: Colors.white,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -446,7 +446,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                               mutualController.setSearchFocus(false);
                             },
                             focusNode: searchFocus,
-                            backgroundColor: MaterialStateProperty.all(
+                            backgroundColor: WidgetStateProperty.all(
                               Colors.grey.shade50,
                             ),
                             leading: Icon(
@@ -454,16 +454,16 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                               color: Colors.grey.shade600,
                             ),
                             hintText: 'Search mutual funds...',
-                            hintStyle: MaterialStateProperty.all(
-                              TextStyle(
+                            hintStyle: WidgetStateProperty.all(
+                              TextStyle(fontFamily: FontFamily.medium,
                                 color: Colors.grey.shade500,
                                 fontSize: 14,
                               ),
                             ),
                             onChanged: (value) =>
                                 mutualController.onSearchQueryChanged(value),
-                            elevation: MaterialStateProperty.all(0),
-                            side: MaterialStateProperty.all(
+                            elevation: WidgetStateProperty.all(0),
+                            side: WidgetStateProperty.all(
                               BorderSide(color: Colors.grey.shade200),
                             ),
                           ),
@@ -490,7 +490,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                       return Center(
                         child: Text(
                           "No mutual funds found",
-                          style: TextStyle(color: Colors.grey.shade600),
+                          style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600),
                         ),
                       );
                     }
@@ -574,7 +574,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                                           vertical: 10,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Ucolors.primary.withOpacity(
+                                          color: Ucolors.primary.withValues(alpha:
                                             0.05,
                                           ),
                                           borderRadius: BorderRadius.circular(
@@ -604,7 +604,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha:0.05),
                         blurRadius: 10,
                         offset: const Offset(0, -5),
                       ),
@@ -728,7 +728,7 @@ class PopularAndSelectedFund extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   "No Funds Available",
-                  style: TextStyle(
+                  style: TextStyle(fontFamily: FontFamily.medium,
                     fontWeight: FontWeight.w700,
                     fontSize: 16,
                     color: Ucolors.dark,
@@ -737,7 +737,7 @@ class PopularAndSelectedFund extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   "Please add funds",
-                  style: TextStyle(color: Colors.grey.shade600),
+                  style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600),
                 ),
               ],
             ),
@@ -858,8 +858,8 @@ class PopularFundCardMobSelected extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color: isSelected
-                    ? Ucolors.primary.withOpacity(0.12)
-                    : Colors.black.withOpacity(0.04),
+                    ? Ucolors.primary.withValues(alpha:0.12)
+                    : Colors.black.withValues(alpha:0.04),
                 blurRadius: isSelected ? 12 : 6,
                 offset: const Offset(0, 3),
               ),
@@ -1197,7 +1197,7 @@ class SIPSectionGoal extends GetView<GoalSipController> {
                 alignment: Alignment.center,
                 child: const Text(
                   "*",
-                  style: TextStyle(color: Colors.red, fontSize: 16),
+                  style: TextStyle(fontFamily: FontFamily.medium,color: Colors.red, fontSize: 16),
                 ),
               ),
             ),
@@ -1208,7 +1208,7 @@ class SIPSectionGoal extends GetView<GoalSipController> {
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
                       controller.goalError.value,
-                      style: TextStyle(fontSize: 12, color: Ucolors.red),
+                      style: TextStyle(fontFamily: FontFamily.medium,fontSize: 12, color: Ucolors.red),
                     ),
                   )
                 : const SizedBox.shrink(),
@@ -1285,7 +1285,7 @@ class _TabButton extends StatelessWidget {
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withValues(alpha:0.08),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -1295,7 +1295,7 @@ class _TabButton extends StatelessWidget {
           child: Center(
             child: Text(
               label,
-              style: TextStyle(
+              style: TextStyle(fontFamily: FontFamily.medium,
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 color: isSelected ? Ucolors.primary : Colors.grey.shade500,
@@ -1597,18 +1597,18 @@ class _ValueCard extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: accent
-            ? Ucolors.primary.withOpacity(0.06)
+            ? Ucolors.primary.withValues(alpha:0.06)
             : const Color(0xffF5F7FB),
         borderRadius: BorderRadius.circular(14),
         border: accent
-            ? Border.all(color: Ucolors.primary.withOpacity(0.35), width: 1.2)
+            ? Border.all(color: Ucolors.primary.withValues(alpha:0.35), width: 1.2)
             : null,
       ),
       child: Column(
         children: [
           Text(
             title,
-            style: TextStyle(
+            style: TextStyle(fontFamily: FontFamily.medium,
               color: accent ? Ucolors.primary : Colors.grey.shade600,
               fontSize: 12,
               fontWeight: accent ? FontWeight.w600 : FontWeight.w400,
@@ -1617,7 +1617,7 @@ class _ValueCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             value,
-            style: TextStyle(
+            style: TextStyle(fontFamily: FontFamily.medium,
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: accent ? Ucolors.primary : Colors.black,
@@ -1626,11 +1626,11 @@ class _ValueCard extends StatelessWidget {
 
           Text(
             "Approx",
-            style: TextStyle(
+            style: TextStyle(fontFamily: FontFamily.medium,
               fontSize: 8,
               fontWeight: FontWeight.w400,
               color: accent
-                  ? Ucolors.primary.withOpacity(0.65)
+                  ? Ucolors.primary.withValues(alpha:0.65)
                   : Colors.grey.shade500,
             ),
           ),
@@ -1743,7 +1743,7 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                   controller.getGoalColor(goal.goalType),
                                   controller
                                       .getGoalColor(goal.goalType)
-                                      .withOpacity(.75),
+                                      .withValues(alpha:.75),
                                 ]
                               : [Colors.white, Colors.white],
                         ),
@@ -1758,8 +1758,8 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                             color: isSelected
                                 ? controller
                                       .getGoalColor(goal.goalType)
-                                      .withOpacity(.20)
-                                : Colors.black.withOpacity(.04),
+                                      .withValues(alpha:.20)
+                                : Colors.black.withValues(alpha:.04),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -1814,10 +1814,10 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                     width: width < 500 ? 42 : 52,
                                     decoration: BoxDecoration(
                                       color: isSelected
-                                          ? Colors.white.withOpacity(.18)
+                                          ? Colors.white.withValues(alpha:.18)
                                           : controller
                                                 .getGoalColor(goal.goalType)
-                                                .withOpacity(.10),
+                                                .withValues(alpha:.10),
                                       borderRadius: BorderRadius.circular(14),
                                     ),
                                     child: Icon(
@@ -1864,7 +1864,7 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                 goal.goalType.capitalizeFirst ?? '',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
+                                style: TextStyle(fontFamily: FontFamily.medium,
                                   fontSize: width < 500 ? 15 : 20,
                                   fontWeight: FontWeight.w700,
                                   color: isSelected
@@ -1877,10 +1877,10 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                 goal.goalDescription,
                                 maxLines: width < 500 ? 2 : 3,
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
+                                style: TextStyle(fontFamily: FontFamily.medium,
                                   fontSize: width < 500 ? 11 : 13,
                                   color: isSelected
-                                      ? Colors.white.withOpacity(.9)
+                                      ? Colors.white.withValues(alpha:.9)
                                       : Colors.grey.shade600,
                                   height: 1.4,
                                 ),
@@ -1891,7 +1891,7 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                 padding: EdgeInsets.all(width < 500 ? 8 : 20),
                                 decoration: BoxDecoration(
                                   color: isSelected
-                                      ? Colors.white.withOpacity(.15)
+                                      ? Colors.white.withValues(alpha:.15)
                                       : Colors.grey.shade100,
                                   borderRadius: BorderRadius.circular(14),
                                 ),
@@ -1900,7 +1900,7 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                   children: [
                                     Text(
                                       "Target Amount",
-                                      style: TextStyle(
+                                      style: TextStyle(fontFamily: FontFamily.medium,
                                         fontSize: 10,
                                         color: isSelected
                                             ? Colors.white70
@@ -1912,7 +1912,7 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                       formatCurrency(goal.targetAmount),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
+                                      style: TextStyle(fontFamily: FontFamily.medium,
                                         fontSize: width < 500 ? 13 : 16,
                                         fontWeight: FontWeight.w700,
                                         color: isSelected
@@ -1936,7 +1936,7 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                             "${goal.goalTenure} Years",
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
+                                            style: TextStyle(fontFamily: FontFamily.medium,
                                               fontSize: width < 500 ? 11 : 13,
                                               fontWeight: FontWeight.w600,
                                               color: isSelected
@@ -1963,7 +1963,7 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                             "${goal.expectedReturnRate} %",
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
+                                            style: TextStyle(fontFamily: FontFamily.medium,
                                               fontSize: width < 500 ? 11 : 13,
                                               fontWeight: FontWeight.w600,
                                               color: isSelected

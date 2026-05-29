@@ -7,13 +7,15 @@ import 'package:my_sip/features/explore/presentation/controller/fundhouse_contro
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/explore/presentation/pages/filterpage.dart';
 
+import '../../../../core/utils/constant/text_style.dart';
+
 class WebFilterDrawer {
   static void show(BuildContext context) {
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
       barrierLabel: 'WebFilterDrawer',
-      barrierColor: Colors.black.withOpacity(0.2),
+      barrierColor: Colors.black.withValues(alpha:0.2),
       transitionDuration: const Duration(milliseconds: 300),
       pageBuilder: (context, animation, secondaryAnimation) {
         return Align(
@@ -70,7 +72,7 @@ class WebFilterContent extends StatelessWidget {
                   const SizedBox(width: 10),
                   const Text(
                     'Filters',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontFamily: FontFamily.medium,fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -92,7 +94,7 @@ class WebFilterContent extends StatelessWidget {
                 initiallyExpanded: true,
                 title: const Text(
                   'Categories',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                  style: TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600),
                 ),
                 children: [
                   SizedBox(
@@ -107,7 +109,7 @@ class WebFilterContent extends StatelessWidget {
                 initiallyExpanded: false,
                 title: const Text(
                   'Risk Profile',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                  style: TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600),
                 ),
                 children: [
                   SizedBox(
@@ -122,7 +124,7 @@ class WebFilterContent extends StatelessWidget {
                 initiallyExpanded: false,
                 title: const Text(
                   'Fund House (AMC)',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                  style: TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600),
                 ),
                 children: [
                   SizedBox(
@@ -143,7 +145,7 @@ class WebFilterContent extends StatelessWidget {
             border: Border(top: BorderSide(color: Colors.grey.shade200)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha:0.05),
                 blurRadius: 10,
                 offset: const Offset(0, -5),
               ),
@@ -163,7 +165,7 @@ class WebFilterContent extends StatelessWidget {
                   ),
                   child: const Text(
                     'Reset All',
-                    style: TextStyle(color: Ucolors.primary),
+                    style: TextStyle(fontFamily: FontFamily.medium,color: Ucolors.primary),
                   ),
                 ),
               ),
@@ -188,7 +190,7 @@ class WebFilterContent extends StatelessWidget {
                     ),
                     child: Text(
                       'Apply (${controller.selectedFundCount})',
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(fontFamily: FontFamily.medium,color: Colors.white),
                     ),
                   ),
                 ),

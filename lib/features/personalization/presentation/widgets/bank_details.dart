@@ -43,7 +43,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                     children: [
                       const Text(
                         "Linked Accounts",
-                        style: TextStyle(
+                        style: TextStyle(fontFamily: FontFamily.medium,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
@@ -62,7 +62,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                             ),
                             child: const Text(
                               'Add Another Account',
-                              style: TextStyle(color: Ucolors.blue),
+                              style: TextStyle(fontFamily: FontFamily.medium,color: Ucolors.blue),
                             ),
                           ),
                           const Gap(16),
@@ -77,7 +77,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                             ),
                             child: const Text(
                               'Set Up Auto Pay',
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(fontFamily: FontFamily.medium,color: Colors.white),
                             ),
                           ),
                         ],
@@ -117,7 +117,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                             const Text(
                               "No bank accounts linked yet.\nPlease add an account.",
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: TextStyle(fontFamily: FontFamily.medium,
                                 color: Colors.grey,
                                 fontSize: 16,
                               ),
@@ -130,7 +130,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                                 child: const Center(
                                   child: Text(
                                     'Add Bank Account',
-                                    style: TextStyle(color: Colors.white),
+                                    style: TextStyle(fontFamily: FontFamily.medium,color: Colors.white),
                                   ),
                                 ),
                               ),
@@ -184,7 +184,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                   //           child: const Center(
                   //             child: Text(
                   //               'Set Up Auto Pay',
-                  //               style: TextStyle(color: Ucolors.blue),
+                  //               style: TextStyle(fontFamily: FontFamily.medium,color: Ucolors.blue),
                   //             ),
                   //           ),
                   //         ),
@@ -201,7 +201,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                         child: const Center(
                           child: Text(
                             '✅ Auto Pay Active',
-                            style: TextStyle(
+                            style: TextStyle(fontFamily: FontFamily.medium,
                               color: Color(0xFF10B981),
                               fontWeight: FontWeight.w600,
                             ),
@@ -215,7 +215,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                         child: const Center(
                           child: Text(
                             '⏳ Auto Pay Pending Approval',
-                            style: TextStyle(
+                            style: TextStyle(fontFamily: FontFamily.medium,
                               color: Color(0xFFE5941A),
                               fontWeight: FontWeight.w600,
                             ),
@@ -235,7 +235,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                       child: const Center(
                         child: Text(
                           'Set Up Auto Pay',
-                          style: TextStyle(
+                          style: TextStyle(fontFamily: FontFamily.medium,
                             color: Ucolors.blue,
                             fontWeight: FontWeight.w600,
                           ),
@@ -256,7 +256,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                         child: const Center(
                           child: Text(
                             'Update Bank Account',
-                            style: TextStyle(
+                            style: TextStyle(fontFamily: FontFamily.medium,
                               color: Ucolors.blue,
                               fontWeight: FontWeight.w600,
                             ),
@@ -309,7 +309,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
 //           gradient: color,
 //           boxShadow: [
 //             BoxShadow(
-//               color: Colors.black.withOpacity(0.15),
+//               color: Colors.black.withValues(alpha:0.15),
 //               blurRadius: 15,
 //               offset: const Offset(0, 8),
 //             ),
@@ -328,7 +328,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
 //                   width: 180,
 //                   decoration: BoxDecoration(
 //                     shape: BoxShape.circle,
-//                     color: Colors.white.withOpacity(0.06),
+//                     color: Colors.white.withValues(alpha:0.06),
 //                   ),
 //                 ),
 //               ),
@@ -340,7 +340,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
 //                   width: 140,
 //                   decoration: BoxDecoration(
 //                     shape: BoxShape.circle,
-//                     color: Colors.white.withOpacity(0.04),
+//                     color: Colors.white.withValues(alpha:0.04),
 //                   ),
 //                 ),
 //               ),
@@ -366,7 +366,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
 //                         Expanded(
 //                           child: Text(
 //                             bankName,
-//                             style: const TextStyle(
+//                             style: const TextStyle(fontFamily: FontFamily.medium,
 //                               color: Colors.white,
 //                               fontSize: 20,
 //                               fontWeight: FontWeight.bold,
@@ -394,7 +394,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
 //                           isVerified
 //                               ? "Verified Primary"
 //                               : "Pending Verification",
-//                           style: const TextStyle(
+//                           style: const TextStyle(fontFamily: FontFamily.medium,
 //                             color: Colors.white,
 //                             fontSize: 14,
 //                             fontWeight: FontWeight.w600,
@@ -413,7 +413,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
 //                           children: [
 //                             const Text(
 //                               "A/C Number",
-//                               style: TextStyle(
+//                               style: TextStyle(fontFamily: FontFamily.medium,
 //                                 color: Colors.white70,
 //                                 fontSize: 10,
 //                               ),
@@ -433,7 +433,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
 //                           children: [
 //                             const Text(
 //                               "IFSC",
-//                               style: TextStyle(
+//                               style: TextStyle(fontFamily: FontFamily.medium,
 //                                 color: Colors.white70,
 //                                 fontSize: 10,
 //                               ),
@@ -489,7 +489,7 @@ class BankCard extends StatelessWidget {
         gradient: color,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha:0.1),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -515,7 +515,7 @@ class BankCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     bankName,
-                    style: const TextStyle(
+                    style: const TextStyle(fontFamily: FontFamily.medium,
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -542,7 +542,7 @@ class BankCard extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   isVerified ? "Verified Primary" : "Pending Verification",
-                  style: const TextStyle(
+                  style: const TextStyle(fontFamily: FontFamily.medium,
                     color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -563,7 +563,7 @@ class BankCard extends StatelessWidget {
                   children: [
                     const Text(
                       "A/C Number",
-                      style: TextStyle(color: Colors.white70, fontSize: 10),
+                      style: TextStyle(fontFamily: FontFamily.medium,color: Colors.white70, fontSize: 10),
                     ),
                     Text(
                       cardNumber,
@@ -580,7 +580,7 @@ class BankCard extends StatelessWidget {
                   children: [
                     const Text(
                       "IFSC",
-                      style: TextStyle(color: Colors.white70, fontSize: 10),
+                      style: TextStyle(fontFamily: FontFamily.medium,color: Colors.white70, fontSize: 10),
                     ),
                     Text(
                       ifsccode,
@@ -616,7 +616,7 @@ class Deleteiconwithcontainer extends StatelessWidget {
           height: 36,
           width: 36,
           decoration: BoxDecoration(
-            color: containercolor ?? Colors.white.withOpacity(0.2),
+            color: containercolor ?? Colors.white.withValues(alpha:0.2),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(Iconsax.trash, color: Colors.white, size: 18),

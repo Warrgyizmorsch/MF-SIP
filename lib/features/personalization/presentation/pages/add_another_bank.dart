@@ -232,7 +232,7 @@
 //         const Gap(8),
 //         Text(
 //           'Please ensure the bank account is registered under your name.',
-//           style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+//           style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600, fontSize: 14),
 //         ),
 //         const Gap(30),
 
@@ -305,7 +305,7 @@
 //                     child: const Center(
 //                       child: Text(
 //                         'Save Details',
-//                         style: TextStyle(color: Colors.white),
+//                         style: TextStyle(fontFamily: FontFamily.medium,color: Colors.white),
 //                       ),
 //                     ),
 //                   ),
@@ -335,7 +335,6 @@ import 'package:my_sip/common/widget/text_form/text_field_component.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
-import 'package:my_sip/core/utils/enums/enums.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/authentication/presentation/pages/signup/register_account.dart';
 
@@ -405,7 +404,7 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
         const Gap(8),
         Text(
           'Please ensure the bank account is registered under your name.',
-          style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+          style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600, fontSize: 14),
         ),
         const Gap(30),
         // 🔠 IFSC Code
@@ -447,7 +446,7 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
             padding: const EdgeInsets.only(top: 6.0, bottom: 14.0, left: 4.0),
             child: Text(
               controller.resolvedBranch.value,
-              style: TextStyle(
+              style: TextStyle(fontFamily: FontFamily.medium,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: isError ? Colors.red.shade600 : Colors.green.shade700,
@@ -534,7 +533,7 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
         // 📋 Account Type Selector (MANDATORY FOR MFU)
         Text(
           'Account Type',
-          style: TextStyle(
+          style: TextStyle(fontFamily: FontFamily.medium,
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: Colors.grey.shade700,
@@ -548,7 +547,7 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
                 child: RadioListTile<String>(
                   title: const Text(
                     'Savings (SB)',
-                    style: TextStyle(fontSize: 14),
+                    style: TextStyle(fontFamily: FontFamily.medium,fontSize: 14),
                   ),
                   value: 'SB',
                   groupValue: controller.bankAccountType.value,
@@ -562,7 +561,7 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
                 child: RadioListTile<String>(
                   title: const Text(
                     'Current (CA)',
-                    style: TextStyle(fontSize: 14),
+                    style: TextStyle(fontFamily: FontFamily.medium,fontSize: 14),
                   ),
                   value: 'CA',
                   groupValue: controller.bankAccountType.value,
@@ -601,7 +600,7 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
                               )
                             : const Text(
                                 'Save Details',
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(fontFamily: FontFamily.medium,color: Colors.white),
                               ),
                       ),
                     ),

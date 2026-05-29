@@ -83,18 +83,7 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/services/session_manager.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:my_sip/common/style/padding.dart';
-import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
-import 'package:my_sip/features/personalization/presentation/widgets/kyc_details.dart'; // Keeping for InfoCard on mobile
-import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
-import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/images.dart';
-import 'package:my_sip/core/utils/constant/text_style.dart';
-import 'package:my_sip/services/session_manager.dart';
-
 class DocumentScreen extends StatelessWidget {
   const DocumentScreen({super.key});
 
@@ -136,7 +125,7 @@ class DocumentScreen extends StatelessWidget {
       children: [
         // --- LEFT COLUMN: Profile Summary ---
         Expanded(
-          flex: 3, // Thoda chota kiya left side ko
+          flex: 3,
           child: Card(
             color: Colors.white,
             elevation: 0,
@@ -173,7 +162,7 @@ class DocumentScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.1),
+                      color: Colors.green.withValues(alpha:0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -183,7 +172,7 @@ class DocumentScreen extends StatelessWidget {
                         Expanded(
                           child: Text(
                             "End-to-End Encrypted",
-                            style: TextStyle(
+                            style: TextStyle(fontFamily: FontFamily.medium,
                               color: Colors.green,
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
@@ -209,12 +198,12 @@ class DocumentScreen extends StatelessWidget {
             children: [
               const Text(
                 "Document Vault",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: TextStyle(fontFamily: FontFamily.medium,fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
                 "Manage and view your uploaded KYC documents.",
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600, fontSize: 14),
               ),
               const SizedBox(height: 24),
 
@@ -277,7 +266,7 @@ class DocumentScreen extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha:0.02),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -294,7 +283,7 @@ class DocumentScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha:0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: color, size: 28),
@@ -305,12 +294,12 @@ class DocumentScreen extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
+                  color: Colors.green.withValues(alpha:0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   status,
-                  style: const TextStyle(
+                  style: const TextStyle(fontFamily: FontFamily.medium,
                     color: Colors.green,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -324,12 +313,12 @@ class DocumentScreen extends StatelessWidget {
           // Title & Value
           Text(
             title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style: TextStyle(
+            style: TextStyle(fontFamily: FontFamily.medium,
               color: Colors.grey.shade600,
               fontSize: 14,
               letterSpacing: title == "PAN Card" ? 1.5 : 0,
@@ -492,7 +481,7 @@ class DocumentScreen extends StatelessWidget {
 //                   const Text(
 //                     "Your documents are securely encrypted and stored as per regulatory guidelines.",
 //                     textAlign: TextAlign.center,
-//                     style: TextStyle(color: Colors.grey, fontSize: 13),
+//                     style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey, fontSize: 13),
 //                   ),
 //                 ],
 //               ),
@@ -509,7 +498,7 @@ class DocumentScreen extends StatelessWidget {
 //             children: [
 //               const Text(
 //                 "Uploaded Documents",
-//                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+//                 style: TextStyle(fontFamily: FontFamily.medium,fontSize: 22, fontWeight: FontWeight.bold),
 //               ),
 //               const SizedBox(height: 24),
 

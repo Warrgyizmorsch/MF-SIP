@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
@@ -14,7 +13,6 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 import '../../../../common/widget/shimmer/shimmer.dart';
 import '../../../../core/utils/constant/appUrl.dart';
 import '../controller/goal_sip_controller.dart';
-import 'ihavegoal.dart';
 
 
 class GoalScreen extends GetView<GoalSipController> {
@@ -213,7 +211,7 @@ class CircularUploadIndicator extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha:0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -622,7 +620,7 @@ class CircularUploadIndicator extends StatelessWidget {
 //           borderRadius: BorderRadius.circular(16),
 //           boxShadow: [
 //             BoxShadow(
-//               color: Colors.black.withOpacity(0.05),
+//               color: Colors.black.withValues(alpha:0.05),
 //               blurRadius: 10,
 //               offset: const Offset(0, 4),
 //             ),

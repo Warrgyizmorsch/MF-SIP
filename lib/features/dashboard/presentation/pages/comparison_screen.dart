@@ -181,7 +181,7 @@ class FundBottomBarButton extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha:0.04),
             offset: const Offset(0, -4),
             blurRadius: 10,
           ),
@@ -200,7 +200,7 @@ class FundBottomBarButton extends StatelessWidget {
               child: Icon(Icons.shopping_cart),
               // child: Text(
               //   firstButton,
-              //   style: const TextStyle(
+              //   style: const TextStyle(fontFamily: FontFamily.medium,
               //     color: Colors.black87,
               //     fontWeight: FontWeight.w600,
               //     fontSize: 14,
@@ -230,7 +230,7 @@ class FundBottomBarButton extends StatelessWidget {
                     : Text(
                         secondButton,
                         key: const ValueKey('btn_text'),
-                        style: const TextStyle(
+                        style: const TextStyle(fontFamily: FontFamily.medium,
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                           fontSize: 15,
@@ -275,7 +275,7 @@ class BottomBarButton extends StatelessWidget {
               // height: 52,
               outlined: true,
               child: Center(
-                child: Text(firstButton, style: TextStyle(color: Ucolors.dark)),
+                child: Text(firstButton, style: TextStyle(fontFamily: FontFamily.medium,color: Ucolors.dark)),
               ),
             ),
           ),
@@ -342,7 +342,7 @@ class BottomBarButton extends StatelessWidget {
 //               child: Row(
 //                 mainAxisAlignment: MainAxisAlignment.center,
 //                 children: [
-//                   Text(firstButton, style: TextStyle(color: Ucolors.dark)),
+//                   Text(firstButton, style: TextStyle(fontFamily: FontFamily.medium,color: Ucolors.dark)),
 //                 ],
 //               ),
 //             ),

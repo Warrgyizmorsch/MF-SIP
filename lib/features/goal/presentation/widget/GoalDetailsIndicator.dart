@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
+import '../../../../core/utils/constant/text_style.dart';
 import '../controller/goal_sip_controller.dart';
 
 class CircularGoalIndicatorDetails extends StatelessWidget {
@@ -152,7 +153,7 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
                           if (imageUrl.isEmpty)
                             Text(
                               emoji,
-                              style: const TextStyle(fontSize: 34),
+                              style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 34),
                             ),
                         ],
                       ),
@@ -177,7 +178,7 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
                     ),
                     child: Text(
                       emoji,
-                      style: const TextStyle(fontSize: 22),
+                      style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 22),
                     ),
                   ),
                 ),
@@ -187,7 +188,7 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
                     bottom: 0,
                     child: Text(
                       percentStr,
-                      style: TextStyle(
+                      style: TextStyle(fontFamily: FontFamily.medium,
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                         color: goalColor,
@@ -201,11 +202,11 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               goalName,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 18, fontWeight: FontWeight.w600),
             ),
             Text(
               _fmt(targetAmount),
-              style: const TextStyle(color: Colors.black, fontSize: 14),
+              style: const TextStyle(fontFamily: FontFamily.medium,color: Colors.black, fontSize: 14),
             ),
           ],
         ],

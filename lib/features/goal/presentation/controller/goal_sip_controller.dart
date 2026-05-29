@@ -646,7 +646,7 @@ class GoalSipController extends GetxController {
           goalResponse.refresh();
 
         }
-        await    getAllGoals();
+        await getAllGoals();
         Get.back();
         Get.back();
         ULoaders.success(

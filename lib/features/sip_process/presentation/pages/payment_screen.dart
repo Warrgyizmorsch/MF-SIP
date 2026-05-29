@@ -13,6 +13,8 @@ import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart'
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/services/session_manager.dart';
 
+import '../../../../core/utils/constant/text_style.dart';
+
 class PaymentScreen extends StatelessWidget {
   PaymentScreen({super.key});
 
@@ -49,7 +51,7 @@ class PaymentScreen extends StatelessWidget {
             // ── Section Label ────────────────────────────────
             const Text(
               'Choose Payment Method',
-              style: TextStyle(
+              style: TextStyle(fontFamily: FontFamily.medium,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF8A8FA8),
@@ -144,7 +146,7 @@ class PaymentScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.06),
+                color: Colors.black.withValues(alpha:0.06),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -159,7 +161,7 @@ class PaymentScreen extends StatelessWidget {
       ),
       title: Text(
         isMandateFlow ? 'Setup Auto Pay' : 'Payment',
-        style: TextStyle(
+        style: TextStyle(fontFamily: FontFamily.medium,
           color: Color(0xFF1A1D2E),
           fontSize: 18,
           fontWeight: FontWeight.w700,
@@ -232,14 +234,14 @@ class _MethodTab extends StatelessWidget {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFF4F46E5).withOpacity(0.28),
+                    color: const Color(0xFF4F46E5).withValues(alpha:0.28),
                     blurRadius: 14,
                     offset: const Offset(0, 5),
                   ),
                 ]
               : [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha:0.04),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -255,7 +257,7 @@ class _MethodTab extends StatelessWidget {
             const Gap(6),
             Text(
               label,
-              style: TextStyle(
+              style: TextStyle(fontFamily: FontFamily.medium,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: isSelected ? Colors.white : const Color(0xFF4A4E6A),
@@ -298,7 +300,7 @@ class _UpiPanel extends StatelessWidget {
                 width: 46,
                 height: 46,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF4F46E5).withOpacity(0.1),
+                  color: const Color(0xFF4F46E5).withValues(alpha:0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -314,7 +316,7 @@ class _UpiPanel extends StatelessWidget {
                   children: [
                     Text(
                       bankName,
-                      style: const TextStyle(
+                      style: const TextStyle(fontFamily: FontFamily.medium,
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF1A1D2E),
@@ -323,7 +325,7 @@ class _UpiPanel extends StatelessWidget {
                     const Gap(2),
                     Text(
                       maskedAccount,
-                      style: const TextStyle(
+                      style: const TextStyle(fontFamily: FontFamily.medium,
                         fontSize: 13,
                         color: Color(0xFF8A8FA8),
                       ),
@@ -337,12 +339,12 @@ class _UpiPanel extends StatelessWidget {
                   vertical: 5,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withOpacity(0.1),
+                  color: const Color(0xFF10B981).withValues(alpha:0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text(
                   'Linked',
-                  style: TextStyle(
+                  style: TextStyle(fontFamily: FontFamily.medium,
                     color: Color(0xFF10B981),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -361,7 +363,7 @@ class _UpiPanel extends StatelessWidget {
             children: [
               const Text(
                 'Or enter UPI ID manually',
-                style: TextStyle(
+                style: TextStyle(fontFamily: FontFamily.medium,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF4A4E6A),
@@ -378,13 +380,13 @@ class _UpiPanel extends StatelessWidget {
                           controller.upiId.value = v;
                           controller.isVerified.value = false;
                         },
-                        style: const TextStyle(
+                        style: const TextStyle(fontFamily: FontFamily.medium,
                           fontSize: 15,
                           color: Color(0xFF1A1D2E),
                         ),
                         decoration: InputDecoration(
                           hintText: 'yourname@upi',
-                          hintStyle: const TextStyle(
+                          hintStyle: const TextStyle(fontFamily: FontFamily.medium,
                             color: Color(0xFFBCC0D0),
                             fontSize: 14,
                           ),
@@ -444,7 +446,7 @@ class _UpiPanel extends StatelessWidget {
                                           controller.isVerified.value
                                               ? 'Verified ✓'
                                               : 'Verify',
-                                          style: const TextStyle(
+                                          style: const TextStyle(fontFamily: FontFamily.medium,
                                             color: Colors.white,
                                             fontWeight: FontWeight.w600,
                                             fontSize: 14,
@@ -460,7 +462,7 @@ class _UpiPanel extends StatelessWidget {
               const Gap(4),
               const Text(
                 'e.g. mobilenumber@upi, name@oksbi',
-                style: TextStyle(fontSize: 11, color: Color(0xFFBCC0D0)),
+                style: TextStyle(fontFamily: FontFamily.medium,fontSize: 11, color: Color(0xFFBCC0D0)),
               ),
             ],
           ),
@@ -489,7 +491,7 @@ class _NetBankingPanel extends StatelessWidget {
             width: 46,
             height: 46,
             decoration: BoxDecoration(
-              color: const Color(0xFF4F46E5).withOpacity(0.1),
+              color: const Color(0xFF4F46E5).withValues(alpha:0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
@@ -505,7 +507,7 @@ class _NetBankingPanel extends StatelessWidget {
               children: [
                 Text(
                   bankName,
-                  style: const TextStyle(
+                  style: const TextStyle(fontFamily: FontFamily.medium,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF1A1D2E),
@@ -514,7 +516,7 @@ class _NetBankingPanel extends StatelessWidget {
                 const Gap(2),
                 Text(
                   maskedAccount,
-                  style: const TextStyle(
+                  style: const TextStyle(fontFamily: FontFamily.medium,
                     fontSize: 13,
                     color: Color(0xFF8A8FA8),
                   ),
@@ -525,12 +527,12 @@ class _NetBankingPanel extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: const Color(0xFF10B981).withOpacity(0.1),
+              color: const Color(0xFF10B981).withValues(alpha:0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Text(
               'Linked',
-              style: TextStyle(
+              style: TextStyle(fontFamily: FontFamily.medium,
                 color: Color(0xFF10B981),
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -557,7 +559,7 @@ class _PanelCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.05),
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),
@@ -583,7 +585,7 @@ class _BottomBar extends StatelessWidget {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: Colors.black.withValues(alpha:0.06),
               blurRadius: 16,
               offset: const Offset(0, -4),
             ),
@@ -599,7 +601,7 @@ class _BottomBar extends StatelessWidget {
                 Gap(4),
                 Text(
                   'Payments are encrypted & secured',
-                  style: TextStyle(fontSize: 11, color: Color(0xFF8A8FA8)),
+                  style: TextStyle(fontFamily: FontFamily.medium,fontSize: 11, color: Color(0xFF8A8FA8)),
                 ),
               ],
             ),
@@ -634,7 +636,7 @@ class _BottomBar extends StatelessWidget {
                 children: [
                   Text(
                     isMandateFlow ? 'Enable Auto Pay' : 'Pay  ',
-                    style: TextStyle(
+                    style: TextStyle(fontFamily: FontFamily.medium,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
@@ -643,7 +645,7 @@ class _BottomBar extends StatelessWidget {
                   if (!isMandateFlow)
                     Text(
                       '₹$amount',
-                      style: const TextStyle(
+                      style: const TextStyle(fontFamily: FontFamily.medium,
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
@@ -712,7 +714,7 @@ void _showMandateSheet(BuildContext context, String amount) {
                 borderRadius: BorderRadius.circular(22),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF4F46E5).withOpacity(0.30),
+                    color: const Color(0xFF4F46E5).withValues(alpha:0.30),
                     blurRadius: 18,
                     offset: const Offset(0, 6),
                   ),
@@ -729,7 +731,7 @@ void _showMandateSheet(BuildContext context, String amount) {
             // Title & subtitle
             const Text(
               'Setup Bank Mandate',
-              style: TextStyle(
+              style: TextStyle(fontFamily: FontFamily.medium,
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
                 color: Color(0xFF1A1D2E),
@@ -740,7 +742,7 @@ void _showMandateSheet(BuildContext context, String amount) {
             const Text(
               'Authorise a one-time mandate to enable\nautomatic payments from your bank account.',
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: TextStyle(fontFamily: FontFamily.medium,
                 fontSize: 13,
                 color: Color(0xFF8A8FA8),
                 height: 1.55,
@@ -796,7 +798,7 @@ void _showMandateSheet(BuildContext context, String amount) {
                   Expanded(
                     child: Text(
                       'You can revoke this mandate anytime from your bank or app settings.',
-                      style: TextStyle(
+                      style: TextStyle(fontFamily: FontFamily.medium,
                         fontSize: 12,
                         color: Color(0xFFB06A00),
                         height: 1.4,
@@ -825,7 +827,7 @@ void _showMandateSheet(BuildContext context, String amount) {
                       child: const Center(
                         child: Text(
                           'Close',
-                          style: TextStyle(
+                          style: TextStyle(fontFamily: FontFamily.medium,
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF4A4E6A),
@@ -912,7 +914,7 @@ void _showMandateSheet(BuildContext context, String amount) {
                           Gap(6),
                           Text(
                             'Enable Auto Pay',
-                            style: TextStyle(
+                            style: TextStyle(fontFamily: FontFamily.medium,
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
@@ -947,7 +949,7 @@ Widget _mandateRow(
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            // color: const Color(0xFF4F46E5).withOpacity(0.08),
+            // color: const Color(0xFF4F46E5).withValues(alpha:0.08),
             color: Ucolors.skyblue,
             borderRadius: BorderRadius.circular(10),
           ),
@@ -957,7 +959,7 @@ Widget _mandateRow(
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(
+            style: const TextStyle(fontFamily: FontFamily.medium,
               fontSize: 13,
               color: Color(0xFF8A8FA8),
               fontWeight: FontWeight.w500,
@@ -966,7 +968,7 @@ Widget _mandateRow(
         ),
         Text(
           value,
-          style: TextStyle(
+          style: TextStyle(fontFamily: FontFamily.medium,
             fontSize: 14,
             fontWeight: FontWeight.w700,
             color: valueColor,

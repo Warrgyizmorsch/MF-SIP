@@ -673,7 +673,7 @@ void showCustomToast1({
       style: const TextStyle(color: Colors.white, fontSize: 12),
     ),
     icon: Icon(icon, color: Colors.white, size: 28),
-    backgroundColor: backgroundColor.withOpacity(0.9),
+    backgroundColor: backgroundColor.withValues(alpha:0.9),
     borderRadius: 15,
     margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 80),
     // snackPosition: SnackPosition.BOTTOM,
@@ -706,7 +706,7 @@ void showCustomToast({
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: backgroundColor.withOpacity(0.9),
+          color: backgroundColor.withValues(alpha:0.9),
           borderRadius: BorderRadius.circular(25),
         ),
         child: Row(

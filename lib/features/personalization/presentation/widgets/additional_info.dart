@@ -33,7 +33,7 @@
 //               // --- MODERN HEADER ---
 //               const Text(
 //                 "Almost there! 🚀",
-//                 style: TextStyle(
+//                 style: TextStyle(fontFamily: FontFamily.medium,
 //                   fontSize: 26,
 //                   fontWeight: FontWeight.bold,
 //                   color: Color(0xFF1E293B),
@@ -42,7 +42,7 @@
 //               const SizedBox(height: 8),
 //               const Text(
 //                 "We need a few more details to comply with SEBI regulations and secure your account.",
-//                 style: TextStyle(
+//                 style: TextStyle(fontFamily: FontFamily.medium,
 //                   fontSize: 14,
 //                   color: Color(0xFF64748B),
 //                   height: 1.4,
@@ -143,7 +143,7 @@
 //           const SizedBox(width: 8),
 //           Text(
 //             title,
-//             style: const TextStyle(
+//             style: const TextStyle(fontFamily: FontFamily.medium,
 //               fontSize: 16,
 //               fontWeight: FontWeight.w700,
 //               color: Color(0xFF334155),
@@ -167,7 +167,7 @@
 //           BoxShadow(
 //             color: const Color(
 //               0xFF0F172A,
-//             ).withOpacity(0.04), // Ultra-soft shadow
+//             ).withValues(alpha:0.04), // Ultra-soft shadow
 //             blurRadius: 15,
 //             offset: const Offset(0, 4),
 //           ),
@@ -187,7 +187,7 @@
 //         color: Colors.white,
 //         boxShadow: [
 //           BoxShadow(
-//             color: Colors.black.withOpacity(0.05),
+//             color: Colors.black.withValues(alpha:0.05),
 //             blurRadius: 10,
 //             offset: const Offset(0, -5), // Shadow points UP
 //           ),
@@ -213,6 +213,8 @@ import 'package:my_sip/core/utils/enums/enums.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/comparison_screen.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 
+import '../../../../core/utils/constant/text_style.dart';
+
 class AdditionalInfoScreen extends StatelessWidget {
   const AdditionalInfoScreen({Key? key}) : super(key: key);
 
@@ -236,7 +238,7 @@ class AdditionalInfoScreen extends StatelessWidget {
               // --- MODERN HEADER ---
               // const Text(
               //   "Almost there! 🚀",
-              //   style: TextStyle(
+              //   style: TextStyle(fontFamily: FontFamily.medium,
               //     fontSize: 26,
               //     fontWeight: FontWeight.bold,
               //     color: Color(0xFF1E293B),
@@ -245,7 +247,7 @@ class AdditionalInfoScreen extends StatelessWidget {
               // const SizedBox(height: 8),
               // const Text(
               //   "We need a few more details to comply with SEBI regulations and secure your account.",
-              //   style: TextStyle(
+              //   style: TextStyle(fontFamily: FontFamily.medium,
               //     fontSize: 14,
               //     color: Color(0xFF64748B),
               //     height: 1.4,
@@ -494,7 +496,7 @@ class AdditionalInfoScreen extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             title,
-            style: const TextStyle(
+            style: const TextStyle(fontFamily: FontFamily.medium,
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: Color(0xFF334155),
@@ -514,7 +516,7 @@ class AdditionalInfoScreen extends StatelessWidget {
         border: Border.all(color: const Color(0xFFE2E8F0)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F172A).withOpacity(0.04),
+            color: const Color(0xFF0F172A).withValues(alpha:0.04),
             blurRadius: 15,
             offset: const Offset(0, 4),
           ),
@@ -534,7 +536,7 @@ class AdditionalInfoScreen extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.05),
             blurRadius: 10,
             offset: const Offset(0, -5), // Shadow points UP
           ),

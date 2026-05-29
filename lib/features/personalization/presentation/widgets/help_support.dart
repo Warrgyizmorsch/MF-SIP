@@ -164,7 +164,7 @@
 // //                 const Gap(10),
 // //                 Text(
 // //                   'How can we help you?',
-// //                   style: TextStyle(
+// //                   style: TextStyle(fontFamily: FontFamily.medium,
 // //                     fontSize: isDesktop ? 28 : 22,
 // //                     fontWeight: FontWeight.bold,
 // //                     color: Ucolors.dark,
@@ -173,7 +173,7 @@
 // //                 const Gap(8),
 // //                 Text(
 // //                   'Choose a category below to find the help you need.',
-// //                   style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+// //                   style: TextStyle(fontFamily: FontFamily.medium,fontSize: 14, color: Colors.grey.shade600),
 // //                 ),
 // //                 const Gap(32),
 
@@ -247,7 +247,7 @@
 // //         border: Border.all(color: Colors.grey.shade200),
 // //         boxShadow: [
 // //           BoxShadow(
-// //             color: Colors.black.withOpacity(0.03),
+// //             color: Colors.black.withValues(alpha:0.03),
 // //             blurRadius: 10,
 // //             offset: const Offset(0, 4),
 // //           ),
@@ -258,7 +258,7 @@
 // //         child: InkWell(
 // //           onTap: item.onTap,
 // //           borderRadius: BorderRadius.circular(16),
-// //           hoverColor: item.color.withOpacity(0.05), // Light tint on hover (Web)
+// //           hoverColor: item.color.withValues(alpha:0.05), // Light tint on hover (Web)
 // //           child: Padding(
 // //             padding: const EdgeInsets.all(20),
 // //             child: Row(
@@ -268,7 +268,7 @@
 // //                   width: 50,
 // //                   height: 50,
 // //                   decoration: BoxDecoration(
-// //                     color: item.color.withOpacity(0.1),
+// //                     color: item.color.withValues(alpha:0.1),
 // //                     borderRadius: BorderRadius.circular(12),
 // //                   ),
 // //                   child: Icon(item.icon, color: item.color, size: 24),
@@ -283,7 +283,7 @@
 // //                     children: [
 // //                       Text(
 // //                         item.title,
-// //                         style: const TextStyle(
+// //                         style: const TextStyle(fontFamily: FontFamily.medium,
 // //                           fontSize: 16,
 // //                           fontWeight: FontWeight.bold,
 // //                           color: Ucolors.dark,
@@ -292,7 +292,7 @@
 // //                       const Gap(4),
 // //                       Text(
 // //                         item.subtitle,
-// //                         style: TextStyle(
+// //                         style: TextStyle(fontFamily: FontFamily.medium,
 // //                           fontSize: 12,
 // //                           color: Colors.grey.shade600,
 // //                         ),
@@ -417,7 +417,7 @@
 //                 const Gap(10),
 //                 Text(
 //                   'How can we help you?',
-//                   style: TextStyle(
+//                   style: TextStyle(fontFamily: FontFamily.medium,
 //                     fontSize: isDesktop ? 28 : 22,
 //                     fontWeight: FontWeight.bold,
 //                     color: Ucolors.dark,
@@ -426,7 +426,7 @@
 //                 const Gap(8),
 //                 Text(
 //                   'Choose a category below to find the help you need.',
-//                   style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+//                   style: TextStyle(fontFamily: FontFamily.medium,fontSize: 14, color: Colors.grey.shade600),
 //                 ),
 //                 const Gap(32),
 
@@ -500,7 +500,7 @@
 //         border: Border.all(color: Colors.grey.shade200),
 //         boxShadow: [
 //           BoxShadow(
-//             color: Colors.black.withOpacity(0.03),
+//             color: Colors.black.withValues(alpha:0.03),
 //             blurRadius: 10,
 //             offset: const Offset(0, 4),
 //           ),
@@ -511,7 +511,7 @@
 //         child: InkWell(
 //           onTap: item.onTap,
 //           borderRadius: BorderRadius.circular(16),
-//           hoverColor: item.color.withOpacity(0.05), // Light tint on hover (Web)
+//           hoverColor: item.color.withValues(alpha:0.05), // Light tint on hover (Web)
 //           child: Padding(
 //             padding: const EdgeInsets.all(20),
 //             child: Row(
@@ -521,7 +521,7 @@
 //                   width: 50,
 //                   height: 50,
 //                   decoration: BoxDecoration(
-//                     color: item.color.withOpacity(0.1),
+//                     color: item.color.withValues(alpha:0.1),
 //                     borderRadius: BorderRadius.circular(12),
 //                   ),
 //                   child: Icon(item.icon, color: item.color, size: 24),
@@ -536,7 +536,7 @@
 //                     children: [
 //                       Text(
 //                         item.title,
-//                         style: const TextStyle(
+//                         style: const TextStyle(fontFamily: FontFamily.medium,
 //                           fontSize: 16,
 //                           fontWeight: FontWeight.bold,
 //                           color: Ucolors.dark,
@@ -545,7 +545,7 @@
 //                       const Gap(4),
 //                       Text(
 //                         item.subtitle,
-//                         style: TextStyle(
+//                         style: TextStyle(fontFamily: FontFamily.medium,
 //                           fontSize: 12,
 //                           color: Colors.grey.shade600,
 //                         ),
@@ -577,6 +577,8 @@ import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/webview/webview.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
+
+import '../../../../core/utils/constant/text_style.dart';
 
 class HelpSupportScreen extends StatelessWidget {
   const HelpSupportScreen({super.key});
@@ -687,7 +689,7 @@ class HelpSupportScreen extends StatelessWidget {
                 const Gap(10),
                 Text(
                   'How can we help you?',
-                  style: TextStyle(
+                  style: TextStyle(fontFamily: FontFamily.medium,
                     fontSize: isDesktop ? 28 : 22,
                     fontWeight: FontWeight.bold,
                     color: Ucolors.dark,
@@ -696,7 +698,7 @@ class HelpSupportScreen extends StatelessWidget {
                 const Gap(8),
                 Text(
                   'Choose a category below to find the help you need.',
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                  style: TextStyle(fontFamily: FontFamily.medium,fontSize: 14, color: Colors.grey.shade600),
                 ),
                 const Gap(32),
 
@@ -769,7 +771,7 @@ class _SupportCard extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha:0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -780,7 +782,7 @@ class _SupportCard extends StatelessWidget {
         child: InkWell(
           onTap: item.onTap,
           borderRadius: BorderRadius.circular(16),
-          hoverColor: item.color.withOpacity(0.05),
+          hoverColor: item.color.withValues(alpha:0.05),
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Row(
@@ -789,7 +791,7 @@ class _SupportCard extends StatelessWidget {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: item.color.withOpacity(0.1),
+                    color: item.color.withValues(alpha:0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(item.icon, color: item.color, size: 24),
@@ -802,7 +804,7 @@ class _SupportCard extends StatelessWidget {
                     children: [
                       Text(
                         item.title,
-                        style: const TextStyle(
+                        style: const TextStyle(fontFamily: FontFamily.medium,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Ucolors.dark,
@@ -811,7 +813,7 @@ class _SupportCard extends StatelessWidget {
                       const Gap(4),
                       Text(
                         item.subtitle,
-                        style: TextStyle(
+                        style: TextStyle(fontFamily: FontFamily.medium,
                           fontSize: 12,
                           color: Colors.grey.shade600,
                         ),

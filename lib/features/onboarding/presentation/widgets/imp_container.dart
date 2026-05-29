@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 
+import '../../../../core/utils/constant/text_style.dart';
+
 class ImpContainer extends StatelessWidget {
   const ImpContainer({super.key});
 
@@ -39,7 +41,7 @@ class ImpContainer extends StatelessWidget {
             Text(
               textAlign: TextAlign.center,
               'Your Smart Personal Finance AI',
-              style: TextStyle(
+              style: TextStyle(fontFamily: FontFamily.medium,
                 color: Ucolors.dark,
                 fontWeight: FontWeight.w500,
                 fontSize: 18,
@@ -48,7 +50,7 @@ class ImpContainer extends StatelessWidget {
             Text(
               textAlign: TextAlign.center,
               'Companion UI Kit',
-              style: TextStyle(
+              style: TextStyle(fontFamily: FontFamily.medium,
                 color: Ucolors.dark,
                 fontWeight: FontWeight.w500,
                 fontSize: 18,
