@@ -166,7 +166,7 @@ class SipProjectionChart extends StatelessWidget {
             // 🟢 Value
             LineChartBarData(
               belowBarData: BarAreaData(
-                color: Colors.greenAccent.shade100.withOpacity(0.4),
+                color: Colors.greenAccent.shade100.withValues(alpha:0.4),
                 show: true,
               ),
               spots: projectedSpots,

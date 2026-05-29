@@ -20,6 +20,8 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/services/session_manager.dart';
 
+import '../../../../core/utils/constant/text_style.dart';
+
 class PersonalDetailsScreen extends GetView<AuthController> {
   PersonalDetailsScreen({super.key});
 
@@ -107,7 +109,7 @@ class PersonalDetailsScreen extends GetView<AuthController> {
                   const Text(
                     "Keep your profile updated. Your PAN and identity details are strictly encrypted.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey, fontSize: 13),
+                    style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey, fontSize: 13),
                   ),
                 ],
               ),
@@ -134,7 +136,7 @@ class PersonalDetailsScreen extends GetView<AuthController> {
                 children: [
                   const Text(
                     "Edit Personal Details",
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontFamily: FontFamily.medium,fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 24),
 
@@ -210,7 +212,7 @@ class PersonalDetailsScreen extends GetView<AuthController> {
                                 )
                               : const Text(
                                   "Save Changes",
-                                  style: TextStyle(color: Colors.white),
+                                  style: TextStyle(fontFamily: FontFamily.medium,color: Colors.white),
                                 ),
                         ),
                       ),

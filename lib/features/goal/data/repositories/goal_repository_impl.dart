@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:dartz/dartz.dart';
+import 'package:flutter/material.dart';
 import 'package:my_sip/features/goal/data/datasource/goal_remote_data_source.dart';
 import 'package:my_sip/features/goal/domain/entity/delete_fund_goal_entity.dart';
 import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
@@ -18,6 +21,7 @@ class GoalRepositoryImpl extends GoalRepository {
     Map<String, dynamic> data,
   ) async {
     try {
+      debugPrint("Payload :$data");
       final result = await goalRemoteDataSource.saveGoal(data);
       return result.fold(
         (success) {

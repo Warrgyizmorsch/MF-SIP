@@ -5,12 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
-import 'package:my_sip/common/widget/images/custom_cached_image.dart';
-import 'package:my_sip/common/widget/images/image_picker.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/common/widget/text/subtitle_section.dart';
 import 'package:my_sip/common/widget/webview/webview.dart';
@@ -18,10 +15,7 @@ import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
-import 'package:my_sip/features/personalization/presentation/widgets/document.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/help_support.dart';
-import 'package:my_sip/features/personalization/presentation/widgets/kyc_details.dart';
-import 'package:my_sip/features/personalization/presentation/widgets/nominee_list.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
@@ -151,7 +145,7 @@ class _WebProfileDashboard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: Colors.black.withValues(alpha:0.04),
                       blurRadius: 20,
                       offset: const Offset(0, 4),
                     ),
@@ -205,7 +199,7 @@ class _WebProfileDashboard extends StatelessWidget {
                       children: [
                         const Text(
                           "Account Settings",
-                          style: TextStyle(
+                          style: TextStyle(fontFamily: FontFamily.medium,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -309,7 +303,7 @@ class _WebProfileDashboard extends StatelessWidget {
                   border: Border.all(color: Colors.grey.shade200),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
+                      color: Colors.black.withValues(alpha:0.02),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -323,7 +317,7 @@ class _WebProfileDashboard extends StatelessWidget {
                     Text(
                       item.title,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: const TextStyle(fontFamily: FontFamily.medium,
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
@@ -505,7 +499,7 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
 }
 
 class Listtilecustom extends StatelessWidget {
-  Listtilecustom({
+  const Listtilecustom({
     super.key,
     required this.title,
     this.images,
@@ -611,13 +605,13 @@ class Upgradebanner extends StatelessWidget {
                   ),
                   title: SubtitleText(
                     fontWeight: FontWeight.w400,
-                    textcolor: Ucolors.light.withOpacity(0.8),
+                    textcolor: Ucolors.light.withValues(alpha:0.8),
                     subtitle: 'Your Risk Profile',
                     textAlignCenter: TextAlign.left,
                   ),
                   subtitle: Text(
                     "${riskData.profileName} (${riskData.totalScore}/150)",
-                    style: const TextStyle(
+                    style: const TextStyle(fontFamily: FontFamily.medium,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
@@ -708,12 +702,12 @@ class ProfileHeader extends StatelessWidget {
         if (name != null && name!.isNotEmpty) ...[
           Text(
             name!,
-            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+            style: const TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w700, fontSize: 18),
           ),
         ],
         Text(
           subtitle,
-          style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
+          style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade700, fontSize: 14),
         ),
       ],
     );
@@ -878,7 +872,7 @@ class ProfileHeader extends StatelessWidget {
 //         ),
 //         Text(
 //           subtitle,
-//           style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
+//           style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade700, fontSize: 14),
 //         ),
 //       ],
 //     );

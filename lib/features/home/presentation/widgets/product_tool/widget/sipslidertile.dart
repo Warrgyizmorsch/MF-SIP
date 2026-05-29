@@ -21,6 +21,7 @@ class SipSliderTile2 extends StatefulWidget {
     required this.value,
     required this.min,
     required this.max,
+
     required this.suffix,
     required this.onChanged,
     this.prefix,
@@ -89,7 +90,7 @@ class _SipSliderTileState extends State<SipSliderTile2> {
               padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
                 // Use effectiveColor for background tint
-                color: effectiveColor.withOpacity(0.1),
+                color: effectiveColor.withValues(alpha:0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Row(
@@ -303,7 +304,7 @@ class _SipSliderTile3State extends State<SipSliderTile3> {
               width: 115,
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: effectiveColor.withOpacity(0.1),
+                color: effectiveColor.withValues(alpha:0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Row(

@@ -124,7 +124,7 @@
 
 //         Text(
 //           'STEP ${question.step} OF 4',
-//           style: const TextStyle(
+//           style: const TextStyle(fontFamily: FontFamily.medium,
 //             color: Colors.grey,
 //             fontSize: 13,
 //             fontWeight: FontWeight.w600,
@@ -133,12 +133,12 @@
 //         const SizedBox(height: 8),
 //         Text(
 //           question.title,
-//           style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+//           style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 28, fontWeight: FontWeight.bold),
 //         ),
 //         const SizedBox(height: 8),
 //         Text(
 //           question.subtitle,
-//           style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
+//           style: TextStyle(fontFamily: FontFamily.medium,fontSize: 16, color: Colors.grey.shade700),
 //         ),
 
 //         const Spacer(),
@@ -170,7 +170,7 @@
 //                   children: [
 //                     Text(
 //                       opt.label,
-//                       style: TextStyle(
+//                       style: TextStyle(fontFamily: FontFamily.medium,
 //                         fontSize: 18,
 //                         fontWeight: isSelected
 //                             ? FontWeight.bold
@@ -206,14 +206,14 @@
 //                 borderRadius: BorderRadius.circular(16),
 //               ),
 //             ),
-//             child: const Text('Continue', style: TextStyle(fontSize: 17)),
+//             child: const Text('Continue', style: TextStyle(fontFamily: FontFamily.medium,fontSize: 17)),
 //           ),
 //         ),
 //         SizedBox(height: 10),
 //         Center(
 //           child: Text(
 //             'Your data 100% safe & secure',
-//             style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+//             style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600, fontSize: 13),
 //           ),
 //         ),
 
@@ -260,12 +260,12 @@
 //             const SizedBox(height: 24),
 //             const Text(
 //               "All set!",
-//               style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+//               style: TextStyle(fontFamily: FontFamily.medium,fontSize: 32, fontWeight: FontWeight.bold),
 //             ),
 //             const SizedBox(height: 12),
 //             const Text(
 //               "Your personalized plan is ready",
-//               style: TextStyle(fontSize: 18, color: Colors.grey),
+//               style: TextStyle(fontFamily: FontFamily.medium,fontSize: 18, color: Colors.grey),
 //             ),
 //             const SizedBox(height: 40),
 //             FilledButton(
@@ -303,7 +303,7 @@
 
 //           Text(
 //             'STEP ${question.step} OF 4',
-//             style: const TextStyle(
+//             style: const TextStyle(fontFamily: FontFamily.medium,
 //               color: Colors.grey,
 //               fontSize: 13,
 //               fontWeight: FontWeight.w600,
@@ -312,12 +312,12 @@
 //           const SizedBox(height: 8),
 //           Text(
 //             question.title,
-//             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+//             style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 28, fontWeight: FontWeight.bold),
 //           ),
 //           const SizedBox(height: 8),
 //           Text(
 //             question.subtitle,
-//             style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
+//             style: TextStyle(fontFamily: FontFamily.medium,fontSize: 16, color: Colors.grey.shade700),
 //           ),
 
 //           const Spacer(),
@@ -349,7 +349,7 @@
 //                     children: [
 //                       Text(
 //                         opt.label,
-//                         style: TextStyle(
+//                         style: TextStyle(fontFamily: FontFamily.medium,
 //                           fontSize: 18,
 //                           fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
 //                           color: isSelected ? theme.colorScheme.primary : Colors.black87,
@@ -379,7 +379,7 @@
 //                 style: FilledButton.styleFrom(
 //                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
 //                 ),
-//                 child: const Text('Continue', style: TextStyle(fontSize: 17)),
+//                 child: const Text('Continue', style: TextStyle(fontFamily: FontFamily.medium,fontSize: 17)),
 //               ),
 //             ),
 //           ),
@@ -387,7 +387,7 @@
 //           Center(
 //             child: Text(
 //               'Your data 100% safe & secure',
-//               style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+//               style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600, fontSize: 13),
 //             ),
 //           ),
 //           const SizedBox(height: 24),
@@ -497,7 +497,7 @@ class QuestionScreen extends GetView<QuestionController> {
                           children: [
                             Text(
                               opt.label,
-                              style: TextStyle(
+                              style: TextStyle(fontFamily: FontFamily.medium,
                                 fontSize: 14,
                                 fontWeight: isSelected
                                     ? FontWeight.w400
@@ -536,7 +536,7 @@ class QuestionScreen extends GetView<QuestionController> {
                 const Center(
                   child: Text(
                     'Your data 100% safe & secure',
-                    style: TextStyle(color: Ucolors.dark, fontSize: 13),
+                    style: TextStyle(fontFamily: FontFamily.medium,color: Ucolors.dark, fontSize: 13),
                   ),
                 ),
 

@@ -201,7 +201,7 @@
 // //           color: Colors.white,
 // //           boxShadow: [
 // //             BoxShadow(
-// //               color: Colors.black.withOpacity(0.05),
+// //               color: Colors.black.withValues(alpha:0.05),
 // //               blurRadius: 10,
 // //               offset: const Offset(0, -5),
 // //             ),
@@ -268,7 +268,7 @@
 // //         duration: const Duration(milliseconds: 200),
 // //         padding: const EdgeInsets.all(12),
 // //         decoration: BoxDecoration(
-// //           color: isSelected ? Ucolors.primary.withOpacity(0.1) : Colors.white,
+// //           color: isSelected ? Ucolors.primary.withValues(alpha:0.1) : Colors.white,
 // //           border: Border.all(
 // //             color: isSelected ? Ucolors.primary : Colors.grey.shade300,
 // //             width: isSelected ? 1.5 : 1.0,
@@ -526,7 +526,7 @@
 //           duration: const Duration(milliseconds: 200),
 //           padding: const EdgeInsets.all(12),
 //           decoration: BoxDecoration(
-//             color: isSelected ? Ucolors.primary.withOpacity(0.1) : Colors.white,
+//             color: isSelected ? Ucolors.primary.withValues(alpha:0.1) : Colors.white,
 //             border: Border.all(
 //               color: isSelected ? Ucolors.primary : Colors.grey.shade300,
 //               width: isSelected ? 1.5 : 1.0,
@@ -705,7 +705,7 @@
 //   //       duration: const Duration(milliseconds: 200),
 //   //       padding: const EdgeInsets.all(12),
 //   //       decoration: BoxDecoration(
-//   //         color: isSelected ? Ucolors.primary.withOpacity(0.1) : Colors.white,
+//   //         color: isSelected ? Ucolors.primary.withValues(alpha:0.1) : Colors.white,
 //   //         border: Border.all(
 //   //           color: isSelected ? Ucolors.primary : Colors.grey.shade300,
 //   //           width: isSelected ? 1.5 : 1.0,
@@ -838,7 +838,7 @@
 //           color: Colors.white,
 //           boxShadow: [
 //             BoxShadow(
-//               color: Colors.black.withOpacity(0.05),
+//               color: Colors.black.withValues(alpha:0.05),
 //               blurRadius: 10,
 //               spreadRadius: 2,
 //             ),
@@ -912,7 +912,7 @@
 //                       //             },
 //                       //             child: const Text(
 //                       //               'Back',
-//                       //               style: TextStyle(color: Colors.grey),
+//                       //               style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey),
 //                       //             ),
 //                       //           ),
 //                       //           // Proceed Button
@@ -924,7 +924,7 @@
 //                       //             },
 //                       //             child: const Text(
 //                       //               'Proceed',
-//                       //               style: TextStyle(
+//                       //               style: TextStyle(fontFamily: FontFamily.medium,
 //                       //                 fontWeight: FontWeight.bold,
 //                       //               ),
 //                       //             ),
@@ -1036,12 +1036,9 @@
 //   //   );
 //   // }
 // }
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/common/widget/text_form/text_field_component.dart';
@@ -1109,7 +1106,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha:0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -1126,7 +1123,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                 const SizedBox(height: 8),
                 Text(
                   "Review and add shortlisted funds to your cart.",
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                  style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600, fontSize: 14),
                 ),
                 const SizedBox(height: 32),
 
@@ -1267,7 +1264,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                           const SizedBox(height: 4),
                           Text(
                             "Search and select funds for your portfolio.",
-                            style: TextStyle(
+                            style: TextStyle(fontFamily: FontFamily.medium,
                               fontSize: 13,
                               color: Colors.grey.shade500,
                               fontWeight: FontWeight.w500,
@@ -1308,7 +1305,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                           backgroundColor: Ucolors.primary,
                           label: Text(
                             '$filterCount',
-                            style: const TextStyle(
+                            style: const TextStyle(fontFamily: FontFamily.medium,
                               color: Colors.white,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -1361,7 +1358,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                                       mutualController.setSearchFocus(false);
                                     },
                                     focusNode: searchFocus,
-                                    backgroundColor: MaterialStateProperty.all(
+                                    backgroundColor: WidgetStateProperty.all(
                                       Colors.grey.shade50,
                                     ),
                                     leading: Icon(
@@ -1369,16 +1366,16 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                                       color: Colors.grey.shade600,
                                     ),
                                     hintText: 'Search mutual funds...',
-                                    hintStyle: MaterialStateProperty.all(
-                                      TextStyle(
+                                    hintStyle: WidgetStateProperty.all(
+                                      TextStyle(fontFamily: FontFamily.medium,
                                         color: Colors.grey.shade500,
                                         fontSize: 14,
                                       ),
                                     ),
                                     onChanged: (value) => mutualController
                                         .onSearchQueryChanged(value),
-                                    elevation: MaterialStateProperty.all(0),
-                                    side: MaterialStateProperty.all(
+                                    elevation: WidgetStateProperty.all(0),
+                                    side: WidgetStateProperty.all(
                                       BorderSide(color: Colors.grey.shade200),
                                     ),
                                   ),
@@ -1428,7 +1425,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                       return Center(
                         child: Text(
                           "No mutual funds found",
-                          style: TextStyle(color: Colors.grey.shade600),
+                          style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600),
                         ),
                       );
                     }
@@ -1496,7 +1493,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                                           vertical: 8,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Ucolors.primary.withOpacity(
+                                          color: Ucolors.primary.withValues(alpha:
                                             0.05,
                                           ),
                                           borderRadius: BorderRadius.circular(
@@ -1537,7 +1534,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha:0.05),
                         blurRadius: 10,
                         offset: const Offset(0, -5),
                       ),
@@ -1624,7 +1621,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
   //                         backgroundColor: Ucolors.primary,
   //                         label: Text(
   //                           '$filterCount',
-  //                           style: const TextStyle(
+  //                           style: const TextStyle(fontFamily: FontFamily.medium,
   //                             color: Colors.white,
   //                             fontSize: 10,
   //                             fontWeight: FontWeight.bold,
@@ -1677,15 +1674,15 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
   //                                     mutualController.setSearchFocus(false);
   //                                   },
   //                                   focusNode: searchFocus,
-  //                                   backgroundColor: MaterialStateProperty.all(
+  //                                   backgroundColor: WidgetStateProperty.all(
   //                                     Colors.white,
   //                                   ),
   //                                   leading: const Icon(Icons.search),
   //                                   hintText: 'Search',
   //                                   onChanged: (value) => mutualController
   //                                       .onSearchQueryChanged(value),
-  //                                   elevation: MaterialStateProperty.all(0),
-  //                                   side: MaterialStateProperty.all(
+  //                                   elevation: WidgetStateProperty.all(0),
+  //                                   side: WidgetStateProperty.all(
   //                                     BorderSide(color: Colors.grey.shade300),
   //                                   ),
   //                                 ),
@@ -1988,7 +1985,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha:0.05),
               blurRadius: 10,
               spreadRadius: 2,
             ),
@@ -2081,7 +2078,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: isSelected
-                ? Ucolors.primary.withOpacity(0.05)
+                ? Ucolors.primary.withValues(alpha:0.05)
                 : Colors.white,
             border: Border.all(
               color: isSelected ? Ucolors.primary : Colors.grey.shade300,

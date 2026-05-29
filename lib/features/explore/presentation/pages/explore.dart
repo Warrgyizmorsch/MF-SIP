@@ -185,7 +185,7 @@
 //                             child: SearchBar(
 //                               onTapOutside: (event) => _searchFocus.unfocus(),
 //                               focusNode: _searchFocus,
-//                               backgroundColor: MaterialStateProperty.all(
+//                               backgroundColor: WidgetStateProperty.all(
 //                                 Colors.white,
 //                               ),
 //                               leading: Icon(Icons.search),
@@ -411,7 +411,7 @@
 //           borderRadius: BorderRadius.circular(16),
 //           boxShadow: [
 //             BoxShadow(
-//               color: Colors.black.withOpacity(0.15),
+//               color: Colors.black.withValues(alpha:0.15),
 //               blurRadius: 10,
 //               offset: const Offset(0, 4),
 //             ),
@@ -713,7 +713,6 @@
 
 // ignore_for_file: dead_null_aware_expression, dead_code, unused_element_parameter
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -794,7 +793,7 @@ class _WebHoverRowState extends State<WebHoverRow> {
           duration: const Duration(milliseconds: 150),
           decoration: BoxDecoration(
             color: _isHovered
-                ? Ucolors.primary.withOpacity(0.04)
+                ? Ucolors.primary.withValues(alpha:0.04)
                 : Colors.white,
             border: Border(
               bottom: BorderSide(color: Colors.grey.shade200, width: 1),
@@ -1143,7 +1142,7 @@ class _ResponsiveFundCardState
               //
               border: Border.all(
                 color: isHover
-                    ? Ucolors.primary.withOpacity(.35)
+                    ? Ucolors.primary.withValues(alpha:.35)
                     : Colors.grey.shade200,
                 width: 1.2,
               ),
@@ -1159,8 +1158,8 @@ class _ResponsiveFundCardState
                   offset: Offset(0, isHover ? 10 : 4),
 
                   color: isHover
-                      ? Ucolors.primary.withOpacity(.10)
-                      : Colors.black.withOpacity(.03),
+                      ? Ucolors.primary.withValues(alpha:.10)
+                      : Colors.black.withValues(alpha:.03),
                 ),
               ],
             ),
@@ -1243,7 +1242,7 @@ class _ResponsiveFundCardState
                           BoxShadow(
                             blurRadius: 10,
                             color: Ucolors.primary
-                                .withOpacity(.18),
+                                .withValues(alpha:.18),
                           ),
                         ]
                             : [],
@@ -1672,7 +1671,7 @@ class _ResponsiveFundCardState
       ),
 
       decoration: BoxDecoration(
-        color: risk.color.withOpacity(.1),
+        color: risk.color.withValues(alpha:.1),
 
         borderRadius:
         BorderRadius.circular(20),
@@ -1736,8 +1735,8 @@ class _ResponsiveFundCardState
 //                   height: 40,
 //                   child: SearchBar(
 //                     focusNode: searchFocus,
-//                     elevation: MaterialStateProperty.all(0),
-//                     backgroundColor: MaterialStateProperty.all(
+//                     elevation: WidgetStateProperty.all(0),
+//                     backgroundColor: WidgetStateProperty.all(
 //                       const Color(0xFFF0F2F5),
 //                     ),
 //                     leading: const Icon(
@@ -1748,7 +1747,7 @@ class _ResponsiveFundCardState
 //                     hintText: 'Search funds...',
 //                     onChanged: (value) =>
 //                         controller.onSearchQueryChanged(value),
-//                     padding: MaterialStateProperty.all(
+//                     padding: WidgetStateProperty.all(
 //                       const EdgeInsets.symmetric(horizontal: 10),
 //                     ),
 //                   ),
@@ -1783,7 +1782,7 @@ class _ResponsiveFundCardState
 //                       IconButton(
 //                         onPressed: () => Get.toNamed(AppRoutes.cart),
 //                         icon: const Icon(Iconsax.shopping_cart),
-//                         hoverColor: Ucolors.primary.withOpacity(0.1),
+//                         hoverColor: Ucolors.primary.withValues(alpha:0.1),
 //                       ),
 //                       if (cartController.generalItemsCount > 0)
 //                         Positioned(
@@ -2041,12 +2040,12 @@ class _ResponsiveFundCardState
 //                       // color: Colors.blue.shade200,
 //                       color: getRiskMeter(
 //                         entity.riskLevel,
-//                       ).color.withOpacity(0.1),
+//                       ).color.withValues(alpha:0.1),
 //                       borderRadius: BorderRadius.circular(15),
 //                       border: Border.all(
 //                         color: getRiskMeter(
 //                           entity.riskLevel,
-//                         ).color.withOpacity(0.1),
+//                         ).color.withValues(alpha:0.1),
 //                       ),
 //                     ),
 //                     child: Text(
@@ -2305,15 +2304,15 @@ class _MobileExploreLayout extends StatelessWidget {
                                   controller.setSearchFocus(false);
                                 },
                                 focusNode: searchFocus,
-                                backgroundColor: MaterialStateProperty.all(
+                                backgroundColor: WidgetStateProperty.all(
                                   Colors.white,
                                 ),
                                 leading: const Icon(Icons.search),
                                 hintText: 'Search',
                                 onChanged: (value) =>
                                     controller.onSearchQueryChanged(value),
-                                elevation: MaterialStateProperty.all(0),
-                                side: MaterialStateProperty.all(
+                                elevation: WidgetStateProperty.all(0),
+                                side: WidgetStateProperty.all(
                                   BorderSide(color: Colors.grey.shade300),
                                 ),
                               ),
@@ -2356,7 +2355,7 @@ class _MobileExploreLayout extends StatelessWidget {
                 child: Center(
                   child: AnimatedEmptyState(
                     title: 'NO fund',
-                    message: 'No mutual funds foun',
+                    message: 'No mutual funds found',
                   ),
                 ),
               );
@@ -2447,7 +2446,7 @@ class MutualFundCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.15),
+              color: Colors.black.withValues(alpha:0.15),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

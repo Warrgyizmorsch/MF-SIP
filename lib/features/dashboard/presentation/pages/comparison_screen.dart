@@ -181,7 +181,7 @@ class FundBottomBarButton extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha:0.04),
             offset: const Offset(0, -4),
             blurRadius: 10,
           ),
@@ -200,7 +200,7 @@ class FundBottomBarButton extends StatelessWidget {
               child: Icon(Icons.shopping_cart),
               // child: Text(
               //   firstButton,
-              //   style: const TextStyle(
+              //   style: const TextStyle(fontFamily: FontFamily.medium,
               //     color: Colors.black87,
               //     fontWeight: FontWeight.w600,
               //     fontSize: 14,
@@ -230,7 +230,7 @@ class FundBottomBarButton extends StatelessWidget {
                     : Text(
                         secondButton,
                         key: const ValueKey('btn_text'),
-                        style: const TextStyle(
+                        style: const TextStyle(fontFamily: FontFamily.medium,
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                           fontSize: 15,
@@ -275,7 +275,7 @@ class BottomBarButton extends StatelessWidget {
               // height: 52,
               outlined: true,
               child: Center(
-                child: Text(firstButton, style: TextStyle(color: Ucolors.dark)),
+                child: Text(firstButton, style: TextStyle(fontFamily: FontFamily.medium,color: Ucolors.dark)),
               ),
             ),
           ),
@@ -305,7 +305,66 @@ class BottomBarButton extends StatelessWidget {
     );
   }
 }
+class BottomBarButtonGoalDetails extends StatelessWidget {
+  const BottomBarButtonGoalDetails({
+    super.key,
+    required this.firstButton,
+    required this.secondButton,
+    this.firstButtonP,
+    this.secondButtonP,
+    this.isLoading = false, // <--- Add this
+  });
 
+  final String firstButton;
+  final String secondButton;
+  final VoidCallback? firstButtonP;
+  final VoidCallback? secondButtonP;
+  final bool isLoading; // <--- Add this
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewPadding.bottom;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 0, 16, 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: UElevatedBUtton(
+              onPressed: isLoading ? null : firstButtonP, // Disable if loading
+              // height: 52,
+              // outlined: true,
+              child: Center(
+                child: Text(firstButton, style:  UTextStyles.buttonText),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: UElevatedBUtton(
+              onPressed: isLoading ? null : secondButtonP, // Disable if loading
+              // height: 52,
+              child: isLoading
+                  ? const SizedBox(
+                height: 10,
+                width: 10,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                ),
+              )
+                  : Center(
+                child: Text(secondButton, style: UTextStyles.buttonText),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 // class BottomBarButton extends StatelessWidget {
 //   const BottomBarButton({
 //     super.key,
@@ -342,7 +401,7 @@ class BottomBarButton extends StatelessWidget {
 //               child: Row(
 //                 mainAxisAlignment: MainAxisAlignment.center,
 //                 children: [
-//                   Text(firstButton, style: TextStyle(color: Ucolors.dark)),
+//                   Text(firstButton, style: TextStyle(fontFamily: FontFamily.medium,color: Ucolors.dark)),
 //                 ],
 //               ),
 //             ),

@@ -1,7 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:responsive_framework/responsive_framework.dart'; // Import Responsive Framework
+import 'package:responsive_framework/responsive_framework.dart';
+
+import '../../../../core/utils/constant/text_style.dart'; // Import Responsive Framework
 
 class FundComparisonChartWidget extends StatelessWidget {
   final bool showLegend;
@@ -36,7 +38,7 @@ class FundComparisonChartWidget extends StatelessWidget {
         border: Border.all(color: Ucolors.darkgrey),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05), // Softer shadow for web
+            color: Colors.black.withValues(alpha:0.05), // Softer shadow for web
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -51,7 +53,7 @@ class FundComparisonChartWidget extends StatelessWidget {
             children: [
               Text(
                 "Fund Comparison",
-                style: TextStyle(
+                style: TextStyle(fontFamily: FontFamily.medium,
                   fontSize: isDesktop ? 18 : 16,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
@@ -94,7 +96,7 @@ class FundComparisonChartWidget extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           label,
-          style: TextStyle(
+          style: TextStyle(fontFamily: FontFamily.medium,
             fontSize: isDesktop ? 13 : 11,
             color: Colors.grey.shade700,
             fontWeight: FontWeight.w500,
@@ -162,7 +164,7 @@ class FundComparisonChartWidget extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
                       months[value.toInt()],
-                      style: TextStyle(
+                      style: TextStyle(fontFamily: FontFamily.medium,
                         fontSize: isDesktop ? 12 : 10,
                         color: Colors.grey.shade600,
                         fontWeight: FontWeight.w500,
@@ -184,7 +186,7 @@ class FundComparisonChartWidget extends StatelessWidget {
                 if (value.toInt() % 20000 == 0) {
                   return Text(
                     '₹${(value / 1000).toStringAsFixed(0)}k',
-                    style: TextStyle(
+                    style: TextStyle(fontFamily: FontFamily.medium,
                       fontSize: isDesktop ? 11 : 10,
                       color: Colors.grey.shade600,
                     ),
@@ -225,7 +227,7 @@ class FundComparisonChartWidget extends StatelessWidget {
             ),
             belowBarData: BarAreaData(
               show: true,
-              color: Colors.green.withOpacity(0.12),
+              color: Colors.green.withValues(alpha:0.12),
             ),
           ),
           // Benchmark (Blue)
@@ -238,14 +240,14 @@ class FundComparisonChartWidget extends StatelessWidget {
             dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
-              color: Colors.blue.withOpacity(0.05),
+              color: Colors.blue.withValues(alpha:0.05),
             ),
           ),
         ],
         lineTouchData: LineTouchData(
           enabled: true,
           touchTooltipData: LineTouchTooltipData(
-            getTooltipColor: (touchedSpots) => Colors.black.withOpacity(0.8),
+            getTooltipColor: (touchedSpots) => Colors.black.withValues(alpha:0.8),
             tooltipBorderRadius: BorderRadius.circular(8),
             tooltipPadding: const EdgeInsets.all(12),
             fitInsideHorizontally: true,
@@ -257,7 +259,7 @@ class FundComparisonChartWidget extends StatelessWidget {
 
                 return LineTooltipItem(
                   '$value\n${months[monthIndex]}',
-                  const TextStyle(
+                  const TextStyle(fontFamily: FontFamily.medium,
                       color: Colors.white,
                       fontSize: 13,
                       fontWeight: FontWeight.bold
@@ -270,7 +272,7 @@ class FundComparisonChartWidget extends StatelessWidget {
             return spotIndexes.map((index) {
               return TouchedSpotIndicatorData(
                 FlLine(
-                    color: Colors.grey.withOpacity(0.5),
+                    color: Colors.grey.withValues(alpha:0.5),
                     strokeWidth: 1,
                     dashArray: [5, 5]
                 ),

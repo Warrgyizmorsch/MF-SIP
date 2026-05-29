@@ -3273,7 +3273,7 @@ class _DesktopReturnsCard extends StatelessWidget {
 class _DesktopRiskCard extends StatelessWidget {
   final FundDetailsController controller;
 
-  const _DesktopRiskCard({super.key, required this.controller});
+  const _DesktopRiskCard({required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -6799,12 +6799,12 @@ Widget _infoItem(String title, String value, Color? color) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(title, style:  TextStyle(fontFamily: FontFamily.medium,fontSize: 14, color: Ucolors.darkgrey)),
+      Text(title, style:  TextStyle(fontFamily: FontFamily.medium,fontSize: 12, color: Ucolors.darkgrey)),
       const SizedBox(height: 8),
       Text(
         value,
         style:  TextStyle(fontFamily: FontFamily.medium,
-          fontSize: 16,
+          fontSize: 12,
           fontWeight: FontWeight.w500,
           color: color,
         ),

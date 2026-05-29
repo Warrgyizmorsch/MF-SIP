@@ -209,7 +209,7 @@ class _WebLayoutState extends State<_WebLayout> {
 
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(.08),
+                  color: Colors.black.withValues(alpha:.08),
                   blurRadius: 30,
                   offset: const Offset(-4, 10),
                 ),
@@ -319,7 +319,7 @@ class _WebLayoutState extends State<_WebLayout> {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(.04),
+                                  color: Colors.black.withValues(alpha:.04),
                                   blurRadius: 20,
                                   offset: const Offset(0, 10),
                                 ),
@@ -363,7 +363,7 @@ class _WebLayoutState extends State<_WebLayout> {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(.04),
+                                  color: Colors.black.withValues(alpha:.04),
                                   blurRadius: 20,
                                   offset: const Offset(0, 10),
                                 ),
@@ -397,7 +397,7 @@ class _WebLayoutState extends State<_WebLayout> {
                                       ),
                                       decoration: BoxDecoration(
                                         color: Colors.green
-                                            .withOpacity(.08),
+                                            .withValues(alpha:.08),
                                         borderRadius:
                                         BorderRadius.circular(12),
                                       ),
@@ -448,7 +448,7 @@ class _WebLayoutState extends State<_WebLayout> {
             height: 120,
             width: 120,
             decoration: BoxDecoration(
-              color: Ucolors.primary.withOpacity(.08),
+              color: Ucolors.primary.withValues(alpha:.08),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -752,7 +752,7 @@ class _MobileLayout extends StatelessWidget {
                                       mutualController.setSearchFocus(false);
                                     },
                                     focusNode: searchFocus,
-                                    backgroundColor: MaterialStateProperty.all(
+                                    backgroundColor: WidgetStateProperty.all(
                                       Colors.grey.shade50,
                                     ),
                                     leading: Icon(
@@ -760,7 +760,7 @@ class _MobileLayout extends StatelessWidget {
                                       color: Colors.grey.shade600,
                                     ),
                                     hintText: 'Search mutual funds...',
-                                    hintStyle: MaterialStateProperty.all(
+                                    hintStyle: WidgetStateProperty.all(
                                       TextStyle(
                                         color: Colors.grey.shade500,
                                         fontSize: 14,
@@ -768,8 +768,8 @@ class _MobileLayout extends StatelessWidget {
                                     ),
                                     onChanged: (value) => mutualController
                                         .onSearchQueryChanged(value),
-                                    elevation: MaterialStateProperty.all(0),
-                                    side: MaterialStateProperty.all(
+                                    elevation: WidgetStateProperty.all(0),
+                                    side: WidgetStateProperty.all(
                                       BorderSide(color: Colors.grey.shade200),
                                     ),
                                   ),
@@ -916,7 +916,7 @@ class _MobileLayout extends StatelessWidget {
                                           vertical: 10,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Ucolors.primary.withOpacity(
+                                          color: Ucolors.primary.withValues(alpha:
                                             0.05,
                                           ),
                                           borderRadius: BorderRadius.circular(
@@ -946,7 +946,7 @@ class _MobileLayout extends StatelessWidget {
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha:0.05),
                         blurRadius: 10,
                         offset: const Offset(0, -5),
                       ),
@@ -1019,7 +1019,7 @@ class GoalDetailsFormCard extends StatelessWidget {
                     height: 30,
                     width: 30,
                     decoration: BoxDecoration(
-                      color: Ucolors.primary.withOpacity(.08),
+                      color: Ucolors.primary.withValues(alpha:.08),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(
@@ -1274,7 +1274,7 @@ class PopularFund extends StatelessWidget {
                       //   vertical: 10,
                       // ),
                       decoration: BoxDecoration(
-                        color: Ucolors.primary.withOpacity(0.05),
+                        color: Ucolors.primary.withValues(alpha:0.05),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: Ucolors.primary, width: 2),
                       ),

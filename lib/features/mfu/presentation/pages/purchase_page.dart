@@ -651,7 +651,7 @@
 //             children: [
 //               const Text(
 //                 'Select SIP Frequency',
-//                 style: TextStyle(
+//                 style: TextStyle(fontFamily: FontFamily.medium,
 //                   fontSize: 18,
 //                   fontWeight: FontWeight.w800,
 //                   color: _C.textPrimary,
@@ -663,7 +663,7 @@
 //                   contentPadding: EdgeInsets.zero,
 //                   title: Text(
 //                     f.label,
-//                     style: const TextStyle(
+//                     style: const TextStyle(fontFamily: FontFamily.medium,
 //                       fontWeight: FontWeight.w600,
 //                       color: _C.textPrimary,
 //                     ),
@@ -704,7 +704,7 @@
 //             children: [
 //               const Text(
 //                 'Select SIP Day',
-//                 style: TextStyle(
+//                 style: TextStyle(fontFamily: FontFamily.medium,
 //                   fontSize: 18,
 //                   fontWeight: FontWeight.w800,
 //                   color: _C.textPrimary,
@@ -717,7 +717,7 @@
 //                   contentPadding: EdgeInsets.zero,
 //                   title: Text(
 //                     _weekDays[index],
-//                     style: const TextStyle(
+//                     style: const TextStyle(fontFamily: FontFamily.medium,
 //                       fontWeight: FontWeight.w600,
 //                       color: _C.textPrimary,
 //                     ),
@@ -782,7 +782,7 @@
 //         _invType == InvType.lumpsum
 //             ? 'One-time Investment'
 //             : 'Monthly SIP Amount',
-//         style: const TextStyle(
+//         style: const TextStyle(fontFamily: FontFamily.medium,
 //           color: _C.textSec,
 //           fontSize: 13,
 //           fontWeight: FontWeight.w600,
@@ -794,7 +794,7 @@
 
 //   Widget _sectionLabel(String t) => Text(
 //     t,
-//     style: const TextStyle(
+//     style: const TextStyle(fontFamily: FontFamily.medium,
 //       color: _C.textMuted,
 //       fontSize: 11,
 //       fontWeight: FontWeight.w700,
@@ -840,7 +840,7 @@
 //                   boxShadow: active
 //                       ? [
 //                           BoxShadow(
-//                             color: _C.primary.withOpacity(0.3),
+//                             color: _C.primary.withValues(alpha:0.3),
 //                             blurRadius: 10,
 //                             offset: const Offset(0, 4),
 //                           ),
@@ -858,7 +858,7 @@
 //                     const SizedBox(height: 4),
 //                     Text(
 //                       t.label,
-//                       style: TextStyle(
+//                       style: TextStyle(fontFamily: FontFamily.medium,
 //                         fontSize: 12,
 //                         fontWeight: active ? FontWeight.w700 : FontWeight.w500,
 //                         color: active ? Colors.white : _C.textSec,
@@ -966,7 +966,7 @@
 //               height: 100,
 //               decoration: BoxDecoration(
 //                 shape: BoxShape.circle,
-//                 color: Colors.white.withOpacity(0.06),
+//                 color: Colors.white.withValues(alpha:0.06),
 //               ),
 //             ),
 //           ),
@@ -978,7 +978,7 @@
 //               height: 120,
 //               decoration: BoxDecoration(
 //                 shape: BoxShape.circle,
-//                 color: Colors.white.withOpacity(0.04),
+//                 color: Colors.white.withValues(alpha:0.04),
 //               ),
 //             ),
 //           ),
@@ -999,8 +999,8 @@
 //                             padding: const EdgeInsets.only(bottom: 6.0),
 //                             child: Text(
 //                               '₹ ',
-//                               style: TextStyle(
-//                                 color: Colors.white.withOpacity(0.6),
+//                               style: TextStyle(fontFamily: FontFamily.medium,
+//                                 color: Colors.white.withValues(alpha:0.6),
 //                                 fontSize: 28,
 //                                 fontWeight: FontWeight.w300,
 //                               ),
@@ -1018,7 +1018,7 @@
 //                                   FilteringTextInputFormatter.digitsOnly,
 //                                 ],
 //                                 textAlign: TextAlign.center,
-//                                 style: const TextStyle(
+//                                 style: const TextStyle(fontFamily: FontFamily.medium,
 //                                   color: Colors.white,
 //                                   fontSize: 56,
 //                                   fontWeight: FontWeight.w900,
@@ -1030,7 +1030,7 @@
 //                                   isDense: true,
 //                                   contentPadding: EdgeInsets.zero,
 //                                   hintText: '0',
-//                                   hintStyle: TextStyle(color: Colors.white54),
+//                                   hintStyle: TextStyle(fontFamily: FontFamily.medium,color: Colors.white54),
 //                                 ),
 //                                 onChanged: (val) {
 //                                   // Instantly update the parent state as they type
@@ -1048,8 +1048,8 @@
 //                         children: [
 //                           Text(
 //                             'tap to edit',
-//                             style: TextStyle(
-//                               color: Colors.white.withOpacity(0.45),
+//                             style: TextStyle(fontFamily: FontFamily.medium,
+//                               color: Colors.white.withValues(alpha:0.45),
 //                               fontSize: 11,
 //                               fontWeight: FontWeight.w500,
 //                             ),
@@ -1058,7 +1058,7 @@
 //                           Icon(
 //                             Icons.edit_rounded,
 //                             size: 11,
-//                             color: Colors.white.withOpacity(0.45),
+//                             color: Colors.white.withValues(alpha:0.45),
 //                           ),
 //                         ],
 //                       ),
@@ -1075,13 +1075,13 @@
 //                     vertical: 4,
 //                   ),
 //                   decoration: BoxDecoration(
-//                     color: _C.danger.withOpacity(0.15),
+//                     color: _C.danger.withValues(alpha:0.15),
 //                     borderRadius: BorderRadius.circular(8),
-//                     border: Border.all(color: _C.danger.withOpacity(0.3)),
+//                     border: Border.all(color: _C.danger.withValues(alpha:0.3)),
 //                   ),
 //                   child: Text(
 //                     widget.error!,
-//                     style: const TextStyle(
+//                     style: const TextStyle(fontFamily: FontFamily.medium,
 //                       color: Color(0xFFFFB3B3),
 //                       fontSize: 12,
 //                       fontWeight: FontWeight.w600,
@@ -1132,15 +1132,15 @@
 //       child: Container(
 //         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
 //         decoration: BoxDecoration(
-//           color: highlight ? Colors.white : Colors.white.withOpacity(0.12),
+//           color: highlight ? Colors.white : Colors.white.withValues(alpha:0.12),
 //           borderRadius: BorderRadius.circular(11),
 //           border: highlight
 //               ? null
-//               : Border.all(color: Colors.white.withOpacity(0.2)),
+//               : Border.all(color: Colors.white.withValues(alpha:0.2)),
 //           boxShadow: highlight
 //               ? [
 //                   BoxShadow(
-//                     color: Colors.black.withOpacity(0.1),
+//                     color: Colors.black.withValues(alpha:0.1),
 //                     blurRadius: 8,
 //                     offset: const Offset(0, 3),
 //                   ),
@@ -1149,7 +1149,7 @@
 //         ),
 //         child: Text(
 //           label,
-//           style: TextStyle(
+//           style: TextStyle(fontFamily: FontFamily.medium,
 //             color: highlight ? _C.primary : Colors.white,
 //             fontSize: 12,
 //             fontWeight: highlight ? FontWeight.w800 : FontWeight.w600,
@@ -1233,6 +1233,8 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 
+import '../../../../core/utils/constant/text_style.dart';
+
 class _StepUpSection extends StatelessWidget {
   final int stepUpAmt;
   final int stepUpPct;
@@ -1282,7 +1284,7 @@ class _StepUpSection extends StatelessWidget {
       children: [
         const Text(
           'STEP-UP CONFIG',
-          style: TextStyle(
+          style: TextStyle(fontFamily: FontFamily.medium,
             color: _C.textMuted,
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -1296,7 +1298,7 @@ class _StepUpSection extends StatelessWidget {
           decoration: BoxDecoration(
             color: _C.stepBg,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: _C.primary.withOpacity(0.12)),
+            border: Border.all(color: _C.primary.withValues(alpha:0.12)),
           ),
           child: Column(
             children: [
@@ -1327,7 +1329,7 @@ class _StepUpSection extends StatelessWidget {
                           children: [
                             const Text(
                               'Increase By',
-                              style: TextStyle(
+                              style: TextStyle(fontFamily: FontFamily.medium,
                                 color: _C.textSec,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
@@ -1357,7 +1359,7 @@ class _StepUpSection extends StatelessWidget {
               ),
 
               const SizedBox(height: 16),
-              Divider(color: _C.primary.withOpacity(0.1)),
+              Divider(color: _C.primary.withValues(alpha:0.1)),
               const SizedBox(height: 16),
 
               // ── Row 2: Cap limit ──────────────────────────────────────────
@@ -1374,7 +1376,7 @@ class _StepUpSection extends StatelessWidget {
                       const SizedBox(width: 6),
                       const Text(
                         'Cap Limit',
-                        style: TextStyle(
+                        style: TextStyle(fontFamily: FontFamily.medium,
                           color: _C.textSec,
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -1455,7 +1457,7 @@ class _SegmentToggle extends StatelessWidget {
                 ),
                 child: Text(
                   e.value,
-                  style: TextStyle(
+                  style: TextStyle(fontFamily: FontFamily.medium,
                     fontSize: 11,
                     fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                     color: active ? Colors.white : _C.textSec,
@@ -1512,7 +1514,7 @@ class _SmallToggle extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: TextStyle(
+          style: TextStyle(fontFamily: FontFamily.medium,
             fontSize: 11,
             fontWeight: FontWeight.w700,
             color: active ? Colors.white : Colors.black87,
@@ -1549,16 +1551,16 @@ class _NumberField extends StatelessWidget {
             ),
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          style: const TextStyle(
+          style: const TextStyle(fontFamily: FontFamily.medium,
             fontSize: 14,
             fontWeight: FontWeight.w700,
             color: _C.textPrimary,
           ),
           decoration: InputDecoration(
             prefixText: prefix != null ? '$prefix ' : null,
-            prefixStyle: const TextStyle(color: _C.textSec, fontSize: 14),
+            prefixStyle: const TextStyle(fontFamily: FontFamily.medium,color: _C.textSec, fontSize: 14),
             hintText: hint,
-            hintStyle: const TextStyle(color: _C.textMuted),
+            hintStyle: const TextStyle(fontFamily: FontFamily.medium,color: _C.textMuted),
             isDense: true,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 14,
@@ -1592,7 +1594,7 @@ class _NumberField extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             error!,
-            style: const TextStyle(
+            style: const TextStyle(fontFamily: FontFamily.medium,
               color: _C.danger,
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -1654,7 +1656,7 @@ class _DatePickerField extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
+                  style: TextStyle(fontFamily: FontFamily.medium,
                     fontSize: 14,
                     color: date != null ? _C.textPrimary : _C.textMuted,
                     fontWeight: date != null
@@ -1675,7 +1677,7 @@ class _DatePickerField extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             error!,
-            style: const TextStyle(
+            style: const TextStyle(fontFamily: FontFamily.medium,
               color: _C.danger,
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -1699,7 +1701,7 @@ class _FieldWrap extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: const TextStyle(fontFamily: FontFamily.medium,
             color: _C.textSec,
             fontSize: 11,
             fontWeight: FontWeight.w600,
@@ -1742,7 +1744,7 @@ class _FieldWrap extends StatelessWidget {
 //         border: Border.all(color: _C.border),
 //         boxShadow: [
 //           BoxShadow(
-//             color: _C.shadow.withOpacity(0.5),
+//             color: _C.shadow.withValues(alpha:0.5),
 //             blurRadius: 10,
 //             offset: const Offset(0, 3),
 //           ),
@@ -1762,7 +1764,7 @@ class _FieldWrap extends StatelessWidget {
 //                   width: 42,
 //                   height: 42,
 //                   decoration: BoxDecoration(
-//                     color: iconColor.withOpacity(0.1),
+//                     color: iconColor.withValues(alpha:0.1),
 //                     borderRadius: BorderRadius.circular(12),
 //                   ),
 //                   child: Icon(icon, color: iconColor, size: 20),
@@ -1774,7 +1776,7 @@ class _FieldWrap extends StatelessWidget {
 //                     children: [
 //                       Text(
 //                         label,
-//                         style: const TextStyle(
+//                         style: const TextStyle(fontFamily: FontFamily.medium,
 //                           color: _C.textMuted,
 //                           fontSize: 11,
 //                           fontWeight: FontWeight.w600,
@@ -1784,7 +1786,7 @@ class _FieldWrap extends StatelessWidget {
 //                       const SizedBox(height: 3),
 //                       Text(
 //                         value,
-//                         style: const TextStyle(
+//                         style: const TextStyle(fontFamily: FontFamily.medium,
 //                           color: _C.textPrimary,
 //                           fontSize: 15,
 //                           fontWeight: FontWeight.w700,
@@ -1814,13 +1816,13 @@ class _FieldWrap extends StatelessWidget {
 //     return Container(
 //       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
 //       decoration: BoxDecoration(
-//         color: color.withOpacity(0.1),
+//         color: color.withValues(alpha:0.1),
 //         borderRadius: BorderRadius.circular(8),
-//         border: Border.all(color: color.withOpacity(0.25)),
+//         border: Border.all(color: color.withValues(alpha:0.25)),
 //       ),
 //       child: Text(
 //         label,
-//         style: TextStyle(
+//         style: TextStyle(fontFamily: FontFamily.medium,
 //           color: color,
 //           fontSize: 11,
 //           fontWeight: FontWeight.w700,
@@ -1853,7 +1855,7 @@ class _FieldWrap extends StatelessWidget {
 //       decoration: BoxDecoration(
 //         color: _C.pLight,
 //         borderRadius: BorderRadius.circular(16),
-//         border: Border.all(color: _C.pMid.withOpacity(0.5)),
+//         border: Border.all(color: _C.pMid.withValues(alpha:0.5)),
 //       ),
 //       child: Row(
 //         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1862,7 +1864,7 @@ class _FieldWrap extends StatelessWidget {
 //             width: 34,
 //             height: 34,
 //             decoration: BoxDecoration(
-//               color: _C.primary.withOpacity(0.1),
+//               color: _C.primary.withValues(alpha:0.1),
 //               borderRadius: BorderRadius.circular(10),
 //             ),
 //             child: const Icon(
@@ -1875,7 +1877,7 @@ class _FieldWrap extends StatelessWidget {
 //           Expanded(
 //             child: Text(
 //               _text,
-//               style: const TextStyle(
+//               style: const TextStyle(fontFamily: FontFamily.medium,
 //                 color: _C.textSec,
 //                 fontSize: 13,
 //                 height: 1.6,
@@ -1918,10 +1920,10 @@ class _FieldWrap extends StatelessWidget {
 //     return Container(
 //       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
 //       decoration: BoxDecoration(
-//         color: color.withOpacity(0.1),
+//         color: color.withValues(alpha:0.1),
 //         borderRadius: BorderRadius.circular(8),
 //         border: Border.all(
-//           color: color.withOpacity(0.2),
+//           color: color.withValues(alpha:0.2),
 //         ), // Optional: Adds a nice crisp edge
 //       ),
 //       child: Row(
@@ -1933,7 +1935,7 @@ class _FieldWrap extends StatelessWidget {
 //           ),
 //           Text(
 //             riskLabel.toUpperCase(),
-//             style: TextStyle(
+//             style: TextStyle(fontFamily: FontFamily.medium,
 //               color: color,
 //               fontSize: 11,
 //               fontWeight: FontWeight.w700,
@@ -1986,7 +1988,7 @@ class _FieldWrap extends StatelessWidget {
 //           const SizedBox(width: 14),
 //           const Text(
 //             'Purchase Fund',
-//             style: TextStyle(
+//             style: TextStyle(fontFamily: FontFamily.medium,
 //               color: _C.textPrimary,
 //               fontSize: 20,
 //               fontWeight: FontWeight.w800,
@@ -2048,7 +2050,7 @@ class _FieldWrap extends StatelessWidget {
 //               children: [
 //                 Text(
 //                   args.fundName,
-//                   style: const TextStyle(
+//                   style: const TextStyle(fontFamily: FontFamily.medium,
 //                     color: _C.textPrimary,
 //                     fontSize: 15,
 //                     fontWeight: FontWeight.w700,
@@ -2058,7 +2060,7 @@ class _FieldWrap extends StatelessWidget {
 //                 const SizedBox(height: 5),
 //                 Text(
 //                   args.category,
-//                   style: const TextStyle(
+//                   style: const TextStyle(fontFamily: FontFamily.medium,
 //                     color: _C.textSec,
 //                     fontSize: 12,
 //                     fontWeight: FontWeight.w500,
@@ -2117,11 +2119,11 @@ class _FieldWrap extends StatelessWidget {
 //             16 + MediaQuery.of(context).padding.bottom,
 //           ),
 //           decoration: BoxDecoration(
-//             color: Colors.white.withOpacity(0.9),
+//             color: Colors.white.withValues(alpha:0.9),
 //             border: const Border(top: BorderSide(color: _C.border)),
 //             boxShadow: [
 //               BoxShadow(
-//                 color: _C.primary.withOpacity(0.07),
+//                 color: _C.primary.withValues(alpha:0.07),
 //                 blurRadius: 24,
 //                 offset: const Offset(0, -6),
 //               ),
@@ -2152,7 +2154,7 @@ class _FieldWrap extends StatelessWidget {
 //                     boxShadow: canTap
 //                         ? [
 //                             BoxShadow(
-//                               color: _C.primary.withOpacity(0.35),
+//                               color: _C.primary.withValues(alpha:0.35),
 //                               blurRadius: 18,
 //                               offset: const Offset(0, 8),
 //                             ),
@@ -2171,7 +2173,7 @@ class _FieldWrap extends StatelessWidget {
 //                           )
 //                         : Text(
 //                             _label,
-//                             style: TextStyle(
+//                             style: TextStyle(fontFamily: FontFamily.medium,
 //                               color: canTap
 //                                   ? Colors.white
 //                                   : Colors.grey.shade600,
@@ -2356,7 +2358,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
             children: [
               const Text(
                 'Select SIP Frequency',
-                style: TextStyle(
+                style: TextStyle(fontFamily: FontFamily.medium,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
                   color: _C.textPrimary,
@@ -2369,7 +2371,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                     contentPadding: EdgeInsets.zero,
                     title: Text(
                       f.label,
-                      style: const TextStyle(
+                      style: const TextStyle(fontFamily: FontFamily.medium,
                         fontWeight: FontWeight.w600,
                         color: _C.textPrimary,
                       ),
@@ -2411,7 +2413,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
             children: [
               const Text(
                 'Select SIP Day',
-                style: TextStyle(
+                style: TextStyle(fontFamily: FontFamily.medium,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
                   color: _C.textPrimary,
@@ -2425,7 +2427,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                     contentPadding: EdgeInsets.zero,
                     title: Text(
                       _weekDays[index],
-                      style: const TextStyle(
+                      style: const TextStyle(fontFamily: FontFamily.medium,
                         fontWeight: FontWeight.w600,
                         color: _C.textPrimary,
                       ),
@@ -2706,7 +2708,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
         _c.sipInvType.value == InvType.lumpsum
             ? 'One-time Investment'
             : 'Monthly SIP Amount',
-        style: const TextStyle(
+        style: const TextStyle(fontFamily: FontFamily.medium,
           color: _C.textSec,
           fontSize: 13,
           fontWeight: FontWeight.w600,
@@ -2718,7 +2720,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
 
   Widget _sectionLabel(String t) => Text(
     t,
-    style: const TextStyle(
+    style: const TextStyle(fontFamily: FontFamily.medium,
       color: _C.textMuted,
       fontSize: 11,
       fontWeight: FontWeight.w700,
@@ -2764,7 +2766,7 @@ class _InvTypeSelector extends StatelessWidget {
                   boxShadow: active
                       ? [
                           BoxShadow(
-                            color: _C.primary.withOpacity(0.3),
+                            color: _C.primary.withValues(alpha:0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -2782,7 +2784,7 @@ class _InvTypeSelector extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       t.label,
-                      style: TextStyle(
+                      style: TextStyle(fontFamily: FontFamily.medium,
                         fontSize: 12,
                         fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                         color: active ? Colors.white : _C.textSec,
@@ -2879,7 +2881,7 @@ class _AmountCardState extends State<_AmountCard> {
               height: 100,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.06),
+                color: Colors.white.withValues(alpha:0.06),
               ),
             ),
           ),
@@ -2891,7 +2893,7 @@ class _AmountCardState extends State<_AmountCard> {
               height: 120,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.04),
+                color: Colors.white.withValues(alpha:0.04),
               ),
             ),
           ),
@@ -2911,8 +2913,8 @@ class _AmountCardState extends State<_AmountCard> {
                             padding: const EdgeInsets.only(bottom: 6),
                             child: Text(
                               '₹ ',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.6),
+                              style: TextStyle(fontFamily: FontFamily.medium,
+                                color: Colors.white.withValues(alpha:0.6),
                                 fontSize: 28,
                                 fontWeight: FontWeight.w300,
                               ),
@@ -2929,7 +2931,7 @@ class _AmountCardState extends State<_AmountCard> {
                                   FilteringTextInputFormatter.digitsOnly,
                                 ],
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(
+                                style: const TextStyle(fontFamily: FontFamily.medium,
                                   color: Colors.white,
                                   fontSize: 56,
                                   fontWeight: FontWeight.w900,
@@ -2941,7 +2943,7 @@ class _AmountCardState extends State<_AmountCard> {
                                   isDense: true,
                                   contentPadding: EdgeInsets.zero,
                                   hintText: '0',
-                                  hintStyle: TextStyle(color: Colors.white54),
+                                  hintStyle: TextStyle(fontFamily: FontFamily.medium,color: Colors.white54),
                                 ),
                                 onChanged: (val) =>
                                     widget.onChanged(int.tryParse(val) ?? 0),
@@ -2956,8 +2958,8 @@ class _AmountCardState extends State<_AmountCard> {
                         children: [
                           Text(
                             'tap to edit',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.45),
+                            style: TextStyle(fontFamily: FontFamily.medium,
+                              color: Colors.white.withValues(alpha:0.45),
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
                             ),
@@ -2966,7 +2968,7 @@ class _AmountCardState extends State<_AmountCard> {
                           Icon(
                             Icons.edit_rounded,
                             size: 11,
-                            color: Colors.white.withOpacity(0.45),
+                            color: Colors.white.withValues(alpha:0.45),
                           ),
                         ],
                       ),
@@ -2982,13 +2984,13 @@ class _AmountCardState extends State<_AmountCard> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: _C.danger.withOpacity(0.15),
+                    color: _C.danger.withValues(alpha:0.15),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: _C.danger.withOpacity(0.3)),
+                    border: Border.all(color: _C.danger.withValues(alpha:0.3)),
                   ),
                   child: Text(
                     widget.error!,
-                    style: const TextStyle(
+                    style: const TextStyle(fontFamily: FontFamily.medium,
                       color: Color(0xFFFFB3B3),
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -3036,15 +3038,15 @@ class _AddBtn extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
         decoration: BoxDecoration(
-          color: highlight ? Colors.white : Colors.white.withOpacity(0.12),
+          color: highlight ? Colors.white : Colors.white.withValues(alpha:0.12),
           borderRadius: BorderRadius.circular(11),
           border: highlight
               ? null
-              : Border.all(color: Colors.white.withOpacity(0.2)),
+              : Border.all(color: Colors.white.withValues(alpha:0.2)),
           boxShadow: highlight
               ? [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha:0.1),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -3053,7 +3055,7 @@ class _AddBtn extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: TextStyle(
+          style: TextStyle(fontFamily: FontFamily.medium,
             color: highlight ? _C.primary : Colors.white,
             fontSize: 12,
             fontWeight: highlight ? FontWeight.w800 : FontWeight.w600,
@@ -3090,7 +3092,7 @@ class _DetailTile extends StatelessWidget {
         border: Border.all(color: _C.border),
         boxShadow: [
           BoxShadow(
-            color: _C.shadow.withOpacity(0.5),
+            color: _C.shadow.withValues(alpha:0.5),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -3109,7 +3111,7 @@ class _DetailTile extends StatelessWidget {
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    color: iconColor.withOpacity(0.1),
+                    color: iconColor.withValues(alpha:0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(icon, color: iconColor, size: 20),
@@ -3121,7 +3123,7 @@ class _DetailTile extends StatelessWidget {
                     children: [
                       Text(
                         label,
-                        style: const TextStyle(
+                        style: const TextStyle(fontFamily: FontFamily.medium,
                           color: _C.textMuted,
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -3131,7 +3133,7 @@ class _DetailTile extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(
                         value,
-                        style: const TextStyle(
+                        style: const TextStyle(fontFamily: FontFamily.medium,
                           color: _C.textPrimary,
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -3161,13 +3163,13 @@ class _Chip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha:0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.25)),
+        border: Border.all(color: color.withValues(alpha:0.25)),
       ),
       child: Text(
         label,
-        style: TextStyle(
+        style: TextStyle(fontFamily: FontFamily.medium,
           color: color,
           fontSize: 11,
           fontWeight: FontWeight.w700,
@@ -3200,7 +3202,7 @@ class _InfoBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: _C.pLight,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _C.pMid.withOpacity(0.5)),
+        border: Border.all(color: _C.pMid.withValues(alpha:0.5)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -3209,7 +3211,7 @@ class _InfoBanner extends StatelessWidget {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: _C.primary.withOpacity(0.1),
+              color: _C.primary.withValues(alpha:0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(
@@ -3222,7 +3224,7 @@ class _InfoBanner extends StatelessWidget {
           Expanded(
             child: Text(
               _text,
-              style: const TextStyle(
+              style: const TextStyle(fontFamily: FontFamily.medium,
                 color: _C.textSec,
                 fontSize: 13,
                 height: 1.6,
@@ -3254,9 +3256,9 @@ class _ModernRiskBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: c.withOpacity(0.1),
+        color: c.withValues(alpha:0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: c.withOpacity(0.2)),
+        border: Border.all(color: c.withValues(alpha:0.2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -3265,7 +3267,7 @@ class _ModernRiskBadge extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             riskLabel.toUpperCase(),
-            style: TextStyle(
+            style: TextStyle(fontFamily: FontFamily.medium,
               color: c,
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -3318,7 +3320,7 @@ class _TopBar extends StatelessWidget {
           const SizedBox(width: 14),
           const Text(
             'Purchase Fund',
-            style: TextStyle(
+            style: TextStyle(fontFamily: FontFamily.medium,
               color: _C.textPrimary,
               fontSize: 20,
               fontWeight: FontWeight.w800,
@@ -3372,7 +3374,7 @@ class _FundCard extends StatelessWidget {
               children: [
                 Text(
                   args.fundName,
-                  style: const TextStyle(
+                  style: const TextStyle(fontFamily: FontFamily.medium,
                     color: _C.textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -3382,7 +3384,7 @@ class _FundCard extends StatelessWidget {
                 const SizedBox(height: 5),
                 Text(
                   args.category,
-                  style: const TextStyle(
+                  style: const TextStyle(fontFamily: FontFamily.medium,
                     color: _C.textSec,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -3439,11 +3441,11 @@ class _BottomCta extends StatelessWidget {
             16 + MediaQuery.of(context).padding.bottom,
           ),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.9),
+            color: Colors.white.withValues(alpha:0.9),
             border: const Border(top: BorderSide(color: _C.border)),
             boxShadow: [
               BoxShadow(
-                color: _C.primary.withOpacity(0.07),
+                color: _C.primary.withValues(alpha:0.07),
                 blurRadius: 24,
                 offset: const Offset(0, -6),
               ),
@@ -3464,7 +3466,7 @@ class _BottomCta extends StatelessWidget {
                 boxShadow: canTap
                     ? [
                         BoxShadow(
-                          color: _C.primary.withOpacity(0.35),
+                          color: _C.primary.withValues(alpha:0.35),
                           blurRadius: 18,
                           offset: const Offset(0, 8),
                         ),
@@ -3483,7 +3485,7 @@ class _BottomCta extends StatelessWidget {
                       )
                     : Text(
                         _label,
-                        style: TextStyle(
+                        style: TextStyle(fontFamily: FontFamily.medium,
                           color: canTap ? Colors.white : Colors.grey.shade600,
                           fontSize: 16,
                           fontWeight: FontWeight.w800,

@@ -20,7 +20,7 @@ class InvestNowPage extends GetView<CartController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Invest Now', style: TextStyle(color: Colors.black)),
+        title: Text('Invest Now', style: TextStyle(fontFamily: FontFamily.medium,color: Colors.black)),
         elevation: 0,
         iconTheme: IconThemeData(color: Colors.black),
       ),
@@ -57,7 +57,7 @@ class InvestNowPage extends GetView<CartController> {
                           children: [
                             Text(
                               controller.fundDetail.value!.schemeName ?? '',
-                              style: TextStyle(
+                              style: TextStyle(fontFamily: FontFamily.medium,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -91,17 +91,17 @@ class InvestNowPage extends GetView<CartController> {
     return Container(
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.blueAccent.withOpacity(0.1),
+        color: Colors.blueAccent.withValues(alpha:0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
         children: [
-          Text("Estimated Returns", style: TextStyle(color: Colors.blueGrey)),
+          Text("Estimated Returns", style: TextStyle(fontFamily: FontFamily.medium,color: Colors.blueGrey)),
           SizedBox(height: 10),
           Obx(
             () => Text(
               "₹${controller.investmentAmount.value}",
-              style: TextStyle(
+              style: TextStyle(fontFamily: FontFamily.medium,
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
                 color: Colors.blueAccent,
@@ -133,7 +133,7 @@ class InvestNowPage extends GetView<CartController> {
         ),
         child: Text(
           "Confirm Investment",
-          style: TextStyle(fontSize: 14, color: Colors.white),
+          style: TextStyle(fontFamily: FontFamily.medium,fontSize: 14, color: Colors.white),
         ),
       ),
     );
@@ -166,15 +166,15 @@ class InvestmentInputsRow extends StatelessWidget {
                     items: const [
                       DropdownMenuItem(
                         value: 'sip',
-                        child: Text('SIP', style: TextStyle(fontSize: 12)),
+                        child: Text('SIP', style: TextStyle(fontFamily: FontFamily.medium,fontSize: 12)),
                       ),
                       DropdownMenuItem(
                         value: 'lumpsum',
-                        child: Text('Lumpsum', style: TextStyle(fontSize: 12)),
+                        child: Text('Lumpsum', style: TextStyle(fontFamily: FontFamily.medium,fontSize: 12)),
                       ),
                       DropdownMenuItem(
                         value: 'stepup',
-                        child: Text('Step Up', style: TextStyle(fontSize: 12)),
+                        child: Text('Step Up', style: TextStyle(fontFamily: FontFamily.medium,fontSize: 12)),
                       ),
                     ],
                     onChanged: (val) {
@@ -207,7 +207,7 @@ class InvestmentInputsRow extends StatelessWidget {
                           value: '${i + 1}',
                           child: Text(
                             '${i + 1}',
-                            style: const TextStyle(fontSize: 12),
+                            style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 12),
                           ),
                         ),
                       ),
@@ -341,19 +341,19 @@ class InvestmentInputsRow extends StatelessWidget {
                 items: const [
                   DropdownMenuItem(
                     value: '1',
-                    child: Text('Monthly', style: TextStyle(fontSize: 12)),
+                    child: Text('Monthly', style: TextStyle(fontFamily: FontFamily.medium,fontSize: 12)),
                   ),
                   DropdownMenuItem(
                     value: '3',
-                    child: Text('Quarterly', style: TextStyle(fontSize: 12)),
+                    child: Text('Quarterly', style: TextStyle(fontFamily: FontFamily.medium,fontSize: 12)),
                   ),
                   DropdownMenuItem(
                     value: '6',
-                    child: Text('6 Months', style: TextStyle(fontSize: 12)),
+                    child: Text('6 Months', style: TextStyle(fontFamily: FontFamily.medium,fontSize: 12)),
                   ),
                   DropdownMenuItem(
                     value: '12',
-                    child: Text('Yearly', style: TextStyle(fontSize: 12)),
+                    child: Text('Yearly', style: TextStyle(fontFamily: FontFamily.medium,fontSize: 12)),
                   ),
                 ],
                 onChanged: (val) {

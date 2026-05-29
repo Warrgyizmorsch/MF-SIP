@@ -2384,7 +2384,7 @@ class _MobileLayout extends StatelessWidget {
                   iconData: Icons.directions_car_filled_rounded,
                 ),
                 GoalBaseSIPCard(
-                  title: 'Education',
+                  title: 'Education Goal',
                   iconData: Icons.menu_book,
                   onTap: () => Get.toNamed(
                     AppRoutes.masterGoalsPage,

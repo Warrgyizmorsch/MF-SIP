@@ -233,7 +233,7 @@ class _WebDashboardLayout extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
+                                      color: Colors.black.withValues(alpha:0.05),
                                       blurRadius: 10,
                                     ),
                                   ],
@@ -290,7 +290,7 @@ class _WebDashboardLayout extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
+                                      color: Colors.black.withValues(alpha:0.05),
                                       blurRadius: 10,
                                     ),
                                   ],
@@ -343,7 +343,7 @@ class _WebDashboardLayout extends StatelessWidget {
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.04),
+                                      color: Colors.black.withValues(alpha:0.04),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     ),
@@ -426,7 +426,7 @@ class _WebDashboardLayout extends StatelessWidget {
                                                     vertical: 8,
                                                   ),
                                               decoration: BoxDecoration(
-                                                color: Colors.blue.withOpacity(
+                                                color: Colors.blue.withValues(alpha:
                                                   0.08,
                                                 ),
                                                 borderRadius:
@@ -514,7 +514,7 @@ class _WebDashboardLayout extends StatelessWidget {
                               //     borderRadius: BorderRadius.circular(20),
                               //     boxShadow: [
                               //       BoxShadow(
-                              //         color: Colors.black.withOpacity(0.05),
+                              //         color: Colors.black.withValues(alpha:0.05),
                               //         blurRadius: 10,
                               //       ),
                               //     ],
@@ -627,7 +627,7 @@ class _WebDashboardLayout extends StatelessWidget {
 }
 
 class DashboardWidget extends StatelessWidget {
-  const DashboardWidget({Key? key}) : super(key: key);
+  const DashboardWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -637,7 +637,6 @@ class DashboardWidget extends StatelessWidget {
         padding: const EdgeInsets.all(24.0),
         child: LayoutBuilder(
           builder: (context, constraints) {
-            // Agar screen width 900 se kam hai toh column (stacked) dikhao, nahi toh row
             if (constraints.maxWidth < 900) {
               return Column(
                 children: [
@@ -687,7 +686,7 @@ class DashboardWidget extends StatelessWidget {
           const SizedBox(height: 24),
           _buildGoalItem(
             icon:
-                Icons.track_changes, // App me Iconsax.target use kar sakte hain
+                Icons.track_changes,
             iconColor: const Color(0xFF10B981),
             iconBgColor: const Color(0xFFE6F4EA),
             title: 'Dream Home',
@@ -937,7 +936,7 @@ class DashboardWidget extends StatelessWidget {
                 itemCount: transactions.length,
                 padding: const EdgeInsets.only(
                   right: 12,
-                ), // Scrollbar se gap ke liye
+                ),
                 separatorBuilder: (context, index) => const Divider(
                   height: 32,
                   thickness: 0.5,
@@ -1054,15 +1053,15 @@ class _WebStatCardState extends State<_WebStatCard> {
 
         decoration: BoxDecoration(
           /// LIGHT PREMIUM BACKGROUND
-          color: widget.color.withOpacity(0.04),
+          color: widget.color.withValues(alpha:0.04),
 
           borderRadius: BorderRadius.circular(20),
 
-          border: Border.all(color: widget.color.withOpacity(0.08)),
+          border: Border.all(color: widget.color.withValues(alpha:0.08)),
 
           boxShadow: [
             BoxShadow(
-              color: widget.color.withOpacity(isHovered ? 0.10 : 0.04),
+              color: widget.color.withValues(alpha:isHovered ? 0.10 : 0.04),
               blurRadius: 18,
               offset: const Offset(0, 8),
             ),
@@ -1183,7 +1182,7 @@ class _CardWavePainter extends CustomPainter {
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [color.withOpacity(0.15), color.withOpacity(0.03)],
+        colors: [color.withValues(alpha:0.15), color.withValues(alpha:0.03)],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
     // Main wave path
@@ -1225,7 +1224,7 @@ class _CardWavePainter extends CustomPainter {
     canvas.drawPath(wavePath, gradientPaint);
 
     // Optional highlight wave for depth
-    final highlightPaint = Paint()..color = color.withOpacity(0.08);
+    final highlightPaint = Paint()..color = color.withValues(alpha:0.08);
     final highlightPath = Path();
     highlightPath.moveTo(0, size.height * 0.9);
     highlightPath.quadraticBezierTo(
@@ -1270,7 +1269,7 @@ class _WebActionButton extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha:0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color),
@@ -1727,7 +1726,7 @@ class TransactionCardDash extends StatelessWidget {
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha:0.08),
                   blurRadius: 12,
                   offset: const Offset(0, 6),
                 ),
@@ -1760,7 +1759,6 @@ class TransactionCardDash extends StatelessWidget {
             children: [
               Flexible(
                 child: Text(
-                  // E.g., "SIP - Systematic" or "Normal - Lumpsum"
                   '${transaction.investmentType.toUpperCase()} - ${transaction.txtType.toUpperCase()}',
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
@@ -1806,7 +1804,7 @@ class TransactionCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha:0.08),
                   blurRadius: 12,
                   offset: const Offset(0, 6),
                 ),
@@ -1886,7 +1884,7 @@ class PortfolioCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.15),
+              color: Colors.black.withValues(alpha:0.15),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -2170,7 +2168,7 @@ class SummaryItem extends StatelessWidget {
               : EdgeInsets.zero,
           // decoration: BoxDecoration(
           //   color: isSpecial && isVisible
-          //       ? valueColor.withOpacity(0.15)
+          //       ? valueColor.withValues(alpha:0.15)
           //       : Colors.transparent,
           //   borderRadius: BorderRadius.circular(6),
           // ),
@@ -2223,7 +2221,7 @@ class SummaryItem extends StatelessWidget {
                         key: const ValueKey('hidden'),
                         style: TextStyle(
                           color: isSpecial
-                              ? valueColor.withOpacity(0.5)
+                              ? valueColor.withValues(alpha:0.5)
                               : Colors.white70,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,

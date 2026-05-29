@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -48,7 +46,7 @@ class NomineeListScreen extends GetView<PersonalisationController> {
                     children: [
                       const Text(
                         "Your Nominees",
-                        style: TextStyle(
+                        style: TextStyle(fontFamily: FontFamily.medium,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
@@ -66,7 +64,7 @@ class NomineeListScreen extends GetView<PersonalisationController> {
                           ),
                           label: const Text(
                             'Add Nominee',
-                            style: TextStyle(color: Colors.white),
+                            style: TextStyle(fontFamily: FontFamily.medium,color: Colors.white),
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Ucolors.blue,
@@ -126,7 +124,7 @@ class NomineeListScreen extends GetView<PersonalisationController> {
                                 ),
                                 child: const Text(
                                   'Add Your First Nominee',
-                                  style: TextStyle(color: Colors.white),
+                                  style: TextStyle(fontFamily: FontFamily.medium,color: Colors.white),
                                 ),
                               ),
                           ],
@@ -218,7 +216,7 @@ class NomineeListScreen extends GetView<PersonalisationController> {
                       child: const Center(
                         child: Text(
                           'Add Another Nominee',
-                          style: TextStyle(color: Ucolors.blue),
+                          style: TextStyle(fontFamily: FontFamily.medium,color: Ucolors.blue),
                         ),
                       ),
                     );
@@ -242,14 +240,14 @@ class NomineeListScreen extends GetView<PersonalisationController> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
+            child: const Text("Cancel", style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey)),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context); // Close dialog
               controller.deleteNominee(nominee); // Call API
             },
-            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            child: const Text("Delete", style: TextStyle(fontFamily: FontFamily.medium,color: Colors.red)),
           ),
         ],
       ),
@@ -306,7 +304,7 @@ class NomineeDetailsCard extends StatelessWidget {
       ),
       child: Column(
         mainAxisSize: MainAxisSize
-            .min, // 🚀 FIX 1: Column ko utni hi jagah lene do jitni zarurat hai
+            .min,
         children: [
           // --- TOP CARD: Summary Section ---
           Padding(
@@ -321,7 +319,7 @@ class NomineeDetailsCard extends StatelessWidget {
                     children: [
                       Text(
                         name,
-                        style: TextStyle(
+                        style: TextStyle(fontFamily: FontFamily.medium,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: isDark
@@ -340,13 +338,13 @@ class NomineeDetailsCard extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: isDark
-                                  ? Colors.blue.withOpacity(0.15)
+                                  ? Colors.blue.withValues(alpha:0.15)
                                   : const Color(0xFFEFF6FF),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               relation.toUpperCase(),
-                              style: const TextStyle(
+                              style: const TextStyle(fontFamily: FontFamily.medium,
                                 fontSize: 10,
                                 fontWeight: FontWeight.w800,
                                 color: Color(0xFF1D4ED8),
@@ -358,12 +356,12 @@ class NomineeDetailsCard extends StatelessWidget {
                             padding: EdgeInsets.symmetric(horizontal: 8.0),
                             child: Text(
                               '•',
-                              style: TextStyle(color: Colors.grey),
+                              style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey),
                             ),
                           ),
                           Text(
                             '$percentage Allocation',
-                            style: const TextStyle(
+                            style: const TextStyle(fontFamily: FontFamily.medium,
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF059669),
@@ -405,8 +403,7 @@ class NomineeDetailsCard extends StatelessWidget {
           ),
 
           // --- BOTTOM CARD: Details List ---
-          // 🚀 FIX 2: Hata diya Expanded() aur ListView().
-          // Ab yeh ek simple Column hai jo unbounded error nahi dega!
+
           Column(
             children: [
               _buildDetailItem(
@@ -478,7 +475,7 @@ class NomineeDetailsCard extends StatelessWidget {
             : Border(
                 bottom: BorderSide(
                   color: isDark
-                      ? const Color(0xFF334155).withOpacity(0.5)
+                      ? const Color(0xFF334155).withValues(alpha:0.5)
                       : const Color(0xFFF8FAFC),
                 ),
               ),
@@ -490,7 +487,7 @@ class NomineeDetailsCard extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
+              color: iconColor.withValues(alpha:0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: iconColor, size: 16),
@@ -503,7 +500,7 @@ class NomineeDetailsCard extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
+                  style: TextStyle(fontFamily: FontFamily.medium,
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.5,
@@ -515,7 +512,7 @@ class NomineeDetailsCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: TextStyle(
+                  style: TextStyle(fontFamily: FontFamily.medium,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                     color: isDark
@@ -592,7 +589,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //                     children: [
 //                       Text(
 //                         name,
-//                         style: TextStyle(
+//                         style: TextStyle(fontFamily: FontFamily.medium,
 //                           fontSize: 20,
 //                           fontWeight: FontWeight.bold,
 //                           color: isDark
@@ -612,13 +609,13 @@ class NomineeDetailsCard extends StatelessWidget {
 //                             ),
 //                             decoration: BoxDecoration(
 //                               color: isDark
-//                                   ? Colors.blue.withOpacity(0.15)
+//                                   ? Colors.blue.withValues(alpha:0.15)
 //                                   : const Color(0xFFEFF6FF),
 //                               borderRadius: BorderRadius.circular(20),
 //                             ),
 //                             child: Text(
 //                               relation.toUpperCase(),
-//                               style: const TextStyle(
+//                               style: const TextStyle(fontFamily: FontFamily.medium,
 //                                 fontSize: 10,
 //                                 fontWeight: FontWeight.w800,
 //                                 color: Color(0xFF1D4ED8),
@@ -630,12 +627,12 @@ class NomineeDetailsCard extends StatelessWidget {
 //                             padding: EdgeInsets.symmetric(horizontal: 8.0),
 //                             child: Text(
 //                               '•',
-//                               style: TextStyle(color: Colors.grey),
+//                               style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey),
 //                             ),
 //                           ),
 //                           Text(
 //                             '$percentage Allocation',
-//                             style: const TextStyle(
+//                             style: const TextStyle(fontFamily: FontFamily.medium,
 //                               fontSize: 13,
 //                               fontWeight: FontWeight.bold,
 //                               color: Color(0xFF059669),
@@ -753,7 +750,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //             : Border(
 //                 bottom: BorderSide(
 //                   color: isDark
-//                       ? const Color(0xFF334155).withOpacity(0.5)
+//                       ? const Color(0xFF334155).withValues(alpha:0.5)
 //                       : const Color(0xFFF8FAFC),
 //                 ),
 //               ),
@@ -766,7 +763,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //             width: 36,
 //             height: 36,
 //             decoration: BoxDecoration(
-//               color: iconColor.withOpacity(0.1),
+//               color: iconColor.withValues(alpha:0.1),
 //               borderRadius: BorderRadius.circular(10),
 //             ),
 //             child: Icon(icon, color: iconColor, size: 16),
@@ -779,7 +776,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //               children: [
 //                 Text(
 //                   label,
-//                   style: TextStyle(
+//                   style: TextStyle(fontFamily: FontFamily.medium,
 //                     fontSize: 10,
 //                     fontWeight: FontWeight.bold,
 //                     letterSpacing: 0.5,
@@ -791,7 +788,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //                 const SizedBox(height: 2),
 //                 Text(
 //                   value,
-//                   style: TextStyle(
+//                   style: TextStyle(fontFamily: FontFamily.medium,
 //                     fontSize: 13,
 //                     fontWeight: FontWeight.w500,
 //                     color: isDark
@@ -922,7 +919,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //                 child: const Center(
 //                   child: Text(
 //                     'Add Another Nominee',
-//                     style: TextStyle(color: Ucolors.blue),
+//                     style: TextStyle(fontFamily: FontFamily.medium,color: Ucolors.blue),
 //                   ),
 //                 ),
 //               );
@@ -943,14 +940,14 @@ class NomineeDetailsCard extends StatelessWidget {
 //         actions: [
 //           TextButton(
 //             onPressed: () => Navigator.pop(context),
-//             child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
+//             child: const Text("Cancel", style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey)),
 //           ),
 //           TextButton(
 //             onPressed: () {
 //               Navigator.pop(context); // Close dialog
 //               controller.deleteNominee(nominee); // Call API
 //             },
-//             child: const Text("Delete", style: TextStyle(color: Colors.red)),
+//             child: const Text("Delete", style: TextStyle(fontFamily: FontFamily.medium,color: Colors.red)),
 //           ),
 //         ],
 //       ),
@@ -1104,7 +1101,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //                     children: [
 //                       Text(
 //                         name,
-//                         style: TextStyle(
+//                         style: TextStyle(fontFamily: FontFamily.medium,
 //                           fontSize: 24,
 //                           fontWeight: FontWeight.bold,
 //                           color: isDark
@@ -1122,13 +1119,13 @@ class NomineeDetailsCard extends StatelessWidget {
 //                             ),
 //                             decoration: BoxDecoration(
 //                               color: isDark
-//                                   ? Colors.blue.withOpacity(0.15)
+//                                   ? Colors.blue.withValues(alpha:0.15)
 //                                   : const Color(0xFFEFF6FF),
 //                               borderRadius: BorderRadius.circular(20),
 //                             ),
 //                             child: Text(
 //                               relation.toUpperCase(),
-//                               style: const TextStyle(
+//                               style: const TextStyle(fontFamily: FontFamily.medium,
 //                                 fontSize: 11,
 //                                 fontWeight: FontWeight.w700,
 //                                 color: Color(0xFF1D4ED8),
@@ -1139,12 +1136,12 @@ class NomineeDetailsCard extends StatelessWidget {
 //                             padding: EdgeInsets.symmetric(horizontal: 8.0),
 //                             child: Text(
 //                               '•',
-//                               style: TextStyle(color: Colors.grey),
+//                               style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey),
 //                             ),
 //                           ),
 //                           Text(
 //                             '$percentage Allocation',
-//                             style: const TextStyle(
+//                             style: const TextStyle(fontFamily: FontFamily.medium,
 //                               fontSize: 14,
 //                               fontWeight: FontWeight.w600,
 //                               color: Color(0xFF3B82F6),
@@ -1254,7 +1251,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //               : Border(
 //                   bottom: BorderSide(
 //                     color: isDark
-//                         ? const Color(0xFF334155).withOpacity(0.5)
+//                         ? const Color(0xFF334155).withValues(alpha:0.5)
 //                         : const Color(0xFFF8FAFC),
 //                   ),
 //                 ),
@@ -1266,7 +1263,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //               width: 40,
 //               height: 40,
 //               decoration: BoxDecoration(
-//                 color: iconColor.withOpacity(0.1),
+//                 color: iconColor.withValues(alpha:0.1),
 //                 borderRadius: BorderRadius.circular(12),
 //               ),
 //               child: Icon(icon, color: iconColor, size: 15),
@@ -1278,7 +1275,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //                 children: [
 //                   Text(
 //                     label,
-//                     style: TextStyle(
+//                     style: TextStyle(fontFamily: FontFamily.medium,
 //                       fontSize: 10,
 //                       fontWeight: FontWeight.bold,
 //                       letterSpacing: 0.5,
@@ -1290,7 +1287,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //                   const SizedBox(height: 2),
 //                   Text(
 //                     value,
-//                     style: TextStyle(
+//                     style: TextStyle(fontFamily: FontFamily.medium,
 //                       fontSize: 14,
 //                       fontWeight: FontWeight.w500,
 //                       color: isDark
@@ -1369,7 +1366,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //                     children: [
 //                       Text(
 //                         name,
-//                         style: TextStyle(
+//                         style: TextStyle(fontFamily: FontFamily.medium,
 //                           fontSize: 24,
 //                           fontWeight: FontWeight.bold,
 //                           color: isDark
@@ -1388,13 +1385,13 @@ class NomineeDetailsCard extends StatelessWidget {
 //                             ),
 //                             decoration: BoxDecoration(
 //                               color: isDark
-//                                   ? Colors.blue.withOpacity(0.15)
+//                                   ? Colors.blue.withValues(alpha:0.15)
 //                                   : const Color(0xFFEFF6FF),
 //                               borderRadius: BorderRadius.circular(20),
 //                             ),
 //                             child: Text(
 //                               relation.toUpperCase(),
-//                               style: const TextStyle(
+//                               style: const TextStyle(fontFamily: FontFamily.medium,
 //                                 fontSize: 11,
 //                                 fontWeight: FontWeight.w700,
 //                                 color: Color(0xFF1D4ED8),
@@ -1405,12 +1402,12 @@ class NomineeDetailsCard extends StatelessWidget {
 //                             padding: EdgeInsets.symmetric(horizontal: 8.0),
 //                             child: Text(
 //                               '•',
-//                               style: TextStyle(color: Colors.grey),
+//                               style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey),
 //                             ),
 //                           ),
 //                           Text(
 //                             '$percentage Allocation',
-//                             style: const TextStyle(
+//                             style: const TextStyle(fontFamily: FontFamily.medium,
 //                               fontSize: 14,
 //                               fontWeight: FontWeight.w600,
 //                               color: Color(0xFF3B82F6),
@@ -1535,7 +1532,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //             : Border(
 //                 bottom: BorderSide(
 //                   color: isDark
-//                       ? const Color(0xFF334155).withOpacity(0.5)
+//                       ? const Color(0xFF334155).withValues(alpha:0.5)
 //                       : const Color(0xFFF8FAFC),
 //                 ),
 //               ),
@@ -1547,7 +1544,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //             width: 40,
 //             height: 40,
 //             decoration: BoxDecoration(
-//               color: iconColor.withOpacity(0.1),
+//               color: iconColor.withValues(alpha:0.1),
 //               borderRadius: BorderRadius.circular(12),
 //             ),
 //             child: Icon(icon, color: iconColor, size: 20),
@@ -1559,7 +1556,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //               children: [
 //                 Text(
 //                   label,
-//                   style: TextStyle(
+//                   style: TextStyle(fontFamily: FontFamily.medium,
 //                     fontSize: 10,
 //                     fontWeight: FontWeight.bold,
 //                     letterSpacing: 0.5,
@@ -1571,7 +1568,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //                 const SizedBox(height: 2),
 //                 Text(
 //                   value,
-//                   style: TextStyle(
+//                   style: TextStyle(fontFamily: FontFamily.medium,
 //                     fontSize: 14,
 //                     fontWeight: FontWeight.w500,
 //                     color: isDark
@@ -1637,7 +1634,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //         ),
 //         boxShadow: [
 //           BoxShadow(
-//             color: Colors.black.withOpacity(0.05),
+//             color: Colors.black.withValues(alpha:0.05),
 //             blurRadius: 10,
 //             offset: const Offset(0, 4),
 //           ),
@@ -1657,7 +1654,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //                   children: [
 //                     Text(
 //                       name,
-//                       style: TextStyle(
+//                       style: TextStyle(fontFamily: FontFamily.medium,
 //                         fontSize: 20,
 //                         fontWeight: FontWeight.bold,
 //                       ),
@@ -1672,13 +1669,13 @@ class NomineeDetailsCard extends StatelessWidget {
 //                           ),
 //                           decoration: BoxDecoration(
 //                             color: isDark
-//                                 ? Colors.blue.withOpacity(0.2)
+//                                 ? Colors.blue.withValues(alpha:0.2)
 //                                 : const Color(0xFFEFF6FF),
 //                             borderRadius: BorderRadius.circular(6),
 //                           ),
 //                           child: Text(
 //                             relation,
-//                             style: TextStyle(
+//                             style: TextStyle(fontFamily: FontFamily.medium,
 //                               fontSize: 10,
 //                               fontWeight: FontWeight.w800,
 //                               color: isDark
@@ -1697,7 +1694,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //                         ),
 //                         Text(
 //                           '$percentage Allocation',
-//                           style: TextStyle(
+//                           style: TextStyle(fontFamily: FontFamily.medium,
 //                             fontSize: 14,
 //                             fontWeight: FontWeight.bold,
 //                             color: Color(0xFF059669), // emerald-600
@@ -1764,7 +1761,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //         Expanded(
 //           child: Text(
 //             text,
-//             style: TextStyle(
+//             style: TextStyle(fontFamily: FontFamily.medium,
 //               fontSize: 13,
 //               fontWeight: FontWeight.w500,
 //               color: isDark ? Colors.grey[300] : const Color(0xFF475569),
@@ -1787,7 +1784,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //         const SizedBox(width: 12),
 //         Text(
 //           '$docType: ',
-//           style: TextStyle(
+//           style: TextStyle(fontFamily: FontFamily.medium,
 //             fontSize: 10,
 //             fontWeight: FontWeight.w800,
 //             color: Colors.grey[500],
@@ -1795,7 +1792,7 @@ class NomineeDetailsCard extends StatelessWidget {
 //         ),
 //         Text(
 //           docNum,
-//           style: TextStyle(
+//           style: TextStyle(fontFamily: FontFamily.medium,
 //             fontSize: 13,
 //             fontWeight: FontWeight.w500,
 //             color: isDark ? Colors.grey[300] : const Color(0xFF475569),

@@ -4,6 +4,8 @@ import 'package:my_sip/common/widget/text/subtitle_section.dart';
 import 'package:my_sip/common/widget/top_bottom_style/top_bottom_style.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 
+import '../../../../core/utils/constant/text_style.dart';
+
 class QuestionPage extends StatefulWidget {
   const QuestionPage({super.key});
 
@@ -29,7 +31,7 @@ class _QuestionPageState extends State<QuestionPage> {
             children: [
               Text(
                 "STEP 1 OF 4",
-                style: TextStyle(fontSize: 10, color: Colors.grey),
+                style: TextStyle(fontFamily: FontFamily.medium,fontSize: 10, color: Colors.grey),
               ),
 
               Stack(
@@ -51,7 +53,7 @@ class _QuestionPageState extends State<QuestionPage> {
               ),
               Text(
                 "Select Age Group",
-                style: TextStyle(
+                style: TextStyle(fontFamily: FontFamily.medium,
                   fontSize: 25,
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -59,7 +61,7 @@ class _QuestionPageState extends State<QuestionPage> {
               ),
               Text(
                 "This helps us personalize your investment horizon.",
-                style: TextStyle(
+                style: TextStyle(fontFamily: FontFamily.medium,
                   fontSize: 20,
                   color: Colors.grey,
                   fontWeight: FontWeight.bold,
@@ -81,7 +83,7 @@ class _QuestionPageState extends State<QuestionPage> {
                             children: [
                               Text(
                                 "20-35 Years",
-                                style: TextStyle(
+                                style: TextStyle(fontFamily: FontFamily.medium,
                                   fontSize: 15,
                                   color: Colors.grey,
                                 ),
@@ -103,7 +105,7 @@ class _QuestionPageState extends State<QuestionPage> {
                             children: [
                               Text(
                                 "36-50 Years",
-                                style: TextStyle(
+                                style: TextStyle(fontFamily: FontFamily.medium,
                                   fontSize: 15,
                                   color: Colors.grey,
                                 ),
@@ -125,7 +127,7 @@ class _QuestionPageState extends State<QuestionPage> {
                             children: [
                               Text(
                                 "51+ Years",
-                                style: TextStyle(
+                                style: TextStyle(fontFamily: FontFamily.medium,
                                   fontSize: 15,
                                   color: Colors.grey,
                                 ),
@@ -144,7 +146,7 @@ class _QuestionPageState extends State<QuestionPage> {
                 onPressed: () {
                   
                 },
-                child: Text('Continue', style: TextStyle(color: Colors.white)),
+                child: Text('Continue', style: TextStyle(fontFamily: FontFamily.medium,color: Colors.white)),
               ),
               Center(
                 child: SubtitleText(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/table/table_header.dart';
@@ -10,7 +11,10 @@ import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/si
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/piechart_with_value.dart';
 import 'package:responsive_framework/responsive_framework.dart'; // Import Responsive
 
+import '../../../../../common/widget/button/elevated_button.dart';
+import '../../../../../config/routes/app_routes.dart';
 import '../../../../../core/utils/helper/helpers.dart';
+import '../../../../../navigation_menu_bar.dart';
 import '../../../../fund_details/data/models/return_model.dart';
 import '../../../../fund_details/presentation/pages/fund_deatails.dart';
 import '../../../../fund_details/presentation/widgets/return.dart';
@@ -92,6 +96,19 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
                 ],
               ),
           ],
+        ),
+      ),
+      bottomNavigationBar: isDesktop? null : UElevatedBUtton(
+        onPressed: (){
+          Get.offAllNamed(AppRoutes.navMenuBar);
+          Future.delayed(const Duration(milliseconds: 100), () {
+            if (Get.isRegistered<NavigationBarController>()) {
+              Get.find<NavigationBarController>().selectedIndex.value = 1;
+            }
+          });
+        },
+        child: Center(
+          child: Text("Explore Funds", style:  UTextStyles.buttonText),
         ),
       ),
     );

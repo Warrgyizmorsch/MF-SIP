@@ -18,6 +18,10 @@ import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.da
     hide parseFundManagers;
 import 'package:my_sip/features/wishlist/presentation/controller/wishlist_controller.dart';
 
+import '../../../../../common/widget/animated/custom_footer.dart';
+import '../../../../dashboard/presentation/pages/comparison_screen.dart';
+import '../../../../mfu/presentation/pages/purchase_page.dart';
+
 class CompareFundsPage extends GetView<CompareFundController> {
   CompareFundsPage({super.key});
 
@@ -49,33 +53,6 @@ class CompareFundsPage extends GetView<CompareFundController> {
             children: [
               const Gap(12),
 
-              // --- 1. HEADER SELECTION CARDS ---
-              // Padding(
-              //   padding: const EdgeInsets.symmetric(horizontal: 12),
-              //   child: Row(
-              //     children: [
-              //       Expanded(
-              //         child: CompareCard(
-              //           fund: f1Basic,
-              //           isLoading: controller.isFund1Loading.value,
-              //           onTap: () => _openSearchSheet(context, 1),
-              //           onRemove: () => controller.removeFund(1),
-              //         ),
-              //       ),
-              //       const Gap(8),
-              //       Expanded(
-              //         child: CompareCard(
-              //           fund: f2Basic,
-              //           isLoading: controller.isFund2Loading.value,
-              //           onTap: () => _openSearchSheet(context, 2),
-              //           onRemove: () => controller.removeFund(2),
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
-
-              // --- 1. HEADER SELECTION CARDS ---
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Row(
@@ -173,6 +150,73 @@ class CompareFundsPage extends GetView<CompareFundController> {
           );
         }),
       ),
+      bottomNavigationBar: Obx(() {
+        final fund1 = controller.fund1Basic.value;
+        final fund2 = controller.fund2Basic.value;
+
+        if (fund1 == null && fund2 == null) {
+          return const SizedBox.shrink();
+        }
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomFooter(),
+
+            SafeArea(
+              top: false,
+              child: BottomBarButtonGoalDetails(
+                firstButton: fund1 != null ? 'Invest Now' : '',
+                secondButton: fund2 != null ? 'Invest Now' : '',
+
+                firstButtonP: fund1 == null
+                    ? null
+                    : () async {
+                  final purchaseArgs = SipPurchaseArgs(
+                    schemeCode: fund1.schemeCode ?? '',
+                    fundName: fund1.baseSchemeName ?? '',
+                    riskLabel: '',
+                    minSip: fund1.minSipAmount ?? 1000,
+                    minLumpsum:
+                    fund1.minLumpsum?.toInt() ?? 5000,
+                    minTopup: 5000,
+                    folio: null,
+                    imgUrl:
+                    '${Appurl.baseUrl}${fund1.amc?.amcLogoUrl}',
+                  );
+
+                  Get.to(
+                        () => SIPPurchasePage(),
+                    arguments: purchaseArgs,
+                  );
+                },
+
+                secondButtonP: fund2 == null
+                    ? null
+                    : () async {
+                  final purchaseArgs = SipPurchaseArgs(
+                    schemeCode: fund2.schemeCode ?? '',
+                    fundName: fund2.baseSchemeName ?? '',
+                    riskLabel: '',
+                    minSip: fund2.minSipAmount ?? 1000,
+                    minLumpsum:
+                    fund2.minLumpsum?.toInt() ?? 5000,
+                    minTopup: 5000,
+                    folio: null,
+                    imgUrl:
+                    '${Appurl.baseUrl}${fund2.amc?.amcLogoUrl}',
+                  );
+
+                  Get.to(
+                        () => SIPPurchasePage(),
+                    arguments: purchaseArgs,
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 
@@ -307,7 +351,8 @@ class CompareFundsPage extends GetView<CompareFundController> {
                     if (mutualFundController.isLoading.value) {
                       return Align(
                         alignment: Alignment.topCenter,
-                        child: CircularProgressIndicator(),
+                        child: CircularProgressIndicator(strokeWidth: 3.0,
+                          color: Ucolors.primary,),
                       );
                     }
 
@@ -802,7 +847,8 @@ class CompareCardOption extends StatelessWidget {
         color: Colors.white,
         child: SizedBox(
           height: 130,
-          child: Center(child: CircularProgressIndicator()),
+          child: Center(child: CircularProgressIndicator(strokeWidth: 3.0,
+            color: Ucolors.primary,)),
         ),
       );
     }

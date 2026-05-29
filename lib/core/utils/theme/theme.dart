@@ -111,7 +111,7 @@ class Utheme {
       fontFamily: _font,
       fontSize: 14.0,
       fontWeight: FontWeight.w500,
-      color: Ucolors.dark.withOpacity(0.5),
+      color: Ucolors.dark.withValues(alpha:0.5),
     ),
 
     labelLarge: TextStyle(
@@ -124,7 +124,7 @@ class Utheme {
       fontFamily: _font,
       fontSize: 12.0,
       fontWeight: FontWeight.normal,
-      color: Ucolors.dark.withOpacity(0.5),
+      color: Ucolors.dark.withValues(alpha:0.5),
     ),
   );
 }

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/freedom_sip/presentation/widgets/sip_amount_selector.dart';
 import 'package:my_sip/features/sip_process/presentation/widgets/sip_projection_chart.dart';
+import '../../../../common/widget/animated/custom_footer.dart';
 import '../../../../common/widget/button/elevated_button.dart';
 import '../../../../core/utils/constant/colors.dart';
 import '../../../../core/utils/constant/images.dart';
@@ -20,10 +21,8 @@ class MonthlySipScreen extends GetView<SipProcessController> {
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
     return Scaffold(
-      // Web par transparent/greyish background, Mobile par primary blue
       backgroundColor: isDesktop ? Colors.transparent : Ucolors.primary,
 
-      // Mobile pe bottom nav dikhega, Web pe null (andar hi handle hoga)
       bottomNavigationBar: isDesktop ? null : _buildMobileBottomNav(context),
 
       body: SafeArea(
@@ -54,7 +53,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha:0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -72,7 +71,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                 const SizedBox(height: 8),
                 Text(
                   "Start small, grow big. Adjust the slider to see your projected wealth.",
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                  style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600, fontSize: 14),
                 ),
                 const SizedBox(height: 40),
 
@@ -142,7 +141,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
   }
 
   // =========================================
-  // 📱 MOBILE LAYOUT (Apka original layout)
+  // 📱 MOBILE LAYOUT
   // =========================================
   Widget _buildMobileLayout(BuildContext context) {
     return SingleChildScrollView(
@@ -203,7 +202,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
   }
 
   // =========================================
-  // 🧩 REUSABLE WIDGETS (Dono Web & Mobile ke liye)
+  // 🧩 REUSABLE WIDGETS
   // =========================================
 
   // 1. Input Section (Slider & Chips)
@@ -272,7 +271,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
+                    color: Colors.black.withValues(alpha:0.3),
                     offset: const Offset(0, 4),
                     blurRadius: 24,
                     spreadRadius: -1,
@@ -436,48 +435,55 @@ class MonthlySipScreen extends GetView<SipProcessController> {
 
   // 3. Mobile Bottom Nav Bar
   Widget _buildMobileBottomNav(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+
+      children: [
+        CustomFooter(),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha:0.05),
+                blurRadius: 10,
+                offset: const Offset(0, -5),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: SafeArea(
-        child: Row(
-          children: [
-            Expanded(
-              child: UElevatedBUtton(
-                onPressed: () => Get.back(),
-                outlined: true,
-                child: Center(
-                  child: Text(
-                    'Back',
-                    style: AppTextStyles.bodyMedium(color: Ucolors.primary),
+          child: SafeArea(
+            child: Row(
+              children: [
+                Expanded(
+                  child: UElevatedBUtton(
+                    onPressed: () => Get.back(),
+                    outlined: true,
+                    child: Center(
+                      child: Text(
+                        'Back',
+                        style: AppTextStyles.bodyMedium(color: Ucolors.primary),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: UElevatedBUtton(
-                onPressed: () => Get.toNamed(AppRoutes.investingApproachScreen),
-                child: Center(
-                  child: Text(
-                    controller.isLumpsum.value ? 'Lumpsum' : 'Sip',
-                    style: AppTextStyles.bodyMedium(color: Colors.white),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: UElevatedBUtton(
+                    onPressed: () => Get.toNamed(AppRoutes.investingApproachScreen),
+                    child: Center(
+                      child: Text(
+                        controller.isLumpsum.value ? 'Lumpsum' : 'Sip',
+                        style: AppTextStyles.bodyMedium(color: Colors.white),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }
