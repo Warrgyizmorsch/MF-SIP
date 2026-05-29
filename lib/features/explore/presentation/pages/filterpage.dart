@@ -1158,8 +1158,8 @@ class ReturnRangePanel extends StatelessWidget {
                   child: RangeSlider(
                     values: controller.returnRange.value,
                     min: 0,
-                    max: 100,
-                    divisions: 100,
+                    max: 300,
+                    divisions: 300,
                     labels: RangeLabels(
                       '${controller.returnRange.value.start.round()}%',
                       '${controller.returnRange.value.end.round()}%',
@@ -1244,7 +1244,7 @@ class ReturnRangePanel extends StatelessWidget {
                   controller.returnRange.value = const RangeValues(0, 100);
                   controller.isReturnRangeActive.value = false;
                   controller.minReturnController.text = '0';
-                  controller.maxReturnController.text = '100';
+                  controller.maxReturnController.text = '300';
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(

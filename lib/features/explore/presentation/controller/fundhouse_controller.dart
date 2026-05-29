@@ -110,7 +110,7 @@ class FundhouseController extends GetxController {
     bool isSortActive = mutualController.currentSortLabel.value != "1Y,3Y,5Y";
 
     final riskType = mutualController.dynamicRiskType;
-    
+
     // }
     if (riskType != null && !isFilterActive && !isSortActive) {
       params['risk_type'] = riskType;
@@ -166,7 +166,7 @@ class FundhouseController extends GetxController {
     double max = double.tryParse(maxReturnController.text) ?? 100;
 
     if (min < 0) min = 0;
-    if (max > 100) max = 100;
+    if (max > 300) max = 300;
 
     // Prevent the slider from crashing if user is halfway through typing (e.g., min is 50, but max is currently '2' as they try to type '200')
     double sliderMin = min > max ? max : min;
@@ -181,7 +181,7 @@ class FundhouseController extends GetxController {
     double max = double.tryParse(maxReturnController.text) ?? 100;
 
     if (min < 0) min = 0;
-    if (max > 100) max = 100;
+    if (max > 300) max = 300;
     if (min > max) min = max;
 
     returnRange.value = RangeValues(min, max);
