@@ -21,7 +21,7 @@ class GoalSipController extends GetxController {
   final GoalUseCases goalUseCases;
   // ── Investment Mode ───────────────────────────────────────────────────────────
   final RxString investmentMode = 'sip'.obs; // 'sip' | 'lumpsum'
-
+  final RxInt selectedSipDay = 1.obs;
 // ── Lumpsum Observables ───────────────────────────────────────────────────────
   final RxDouble lumpsumAmount = 0.0.obs;
   final RxDouble lumpsumFutureValue = 0.0.obs;
@@ -506,12 +506,14 @@ class GoalSipController extends GetxController {
     final requestData = {
       "user_id": SessionManager.instance.getUserData?.id,
       "created_date": DateTime.now().toString(),
-      "target_amount": targetAmount.value,
+      "target_amount": investmentMode.value=='sip' ?targetAmount.value:lumpsumFutureValue.value,
       "frequency": "Monthly",
-      "monthly_investment": monthlySip.value,
+      "monthly_investment":investmentMode.value=='sip' ?monthlySip.value:0,
       "expected_return_rate": annualRate.value,
       "goal_tenure": years.value,
-      "invested_amount": invested.value,
+      // "invested_amount":investmentMode.value=='sip' ?invested.value: ,
+      "txn_type": investmentMode.value,
+      "lumpsum_amount":investmentMode.value=='sip' ?0: lumpsumAmount,
       "status": "active",
       "goal_name": goalNameTextEditingController.text,
       "goal_id": goalId.value.toString(),

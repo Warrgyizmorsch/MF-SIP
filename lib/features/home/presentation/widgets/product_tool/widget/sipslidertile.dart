@@ -21,6 +21,7 @@ class SipSliderTile2 extends StatefulWidget {
     required this.value,
     required this.min,
     required this.max,
+
     required this.suffix,
     required this.onChanged,
     this.prefix,

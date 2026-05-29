@@ -305,7 +305,66 @@ class BottomBarButton extends StatelessWidget {
     );
   }
 }
+class BottomBarButtonGoalDetails extends StatelessWidget {
+  const BottomBarButtonGoalDetails({
+    super.key,
+    required this.firstButton,
+    required this.secondButton,
+    this.firstButtonP,
+    this.secondButtonP,
+    this.isLoading = false, // <--- Add this
+  });
 
+  final String firstButton;
+  final String secondButton;
+  final VoidCallback? firstButtonP;
+  final VoidCallback? secondButtonP;
+  final bool isLoading; // <--- Add this
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewPadding.bottom;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 0, 16, 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: UElevatedBUtton(
+              onPressed: isLoading ? null : firstButtonP, // Disable if loading
+              // height: 52,
+              // outlined: true,
+              child: Center(
+                child: Text(firstButton, style:  UTextStyles.buttonText),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: UElevatedBUtton(
+              onPressed: isLoading ? null : secondButtonP, // Disable if loading
+              // height: 52,
+              child: isLoading
+                  ? const SizedBox(
+                height: 10,
+                width: 10,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                ),
+              )
+                  : Center(
+                child: Text(secondButton, style: UTextStyles.buttonText),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 // class BottomBarButton extends StatelessWidget {
 //   const BottomBarButton({
 //     super.key,

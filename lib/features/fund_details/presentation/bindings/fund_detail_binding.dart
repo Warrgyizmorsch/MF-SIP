@@ -72,6 +72,7 @@ class FundDetailBinding extends Bindings {
       fenix: true,
     );
 
+
     Get.lazyPut(() => CompareFundController(fundDetailsUsecases: Get.find()));
   }
 }
