@@ -8,10 +8,8 @@ import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../../common/widget/animated/custom_footer.dart';
 import '../../../../common/widget/appbar/custom_appbar_normal.dart';
-import '../../../../common/widget/appbar/widget/compact_icon.dart';
 import '../../../../common/widget/button/elevated_button.dart';
 import '../../../../common/widget/images/custom_cached_image.dart';
-import '../../../../common/widget/shimmer/shimmer.dart';
 import '../../../../common/widget/table/table_header.dart';
 import '../../../../common/widget/text/view_all.dart';
 import '../../../../common/widget/text_form/custom_text_field.dart';
@@ -21,7 +19,6 @@ import '../../../../core/utils/constant/colors.dart';
 import '../../../../core/utils/constant/text_style.dart';
 import '../../../../core/utils/helper/helpers.dart';
 import '../../../../navigation_menu_bar.dart';
-import '../../../cart/domain/usecases/cart_usecases.dart';
 import '../../../cart/presentation/controllers/cart_controller.dart';
 import '../../../cart/presentation/pages/cart_page.dart';
 import '../../../explore/presentation/controller/fundhouse_controller.dart';
@@ -35,10 +32,7 @@ import '../../../sip_process/presentation/widgets/sip_projection_chart.dart';
 import '../../domain/entity/goal_entity.dart';
 import '../controller/goal_sip_controller.dart';
 
-// =============================================================================
-// MasterGoalsPage
-// Entry point — routes to edit or create flow
-// =============================================================================
+
 class MasterGoalsPage extends GetView<GoalSipController> {
   const MasterGoalsPage({super.key});
 
@@ -110,10 +104,7 @@ class MasterGoalsPage extends GetView<GoalSipController> {
   }
 }
 
-// =============================================================================
-// GoalDetailsScreen
-// Fixed: removed duplicate UI blocks, unified post-save/edit logic
-// =============================================================================
+
 class GoalDetailsScreen extends GetView<GoalSipController> {
   GoalDetailsScreen({super.key});
 
@@ -247,14 +238,6 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                     Get.snackbar("Error", "Please select funds to start SIP");
                     return;
                   }
-
-                  // Agar investment mode SIP hai, toh dialog dikhao, nahi toh normal process
-                  if (controller.investmentMode.value == 'sip') {
-                    _showSipDateDialog(context);
-                  } else {
-                    // Lumpsum ya kisi aur mode ke liye aapka direct next screen ka logic yahan aayega
-                    // Get.toNamed(AppRoutes.nextScreen);
-                  }
                 },
                 amount: controller.monthlySip.value.toStringAsFixed(0),
                 amountColor: Ucolors.blue,
@@ -265,101 +248,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
       }),
     );
   }
-  void _showSipDateDialog(BuildContext context) {
-    // Local reactive variable taaki dialog ke andar dropdown instantly update ho sake
-    RxString selectedSipDay = (controller.selectedSipDay.value ?? 1).toString().obs;
 
-    Get.dialog(
-      Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        backgroundColor: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Select SIP Date',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: FontFamily.medium, // Agar aapki app me use ho rahi hai
-                ),
-              ),
-              const Gap(16),
-              const Text(
-                'Choose a monthly installment date:',
-                style: TextStyle(fontSize: 13, color: Colors.grey),
-              ),
-              const Gap(12),
-
-              // Dropdown Container
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Obx(() => DropdownButton<String>(
-                  menuMaxHeight: 300,
-                  dropdownColor: Colors.white,
-                  isDense: true,
-                  value: selectedSipDay.value,
-                  isExpanded: true,
-                  underline: const SizedBox(),
-                  items: List.generate(
-                    28,
-                        (i) => DropdownMenuItem(
-                      value: '${i + 1}',
-                      child: Text(
-                        '${i + 1}',
-                        style: const TextStyle(
-                          fontFamily: FontFamily.medium,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
-                  onChanged: (val) {
-                    if (val != null) {
-                      selectedSipDay.value = val;
-                      // Controller me value update karne ke liye
-                      controller.selectedSipDay.value = int.parse(val);
-                    }
-                  },
-                )),
-              ),
-              const Gap(20),
-
-              // Actions Buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => Get.back(),
-                    child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
-                  ),
-                  const Gap(8),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Ucolors.blue,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                    onPressed: () {
-
-                    },
-                    child: const Text('Confirm', style: TextStyle(color: Colors.white)),
-                  ),
-                ],
-              )
-            ],
-          ),
-        ),
-      ),
-      barrierDismissible: false, // User bahar click karke band na kar paye bina confirm/cancel kiye
-    );
-  }
   // ── Shared UI: Projection chart + fund heading + fund grid ──────────────────
   Widget _buildProjectionAndFunds(BuildContext context) {
     return Column(
@@ -375,7 +264,6 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                 ? 'Selected Funds ($selectedCount)'
                 : 'Popular Funds',
             showActionButton: true,
-            // Ye bhi ab reactive ho gaya hai aur automatic change hoga
             buttonTitle: selectedCount > 0
                 ? 'Add Funds'
                 : 'View All',
@@ -766,15 +654,6 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
   }
 }
 
-// =============================================================================
-// PopularAndSelectedFund
-// Fixed:
-//   1. selectedFunds derived from goalSipController.selectedFundNames (stable)
-//      instead of filtering the volatile searchFund list
-//   2. Removed duplicate Stack/GestureDetector — single GestureDetector only
-// =============================================================================
-
-
 class PopularAndSelectedFund extends StatelessWidget {
   PopularAndSelectedFund({super.key});
 
@@ -907,14 +786,41 @@ class PopularAndSelectedFund extends StatelessWidget {
                 behavior:
                 HitTestBehavior.translucent,
 
-                onTap: () {
+                onTap: () async {
+                  FocusScope.of(context).unfocus();
 
-                  FocusScope.of(context)
-                      .unfocus();
+                  final isSelected =
+                  goalSipController.isSelectedFund(name);
 
-                  /// Select / Unselect
-                  goalSipController
-                      .toggleFund(name);
+                  /// Unselect
+                  if (isSelected) {
+                    goalSipController.toggleFund(name);
+                    return;
+                  }
+                  if (goalSipController.selectedPopularFund.isEmpty) {
+                    final confirmed =
+                    await _showSipDateDialog(context, goalSipController);
+
+                    if (confirmed != true) return;
+                  }
+                  /// Select UI
+                  goalSipController.toggleFund(name);
+
+                  /// Save Goal Fund API
+                  await goalSipController.saveGoalFund(
+                    goalId:
+                    goalSipController.savedDatabaseId.value??0,
+                    schemeCode:
+                    fund.schemeCode?.toString() ?? '',
+                    schemeName:
+                    fund.baseSchemeName ?? '',
+                    sipAmount:
+                    (fund.minSipAmount ?? 0).toDouble(),
+                    sipDay:
+                    goalSipController.selectedSipDay.value,
+                  );
+
+
                 },
 
                 child: PopularFundCardMobSelected(
@@ -939,14 +845,74 @@ class PopularAndSelectedFund extends StatelessWidget {
       );
     });
   }
-}
+  Future<bool?> _showSipDateDialog(
+      BuildContext context, GoalSipController controller
+      ) {
+    RxString selectedSipDay =
+        (controller.selectedSipDay.value)
+            .toString()
+            .obs;
+
+    return Get.dialog<bool>(
+      Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("Select SIP Date"),
+
+              const SizedBox(height: 16),
+
+              Obx(
+                    () => DropdownButton<String>(
+                  value: selectedSipDay.value,
+                  isExpanded: true,
+                  items: List.generate(
+                    28,
+                        (i) => DropdownMenuItem(
+                      value: '${i + 1}',
+                      child: Text('${i + 1}'),
+                    ),
+                  ),
+                  onChanged: (val) {
+                    if (val != null) {
+                      selectedSipDay.value = val;
+                      controller.selectedSipDay.value =
+                          int.parse(val);
+                    }
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              Row(
+                mainAxisAlignment:
+                MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Get.back(result: false);
+                    },
+                    child: const Text("Cancel"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Get.back(result: true);
+                    },
+                    child: const Text("Confirm"),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }}
 
 
-
-
-// =============================================================================
-// PopularFundCardMobSelected — unchanged, already correct
-// =============================================================================
 class PopularFundCardMobSelected extends StatelessWidget {
   const PopularFundCardMobSelected({
     super.key,
@@ -1229,7 +1195,7 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
                   const TableHeader(
                     heading1: 'Year',
                     heading2: 'Invest',
-                    heading3: 'Curent',
+                    heading3: 'Current',
                     heading4: 'Profit',
                   ),
                   DashedLine(color: Ucolors.borderColor, dashSpace: 0),
@@ -1611,7 +1577,7 @@ class _LumpsumTabContent extends GetView<GoalSipController> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("bulid${controller.lumpsumAmount.value.toString()}");
+    debugPrint("build${controller.lumpsumAmount.value.toString()}");
     final double lumpsumAmount =controller.smartRoundOff(controller.lumpsumAmount.value);
     debugPrint("after build${lumpsumAmount.toString()}");
     return Column(
@@ -1619,7 +1585,7 @@ class _LumpsumTabContent extends GetView<GoalSipController> {
         // Lumpsum Amount
         Obx(
           () {
-            debugPrint("Obx bulid${controller.lumpsumAmount.value.toString()}");
+            debugPrint("Obx build${controller.lumpsumAmount.value.toString()}");
             final double lumpsumAmount =controller.smartRoundOff(controller.lumpsumAmount.value);
             debugPrint("Obx after build${lumpsumAmount.toString()}");
             return  IgnorePointer(
@@ -1951,7 +1917,7 @@ class GoalsGridScreen extends GetView<GoalSipController> {
 
                           controller.lumpsumAmount.value = controller
                               .smartRoundOff(pv);
-                          debugPrint("ontap${controller.lumpsumAmount.value}");// invest amount
+                          debugPrint("onTap${controller.lumpsumAmount.value}");// invest amount
                           controller.lumpsumFutureValue.value =
                               goal.targetAmount; // fixed FV
                           controller.lumpsumTotalReturn.value =

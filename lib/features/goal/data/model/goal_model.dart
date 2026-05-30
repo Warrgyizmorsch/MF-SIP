@@ -18,7 +18,33 @@ class GoalResponseModel {
     );
   }
 }
+class SaveGoalResponseModel {
+  final bool? success;
+  final String? message;
+  final UserGoalModel? data;
 
+  SaveGoalResponseModel({
+    this.success,
+    this.message,
+    this.data,
+  });
+
+  factory SaveGoalResponseModel.fromJson(
+      Map<String, dynamic> json,
+      ) {
+    return SaveGoalResponseModel(
+      success: json.parse<bool>('success'),
+      message: json.parse<String>('message'),
+      data: json['data'] != null
+          ? UserGoalModel.fromJson(
+        json['data'] as Map<String, dynamic>,
+      )
+          : null,
+    );
+  }
+
+
+}
 class UserGoalModel {
   final int? id;
   final int? userId;
