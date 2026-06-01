@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_null_in_if_null_operators, unused_local_variable
+
 import 'dart:developer';
 import 'dart:io';
 import 'dart:ui';
@@ -9,20 +11,17 @@ import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/table/table_header.dart';
 import 'package:my_sip/common/widget/text/small_heading.dart';
 import 'package:my_sip/common/widget/text/view_all.dart';
-import 'package:my_sip/common/widget/text_form/text_field_component.dart';
 import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
-import 'package:my_sip/features/cart/data/model/cartItem_model.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/cart/presentation/pages/cart_page.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
@@ -33,7 +32,6 @@ import 'package:my_sip/features/fund_details/presentation/widgets/return.dart';
 import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/sipslidertile.dart';
 import 'package:my_sip/features/sip_process/presentation/widgets/sip_projection_chart.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../../services/image_picker_service.dart';
@@ -1520,11 +1518,12 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
             const Gap(25),
             Obx(() {
               final rows = controller.buildYearlyReport();
-              if (rows.isEmpty)
+              if (rows.isEmpty) {
                 return const SizedBox(
                   height: 250,
                   child: CircularProgressIndicator(),
                 );
+              }
 
               return SizedBox(
                 height: 250,

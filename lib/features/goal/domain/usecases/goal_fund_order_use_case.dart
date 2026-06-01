@@ -3,7 +3,6 @@ import 'package:my_sip/features/goal/domain/repositories/goal_repository.dart';
 
 import '../../../../core/utils/api/api_error.dart';
 import '../../../../core/utils/api/api_result.dart';
-import '../entity/goal_entity.dart';
 import '../entity/goal_fund_order_entity.dart';
 
 class GoalFundOrderUseCase {

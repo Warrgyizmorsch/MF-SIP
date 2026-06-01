@@ -731,7 +731,6 @@ class GoalSipController extends GetxController {
         }
         await getAllGoals();
         Get.back();
-        Get.back();
         ULoaders.success(
           title: 'Deleted',
           message: success.data?.message ?? '',

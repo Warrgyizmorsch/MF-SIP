@@ -7,7 +7,6 @@ import 'package:my_sip/features/personalization/presentation/controllers/persona
 import 'package:my_sip/core/utils/constant/colors.dart';
 
 import '../../../../core/utils/constant/text_style.dart';
-import '../../domain/entity/risk_entity.dart';
 
 class RiskProfile extends GetView<PersonalisationController> {
   const RiskProfile({super.key});

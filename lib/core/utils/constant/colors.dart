@@ -24,6 +24,27 @@ class Ucolors {
   static const Color black = Color(0xff000000);
   static const Color white = Color(0xffFFFFFF);
 
+  static const primary3 = Color(0xFF000B3C);
+  static const primaryContainer = Color(0xFF0A1F63);
+  static const onPrimary = Color(0xFFFFFFFF);
+  static const onPrimaryContainer = Color(0xFF7989D2);
+  static const surface = Color(0xFFF9F9FF);
+  static const surfaceBright = Color(0xFFF9F9FF);
+  static const surfaceContainerLowest = Color(0xFFFFFFFF);
+  static const surfaceContainerLow = Color(0xFFF0F3FF);
+  static const surfaceContainer = Color(0xFFE7EEFE);
+  static const surfaceContainerHigh = Color(0xFFE2E8F8);
+  static const surfaceContainerHighest = Color(0xFFDCE2F3);
+  static const surfaceVariant = Color(0xFFDCE2F3);
+  static const onSurface = Color(0xFF151C27);
+  static const onSurfaceVariant = Color(0xFF454650);
+  static const outline = Color(0xFF757682);
+  static const outlineVariant = Color(0xFFC5C5D2);
+  static const onSecondaryContainer = Color(0xFF5C656F);
+  static const secondaryContainer = Color(0xFFDAE3EF);
+  static const infoBanner = Color(0xFFEAF3FF);
+  static const infoBannerBorder = Color(0xFFD5E6FF);
+
   static const LinearGradient backgroundGradient = LinearGradient(
     begin: Alignment.centerRight,
     end: Alignment.centerLeft,

@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
@@ -18,6 +19,7 @@ import 'package:my_sip/features/personalization/domain/entity/bank_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/nominee_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/risk_question_entity.dart';
 import 'package:my_sip/features/personalization/domain/usecases/personalisation_use_cases.dart';
+import 'package:my_sip/features/personalization/presentation/widgets/download_statement.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 import 'dart:async';
@@ -136,6 +138,131 @@ class PersonalisationController extends GetxController {
   String? get activeMmurn {
     return userData.value?.mfuMandate?.mumrn;
   }
+
+  //////           DownLoad Statement                   //////////////
+  final isCapitalGain = false.obs;
+  // Statement type: 0 = PAN, 1 = Folio
+  final statementTypeIndex = 0.obs;
+
+  final startDate = Rx<DateTime?>(null);
+  final endDate = Rx<DateTime?>(null);
+
+  // PAN input
+  final panControllerDownload = TextEditingController(text: 'ABCDE1234F');
+
+  // Folio / scheme selections (mock values)
+  final selectedFolio = '123456789'.obs;
+  final selectedScheme = 'Growth Fund - Direct'.obs;
+
+  // Duration: 0=Current FY, 1=Previous FY, 2=Full Statement, 3=Custom
+  final selectedDuration = 0.obs;
+
+  final List<String> durations = [
+    'Current FY',
+    'Previous FY',
+    'Full Statement',
+    'Custom',
+  ];
+
+  void selectStatementType(int index) => statementTypeIndex.value = index;
+  // void selectDuration(int index) => selectedDuration.value = index;
+  void selectDuration(int index) {
+    selectedDuration.value = index;
+    // Optional: Clear dates if they switch away from custom
+    if (index != 3) {
+      startDate.value = null;
+      endDate.value = null;
+    }
+  }
+
+  void setStatementMode({required bool isCapital}) {
+    isCapitalGain.value = isCapital;
+
+    // Optional: Reset other variables to default when opening the screen
+    isCapital ? statementTypeIndex.value = 1 : statementTypeIndex.value = 0;
+    // panController.text = 'ABCDE1234F';
+  }
+
+  void onDownload() {
+    if (selectedDuration.value == 3 &&
+        (startDate.value == null || endDate.value == null)) {
+      CustomSnackbar.warning(
+        title: 'Missing Info',
+        message: 'Please select both start and end dates',
+      );
+      return;
+    }
+    CustomSnackbar.success(title: 'Download', message: 'Generating statement…');
+  }
+
+  void onEmail() {
+    if (selectedDuration.value == 3 &&
+        (startDate.value == null || endDate.value == null)) {
+      CustomSnackbar.warning(
+        title: 'Missing Info',
+        message: 'Please select both start and end dates',
+      );
+      return;
+    }
+    CustomSnackbar.show(
+      title: 'Email',
+      message: 'Statement sent to ****@gmail.com',
+    );
+  }
+
+  // Date Picker Logic
+  Future<void> pickDate(BuildContext context, bool isStart) async {
+    final initialDate = isStart
+        ? (startDate.value ?? DateTime.now())
+        : (endDate.value ?? DateTime.now());
+
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(), // Prevent picking future dates
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Ucolors.primary3,
+              onPrimary: Ucolors.onPrimary,
+              onSurface: Ucolors.onSurface,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      if (isStart) {
+        startDate.value = pickedDate;
+        // Auto-clear end date if it's before the new start date
+        if (endDate.value != null && endDate.value!.isBefore(pickedDate)) {
+          endDate.value = null;
+        }
+      } else {
+        // Prevent end date from being before start date
+        if (startDate.value != null && pickedDate.isBefore(startDate.value!)) {
+          CustomSnackbar.error(
+            title: 'Invalid Date',
+            message: 'End date cannot be before start date',
+          );
+          return;
+        }
+        endDate.value = pickedDate;
+      }
+    }
+  }
+
+  // Helper to show date in UI
+  String formatDate(DateTime? date) {
+    if (date == null) return 'DD/MM/YYYY';
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
+
+  ////////////    --------------           ////////////
 
   final nomineeDocumentSelectionList = [
     "Pan",

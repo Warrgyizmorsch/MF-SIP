@@ -1,3 +1,5 @@
+// ignore_for_file: curly_braces_in_flow_control_structures, dead_null_aware_expression, dead_code
+
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';

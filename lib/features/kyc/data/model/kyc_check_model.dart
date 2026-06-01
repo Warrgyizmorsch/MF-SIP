@@ -1,4 +1,3 @@
-import '../../domain/entity/kyc_check_entity.dart';
 
 class KycCheckModel {
   final bool? status;

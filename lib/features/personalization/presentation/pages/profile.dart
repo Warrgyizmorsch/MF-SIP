@@ -15,6 +15,7 @@ import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
+import 'package:my_sip/features/personalization/presentation/widgets/download_statement.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/help_support.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
@@ -145,7 +146,7 @@ class _WebProfileDashboard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha:0.04),
+                      color: Colors.black.withValues(alpha: 0.04),
                       blurRadius: 20,
                       offset: const Offset(0, 4),
                     ),
@@ -199,7 +200,8 @@ class _WebProfileDashboard extends StatelessWidget {
                       children: [
                         const Text(
                           "Account Settings",
-                          style: TextStyle(fontFamily: FontFamily.medium,
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -303,7 +305,7 @@ class _WebProfileDashboard extends StatelessWidget {
                   border: Border.all(color: Colors.grey.shade200),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha:0.02),
+                      color: Colors.black.withValues(alpha: 0.02),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -317,7 +319,8 @@ class _WebProfileDashboard extends StatelessWidget {
                     Text(
                       item.title,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontFamily: FontFamily.medium,
+                      style: const TextStyle(
+                        fontFamily: FontFamily.medium,
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
@@ -492,6 +495,37 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
             title: 'Rate Us',
             images: UImages.likedislike,
           ),
+          const Row(
+            children: [
+              SizedBox(width: 16),
+              SectionHeading(
+                sectionTitle: 'Reports',
+                fontWeight: FontWeight.w700,
+              ),
+            ],
+          ),
+          Listtilecustom(
+            onTap: () {
+              Get.find<PersonalisationController>().setStatementMode(
+                isCapital: false,
+              );
+              Get.to(() => DownloadStatementsScreen());
+            },
+            title: 'Account Statement',
+            images: UImages.likedislike,
+          ),
+          Listtilecustom(
+            onTap: () {
+              Get.find<PersonalisationController>().setStatementMode(
+                isCapital: true,
+              );
+              Get.to(
+                () => DownloadStatementsScreen(),
+              );
+            },
+            title: 'ElSS Report',
+            images: UImages.likedislike,
+          ),
         ],
       ),
     );
@@ -605,13 +639,14 @@ class Upgradebanner extends StatelessWidget {
                   ),
                   title: SubtitleText(
                     fontWeight: FontWeight.w400,
-                    textcolor: Ucolors.light.withValues(alpha:0.8),
+                    textcolor: Ucolors.light.withValues(alpha: 0.8),
                     subtitle: 'Your Risk Profile',
                     textAlignCenter: TextAlign.left,
                   ),
                   subtitle: Text(
                     "${riskData.profileName} (${riskData.totalScore}/150)",
-                    style: const TextStyle(fontFamily: FontFamily.medium,
+                    style: const TextStyle(
+                      fontFamily: FontFamily.medium,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
@@ -628,29 +663,6 @@ class Upgradebanner extends StatelessWidget {
     });
   }
 }
-
-// class Upgradebanner extends StatelessWidget {
-//   const Upgradebanner({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final session = SessionManager.instance;
-//     final sz = MediaQuery.of(context).size;
-//     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
-//     return session.getRiskScore == null ?  UElevatedBUtton(
-//       onPressed: () => Get.toNamed(AppRoutes.riskProfile),
-//       height: isDesktop ? 80 : sz.height * 0.08,
-//       child: Center(
-//         child: ListTile(
-//           leading: CircleAvatar(backgroundColor: Colors.amber, backgroundImage: AssetImage(UImages.crown)),
-//           title: SubtitleText(fontWeight: FontWeight.w600, textcolor: Ucolors.light, subtitle: 'Check Your Risk Profile Now!', textAlignCenter: TextAlign.left),
-//           trailing: const Icon(Icons.arrow_forward_ios, color: Ucolors.light),
-//         ),
-//       ),
-//     ) :
-//     ;
-//   }
-// }
 
 class ProfileHeader extends StatelessWidget {
   const ProfileHeader({
@@ -702,56 +714,26 @@ class ProfileHeader extends StatelessWidget {
         if (name != null && name!.isNotEmpty) ...[
           Text(
             name!,
-            style: const TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w700, fontSize: 18),
+            style: const TextStyle(
+              fontFamily: FontFamily.medium,
+              fontWeight: FontWeight.w700,
+              fontSize: 18,
+            ),
           ),
         ],
         Text(
           subtitle,
-          style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade700, fontSize: 14),
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            color: Colors.grey.shade700,
+            fontSize: 14,
+          ),
         ),
       ],
     );
   }
 
-  // Widget _buildImage() {
-  //   // 1. Handle Network Images
-  //   if (img.startsWith('http') ||
-  //       img.startsWith('https') ||
-  //       img.startsWith('storage/')) {
-  //     final fullUrl = img.startsWith('storage/')
-  //         ? "https://sip-backend.londonstreetstore.com/public/$img"
-  //         : img;
-
-  //     return Image.network(
-  //       fullUrl,
-  //       fit: BoxFit.cover,
-  //       width: 120,
-  //       height: 120,
-  //       errorBuilder: (context, error, stackTrace) =>
-  //           const Icon(Icons.person, size: 50),
-  //     );
-  //   }
-
-  //   // 2. Handle Local File Images (from Image Picker)
-  //   if (img.isNotEmpty && File(img).existsSync()) {
-  //     return Image.file(File(img), fit: BoxFit.cover, width: 120, height: 120);
-  //   }
-
-  //   // if (!kIsWeb && img.isNotEmpty) {
-  //   //   final file = File(img);
-  //   //   if (file.existsSync()) {
-  //   //     return Image.file(file, fit: BoxFit.cover, width: 120, height: 120);
-  //   //   }
-  //   // }
-
-  //   // 3. Default/Asset Image
-  //   return Image.asset(
-  //     img.isEmpty ? 'assets/images/avatar.png' : img,
-  //     fit: BoxFit.cover,
-  //     width: 120,
-  //     height: 120,
-  //   );
-  // }
+  //
   Widget _buildImage() {
     // 1. Agar image empty/null hai
     if (img.isEmpty || img == 'null') {
@@ -819,62 +801,3 @@ class ProfileHeader extends StatelessWidget {
     );
   }
 }
-
-// class ProfileHeader extends StatelessWidget {
-//   const ProfileHeader({
-//     super.key,
-//     required this.img,
-//     this.name,
-//     required this.subtitle,
-//     required this.icon,
-//     required this.onTap,
-//   });
-//   final String img;
-//   final String? name;
-//   final String subtitle;
-//   final IconData icon;
-//   final VoidCallback onTap;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       children: [
-//         Stack(
-//           children: [
-//             GestureDetector(
-//               onTap: onTap,
-//               child: Center(
-//                 child: CircleAvatar(
-//                   radius: 60,
-//                   // child: CustomCachedImage(imageUrl: img),
-//                   // child: Image.asset(img),
-//                   child: ClipOval(child: Image.file(File(img))),
-//                 ),
-//               ),
-//             ),
-//             Positioned(
-//               left: 70,
-//               right: 0,
-//               bottom: 5,
-//               child: CircleAvatar(
-//                 backgroundColor: Ucolors.light,
-//                 radius: 14,
-//                 child: Center(child: Icon(icon, color: Ucolors.dark)),
-//               ),
-//             ),
-//           ],
-//         ),
-//         const SizedBox(height: 10),
-//         SectionHeading(
-//           sectionTitle: name ?? '',
-//           textcolor: Ucolors.dark,
-//           fontWeight: FontWeight.w700,
-//         ),
-//         Text(
-//           subtitle,
-//           style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade700, fontSize: 14),
-//         ),
-//       ],
-//     );
-//   }
-// }

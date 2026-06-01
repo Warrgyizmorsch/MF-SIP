@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_to_list_in_spreads, dead_null_aware_expression, dead_code, unused_local_variable, unused_element_parameter, unnecessary_non_null_assertion
+
 import 'dart:developer';
 import 'dart:ui';
 import 'package:fl_chart/fl_chart.dart';

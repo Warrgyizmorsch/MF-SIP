@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -53,7 +55,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha:0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -71,7 +73,11 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                 const SizedBox(height: 8),
                 Text(
                   "Start small, grow big. Adjust the slider to see your projected wealth.",
-                  style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600, fontSize: 14),
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    color: Colors.grey.shade600,
+                    fontSize: 14,
+                  ),
                 ),
                 const SizedBox(height: 40),
 
@@ -271,7 +277,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha:0.3),
+                    color: Colors.black.withValues(alpha: 0.3),
                     offset: const Offset(0, 4),
                     blurRadius: 24,
                     spreadRadius: -1,
@@ -446,7 +452,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
             color: Colors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha:0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, -5),
               ),
@@ -470,7 +476,8 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: UElevatedBUtton(
-                    onPressed: () => Get.toNamed(AppRoutes.investingApproachScreen),
+                    onPressed: () =>
+                        Get.toNamed(AppRoutes.investingApproachScreen),
                     child: Center(
                       child: Text(
                         controller.isLumpsum.value ? 'Lumpsum' : 'Sip',

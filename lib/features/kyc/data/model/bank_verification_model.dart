@@ -61,6 +61,8 @@
 //     this.timestamp,
 //   });
 
+// ignore_for_file: library_private_types_in_public_api, avoid_print, invalid_null_aware_operator
+
 //   factory AuditTrailModel.fromJson(Map<String, dynamic> json) {
 //     return AuditTrailModel(
 //       nature: json.parse<String>('nature'),

@@ -33,9 +33,10 @@ class DashboardController extends GetxController {
   void changeTab(int index) {
     selectedIndex.value = index;
     if (index == 1) {
-      if (transactionList.value == null) {
-        getTransactions();
-      }
+      // if (transactionList.value == null) {
+      //   getTransactions();
+      // }
+      getTransactions();
     }
   }
 

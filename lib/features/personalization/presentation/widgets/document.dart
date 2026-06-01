@@ -37,6 +37,8 @@
 
 //             SizedBox(height: 10),
 
+// ignore_for_file: unused_local_variable
+
 //             InfoCard(
 //               onTap: () {},
 //               title: 'PAN Card',

@@ -50,7 +50,6 @@ class MfuController extends GetxController {
   final isSubmittingTxn = false.obs;
   final isSubmittingSystematicTxn = false.obs;
   final isValidatingCanBank = false.obs;
- 
 
   // ─── Redeem State ────────────────────────────────────────────────────────────
 
@@ -68,7 +67,6 @@ class MfuController extends GetxController {
   final normalTxnResponse = Rxn<MfuNormalTxnEntity>();
   final systematicTxnResponse = Rxn<MfuSystematicTxnEntity>();
   final canBankValidationResponse = Rxn<MfuCanBankValidationEntity>();
-
 
   final errorMessage = ''.obs;
   final selectedMethod = 'upi'.obs; // 'upi' | 'netbanking'
@@ -349,8 +347,8 @@ class MfuController extends GetxController {
       if (folio != null && folio.isNotEmpty) {
         normalTransaction(
           MfuNormalTxnRequest.lumpsumExistingFolio(
-            uid: 9015,
-            // uid: session.getUserData?.id ?? 0,
+            // uid: 9105,
+            uid: session.getUserData?.id ?? 0,
             schemeCode: args.schemeCode,
             amount: sipAmount.value.toDouble(),
             folio: folio,
@@ -359,7 +357,9 @@ class MfuController extends GetxController {
       } else {
         normalTransaction(
           MfuNormalTxnRequest.lumpsumNewFolio(
-            uid: 9105,
+            // uid: 9105,
+            uid: session.getUserData?.id ?? 0,
+
             schemeCode: "012",
             // schemeCode: args.schemeCode,
             amount: sipAmount.value.toDouble(),
@@ -925,7 +925,6 @@ class MfuController extends GetxController {
     return '${_toWords(n ~/ 10000000)} Crore${n % 10000000 > 0 ? ' ${_toWords(n % 10000000)}' : ''}';
   }
 
-  
   @override
   void onClose() {
     _stopCanStatusPolling();

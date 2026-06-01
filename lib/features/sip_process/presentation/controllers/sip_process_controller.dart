@@ -1,5 +1,7 @@
 
 
+// ignore_for_file: unused_local_variable
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -11,7 +13,6 @@ import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.
 import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_usecases.dart';
 import 'package:my_sip/services/session_manager.dart';
 import '../../domain/usecases/get_fund_list_usecase.dart';
-import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 
 // FIX: Updated StateMixin to use MutualFundListEntity to match your API result
