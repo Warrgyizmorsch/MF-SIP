@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 
 import '../../data/model/goal_model.dart';
 
@@ -20,7 +21,7 @@ class GoalResponseEntity extends Equatable {
 class SaveGoalResponseEntity extends Equatable {
   final bool success;
   final String message;
-  final UserGoalEntity data;
+  final GoalDetailEntity data;
 
   const SaveGoalResponseEntity({
     required this.success,
@@ -35,27 +36,38 @@ class SaveGoalResponseEntity extends Equatable {
     data,
   ];
 }
-class UserGoalEntity extends Equatable {
+class GoalDetailEntity extends Equatable {
   final int id;
   final int userId;
   final int goalId;
   final String goalName;
   final String goalCover;
+
+  final String txnType;
+  final double lumpsumAmount;
+  final String createdDate;
+  final double targetAmount;
+
   final String frequency;
   final double monthlyInvestment;
   final double expectedReturnRate;
   final int goalTenure;
   final double investedAmount;
   final String status;
-  final GoalTypeEntity? goalType; // API key: gold_type
+
+  final GoalTypeEntity? goalType;
   final List<GoalFundEntity> goalFunds;
 
-  const UserGoalEntity({
+  const GoalDetailEntity({
     required this.id,
     required this.userId,
     required this.goalId,
     required this.goalName,
     required this.goalCover,
+    required this.txnType,
+    required this.lumpsumAmount,
+    required this.createdDate,
+    required this.targetAmount,
     required this.frequency,
     required this.monthlyInvestment,
     required this.expectedReturnRate,
@@ -68,8 +80,77 @@ class UserGoalEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    id, userId, goalId, goalName, goalCover, frequency, monthlyInvestment,
-    expectedReturnRate, goalTenure, investedAmount, status, goalType, goalFunds
+    id,
+    userId,
+    goalId,
+    goalName,
+    goalCover,
+    txnType,
+    lumpsumAmount,
+    createdDate,
+    targetAmount,
+    frequency,
+    monthlyInvestment,
+    expectedReturnRate,
+    goalTenure,
+    investedAmount,
+    status,
+    goalType,
+    goalFunds,
+  ];
+}
+class UserGoalEntity extends Equatable {
+  final int id;
+  final int userId;
+  final int goalId;
+  final String goalName;
+  final String goalCover;
+  final String txnType;
+  final double lumpsumAmount;
+  final String frequency;
+  final double monthlyInvestment;
+  final double expectedReturnRate;
+  final int goalTenure;
+  final double investedAmount;
+  final String status;
+  final GoalTypeEntity? goalType;
+  final List<GoalFundEntity> goalFunds;
+
+  const UserGoalEntity({
+    required this.id,
+    required this.userId,
+    required this.goalId,
+    required this.goalName,
+    required this.goalCover,
+    required this.txnType,
+    required this.lumpsumAmount,
+    required this.frequency,
+    required this.monthlyInvestment,
+    required this.expectedReturnRate,
+    required this.goalTenure,
+    required this.investedAmount,
+    required this.status,
+    this.goalType,
+    required this.goalFunds,
+  });
+
+  @override
+  List<Object?> get props => [
+    id,
+    userId,
+    goalId,
+    goalName,
+    goalCover,
+    txnType,
+    lumpsumAmount,
+    frequency,
+    monthlyInvestment,
+    expectedReturnRate,
+    goalTenure,
+    investedAmount,
+    status,
+    goalType,
+    goalFunds,
   ];
 }
 
@@ -196,6 +277,28 @@ extension GoalResponseMapper on GoalResponseModel {
   }
 }
 
+extension GoalDetailMapper on GoalDetailModel {
+  GoalDetailEntity toEntity() {
+    return GoalDetailEntity(
+      id: id ?? 0,
+      userId: userId ?? 0,
+      goalId: goalId ?? 0,
+      goalName: goalName ?? '',
+      goalCover: goalCover ?? '',
+      txnType: txnType ?? '',
+      lumpsumAmount: lumpsumAmount ?? 0.0,
+      createdDate: createdDate ?? '',
+      targetAmount: targetAmount ?? 0.0,
+      frequency: frequency ?? '',
+      monthlyInvestment: monthlyInvestment ?? 0.0,
+      expectedReturnRate: expectedReturnRate ?? 0.0,
+      goalTenure: goalTenure ?? 0,
+      investedAmount: investedAmount ?? 0.0,
+      status: status ?? '',
+      goalFunds: const [],
+    );
+  }
+}
 extension UserGoalMapper on UserGoalModel {
   UserGoalEntity toEntity() {
     return UserGoalEntity(
@@ -204,13 +307,15 @@ extension UserGoalMapper on UserGoalModel {
       goalId: goalId ?? 0,
       goalName: goalName ?? '',
       goalCover: goalCover ?? '',
+      txnType: txnType ?? '',
+      lumpsumAmount: lumpsumAmount ?? 0.0,
       frequency: frequency ?? '',
       monthlyInvestment: monthlyInvestment ?? 0.0,
       expectedReturnRate: expectedReturnRate ?? 0.0,
       goalTenure: goalTenure ?? 0,
       investedAmount: investedAmount ?? 0.0,
       status: status ?? '',
-      goalType: goldType?.toEntity(),
+      goalType: goalType?.toEntity(),
       goalFunds: goalFunds?.map((e) => e.toEntity()).toList() ?? [],
     );
   }

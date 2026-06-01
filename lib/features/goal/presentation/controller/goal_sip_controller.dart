@@ -28,7 +28,8 @@ class GoalSipController extends GetxController {
   final RxDouble lumpsumFutureValue = 0.0.obs;
   final RxDouble lumpsumTotalReturn = 0.0.obs;
   final RxDouble lumpsumReturnPercent = 0.0.obs;
-
+  final distributionRemainder = 0.0.obs;
+  final Map<String, TextEditingController> amountControllers = {};
 
 // ── Lumpsum Calculation ───────────────────────────────────────────────────────
   void recalculateLumpsum() {
@@ -138,6 +139,7 @@ class GoalSipController extends GetxController {
   final RxList<GoalFundOrderEntity> savedGoalFunds =
       <GoalFundOrderEntity>[].obs;
   final savedDatabaseId = RxnInt();
+  final savedInvestmentType = Rxn<String>();
 
   // --- Goal Response data ---
   final isLoadingGoals = false.obs;
@@ -464,6 +466,7 @@ class GoalSipController extends GetxController {
       return result.fold(
             (success) {
           goalResponse.value = success.data;
+          debugPrint("Goals fetched: ${goalResponse.value?.data.length ?? 0}");
           return true;
         },
             (error) {
@@ -502,24 +505,42 @@ class GoalSipController extends GetxController {
       );
       return;
     }
-    // final currentType = selectedGoalType.value;
-    // final correctDbId = goalConfig[currentType]?['db_id'] ?? "6";
 
     final requestData = {
       "user_id": SessionManager.instance.getUserData?.id,
-      "created_date": DateTime.now().toString(),
-      "target_amount": investmentMode.value=='sip' ?targetAmount.value:lumpsumFutureValue.value,
+      "goal_name": goalNameTextEditingController.text.trim(),
+      "goal_id": goalId.value,
+
+      "target_amount": investmentMode.value == 'sip'
+          ? targetAmount.value.toDouble()
+          : lumpsumFutureValue.value.toDouble(),
+
       "frequency": "Monthly",
-      "monthly_investment":investmentMode.value=='sip' ?monthlySip.value:0,
-      "expected_return_rate": annualRate.value,
-      "goal_tenure": years.value,
-      // "invested_amount":investmentMode.value=='sip' ?invested.value: ,
-      "txn_type": investmentMode.value,
-      "lumpsum_amount":investmentMode.value=='sip' ?0: lumpsumAmount,
+
+      "monthly_investment": investmentMode.value == 'sip'
+          ? monthlySip.value.toDouble()
+          : 0.0,
+
+      "expected_return_rate": annualRate.value.toDouble(),
+
+      "goal_tenure": years.value.toInt(),
+
+      "invested_amount": investmentMode.value == 'sip'
+          ? invested.value.toDouble()
+          : 0.0,
+
+      "txn_type": investmentMode.value.toLowerCase(),
+
+      "lumpsum_amount": investmentMode.value == 'lumpsum'
+          ? lumpsumAmount.toDouble()
+          : 0.0,
+
       "status": "active",
-      "goal_name": goalNameTextEditingController.text,
-      "goal_id": goalId.value.toString(),
+
+      "created_date": DateTime.now().toString(),
     };
+
+
 
     final result = await goalUseCases.saveGoalUseCase.call(requestData);
     return result.fold(
@@ -531,6 +552,8 @@ class GoalSipController extends GetxController {
         isGoalSaved.value = true;
         savedDatabaseId.value =
             success.data?.data.id ?? 0;
+        savedInvestmentType.value =
+            success.data?.data.txnType ?? 'sip';
 
         debugPrint(
           'Saved Goal Id: ${savedDatabaseId.value}',
@@ -544,6 +567,189 @@ class GoalSipController extends GetxController {
       },
     );
   }
+
+  int? getGoalFundId(String schemeCode) {
+    final goals = goalResponse.value?.data ?? [];
+
+    for (final goal in goals) {
+      for (final fund in goal.goalFunds) {
+        if (fund.schemeCode == schemeCode) {
+          return fund.id;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  int roundToNearest100(num amount) {
+    final int a = amount.round();
+    final remainder = a % 100;
+
+    if (remainder >= 50) {
+      return a + (100 - remainder);
+    } else {
+      return a - remainder;
+    }
+  }
+  Future<void> distributeMonthlyAmount() async {
+    if (savedInvestmentType.value != "lumpsum") return;
+    if (lumpsumAmount.value <= 0) return;
+
+    final MutualFundController mutualController = Get.find();
+
+    final selectedFundNames = selectedPopularFund.toList();
+    final int count = selectedFundNames.length;
+
+    if (count == 0) return;
+
+    final int roundedTotal = roundToNearest100(lumpsumAmount.value);
+    int baseAmount = roundToNearest100((roundedTotal / count).round());
+
+    final List<int> assignedAmounts = List.generate(count, (_) => baseAmount);
+
+    int totalAssigned = assignedAmounts.fold(0, (a, b) => a + b);
+    int difference = roundedTotal - totalAssigned;
+    if (difference != 0) {
+      assignedAmounts[count - 1] += difference;
+    }
+
+    distributionRemainder.value = lumpsumAmount.value -
+        assignedAmounts.fold(0.0, (a, b) => a + b);
+
+    debugPrint(
+      "Count: $count\n"
+          "Lumpsum Total: ${lumpsumAmount.value}\n"
+          "Rounded Total: $roundedTotal\n"
+          "Assigned: $assignedAmounts\n"
+          "Remainder: ${distributionRemainder.value}",
+    );
+
+    final allFunds = mutualController.searchFund;
+
+    for (int i = 0; i < selectedFundNames.length; i++) {
+      final fundName = selectedFundNames[i];
+
+      final fund = allFunds.firstWhereOrNull(
+            (f) => f.baseSchemeName == fundName,
+      );
+
+      final schemeCode = fund?.schemeCode?.toString() ?? '';
+      final assignedAmount = assignedAmounts[i];
+
+      getAmountController(schemeCode).text =
+          assignedAmount.toString();
+
+      final fundId = getGoalFundId(schemeCode);
+
+      if (fundId == null) continue;
+
+      debugPrint(
+        "START UPDATE => Fund ${i + 1}/$count | fundId=$fundId | amount=$assignedAmount",
+      );
+
+      await updateGoalFundOrder(
+        goalId: savedDatabaseId.value ?? 0,
+        orderType: "lumpsum",
+        sipAmount: 0,
+        sipDay: 0,
+        fundId: fundId,
+        lumpsumAmount: assignedAmount.toDouble(),
+      );
+
+      debugPrint(
+        "COMPLETED UPDATE => Fund ${i + 1}/$count | fundId=$fundId",
+      );
+
+      // Optional delay
+      await Future.delayed(
+        const Duration(milliseconds: 300),
+      );
+    }
+
+    debugPrint("ALL FUNDS UPDATED");
+    await getAllGoals();
+  }
+  TextEditingController getAmountController(String schemeCode) {
+    return amountControllers.putIfAbsent(
+      schemeCode,
+          () => TextEditingController(),
+    );
+  }
+  Future<void> updateGoalFundOrder({
+    required int goalId,
+    required String orderType,
+    required double sipAmount,
+    required int sipDay,
+    required int fundId,
+    required double lumpsumAmount,
+  }) async {
+    debugPrint("orderType: $orderType");
+
+    try {
+      final requestData = {
+        "goal_id": goalId,
+        "order_type": orderType,
+
+        if (orderType == "sip") ...{
+          "sip_amount": sipAmount,
+          "sip_day": sipDay,
+          "sip_start_date":
+          DateTime.now().toString().split(' ').first,
+          "sip_end_date": DateTime.now()
+              .add(const Duration(days: 365 * 3))
+              .toString()
+              .split(' ')
+              .first,
+        },
+
+        if (orderType == "lumpsum")
+          "lumpsum_amount": lumpsumAmount,
+      };
+
+      debugPrint("UPDATE FUND REQUEST => $requestData");
+      debugPrint("FUND ID => $fundId");
+
+      final result = await goalUseCases.updateGoalFundOrderUseCase(
+        requestData,
+        fundId,
+      );
+
+      result.fold(
+            (success) async {
+          debugPrint(
+            "UPDATE SUCCESS => ${success.data?.id}",
+          );
+
+          await getAllGoals();
+        },
+            (failure) {
+          showCustomToast(
+            title: "Error",
+            message: failure.message,
+            backgroundColor: Colors.red.shade700,
+            icon: Icons.error_outline,
+          );
+        },
+      );
+    } catch (e) {
+      debugPrint("Update Goal Fund Exception: $e");
+
+      showCustomToast(
+        title: "Error",
+        message: e.toString(),
+        backgroundColor: Colors.red.shade700,
+        icon: Icons.error_outline,
+      );
+    }
+  }
+  @override
+  void onClose() {
+    for (final c in amountControllers.values) {
+      c.dispose();
+    }
+    super.onClose();
+  }
   Future<void> saveGoalFund({
     required int goalId,
     required String schemeCode,
@@ -552,33 +758,28 @@ class GoalSipController extends GetxController {
     required int sipDay,
   }) async {
     HapticFeedback.successNotification();
-
-    // /// Duplicate Check
-    // if (isSelectedFund(schemeName)) {
-    //   showCustomToast(
-    //     title: "Already Added",
-    //     message: schemeName,
-    //     backgroundColor: Colors.orange.shade700,
-    //     icon: Icons.info_outline,
-    //   );
-    //   return;
-    // }
-
+  debugPrint("savedInvestmentType.value: ${savedInvestmentType.value}");
     try {
       final requestData = {
         "goal_id": goalId,
         "user_id": SessionManager.instance.getUserData!.id,
         "scheme_code": schemeCode,
         "order_date": DateTime.now().toString().split(' ').first,
-        "order_type": "sip",
-        "sip_amount": sipAmount,
-        "sip_day": sipDay,
-        "sip_start_date": DateTime.now().toString().split(' ').first,
-        "sip_end_date": DateTime.now()
-            .add(const Duration(days: 365 * 3))
-            .toString()
-            .split(' ')
-            .first,
+        "order_type":savedInvestmentType.value,
+        // "lumpsum_amount": lumpsumAmount,
+        if (savedInvestmentType.value == "sip") ...{
+          "sip_amount": sipAmount,
+          "sip_day": sipDay,
+          "sip_start_date": DateTime.now().toString().split(' ').first,
+          "sip_end_date": DateTime.now()
+              .add(const Duration(days: 365 * 3))
+              .toString()
+              .split(' ')
+              .first,
+        },
+
+        if (savedInvestmentType.value == "lumpsum")
+          "lumpsum_amount": lumpsumAmount.toString(),
       };
 
       final result =
@@ -588,6 +789,7 @@ class GoalSipController extends GetxController {
 
       result.fold(
             (success) async {
+
           /// Add to selected funds after successful API call
           if (!isSelectedFund(schemeName)) {
             toggleFund(schemeName);
@@ -599,6 +801,7 @@ class GoalSipController extends GetxController {
             backgroundColor: Colors.green,
             icon: Icons.check_circle,
           );
+          await    getAllGoals();
         },
             (failure) {
           showCustomToast(
@@ -612,12 +815,6 @@ class GoalSipController extends GetxController {
     } catch (e) {
       debugPrint("Save Goal Fund Exception: $e");
 
-      showCustomToast(
-        title: "Error",
-        message: e.toString(),
-        backgroundColor: Colors.red.shade700,
-        icon: Icons.error_outline,
-      );
     }
   }
   Future<void> saveFundToGoal({
@@ -676,41 +873,60 @@ class GoalSipController extends GetxController {
     );
   }
 
-  Future<void> deleteGoalFund(int id) async {
+  Future<void> deleteGoalFund({
+    required int id,
+    required bool isEdit,
+    String? schemeName,
+  }) async {
     isDeleting[id] = true;
 
-    final result = await goalUseCases.deleteGoalFundUseCase(id: id);
+    final result = await goalUseCases.deleteGoalFundUseCase(
+      id: id,
+    );
 
     result.fold(
           (success) {
-        // // Remove from local list instantly — no extra fetch needed
+
         final goals = goalResponse.value?.data;
+
         if (goals != null) {
-          // 2. Iterate through goals to find where this fund link exists
           for (var goal in goals) {
-            goal.goalFunds.removeWhere((fund) => fund.id == id);
+            goal.goalFunds.removeWhere(
+                  (fund) => fund.id == id,
+            );
           }
-          // 3. Trigger Rx update
+
           goalResponse.refresh();
         }
 
-        Get.back();
-        // goalResponse.value?.data.removeWhere((item) => item.id == id);
-        ULoaders.success(
-          title: 'Deleted',
-          message: success.data?.message ?? '',
-        );
+
+
+        if (isEdit) {
+          Get.back();
+          ULoaders.success(
+            title: 'Deleted',
+            message: success.data?.message ?? '',
+          );
+        } else {
+          showCustomToast(
+            title: "Removed from Goal",
+            message: schemeName??"",
+            backgroundColor: Ucolors.red,
+            icon: Icons.check_circle_outline,
+          );
+        }
       },
           (error) {
         ULoaders.error(
           title: 'Error',
-          message: error.message ,
+          message: error.message,
         );
       },
     );
 
     isDeleting[id] = false;
   }
+
   Future<void> deleteGoal(int id) async {
     isDeleting[id] = true;
 

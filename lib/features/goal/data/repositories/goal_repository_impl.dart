@@ -9,6 +9,7 @@ import '../../../../core/utils/api/api_error.dart';
 import '../../../../core/utils/api/api_result.dart';
 import '../../domain/entity/goal_fund_order_entity.dart';
 import '../../domain/entity/goal_master_entity.dart';
+import '../../domain/entity/update_goal_fund_order_entity.dart';
 
 class GoalRepositoryImpl extends GoalRepository {
   final GoalRemoteDataSource goalRemoteDataSource;
@@ -22,6 +23,7 @@ class GoalRepositoryImpl extends GoalRepository {
     try {
       debugPrint("Payload :$data");
       final result = await goalRemoteDataSource.saveGoal(data);
+      debugPrint("Result :$result");
       return result.fold(
         (success) {
           return Left(Result.success(success.data?.toEntity()));
@@ -122,6 +124,33 @@ class GoalRepositoryImpl extends GoalRepository {
     try {
       final result =
       await goalRemoteDataSource.saveGoalFund(data);
+
+      return result.fold(
+            (success) {
+          return Left(
+            Result.success(
+              success.data?.toEntity(),
+            ),
+          );
+        },
+            (error) {
+          return Right(
+            ApiError(message: error.message),
+          );
+        },
+      );
+    } catch (e) {
+      return Right(
+        ApiError(message: e.toString()),
+      );
+    }
+  }@override
+  Future<Either<Result<UpdateGoalFundEntity>, ApiError>> updateGoalFund(
+      Map<String, dynamic> data,  int fundId
+      ) async {
+    try {
+      final result =
+      await goalRemoteDataSource.updateGoalFund(data, fundId);
 
       return result.fold(
             (success) {

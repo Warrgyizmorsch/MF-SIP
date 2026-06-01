@@ -611,7 +611,11 @@ class GoaldetailsPage extends GetView<GoalSipController> {
                                           fundName: name,
                                         );
                                       } else {
-
+                                        goalSipController.deleteGoalFund(
+                                          id:goal,
+                                          isEdit:  true,
+                                          schemeName: fund.schemeCode?.toString() ?? '',
+                                        );
                                         goalSipController.toggleFund(name);
                                       }
                                     },
@@ -930,7 +934,9 @@ class GoalDetailSection extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              _fmt(fund.sipAmount),
+                              freshGoal?.txnType.toLowerCase() == 'sip'
+                                  ? _fmt(fund.sipAmount)
+                                  : _fmt(fund.lumpsumAmount),
                               style: UTextStyles.medium.copyWith(
                                 color: Ucolors.dark,
                                 fontWeight: FontWeight.w500,
@@ -966,7 +972,9 @@ class GoalDetailSection extends StatelessWidget {
                                           Get.back();
                                           Get.back();// Close dialog
                                           goalSipController.deleteGoalFund(
-                                            fund.id,
+                                           id: fund.id,
+                                            isEdit: true,
+                                            schemeName: fund.mutualFund?.schemeCode?.toString() ?? '',
                                           ); // Passing GoalFundEntity.id
                                         },
                                       );

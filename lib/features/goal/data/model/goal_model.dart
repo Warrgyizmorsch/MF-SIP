@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import '../../../../core/utils/helper/custom_json_parser.dart';
 
 class GoalResponseModel {
@@ -8,31 +10,100 @@ class GoalResponseModel {
   GoalResponseModel({this.success, this.message, this.data});
 
   factory GoalResponseModel.fromJson(Map<String, dynamic> json) {
+
     return GoalResponseModel(
       success: json.parse<bool>('success'),
       message: json.parse<String>('message'),
       data: json.parseListOf<UserGoalModel>(
         'goal',
-        (item) => UserGoalModel.fromJson(item as Map<String, dynamic>),
+            (item) => UserGoalModel.fromJson(item as Map<String, dynamic>),
       ),
     );
   }
 }
-
 class SaveGoalResponseModel {
   final bool? success;
   final String? message;
-  final UserGoalModel? data;
+  final GoalDetailModel? data;
 
-  SaveGoalResponseModel({this.success, this.message, this.data});
+  SaveGoalResponseModel({
+    this.success,
+    this.message,
+    this.data,
+  });
 
-  factory SaveGoalResponseModel.fromJson(Map<String, dynamic> json) {
+  factory SaveGoalResponseModel.fromJson(
+      Map<String, dynamic> json,
+      ) {
     return SaveGoalResponseModel(
       success: json.parse<bool>('success'),
       message: json.parse<String>('message'),
       data: json['data'] != null
-          ? UserGoalModel.fromJson(json['data'] as Map<String, dynamic>)
+          ? GoalDetailModel.fromJson(
+        json['data'] as Map<String, dynamic>,
+      )
           : null,
+    );
+  }
+
+
+}
+class GoalDetailModel {
+  final int? id;
+  final int? userId;
+  final int? goalId;
+  final String? goalName;
+  final String? goalCover;
+  final String? txnType;
+  final double? lumpsumAmount;
+  final String? createdDate;
+  final double? targetAmount;
+  final String? frequency;
+  final double? monthlyInvestment;
+  final double? expectedReturnRate;
+  final int? goalTenure;
+  final double? investedAmount;
+  final String? status;
+
+  GoalDetailModel({
+    this.id,
+    this.userId,
+    this.goalId,
+    this.goalName,
+    this.goalCover,
+    this.txnType,
+    this.lumpsumAmount,
+    this.createdDate,
+    this.targetAmount,
+    this.frequency,
+    this.monthlyInvestment,
+    this.expectedReturnRate,
+    this.goalTenure,
+    this.investedAmount,
+    this.status,
+  });
+
+  factory GoalDetailModel.fromJson(Map<String, dynamic> json) {
+    return GoalDetailModel(
+      id: json.parse<int>('id'),
+      userId: json.parse<int>('user_id'),
+      goalId: json.parse<int>('goal_id'),
+      goalName: json.parse<String>('goal_name'),
+      goalCover: json.parse<String>('goal_cover'),
+      txnType: json.parse<String>('txn_type'),
+      lumpsumAmount: json.parse<double>('lumpsum_amount'),
+      createdDate: json.parse<String>('created_date'),
+      targetAmount: json.parse<double>('target_amount'),
+      frequency: json.parse<String>('frequency'),
+      monthlyInvestment: json.parse<double>('monthly_investment'),
+      expectedReturnRate: json.parse<double>('expected_return_rate'),
+      goalTenure: json.parse<int>('goal_tenure'),
+
+      // API me key "Invested_amount" hai
+      investedAmount: json.parse<double>('Invested_amount') ??
+          json.parse<double>('invested_amount'),
+
+      status: json.parse<String>('status'),
     );
   }
 }
@@ -43,13 +114,15 @@ class UserGoalModel {
   final int? goalId;
   final String? goalName;
   final String? goalCover;
+  final String? txnType;
+  final double? lumpsumAmount;
   final String? frequency;
-  final double? monthlyInvestment; // Parser handles String -> Double
+  final double? monthlyInvestment;
   final double? expectedReturnRate;
   final int? goalTenure;
   final double? investedAmount;
   final String? status;
-  final GoalTypeModel? goldType; // Matches API Key 'gold_type'
+  final GoalTypeModel? goalType;
   final List<GoalFundModel>? goalFunds;
 
   UserGoalModel({
@@ -58,13 +131,15 @@ class UserGoalModel {
     this.goalId,
     this.goalName,
     this.goalCover,
+    this.txnType,
+    this.lumpsumAmount,
     this.frequency,
     this.monthlyInvestment,
     this.expectedReturnRate,
     this.goalTenure,
     this.investedAmount,
     this.status,
-    this.goldType,
+    this.goalType,
     this.goalFunds,
   });
 
@@ -75,19 +150,23 @@ class UserGoalModel {
       goalId: json.parse<int>('goal_id'),
       goalName: json.parse<String>('goal_name'),
       goalCover: json.parse<String>('goal_cover'),
+      txnType: json.parse<String>('txn_type'),
+      lumpsumAmount: json.parse<double>('lumpsum_amount'),
       frequency: json.parse<String>('frequency'),
       monthlyInvestment: json.parse<double>('monthly_investment'),
       expectedReturnRate: json.parse<double>('expected_return_rate'),
       goalTenure: json.parse<int>('goal_tenure'),
-      investedAmount: json.parse<double>('invested_amount'),
+      investedAmount: json.parse<double>('Invested_amount'),
       status: json.parse<String>('status'),
-      goldType: json.parseNested<GoalTypeModel>(
-        'gold_type', // Parsing the typo key from API
-        (data) => GoalTypeModel.fromJson(data),
+      goalType: json.parseNested<GoalTypeModel>(
+        'goal',
+            (data) => GoalTypeModel.fromJson(data),
       ),
       goalFunds: json.parseListOf<GoalFundModel>(
         'goal_funds',
-        (item) => GoalFundModel.fromJson(item as Map<String, dynamic>),
+            (item) => GoalFundModel.fromJson(
+          item as Map<String, dynamic>,
+        ),
       ),
     );
   }
@@ -132,9 +211,7 @@ class GoalTypeModel {
       monthlyInvestment: json.parse<double>('monthly_investment'),
       expectedReturnRate: json.parse<double>('expected_return_rate'),
       goalTenure: json.parse<int>('goal_tenure'),
-      investedAmount: json.parse<double>(
-        'Invested_amount',
-      ), // Capital 'I' in API
+      investedAmount: json.parse<double>('Invested_amount'), // Capital 'I' in API
       status: json.parse<String>('status'),
     );
   }
@@ -193,7 +270,7 @@ class GoalFundModel {
       updatedAt: json.parse<String>('updated_at'),
       mutualFund: json.parseNested<MutualFundModel>(
         'mutual_fund',
-        (data) => MutualFundModel.fromJson(data),
+            (data) => MutualFundModel.fromJson(data),
       ),
     );
   }
@@ -226,7 +303,10 @@ class MutualFundModel {
       minSipAmount: json.parse<double>('min_sip_amount'),
       minLumpsum: json.parse<double>('min_lumpsum'),
       minimumTopup: json.parse<double>('minimum_topup'),
-      amc: json.parseNested<AmcModel>('amc', (data) => AmcModel.fromJson(data)),
+      amc: json.parseNested<AmcModel>(
+        'amc',
+            (data) => AmcModel.fromJson(data),
+      ),
     );
   }
 }
