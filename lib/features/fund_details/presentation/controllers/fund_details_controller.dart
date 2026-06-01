@@ -134,7 +134,6 @@ class FundDetailsController extends GetxController
     );
 
     if (Get.isRegistered<NavigationBarController>()) {
-      
       Get.find<NavigationBarController>().selectedIndex.value = 100;
     }
 
@@ -278,7 +277,7 @@ class FundDetailsController extends GetxController
         case '5Y':
           fromDate = now.subtract(const Duration(days: 1825));
           break;
-        case '10Y': // Optional: Handle All time if needed
+        case 'ALL': // Optional: Handle All time if needed
           fromDate = DateTime(1970);
           break;
         default:
@@ -416,6 +415,7 @@ class FundDetailsController extends GetxController
       // YearlyReturn('Since\nLaunch', p.inceptionYearReturn ?? 0),
     ];
   }
+
   //Funds Trainlings Returns
   List<ReturnRow> buildTrailingReturns(FundDetailEntity fund) {
     final list = fund.schemePerformanceList;

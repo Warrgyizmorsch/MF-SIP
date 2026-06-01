@@ -15,7 +15,7 @@ class WebFilterDrawer {
       context: context,
       barrierDismissible: true,
       barrierLabel: 'WebFilterDrawer',
-      barrierColor: Colors.black.withValues(alpha:0.2),
+      barrierColor: Colors.black.withValues(alpha: 0.2),
       transitionDuration: const Duration(milliseconds: 300),
       pageBuilder: (context, animation, secondaryAnimation) {
         return Align(
@@ -72,7 +72,11 @@ class WebFilterContent extends StatelessWidget {
                   const SizedBox(width: 10),
                   const Text(
                     'Filters',
-                    style: TextStyle(fontFamily: FontFamily.medium,fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
@@ -94,7 +98,10 @@ class WebFilterContent extends StatelessWidget {
                 initiallyExpanded: true,
                 title: const Text(
                   'Categories',
-                  style: TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 children: [
                   SizedBox(
@@ -109,7 +116,10 @@ class WebFilterContent extends StatelessWidget {
                 initiallyExpanded: false,
                 title: const Text(
                   'Risk Profile',
-                  style: TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 children: [
                   SizedBox(
@@ -124,12 +134,31 @@ class WebFilterContent extends StatelessWidget {
                 initiallyExpanded: false,
                 title: const Text(
                   'Fund House (AMC)',
-                  style: TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 children: [
                   SizedBox(
                     height: 400,
                     child: FundHousePanel(),
+                  ), // Reusing your widget
+                ],
+              ),
+              ExpansionTile(
+                initiallyExpanded: false,
+                title: const Text(
+                  'Returns Range',
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                children: [
+                  SizedBox(
+                    height: 400,
+                    child: ReturnRangePanel(),
                   ), // Reusing your widget
                 ],
               ),
@@ -145,7 +174,7 @@ class WebFilterContent extends StatelessWidget {
             border: Border(top: BorderSide(color: Colors.grey.shade200)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha:0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, -5),
               ),
@@ -165,35 +194,44 @@ class WebFilterContent extends StatelessWidget {
                   ),
                   child: const Text(
                     'Reset All',
-                    style: TextStyle(fontFamily: FontFamily.medium,color: Ucolors.primary),
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      color: Ucolors.primary,
+                    ),
                   ),
                 ),
               ),
               const SizedBox(width: 15),
               // Apply Button
               Expanded(
-                child: Obx(
-                  () => ElevatedButton(
-                    onPressed: () {
-                      // Sync params aur close dialog
-                      final params = controller.buildParam();
-                      if (Get.isRegistered<MutualFundController>()) {
-                        Get.find<MutualFundController>().syncFilterPageParams(
-                          params,
-                        );
-                      }
-                      Get.back(); // Close sliding panel
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Ucolors.primary,
-                      padding: const EdgeInsets.symmetric(vertical: 18),
+                child:
+                    //  Obx(
+                    //   () =>
+                    ElevatedButton(
+                      onPressed: () {
+                        // Sync params aur close dialog
+                        final params = controller.buildParam();
+                        if (Get.isRegistered<MutualFundController>()) {
+                          Get.find<MutualFundController>().syncFilterPageParams(
+                            params,
+                          );
+                        }
+                        Get.back(); // Close sliding panel
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Ucolors.primary,
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                      ),
+                      child: Text(
+                        'Apply',
+                        // 'Apply (${controller.selectedFundCount})',
+                        style: const TextStyle(
+                          fontFamily: FontFamily.medium,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                    child: Text(
-                      'Apply (${controller.selectedFundCount})',
-                      style: const TextStyle(fontFamily: FontFamily.medium,color: Colors.white),
-                    ),
-                  ),
-                ),
+                // ),
               ),
             ],
           ),

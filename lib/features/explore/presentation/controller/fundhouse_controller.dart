@@ -17,6 +17,8 @@ class FundhouseController extends GetxController {
     this.getCategoriesFilterUsecases,
   );
 
+  final mutualController = Get.find<MutualFundController>();
+
   // -------------- Multi-Select Filter State ------------------//
   final sortBy = 'All Fund'.obs;
   final selectedSchemeTypes = <String>[].obs;
@@ -141,7 +143,7 @@ class FundhouseController extends GetxController {
     // Sync text fields
     minReturnController.text = values.start.round().toString();
     maxReturnController.text = values.end.round().toString();
-    fetchCount();
+    // fetchCount();
   }
 
   // void updateRangeFromText() {
@@ -303,6 +305,27 @@ class FundhouseController extends GetxController {
     Get.find<MutualFundController>().applyFreshFilter({
       'sort_order': 'desc',
       'return_year': 1,
+    });
+  }
+
+  // ---------- Quick Collection: International Funds ----------
+  void applyInternationalFilter() {
+    // 1. Clear all existing filters
+    _clearStatesOnly();
+
+    // 2. Update the UI state so these checkboxes are ticked if the user opens the Filter Page
+    selectedSchemeTypes.addAll([
+      'Equity: Thematic-International',
+      'Fund of Funds-Overseas',
+    ]);
+
+    fetchCount();
+
+    // 3. Send the exact string to the master list controller
+    // (Your HTTP client like Dio or http will automatically URL-encode the colons, spaces, and commas into %3A, +, and %2C)
+    mutualController.applyFreshFilter({
+      'scheme_category':
+          'Equity: Thematic-International,Fund of Funds-Overseas',
     });
   }
 

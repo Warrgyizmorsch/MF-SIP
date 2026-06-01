@@ -71,7 +71,11 @@ class KycDetailsScreen extends StatelessWidget {
                   const Text(
                     "Your account is fully verified and ready for investments.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey, fontSize: 13),
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      color: Colors.grey,
+                      fontSize: 13,
+                    ),
                   ),
                 ],
               ),

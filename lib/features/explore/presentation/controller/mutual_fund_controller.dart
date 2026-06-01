@@ -68,6 +68,14 @@ class MutualFundController extends GetxController {
     _debounce = Timer(const Duration(milliseconds: 500), () {
       _currentSearchQuery = query.trim();
 
+      if (_currentSearchQuery.toLowerCase() == 'international') {
+        if (Get.isRegistered<FundhouseController>()) {
+          // Trigger the specific filter logic instead of a text search
+          Get.find<FundhouseController>().applyInternationalFilter();
+          return; // Exit early so we don't run the generic search below
+        }
+      }
+
       ///       ----------------------       //
       if (_currentSearchQuery.isNotEmpty) {
         if (Get.isRegistered<FundhouseController>()) {

@@ -13,7 +13,7 @@ class PeriodSelector extends GetView<FundDetailsController> {
 
   @override
   Widget build(BuildContext context) {
-    final periods = ['1M', '3M', '6M', '1Y', '2Y', '3Y', '10Y'];
+    final periods = ['1M', '3M', '6M', '1Y', '2Y', '3Y', 'ALL'];
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Container(
@@ -25,62 +25,63 @@ class PeriodSelector extends GetView<FundDetailsController> {
         border: isDesktop ? Border.all(color: Colors.grey.shade200) : null,
         boxShadow: isDesktop
             ? [
-          BoxShadow(
-            color: Colors.black.withValues(alpha:0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          )
-        ]
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ]
             : null,
       ),
       child: isDesktop
           ? Container(
               alignment: Alignment.center,
               width: Get.width,
-            child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(periods.length, (index) {
-            final period = periods[index];
-            return Obx(() {
-              final isSelected = controller.selectedPeriod.value == period;
-              return _PeriodButton(
-                period: period,
-                isSelected: isSelected,
-                isDesktop: isDesktop,
-                onTap: () {
-                  controller.getShcemeNavHistory(
-                    scchemeCode: controller.schemeCode,
-                    period: period,
-                  );
-                },
-              );
-            });
-                    }),
-                  ),
-          )
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(periods.length, (index) {
+                  final period = periods[index];
+                  return Obx(() {
+                    final isSelected =
+                        controller.selectedPeriod.value == period;
+                    return _PeriodButton(
+                      period: period,
+                      isSelected: isSelected,
+                      isDesktop: isDesktop,
+                      onTap: () {
+                        controller.getShcemeNavHistory(
+                          scchemeCode: controller.schemeCode,
+                          period: period,
+                        );
+                      },
+                    );
+                  });
+                }),
+              ),
+            )
           : SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: List.generate(periods.length, (index) {
-            final period = periods[index];
-            return Obx(() {
-              final isSelected =
-                  controller.selectedPeriod.value == period;
-              return _PeriodButton(
-                period: period,
-                isSelected: isSelected,
-                isDesktop: isDesktop,
-                onTap: () {
-                  controller.getShcemeNavHistory(
-                    scchemeCode: controller.schemeCode,
-                    period: period,
-                  );
-                },
-              );
-            });
-          }),
-        ),
-      ),
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: List.generate(periods.length, (index) {
+                  final period = periods[index];
+                  return Obx(() {
+                    final isSelected =
+                        controller.selectedPeriod.value == period;
+                    return _PeriodButton(
+                      period: period,
+                      isSelected: isSelected,
+                      isDesktop: isDesktop,
+                      onTap: () {
+                        controller.getShcemeNavHistory(
+                          scchemeCode: controller.schemeCode,
+                          period: period,
+                        );
+                      },
+                    );
+                  });
+                }),
+              ),
+            ),
     );
   }
 }
@@ -92,132 +93,100 @@ class PeriodSelectorBarChart extends GetView<ChartInvestmentController> {
 
   @override
   Widget build(BuildContext context) {
-    final periods = yearlyData
-        .map((e) => e.period)
-        .toList();
+    final periods = yearlyData.map((e) => e.period).toList();
 
-    final isDesktop =
-    ResponsiveBreakpoints.of(context).largerThan(TABLET);
+    final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Container(
       height: isDesktop ? 60 : 42,
-      padding: EdgeInsets.symmetric(
-        horizontal: isDesktop ? 0 : 4,
-        vertical: 4,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: isDesktop ? 0 : 4, vertical: 4),
       decoration: BoxDecoration(
-        color: isDesktop
-            ? Colors.white
-            : const Color(0xffF3F4F6),
-        borderRadius:
-        BorderRadius.circular(isDesktop ? 26 : 12),
-        border: isDesktop
-            ? Border.all(
-          color: Colors.grey.shade200,
-        )
-            : null,
+        color: isDesktop ? Colors.white : const Color(0xffF3F4F6),
+        borderRadius: BorderRadius.circular(isDesktop ? 26 : 12),
+        border: isDesktop ? Border.all(color: Colors.grey.shade200) : null,
         boxShadow: isDesktop
             ? [
-          BoxShadow(
-            color: Colors.black.withValues(alpha:0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ]
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ]
             : null,
       ),
 
       /// 🔥 FIX OVERFLOW
       child: isDesktop
           ? Row(
-        children: List.generate(
-          periods.length,
-              (index) {
-            final period = periods[index];
+              children: List.generate(periods.length, (index) {
+                final period = periods[index];
 
-            return Expanded(
-              child: Obx(() {
-                final isSelected =
-                    controller.selectedPeriod.value ==
-                        period;
+                return Expanded(
+                  child: Obx(() {
+                    final isSelected =
+                        controller.selectedPeriod.value == period;
 
-                return _PeriodButton(
-                  period: period,
-                  isSelected: isSelected,
-                  isDesktop: isDesktop,
+                    return _PeriodButton(
+                      period: period,
+                      isSelected: isSelected,
+                      isDesktop: isDesktop,
 
-                  ///  PERIOD CHANGE
-                  ///  PeriodSelectorBarChart
+                      ///  PERIOD CHANGE
+                      ///  PeriodSelectorBarChart
+                      onTap: () {
+                        /// SELECT PERIOD
+                        controller.selectedPeriod.value = period;
 
-                  onTap: () {
-
-                    /// SELECT PERIOD
-                    controller.selectedPeriod.value = period;
-
-                    ///  FIND SELECTED YEAR DATA
-                    final selectedData = yearlyData
-                        .firstWhere(
+                        ///  FIND SELECTED YEAR DATA
+                        final selectedData = yearlyData.firstWhere(
                           (e) => e.period == period,
+                        );
+
+                        controller.update();
+                      },
                     );
-
-
-
-                    controller.update();
-                  },
+                  }),
                 );
               }),
-            );
-          },
-        ),
-      )
-
+            )
           : SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        physics:
-        const BouncingScrollPhysics(),
-        child: Row(
-          children: List.generate(
-            periods.length,
-                (index) {
-              final period = periods[index];
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: List.generate(periods.length, (index) {
+                  final period = periods[index];
 
-              return Padding(
-                padding:
-                const EdgeInsets.only(right: 6),
-                child: Obx(() {
-                  final isSelected =
-                      controller.selectedPeriod.value ==
-                          period;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: Obx(() {
+                      final isSelected =
+                          controller.selectedPeriod.value == period;
 
-                  return _PeriodButton(
-                    period: period,
-                    isSelected: isSelected,
-                    isDesktop: isDesktop,
+                      return _PeriodButton(
+                        period: period,
+                        isSelected: isSelected,
+                        isDesktop: isDesktop,
 
-                    ///  PERIOD CHANGE
+                        ///  PERIOD CHANGE
+                        onTap: () {
+                          /// SELECT PERIOD
+                          controller.selectedPeriod.value = period;
 
-                    onTap: () {
-
-                      /// SELECT PERIOD
-                      controller.selectedPeriod.value = period;
-
-                      ///  FIND SELECTED YEAR DATA
-                      final selectedData =yearlyData
-                          .firstWhere(
+                          ///  FIND SELECTED YEAR DATA
+                          final selectedData = yearlyData.firstWhere(
                             (e) => e.period == period,
+                          );
+
+                          ///  CALL METHOD
+
+                          controller.update();
+                        },
                       );
-
-                      ///  CALL METHOD
-
-                      controller.update();
-                    },
+                    }),
                   );
                 }),
-              );
-            },
-          ),
-        ),
-      ),
+              ),
+            ),
     );
   }
 }
@@ -257,20 +226,20 @@ class _PeriodButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(isDesktop ? 18 : 8),
           boxShadow: isSelected && isDesktop
               ? [
-            BoxShadow(
-              color: Ucolors.primary.withValues(alpha:0.2),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            )
-          ]
+                  BoxShadow(
+                    color: Ucolors.primary.withValues(alpha: 0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
               : isSelected && !isDesktop
               ? [
-            BoxShadow(
-              color: Colors.black.withValues(alpha:0.05),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            )
-          ]
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
               : null,
         ),
         child: Center(

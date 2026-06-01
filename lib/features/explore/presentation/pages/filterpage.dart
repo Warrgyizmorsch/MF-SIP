@@ -146,7 +146,8 @@ class _FilterpageState extends State<Filterpage>
                 children: [
                   const Text(
                     'Smart Filters',
-                    style: TextStyle(fontFamily: FontFamily.medium,
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
                       fontSize: 17,
                       fontWeight: FontWeight.w600,
                       color: _T.text1,
@@ -165,7 +166,8 @@ class _FilterpageState extends State<Filterpage>
                       alignment: Alignment.center,
                       child: Text(
                         '$total',
-                        style: const TextStyle(fontFamily: FontFamily.medium,
+                        style: const TextStyle(
+                          fontFamily: FontFamily.medium,
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
@@ -195,7 +197,8 @@ class _FilterpageState extends State<Filterpage>
                 ),
                 child: Text(
                   'Clear all',
-                  style: TextStyle(fontFamily: FontFamily.medium,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                     color: total > 0 ? _T.primary : _T.text3,
@@ -248,7 +251,8 @@ class _FilterpageState extends State<Filterpage>
                           children: [
                             Text(
                               _tabs[i],
-                              style: TextStyle(fontFamily: FontFamily.medium,
+                              style: TextStyle(
+                                fontFamily: FontFamily.medium,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
                                 color: isActive ? Colors.white : _T.text2,
@@ -261,14 +265,15 @@ class _FilterpageState extends State<Filterpage>
                                 height: 18,
                                 decoration: BoxDecoration(
                                   color: isActive
-                                      ? Colors.white.withValues(alpha:0.25)
+                                      ? Colors.white.withValues(alpha: 0.25)
                                       : _T.primary,
                                   shape: BoxShape.circle,
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
                                   '$count',
-                                  style: const TextStyle(fontFamily: FontFamily.medium,
+                                  style: const TextStyle(
+                                    fontFamily: FontFamily.medium,
                                     fontSize: 10,
                                     fontWeight: FontWeight.w700,
                                     color: Colors.white,
@@ -316,7 +321,8 @@ class _FilterpageState extends State<Filterpage>
                     const SizedBox(width: 8),
                     const Text(
                       'View All',
-                      style: TextStyle(fontFamily: FontFamily.medium,
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
                         color: Colors.white,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -331,13 +337,14 @@ class _FilterpageState extends State<Filterpage>
                           vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha:0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           'active',
                           // '$total active',
-                          style: TextStyle(fontFamily: FontFamily.medium,
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
                             color: Colors.white,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -446,7 +453,8 @@ class CategoriesPanel extends StatelessWidget {
                     children: [
                       Text(
                         'Index Funds Only',
-                        style: TextStyle(fontFamily: FontFamily.medium,
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                           color: _T.text1,
@@ -454,7 +462,11 @@ class CategoriesPanel extends StatelessWidget {
                       ),
                       Text(
                         'Passively managed, tracks an index',
-                        style: TextStyle(fontFamily: FontFamily.medium,fontSize: 11, color: _T.text3),
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 11,
+                          color: _T.text3,
+                        ),
                       ),
                     ],
                   ),
@@ -481,7 +493,10 @@ class CategoriesPanel extends StatelessWidget {
               return const Center(
                 child: Text(
                   'No categories available',
-                  style: TextStyle(fontFamily: FontFamily.medium,color: _T.text3),
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    color: _T.text3,
+                  ),
                 ),
               );
             }
@@ -629,7 +644,8 @@ class _ExpandGroupState extends State<_ExpandGroup>
                       Expanded(
                         child: Text(
                           widget.groupName,
-                          style: const TextStyle(fontFamily: FontFamily.medium,
+                          style: const TextStyle(
+                            fontFamily: FontFamily.medium,
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             color: _T.text1,
@@ -710,7 +726,8 @@ class _ExpandGroupState extends State<_ExpandGroup>
                                       display,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(fontFamily: FontFamily.medium,
+                                      style: TextStyle(
+                                        fontFamily: FontFamily.medium,
                                         fontSize: 13,
                                         color: isSelected ? _T.text1 : _T.text2,
                                         fontWeight: isSelected
@@ -802,7 +819,8 @@ class RiskPanel extends StatelessWidget {
                       const SizedBox(width: 7),
                       Text(
                         r.$2,
-                        style: TextStyle(fontFamily: FontFamily.medium,
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                           color: isSelected ? r.$3 : _T.text2,
@@ -846,17 +864,33 @@ class RiskPanel extends StatelessWidget {
               const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Low', style: TextStyle(fontFamily: FontFamily.medium,fontSize: 11, color: _T.text3)),
+                  Text(
+                    'Low',
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 11,
+                      color: _T.text3,
+                    ),
+                  ),
                   Text(
                     'Very High',
-                    style: TextStyle(fontFamily: FontFamily.medium,fontSize: 11, color: _T.text3),
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 11,
+                      color: _T.text3,
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 10),
               const Text(
                 'Select multiple risk levels. Funds are categorized per SEBI guidelines.',
-                style: TextStyle(fontFamily: FontFamily.medium,fontSize: 12, color: _T.text2, height: 1.5),
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 12,
+                  color: _T.text2,
+                  height: 1.5,
+                ),
               ),
             ],
           ),
@@ -892,10 +926,18 @@ class FundHousePanel extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
           child: TextField(
             onChanged: controller.searchFundHouse,
-            style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 14, color: _T.text1),
+            style: const TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 14,
+              color: _T.text1,
+            ),
             decoration: InputDecoration(
               hintText: 'Search fund house...',
-              hintStyle: const TextStyle(fontFamily: FontFamily.medium,fontSize: 14, color: _T.text3),
+              hintStyle: const TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: 14,
+                color: _T.text3,
+              ),
               prefixIcon: const Icon(
                 Icons.search_rounded,
                 color: _T.text3,
@@ -940,7 +982,11 @@ class FundHousePanel extends StatelessWidget {
                     SizedBox(height: 8),
                     Text(
                       'No fund houses found',
-                      style: TextStyle(fontFamily: FontFamily.medium,fontSize: 14, color: _T.text3),
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 14,
+                        color: _T.text3,
+                      ),
                     ),
                   ],
                 ),
@@ -997,7 +1043,8 @@ class FundHousePanel extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   e.amcName.toString(),
-                                  style: TextStyle(fontFamily: FontFamily.medium,
+                                  style: TextStyle(
+                                    fontFamily: FontFamily.medium,
                                     fontSize: 13,
                                     color: isSelected ? _T.text1 : _T.text2,
                                     fontWeight: isSelected
@@ -1082,7 +1129,8 @@ class ReturnRangePanel extends StatelessWidget {
                   ),
                   child: Text(
                     '${year}Y',
-                    style: TextStyle(fontFamily: FontFamily.medium,
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: isSelected ? Colors.white : _T.text2,
@@ -1115,7 +1163,8 @@ class ReturnRangePanel extends StatelessWidget {
                   children: [
                     const Text(
                       'Expected Returns',
-                      style: TextStyle(fontFamily: FontFamily.medium,
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                         color: _T.text1,
@@ -1133,7 +1182,8 @@ class ReturnRangePanel extends StatelessWidget {
                       ),
                       child: Text(
                         '${controller.returnRange.value.start.round()}% – ${controller.returnRange.value.end.round()}%',
-                        style: const TextStyle(fontFamily: FontFamily.medium,
+                        style: const TextStyle(
+                          fontFamily: FontFamily.medium,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: _T.primary,
@@ -1153,7 +1203,7 @@ class ReturnRangePanel extends StatelessWidget {
                     activeTrackColor: _T.primary,
                     inactiveTrackColor: _T.surface2,
                     thumbColor: Colors.white,
-                    overlayColor: _T.primary.withValues(alpha:0.12),
+                    overlayColor: _T.primary.withValues(alpha: 0.12),
                     trackHeight: 4,
                     // thumbShape: _CustomThumb(),
                   ),
@@ -1168,6 +1218,7 @@ class ReturnRangePanel extends StatelessWidget {
                     ),
                     onChanged: (values) =>
                         controller.updateRangeFromSlider(values),
+                    onChangeEnd: (values) => controller.fetchCount(),
                   ),
                 ),
               ),
@@ -1194,7 +1245,11 @@ class ReturnRangePanel extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 10),
                     child: Text(
                       'to',
-                      style: TextStyle(fontFamily: FontFamily.medium,fontSize: 13, color: _T.text3),
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 13,
+                        color: _T.text3,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -1217,7 +1272,11 @@ class ReturnRangePanel extends StatelessWidget {
               const Center(
                 child: Text(
                   'Tip: Enter values or drag the slider',
-                  style: TextStyle(fontFamily: FontFamily.medium,fontSize: 10, color: _T.text3),
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 10,
+                    color: _T.text3,
+                  ),
                 ),
               ),
             ],
@@ -1239,7 +1298,11 @@ class ReturnRangePanel extends StatelessWidget {
             children: [
               const Text(
                 'Reset to defaults',
-                style: TextStyle(fontFamily: FontFamily.medium,fontSize: 13, color: _T.text2),
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 13,
+                  color: _T.text2,
+                ),
               ),
               GestureDetector(
                 onTap: () {
@@ -1260,7 +1323,8 @@ class ReturnRangePanel extends StatelessWidget {
                   ),
                   child: const Text(
                     'Reset',
-                    style: TextStyle(fontFamily: FontFamily.medium,
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: _T.primary,
@@ -1281,7 +1345,12 @@ class ReturnRangePanel extends StatelessWidget {
           ),
           child: const Text(
             'Returns shown are CAGR (Compounded Annual Growth Rate) for the selected time horizon.',
-            style: TextStyle(fontFamily: FontFamily.medium,fontSize: 12, color: _T.text2, height: 1.5),
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 12,
+              color: _T.text2,
+              height: 1.5,
+            ),
           ),
         ),
         const SizedBox(height: 24),
@@ -1298,7 +1367,8 @@ class _SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     text.toUpperCase(),
-    style: const TextStyle(fontFamily: FontFamily.medium,
+    style: const TextStyle(
+      fontFamily: FontFamily.medium,
       fontSize: 11,
       fontWeight: FontWeight.w600,
       color: _T.text3,
@@ -1328,7 +1398,8 @@ class _MiniInput extends StatelessWidget {
     keyboardType: TextInputType.number,
     textAlign: TextAlign.center,
     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-    style: const TextStyle(fontFamily: FontFamily.medium,
+    style: const TextStyle(
+      fontFamily: FontFamily.medium,
       fontSize: 14,
       fontWeight: FontWeight.w500,
       color: _T.text1,
@@ -1338,7 +1409,11 @@ class _MiniInput extends StatelessWidget {
     onTapOutside: onTapOutside,
     decoration: InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(fontFamily: FontFamily.medium,fontSize: 12, color: _T.text3),
+      labelStyle: const TextStyle(
+        fontFamily: FontFamily.medium,
+        fontSize: 12,
+        color: _T.text3,
+      ),
       filled: true,
       fillColor: _T.surface2,
       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),

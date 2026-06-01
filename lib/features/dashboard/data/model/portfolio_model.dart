@@ -18,7 +18,8 @@ class MfuPortfolioModel {
       ),
       summary: json['summary'] != null
           ? MfuPortfolioSummaryModel.fromJson(
-              json['summary'] as Map<String, dynamic>)
+              json['summary'] as Map<String, dynamic>,
+            )
           : null,
     );
   }
@@ -76,8 +77,10 @@ class MfuPortfolioSummaryModel {
   factory MfuPortfolioSummaryModel.fromJson(Map<String, dynamic> json) {
     return MfuPortfolioSummaryModel(
       totalInvested: json.parse<double>('total_invested'),
-      totalCurrentValue: json.parse<double>('total_current_value'),
-      totalGainLoss: json.parse<double>('total_gain_loss'),
+      // totalCurrentValue: json.parse<double>('total_current_value'),
+      totalCurrentValue: json.parse<double>('current_value'),
+      // totalGainLoss: json.parse<double>('total_gain_loss'),
+      totalGainLoss: json.parse<double>('total_returns'),
     );
   }
 }

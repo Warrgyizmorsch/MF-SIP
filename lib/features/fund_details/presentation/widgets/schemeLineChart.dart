@@ -45,10 +45,10 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
       padding: isDesktop ? const EdgeInsets.all(20) : const EdgeInsets.all(0),
       decoration: isDesktop
           ? BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
-      )
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey.shade200),
+            )
           : null,
       child: LineChart(
         LineChartData(
@@ -73,7 +73,8 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
                   padding: const EdgeInsets.only(right: 8),
                   child: Text(
                     '₹${value.toStringAsFixed(0)}',
-                    style:  TextStyle(fontFamily: FontFamily.medium,
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
                       fontSize: 11,
                       color: Colors.grey.shade600,
                       fontWeight: FontWeight.w500,
@@ -82,25 +83,39 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
                 ),
               ),
             ),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             bottomTitles: AxisTitles(
+              
               sideTitles: SideTitles(
-                showTitles: isDesktop,
+
+                // showTitles: isDesktop,
+                showTitles: true,
+
+                // reservedSize: 18,
                 interval: schemeSpots.length > 10
                     ? (schemeSpots.length / 5).ceilToDouble()
                     : 1,
                 getTitlesWidget: (value, meta) {
+
                   final index = value.toInt();
                   if (index >= 0 && index < widget.navData.length) {
                     final date = widget.navData[index].navDate ?? "";
                     final parts = date.split('-');
                     if (parts.length == 3) {
                       return Padding(
-                        padding: const EdgeInsets.only(top: 8),
+                        padding: const EdgeInsets.only(top: 8, bottom: 0),
                         child: Text(
                           '${parts[2]}/${parts[1]}',
-                          style:  TextStyle(fontFamily: FontFamily.medium,fontSize: 11, color: Colors.grey.shade600),
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: isDesktop ? 11 : 8,
+                            color: Colors.grey.shade600,
+                          ),
                         ),
                       );
                     }
@@ -118,7 +133,7 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
               return spotIndexes.map((index) {
                 return TouchedSpotIndicatorData(
                   FlLine(
-                    color: const Color(0xFF1E5DB9).withValues(alpha:0.5),
+                    color: const Color(0xFF1E5DB9).withValues(alpha: 0.5),
                     strokeWidth: 2,
                     dashArray: [5, 5],
                   ),
@@ -137,14 +152,18 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
             },
             touchTooltipData: LineTouchTooltipData(
               getTooltipColor: (_) => Colors.grey.shade900,
-              tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              tooltipPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
               // tooltipRoundedRadius: 8,
               getTooltipItems: (touchedSpots) {
                 return touchedSpots.map((spot) {
                   final date = widget.navData[spot.x.toInt()].navDate ?? "";
                   return LineTooltipItem(
                     '$date\n₹${spot.y.toStringAsFixed(2)}',
-                    const  TextStyle(fontFamily: FontFamily.medium,
+                    const TextStyle(
+                      fontFamily: FontFamily.medium,
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
@@ -154,8 +173,12 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
               },
             ),
             touchCallback: (event, response) {
-              if (response?.lineBarSpots != null && response!.lineBarSpots!.isNotEmpty) {
-                setState(() => touchedSpotIndex = response.lineBarSpots!.first.spotIndex);
+              if (response?.lineBarSpots != null &&
+                  response!.lineBarSpots!.isNotEmpty) {
+                setState(
+                  () =>
+                      touchedSpotIndex = response.lineBarSpots!.first.spotIndex,
+                );
               } else {
                 setState(() => touchedSpotIndex = null);
               }
@@ -173,19 +196,20 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
               isStrokeCapRound: true,
               dotData: FlDotData(
                 show: isDesktop && schemeSpots.length <= 20,
-                getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
-                  radius: 3,
-                  color: Colors.white,
-                  strokeWidth: 2,
-                  strokeColor: const Color(0xFF1E5DB9),
-                ),
+                getDotPainter: (spot, percent, barData, index) =>
+                    FlDotCirclePainter(
+                      radius: 3,
+                      color: Colors.white,
+                      strokeWidth: 2,
+                      strokeColor: const Color(0xFF1E5DB9),
+                    ),
               ),
               belowBarData: BarAreaData(
                 show: true,
                 gradient: LinearGradient(
                   colors: [
-                    const Color(0xFF1E5DB9).withValues(alpha:0.15),
-                    const Color(0xFF1E5DB9).withValues(alpha:0.01),
+                    const Color(0xFF1E5DB9).withValues(alpha: 0.15),
+                    const Color(0xFF1E5DB9).withValues(alpha: 0.01),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -195,7 +219,9 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
           ],
         ),
         // --- ANIMATION SETTINGS ---
-        duration: const Duration(milliseconds: 1200), // Time for the line to draw
+        duration: const Duration(
+          milliseconds: 1200,
+        ), // Time for the line to draw
         curve: Curves.easeOutQuart, // Smooth easing effect
       ),
     );
@@ -212,7 +238,11 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
             const SizedBox(height: 12),
             Text(
               "No data available",
-              style:  TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade500, fontSize: 14),
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                color: Colors.grey.shade500,
+                fontSize: 14,
+              ),
             ),
           ],
         ),
@@ -220,9 +250,6 @@ class _SchemeLineChartState extends State<SchemeLineChart> {
     );
   }
 }
-
-
-
 
 // import 'package:fl_chart/fl_chart.dart';
 // import 'package:flutter/material.dart';
