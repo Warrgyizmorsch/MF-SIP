@@ -582,8 +582,8 @@ class GoalSipController extends GetxController {
     return null;
   }
 
-  int roundToNearest100(num amount) {  // ← int ki jagah num
-    final int a = amount.round();       // ← pehle int banao
+  int roundToNearest100(num amount) {
+    final int a = amount.round();
     final remainder = a % 100;
 
     if (remainder >= 50) {
@@ -596,7 +596,7 @@ class GoalSipController extends GetxController {
     if (savedInvestmentType.value != "lumpsum") return;
     if (lumpsumAmount.value <= 0) return;
 
-    final MutualFundController mutualController = Get.find(); // ← yahan
+    final MutualFundController mutualController = Get.find();
 
     final selectedFundNames = selectedPopularFund.toList();
     final int count = selectedFundNames.length;
@@ -625,17 +625,49 @@ class GoalSipController extends GetxController {
           "Remainder: ${distributionRemainder.value}",
     );
 
-    final allFunds = mutualController.searchFund; // ← yahan
+    final allFunds = mutualController.searchFund;
 
     for (int i = 0; i < selectedFundNames.length; i++) {
       final fundName = selectedFundNames[i];
+
       final fund = allFunds.firstWhereOrNull(
             (f) => f.baseSchemeName == fundName,
       );
-      final schemeCode = fund?.schemeCode?.toString() ?? fundName;
-      getAmountController(schemeCode).text = assignedAmounts[i].toString();
+
+      final schemeCode = fund?.schemeCode?.toString() ?? '';
+      final assignedAmount = assignedAmounts[i];
+
+      getAmountController(schemeCode).text =
+          assignedAmount.toString();
+
+      final fundId = getGoalFundId(schemeCode);
+
+      if (fundId == null) continue;
+
+      debugPrint(
+        "START UPDATE => Fund ${i + 1}/$count | fundId=$fundId | amount=$assignedAmount",
+      );
+
+      await updateGoalFundOrder(
+        goalId: savedDatabaseId.value ?? 0,
+        orderType: "lumpsum",
+        sipAmount: 0,
+        sipDay: 0,
+        fundId: fundId,
+        lumpsumAmount: assignedAmount.toDouble(),
+      );
+
+      debugPrint(
+        "COMPLETED UPDATE => Fund ${i + 1}/$count | fundId=$fundId",
+      );
+
+      // Optional delay
+      await Future.delayed(
+        const Duration(milliseconds: 300),
+      );
     }
 
+    debugPrint("ALL FUNDS UPDATED");
     await getAllGoals();
   }
   TextEditingController getAmountController(String schemeCode) {
@@ -687,13 +719,6 @@ class GoalSipController extends GetxController {
             (success) async {
           debugPrint(
             "UPDATE SUCCESS => ${success.data?.id}",
-          );
-
-          showCustomToast(
-            title: "Success",
-            message: "Goal fund updated successfully",
-            backgroundColor: Colors.green,
-            icon: Icons.check_circle,
           );
 
           await getAllGoals();
@@ -790,12 +815,6 @@ class GoalSipController extends GetxController {
     } catch (e) {
       debugPrint("Save Goal Fund Exception: $e");
 
-      showCustomToast(
-        title: "Error",
-        message: e.toString(),
-        backgroundColor: Colors.red.shade700,
-        icon: Icons.error_outline,
-      );
     }
   }
   Future<void> saveFundToGoal({

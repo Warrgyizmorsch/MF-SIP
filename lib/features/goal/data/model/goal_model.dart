@@ -144,7 +144,6 @@ class UserGoalModel {
   });
 
   factory UserGoalModel.fromJson(Map<String, dynamic> json) {
-    debugPrint('Parsing UserGoalModel from JSON: $json');
     return UserGoalModel(
       id: json.parse<int>('id'),
       userId: json.parse<int>('user_id'),

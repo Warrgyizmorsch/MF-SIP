@@ -932,7 +932,9 @@ class GoalDetailSection extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              _fmt(fund.sipAmount),
+                              freshGoal?.txnType.toLowerCase() == 'sip'
+                                  ? _fmt(fund.sipAmount)
+                                  : _fmt(fund.lumpsumAmount),
                               style: UTextStyles.medium.copyWith(
                                 color: Ucolors.dark,
                                 fontWeight: FontWeight.w500,
