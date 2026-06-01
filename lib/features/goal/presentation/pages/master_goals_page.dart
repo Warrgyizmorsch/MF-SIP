@@ -32,7 +32,6 @@ import '../../../sip_process/presentation/widgets/sip_projection_chart.dart';
 import '../../domain/entity/goal_entity.dart';
 import '../controller/goal_sip_controller.dart';
 
-
 class MasterGoalsPage extends GetView<GoalSipController> {
   const MasterGoalsPage({super.key});
 
@@ -104,7 +103,6 @@ class MasterGoalsPage extends GetView<GoalSipController> {
   }
 }
 
-
 class GoalDetailsScreen extends GetView<GoalSipController> {
   GoalDetailsScreen({super.key});
 
@@ -136,7 +134,10 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
               },
               child: Text(
                 "View All Goals",
-                style: TextStyle(fontFamily: FontFamily.medium,color: Ucolors.primary),
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  color: Ucolors.primary,
+                ),
               ),
             );
           }),
@@ -239,7 +240,9 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                     return;
                   }
                 },
-                amount: controller.monthlySip.value.toStringAsFixed(0),
+                amount: controller.savedInvestmentType.value == 'lumpsum'
+                    ? controller.lumpsumAmount.value.toStringAsFixed(0)
+                    : controller.monthlySip.value.toStringAsFixed(0),
                 amountColor: Ucolors.blue,
               ),
             ),
@@ -264,9 +267,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                 ? 'Selected Funds ($selectedCount)'
                 : 'Popular Funds',
             showActionButton: true,
-            buttonTitle: selectedCount > 0
-                ? 'Add Funds'
-                : 'View All',
+            buttonTitle: selectedCount > 0 ? 'Add Funds' : 'View All',
             onPressed: () {
               _showExploreMoreBottomSheet(context);
             },
@@ -297,9 +298,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
       backgroundColor: Colors.white,
       useSafeArea: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (BuildContext context) {
         return DraggableScrollableSheet(
@@ -310,14 +309,10 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
           builder: (context, scrollController) {
             return Column(
               children: [
-
                 /// Drag Handle
                 Center(
                   child: Container(
-                    margin: const EdgeInsets.only(
-                      top: 12,
-                      bottom: 16,
-                    ),
+                    margin: const EdgeInsets.only(top: 12, bottom: 16),
                     height: 5,
                     width: 48,
                     decoration: BoxDecoration(
@@ -331,18 +326,14 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
-                    mainAxisAlignment:
-                    MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
-                        crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             "Explore Funds",
-                            style: AppTextStyles.h2(
-                              color: Ucolors.dark,
-                            ),
+                            style: AppTextStyles.h2(color: Ucolors.dark),
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -358,10 +349,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                       ),
 
                       IconButton(
-                        icon: const Icon(
-                          Icons.close,
-                          color: Colors.grey,
-                        ),
+                        icon: const Icon(Icons.close, color: Colors.grey),
                         onPressed: () {
                           FocusScope.of(context).unfocus();
                           Navigator.pop(context);
@@ -393,15 +381,11 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                         mutualController.setSearchFocus(false);
                       },
 
-                      backgroundColor:
-                      WidgetStateProperty.all(
+                      backgroundColor: WidgetStateProperty.all(
                         Colors.grey.shade50,
                       ),
 
-                      leading: Icon(
-                        Icons.search,
-                        color: Colors.grey.shade600,
-                      ),
+                      leading: Icon(Icons.search, color: Colors.grey.shade600),
 
                       hintText: "Search mutual funds...",
 
@@ -413,32 +397,24 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                         ),
                       ),
 
-                      elevation:
-                      WidgetStateProperty.all(0),
+                      elevation: WidgetStateProperty.all(0),
 
                       side: WidgetStateProperty.all(
-                        BorderSide(
-                          color: Colors.grey.shade200,
-                        ),
+                        BorderSide(color: Colors.grey.shade200),
                       ),
 
                       onChanged: (value) {
-                        mutualController
-                            .onSearchQueryChanged(value);
+                        mutualController.onSearchQueryChanged(value);
                       },
                     ),
                   ),
                 ),
 
-                Divider(
-                  color: Colors.grey.shade200,
-                  height: 20,
-                ),
+                Divider(color: Colors.grey.shade200, height: 20),
 
                 /// Fund List
                 Expanded(
                   child: Obx(() {
-
                     if (mutualController.isLoading.value) {
                       return const Center(
                         child: CircularProgressIndicator(
@@ -461,49 +437,34 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
 
                     return ListView.builder(
                       controller: scrollController,
-                      padding: const EdgeInsets.only(
-                        bottom: 20,
-                      ),
-                      itemCount:
-                      mutualController.searchFund.length,
+                      padding: const EdgeInsets.only(bottom: 20),
+                      itemCount: mutualController.searchFund.length,
 
                       itemBuilder: (context, index) {
+                        final fund = mutualController.searchFund[index];
 
-                        final fund =
-                        mutualController.searchFund[index];
-
-                        final name =
-                            fund.baseSchemeName ??
-                                "Unknown Name";
+                        final name = fund.baseSchemeName ?? "Unknown Name";
 
                         return Obx(() {
-
-                          final isSelected =
-                          goalSipController
-                              .isSelectedFund(name);
+                          final isSelected = goalSipController.isSelectedFund(
+                            name,
+                          );
 
                           return Stack(
                             children: [
-
                               /// Fund Card
                               Container(
-                                margin:
-                                const EdgeInsets.symmetric(
-                                  vertical: 6,
-                                ),
+                                margin: const EdgeInsets.symmetric(vertical: 6),
 
                                 child: MutualFundCard(
                                   entity: fund,
                                   showTrainlings: false,
 
                                   onTapOverride: () {
-
-                                    FocusScope.of(context)
-                                        .unfocus();
+                                    FocusScope.of(context).unfocus();
 
                                     /// Select / Unselect
-                                    goalSipController
-                                        .toggleFund(name);
+                                    goalSipController.toggleFund(name);
                                   },
                                 ),
                               ),
@@ -513,26 +474,20 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                                 Positioned.fill(
                                   child: IgnorePointer(
                                     child: Container(
-                                      margin:
-                                      const EdgeInsets.symmetric(
+                                      margin: const EdgeInsets.symmetric(
                                         horizontal: 16,
                                         vertical: 10,
                                       ),
 
                                       decoration: BoxDecoration(
-                                        color: Ucolors.primary
-                                            .withValues(
+                                        color: Ucolors.primary.withValues(
                                           alpha: 0.05,
                                         ),
 
-                                        borderRadius:
-                                        BorderRadius.circular(
-                                          16,
-                                        ),
+                                        borderRadius: BorderRadius.circular(16),
 
                                         border: Border.all(
-                                          color:
-                                          Ucolors.primary,
+                                          color: Ucolors.primary,
                                           width: 2,
                                         ),
                                       ),
@@ -549,20 +504,13 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
 
                 /// Bottom Button
                 Container(
-                  padding: const EdgeInsets.fromLTRB(
-                    20,
-                    16,
-                    20,
-                    24,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
 
                   decoration: BoxDecoration(
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(
-                          alpha: 0.05,
-                        ),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 10,
                         offset: const Offset(0, -5),
                       ),
@@ -570,10 +518,8 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                   ),
 
                   child: Obx(() {
-
                     final selectedCount =
-                        goalSipController
-                            .selectedPopularFund.length;
+                        goalSipController.selectedPopularFund.length;
 
                     return UElevatedBUtton(
                       onPressed: () {
@@ -586,10 +532,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                               ? "Add $selectedCount Funds"
                               : "Done",
 
-                          style:
-                          AppTextStyles.bodyMedium(
-                            color: Colors.white,
-                          ),
+                          style: AppTextStyles.bodyMedium(color: Colors.white),
                         ),
                       ),
                     );
@@ -601,25 +544,15 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
         );
       },
     ).whenComplete(() {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        mutualController.setSearchFocus(false);
 
-      Future.delayed(
-        const Duration(milliseconds: 300),
-            () {
+        Get.find<FundhouseController>().clearAllFilters();
 
-          mutualController.setSearchFocus(false);
-
-          Get.find<FundhouseController>()
-              .clearAllFilters();
-
-          mutualController.silentReset();
-        },
-      );
+        mutualController.silentReset();
+      });
     });
   }
-
-
-
-
 
   /// Fund toggle logic extracted — used by both bottom sheet and grid
   void _toggleFundInBottomSheet({
@@ -654,6 +587,210 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
   }
 }
 
+class PopularFundCardMobSelected extends StatelessWidget {
+  const PopularFundCardMobSelected({
+    super.key,
+    required this.imgPath,
+    required this.name,
+    this.onTap,
+    this.isNetwork = false,
+    this.borderColor = Ucolors.borderColor,
+    this.threeYear,
+    this.tenYear,
+    this.oneYear,
+    this.fiveYear,
+    this.isSelected = false,
+    this.showAmountField = false,
+    this.amountController,
+  });
+
+  final String imgPath;
+  final String name;
+  final VoidCallback? onTap;
+  final bool isNetwork;
+  final Color borderColor;
+  final String? threeYear;
+  final String? tenYear;
+  final String? oneYear;
+  final String? fiveYear;
+  final bool isSelected;
+  final bool showAmountField;
+  final TextEditingController? amountController;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeInOut,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isSelected ? Ucolors.primary : Colors.grey.shade100,
+              width: isSelected ? 2 : 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: isSelected
+                    ? Ucolors.primary.withValues(alpha: 0.12)
+                    : Colors.black.withValues(alpha: 0.04),
+                blurRadius: isSelected ? 12 : 6,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Top row: image + name + badge
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    height: isSelected ? 34 : 30,
+                    width: isSelected ? 34 : 30,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey.shade50,
+                      border: isSelected
+                          ? Border.all(color: Ucolors.primary, width: 1.5)
+                          : null,
+                    ),
+                    child: ClipOval(
+                      child: isNetwork
+                          ? CustomCachedImage(imageUrl: imgPath, size: 40)
+                          : Image.asset(imgPath, fit: BoxFit.cover),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: UTextStyles.medium.copyWith(
+                        color: Colors.black,
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                        fontSize: 11,
+                        height: 1.1,
+                      ),
+                    ),
+                  ),
+                  if (isSelected)
+                    AnimatedScale(
+                      duration: const Duration(milliseconds: 250),
+                      scale: 1,
+                      child: Container(
+                        margin: const EdgeInsets.only(left: 4),
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Ucolors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.check,
+                          size: 12,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 6),
+
+              // Returns row — showAmountField true hone par sirf 1Y aur 3Y dikhao
+              // Returns + Amount field — same row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _returnColumn('1Y', oneYear),
+                  if (showAmountField)
+                    Gap(20),
+                  _returnColumn('3Y', threeYear),
+                  if (!showAmountField) ...[
+                    _returnColumn('5Y', fiveYear),
+                    _returnColumn('10Y', tenYear),
+                  ],
+                  if (showAmountField)...[
+                    Gap(20),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 12),
+                        child: SizedBox(
+                          height: 36,
+                          child: TextFormField(
+                            controller: amountController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              hintText: "Amount",
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 0,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    )],
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _returnColumn(String label, String? value) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            label,
+            style: UTextStyles.bodySmallW500.copyWith(
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade700,
+            ),
+          ),
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.arrow_drop_up_rounded,
+              color: Ucolors.success,
+              size: 20,
+            ),
+            Text(
+              '${value ?? 0}%',
+              style: UTextStyles.bodySmallW500.copyWith(
+                color: Ucolors.success,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
 class PopularAndSelectedFund extends StatelessWidget {
   PopularAndSelectedFund({super.key});
 
@@ -662,49 +799,31 @@ class PopularAndSelectedFund extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDesktop =
-    ResponsiveBreakpoints.of(context).largerThan(TABLET);
-
-    final int crossAxisCount = isDesktop ? 3 : 2;
-    final double childAspectRatio =
-    isDesktop ? 1.4 : 1.55;
+    final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+    final int crossAxisCount = isDesktop ? 3 : 1;
 
     return Obx(() {
-
       final allFunds = mutualController.searchFund;
 
-      /// Selected Funds
-      final selectedFunds = allFunds.where(
-            (f) {
-          return goalSipController.isSelectedFund(
-            f.baseSchemeName ?? '',
-          );
-        },
-      ).toList();
+      final selectedFunds = allFunds
+          .where(
+            (f) => goalSipController.isSelectedFund(f.baseSchemeName ?? ''),
+          )
+          .toList();
 
-      /// Popular Funds
-      final popularFunds = allFunds.where(
-            (f) {
-          return !goalSipController.isSelectedFund(
-            f.baseSchemeName ?? '',
-          );
-        },
-      ).toList();
+      final popularFunds = allFunds
+          .where(
+            (f) => !goalSipController.isSelectedFund(f.baseSchemeName ?? ''),
+          )
+          .toList();
 
-      /// Selected First
-      final List<dynamic> displayFunds =
-      selectedFunds.isEmpty
+      final List<dynamic> displayFunds = selectedFunds.isEmpty
           ? popularFunds.take(6).toList()
-          : [
-        ...selectedFunds,
-        ...popularFunds,
-      ].take(6).toList();
+          : [...selectedFunds, ...popularFunds].take(6).toList();
 
       if (displayFunds.isEmpty) {
         return Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 20,
-          ),
+          padding: const EdgeInsets.symmetric(vertical: 20),
           child: Center(
             child: Column(
               children: [
@@ -713,9 +832,7 @@ class PopularAndSelectedFund extends StatelessWidget {
                   size: 42,
                   color: Ucolors.primary,
                 ),
-
                 const SizedBox(height: 12),
-
                 Text(
                   "No Funds Available",
                   style: TextStyle(
@@ -725,9 +842,7 @@ class PopularAndSelectedFund extends StatelessWidget {
                     color: Ucolors.dark,
                   ),
                 ),
-
                 const SizedBox(height: 6),
-
                 Text(
                   "Please add funds",
                   style: TextStyle(
@@ -741,117 +856,123 @@ class PopularAndSelectedFund extends StatelessWidget {
         );
       }
 
-      return GridView.builder(
-        itemCount: displayFunds.length,
-        shrinkWrap: true,
-        physics:
-        const NeverScrollableScrollPhysics(),
+      final double screenWidth = MediaQuery.of(context).size.width;
+      final double horizontalPadding = isDesktop ? 96 : 32;
+      final double spacing = 16;
+      final double cardWidth =
+          (screenWidth - horizontalPadding - (spacing * (crossAxisCount - 1))) /
+          crossAxisCount;
 
-        gridDelegate:
-        SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: crossAxisCount,
-          childAspectRatio: childAspectRatio,
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 16,
-        ),
-
-        itemBuilder: (context, index) {
-
+      return Wrap(
+        spacing: spacing,
+        runSpacing: spacing,
+        children: List.generate(displayFunds.length, (index) {
           final fund = displayFunds[index];
-
-          final name =
-              fund.baseSchemeName ??
-                  'Unknown Name';
-
-          final img =
-              "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
-
-          final returns =
-              fund.returnsEntity?.threeYear ?? "";
+          final name = fund.baseSchemeName ?? 'Unknown Name';
+          final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
+          final threeYear = fund.returnsEntity?.threeYear ?? "";
+          final oneYear = fund.returnsEntity?.oneYear ?? "";
+          final fiveYear = fund.returnsEntity?.fiveYear ?? "";
+          final tenYear = fund.returnsEntity?.tenYear ?? "";
 
           return Obx(() {
+            final isSelected = goalSipController.isSelectedFund(name);
 
-            final isSelected =
-            goalSipController
-                .isSelectedFund(name);
+            return SizedBox(
+              width: cardWidth,
+              child: AnimatedScale(
+                duration: const Duration(milliseconds: 250),
+                scale: isSelected ? 1.02 : 1,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () async {
+                    FocusScope.of(context).unfocus();
 
-            return AnimatedScale(
-              duration: const Duration(
-                milliseconds: 250,
-              ),
+                    final isSelected = goalSipController.isSelectedFund(name);
 
-              scale: isSelected ? 1.02 : 1,
+                    /// ================= DELETE FUND =================
+                    if (isSelected) {
+                      final goalFundId = goalSipController.getGoalFundId(
+                        fund.schemeCode?.toString() ?? '',
+                      );
 
-              child: GestureDetector(
-                behavior:
-                HitTestBehavior.translucent,
+                      debugPrint(
+                        "DELETE => schemeCode=${fund.schemeCode} goalFundId=$goalFundId",
+                      );
 
-                onTap: () async {
-                  FocusScope.of(context).unfocus();
+                      if (goalFundId != null) {
+                        await goalSipController.deleteGoalFund(
+                          id: goalFundId,
+                          isEdit: false,
+                          schemeName: fund.schemeCode?.toString() ?? '',
+                        );
+                        goalSipController.toggleFund(name);
 
-                  final isSelected =
-                  goalSipController.isSelectedFund(name);
+                        // Lumpsum redistribute karo
+                        if (goalSipController.savedInvestmentType.value == "lumpsum") {
+                          await goalSipController.distributeMonthlyAmount();
+                        }
+                      }
+                      return;
+                    }
 
-                  /// Unselect
-                  if (isSelected) {
+                    /// ================= SIP DATE DIALOG =================
+                    if (goalSipController.savedInvestmentType.value == "sip" &&
+                        goalSipController.selectedPopularFund.isEmpty) {
+                      final confirmed = await _showSipDateDialog(
+                        context,
+                        goalSipController,
+                      );
+                      if (confirmed != true) return;
+                    }
+
+                    /// ================= ADD FUND =================
                     goalSipController.toggleFund(name);
-                    return;
-                  }
-                  if (goalSipController.selectedPopularFund.isEmpty) {
-                    final confirmed =
-                    await _showSipDateDialog(context, goalSipController);
 
-                    if (confirmed != true) return;
-                  }
-                  /// Select UI
-                  goalSipController.toggleFund(name);
+                    await goalSipController.saveGoalFund(
+                      goalId: goalSipController.savedDatabaseId.value ?? 0,
+                      schemeCode: fund.schemeCode?.toString() ?? '',
+                      schemeName: fund.baseSchemeName ?? '',
+                      sipAmount: (fund.minSipAmount ?? 0).toDouble(),
+                      sipDay: goalSipController.selectedSipDay.value,
+                    );
 
-                  /// Save Goal Fund API
-                  await goalSipController.saveGoalFund(
-                    goalId:
-                    goalSipController.savedDatabaseId.value??0,
-                    schemeCode:
-                    fund.schemeCode?.toString() ?? '',
-                    schemeName:
-                    fund.baseSchemeName ?? '',
-                    sipAmount:
-                    (fund.minSipAmount ?? 0).toDouble(),
-                    sipDay:
-                    goalSipController.selectedSipDay.value,
-                  );
-
-
-                },
-
-                child: PopularFundCardMobSelected(
-                  borderColor: isSelected
-                      ? Ucolors.primary
-                      : Ucolors.borderColor,
-
-                  isNetwork: true,
-
-                  imgPath: img,
-
-                  name: name,
-
-                  threeYear: returns,
-
-                  isSelected: isSelected,
+                    // Lumpsum distribute karo
+                    if (goalSipController.savedInvestmentType.value == "lumpsum") {
+                      await goalSipController.distributeMonthlyAmount();
+                    }
+                  },
+                  child: PopularFundCardMobSelected(
+                    borderColor: isSelected ? Ucolors.primary : Ucolors.borderColor,
+                    isNetwork: true,
+                    imgPath: img,
+                    name: name,
+                    threeYear: threeYear,
+                    oneYear: oneYear,
+                    fiveYear: fiveYear,
+                    tenYear: tenYear,
+                    isSelected: isSelected,
+                    showAmountField: isSelected &&
+                        goalSipController.savedInvestmentType.value == "lumpsum",
+                    // ← amountController pass karo
+                    amountController: goalSipController.getAmountController(
+                      fund.schemeCode?.toString() ?? '',
+                    ),
+                  ),
                 ),
               ),
             );
           });
-        },
+        }),
       );
     });
   }
+
   Future<bool?> _showSipDateDialog(
-      BuildContext context, GoalSipController controller
-      ) {
-    RxString selectedSipDay =
-        (controller.selectedSipDay.value)
-            .toString()
-            .obs;
+    BuildContext context,
+    GoalSipController controller,
+  ) {
+    RxString selectedSipDay = (controller.selectedSipDay.value).toString().obs;
 
     return Get.dialog<bool>(
       Dialog(
@@ -861,16 +982,14 @@ class PopularAndSelectedFund extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text("Select SIP Date"),
-
               const SizedBox(height: 16),
-
               Obx(
-                    () => DropdownButton<String>(
+                () => DropdownButton<String>(
                   value: selectedSipDay.value,
                   isExpanded: true,
                   items: List.generate(
                     28,
-                        (i) => DropdownMenuItem(
+                    (i) => DropdownMenuItem(
                       value: '${i + 1}',
                       child: Text('${i + 1}'),
                     ),
@@ -878,206 +997,25 @@ class PopularAndSelectedFund extends StatelessWidget {
                   onChanged: (val) {
                     if (val != null) {
                       selectedSipDay.value = val;
-                      controller.selectedSipDay.value =
-                          int.parse(val);
+                      controller.selectedSipDay.value = int.parse(val);
                     }
                   },
                 ),
               ),
-
               const SizedBox(height: 20),
-
               Row(
-                mainAxisAlignment:
-                MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () {
-                      Get.back(result: false);
-                    },
+                    onPressed: () => Get.back(result: false),
                     child: const Text("Cancel"),
                   ),
                   ElevatedButton(
-                    onPressed: () {
-                      Get.back(result: true);
-                    },
+                    onPressed: () => Get.back(result: true),
                     child: const Text("Confirm"),
                   ),
                 ],
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }}
-
-
-class PopularFundCardMobSelected extends StatelessWidget {
-  const PopularFundCardMobSelected({
-    super.key,
-    required this.imgPath,
-    required this.name,
-    this.onTap,
-    this.isNetwork = false,
-    this.borderColor = Ucolors.borderColor,
-    this.threeYear,
-    this.isSelected = false,
-  });
-
-  final String imgPath;
-  final String name;
-  final VoidCallback? onTap;
-  final bool isNetwork;
-  final Color borderColor;
-  final String? threeYear;
-  final bool isSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeInOut,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: isSelected ? Ucolors.primary : Colors.grey.shade100,
-              width: isSelected ? 2 : 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: isSelected
-                    ? Ucolors.primary.withValues(alpha:0.12)
-                    : Colors.black.withValues(alpha:0.04),
-                blurRadius: isSelected ? 12 : 6,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(4),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 250),
-                            height: isSelected ? 34 : 30,
-                            width: isSelected ? 34 : 30,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.grey.shade50,
-                              border: isSelected
-                                  ? Border.all(
-                                      color: Ucolors.primary,
-                                      width: 1.5,
-                                    )
-                                  : null,
-                            ),
-                            child: ClipOval(
-                              child: isNetwork
-                                  ? CustomCachedImage(
-                                      imageUrl: imgPath,
-                                      size: 40,
-                                    )
-                                  : Image.asset(imgPath, fit: BoxFit.cover),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              name,
-                              maxLines: 4,
-                              overflow: TextOverflow.ellipsis,
-                              style: UTextStyles.medium.copyWith(
-                                color: Colors.black,
-                                fontWeight: isSelected
-                                    ? FontWeight.w700
-                                    : FontWeight.w500,
-                                fontSize: 11,
-                                height: 1.1,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            '3Y',
-                            style: UTextStyles.bodySmallW500.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey.shade700,
-                            ),
-                          ),
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.arrow_drop_up_rounded,
-                              color: Ucolors.success,
-                              size: 20,
-                            ),
-                            Text(
-                              '${threeYear ?? 0}%',
-                              style: UTextStyles.bodySmallW500.copyWith(
-                                color: Ucolors.success,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              // Selected badge
-              if (isSelected)
-                Positioned(
-                  top: 4,
-                  right: 4,
-                  child: AnimatedScale(
-                    duration: const Duration(milliseconds: 250),
-                    scale: isSelected ? 1 : 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Ucolors.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.check,
-                        size: 12,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
             ],
           ),
         ),
@@ -1268,7 +1206,7 @@ class SIPSectionGoal extends GetView<GoalSipController> {
         children: [
           // ── Goal Title Field ──────────────────────────────────────────────
           Obx(
-                () => IgnorePointer(
+            () => IgnorePointer(
               ignoring: controller.isGoalSaved.value,
               child: TextFormFieldCustom(
                 title: "Goal Title",
@@ -1317,7 +1255,11 @@ class SIPSectionGoal extends GetView<GoalSipController> {
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
                       controller.goalError.value,
-                      style: TextStyle(fontFamily: FontFamily.medium,fontSize: 12, color: Ucolors.red),
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 12,
+                        color: Ucolors.red,
+                      ),
                     ),
                   )
                 : const SizedBox.shrink(),
@@ -1394,7 +1336,7 @@ class _TabButton extends StatelessWidget {
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha:0.08),
+                      color: Colors.black.withValues(alpha: 0.08),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -1404,7 +1346,8 @@ class _TabButton extends StatelessWidget {
           child: Center(
             child: Text(
               label,
-              style: TextStyle(fontFamily: FontFamily.medium,
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 color: isSelected ? Ucolors.primary : Colors.grey.shade500,
@@ -1464,7 +1407,7 @@ class _SipTabContent extends GetView<GoalSipController> {
 
         // Expected Return
         Obx(
-          () =>  IgnorePointer(
+          () => IgnorePointer(
             ignoring: controller.isGoalSaved.value,
             child: SipSliderTile2(
               title: 'Expected Return',
@@ -1578,41 +1521,45 @@ class _LumpsumTabContent extends GetView<GoalSipController> {
   @override
   Widget build(BuildContext context) {
     debugPrint("build${controller.lumpsumAmount.value.toString()}");
-    final double lumpsumAmount =controller.smartRoundOff(controller.lumpsumAmount.value);
+    final double lumpsumAmount = controller.smartRoundOff(
+      controller.lumpsumAmount.value,
+    );
     debugPrint("after build${lumpsumAmount.toString()}");
     return Column(
       children: [
         // Lumpsum Amount
-        Obx(
-          () {
-            debugPrint("Obx build${controller.lumpsumAmount.value.toString()}");
-            final double lumpsumAmount =controller.smartRoundOff(controller.lumpsumAmount.value);
-            debugPrint("Obx after build${lumpsumAmount.toString()}");
-            return  IgnorePointer(
-              ignoring: controller.isGoalSaved.value,
-              child: SipSliderTile2(
+        Obx(() {
+          debugPrint("Obx build${controller.lumpsumAmount.value.toString()}");
+          final double lumpsumAmount = controller.smartRoundOff(
+            controller.lumpsumAmount.value,
+          );
+          debugPrint("Obx after build${lumpsumAmount.toString()}");
+          return IgnorePointer(
+            ignoring: controller.isGoalSaved.value,
+            child: SipSliderTile2(
               prefix: '₹',
               title: 'Invest Amount',
-              value: lumpsumAmount < 500
-                  ? 500
-                  :lumpsumAmount,
+              value: lumpsumAmount < 500 ? 500 : lumpsumAmount,
               min: 500,
               max: controller.lumpsumFutureValue.value.toDouble(),
               suffix: '',
-                onChanged: (value) {
-                debugPrint("onchange ${controller.lumpsumAmount.value},value $value");
+              onChanged: (value) {
+                debugPrint(
+                  "onchange ${controller.lumpsumAmount.value},value $value",
+                );
                 controller.setLumpsumAmount(value);
-                debugPrint("onchange2 ${controller.lumpsumAmount.value},value $value");
-
+                debugPrint(
+                  "onchange2 ${controller.lumpsumAmount.value},value $value",
+                );
               },
-                        ),
-            );}
-        ),
+            ),
+          );
+        }),
         const Gap(16),
 
         // Duration
         Obx(
-          () =>  IgnorePointer(
+          () => IgnorePointer(
             ignoring: controller.isGoalSaved.value,
             child: SipSliderTile2(
               title: 'Duration',
@@ -1628,7 +1575,7 @@ class _LumpsumTabContent extends GetView<GoalSipController> {
 
         // Expected Return
         Obx(
-          () =>  IgnorePointer(
+          () => IgnorePointer(
             ignoring: controller.isGoalSaved.value,
             child: SipSliderTile2(
               title: 'Expected Return',
@@ -1724,18 +1671,22 @@ class _ValueCard extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: accent
-            ? Ucolors.primary.withValues(alpha:0.06)
+            ? Ucolors.primary.withValues(alpha: 0.06)
             : const Color(0xffF5F7FB),
         borderRadius: BorderRadius.circular(14),
         border: accent
-            ? Border.all(color: Ucolors.primary.withValues(alpha:0.35), width: 1.2)
+            ? Border.all(
+                color: Ucolors.primary.withValues(alpha: 0.35),
+                width: 1.2,
+              )
             : null,
       ),
       child: Column(
         children: [
           Text(
             title,
-            style: TextStyle(fontFamily: FontFamily.medium,
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
               color: accent ? Ucolors.primary : Colors.grey.shade600,
               fontSize: 12,
               fontWeight: accent ? FontWeight.w600 : FontWeight.w400,
@@ -1744,7 +1695,8 @@ class _ValueCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             value,
-            style: TextStyle(fontFamily: FontFamily.medium,
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: accent ? Ucolors.primary : Colors.black,
@@ -1753,11 +1705,12 @@ class _ValueCard extends StatelessWidget {
 
           Text(
             "Approx",
-            style: TextStyle(fontFamily: FontFamily.medium,
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
               fontSize: 8,
               fontWeight: FontWeight.w400,
               color: accent
-                  ? Ucolors.primary.withValues(alpha:0.65)
+                  ? Ucolors.primary.withValues(alpha: 0.65)
                   : Colors.grey.shade500,
             ),
           ),
@@ -1821,7 +1774,7 @@ class GoalsGridScreen extends GetView<GoalSipController> {
             backIcon: true,
             actionsPadding: 10,
           ),
-          bottomNavigationBar: isDesktop?null:        CustomFooter(),
+          bottomNavigationBar: isDesktop ? null : CustomFooter(),
           body: LayoutBuilder(
             builder: (context, constraints) {
               final width = constraints.maxWidth;
@@ -1871,7 +1824,7 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                   controller.getGoalColor(goal.goalType),
                                   controller
                                       .getGoalColor(goal.goalType)
-                                      .withValues(alpha:.75),
+                                      .withValues(alpha: .75),
                                 ]
                               : [Colors.white, Colors.white],
                         ),
@@ -1886,8 +1839,8 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                             color: isSelected
                                 ? controller
                                       .getGoalColor(goal.goalType)
-                                      .withValues(alpha:.20)
-                                : Colors.black.withValues(alpha:.04),
+                                      .withValues(alpha: .20)
+                                : Colors.black.withValues(alpha: .04),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -1917,7 +1870,9 @@ class GoalsGridScreen extends GetView<GoalSipController> {
 
                           controller.lumpsumAmount.value = controller
                               .smartRoundOff(pv);
-                          debugPrint("onTap${controller.lumpsumAmount.value}");// invest amount
+                          debugPrint(
+                            "onTap${controller.lumpsumAmount.value}",
+                          ); // invest amount
                           controller.lumpsumFutureValue.value =
                               goal.targetAmount; // fixed FV
                           controller.lumpsumTotalReturn.value =
@@ -1942,10 +1897,10 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                     width: width < 500 ? 42 : 52,
                                     decoration: BoxDecoration(
                                       color: isSelected
-                                          ? Colors.white.withValues(alpha:.18)
+                                          ? Colors.white.withValues(alpha: .18)
                                           : controller
                                                 .getGoalColor(goal.goalType)
-                                                .withValues(alpha:.10),
+                                                .withValues(alpha: .10),
                                       borderRadius: BorderRadius.circular(14),
                                     ),
                                     child: Icon(
@@ -1992,7 +1947,8 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                 goal.goalType.capitalizeFirst ?? '',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(fontFamily: FontFamily.medium,
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
                                   fontSize: width < 500 ? 15 : 20,
                                   fontWeight: FontWeight.w700,
                                   color: isSelected
@@ -2005,10 +1961,11 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                 goal.goalDescription,
                                 maxLines: width < 500 ? 2 : 3,
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(fontFamily: FontFamily.medium,
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
                                   fontSize: width < 500 ? 11 : 13,
                                   color: isSelected
-                                      ? Colors.white.withValues(alpha:.9)
+                                      ? Colors.white.withValues(alpha: .9)
                                       : Colors.grey.shade600,
                                   height: 1.4,
                                 ),
@@ -2019,7 +1976,7 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                 padding: EdgeInsets.all(width < 500 ? 8 : 20),
                                 decoration: BoxDecoration(
                                   color: isSelected
-                                      ? Colors.white.withValues(alpha:.15)
+                                      ? Colors.white.withValues(alpha: .15)
                                       : Colors.grey.shade100,
                                   borderRadius: BorderRadius.circular(14),
                                 ),
@@ -2028,7 +1985,8 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                   children: [
                                     Text(
                                       "Target Amount",
-                                      style: TextStyle(fontFamily: FontFamily.medium,
+                                      style: TextStyle(
+                                        fontFamily: FontFamily.medium,
                                         fontSize: 10,
                                         color: isSelected
                                             ? Colors.white70
@@ -2040,7 +1998,8 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                       formatCurrency(goal.targetAmount),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(fontFamily: FontFamily.medium,
+                                      style: TextStyle(
+                                        fontFamily: FontFamily.medium,
                                         fontSize: width < 500 ? 13 : 16,
                                         fontWeight: FontWeight.w700,
                                         color: isSelected
@@ -2064,7 +2023,8 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                             "${goal.goalTenure} Years",
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(fontFamily: FontFamily.medium,
+                                            style: TextStyle(
+                                              fontFamily: FontFamily.medium,
                                               fontSize: width < 500 ? 11 : 13,
                                               fontWeight: FontWeight.w600,
                                               color: isSelected
@@ -2091,7 +2051,8 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                             "${goal.expectedReturnRate} %",
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(fontFamily: FontFamily.medium,
+                                            style: TextStyle(
+                                              fontFamily: FontFamily.medium,
                                               fontSize: width < 500 ? 11 : 13,
                                               fontWeight: FontWeight.w600,
                                               color: isSelected

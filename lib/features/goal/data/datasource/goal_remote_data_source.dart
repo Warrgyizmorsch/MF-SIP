@@ -10,6 +10,7 @@ import '../../../../core/network/network_api_service.dart';
 import '../../../../core/utils/helper/helpers.dart';
 import '../model/get_goal_master_model.dart';
 import '../model/goal_fund_order_model.dart';
+import '../model/update_goal_fund_order_model.dart';
 
 class GoalRemoteDataSource {
   final NetworkServicesApi apiService;
@@ -101,7 +102,6 @@ class GoalRemoteDataSource {
       );
     }
   }
-
   Future<Either<Result<DeleteGoalFundModel>, ApiError>> deleteGoalFund({
     required int id,
   }) async {
@@ -248,6 +248,49 @@ class GoalRemoteDataSource {
         ApiError(
           message:
           'Goal Fund Save Failed with Exception $e',
+        ),
+      );
+    }
+  }
+
+  Future<Either<Result<UpdateGoalFundModel>, ApiError>> updateGoalFund(
+      Map<String, dynamic> data, int fundId,
+      ) async {
+    try {
+      final res = await apiService.postApi(
+        "${Appurl.baseUrl}/api/goal-fund/$fundId",
+        data: data,
+        headers: {
+          "Authorization":
+          "Bearer ${SessionManager.instance.jwtAccessToken}",
+        },
+      );
+
+      createLog(
+        "[Update Goal Fund Remote Data Source] Response: $res",
+      );
+
+      if (res['status'] == true) {
+        final result = UpdateGoalFundModel.fromJson(
+          res['data'],
+        );
+
+        return Left(
+          Result.success(result),
+        );
+      } else {
+        return Right(
+          ApiError(
+            message: res['message'] ??
+                'Update Goal Fund Failed',
+          ),
+        );
+      }
+    } catch (e) {
+      return Right(
+        ApiError(
+          message:
+          'Update Goal Fund Failed with Exception: $e',
         ),
       );
     }

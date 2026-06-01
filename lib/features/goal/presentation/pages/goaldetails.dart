@@ -609,7 +609,11 @@ class GoaldetailsPage extends GetView<GoalSipController> {
                                           fundName: name,
                                         );
                                       } else {
-
+                                        goalSipController.deleteGoalFund(
+                                          id:goal,
+                                          isEdit:  true,
+                                          schemeName: fund.schemeCode?.toString() ?? '',
+                                        );
                                         goalSipController.toggleFund(name);
                                       }
                                     },
@@ -964,7 +968,9 @@ class GoalDetailSection extends StatelessWidget {
                                           Get.back();
                                           Get.back();// Close dialog
                                           goalSipController.deleteGoalFund(
-                                            fund.id,
+                                           id: fund.id,
+                                            isEdit: true,
+                                            schemeName: fund.mutualFund?.schemeCode?.toString() ?? '',
                                           ); // Passing GoalFundEntity.id
                                         },
                                       );
