@@ -17,6 +17,24 @@ class GoalResponseEntity extends Equatable {
   List<Object?> get props => [success, message, data];
 }
 
+class SaveGoalResponseEntity extends Equatable {
+  final bool success;
+  final String message;
+  final UserGoalEntity data;
+
+  const SaveGoalResponseEntity({
+    required this.success,
+    required this.message,
+    required this.data,
+  });
+
+  @override
+  List<Object?> get props => [
+    success,
+    message,
+    data,
+  ];
+}
 class UserGoalEntity extends Equatable {
   final int id;
   final int userId;
@@ -259,5 +277,13 @@ extension AmcMapper on AmcModel {
       amcLogo: amcLogo ?? '',
       amcLogoUrl: amcLogoUrl ?? '',
     );
+  }
+}
+extension SaveGoalResponseMapper on SaveGoalResponseModel {
+  SaveGoalResponseEntity toEntity() {
+    return SaveGoalResponseEntity(
+      success: success ?? false,
+      message: message ?? '',
+      data: data!.toEntity() ,);
   }
 }

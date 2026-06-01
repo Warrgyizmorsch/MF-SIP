@@ -10,32 +10,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="add web updates">
+      <change afterPath="$PROJECT_DIR$/lib/features/goal/data/model/goal_fund_order_model.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/features/goal/domain/entity/goal_fund_order_entity.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/features/goal/domain/usecases/goal_fund_order_use_case.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/values/styles.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/values/styles.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/common/widget/button/elevated_button.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/widget/button/elevated_button.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/common/widget/shimmer/shimmer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/widget/shimmer/shimmer.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/common/widget/text/view_all.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/widget/text/view_all.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/utils/constant/colors.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/utils/constant/colors.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/core/utils/constant/text_style.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/core/utils/constant/text_style.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/dashboard/presentation/pages/comparison_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/dashboard/presentation/pages/comparison_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/fund_details/presentation/controllers/fund_details_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/fund_details/presentation/controllers/fund_details_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/fund_details/presentation/pages/fund_deatails.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/fund_details/presentation/pages/fund_deatails.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/fund_details/presentation/widgets/fund_performance_bar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/fund_details/presentation/widgets/fund_performance_bar.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/fund_details/presentation/widgets/risk_indicator_ball.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/fund_details/presentation/widgets/risk_indicator_ball.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/fund_details/presentation/widgets/schemeLineChart.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/fund_details/presentation/widgets/schemeLineChart.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/fund_details/presentation/widgets/timeselecter.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/fund_details/presentation/widgets/timeselecter.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/home/data/model/notification_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/data/model/notification_model.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/home/presentation/controllers/home_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/controllers/home_controller.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/home/presentation/pages/notification_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/pages/notification_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/my_app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/my_app.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/navigation_menu_bar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/navigation_menu_bar.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/data/datasource/goal_remote_data_source.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/data/datasource/goal_remote_data_source.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/data/model/goal_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/data/model/goal_model.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/data/repositories/goal_repository_impl.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/data/repositories/goal_repository_impl.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/domain/entity/goal_entity.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/domain/entity/goal_entity.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/domain/repositories/goal_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/domain/repositories/goal_repository.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/domain/usecases/goal_use_cases.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/domain/usecases/goal_use_cases.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/domain/usecases/save_goal_use_case.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/domain/usecases/save_goal_use_case.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/bindings/goal_binding.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/bindings/goal_binding.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/controller/goal_sip_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/controller/goal_sip_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/pages/master_goals_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/pages/master_goals_page.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,11 +35,30 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
+  <component name="CopilotChats">
+    <option name="panelChat">
+      <chat>
+        <option name="activeSessionId" value="4d7be3e4-29e9-433f-8eec-bdc34338d142" />
+        <option name="sessions">
+          <session>
+            <option name="chatType" value="PANEL" />
+            <option name="id" value="4d7be3e4-29e9-433f-8eec-bdc34338d142" />
+            <option name="modeId" value="Ask" />
+            <option name="modelType" value="builtin_family" />
+            <option name="modelValue" value="auto" />
+            <option name="targetType" value="LOCAL" />
+          </session>
+        </option>
+        <option name="type" value="PANEL" />
+      </chat>
+    </option>
+  </component>
   <component name="CopilotPersistence">
     <persistenceIdMap>
       <entry key="_D:/MF-SIP" value="37qGlpmjKft9Ms30PcMyQnZjWaA" />
     </persistenceIdMap>
   </component>
+  <component name="DartProblemsView" show-errors="false" show-hints="false" />
   <component name="FileEditorManager">
     <leaf>
       <file leaf-file-name="main.dart" pinned="false" current-in-tab="true">
@@ -106,11 +115,14 @@
     "cidr.known.project.marker": "true",
     "com.google.services.firebase.aqiPopupShown": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "hk__ui__updates",
+    "git-widget-placeholder": "hk__30__may__goal__updates",
     "io.flutter.project.isFirstOpen": "true",
     "io.flutter.reload.alreadyRun": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/nithikmali/StudioProjects/MF-SIP/assets/logo",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
     "settings.editor.selected.configurable": "dart.settings",
     "show.migrate.to.gradle.popup": "false"
   }
@@ -182,6 +194,57 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="add web updates" />
     <option name="LAST_COMMIT_MESSAGE" value="add web updates" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart</url>
+          <line>677</line>
+          <option name="timeStamp" value="42" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/features/goal/presentation/controller/goal_sip_controller.dart</url>
+          <line>222</line>
+          <option name="timeStamp" value="45" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/features/goal/presentation/pages/ihavegoal.dart</url>
+          <line>45</line>
+          <option name="timeStamp" value="47" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/features/goal/presentation/pages/ihavegoal.dart</url>
+          <line>1457</line>
+          <option name="timeStamp" value="48" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/features/goal/presentation/controller/goal_sip_controller.dart</url>
+          <line>235</line>
+          <option name="timeStamp" value="58" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/features/onboarding/presentation/pages/splash_screen.dart</url>
+          <line>165</line>
+          <option name="timeStamp" value="59" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/features/sip_process/presentation/pages/monthly_sip_screen.dart</url>
+          <line>43</line>
+          <option name="timeStamp" value="60" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/features/dashboard/presentation/pages/comparison_screen.dart</url>
+          <line>367</line>
+          <option name="timeStamp" value="62" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/features/goal/presentation/controller/goal_sip_controller.dart</url>
+          <line>516</line>
+          <option name="timeStamp" value="63" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

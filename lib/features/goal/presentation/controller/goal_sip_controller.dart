@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import 'package:image_picker/image_picker.dart';
@@ -14,8 +15,8 @@ import 'package:my_sip/services/session_manager.dart';
 
 import '../../../explore/domain/entities/mutual_fund_list_entity.dart';
 import '../../../explore/presentation/controller/mutual_fund_controller.dart';
+import '../../domain/entity/goal_fund_order_entity.dart';
 import '../../domain/entity/goal_master_entity.dart';
-import '../pages/master_goals_page.dart';
 
 class GoalSipController extends GetxController {
   final GoalUseCases goalUseCases;
@@ -30,7 +31,6 @@ class GoalSipController extends GetxController {
 
 
 // ── Lumpsum Calculation ───────────────────────────────────────────────────────
-// Call this inside setYears() and setRate() bhi — taaki slider change pe update ho
   void recalculateLumpsum() {
 
     final double fv =
@@ -135,7 +135,8 @@ class GoalSipController extends GetxController {
 
   }
   final cartController = Get.find<CartController>();
-
+  final RxList<GoalFundOrderEntity> savedGoalFunds =
+      <GoalFundOrderEntity>[].obs;
   final savedDatabaseId = RxnInt();
 
   // --- Goal Response data ---
@@ -255,7 +256,7 @@ class GoalSipController extends GetxController {
   void loadGoalForEdit(UserGoalEntity goal) {
 
     goalNameTextEditingController.text =
-        goal.goalName ?? '';
+        goal.goalName ;
 
     final selectedType = goalConfig.entries
         .firstWhere(
@@ -276,20 +277,20 @@ class GoalSipController extends GetxController {
     /// =========================
 
     initialTargetAmount =
-        (goal.investedAmount ?? 0).toDouble();
+        (goal.investedAmount ).toDouble();
 
     initialYears =
-        (goal.goalTenure ?? 1).toDouble();
+        (goal.goalTenure ).toDouble();
 
     initialRate =
-        (goal.expectedReturnRate ?? 12).toDouble();
+        (goal.expectedReturnRate ).toDouble();
 
     /// =========================
     /// EXISTING SIP
     /// =========================
 
     existingSipAmount.value =
-        (goal.monthlyInvestment ?? 0).toDouble();
+        (goal.monthlyInvestment).toDouble();
 
     /// =========================
     /// INIT
@@ -478,6 +479,7 @@ class GoalSipController extends GetxController {
     }
   }
 
+
   Future<void> saveGoalToDb() async {
     setGoalName(goalNameTextEditingController.text);
     if (!isFormValid) {
@@ -486,7 +488,7 @@ class GoalSipController extends GetxController {
     if (goalNameTextEditingController.text.isEmpty) {
       // Get.snackbar("Error", "Please enter a goal name");
       // showCustomToast(
-      //   title: "errro",
+      //   title: "error",
       //   message: 'Please enter a Goal name',
       //   backgroundColor: Colors.yellow,
       //   icon: Icons.warning,
@@ -500,8 +502,8 @@ class GoalSipController extends GetxController {
       );
       return;
     }
-    final currentType = selectedGoalType.value;
-    final correctDbId = goalConfig[currentType]?['db_id'] ?? "6";
+    // final currentType = selectedGoalType.value;
+    // final correctDbId = goalConfig[currentType]?['db_id'] ?? "6";
 
     final requestData = {
       "user_id": SessionManager.instance.getUserData?.id,
@@ -527,10 +529,14 @@ class GoalSipController extends GetxController {
         await fetchCount();
         await getAllGoals();
         isGoalSaved.value = true;
-        savedDatabaseId.value = int.tryParse(success.data?.toString() ?? '0');
+        savedDatabaseId.value =
+            success.data?.data.id ?? 0;
 
+        debugPrint(
+          'Saved Goal Id: ${savedDatabaseId.value}',
+        );
 
-        print('goal id save ${success.data}');
+        debugPrint('goal id save ${success.data}');
       },
           (error) {
         Get.snackbar("Error", error.message);
@@ -538,7 +544,82 @@ class GoalSipController extends GetxController {
       },
     );
   }
+  Future<void> saveGoalFund({
+    required int goalId,
+    required String schemeCode,
+    required String schemeName,
+    required double sipAmount,
+    required int sipDay,
+  }) async {
+    HapticFeedback.successNotification();
 
+    // /// Duplicate Check
+    // if (isSelectedFund(schemeName)) {
+    //   showCustomToast(
+    //     title: "Already Added",
+    //     message: schemeName,
+    //     backgroundColor: Colors.orange.shade700,
+    //     icon: Icons.info_outline,
+    //   );
+    //   return;
+    // }
+
+    try {
+      final requestData = {
+        "goal_id": goalId,
+        "user_id": SessionManager.instance.getUserData!.id,
+        "scheme_code": schemeCode,
+        "order_date": DateTime.now().toString().split(' ').first,
+        "order_type": "sip",
+        "sip_amount": sipAmount,
+        "sip_day": sipDay,
+        "sip_start_date": DateTime.now().toString().split(' ').first,
+        "sip_end_date": DateTime.now()
+            .add(const Duration(days: 365 * 3))
+            .toString()
+            .split(' ')
+            .first,
+      };
+
+      final result =
+      await goalUseCases.saveGoalFundUseCase.call(
+        requestData,
+      );
+
+      result.fold(
+            (success) async {
+          /// Add to selected funds after successful API call
+          if (!isSelectedFund(schemeName)) {
+            toggleFund(schemeName);
+          }
+
+          showCustomToast(
+            title: "Fund Added",
+            message: schemeName,
+            backgroundColor: Colors.green,
+            icon: Icons.check_circle,
+          );
+        },
+            (failure) {
+          showCustomToast(
+            title: "Error",
+            message: failure.message,
+            backgroundColor: Colors.red.shade700,
+            icon: Icons.error_outline,
+          );
+        },
+      );
+    } catch (e) {
+      debugPrint("Save Goal Fund Exception: $e");
+
+      showCustomToast(
+        title: "Error",
+        message: e.toString(),
+        backgroundColor: Colors.red.shade700,
+        icon: Icons.error_outline,
+      );
+    }
+  }
   Future<void> saveFundToGoal({
     required int goalId,
     required String schemeCode,
@@ -554,7 +635,7 @@ class GoalSipController extends GetxController {
     final fundData = {
       "goal_id": goalId,
       "user_id": SessionManager.instance.getUserData?.id ?? 7,
-      "scheme_code": int.tryParse(schemeCode ?? '') ?? 0,
+      "scheme_code": int.tryParse(schemeCode ) ?? 0,
       "order_date": formattedDate,
     };
 
@@ -584,7 +665,7 @@ class GoalSipController extends GetxController {
         await getAllGoals();
       },
           (error) {
-        // Get.snackbar("Errorrr", "${error.message}");
+        // Get.snackbar("Error", "${error.message}");
         showCustomToast(
           title: "Already in Goal",
           message: fundName,
@@ -623,7 +704,7 @@ class GoalSipController extends GetxController {
           (error) {
         ULoaders.error(
           title: 'Error',
-          message: error.message ?? 'Delete failed',
+          message: error.message ,
         );
       },
     );
@@ -659,7 +740,7 @@ class GoalSipController extends GetxController {
           (error) {
         ULoaders.error(
           title: 'Error',
-          message: error.message ?? 'Delete failed',
+          message: error.message,
         );
       },
     );
@@ -874,11 +955,9 @@ class GoalSipController extends GetxController {
     Get.find<MutualFundController>().applyFilters(
       params,);
 
-    final result = await Get.find<MutualFundController>().fetchData(
-
-    );
+     await Get.find<MutualFundController>().fetchData();
     // fundList.assignAll(result);
-    print("Fund Result:");
+    debugPrint("Fund Result:");
 
   }
 
