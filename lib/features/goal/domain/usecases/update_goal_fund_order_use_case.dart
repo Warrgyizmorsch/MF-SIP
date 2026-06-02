@@ -10,6 +10,6 @@ class UpdateGoalFundOrderUseCase {
 
   UpdateGoalFundOrderUseCase({required this.goalRepository});
 
-  Future<Either<Result<UpdateGoalFundEntity>,ApiError>>call(Map<String,dynamic> data, int fundId) async {
+  Future<Either<Result<UpdateGoalFundEntity>,ApiError>>call(  List<Map<String, dynamic>> data, int fundId) async {
     return await goalRepository.updateGoalFund(data, fundId);  }
 }

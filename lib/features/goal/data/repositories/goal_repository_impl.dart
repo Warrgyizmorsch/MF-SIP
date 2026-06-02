@@ -146,7 +146,8 @@ class GoalRepositoryImpl extends GoalRepository {
     }
   }@override
   Future<Either<Result<UpdateGoalFundEntity>, ApiError>> updateGoalFund(
-      Map<String, dynamic> data,  int fundId
+      List<Map<String, dynamic>> data,
+      int fundId
       ) async {
     try {
       final result =

@@ -108,7 +108,7 @@ class GoalBinding extends Bindings {
         Get.find<DeleteGoalUseCase>(),
         getMasterGoalsUseCase:
         Get.find<GetMasterGoalsUseCase>(),
-            goalFundOrderUseCase:
+        goalFundOrderUseCase:
         Get.find<GoalFundOrderUseCase>(),
         updateGoalFundOrderUseCase:
         Get.find<UpdateGoalFundOrderUseCase>(),
