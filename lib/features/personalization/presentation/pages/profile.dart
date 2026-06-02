@@ -512,19 +512,18 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
               Get.to(() => DownloadStatementsScreen());
             },
             title: 'Account Statement',
-            images: UImages.likedislike,
+            // images: UImages.likedislike,
+            icon: Icons.sip_outlined,
           ),
           Listtilecustom(
             onTap: () {
               Get.find<PersonalisationController>().setStatementMode(
                 isCapital: true,
               );
-              Get.to(
-                () => DownloadStatementsScreen(),
-              );
+              Get.to(() => DownloadStatementsScreen());
             },
             title: 'ElSS Report',
-            images: UImages.likedislike,
+            // images: UImages.likedislike,
           ),
         ],
       ),
@@ -539,11 +538,13 @@ class Listtilecustom extends StatelessWidget {
     this.images,
     required this.onTap,
     this.isLock = false,
+    this.icon = Icons.bar_chart,
   });
   final String title;
   final String? images;
   final VoidCallback onTap;
   final bool isLock;
+  final IconData icon;
   // final PersonalisationController controller =
   //     Get.find<PersonalisationController>();
 
@@ -554,7 +555,7 @@ class Listtilecustom extends StatelessWidget {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16),
       visualDensity: const VisualDensity(vertical: -1),
       onTap: onTap,
-      leading: images != null ? Image.asset(images!) : null,
+      leading: images != null ? Image.asset(images!) : Icon(icon),
       title: Text(
         title,
         style: UTextStyles.bodyMedium.copyWith(

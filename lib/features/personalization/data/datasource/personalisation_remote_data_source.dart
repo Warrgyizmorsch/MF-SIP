@@ -3,7 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
+import 'package:my_sip/features/personalization/data/model/account_statement_model.dart';
 import 'package:my_sip/features/personalization/data/model/bank_model.dart';
+import 'package:my_sip/features/personalization/data/model/capital_gain_statement_model.dart';
 import 'package:my_sip/features/personalization/data/model/nominee_model.dart';
 import 'package:my_sip/features/personalization/data/model/profile_update_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_question_model.dart';
@@ -212,7 +214,6 @@ class PersonalisationRemoteDataSource {
         "[Personalisation Remote Data Source] updateProfile Response: $resp",
       );
 
-
       if (resp['status'] == true) {
         final result = ProfileUpdateModel.fromJson(resp);
         return Left(Result.success(result));
@@ -228,6 +229,114 @@ class PersonalisationRemoteDataSource {
       return Right(
         ApiError(message: 'Profile Update Failed with Exception $e'),
       );
+    }
+  }
+
+  Future<Either<Result<CapitalGainStatementModel>, ApiError>>
+  requestCapitalGainStatement({
+    required int uid,
+    required String type,
+    String? email,
+    required String folioNo,
+    required String startDate,
+    required String endDate,
+  }) async {
+    try {
+      final body = {
+        "uid": uid,
+        "type": type,
+        if (email != null && email.isNotEmpty) "email": email,
+        "folio_no": folioNo,
+        "start_date": startDate,
+        "end_date": endDate,
+      };
+
+      createLog(
+        "[MfuRemoteDataSource] requestCapitalGainStatement Request: $body",
+      );
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/capital-gain/statement",
+        data: body,
+      );
+
+      createLog(
+        "[MfuRemoteDataSource] requestCapitalGainStatement Response: $resp",
+      );
+
+      if (resp != null) {
+        final result = CapitalGainStatementModel.fromJson(resp);
+        if (result.success == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(message: result.message ?? 'Failed to request statement'),
+          );
+        }
+      } else {
+        return Right(
+          ApiError(
+            message: 'requestCapitalGainStatement: Invalid response structure',
+          ),
+        );
+      }
+    } catch (e) {
+      return Right(
+        ApiError(message: 'requestCapitalGainStatement Exception: $e'),
+      );
+    }
+  }
+
+  Future<Either<Result<AccountStatementModel>, ApiError>>
+  requestAccountStatement({
+    required int uid,
+    required String type,
+    String? email,
+    required String folioNo,
+    required String startDate,
+    required String endDate,
+  }) async {
+    try {
+      final body = {
+        "uid": uid,
+        "type": type,
+        if (email != null && email.isNotEmpty) "email": email,
+        "folio_no": folioNo,
+        "start_date": startDate,
+        "end_date": endDate,
+      };
+
+      createLog("[MfuRemoteDataSource] requestAccountStatement Request: $body");
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/account-statement",
+        data: body,
+      );
+
+      createLog(
+        "[MfuRemoteDataSource] requestAccountStatement Response: $resp",
+      );
+
+      if (resp != null) {
+        final result = AccountStatementModel.fromJson(resp);
+        if (result.success == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(
+              message: result.message ?? 'Failed to request account statement',
+            ),
+          );
+        }
+      } else {
+        return Right(
+          ApiError(
+            message: 'requestAccountStatement: Invalid response structure',
+          ),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'requestAccountStatement Exception: $e'));
     }
   }
 }

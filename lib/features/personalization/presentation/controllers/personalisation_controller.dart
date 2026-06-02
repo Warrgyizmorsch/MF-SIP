@@ -1,7 +1,9 @@
 // ignore_for_file: dead_null_aware_expression, dead_code
 
 import 'dart:developer';
+import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -26,6 +28,9 @@ import 'dart:async';
 
 import 'package:my_sip/features/personalization/domain/entity/profile_update_entity.dart'
     as profileEntity;
+import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PersonalisationController extends GetxController {
   final PersonalisationUseCases _useCases;
@@ -138,131 +143,6 @@ class PersonalisationController extends GetxController {
   String? get activeMmurn {
     return userData.value?.mfuMandate?.mumrn;
   }
-
-  //////           DownLoad Statement                   //////////////
-  final isCapitalGain = false.obs;
-  // Statement type: 0 = PAN, 1 = Folio
-  final statementTypeIndex = 0.obs;
-
-  final startDate = Rx<DateTime?>(null);
-  final endDate = Rx<DateTime?>(null);
-
-  // PAN input
-  final panControllerDownload = TextEditingController(text: 'ABCDE1234F');
-
-  // Folio / scheme selections (mock values)
-  final selectedFolio = '123456789'.obs;
-  final selectedScheme = 'Growth Fund - Direct'.obs;
-
-  // Duration: 0=Current FY, 1=Previous FY, 2=Full Statement, 3=Custom
-  final selectedDuration = 0.obs;
-
-  final List<String> durations = [
-    'Current FY',
-    'Previous FY',
-    'Full Statement',
-    'Custom',
-  ];
-
-  void selectStatementType(int index) => statementTypeIndex.value = index;
-  // void selectDuration(int index) => selectedDuration.value = index;
-  void selectDuration(int index) {
-    selectedDuration.value = index;
-    // Optional: Clear dates if they switch away from custom
-    if (index != 3) {
-      startDate.value = null;
-      endDate.value = null;
-    }
-  }
-
-  void setStatementMode({required bool isCapital}) {
-    isCapitalGain.value = isCapital;
-
-    // Optional: Reset other variables to default when opening the screen
-    isCapital ? statementTypeIndex.value = 1 : statementTypeIndex.value = 0;
-    // panController.text = 'ABCDE1234F';
-  }
-
-  void onDownload() {
-    if (selectedDuration.value == 3 &&
-        (startDate.value == null || endDate.value == null)) {
-      CustomSnackbar.warning(
-        title: 'Missing Info',
-        message: 'Please select both start and end dates',
-      );
-      return;
-    }
-    CustomSnackbar.success(title: 'Download', message: 'Generating statement…');
-  }
-
-  void onEmail() {
-    if (selectedDuration.value == 3 &&
-        (startDate.value == null || endDate.value == null)) {
-      CustomSnackbar.warning(
-        title: 'Missing Info',
-        message: 'Please select both start and end dates',
-      );
-      return;
-    }
-    CustomSnackbar.show(
-      title: 'Email',
-      message: 'Statement sent to ****@gmail.com',
-    );
-  }
-
-  // Date Picker Logic
-  Future<void> pickDate(BuildContext context, bool isStart) async {
-    final initialDate = isStart
-        ? (startDate.value ?? DateTime.now())
-        : (endDate.value ?? DateTime.now());
-
-    final pickedDate = await showDatePicker(
-      context: context,
-      initialDate: initialDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime.now(), // Prevent picking future dates
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Ucolors.primary3,
-              onPrimary: Ucolors.onPrimary,
-              onSurface: Ucolors.onSurface,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (pickedDate != null) {
-      if (isStart) {
-        startDate.value = pickedDate;
-        // Auto-clear end date if it's before the new start date
-        if (endDate.value != null && endDate.value!.isBefore(pickedDate)) {
-          endDate.value = null;
-        }
-      } else {
-        // Prevent end date from being before start date
-        if (startDate.value != null && pickedDate.isBefore(startDate.value!)) {
-          CustomSnackbar.error(
-            title: 'Invalid Date',
-            message: 'End date cannot be before start date',
-          );
-          return;
-        }
-        endDate.value = pickedDate;
-      }
-    }
-  }
-
-  // Helper to show date in UI
-  String formatDate(DateTime? date) {
-    if (date == null) return 'DD/MM/YYYY';
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
-  }
-
-  ////////////    --------------           ////////////
 
   final nomineeDocumentSelectionList = [
     "Pan",
@@ -1419,6 +1299,461 @@ class PersonalisationController extends GetxController {
   String getOccupationName(int? id) {
     if (id == null || id <= 0 || id > occupationList.length) return '';
     return occupationList[id - 1];
+  }
+
+  /////////   capital gain Statement    ------        DownLoad Statement                   //////////////
+
+  final isCapitalGain = false.obs;
+  final isRequestingAccountStatement = false.obs;
+
+  // Statement type: 0 = PAN, 1 = Folio
+  final statementTypeIndex = 0.obs;
+
+  final startDate = Rx<DateTime?>(null);
+  final endDate = Rx<DateTime?>(null);
+
+  // PAN input
+  final panControllerDownload = TextEditingController(text: 'ABCDE1234F');
+
+  // Folio / scheme selections (mock values)
+  final selectedFolio = 'CGFOLIO13001'.obs;
+  final selectedScheme = 'Growth Fund - Direct'.obs;
+
+  // Duration: 0=Current FY, 1=Previous FY, 2=Full Statement, 3=Custom
+  final selectedDuration = 0.obs;
+
+  final List<String> durations = [
+    'Current FY',
+    'Previous FY',
+    'Full Statement',
+    'Custom',
+  ];
+
+  void selectStatementType(int index) => statementTypeIndex.value = index;
+  // void selectDuration(int index) => selectedDuration.value = index;
+  void selectDuration(int index) {
+    selectedDuration.value = index;
+    // Optional: Clear dates if they switch away from custom
+    if (index != 3) {
+      startDate.value = null;
+      endDate.value = null;
+    }
+  }
+
+  void setStatementMode({required bool isCapital}) {
+    isCapitalGain.value = isCapital;
+
+    // Optional: Reset other variables to default when opening the screen
+    isCapital ? statementTypeIndex.value = 1 : statementTypeIndex.value = 0;
+    // panController.text = 'ABCDE1234F';
+  }
+
+  // void onDownload() {
+  //   if (selectedDuration.value == 3 &&
+  //       (startDate.value == null || endDate.value == null)) {
+  //     CustomSnackbar.warning(
+  //       title: 'Missing Info',
+  //       message: 'Please select both start and end dates',
+  //     );
+  //     return;
+  //   }
+  //   CustomSnackbar.success(title: 'Download', message: 'Generating statement…');
+  // }
+  void onDownload() {
+    // Validation for custom dates
+    if (selectedDuration.value == 3 &&
+        (startDate.value == null || endDate.value == null)) {
+      Get.snackbar('Missing Info', 'Please select both start and end dates');
+      return;
+    }
+
+    final dates = _getStartAndEndDates();
+
+    if (isCapitalGain.value) {
+      requestCapitalGainStatement(
+        type: "download",
+        email: null,
+        folioNo: selectedFolio.value, // passing the dynamically selected folio
+        startDate: dates['start']!,
+        endDate: dates['end']!,
+      );
+    } else {
+      // Handle normal account statement download here
+      requestAccountStatement(
+        type: "download", // Change to "email" if user selects email
+        email: null, // Pass user's email if type == "email"
+        // folioNo: "CGFOLIO13001",
+        // startDate: "2020-01-01",
+        // endDate: "2030-01-01",
+        folioNo: selectedFolio.value, // passing the dynamically selected folio
+        startDate: dates['start']!,
+        endDate: dates['end']!,
+      );
+    }
+  }
+
+  // void onEmail() {
+  //   if (selectedDuration.value == 3 &&
+  //       (startDate.value == null || endDate.value == null)) {
+  //     CustomSnackbar.warning(
+  //       title: 'Missing Info',
+  //       message: 'Please select both start and end dates',
+  //     );
+  //     return;
+  //   }
+  //   CustomSnackbar.show(
+  //     title: 'Email',
+  //     message: 'Statement sent to ****@gmail.com',
+  //   );
+  // }
+  void onEmail() {
+    if (selectedDuration.value == 3 &&
+        (startDate.value == null || endDate.value == null)) {
+      Get.snackbar('Missing Info', 'Please select both start and end dates');
+      return;
+    }
+
+    final dates = _getStartAndEndDates();
+
+    if (isCapitalGain.value) {
+      requestCapitalGainStatement(
+        type: "email",
+        email: userData
+            .value
+            ?.email, // Replace with user's actual registered email
+        folioNo: selectedFolio.value,
+        startDate: dates['start']!,
+        endDate: dates['end']!,
+      );
+    } else {
+      // Handle normal account statement email here
+      requestAccountStatement(
+        type: "email", // Change to "email" if user selects email
+        email: userData.value?.email, // Pass user's email if type == "email"
+        // folioNo: "CGFOLIO13001",
+        // startDate: "2020-01-01",
+        // endDate: "2030-01-01",
+        folioNo: selectedFolio.value,
+        startDate: dates['start']!,
+        endDate: dates['end']!,
+      );
+    }
+  }
+
+  // Date Picker Logic
+  Future<void> pickDate(BuildContext context, bool isStart) async {
+    final initialDate = isStart
+        ? (startDate.value ?? DateTime.now())
+        : (endDate.value ?? DateTime.now());
+
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Ucolors.primary3,
+              onPrimary: Ucolors.onPrimary,
+              onSurface: Ucolors.onSurface,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      if (isStart) {
+        startDate.value = pickedDate;
+        // Auto-clear end date if it's before the new start date
+        if (endDate.value != null && endDate.value!.isBefore(pickedDate)) {
+          endDate.value = null;
+        }
+      } else {
+        // Prevent end date from being before start date
+        if (startDate.value != null && pickedDate.isBefore(startDate.value!)) {
+          CustomSnackbar.error(
+            title: 'Invalid Date',
+            message: 'End date cannot be before start date',
+          );
+          return;
+        }
+        endDate.value = pickedDate;
+      }
+    }
+  }
+
+  // Helper to show date in UI
+  String formatDate(DateTime? date) {
+    if (date == null) return 'DD/MM/YYYY';
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
+
+  ////////////    --------------           ////////////
+  final isRequestingStatement = false.obs;
+
+  // Calculate dates based on the selected duration (Current FY, Prev FY, etc.)
+  String _formatForApi(DateTime? date) {
+    if (date == null) return "";
+    return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+  }
+
+  Map<String, String> _getStartAndEndDates() {
+    DateTime now = DateTime.now();
+    DateTime start;
+    DateTime end;
+
+    if (selectedDuration.value == 3) {
+      // Custom Dates
+      return {
+        "start": _formatForApi(startDate.value),
+        "end": _formatForApi(endDate.value),
+      };
+    } else if (selectedDuration.value == 0) {
+      // Current FY (April 1st to Today)
+      int startYear = now.month >= 4 ? now.year : now.year - 1;
+      start = DateTime(startYear, 4, 1);
+      end = now;
+    } else if (selectedDuration.value == 1) {
+      // Previous FY
+      int startYear = now.month >= 4 ? now.year - 1 : now.year - 2;
+      start = DateTime(startYear, 4, 1);
+      end = DateTime(startYear + 1, 3, 31);
+    } else {
+      // Full Statement (Fallback to a default old date)
+      start = DateTime(2000, 1, 1);
+      end = now;
+    }
+
+    return {"start": _formatForApi(start), "end": _formatForApi(end)};
+  }
+
+  // ── IN-APP DOWNLOAD TO PUBLIC FOLDER ──────────────────────
+  Future<void> _downloadAndSavePdf(String url, String folio) async {
+    try {
+      CustomSnackbar.info(
+        title: 'Downloading',
+        message: 'Please wait while your statement downloads...',
+      );
+
+      // 1. Determine the correct public directory based on the OS
+      Directory? directory;
+      if (Platform.isAndroid) {
+        // Target the public Downloads folder on Android
+        directory = Directory('/storage/emulated/0/Download');
+        if (!await directory.exists()) {
+          // Fallback if standard Downloads folder doesn't exist
+          directory = (await getExternalStorageDirectory());
+        }
+      } else if (Platform.isIOS) {
+        // Target the Documents folder on iOS (needs Info.plist update below)
+        directory = await getApplicationDocumentsDirectory();
+      }
+
+      if (directory == null) {
+        CustomSnackbar.error(
+          title: 'Error',
+          message: 'Could not access device storage.',
+        );
+        return;
+      }
+
+      // 2. Create a unique filename and path
+      final String fileName = isCapitalGain.value
+          ? "CapitalGain_${folio}_${DateTime.now().millisecondsSinceEpoch}.pdf"
+          : "AccountStatement_${folio}_${DateTime.now().millisecondsSinceEpoch}.pdf";
+      ;
+      final String savePath = '${directory.path}/$fileName';
+
+      // 3. Download the file using Dio
+      final dio = Dio();
+      await dio.download(url, savePath);
+
+      log("[MfuController] File saved successfully to: $savePath");
+
+      // 4. Open the file natively on the device
+      final result = await OpenFilex.open(savePath);
+
+      if (result.type != ResultType.done) {
+        CustomSnackbar.success(
+          title: 'Saved to Downloads',
+          message: 'File downloaded successfully to your Downloads folder.',
+        );
+      }
+    } catch (e) {
+      log("[MfuController] Download error: $e");
+      CustomSnackbar.error(
+        title: 'Error',
+        message: 'Failed to download the PDF file.',
+      );
+    }
+  }
+
+  // Future<void> _downloadAndSavePdf(String url, String folio) async {
+  //   try {
+  //     // 1. Get the app's local document directory
+  //     final Directory dir = await getApplicationDocumentsDirectory();
+
+  //     // 2. Create a unique filename
+  //     final String fileName =
+  //         "CapitalGain_${folio}_${DateTime.now().millisecondsSinceEpoch}.pdf";
+  //     final String savePath = '${dir.path}/$fileName';
+
+  //     // 3. Download the file using Dio
+  //     Get.snackbar(
+  //       'Downloading',
+  //       'Please wait while your statement downloads...',
+  //       snackPosition: SnackPosition.BOTTOM,
+  //     );
+
+  //     final dio = Dio();
+  //     await dio.download(
+  //       url,
+  //       savePath,
+  //       onReceiveProgress: (received, total) {
+  //         if (total != -1) {
+  //           // Optional: You could track download progress here
+  //           final progress = (received / total * 100).toStringAsFixed(0);
+  //           log("Downloading: $progress%");
+  //         }
+  //       },
+  //     );
+
+  //     log("[MfuController] File saved to: $savePath");
+
+  //     // 4. Open the file natively on the device
+  //     final result = await OpenFilex.open(savePath);
+
+  //     if (result.type != ResultType.done) {
+  //       Get.snackbar(
+  //         'Notice',
+  //         'File downloaded, but could not find a PDF viewer to open it.',
+  //       );
+  //     }
+  //   } catch (e) {
+  //     log("[MfuController] Download error: $e");
+  //     Get.snackbar(
+  //       'Error',
+  //       'Failed to download the PDF file.',
+  //       snackPosition: SnackPosition.BOTTOM,
+  //     );
+  //   }
+  // }
+
+  Future<void> requestCapitalGainStatement({
+    required String type, // "email" or "download"
+    String? email,
+    required String folioNo,
+    required String startDate,
+    required String endDate,
+  }) async {
+    isRequestingStatement.value = true;
+
+    final uid = session.getUserData?.id ?? 0;
+
+    // Make the API call
+    final result = await _useCases.requestCapitalGainStatementUseCase(
+      uid: 13001, // for testing
+      // uid: uid,
+      type: type,
+      email: email,
+      folioNo: folioNo,
+      startDate: startDate,
+      endDate: endDate,
+    );
+
+    result.fold(
+      (success) async {
+        // Marked async to await the url launch
+        final data = success.data;
+
+        if (data != null) {
+          if (data.isDownload && data.downloadUrl.isNotEmpty) {
+            log("[MfuController] Download link ready: ${data.downloadUrl}");
+            await _downloadAndSavePdf(data.downloadUrl, folioNo);
+          } else if (data.isEmail) {
+            log("[MfuController] Email sent to: ${data.emailTo}");
+            CustomSnackbar.success(
+              title: 'Success',
+              message:
+                  'Statement sent to ${data.emailTo} successfully.' ??
+                  data.message,
+            );
+          }
+        }
+      },
+      (error) {
+        CustomSnackbar.error(title: 'Error', message: error.message);
+      },
+    );
+
+    isRequestingStatement.value = false;
+  }
+
+  Future<void> requestAccountStatement({
+    required String type, // "email" or "download"
+    String? email,
+    required String folioNo,
+    required String startDate,
+    required String endDate,
+  }) async {
+    isRequestingAccountStatement.value = true;
+
+    final uid = session.getUserData?.id ?? 0;
+
+    final result = await useCases.requestAccountStatementUseCase(
+      uid: 13001, // for testing
+      // uid: uid,
+      type: type,
+      email: email,
+      folioNo: folioNo,
+      startDate: startDate,
+      endDate: endDate,
+    );
+
+    result.fold(
+      (success) async {
+        final data = success.data;
+
+        // if (data != null) {
+        //   if (data.isDownload && data.downloadUrl.isNotEmpty) {
+        //     log(
+        //       "[MfuController] Account Statement Download link: ${data.downloadUrl}",
+        //     );
+
+        //     Get.snackbar(
+        //       'Success',
+        //       'Account Statement download link generated. Expires in ${data.expiresInMinutes} mins.',
+        //     );
+        //   } else if (data.isEmail) {
+        //     log("[MfuController] Account Statement sent to: ${data.emailTo}");
+        //     Get.snackbar('Success', data.message);
+        //   }
+        // }
+        if (data != null) {
+          if (data.isDownload && data.downloadUrl.isNotEmpty) {
+            log("[MfuController] Download link ready: ${data.downloadUrl}");
+            await _downloadAndSavePdf(data.downloadUrl, folioNo);
+          } else if (data.isEmail) {
+            log("[MfuController] Email sent to: ${data.emailTo}");
+            CustomSnackbar.success(
+              title: 'Success',
+              message:
+                  'Statement sent to ${data.emailTo} successfully.' ??
+                  data.message,
+            );
+          }
+        }
+      },
+      (error) {
+        Get.snackbar('Error', error.message);
+      },
+    );
+
+    isRequestingAccountStatement.value = false;
   }
 
   // On close

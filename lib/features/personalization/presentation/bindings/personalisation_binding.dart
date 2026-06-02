@@ -1,11 +1,13 @@
 import 'package:get/get.dart';
 import 'package:get/get_instance/src/bindings_interface.dart';
+import 'package:my_sip/features/personalization/domain/usecases/account_statement_usecases.dart';
 import 'package:my_sip/features/personalization/domain/usecases/add_nominee_use_case.dart';
 import 'package:my_sip/features/personalization/domain/usecases/delete_nominee_use_case.dart';
 import 'package:my_sip/features/personalization/domain/usecases/get_bank_use_cases.dart';
 import 'package:my_sip/features/personalization/domain/usecases/get_nominee_use_case.dart';
 import 'package:my_sip/features/personalization/domain/usecases/get_riskQuestion_use_cases.dart';
 import 'package:my_sip/features/personalization/domain/usecases/personalisation_use_cases.dart';
+import 'package:my_sip/features/personalization/domain/usecases/request_capital_gain_statement_usecase.dart';
 import 'package:my_sip/features/personalization/domain/usecases/risk_submit_usecases.dart';
 import 'package:my_sip/features/personalization/domain/usecases/update_profile_usecases.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
@@ -37,22 +39,21 @@ class PersonalisationBinding extends Bindings {
     Get.lazyPut(
       () => AddNomineeUseCase(
         personalisationRepository: Get.find<PersonalisationRepository>(),
-        
       ),
-      fenix: true
+      fenix: true,
     );
     Get.lazyPut(
       () => GetNomineeUseCase(
         personalisationRepository: Get.find<PersonalisationRepository>(),
       ),
-      fenix: true
+      fenix: true,
     );
     Get.lazyPut(() => GetBankUseCases(Get.find()));
     Get.lazyPut(
       () => DeleteNomineeUseCase(
         personalisationRepository: Get.find<PersonalisationRepository>(),
       ),
-      fenix: true
+      fenix: true,
     );
     Get.lazyPut(
       () => UpdateProfileUsecases(
@@ -61,8 +62,17 @@ class PersonalisationBinding extends Bindings {
       fenix: true,
     );
     Get.lazyPut(
+      () => RequestCapitalGainStatementUseCase(
+        personalisationRepository: Get.find<PersonalisationRepository>(),
+      ),
+    );
+    Get.lazyPut(
+      () => RequestAccountStatementUseCase(
+        personalisationRepository: Get.find<PersonalisationRepository>(),
+      ),
+    );
+    Get.lazyPut(
       () => PersonalisationUseCases(
-
         Get.find(),
         Get.find(),
         Get.find(),
@@ -70,6 +80,8 @@ class PersonalisationBinding extends Bindings {
         Get.find<GetNomineeUseCase>(),
         Get.find<DeleteNomineeUseCase>(),
         Get.find(),
+        Get.find<RequestCapitalGainStatementUseCase>(),
+        Get.find<RequestAccountStatementUseCase>(),
       ),
       fenix: true,
     );

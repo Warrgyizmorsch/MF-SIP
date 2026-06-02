@@ -99,19 +99,49 @@ class DownloadStatementsScreen extends GetView<PersonalisationController> {
         ),
 
         // ── Bottom Action Bar ────────────────────────
+        // bottomNavigationBar: SafeArea(
+        //   child: Container(
+        //     decoration: BoxDecoration(color: Colors.grey.shade100),
+        //     child: BottomBarButton(
+        //       firstButton: 'Download',
+        //       secondButton: 'Email',
+        //       firstButtonP: () {
+        //         controller.onDownload();
+        //       },
+        //       secondButtonP: () {
+        //         controller.onEmail();
+        //       },
+        //     ),
+        //   ),
+        // ),
         bottomNavigationBar: SafeArea(
           child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(color: Colors.grey.shade100),
-            child: BottomBarButton(
-              firstButton: 'Download',
-              secondButton: 'Email',
-              firstButtonP: () {
-                controller.onDownload();
-              },
-              secondButtonP: () {
-                controller.onEmail();
-              },
-            ),
+            child: Obx(() {
+              // Show a loading spinner while the API is processing
+              if (controller.isRequestingStatement.value) {
+                return const Center(
+                  heightFactor: 1, // Keeps the container height minimal
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+
+              // Show your custom BottomBarButton when not loading
+              return BottomBarButton(
+                firstButton: 'Download',
+                secondButton: 'Email',
+                firstButtonP: () {
+                  controller.onDownload();
+                },
+                secondButtonP: () {
+                  controller.onEmail();
+                },
+              );
+            }),
           ),
         ),
       ),
@@ -264,20 +294,20 @@ class _FolioInputCard extends StatelessWidget {
               },
             ),
           ),
-          if (!ctrl.isCapitalGain.value) ...[
-            const SizedBox(height: 12),
-            Obx(
-              () => _DropdownTile(
-                label: 'Select Scheme',
-                value: ctrl.selectedScheme.value,
-                onTap: () {
-                  // Open scheme bottom sheet / picker
-                },
-              ),
-            ),
-            const SizedBox(height: 8),
-            _NsdlInfo(),
-          ],
+          // if (!ctrl.isCapitalGain.value) ...[
+          //   const SizedBox(height: 12),
+          //   Obx(
+          //     () => _DropdownTile(
+          //       label: 'Select Scheme',
+          //       value: ctrl.selectedScheme.value,
+          //       onTap: () {
+          //         // Open scheme bottom sheet / picker
+          //       },
+          //     ),
+          //   ),
+          //   const SizedBox(height: 8),
+          //   _NsdlInfo(),
+          // ],
         ],
       ),
     );
