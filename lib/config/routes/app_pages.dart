@@ -171,7 +171,7 @@ class AppPages {
       page: () => GoalsuccessPage(),
     ),
     GetPage(name: AppRoutes.goalviewcard, page: () => GoalviewcardPage()),
-    GetPage(name: AppRoutes.goaldetails, page: () => GoaldetailsPage()),
+    GetPage(name: AppRoutes.goaldetails, page: () => GoalDetailsPage()),
 
     GetPage(
       name: AppRoutes.addanotherbank,

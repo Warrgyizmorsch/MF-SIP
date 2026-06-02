@@ -253,13 +253,16 @@ class GoalRemoteDataSource {
     }
   }
 
+
   Future<Either<Result<UpdateGoalFundModel>, ApiError>> updateGoalFund(
-      Map<String, dynamic> data, int fundId,
+      List<Map<String, dynamic>> data, int fundId
       ) async {
     try {
-      final res = await apiService.postApi(
-        "${Appurl.baseUrl}/api/goal-fund/$fundId",
-        data: data,
+      final res = await apiService.patchApi(
+        "${Appurl.baseUrl}/api/v1/goal-fund",
+        {
+          "funds": data,
+        },
         headers: {
           "Authorization":
           "Bearer ${SessionManager.instance.jwtAccessToken}",
@@ -271,26 +274,20 @@ class GoalRemoteDataSource {
       );
 
       if (res['status'] == true) {
-        final result = UpdateGoalFundModel.fromJson(
-          res['data'],
-        );
+        final result = UpdateGoalFundModel.fromJson(res['data']);
 
-        return Left(
-          Result.success(result),
-        );
+        return Left(Result.success(result));
       } else {
         return Right(
           ApiError(
-            message: res['message'] ??
-                'Update Goal Fund Failed',
+            message: res['message'] ?? 'Update Goal Fund Failed',
           ),
         );
       }
     } catch (e) {
       return Right(
         ApiError(
-          message:
-          'Update Goal Fund Failed with Exception: $e',
+          message: 'Update Goal Fund Failed with Exception: $e',
         ),
       );
     }

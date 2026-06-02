@@ -49,6 +49,7 @@ class MasterGoalsPage extends GetView<GoalSipController> {
         controller.isEdit.value = args['isEdit'] ?? false;
 
         controller.isHome.value = args['isHome'] ?? false;
+        controller.isAddFund.value = args['isAddFund'] ?? false;
 
         final UserGoalEntity? goal = args['goal'];
 
@@ -63,7 +64,9 @@ class MasterGoalsPage extends GetView<GoalSipController> {
           if (controller.isEdit.value && goal != null) {
             controller.loadGoalForEdit(goal);
           }
-
+          if (controller.isAddFund.value && goal != null) {
+            controller.loadGoalForAddFund(goal);
+          }
           // HOME GOAL
           if (controller.isHome.value) {
             final masterGoal = controller.masterGoals.firstWhereOrNull(
@@ -79,7 +82,9 @@ class MasterGoalsPage extends GetView<GoalSipController> {
         controller.update();
       },
       builder: (controller) {
-        if (controller.isEdit.value || controller.isHome.value) {
+        if (controller.isEdit.value ||
+            controller.isHome.value ||
+            controller.isAddFund.value) {
           return GoalDetailsScreen();
         }
 
@@ -113,142 +118,218 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
   Widget build(BuildContext context) {
     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
-    return Scaffold(
-      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.grey[50],
-      appBar: CustomAppBarNormal(
-        backgroundColor: Ucolors.light,
-        title: controller.selectedGoalType.value.capitalizeFirst ?? '',
-        backIcon: true,
-        actionsPadding: 10,
-        action: [
-          Obx(() {
-            if (!controller.isGoalSaved.value) return const SizedBox.shrink();
-            return TextButton(
-              onPressed: () {
-                Get.offAllNamed(AppRoutes.navMenuBar);
-                Future.delayed(const Duration(milliseconds: 100), () {
-                  if (Get.isRegistered<NavigationBarController>()) {
-                    Get.find<NavigationBarController>().selectedIndex.value = 3;
-                  }
-                });
-              },
-              child: Text(
-                "View All Goals",
-                style: TextStyle(
-                  fontFamily: FontFamily.medium,
-                  color: Ucolors.primary,
-                ),
-              ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+
+        final currentGoal = controller.goalResponse.value?.data
+            .firstWhereOrNull(
+              (e) => e.goalId == controller.savedDatabaseId.value,
             );
-          }),
-        ],
-      ),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SIPSectionGoal(),
-                  const Gap(4),
-                  Obx(() {
-                    final bool isEdit = controller.isEdit.value;
-                    final bool hasChanges = controller.hasChanges.value;
-                    final bool isGoalSaved = controller.isGoalSaved.value;
+        debugPrint("Current Goal Status: ${currentGoal?.status}");
+        if (currentGoal?.status == "pending" ||
+            currentGoal?.status == null ||
+            !controller.isGoalSaved.value ||
+            currentGoal?.mfuOrderStatus == "not_ordered" ||
+            currentGoal?.mfuOrderStatus == null) {
+          final shouldLeave = await Get.dialog<bool>(
+            AlertDialog(
+              title: const Text("Discard Changes?"),
+              content: const Text(
+                "Your goal is not saved yet. Do you want to leave this page?",
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Get.back(result: false),
+                  child: const Text("Stay"),
+                ),
+                ElevatedButton(
+                  onPressed: () => Get.back(result: true),
+                  child: const Text("Leave"),
+                ),
+              ],
+            ),
+          );
 
-                    // ─────────────────────────────────────────────────────
-                    // CASE 1: Edit mode, nothing changed yet
-                    //   → Show projection + funds, no save button
-                    // ─────────────────────────────────────────────────────
-                    if (isEdit && !hasChanges) {
-                      return _buildProjectionAndFunds(context);
+          if (shouldLeave == true) {
+            Get.back();
+            Get.back();
+          }
+
+          return;
+        }
+
+        Get.back();
+      },
+      child: Scaffold(
+        backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.grey[50],
+        appBar: CustomAppBarNormal(
+          backgroundColor: Ucolors.light,
+          title: controller.selectedGoalType.value.capitalizeFirst ?? '',
+          backIcon: true,
+          actionsPadding: 10,
+          action: [
+            Obx(() {
+              if (!controller.isGoalSaved.value) return const SizedBox.shrink();
+              return TextButton(
+                onPressed: () {
+                  Get.offAllNamed(AppRoutes.navMenuBar);
+                  Future.delayed(const Duration(milliseconds: 100), () {
+                    if (Get.isRegistered<NavigationBarController>()) {
+                      Get.find<NavigationBarController>().selectedIndex.value =
+                          3;
                     }
+                  });
+                },
+                child: Text(
+                  "View All Goals",
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    color: Ucolors.primary,
+                  ),
+                ),
+              );
+            }),
+          ],
+        ),
+        body: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SIPSectionGoal(),
+                    const Gap(4),
+                    Obx(() {
+                      final bool isEdit = controller.isEdit.value;
+                      final bool hasChanges = controller.hasChanges.value;
+                      final bool isGoalSaved = controller.isGoalSaved.value;
 
-                    // ─────────────────────────────────────────────────────
-                    // CASE 2: New goal not saved yet  OR  edit with changes
-                    //   → Show save / update button only
-                    // ─────────────────────────────────────────────────────
-                    if (!isGoalSaved || (isEdit && hasChanges)) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 10,
-                        ),
-                        child: UElevatedBUtton(
-                          onPressed: () async {
-                            if (isEdit) {
-                              // await controller.updateGoal();
-                            } else {
-                              await controller.saveGoalToDb();
-                              // Scroll to popular funds after save
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                if (popularFundsKey.currentContext != null) {
-                                  Scrollable.ensureVisible(
-                                    popularFundsKey.currentContext!,
-                                    duration: const Duration(milliseconds: 800),
-                                    curve: Curves.easeInOutCubic,
-                                    alignment: 0.1,
-                                  );
-                                }
-                              });
-                              await Get.find<MutualFundController>()
-                                  .fetchData();
-                            }
-                          },
-                          child: Center(
-                            child: Text(
-                              isEdit ? "Update Goal" : "Save Goal",
-                              style: AppTextStyles.bodyMedium(
-                                color: Colors.white,
+                      // ─────────────────────────────────────────────────────
+                      // CASE 1: Edit mode, nothing changed yet
+                      //   → Show projection + funds, no save button
+                      // ─────────────────────────────────────────────────────
+                      if (isEdit && !hasChanges) {
+                        return _buildProjectionAndFunds(context);
+                      }
+
+                      // ─────────────────────────────────────────────────────
+                      // CASE 2: New goal not saved yet  OR  edit with changes
+                      //   → Show save / update button only
+                      // ─────────────────────────────────────────────────────
+                      if (!isGoalSaved || (isEdit && hasChanges)) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 10,
+                          ),
+                          child: UElevatedBUtton(
+                            onPressed: () async {
+                              if (isEdit) {
+                                // await controller.updateGoal();
+                              } else {
+                                await controller.saveGoalToDb();
+                                // Scroll to popular funds after save
+                                WidgetsBinding.instance.addPostFrameCallback((
+                                  _,
+                                ) {
+                                  if (popularFundsKey.currentContext != null) {
+                                    Scrollable.ensureVisible(
+                                      popularFundsKey.currentContext!,
+                                      duration: const Duration(
+                                        milliseconds: 800,
+                                      ),
+                                      curve: Curves.easeInOutCubic,
+                                      alignment: 0.1,
+                                    );
+                                  }
+                                });
+                                await Get.find<MutualFundController>()
+                                    .fetchData();
+                              }
+                            },
+                            child: Center(
+                              child: Text(
+                                isEdit ? "Update Goal" : "Save Goal",
+                                style: AppTextStyles.bodyMedium(
+                                  color: Colors.white,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
-                              textAlign: TextAlign.center,
                             ),
                           ),
-                        ),
-                      );
-                    }
+                        );
+                      }
 
-                    // ─────────────────────────────────────────────────────
-                    // CASE 3: Goal saved successfully
-                    //   → Show projection + funds
-                    // ─────────────────────────────────────────────────────
-                    return _buildProjectionAndFunds(context);
-                  }),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: Obx(() {
-        if (!controller.isGoalSaved.value) {
-          return const CustomFooter();
-        }
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const CustomFooter(),
-            SafeArea(
-              top: false,
-              child: CartBottomBar(
-                isValid: controller.selectedPopularFund.isNotEmpty,
-                ontap: () {
-                  if (controller.selectedPopularFund.isEmpty) {
-                    Get.snackbar("Error", "Please select funds to start SIP");
-                    return;
-                  }
-                },
-                amount: controller.savedInvestmentType.value == 'lumpsum'
-                    ? controller.lumpsumAmount.value.toStringAsFixed(0)
-                    : controller.monthlySip.value.toStringAsFixed(0),
-                amountColor: Ucolors.blue,
+                      // ─────────────────────────────────────────────────────
+                      // CASE 3: Goal saved successfully
+                      //   → Show projection + funds
+                      // ─────────────────────────────────────────────────────
+                      return _buildProjectionAndFunds(context);
+                    }),
+                  ],
+                ),
               ),
             ),
           ],
-        );
-      }),
+        ),
+        bottomNavigationBar: Obx(() {
+          if (!controller.isGoalSaved.value) {
+            return const CustomFooter();
+          }
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CustomFooter(),
+              SafeArea(
+                top: false,
+                child: CartBottomBar(
+                  isValid: controller.selectedPopularFund.isNotEmpty,
+                  ontap: () {
+                    if (controller.selectedPopularFund.isEmpty) {
+                      Get.snackbar("Error", "Please select funds to start SIP");
+                      return;
+                    }
+
+                    final mutualController = Get.find<MutualFundController>();
+
+                    final selectedFunds = mutualController.searchFund
+                        .where(
+                          (fund) => controller.selectedPopularFund.contains(
+                            fund.baseSchemeName,
+                          ),
+                        )
+                        .toList();
+
+                    debugPrint("Selected Funds Count: ${selectedFunds.length}");
+
+                    for (final fund in selectedFunds) {
+                      debugPrint("""
+                    Fund Name : ${fund.baseSchemeName}
+                    Scheme Code : ${fund.schemeCode}
+                    AMC Name : ${fund.amc?.amcName}
+                    Min SIP : ${fund.minSipAmount}
+                    Goal Fund Id : ${controller.getGoalFundId(fund.schemeCode?.toString() ?? '')}
+                    Amount : ${controller.getAmountController(fund.schemeCode?.toString() ?? '').text}
+                    Goal Id : ${controller.savedDatabaseId.value}
+                    Investment Type : ${controller.savedInvestmentType.value}
+                    ----------------------------------
+                    """);
+                    }
+                  },
+                  amount: controller.savedInvestmentType.value == 'lumpsum'
+                      ? controller.lumpsumAmount.value.toStringAsFixed(0)
+                      : controller.monthlySip.value.toStringAsFixed(0),
+                  amountColor: Ucolors.blue,
+                ),
+              ),
+            ],
+          );
+        }),
+      ),
     );
   }
 
@@ -460,11 +541,121 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                                   entity: fund,
                                   showTrainlings: false,
 
-                                  onTapOverride: () {
+                                  onTapOverride: () async {
                                     FocusScope.of(context).unfocus();
 
-                                    /// Select / Unselect
-                                    goalSipController.toggleFund(name);
+                                    final isSelected = goalSipController
+                                        .isSelectedFund(name);
+
+                                    try {
+                                      if (goalSipController
+                                                  .savedInvestmentType
+                                                  .value ==
+                                              "lumpsum" ||
+                                          goalSipController
+                                                  .savedInvestmentType
+                                                  .value ==
+                                              "sip") {
+                                        goalSipController.showLoading();
+                                      }
+
+                                      /// ================= DELETE FUND =================
+                                      if (isSelected) {
+                                        final goalFundId = goalSipController
+                                            .getGoalFundId(
+                                              fund.schemeCode?.toString() ?? '',
+                                            );
+
+                                        if (goalFundId != null) {
+                                          await goalSipController
+                                              .deleteGoalFund(
+                                                id: goalFundId,
+                                                isEdit: false,
+                                                schemeName:
+                                                    fund.schemeCode
+                                                        ?.toString() ??
+                                                    '',
+                                              );
+
+                                          goalSipController.toggleFund(name);
+
+                                          if (goalSipController
+                                              .selectedPopularFund
+                                              .isNotEmpty) {
+                                            if (goalSipController
+                                                    .savedInvestmentType
+                                                    .value ==
+                                                "lumpsum") {
+                                              await goalSipController
+                                                  .distributeMonthlyAmount();
+                                            } else if (goalSipController
+                                                    .savedInvestmentType
+                                                    .value ==
+                                                "sip") {
+                                              await goalSipController
+                                                  .distributeSipAmount();
+                                            }
+                                          }
+                                        }
+
+                                        return;
+                                      }
+
+                                      /// ================= SIP DATE =================
+                                      if (goalSipController
+                                                  .savedInvestmentType
+                                                  .value ==
+                                              "sip" &&
+                                          goalSipController
+                                              .selectedPopularFund
+                                              .isEmpty) {
+                                        final confirmed =
+                                            await _showSipDateDialog(
+                                              context,
+                                              goalSipController,
+                                            );
+
+                                        if (confirmed != true) return;
+                                      }
+
+                                      /// ================= ADD FUND =================
+                                      goalSipController.toggleFund(name);
+
+                                      await goalSipController.saveGoalFund(
+                                        goalId:
+                                            goalSipController
+                                                .savedDatabaseId
+                                                .value ??
+                                            0,
+                                        schemeCode:
+                                            fund.schemeCode?.toString() ?? '',
+                                        schemeName: fund.baseSchemeName ?? '',
+                                        sipAmount: (fund.minSipAmount ?? 0)
+                                            .toDouble(),
+                                        sipDay: goalSipController
+                                            .selectedSipDay
+                                            .value,
+                                      );
+
+                                      if (goalSipController
+                                              .savedInvestmentType
+                                              .value ==
+                                          "lumpsum") {
+                                        await goalSipController
+                                            .distributeMonthlyAmount();
+                                      } else if (goalSipController
+                                              .savedInvestmentType
+                                              .value ==
+                                          "sip") {
+                                        await goalSipController
+                                            .distributeSipAmount();
+                                      }
+                                    } catch (e, stackTrace) {
+                                      debugPrint("Error: $e");
+                                      debugPrintStack(stackTrace: stackTrace);
+                                    } finally {
+                                      goalSipController.hideLoading();
+                                    }
                                   },
                                 ),
                               ),
@@ -554,6 +745,61 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
     });
   }
 
+  Future<bool?> _showSipDateDialog(
+    BuildContext context,
+    GoalSipController controller,
+  ) {
+    RxString selectedSipDay = (controller.selectedSipDay.value).toString().obs;
+
+    return Get.dialog<bool>(
+      Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("Select SIP Date"),
+              const SizedBox(height: 16),
+              Obx(
+                () => DropdownButton<String>(
+                  value: selectedSipDay.value,
+                  isExpanded: true,
+                  items: List.generate(
+                    28,
+                    (i) => DropdownMenuItem(
+                      value: '${i + 1}',
+                      child: Text('${i + 1}'),
+                    ),
+                  ),
+                  onChanged: (val) {
+                    if (val != null) {
+                      selectedSipDay.value = val;
+                      controller.selectedSipDay.value = int.parse(val);
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Get.back(result: false),
+                    child: const Text("Cancel"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => Get.back(result: true),
+                    child: const Text("Confirm"),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   /// Fund toggle logic extracted — used by both bottom sheet and grid
   void _toggleFundInBottomSheet({
     required GoalSipController goalSipController,
@@ -602,8 +848,9 @@ class PopularFundCardMobSelected extends StatelessWidget {
     this.isSelected = false,
     this.showAmountField = false,
     this.amountController,
+    this.onAmountSubmitted,
   });
-
+  final Function(String)? onAmountSubmitted;
   final String imgPath;
   final String name;
   final VoidCallback? onTap;
@@ -706,20 +953,17 @@ class PopularFundCardMobSelected extends StatelessWidget {
               ),
               const SizedBox(height: 6),
 
-              // Returns row — showAmountField true hone par sirf 1Y aur 3Y dikhao
-              // Returns + Amount field — same row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _returnColumn('1Y', oneYear),
-                  if (showAmountField)
-                    Gap(20),
+                  if (showAmountField) Gap(20),
                   _returnColumn('3Y', threeYear),
                   if (!showAmountField) ...[
                     _returnColumn('5Y', fiveYear),
                     _returnColumn('10Y', tenYear),
                   ],
-                  if (showAmountField)...[
+                  if (showAmountField) ...[
                     Gap(20),
                     Expanded(
                       child: Padding(
@@ -729,6 +973,7 @@ class PopularFundCardMobSelected extends StatelessWidget {
                           child: TextFormField(
                             controller: amountController,
                             keyboardType: TextInputType.number,
+                            onFieldSubmitted: onAmountSubmitted,
                             decoration: InputDecoration(
                               hintText: "Amount",
                               contentPadding: const EdgeInsets.symmetric(
@@ -742,7 +987,8 @@ class PopularFundCardMobSelected extends StatelessWidget {
                           ),
                         ),
                       ),
-                    )],
+                    ),
+                  ],
                 ],
               ),
             ],
@@ -817,9 +1063,9 @@ class PopularAndSelectedFund extends StatelessWidget {
           )
           .toList();
 
-      final List<dynamic> displayFunds = selectedFunds.isEmpty
-          ? popularFunds.take(6).toList()
-          : [...selectedFunds, ...popularFunds].take(6).toList();
+      final List<dynamic> displayFunds = selectedFunds.isNotEmpty
+          ? [...selectedFunds, ...popularFunds]
+          : popularFunds.take(6).toList();
 
       if (displayFunds.isEmpty) {
         return Padding(
@@ -890,60 +1136,88 @@ class PopularAndSelectedFund extends StatelessWidget {
 
                     final isSelected = goalSipController.isSelectedFund(name);
 
-                    /// ================= DELETE FUND =================
-                    if (isSelected) {
-                      final goalFundId = goalSipController.getGoalFundId(
-                        fund.schemeCode?.toString() ?? '',
-                      );
-
-                      debugPrint(
-                        "DELETE => schemeCode=${fund.schemeCode} goalFundId=$goalFundId",
-                      );
-
-                      if (goalFundId != null) {
-                        await goalSipController.deleteGoalFund(
-                          id: goalFundId,
-                          isEdit: false,
-                          schemeName: fund.schemeCode?.toString() ?? '',
-                        );
-                        goalSipController.toggleFund(name);
-
-                        // Lumpsum redistribute karo
-                        if (goalSipController.savedInvestmentType.value == "lumpsum") {
-                          await goalSipController.distributeMonthlyAmount();
-                        }
+                    try {
+                      if (goalSipController.savedInvestmentType.value ==
+                              "lumpsum" ||
+                          goalSipController.savedInvestmentType.value ==
+                              "sip") {
+                        goalSipController.showLoading();
                       }
-                      return;
-                    }
 
-                    /// ================= SIP DATE DIALOG =================
-                    if (goalSipController.savedInvestmentType.value == "sip" &&
-                        goalSipController.selectedPopularFund.isEmpty) {
-                      final confirmed = await _showSipDateDialog(
-                        context,
-                        goalSipController,
+                      /// ================= DELETE FUND =================
+                      if (isSelected) {
+                        final goalFundId = goalSipController.getGoalFundId(
+                          fund.schemeCode?.toString() ?? '',
+                        );
+
+                        if (goalFundId != null) {
+                          await goalSipController.deleteGoalFund(
+                            id: goalFundId,
+                            isEdit: false,
+                            schemeName: fund.schemeCode?.toString() ?? '',
+                          );
+
+                          goalSipController.toggleFund(name);
+
+                          if (goalSipController
+                              .selectedPopularFund
+                              .isNotEmpty) {
+                            if (goalSipController.savedInvestmentType.value ==
+                                "lumpsum") {
+                              await goalSipController.distributeMonthlyAmount();
+                            } else if (goalSipController
+                                    .savedInvestmentType
+                                    .value ==
+                                "sip") {
+                              await goalSipController.distributeSipAmount();
+                            }
+                          }
+                        }
+
+                        return;
+                      }
+
+                      /// ================= SIP DATE =================
+                      if (goalSipController.savedInvestmentType.value ==
+                              "sip" &&
+                          goalSipController.selectedPopularFund.isEmpty) {
+                        final confirmed = await _showSipDateDialog(
+                          context,
+                          goalSipController,
+                        );
+
+                        if (confirmed != true) return;
+                      }
+
+                      /// ================= ADD FUND =================
+                      goalSipController.toggleFund(name);
+
+                      await goalSipController.saveGoalFund(
+                        goalId: goalSipController.savedDatabaseId.value ?? 0,
+                        schemeCode: fund.schemeCode?.toString() ?? '',
+                        schemeName: fund.baseSchemeName ?? '',
+                        sipAmount: (fund.minSipAmount ?? 0).toDouble(),
+                        sipDay: goalSipController.selectedSipDay.value,
                       );
-                      if (confirmed != true) return;
-                    }
 
-                    /// ================= ADD FUND =================
-                    goalSipController.toggleFund(name);
-
-                    await goalSipController.saveGoalFund(
-                      goalId: goalSipController.savedDatabaseId.value ?? 0,
-                      schemeCode: fund.schemeCode?.toString() ?? '',
-                      schemeName: fund.baseSchemeName ?? '',
-                      sipAmount: (fund.minSipAmount ?? 0).toDouble(),
-                      sipDay: goalSipController.selectedSipDay.value,
-                    );
-
-                    // Lumpsum distribute karo
-                    if (goalSipController.savedInvestmentType.value == "lumpsum") {
-                      await goalSipController.distributeMonthlyAmount();
+                      if (goalSipController.savedInvestmentType.value ==
+                          "lumpsum") {
+                        await goalSipController.distributeMonthlyAmount();
+                      } else if (goalSipController.savedInvestmentType.value ==
+                          "sip") {
+                        await goalSipController.distributeSipAmount();
+                      }
+                    } catch (e, stackTrace) {
+                      debugPrint("Error: $e");
+                      debugPrintStack(stackTrace: stackTrace);
+                    } finally {
+                      goalSipController.hideLoading();
                     }
                   },
                   child: PopularFundCardMobSelected(
-                    borderColor: isSelected ? Ucolors.primary : Ucolors.borderColor,
+                    borderColor: isSelected
+                        ? Ucolors.primary
+                        : Ucolors.borderColor,
                     isNetwork: true,
                     imgPath: img,
                     name: name,
@@ -952,12 +1226,32 @@ class PopularAndSelectedFund extends StatelessWidget {
                     fiveYear: fiveYear,
                     tenYear: tenYear,
                     isSelected: isSelected,
-                    showAmountField: isSelected &&
-                        goalSipController.savedInvestmentType.value == "lumpsum",
-                    // ← amountController pass karo
+                    showAmountField:
+                        isSelected &&
+                        (goalSipController.savedInvestmentType.value ==
+                                "lumpsum" ||
+                            goalSipController.savedInvestmentType.value ==
+                                "sip"),
                     amountController: goalSipController.getAmountController(
                       fund.schemeCode?.toString() ?? '',
                     ),
+                    onAmountSubmitted: (value) async {
+                      final amount = double.tryParse(value) ?? 0;
+
+                      if (goalSipController.savedInvestmentType.value ==
+                          "lumpsum") {
+                        await goalSipController.redistributeRemainingAmount(
+                          editedSchemeCode: fund.schemeCode?.toString() ?? '',
+                          editedAmount: amount,
+                        );
+                      } else if (goalSipController.savedInvestmentType.value ==
+                          "sip") {
+                        await goalSipController.redistributeSipAmountAfterEdit(
+                          editedSchemeCode: fund.schemeCode?.toString() ?? '',
+                          editedAmount: amount,
+                        );
+                      }
+                    },
                   ),
                 ),
               ),
@@ -1058,6 +1352,7 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
             ),
       child: Column(
         children: [
+          /// Header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -1087,7 +1382,10 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
               ),
             ],
           ),
+
           const Gap(20),
+
+          /// ================= CHART VIEW =================
           if (selectedView == 0) ...[
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1106,15 +1404,21 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
                 ),
               ],
             ),
+
             const Gap(25),
+
             Obx(() {
-              final rows = controller.buildYearlyReport();
+              final rows = controller.savedInvestmentType.value == "lumpsum"
+                  ? controller.buildLumpsumYearlyReport()
+                  : controller.buildYearlyReport();
+
               if (rows.isEmpty) {
                 return const SizedBox(
                   height: 250,
                   child: Center(child: CircularProgressIndicator()),
                 );
               }
+
               return SizedBox(
                 height: 250,
                 child: SipProjectionChart(
@@ -1125,9 +1429,21 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
                 ),
               );
             }),
-          ] else
+          ]
+          /// ================= TABLE VIEW =================
+          else
             Obx(() {
-              final result = controller.buildYearlyReport();
+              final result = controller.savedInvestmentType.value == "lumpsum"
+                  ? controller.buildLumpsumYearlyReport()
+                  : controller.buildYearlyReport();
+
+              if (result.isEmpty) {
+                return const SizedBox(
+                  height: 250,
+                  child: Center(child: Text("No projection data available")),
+                );
+              }
+
               return Column(
                 children: [
                   const TableHeader(
@@ -1136,13 +1452,16 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
                     heading3: 'Current',
                     heading4: 'Profit',
                   ),
+
                   DashedLine(color: Ucolors.borderColor, dashSpace: 0),
+
                   ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: result.length,
                     itemBuilder: (context, index) {
                       final row = result[index];
+
                       return ReturnsTableRow(
                         color4: Colors.green,
                         data: row,
@@ -1203,6 +1522,7 @@ class SIPSectionGoal extends GetView<GoalSipController> {
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ── Goal Title Field ──────────────────────────────────────────────
           Obx(
@@ -1858,6 +2178,12 @@ class GoalsGridScreen extends GetView<GoalSipController> {
 
                           controller.goalId.value = goal.id;
                           controller.selectedGoalType.value = goal.goalType;
+                          final goalType = goal.goalType?.toLowerCase() ?? '';
+
+                          if (!['custom', 'other'].contains(goalType)) {
+                            controller.goalNameTextEditingController.text =
+                                goal.goalType ?? '';
+                          }
                           controller.setTarget(goal.targetAmount);
 
                           controller.setYears(goal.goalTenure.toDouble());

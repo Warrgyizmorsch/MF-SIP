@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -23,7 +24,7 @@ class GoalSipController extends GetxController {
   // ── Investment Mode ───────────────────────────────────────────────────────────
   final RxString investmentMode = 'sip'.obs; // 'sip' | 'lumpsum'
   final RxInt selectedSipDay = 1.obs;
-// ── Lumpsum Observables ───────────────────────────────────────────────────────
+  // ── Lumpsum Observables ───────────────────────────────────────────────────────
   final RxDouble lumpsumAmount = 0.0.obs;
   final RxDouble lumpsumFutureValue = 0.0.obs;
   final RxDouble lumpsumTotalReturn = 0.0.obs;
@@ -31,50 +32,17 @@ class GoalSipController extends GetxController {
   final distributionRemainder = 0.0.obs;
   final Map<String, TextEditingController> amountControllers = {};
 
-// ── Lumpsum Calculation ───────────────────────────────────────────────────────
-  void recalculateLumpsum() {
-
-    final double fv =
-        lumpsumFutureValue.value;
-
-    final double r =
-        annualRate.value / 100;
-
-    final int n =
-    years.value.toInt();
-
-    if (fv <= 0 || r <= 0 || n <= 0) {
-      return;
-    }
-
-    // PV = FV / (1 + r)^n
-    final double pv =
-        fv / pow(1 + r, n);
-
-    // ONLY ROUND HERE
-    final double roundedPv =
-    smartRoundOff(pv);
-
-    lumpsumAmount.value =
-        roundedPv;
-
-    lumpsumTotalReturn.value =
-        fv - roundedPv;
-
-    lumpsumReturnPercent.value =
-        ((fv - roundedPv) / roundedPv) * 100;
-
-    update();
-  }
 
 
   final RxBool isMasterGoalLoading = false.obs;
+
   /// =======================================
   /// USE EXISTING VARIABLES ONLY
   /// =======================================
 
   final RxBool isEdit = false.obs;
   final RxBool isHome = false.obs;
+  final RxBool isAddFund = false.obs;
   final RxBool hasChanges = false.obs;
 
   final RxDouble existingSipAmount = 0.0.obs;
@@ -84,6 +52,7 @@ class GoalSipController extends GetxController {
   final RxDouble dailySipAmount = 0.0.obs;
   final RxDouble weeklySipAmount = 0.0.obs;
   final isInitializing = true.obs;
+
   /// TRACK OLD VALUES
   double initialTargetAmount = 0;
   double initialYears = 0;
@@ -97,45 +66,12 @@ class GoalSipController extends GetxController {
   void onInit() {
     super.onInit();
     investmentMode.value = 'sip';
-
     _recalculate();
-
     recalculateLumpsum();
   }
-  void handleHomeGoal(MasterGoalEntity goal) {
-    goalId.value = goal.id;
 
-    selectedGoalType.value = goal.goalType;
 
-    setTarget(goal.targetAmount);
 
-    setYears(goal.goalTenure.toDouble());
-
-    setRate(goal.expectedReturnRate);
-
-    // ── Lumpsum Calculation
-    final double r =
-        goal.expectedReturnRate / 100;
-
-    final int n =
-    goal.goalTenure.toInt();
-
-    final double pv =
-        goal.targetAmount / pow(1 + r, n);
-
-    lumpsumAmount.value =smartRoundOff(pv);
-
-    lumpsumFutureValue.value =
-        goal.targetAmount;
-
-    lumpsumTotalReturn.value =
-        goal.targetAmount - pv;
-
-    debugPrint("init${ lumpsumAmount.value}");
-    update();
-
-  }
-  final cartController = Get.find<CartController>();
   final RxList<GoalFundOrderEntity> savedGoalFunds =
       <GoalFundOrderEntity>[].obs;
   final savedDatabaseId = RxnInt();
@@ -150,7 +86,7 @@ class GoalSipController extends GetxController {
   final targetAmount = 0.0.obs;
   final years = 1.0.obs;
   final annualRate = 12.0.obs;
-  RxList<MutualFundListEntity> fundList= <MutualFundListEntity>[].obs;
+  RxList<MutualFundListEntity> fundList = <MutualFundListEntity>[].obs;
   // Outputs (WHOLE NUMBERS like website)
   final monthlySip = 0.obs;
   final invested = 0.obs;
@@ -170,9 +106,9 @@ class GoalSipController extends GetxController {
     }
     update(); // for GetBuilder
   }
+
   bool get isFormValid =>
-      goalError.value.isEmpty &&
-          goalNameTextEditingController.text.isNotEmpty;
+      goalError.value.isEmpty && goalNameTextEditingController.text.isNotEmpty;
   final Map<String, Map<String, dynamic>> goalConfig = {
     // ✅ Added 'db_id' to each category (Check with your backend team for the exact IDs!)
     'car': {
@@ -222,7 +158,33 @@ class GoalSipController extends GetxController {
     /// 4 - marriage
     /// 5 - retirement
   };
+  void handleHomeGoal(MasterGoalEntity goal) {
+    goalId.value = goal.id;
 
+    selectedGoalType.value = goal.goalType;
+
+    setTarget(goal.targetAmount);
+
+    setYears(goal.goalTenure.toDouble());
+
+    setRate(goal.expectedReturnRate);
+
+    // ── Lumpsum Calculation
+    final double r = goal.expectedReturnRate / 100;
+
+    final int n = goal.goalTenure.toInt();
+
+    final double pv = goal.targetAmount / pow(1 + r, n);
+
+    lumpsumAmount.value = smartRoundOff(pv);
+
+    lumpsumFutureValue.value = goal.targetAmount;
+
+    lumpsumTotalReturn.value = goal.targetAmount - pv;
+
+    debugPrint("init${lumpsumAmount.value}");
+    update();
+  }
   // Yearly report
   final yearlyReport = <ReturnRow>[].obs;
 
@@ -252,24 +214,84 @@ class GoalSipController extends GetxController {
       rate: targetConfig['rate'],
     );
   }
+  ///
+  void loadGoalForAddFund(UserGoalEntity goal) {
+    goalNameTextEditingController.text = goal.goalName;
+    savedDatabaseId.value = goal.id;
+    isGoalSaved.value = true;
+    savedInvestmentType.value = goal.txnType ?? 'sip';
+    if(goal.txnType.toLowerCase() == "lumpsum"){
+      investmentMode.value = "lumpsum";
+      lumpsumAmount.value = goal.lumpsumAmount?.toDouble() ?? 0.0;
+      lumpsumReturnPercent.value= goal.expectedReturnRate;
+      lumpsumFutureValue.value = goal.goalType?.targetAmount?.toDouble() ?? 0.0;
+      years.value = goal.goalTenure?.toDouble() ?? 0.0;
+
+    } else {
+      investmentMode.value = "sip";
+      existingSipAmount.value = goal.monthlyInvestment?.toDouble() ?? 0.0;
+      monthlySip.value = goal.monthlyInvestment?.toInt() ?? 0;
+      targetAmount.value = goal.goalType?.targetAmount?.toDouble() ?? 0.0;
+      years.value = goal.goalTenure?.toDouble() ?? 0.0;
+      annualRate.value = goal.expectedReturnRate?.toDouble() ?? 0.0;
+    }
+
+    /// =========================
+    /// OLD VALUES
+    /// =========================
+
+    initialTargetAmount = (goal.investedAmount).toDouble();
+
+    initialYears = (goal.goalTenure).toDouble();
+
+    initialRate = (goal.expectedReturnRate).toDouble();
+
+    /// =========================
+    /// EXISTING SIP
+    /// =========================
+
+    existingSipAmount.value = (goal.monthlyInvestment).toDouble();
+
+    /// =========================
+    /// INIT
+    /// =========================
+
+    initFromGoal(
+      amount: initialTargetAmount,
+      years: initialYears,
+      rate: initialRate,
+    );
+
+    /// =========================
+    /// RESET CHANGE VALUES
+    /// =========================
+
+    hasChanges.value = false;
+
+    additionalSipAmount.value = 0;
+
+    weeklySipAmount.value = 0;
+
+    dailySipAmount.value = 0;
+
+    isGoalSaved.value = true;
+
+    _recalculate();
+    recalculateLumpsum();
+
+    update();
+  }
   /// =======================================
   /// loadGoalForEdit()
   /// =======================================
   void loadGoalForEdit(UserGoalEntity goal) {
-
-    goalNameTextEditingController.text =
-        goal.goalName ;
+    goalNameTextEditingController.text = goal.goalName;
 
     final selectedType = goalConfig.entries
         .firstWhere(
-          (entry) =>
-      entry.value['db_id'] ==
-          goal.goalId.toString(),
-      orElse: () => MapEntry(
-        'custom',
-        goalConfig['custom']!,
-      ),
-    )
+          (entry) => entry.value['db_id'] == goal.goalId.toString(),
+          orElse: () => MapEntry('custom', goalConfig['custom']!),
+        )
         .key;
 
     selectedGoalType.value = selectedType;
@@ -278,21 +300,17 @@ class GoalSipController extends GetxController {
     /// OLD VALUES
     /// =========================
 
-    initialTargetAmount =
-        (goal.investedAmount ).toDouble();
+    initialTargetAmount = (goal.investedAmount).toDouble();
 
-    initialYears =
-        (goal.goalTenure ).toDouble();
+    initialYears = (goal.goalTenure).toDouble();
 
-    initialRate =
-        (goal.expectedReturnRate ).toDouble();
+    initialRate = (goal.expectedReturnRate).toDouble();
 
     /// =========================
     /// EXISTING SIP
     /// =========================
 
-    existingSipAmount.value =
-        (goal.monthlyInvestment).toDouble();
+    existingSipAmount.value = (goal.monthlyInvestment).toDouble();
 
     /// =========================
     /// INIT
@@ -322,30 +340,23 @@ class GoalSipController extends GetxController {
 
     update();
   }
+
   /// =======================================
   /// CHECK CHANGES
   /// =======================================
 
   void checkForChanges() {
-    final bool amountChanged =
-        targetAmount.value != initialTargetAmount;
+    final bool amountChanged = targetAmount.value != initialTargetAmount;
 
-    final bool yearChanged =
-        years.value != initialYears;
+    final bool yearChanged = years.value != initialYears;
 
-    final bool rateChanged =
-        (annualRate.value - initialRate).abs() > 0.001;
+    final bool rateChanged = (annualRate.value - initialRate).abs() > 0.001;
 
-    hasChanges.value =
-        amountChanged ||
-            yearChanged ||
-            rateChanged;
+    hasChanges.value = amountChanged || yearChanged || rateChanged;
 
-    final double sip =
-    monthlySip.value.toDouble();
+    final double sip = monthlySip.value.toDouble();
 
-    double diff =
-        sip - existingSipAmount.value;
+    double diff = sip - existingSipAmount.value;
 
     if (diff < 0) {
       diff = 0;
@@ -354,20 +365,18 @@ class GoalSipController extends GetxController {
     additionalSipAmount.value = diff;
 
     // TOTAL SIP
-    weeklySipAmount.value =
-        sip / 4;
+    weeklySipAmount.value = sip / 4;
 
-    dailySipAmount.value =
-        sip / 30;
+    dailySipAmount.value = sip / 30;
 
     update();
   }
+
   void initFromGoal({
     required double amount,
     required double years,
     required double rate,
   }) {
-
     /// =========================
     /// STORE INITIAL VALUES
     /// =========================
@@ -388,8 +397,7 @@ class GoalSipController extends GetxController {
     /// EXISTING SIP
     /// =========================
 
-    existingSipAmount.value =
-        monthlySip.value.toDouble();
+    existingSipAmount.value = monthlySip.value.toDouble();
 
     /// =========================
     /// RESET VALUES
@@ -405,23 +413,17 @@ class GoalSipController extends GetxController {
 
     update();
   }
-  Future<bool> getMasterGoals() async {
 
+  Future<bool> getMasterGoals() async {
     isMasterGoalLoading.value = true;
     update();
 
     try {
-
-      final result =
-      await goalUseCases.getMasterGoalsUseCase.call();
+      final result = await goalUseCases.getMasterGoalsUseCase.call();
 
       return result.fold(
-
-            (success) {
-
-          masterGoals.assignAll(
-            success.data?.data ?? [],
-          );
+        (success) {
+          masterGoals.assignAll(success.data?.data ?? []);
 
           isMasterGoalLoading.value = false;
 
@@ -430,46 +432,38 @@ class GoalSipController extends GetxController {
           return true;
         },
 
-            (error) {
-
+        (error) {
           isMasterGoalLoading.value = false;
 
           update();
 
-          Get.snackbar(
-            "Error",
-            error.message,
-          );
+          Get.snackbar("Error", error.message);
 
           return false;
         },
       );
-
     } catch (e) {
-
       isMasterGoalLoading.value = false;
 
       update();
 
-      Get.snackbar(
-        "Error",
-        e.toString(),
-      );
+      Get.snackbar("Error", e.toString());
 
       return false;
     }
   }
+
   Future<bool> getAllGoals() async {
     isLoadingGoals.value = true;
     try {
       final result = await goalUseCases.getGoalsUseCase.call();
       return result.fold(
-            (success) {
+        (success) {
           goalResponse.value = success.data;
           debugPrint("Goals fetched: ${goalResponse.value?.data.length ?? 0}");
           return true;
         },
-            (error) {
+        (error) {
           Get.snackbar("Error", error.message);
           return false;
         },
@@ -481,7 +475,6 @@ class GoalSipController extends GetxController {
       isLoadingGoals.value = false;
     }
   }
-
 
   Future<void> saveGoalToDb() async {
     setGoalName(goalNameTextEditingController.text);
@@ -535,33 +528,26 @@ class GoalSipController extends GetxController {
           ? lumpsumAmount.toDouble()
           : 0.0,
 
-      "status": "active",
-
+      "status": "pending",
       "created_date": DateTime.now().toString(),
     };
 
-
-
     final result = await goalUseCases.saveGoalUseCase.call(requestData);
     return result.fold(
-          (success) async {
+      (success) async {
         // Get.snackbar("Success", success.data ?? '');
         Get.snackbar("Success", 'Goal saved successfully,');
         await fetchCount();
         await getAllGoals();
         isGoalSaved.value = true;
-        savedDatabaseId.value =
-            success.data?.data.id ?? 0;
-        savedInvestmentType.value =
-            success.data?.data.txnType ?? 'sip';
+        savedDatabaseId.value = success.data?.data.id ?? 0;
+        savedInvestmentType.value = success.data?.data.txnType ?? 'sip';
 
-        debugPrint(
-          'Saved Goal Id: ${savedDatabaseId.value}',
-        );
+        debugPrint('Saved Goal Id: ${savedDatabaseId.value}');
 
         debugPrint('goal id save ${success.data}');
       },
-          (error) {
+      (error) {
         Get.snackbar("Error", error.message);
         isGoalSaved.value = true;
       },
@@ -592,90 +578,430 @@ class GoalSipController extends GetxController {
       return a - remainder;
     }
   }
+
+  final isDistributingAmount = false.obs;
   Future<void> distributeMonthlyAmount() async {
     if (savedInvestmentType.value != "lumpsum") return;
     if (lumpsumAmount.value <= 0) return;
 
-    final MutualFundController mutualController = Get.find();
+    try {
+      isDistributingAmount.value = true;
 
-    final selectedFundNames = selectedPopularFund.toList();
-    final int count = selectedFundNames.length;
+      final MutualFundController mutualController = Get.find();
 
-    if (count == 0) return;
+      final selectedFundNames = selectedPopularFund.toList();
+      final int count = selectedFundNames.length;
 
-    final int roundedTotal = roundToNearest100(lumpsumAmount.value);
-    int baseAmount = roundToNearest100((roundedTotal / count).round());
+      if (count == 0) return;
 
-    final List<int> assignedAmounts = List.generate(count, (_) => baseAmount);
+      final int roundedTotal = roundToNearest100(lumpsumAmount.value);
+      int baseAmount = roundToNearest100((roundedTotal / count).round());
 
-    int totalAssigned = assignedAmounts.fold(0, (a, b) => a + b);
-    int difference = roundedTotal - totalAssigned;
-    if (difference != 0) {
-      assignedAmounts[count - 1] += difference;
+      final List<int> assignedAmounts = List.generate(count, (_) => baseAmount);
+
+      int totalAssigned = assignedAmounts.fold(0, (a, b) => a + b);
+      int difference = roundedTotal - totalAssigned;
+
+      if (difference != 0) {
+        assignedAmounts[count - 1] += difference;
+      }
+
+      final allFunds = mutualController.searchFund;
+
+      final List<Map<String, dynamic>> fundList = [];
+
+      for (int i = 0; i < selectedFundNames.length; i++) {
+        final fundName = selectedFundNames[i];
+
+        final fund = allFunds.firstWhereOrNull(
+          (f) => f.baseSchemeName == fundName,
+        );
+
+        final schemeCode = fund?.schemeCode?.toString() ?? '';
+
+        getAmountController(schemeCode).text = assignedAmounts[i].toString();
+
+        final fundId = getGoalFundId(schemeCode);
+        debugPrint("Fund ID for schemeCode $schemeCode is $fundId and goal id ${ savedDatabaseId.value }");
+
+        if (fundId == null) continue;
+
+        fundList.add({
+          "id": fundId,
+          "goal_id": savedDatabaseId.value ?? 0,
+          "order_type": "lumpsum",
+          "status": "pending",
+          "scheme_code":schemeCode,
+
+          "lumpsum_amount": assignedAmounts[i].toDouble(),
+        });
+      }
+
+      debugPrint("REQUEST => $fundList");
+
+      await updateGoalFundOrder(
+        goalId: savedDatabaseId.value ?? 0,
+        orderType: "sip",
+        sipAmount: 0,
+        sipDay: selectedSipDay.value,
+        fundId: 0,
+        lumpsumAmount: 0,
+        funds: fundList,
+      );
+
+      await getAllGoals();
+    } catch (e) {
+      debugPrint("distributeMonthlyAmount Error: $e");
+    } finally {
+      isDistributingAmount.value = false;
     }
+  }
 
-    distributionRemainder.value = lumpsumAmount.value -
-        assignedAmounts.fold(0.0, (a, b) => a + b);
+  Future<void> redistributeRemainingAmount({
+    required String editedSchemeCode,
+    required double editedAmount,
+  }) async {
+    try {
+      showLoading();
+      isDistributingAmount.value = true;
 
-    debugPrint(
-      "Count: $count\n"
-          "Lumpsum Total: ${lumpsumAmount.value}\n"
-          "Rounded Total: $roundedTotal\n"
-          "Assigned: $assignedAmounts\n"
-          "Remainder: ${distributionRemainder.value}",
-    );
+      final MutualFundController mutualController = Get.find();
 
-    final allFunds = mutualController.searchFund;
+      final selectedFunds = selectedPopularFund.toList();
+      if (selectedFunds.isEmpty) return;
 
-    for (int i = 0; i < selectedFundNames.length; i++) {
-      final fundName = selectedFundNames[i];
+      final totalAmount = roundToNearest100(lumpsumAmount.value);
+      final remainingAmount = totalAmount - editedAmount;
 
-      final fund = allFunds.firstWhereOrNull(
-            (f) => f.baseSchemeName == fundName,
-      );
+      if (remainingAmount < 0) return;
 
-      final schemeCode = fund?.schemeCode?.toString() ?? '';
-      final assignedAmount = assignedAmounts[i];
+      final allFunds = mutualController.searchFund;
 
-      getAmountController(schemeCode).text =
-          assignedAmount.toString();
+      final remainingSchemeCodes = <String>[];
+      final List<Map<String, dynamic>> funds = [];
 
-      final fundId = getGoalFundId(schemeCode);
+      for (final fundName in selectedFunds) {
+        final fund = allFunds.firstWhereOrNull(
+          (f) => f.baseSchemeName == fundName,
+        );
 
-      if (fundId == null) continue;
+        final schemeCode = fund?.schemeCode?.toString() ?? '';
 
-      debugPrint(
-        "START UPDATE => Fund ${i + 1}/$count | fundId=$fundId | amount=$assignedAmount",
-      );
+        if (schemeCode != editedSchemeCode) {
+          remainingSchemeCodes.add(schemeCode);
+        }
+      }
+
+      /// Edited Fund
+      getAmountController(editedSchemeCode).text = editedAmount
+          .toInt()
+          .toString();
+
+      final editedFundId = getGoalFundId(editedSchemeCode);
+
+      if (editedFundId != null) {
+        funds.add({
+          "goal_id": savedDatabaseId.value ?? 0,
+          "order_type": "lumpsum",
+          "fund_id": editedFundId,
+          "lumpsum_amount": editedAmount,
+        });
+      }
+
+      /// Remaining Funds Distribution
+      if (remainingSchemeCodes.isNotEmpty) {
+        int perFund = roundToNearest100(
+          (remainingAmount / remainingSchemeCodes.length).round(),
+        );
+
+        final amounts = List.generate(
+          remainingSchemeCodes.length,
+          (_) => perFund,
+        );
+
+        int assigned = amounts.fold(0, (a, b) => a + b);
+        int diff = remainingAmount.round() - assigned;
+
+        if (diff != 0) {
+          amounts.last += diff;
+        }
+
+        for (int i = 0; i < remainingSchemeCodes.length; i++) {
+          final schemeCode = remainingSchemeCodes[i];
+          final amount = amounts[i];
+
+          getAmountController(schemeCode).text = amount.toString();
+
+          final fundId = getGoalFundId(schemeCode);
+
+          if (fundId != null) {
+            funds.add({
+              "goal_id": savedDatabaseId.value ?? 0,
+              "order_type": "lumpsum",
+              "id": fundId,
+              "status": "pending",
+              "scheme_code":schemeCode,
+              "lumpsum_amount": amount.toDouble(),
+            });
+          }
+        }
+      }
+
+      debugPrint("BULK UPDATE REQUEST => $funds");
 
       await updateGoalFundOrder(
         goalId: savedDatabaseId.value ?? 0,
         orderType: "lumpsum",
         sipAmount: 0,
         sipDay: 0,
-        fundId: fundId,
-        lumpsumAmount: assignedAmount.toDouble(),
+        fundId: 0,
+        lumpsumAmount: 0,
+        funds: funds,
       );
 
-      debugPrint(
-        "COMPLETED UPDATE => Fund ${i + 1}/$count | fundId=$fundId",
-      );
-
-      // Optional delay
-      await Future.delayed(
-        const Duration(milliseconds: 300),
-      );
+      await getAllGoals();
+    } catch (e) {
+      debugPrint("redistributeRemainingAmount Error: $e");
+    } finally {
+      isDistributingAmount.value = false;
+      hideLoading();
     }
-
-    debugPrint("ALL FUNDS UPDATED");
-    await getAllGoals();
   }
+
+  Future<void> distributeSipAmount() async {
+    if (savedInvestmentType.value != "sip") return;
+
+    try {
+      showLoading();
+      isDistributingAmount.value = true;
+
+      final totalSip = monthlySip.value;
+      if (totalSip <= 0) return;
+
+      final selectedFunds = selectedPopularFund.toList();
+      if (selectedFunds.isEmpty) return;
+
+      final MutualFundController mutualController = Get.find();
+      final allFunds = mutualController.searchFund;
+
+      final count = selectedFunds.length;
+
+      int perFund = (totalSip / count).round();
+
+      final amounts = List.generate(count, (_) => perFund);
+
+      int assigned = amounts.fold(0, (a, b) => a + b);
+      int diff = totalSip.toInt() - assigned;
+
+      if (diff != 0) {
+        amounts.last += diff;
+      }
+
+      final List<Map<String, dynamic>> funds = [];
+
+      for (int i = 0; i < selectedFunds.length; i++) {
+        final fundName = selectedFunds[i];
+
+        final fund = allFunds.firstWhereOrNull(
+          (f) => f.baseSchemeName == fundName,
+        );
+
+        final schemeCode = fund?.schemeCode?.toString() ?? '';
+
+        getAmountController(schemeCode).text = amounts[i].toString();
+
+        final fundId = getGoalFundId(schemeCode);
+        debugPrint("Fund ID for schemeCode $schemeCode is $fundId and goal id ${ savedDatabaseId.value }");
+
+        if (fundId != null) {
+          funds.add({
+            "goal_id": savedDatabaseId.value ?? 0,
+            "order_type": "sip",
+            "id": fundId,
+            "status": "pending",
+            "scheme_code":schemeCode,
+            "sip_amount": amounts[i].toDouble(),
+            "sip_day": selectedSipDay.value,
+            "sip_start_date": DateTime.now().toString().split(' ').first,
+            "sip_end_date": DateTime.now()
+                .add(const Duration(days: 365 * 3))
+                .toString()
+                .split(' ')
+                .first,
+          });
+        }
+      }
+
+      debugPrint("SIP BULK REQUEST => $funds");
+
+      await updateGoalFundOrder(
+        goalId: savedDatabaseId.value ?? 0,
+        orderType: "sip",
+        sipAmount: 0,
+        sipDay: selectedSipDay.value,
+        fundId: 0,
+        lumpsumAmount: 0,
+        funds: funds,
+      );
+
+      await getAllGoals();
+    } catch (e) {
+      debugPrint("distributeSipAmount Error: $e");
+    } finally {
+      isDistributingAmount.value = false;
+      hideLoading();
+    }
+  }
+
+  Future<void> redistributeSipAmountAfterEdit({
+    required String editedSchemeCode,
+    required double editedAmount,
+  }) async {
+    try {
+      showLoading();
+      isDistributingAmount.value = true;
+
+      final MutualFundController mutualController = Get.find();
+
+      final selectedFunds = selectedPopularFund.toList();
+
+      if (selectedFunds.isEmpty) return;
+
+      final totalSip = monthlySip.value;
+      final remainingAmount = totalSip - editedAmount;
+
+      if (remainingAmount < 0) return;
+
+      final allFunds = mutualController.searchFund;
+
+      final remainingSchemeCodes = <String>[];
+      final List<Map<String, dynamic>> funds = [];
+
+      for (final fundName in selectedFunds) {
+        final fund = allFunds.firstWhereOrNull(
+          (f) => f.baseSchemeName == fundName,
+        );
+
+        final schemeCode = fund?.schemeCode?.toString() ?? '';
+
+        if (schemeCode != editedSchemeCode) {
+          remainingSchemeCodes.add(schemeCode);
+        }
+      }
+
+      /// Edited Fund
+      getAmountController(editedSchemeCode).text = editedAmount
+          .toInt()
+          .toString();
+
+      final editedFundId = getGoalFundId(editedSchemeCode);
+
+      if (editedFundId != null) {
+        funds.add({
+          "goal_id": savedDatabaseId.value ?? 0,
+          "order_type": "sip",
+          "fund_id": editedFundId,
+          "sip_amount": editedAmount,
+          "sip_day": selectedSipDay.value,
+          "sip_start_date": DateTime.now().toString().split(' ').first,
+          "sip_end_date": DateTime.now()
+              .add(const Duration(days: 365 * 3))
+              .toString()
+              .split(' ')
+              .first,
+        });
+      }
+
+      /// Remaining Funds Distribution
+      if (remainingSchemeCodes.isNotEmpty) {
+        int perFund = (remainingAmount / remainingSchemeCodes.length).round();
+
+        final amounts = List.generate(
+          remainingSchemeCodes.length,
+          (_) => perFund,
+        );
+
+        int assigned = amounts.fold(0, (a, b) => a + b);
+        int diff = remainingAmount.round() - assigned;
+
+        if (diff != 0) {
+          amounts.last += diff;
+        }
+
+        for (int i = 0; i < remainingSchemeCodes.length; i++) {
+          final schemeCode = remainingSchemeCodes[i];
+          final amount = amounts[i];
+
+          getAmountController(schemeCode).text = amount.toString();
+
+          final fundId = getGoalFundId(schemeCode);
+
+          if (fundId != null) {
+            funds.add({
+              "goal_id": savedDatabaseId.value ?? 0,
+              "order_type": "sip",
+              "id": fundId,
+              "status": "pending",
+              "scheme_code":schemeCode,
+              "sip_amount": amount.toDouble(),
+              "sip_day": selectedSipDay.value,
+              "sip_start_date": DateTime.now().toString().split(' ').first,
+              "sip_end_date": DateTime.now()
+                  .add(const Duration(days: 365 * 3))
+                  .toString()
+                  .split(' ')
+                  .first,
+            });
+          }
+        }
+      }
+
+      debugPrint("SIP EDIT BULK REQUEST => $funds");
+
+      await updateGoalFundOrder(
+        goalId: savedDatabaseId.value ?? 0,
+        orderType: "sip",
+        sipAmount: 0,
+        sipDay: selectedSipDay.value,
+        fundId: 0,
+        lumpsumAmount: 0,
+        funds: funds,
+      );
+
+      await getAllGoals();
+    } catch (e) {
+      debugPrint("redistributeSipAmountAfterEdit Error: $e");
+    } finally {
+      isDistributingAmount.value = false;
+      hideLoading();
+    }
+  }
+
+  void showLoading() {
+    if (Get.isDialogOpen == true) return;
+
+    Get.dialog(
+      const Center(child: CircularProgressIndicator(color: Ucolors.primary)),
+      barrierDismissible: false,
+    );
+  }
+
+  void hideLoading() {
+    debugPrint("hideLoading called");
+    debugPrint("isDialogOpen: ${Get.isDialogOpen}");
+
+    if (Get.isDialogOpen ?? false) {
+      Get.close(1); // ya Get.back(closeOverlays: true);
+    }
+  }
+
   TextEditingController getAmountController(String schemeCode) {
     return amountControllers.putIfAbsent(
       schemeCode,
-          () => TextEditingController(),
+      () => TextEditingController(),
     );
   }
+
   Future<void> updateGoalFundOrder({
     required int goalId,
     required String orderType,
@@ -683,66 +1009,46 @@ class GoalSipController extends GetxController {
     required int sipDay,
     required int fundId,
     required double lumpsumAmount,
+    required List<Map<String, dynamic>> funds,
   }) async {
     debugPrint("orderType: $orderType");
 
     try {
-      final requestData = {
-        "goal_id": goalId,
-        "order_type": orderType,
-
-        if (orderType == "sip") ...{
-          "sip_amount": sipAmount,
-          "sip_day": sipDay,
-          "sip_start_date":
-          DateTime.now().toString().split(' ').first,
-          "sip_end_date": DateTime.now()
-              .add(const Duration(days: 365 * 3))
-              .toString()
-              .split(' ')
-              .first,
-        },
-
-        if (orderType == "lumpsum")
-          "lumpsum_amount": lumpsumAmount,
-      };
-
-      debugPrint("UPDATE FUND REQUEST => $requestData");
+      debugPrint("UPDATE FUND REQUEST => $funds");
       debugPrint("FUND ID => $fundId");
 
       final result = await goalUseCases.updateGoalFundOrderUseCase(
-        requestData,
+        funds,
         fundId,
       );
 
       result.fold(
-            (success) async {
-          debugPrint(
-            "UPDATE SUCCESS => ${success.data?.id}",
-          );
+        (success) async {
+          debugPrint("UPDATE SUCCESS => ${success.data?.id}");
 
           await getAllGoals();
         },
-            (failure) {
-          showCustomToast(
-            title: "Error",
-            message: failure.message,
-            backgroundColor: Colors.red.shade700,
-            icon: Icons.error_outline,
-          );
+        (failure) {
+          // showCustomToast(
+          //   title: "Error",
+          //   message: failure.message,
+          //   backgroundColor: Colors.red.shade700,
+          //   icon: Icons.error_outline,
+          // );
         },
       );
     } catch (e) {
       debugPrint("Update Goal Fund Exception: $e");
 
-      showCustomToast(
-        title: "Error",
-        message: e.toString(),
-        backgroundColor: Colors.red.shade700,
-        icon: Icons.error_outline,
-      );
+      // showCustomToast(
+      //   title: "Error",
+      //   message: e.toString(),
+      //   backgroundColor: Colors.red.shade700,
+      //   icon: Icons.error_outline,
+      // );
     }
   }
+
   @override
   void onClose() {
     for (final c in amountControllers.values) {
@@ -750,6 +1056,7 @@ class GoalSipController extends GetxController {
     }
     super.onClose();
   }
+
   Future<void> saveGoalFund({
     required int goalId,
     required String schemeCode,
@@ -758,14 +1065,14 @@ class GoalSipController extends GetxController {
     required int sipDay,
   }) async {
     HapticFeedback.successNotification();
-  debugPrint("savedInvestmentType.value: ${savedInvestmentType.value}");
+    debugPrint("savedInvestmentType.value: ${savedInvestmentType.value}");
     try {
       final requestData = {
         "goal_id": goalId,
         "user_id": SessionManager.instance.getUserData!.id,
         "scheme_code": schemeCode,
         "order_date": DateTime.now().toString().split(' ').first,
-        "order_type":savedInvestmentType.value,
+        "order_type": savedInvestmentType.value,
         // "lumpsum_amount": lumpsumAmount,
         if (savedInvestmentType.value == "sip") ...{
           "sip_amount": sipAmount,
@@ -782,14 +1089,10 @@ class GoalSipController extends GetxController {
           "lumpsum_amount": lumpsumAmount.toString(),
       };
 
-      final result =
-      await goalUseCases.saveGoalFundUseCase.call(
-        requestData,
-      );
+      final result = await goalUseCases.saveGoalFundUseCase.call(requestData);
 
       result.fold(
-            (success) async {
-
+        (success) async {
           /// Add to selected funds after successful API call
           if (!isSelectedFund(schemeName)) {
             toggleFund(schemeName);
@@ -801,9 +1104,9 @@ class GoalSipController extends GetxController {
             backgroundColor: Colors.green,
             icon: Icons.check_circle,
           );
-          await    getAllGoals();
+          await getAllGoals();
         },
-            (failure) {
+        (failure) {
           showCustomToast(
             title: "Error",
             message: failure.message,
@@ -815,8 +1118,15 @@ class GoalSipController extends GetxController {
     } catch (e) {
       debugPrint("Save Goal Fund Exception: $e");
 
+      showCustomToast(
+        title: "Error",
+        message: e.toString(),
+        backgroundColor: Colors.red.shade700,
+        icon: Icons.error_outline,
+      );
     }
   }
+
   Future<void> saveFundToGoal({
     required int goalId,
     required String schemeCode,
@@ -832,7 +1142,7 @@ class GoalSipController extends GetxController {
     final fundData = {
       "goal_id": goalId,
       "user_id": SessionManager.instance.getUserData?.id ?? 7,
-      "scheme_code": int.tryParse(schemeCode ) ?? 0,
+      "scheme_code": int.tryParse(schemeCode) ?? 0,
       "order_date": formattedDate,
     };
 
@@ -840,7 +1150,7 @@ class GoalSipController extends GetxController {
     final result = await goalUseCases.saveGoalFundUseCase.call(fundData);
 
     result.fold(
-          (success) async {
+      (success) async {
         // 2. Highlight the card in the UI
         toggleFund(fundName);
 
@@ -861,7 +1171,7 @@ class GoalSipController extends GetxController {
         );
         await getAllGoals();
       },
-          (error) {
+      (error) {
         // Get.snackbar("Error", "${error.message}");
         showCustomToast(
           title: "Already in Goal",
@@ -880,26 +1190,19 @@ class GoalSipController extends GetxController {
   }) async {
     isDeleting[id] = true;
 
-    final result = await goalUseCases.deleteGoalFundUseCase(
-      id: id,
-    );
+    final result = await goalUseCases.deleteGoalFundUseCase(id: id);
 
     result.fold(
-          (success) {
-
+      (success) {
         final goals = goalResponse.value?.data;
 
         if (goals != null) {
           for (var goal in goals) {
-            goal.goalFunds.removeWhere(
-                  (fund) => fund.id == id,
-            );
+            goal.goalFunds.removeWhere((fund) => fund.id == id);
           }
 
           goalResponse.refresh();
         }
-
-
 
         if (isEdit) {
           Get.back();
@@ -910,17 +1213,14 @@ class GoalSipController extends GetxController {
         } else {
           showCustomToast(
             title: "Removed from Goal",
-            message: schemeName??"",
+            message: schemeName ?? "",
             backgroundColor: Ucolors.red,
             icon: Icons.check_circle_outline,
           );
         }
       },
-          (error) {
-        ULoaders.error(
-          title: 'Error',
-          message: error.message,
-        );
+      (error) {
+        ULoaders.error(title: 'Error', message: error.message);
       },
     );
 
@@ -933,7 +1233,7 @@ class GoalSipController extends GetxController {
     final result = await goalUseCases.deleteGoalUseCase(id: id);
 
     result.fold(
-          (success) async {
+      (success) async {
         // // Remove from local list instantly — no extra fetch needed
         final goals = goalResponse.value?.data;
         if (goals != null) {
@@ -943,7 +1243,6 @@ class GoalSipController extends GetxController {
           }
           // 3. Trigger Rx update
           goalResponse.refresh();
-
         }
         await getAllGoals();
         Get.back();
@@ -953,11 +1252,8 @@ class GoalSipController extends GetxController {
           message: success.data?.message ?? '',
         );
       },
-          (error) {
-        ULoaders.error(
-          title: 'Error',
-          message: error.message,
-        );
+      (error) {
+        ULoaders.error(title: 'Error', message: error.message);
       },
     );
 
@@ -986,21 +1282,19 @@ class GoalSipController extends GetxController {
   /// =======================================
 
   void setTarget(double value) {
-    targetAmount.value =
-        smartRoundOff(value);
+    targetAmount.value = smartRoundOff(value);
     _recalculate();
     checkForChanges();
   }
 
-// ── Lumpsum Setter ────────────────────────────────────────────────────────────
+  // ── Lumpsum Setter ────────────────────────────────────────────────────────────
   void setLumpsumAmount(double value) {
-
     lumpsumAmount.value = value;
 
     recalculateLumpsum();
   }
-  double smartRoundOff(double value) {
 
+  double smartRoundOff(double value) {
     if (value < 1000) {
       return (value / 100).round() * 100;
     }
@@ -1015,12 +1309,12 @@ class GoalSipController extends GetxController {
 
     return (value / 100000).round() * 100000;
   }
+
   void setYears(double value) {
     years.value = value;
     _recalculate();
     recalculateLumpsum();
     checkForChanges();
-
   }
 
   void setRate(double value) {
@@ -1036,7 +1330,32 @@ class GoalSipController extends GetxController {
     final annual = annualRatePercent / 100;
     return pow(1 + annual, 1 / 12) - 1;
   }
+  // ── Lumpsum Calculation ───────────────────────────────────────────────────────
+  void recalculateLumpsum() {
+    final double fv = lumpsumFutureValue.value;
 
+    final double r = annualRate.value / 100;
+
+    final int n = years.value.toInt();
+
+    if (fv <= 0 || r <= 0 || n <= 0) {
+      return;
+    }
+
+    // PV = FV / (1 + r)^n
+    final double pv = fv / pow(1 + r, n);
+
+    // ONLY ROUND HERE
+    final double roundedPv = smartRoundOff(pv);
+
+    lumpsumAmount.value = roundedPv;
+
+    lumpsumTotalReturn.value = fv - roundedPv;
+
+    lumpsumReturnPercent.value = ((fv - roundedPv) / roundedPv) * 100;
+
+    update();
+  }
   void _recalculate() {
     final int totalMonths = (years.value * 12).round();
 
@@ -1082,6 +1401,36 @@ class GoalSipController extends GetxController {
     yearlyReport.value = buildYearlyReport();
   }
 
+  List<ReturnRow> buildLumpsumYearlyReport() {
+    final List<ReturnRow> rows = [];
+
+    final double principal = lumpsumAmount.value;
+    final double annualReturn = lumpsumReturnPercent.value;
+    final int yearsCount = years.value.round();
+
+    if (principal <= 0 || yearsCount <= 0) {
+      return rows;
+    }
+
+    for (int year = 1; year <= yearsCount; year++) {
+      final double currentValue =
+          principal * math.pow(1 + (annualReturn / 100), year);
+
+      final double profit = currentValue - principal;
+
+      rows.add(
+        ReturnRow(
+          period: year.toString(),
+          scheme: principal, // Invested Amount
+          category: currentValue, // Current Value
+          benchmark: profit, // Profit
+        ),
+      );
+    }
+
+    return rows;
+  }
+
   // ------Report -- //
   List<ReturnRow> buildYearlyReport() {
     final int yearsCount = years.value.round();
@@ -1124,19 +1473,15 @@ class GoalSipController extends GetxController {
   //       : selectedPopularFund.add(id);
   // }
   void toggleFund(String name) {
-
     if (selectedPopularFund.contains(name)) {
-
       selectedPopularFund.remove(name);
-
     } else {
-
       selectedPopularFund.add(name);
     }
   }
+
   Color getGoalColor(String goalType) {
     switch (goalType.toLowerCase()) {
-
       case 'car':
         return Colors.blue.shade300;
 
@@ -1162,19 +1507,18 @@ class GoalSipController extends GetxController {
         return Colors.grey;
     }
   }
+
   Future<void> fetchCount() async {
     Map<String, dynamic> params = {
-      "return_max":annualRate.value,
-      "sort_order":"desc",
-      "return_year":years.value.toInt()
+      "return_max": annualRate.value,
+      "sort_order": "desc",
+      "return_year": years.value.toInt(),
     };
-    Get.find<MutualFundController>().applyFilters(
-      params,);
+    Get.find<MutualFundController>().applyFilters(params);
 
-     await Get.find<MutualFundController>().fetchData();
+    await Get.find<MutualFundController>().fetchData();
     // fundList.assignAll(result);
     debugPrint("Fund Result:");
-
   }
 
   bool isSelectedFund(String fundName) {
@@ -1184,6 +1528,11 @@ class GoalSipController extends GetxController {
   // ✅ ADD THIS METHOD to GoalSipController
   void resetStateForNewGoal() {
     isGoalSaved.value = false;
+    savedDatabaseId.value = null;
+    investmentMode.value= "sip";
+    goalNameTextEditingController.clear();
+    targetAmount.value = 0;
+    years.value = 0;
     savedDatabaseId.value = null;
     selectedPopularFund.clear();
   }

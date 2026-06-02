@@ -22,8 +22,8 @@ import 'package:my_sip/features/goal/presentation/widget/GoalDetailsIndicator.da
 
 import '../../domain/entity/goal_entity.dart';
 
-class GoaldetailsPage extends GetView<GoalSipController> {
-  const GoaldetailsPage({super.key});
+class GoalDetailsPage extends GetView<GoalSipController> {
+  const GoalDetailsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +156,11 @@ class GoaldetailsPage extends GetView<GoalSipController> {
         secondButtonP: () {
           // _showExploreMoreBottomSheet(context);
           if (currentGoalId != 0) {
-            _showExploreMoreBottomSheet(context, currentGoalId);
+            Get.toNamed(
+              AppRoutes.masterGoalsPage,
+              arguments: {'goalType': 'car','isAddFund':true,"goalId":currentGoalId, "goal":goal,},
+            );
+            // _showExploreMoreBottomSheet(context, currentGoalId);
           } else {
             Get.snackbar("Error", "Goal ID is missing.");
           }
@@ -216,11 +220,8 @@ class GoaldetailsPage extends GetView<GoalSipController> {
 
             ElevatedButton(
               onPressed: () async {
-
-
-                // DELETE API / CONTROLLER CALL
+                Get.back();
                await  controller.deleteGoal(currentGoalId);
-
               },
 
               style: ElevatedButton.styleFrom(
@@ -968,11 +969,10 @@ class GoalDetailSection extends StatelessWidget {
                                         confirmTextColor: Colors.white,
                                         onConfirm: () {
                                           Get.back();
-                                          Get.back();// Close dialog
                                           goalSipController.deleteGoalFund(
                                            id: fund.id,
                                             isEdit: true,
-                                            schemeName: fund.mutualFund?.schemeCode?.toString() ?? '',
+                                            schemeName: fund.mutualFund?.schemeCode.toString() ?? '',
                                           ); // Passing GoalFundEntity.id
                                         },
                                       );
