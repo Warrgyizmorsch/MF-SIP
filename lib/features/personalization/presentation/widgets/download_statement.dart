@@ -120,9 +120,19 @@ class DownloadStatementsScreen extends GetView<PersonalisationController> {
             decoration: BoxDecoration(color: Colors.grey.shade100),
             child: Obx(() {
               // Show a loading spinner while the API is processing
-              if (controller.isRequestingStatement.value) {
+              // if (controller.isRequestingStatement.value ) {
+              //   return const Center(
+              //     heightFactor: 1,
+              //     child: Padding(
+              //       padding: EdgeInsets.all(8.0),
+              //       child: CircularProgressIndicator(),
+              //     ),
+              //   );
+              // }
+              if (controller.isRequestingStatement.value ||
+                  controller.isRequestingAccountStatement.value) {
                 return const Center(
-                  heightFactor: 1, // Keeps the container height minimal
+                  heightFactor: 1,
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
                     child: CircularProgressIndicator(),

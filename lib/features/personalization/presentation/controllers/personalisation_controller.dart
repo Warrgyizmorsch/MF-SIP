@@ -1565,7 +1565,7 @@ class PersonalisationController extends GetxController {
       final String fileName = isCapitalGain.value
           ? "CapitalGain_${folio}_${DateTime.now().millisecondsSinceEpoch}.pdf"
           : "AccountStatement_${folio}_${DateTime.now().millisecondsSinceEpoch}.pdf";
-      ;
+      
       final String savePath = '${directory.path}/$fileName';
 
       // 3. Download the file using Dio
@@ -1654,6 +1654,8 @@ class PersonalisationController extends GetxController {
 
     final uid = session.getUserData?.id ?? 0;
 
+    ULoaders.showLoading(message: "Processing Capital Gain Statement...");
+
     // Make the API call
     final result = await _useCases.requestCapitalGainStatementUseCase(
       uid: 13001, // for testing
@@ -1672,9 +1674,11 @@ class PersonalisationController extends GetxController {
 
         if (data != null) {
           if (data.isDownload && data.downloadUrl.isNotEmpty) {
+            ULoaders.stopLoading();
             log("[MfuController] Download link ready: ${data.downloadUrl}");
             await _downloadAndSavePdf(data.downloadUrl, folioNo);
           } else if (data.isEmail) {
+            ULoaders.stopLoading();
             log("[MfuController] Email sent to: ${data.emailTo}");
             CustomSnackbar.success(
               title: 'Success',
@@ -1683,9 +1687,12 @@ class PersonalisationController extends GetxController {
                   data.message,
             );
           }
+        } else {
+          ULoaders.stopLoading();
         }
       },
       (error) {
+        ULoaders.stopLoading();
         CustomSnackbar.error(title: 'Error', message: error.message);
       },
     );
@@ -1701,6 +1708,8 @@ class PersonalisationController extends GetxController {
     required String endDate,
   }) async {
     isRequestingAccountStatement.value = true;
+
+    ULoaders.showLoading(message: "Processing Account Statement...");
 
     final uid = session.getUserData?.id ?? 0;
 
@@ -1718,26 +1727,13 @@ class PersonalisationController extends GetxController {
       (success) async {
         final data = success.data;
 
-        // if (data != null) {
-        //   if (data.isDownload && data.downloadUrl.isNotEmpty) {
-        //     log(
-        //       "[MfuController] Account Statement Download link: ${data.downloadUrl}",
-        //     );
-
-        //     Get.snackbar(
-        //       'Success',
-        //       'Account Statement download link generated. Expires in ${data.expiresInMinutes} mins.',
-        //     );
-        //   } else if (data.isEmail) {
-        //     log("[MfuController] Account Statement sent to: ${data.emailTo}");
-        //     Get.snackbar('Success', data.message);
-        //   }
-        // }
         if (data != null) {
           if (data.isDownload && data.downloadUrl.isNotEmpty) {
+            ULoaders.stopLoading();
             log("[MfuController] Download link ready: ${data.downloadUrl}");
             await _downloadAndSavePdf(data.downloadUrl, folioNo);
           } else if (data.isEmail) {
+            ULoaders.stopLoading();
             log("[MfuController] Email sent to: ${data.emailTo}");
             CustomSnackbar.success(
               title: 'Success',
@@ -1746,9 +1742,12 @@ class PersonalisationController extends GetxController {
                   data.message,
             );
           }
+        } else {
+          ULoaders.stopLoading();
         }
       },
       (error) {
+        ULoaders.stopLoading();
         Get.snackbar('Error', error.message);
       },
     );

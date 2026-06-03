@@ -1869,9 +1869,7 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/core/utils/enums/enums.dart';
-import 'package:my_sip/features/authentication/presentation/pages/signup/register_account.dart';
 import 'package:my_sip/features/kyc/presentation/controllers/kyc_controller.dart';
-import 'package:my_sip/services/session_manager.dart';
 import '../../../../common/widget/showbottomsheet/datepicker.dart';
 import '../../../../core/utils/helper/helpers.dart';
 import '../widgets/tax_status_slider_widget.dart';
@@ -2139,6 +2137,7 @@ class KycScreen extends GetView<KycController> {
             // const SizedBox(height: 20),
             SvgPicture.asset(UImages.appLogo, height: 50),
             const SizedBox(height: 20),
+            // Text("Verify Your Identity", style: AppTextStyles.h3()),
             Text("Verify Your Identity", style: AppTextStyles.h3()),
             const SizedBox(height: 8),
             Text(
@@ -3364,11 +3363,12 @@ class KycScreen extends GetView<KycController> {
                 Expanded(
                   child: Text(
                     "You will be redirected to the Signzy portal to complete the e-signature using your Aadhaar-linked mobile number.",
-                    style: TextStyle(
-                      color: Colors.grey.shade700,
-                      fontSize: 13,
-                      height: 1.4,
-                    ),
+                    // style: TextStyle(
+                    //   color: Colors.grey.shade700,
+                    //   fontSize: 13,
+                    //   height: 1.4,
+                    // ),
+                    style: AppTextStyles.bodySmall(),
                   ),
                 ),
               ],
@@ -3434,11 +3434,12 @@ class KycScreen extends GetView<KycController> {
           const SizedBox(width: 8),
           Text(
             "Your information is secure.",
-            style: TextStyle(
-              color: Ucolors.blue,
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
+            // style: TextStyle(
+            //   color: Ucolors.blue,
+            //   fontSize: 12,
+            //   fontWeight: FontWeight.w500,
+            // ),
+            style: AppTextStyles.bodySmall(color: Ucolors.blue),
           ),
         ],
       ),
