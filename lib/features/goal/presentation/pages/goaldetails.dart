@@ -14,7 +14,6 @@ import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
-import 'package:my_sip/features/dashboard/presentation/pages/comparison_screen.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
@@ -34,7 +33,7 @@ class GoalDetailsPage extends GetView<GoalSipController> {
     final String emoji = args['emoji'] ?? '🎯';
     final double target = args['target'] ?? 0.0;
     final double invested = args['invested'] ?? 0.0;
-    final String logo = args['logo'] ??"";
+    final String logo = args['logo'] ?? "";
 
     final String title = goal?.goalName ?? 'Goal Details';
     final int currentGoalId = goal?.id ?? 0;
@@ -46,16 +45,23 @@ class GoalDetailsPage extends GetView<GoalSipController> {
         title: title,
         action: [
           PopupMenuButton<String>(
-            color:Ucolors.light,
+            color: Ucolors.light,
 
             icon: const Icon(Icons.more_vert),
 
             onSelected: (value) {
               if (value == 'edit') {
-                showEditGoalDialog(context:context,currentGoalId: currentGoalId, goal: goal);
+                showEditGoalDialog(
+                  context: context,
+                  currentGoalId: currentGoalId,
+                  goal: goal,
+                );
                 // edit
               } else if (value == 'delete') {
-                showDeleteGoalDialog(context: context,currentGoalId: currentGoalId);
+                showDeleteGoalDialog(
+                  context: context,
+                  currentGoalId: currentGoalId,
+                );
               }
             },
 
@@ -77,15 +83,14 @@ class GoalDetailsPage extends GetView<GoalSipController> {
 
                 child: const Row(
                   children: [
-                    Icon(
-                      Icons.delete,
-                      size: 18,
-                      color: Colors.red,
-                    ),
+                    Icon(Icons.delete, size: 18, color: Colors.red),
                     SizedBox(width: 8),
                     Text(
                       'Delete',
-                      style: TextStyle(fontFamily: FontFamily.medium,color: Colors.red),
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        color: Colors.red,
+                      ),
                     ),
                   ],
                 ),
@@ -151,27 +156,55 @@ class GoalDetailsPage extends GetView<GoalSipController> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomBarButtonGoalDetails(
-        firstButtonP: () {},
-        firstButton: 'Add To Cart',
-        secondButton: 'Add Funds',
-        secondButtonP: () {
-          // _showExploreMoreBottomSheet(context);
+      bottomNavigationBar: UElevatedBUtton(
+        onPressed: () {
           if (currentGoalId != 0) {
             Get.toNamed(
               AppRoutes.masterGoalsPage,
-              arguments: {'goalType': 'car','isAddFund':true,"goalId":currentGoalId, "goal":goal,},
+              arguments: {
+                'isAddFund': true,
+                "goalId": currentGoalId,
+                "goal": goal,
+              },
             );
-            // _showExploreMoreBottomSheet(context, currentGoalId);
           } else {
             Get.snackbar("Error", "Goal ID is missing.");
           }
         },
+        child: Center(
+          child: Text(
+            'Add Funds',
+            style: UTextStyles.buttonText.copyWith(
+              color: Colors.white,
+              fontSize: 14,
+            ),
+          ),
+        ),
       ),
+      // bottomNavigationBar: BottomBarButtonGoalDetails(
+      //   firstButtonP: () {},
+      //   firstButton: 'Add To Cart',
+      //   secondButton: 'Add Funds',
+      //   secondButtonP: () {
+      //     // _showExploreMoreBottomSheet(context);
+      //     if (currentGoalId != 0) {
+      //       Get.toNamed(
+      //         AppRoutes.masterGoalsPage,
+      //         arguments: {'goalType': 'car','isAddFund':true,"goalId":currentGoalId, "goal":goal,},
+      //       );
+      //       // _showExploreMoreBottomSheet(context, currentGoalId);
+      //     } else {
+      //       Get.snackbar("Error", "Goal ID is missing.");
+      //     }
+      //   },
+      // ),
     );
-
   }
-  void showDeleteGoalDialog({required BuildContext context, required currentGoalId}) {
+
+  void showDeleteGoalDialog({
+    required BuildContext context,
+    required currentGoalId,
+  }) {
     showDialog(
       context: context,
       builder: (context) {
@@ -181,10 +214,7 @@ class GoalDetailsPage extends GetView<GoalSipController> {
           ),
           title: const Row(
             children: [
-              Icon(
-                Icons.delete_outline,
-                color: Colors.red,
-              ),
+              Icon(Icons.delete_outline, color: Colors.red),
               SizedBox(width: 10),
               Text("Delete Goal"),
             ],
@@ -192,7 +222,7 @@ class GoalDetailsPage extends GetView<GoalSipController> {
 
           content: const Text(
             "Are you sure you want to delete this goal?",
-            style: TextStyle(fontFamily: FontFamily.medium,fontSize: 15),
+            style: TextStyle(fontFamily: FontFamily.medium, fontSize: 15),
           ),
 
           actionsPadding: const EdgeInsets.only(
@@ -223,7 +253,7 @@ class GoalDetailsPage extends GetView<GoalSipController> {
             ElevatedButton(
               onPressed: () async {
                 Get.back();
-               await  controller.deleteGoal(currentGoalId);
+                await controller.deleteGoal(currentGoalId);
               },
 
               style: ElevatedButton.styleFrom(
@@ -247,7 +277,12 @@ class GoalDetailsPage extends GetView<GoalSipController> {
       },
     );
   }
-  void showEditGoalDialog({required BuildContext context, required int currentGoalId ,required UserGoalEntity? goal}) {
+
+  void showEditGoalDialog({
+    required BuildContext context,
+    required int currentGoalId,
+    required UserGoalEntity? goal,
+  }) {
     showDialog(
       context: context,
       builder: (context) {
@@ -258,10 +293,7 @@ class GoalDetailsPage extends GetView<GoalSipController> {
 
           title: const Row(
             children: [
-              Icon(
-                Icons.edit_outlined,
-                color: Colors.blue,
-              ),
+              Icon(Icons.edit_outlined, color: Colors.blue),
               SizedBox(width: 10),
               Text("Edit Goal"),
             ],
@@ -269,9 +301,7 @@ class GoalDetailsPage extends GetView<GoalSipController> {
 
           content: const Text(
             "Are you sure you want to edit this goal?",
-            style: TextStyle(fontFamily: FontFamily.medium,
-              fontSize: 15,
-            ),
+            style: TextStyle(fontFamily: FontFamily.medium, fontSize: 15),
           ),
 
           actionsPadding: const EdgeInsets.only(
@@ -305,8 +335,14 @@ class GoalDetailsPage extends GetView<GoalSipController> {
                 Navigator.pop(context);
 
                 // OPEN EDIT SCREEN
-                Get.toNamed(AppRoutes.masterGoalsPage,arguments: {"goalId":currentGoalId, "goal":goal, "isEdit":true});
-
+                Get.toNamed(
+                  AppRoutes.masterGoalsPage,
+                  arguments: {
+                    "goalId": currentGoalId,
+                    "goal": goal,
+                    "isEdit": true,
+                  },
+                );
               },
 
               style: ElevatedButton.styleFrom(
@@ -330,6 +366,7 @@ class GoalDetailsPage extends GetView<GoalSipController> {
       },
     );
   }
+
   void _showExploreMoreBottomSheet(BuildContext context, int goal) {
     final mutualController = Get.find<MutualFundController>();
     final goalSipController = Get.find<GoalSipController>();
@@ -352,7 +389,7 @@ class GoalDetailsPage extends GetView<GoalSipController> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-    useSafeArea: true,
+      useSafeArea: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
       ),
@@ -394,7 +431,8 @@ class GoalDetailsPage extends GetView<GoalSipController> {
                           const SizedBox(height: 4),
                           Text(
                             "Search and select funds for your goal.",
-                            style: TextStyle(fontFamily: FontFamily.medium,
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
                               fontSize: 13,
                               color: Colors.grey.shade500,
                               fontWeight: FontWeight.w500,
@@ -435,7 +473,8 @@ class GoalDetailsPage extends GetView<GoalSipController> {
                           backgroundColor: Ucolors.primary,
                           label: Text(
                             '$filterCount',
-                            style: const TextStyle(fontFamily: FontFamily.medium,
+                            style: const TextStyle(
+                              fontFamily: FontFamily.medium,
                               color: Colors.white,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -496,7 +535,8 @@ class GoalDetailsPage extends GetView<GoalSipController> {
                                     ),
                                     hintText: 'Search mutual funds...',
                                     hintStyle: WidgetStateProperty.all(
-                                      TextStyle(fontFamily: FontFamily.medium,
+                                      TextStyle(
+                                        fontFamily: FontFamily.medium,
                                         color: Colors.grey.shade500,
                                         fontSize: 14,
                                       ),
@@ -535,7 +575,10 @@ class GoalDetailsPage extends GetView<GoalSipController> {
                       return Center(
                         child: Text(
                           "No mutual funds found",
-                          style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600),
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            color: Colors.grey.shade600,
+                          ),
                         ),
                       );
                     }
@@ -613,9 +656,10 @@ class GoalDetailsPage extends GetView<GoalSipController> {
                                         );
                                       } else {
                                         goalSipController.deleteGoalFund(
-                                          id:goal,
-                                          isEdit:  true,
-                                          schemeName: fund.schemeCode?.toString() ?? '',
+                                          id: goal,
+                                          isEdit: true,
+                                          schemeName:
+                                              fund.schemeCode?.toString() ?? '',
                                         );
                                         goalSipController.toggleFund(name);
                                       }
@@ -632,8 +676,8 @@ class GoalDetailsPage extends GetView<GoalSipController> {
                                           vertical: 10,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Ucolors.primary.withValues(alpha:
-                                            0.05,
+                                          color: Ucolors.primary.withValues(
+                                            alpha: 0.05,
                                           ),
                                           borderRadius: BorderRadius.circular(
                                             16,
@@ -662,7 +706,7 @@ class GoalDetailsPage extends GetView<GoalSipController> {
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha:0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 10,
                         offset: const Offset(0, -5),
                       ),
@@ -745,9 +789,7 @@ class GoalDetailSection extends StatelessWidget {
             investedAmount: invested,
             emoji: emoji,
             imageUrl: logo != null && logo.isNotEmpty
-                ? (logo.startsWith('http')
-                ? logo
-                : "${Appurl.baseUrl}/$logo")
+                ? (logo.startsWith('http') ? logo : "${Appurl.baseUrl}/$logo")
                 : "",
             // If they uploaded a cover image, pass the URL here!
             // imageUrl: goal?.goalCover != null && goal!.goalCover.isNotEmpty
@@ -903,7 +945,10 @@ class GoalDetailSection extends StatelessWidget {
                   if (linkedFunds.isEmpty)
                     const Text(
                       'No mutual funds linked yet.',
-                      style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey),
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        color: Colors.grey,
+                      ),
                     ),
 
                   ...linkedFunds.map((fund) {
@@ -960,7 +1005,6 @@ class GoalDetailSection extends StatelessWidget {
                                       size: 20,
                                     ),
                                     onPressed: () {
-
                                       // Show confirmation dialog or delete directly
                                       Get.defaultDialog(
                                         title: "Remove Fund",
@@ -972,9 +1016,12 @@ class GoalDetailSection extends StatelessWidget {
                                         onConfirm: () {
                                           Get.back();
                                           goalSipController.deleteGoalFund(
-                                           id: fund.id,
+                                            id: fund.id,
                                             isEdit: true,
-                                            schemeName: fund.mutualFund?.schemeCode.toString() ?? '',
+                                            schemeName:
+                                                fund.mutualFund?.schemeCode
+                                                    .toString() ??
+                                                '',
                                           ); // Passing GoalFundEntity.id
                                         },
                                       );

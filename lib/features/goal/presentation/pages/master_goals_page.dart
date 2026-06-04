@@ -142,11 +142,11 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
               actions: [
                 TextButton(
                   onPressed: () => Get.back(result: false),
-                  child: const Text("Stay"),
+                  child: const Text("Stay", style: TextStyle(color: Ucolors.primary)),
                 ),
                 ElevatedButton(
                   onPressed: () => Get.back(result: true),
-                  child: const Text("Leave"),
+                  child: const Text("Leave",style: TextStyle(color: Ucolors.primary)),
                 ),
               ],
             ),
@@ -226,38 +226,39 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                             horizontal: 10,
                             vertical: 10,
                           ),
-                          child: UElevatedBUtton(
-                            onPressed: () async {
-                              if (isEdit) {
-                                // await controller.updateGoal();
-                              } else {
-                                await controller.saveGoalToDb();
-                                // Scroll to popular funds after save
-                                WidgetsBinding.instance.addPostFrameCallback((
-                                  _,
-                                ) {
-                                  if (popularFundsKey.currentContext != null) {
-                                    Scrollable.ensureVisible(
-                                      popularFundsKey.currentContext!,
-                                      duration: const Duration(
-                                        milliseconds: 800,
-                                      ),
-                                      curve: Curves.easeInOutCubic,
-                                      alignment: 0.1,
-                                    );
-                                  }
-                                });
-                                await Get.find<MutualFundController>()
-                                    .fetchData();
-                              }
-                            },
-                            child: Center(
-                              child: Text(
-                                isEdit ? "Update Goal" : "Save Goal",
-                                style: AppTextStyles.bodyMedium(
-                                  color: Colors.white,
+                          child: Obx(
+                                () => controller.isSavingGoal.value
+                                ? const Center(
+                              child: CircularProgressIndicator(color: Ucolors.primary,),
+                            )
+                                : UElevatedBUtton(
+                              onPressed: () async {
+                                if (isEdit) {
+                                  // await controller.updateGoal();
+                                } else {
+                                  await controller.saveGoalToDb();
+
+                                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                                    if (popularFundsKey.currentContext != null) {
+                                      Scrollable.ensureVisible(
+                                        popularFundsKey.currentContext!,
+                                        duration: const Duration(milliseconds: 800),
+                                        curve: Curves.easeInOutCubic,
+                                        alignment: 0.1,
+                                      );
+                                    }
+                                  });
+
+                                  await Get.find<MutualFundController>().fetchData();
+                                }
+                              },
+                              child: Center(
+                                child: Text(
+                                  isEdit ? "Update Goal" : "Save Goal",
+                                  style: AppTextStyles.bodyMedium(
+                                    color: Colors.white,
+                                  ),
                                 ),
-                                textAlign: TextAlign.center,
                               ),
                             ),
                           ),
@@ -289,8 +290,16 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                 child: CartBottomBar(
                   isValid: controller.selectedPopularFund.isNotEmpty,
                   ontap: () {
-                    if (controller.selectedPopularFund.isEmpty) {
-                      Get.snackbar("Error", "Please select funds to start SIP");
+
+                    if (controller.selectedPopularFund.isEmpty ||
+                        controller.amountControllers.isEmpty ||
+                        controller.amountControllers.values.any(
+                              (c) => c.text.trim().isEmpty,
+                        )) {
+                      Get.snackbar(
+                        "Error",
+                        "Please select funds and enter amount to start SIP",
+                      );
                       return;
                     }
 
@@ -1196,7 +1205,7 @@ class PopularAndSelectedFund extends StatelessWidget {
                         goalId: goalSipController.savedDatabaseId.value ?? 0,
                         schemeCode: fund.schemeCode?.toString() ?? '',
                         schemeName: fund.baseSchemeName ?? '',
-                        sipAmount: (fund.minSipAmount ?? 0).toDouble(),
+                        sipAmount: (goalSipController.monthlySip.value).toDouble(),
                         sipDay: goalSipController.selectedSipDay.value,
                       );
 
@@ -2178,11 +2187,11 @@ class GoalsGridScreen extends GetView<GoalSipController> {
 
                           controller.goalId.value = goal.id;
                           controller.selectedGoalType.value = goal.goalType;
-                          final goalType = goal.goalType?.toLowerCase() ?? '';
+                          final goalType = goal.goalType.toLowerCase() ?? '';
 
                           if (!['custom', 'other'].contains(goalType)) {
                             controller.goalNameTextEditingController.text =
-                                goal.goalType ?? '';
+                                goal.goalType ;
                           }
                           controller.setTarget(goal.targetAmount);
 
