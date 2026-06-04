@@ -24,10 +24,13 @@ class Fundhousebinding extends Bindings {
     Get.lazyPut(() => NetworkServicesApi());
 
     // 2. Register the Data Source (it will "find" the API service)
-    Get.lazyPut(() => FundHouseRemoteDs(Get.find()));
+    Get.lazyPut(() => FundHouseRemoteDs(Get.find()), fenix: true);
 
     // 3. Register the Repository
-    Get.lazyPut<FundHouseRepository>(() => FundHouseRepoImple(Get.find()));
+    Get.lazyPut<FundHouseRepository>(
+      () => FundHouseRepoImple(Get.find()),
+      fenix: true,
+    );
 
     // 4. Register the Use Case
     Get.lazyPut(() => GetFundhouseUsecase(Get.find()), fenix: true);

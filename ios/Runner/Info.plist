@@ -48,6 +48,18 @@
 
 	<key>NSFaceIDUsageDescription</key>
     <string>User Biometric authentications</string>
+
+
+	<key>NSCameraUsageDescription</key>
+<string>We need camera access to capture your Live Photo for mandatory KYC verification.</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>We need gallery access so you can upload your PAN card and cancelled cheque.</string>
+<key>NSFaceIDUsageDescription</key>
+<string>We use FaceID to securely lock your financial portfolio.</string>
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>We collect your location during onboarding to comply with SEBI/AML forensic guidelines.</string>
+
+
 	
 </dict>
 </plist>
