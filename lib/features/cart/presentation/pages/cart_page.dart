@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
@@ -969,53 +970,94 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                 flex: 3,
                 child: _buildColumn(
                   'Inv. Type',
-                  DropdownButton<String>(
-                    dropdownColor: Colors.white,
-                    isDense: true,
-                    value: currentType,
-                    isExpanded: true,
-                    underline: const SizedBox(),
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'sip',
-                        child: Text('SIP', style: TextStyle(fontFamily: FontFamily.medium,fontSize: 12)),
+                  DropdownButtonHideUnderline(
+                    child: DropdownButton2<String>(
+                      value: currentType,
+                      isExpanded: true,
+                      buttonStyleData: ButtonStyleData(
+                        height: 36,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.white,
+                        ),
                       ),
-                      DropdownMenuItem(
-                        value: 'lumpsum',
-                        child: Text('Lumpsum', style: TextStyle(fontFamily: FontFamily.medium,fontSize: 12)),
+                      iconStyleData: const IconStyleData(
+                        icon: Icon(Icons.keyboard_arrow_down, size: 18),
                       ),
-                      DropdownMenuItem(
-                        value: 'stepup',
-                        child: Text('Step Up', style: TextStyle(fontFamily: FontFamily.medium,fontSize: 12)),
+                      dropdownStyleData: DropdownStyleData(
+                        maxHeight: 180,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.white,
+                        ),
                       ),
-                    ],
-                    onChanged: (val) {
-                      if (val != null && val != currentType) {
-                        int newDefaultAmount = minSip;
-                        if (val == 'lumpsum') {
-                          newDefaultAmount = minLumpsum;
-                        }
+                      menuItemStyleData: const MenuItemStyleData(
+                        height: 36,
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'sip',
+                          child: Text(
+                            'SIP',
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: 'lumpsum',
+                          child: Text(
+                            'Lumpsum',
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: 'stepup',
+                          child: Text(
+                            'Step Up',
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                      onChanged: (val) {
+                        if (val != null && val != currentType) {
+                          int newDefaultAmount = minSip;
 
-                        int? newTopUp;
-                        String? newFrequency;
-                        if (val == 'stepup') {
-                          newTopUp = _parseAmount(
-                            widget.itemEntity.minTopupAmount,
+                          if (val == 'lumpsum') {
+                            newDefaultAmount = minLumpsum;
+                          }
+
+                          int? newTopUp;
+                          String? newFrequency;
+
+                          if (val == 'stepup') {
+                            newTopUp = _parseAmount(
+                              widget.itemEntity.minTopupAmount,
+                            );
+                            newFrequency = '6';
+                          }
+
+                          amountController.text = newDefaultAmount.toString();
+
+                          controller.updateCartItem(
+                            itemId: widget.itemEntity.id!,
+                            transType: val,
+                            amount: newDefaultAmount,
+                            topUpAmount: newTopUp,
+                            frequency: newFrequency,
                           );
-                          newFrequency = '6';
                         }
-
-                        amountController.text = newDefaultAmount.toString();
-
-                        controller.updateCartItem(
-                          itemId: widget.itemEntity.id!,
-                          transType: val,
-                          amount: newDefaultAmount,
-                          topUpAmount: newTopUp,
-                          frequency: newFrequency,
-                        );
-                      }
-                    },
+                      },
+                    ),
                   ),
                 ),
               ),
@@ -1028,32 +1070,58 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                   flex: 2,
                   child: _buildColumn(
                     'SIP Date',
-                    DropdownButton<String>(
-                      menuMaxHeight: 300,
-                      dropdownColor: Colors.white,
-                      isDense: true,
-                      value: (widget.itemEntity.sipDay ?? 1).toString(),
-                      isExpanded: true,
-                      underline: const SizedBox(),
-                      items: List.generate(
-                        28,
-                        (i) => DropdownMenuItem(
-                          value: '${i + 1}',
-                          child: Text(
-                            '${i + 1}',
-                            style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 12),
+                      DropdownButtonHideUnderline(
+                        child: DropdownButton2<String>(
+                          value: (widget.itemEntity.sipDay ?? 1).toString(),
+                          isExpanded: true,
+                          buttonStyleData: ButtonStyleData(
+                            height: 36,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.white,
+                            ),
                           ),
+                          iconStyleData: const IconStyleData(
+                            icon: Icon(
+                              Icons.keyboard_arrow_down,
+                              size: 18,
+                            ),
+                          ),
+                          dropdownStyleData: DropdownStyleData(
+                            maxHeight: 300,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.white,
+                            ),
+                          ),
+                          menuItemStyleData: const MenuItemStyleData(
+                            height: 36,
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                          ),
+                          items: List.generate(
+                            28,
+                                (i) => DropdownMenuItem<String>(
+                              value: '${i + 1}',
+                              child: Text(
+                                '${i + 1}',
+                                style: const TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ),
+                          onChanged: (val) {
+                            if (val != null) {
+                              controller.updateCartItem(
+                                itemId: widget.itemEntity.id!,
+                                sipDay: int.parse(val),
+                              );
+                            }
+                          },
                         ),
-                      ),
-                      onChanged: (val) {
-                        if (val != null) {
-                          controller.updateCartItem(
-                            itemId: widget.itemEntity.id!,
-                            sipDay: int.parse(val),
-                          );
-                        }
-                      },
-                    ),
+                      )
                   ),
                 ),
 

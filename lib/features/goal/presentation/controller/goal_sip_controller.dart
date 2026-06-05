@@ -1066,7 +1066,7 @@ class GoalSipController extends GetxController {
   }
 
   Future<void> saveGoalFund({
-    required int goalId,
+    required int gId,
     required String schemeCode,
     required String schemeName,
     required double sipAmount,
@@ -1082,7 +1082,7 @@ class GoalSipController extends GetxController {
           ? totalSip / selectedFundCount
           : 0.0;
       final requestData = {
-        "goal_id": goalId,
+        "goal_id": gId,
         "user_id": SessionManager.instance.getUserData!.id,
         "scheme_code": schemeCode,
         "order_date": DateTime.now().toString().split(' ').first,

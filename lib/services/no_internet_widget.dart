@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
+import '../core/utils/constant/text_style.dart';
 import 'network_services.dart';
 
 class NoInternetWidget extends StatefulWidget {
@@ -180,6 +181,7 @@ class _NoInternetWidgetState extends State<NoInternetWidget>
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 22,
+                                fontFamily: FontFamily.medium,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -191,6 +193,7 @@ class _NoInternetWidgetState extends State<NoInternetWidget>
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Colors.grey,
+                                fontFamily: FontFamily.medium,
                                 height: 1.5,
                               ),
                             ),
@@ -217,6 +220,11 @@ class _NoInternetWidgetState extends State<NoInternetWidget>
                                   _isRetrying
                                       ? "Checking..."
                                       : "Retry",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: FontFamily.medium,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Ucolors.primary ,

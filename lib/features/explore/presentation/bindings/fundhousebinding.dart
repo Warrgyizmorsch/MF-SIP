@@ -27,7 +27,7 @@ class Fundhousebinding extends Bindings {
     Get.lazyPut(() => FundHouseRemoteDs(Get.find()));
 
     // 3. Register the Repository
-    Get.lazyPut<FundHouseRepository>(() => FundHouseRepoImple(Get.find()));
+    Get.lazyPut<FundHouseRepository>(() => FundHouseRepoImple(Get.find()),fenix: true);
 
     // 4. Register the Use Case
     Get.lazyPut(() => GetFundhouseUsecase(Get.find()), fenix: true);

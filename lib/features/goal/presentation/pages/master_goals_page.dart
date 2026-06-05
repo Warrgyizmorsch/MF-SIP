@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -631,7 +632,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                                       goalSipController.toggleFund(name);
 
                                       await goalSipController.saveGoalFund(
-                                        goalId:
+                                        gId:
                                             goalSipController
                                                 .savedDatabaseId
                                                 .value ??
@@ -977,23 +978,12 @@ class PopularFundCardMobSelected extends StatelessWidget {
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.only(left: 12),
-                        child: SizedBox(
-                          height: 36,
-                          child: TextFormField(
-                            controller: amountController,
-                            keyboardType: TextInputType.number,
-                            onFieldSubmitted: onAmountSubmitted,
-                            decoration: InputDecoration(
-                              hintText: "Amount",
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 0,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
+                        child: TextFieldCustom(
+                          controller: amountController,
+                         textInputType : TextInputType.number,
+                          onSubmitted: onAmountSubmitted,
+                          borderColor: Ucolors.darkgrey,
+                          hintText: "Amount",
                         ),
                       ),
                     ),
@@ -1202,7 +1192,7 @@ class PopularAndSelectedFund extends StatelessWidget {
                       goalSipController.toggleFund(name);
 
                       await goalSipController.saveGoalFund(
-                        goalId: goalSipController.savedDatabaseId.value ?? 0,
+                        gId: goalSipController.savedDatabaseId.value ?? 0,
                         schemeCode: fund.schemeCode?.toString() ?? '',
                         schemeName: fund.baseSchemeName ?? '',
                         sipAmount: (goalSipController.monthlySip.value).toDouble(),
@@ -1272,50 +1262,121 @@ class PopularAndSelectedFund extends StatelessWidget {
   }
 
   Future<bool?> _showSipDateDialog(
-    BuildContext context,
-    GoalSipController controller,
-  ) {
-    RxString selectedSipDay = (controller.selectedSipDay.value).toString().obs;
+      BuildContext context,
+      GoalSipController controller,
+      ) {
+    RxString selectedSipDay =
+        (controller.selectedSipDay.value == 0
+            ? '1'
+            : controller.selectedSipDay.value.toString())
+            .obs;
 
     return Get.dialog<bool>(
       Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text("Select SIP Date"),
-              const SizedBox(height: 16),
-              Obx(
-                () => DropdownButton<String>(
-                  value: selectedSipDay.value,
-                  isExpanded: true,
-                  items: List.generate(
-                    28,
-                    (i) => DropdownMenuItem(
-                      value: '${i + 1}',
-                      child: Text('${i + 1}'),
-                    ),
-                  ),
-                  onChanged: (val) {
-                    if (val != null) {
-                      selectedSipDay.value = val;
-                      controller.selectedSipDay.value = int.parse(val);
-                    }
-                  },
+              const Text(
+                "Select SIP Date",
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
+
               const SizedBox(height: 20),
+
+              Obx(
+                    () => DropdownButtonHideUnderline(
+                  child: DropdownButton2<String>(
+                    isExpanded: true,
+                    value: selectedSipDay.value,
+
+                    items: List.generate(
+                      28,
+                          (i) => DropdownMenuItem<String>(
+                        value: '${i + 1}',
+                        child: Text(
+                          '${i + 1}',
+                          style: const TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    onChanged: (value) {
+                      if (value != null) {
+                        selectedSipDay.value = value;
+                        controller.selectedSipDay.value =
+                            int.parse(value);
+                      }
+                    },
+
+                    buttonStyleData: ButtonStyleData(
+                      height: 50,
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.grey.shade300,
+                        ),
+                      ),
+                    ),
+
+                    iconStyleData: const IconStyleData(
+                      icon: Icon(Icons.keyboard_arrow_down_rounded),
+                    ),
+
+                    dropdownStyleData: DropdownStyleData(
+                      maxHeight: 200,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+
+                    menuItemStyleData: const MenuItemStyleData(
+                      height: 45,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
                     onPressed: () => Get.back(result: false),
-                    child: const Text("Cancel"),
+                    child: const Text(
+                      "Cancel",
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        color: Ucolors.black,
+                      ),
+                    ),
                   ),
-                  ElevatedButton(
+
+                  const SizedBox(width: 10),
+
+                  UElevatedButton2(
                     onPressed: () => Get.back(result: true),
-                    child: const Text("Confirm"),
+                    child: const Text(
+                      "Confirm",
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ],
               ),
