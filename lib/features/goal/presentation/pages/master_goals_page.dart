@@ -1,3 +1,5 @@
+// ignore_for_file: dead_null_aware_expression, dead_code
+
 import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
