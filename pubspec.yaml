@@ -73,6 +73,7 @@ dependencies:
   flutter_inappwebview: ^6.1.5
   open_filex: ^4.7.0
   secure_application: ^4.1.0
+  connectivity_plus: ^6.0.5
 
 
 

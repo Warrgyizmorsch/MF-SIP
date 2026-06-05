@@ -31,7 +31,7 @@ class GoalSipController extends GetxController {
   final RxDouble lumpsumReturnPercent = 0.0.obs;
   final distributionRemainder = 0.0.obs;
   final Map<String, TextEditingController> amountControllers = {};
-
+  final RxBool isSavingGoal = false.obs;
 
 
   final RxBool isMasterGoalLoading = false.obs;
@@ -219,21 +219,21 @@ class GoalSipController extends GetxController {
     goalNameTextEditingController.text = goal.goalName;
     savedDatabaseId.value = goal.id;
     isGoalSaved.value = true;
-    savedInvestmentType.value = goal.txnType ?? 'sip';
+    savedInvestmentType.value = goal.txnType ;
     if(goal.txnType.toLowerCase() == "lumpsum"){
       investmentMode.value = "lumpsum";
-      lumpsumAmount.value = goal.lumpsumAmount?.toDouble() ?? 0.0;
+      lumpsumAmount.value = goal.lumpsumAmount.toDouble() ;
       lumpsumReturnPercent.value= goal.expectedReturnRate;
-      lumpsumFutureValue.value = goal.goalType?.targetAmount?.toDouble() ?? 0.0;
-      years.value = goal.goalTenure?.toDouble() ?? 0.0;
+      lumpsumFutureValue.value = goal.goalType?.targetAmount.toDouble() ?? 0.0;
+      years.value = goal.goalTenure.toDouble() ;
 
     } else {
       investmentMode.value = "sip";
-      existingSipAmount.value = goal.monthlyInvestment?.toDouble() ?? 0.0;
-      monthlySip.value = goal.monthlyInvestment?.toInt() ?? 0;
-      targetAmount.value = goal.goalType?.targetAmount?.toDouble() ?? 0.0;
-      years.value = goal.goalTenure?.toDouble() ?? 0.0;
-      annualRate.value = goal.expectedReturnRate?.toDouble() ?? 0.0;
+      existingSipAmount.value = goal.monthlyInvestment.toDouble() ;
+      monthlySip.value = goal.monthlyInvestment.toInt() ;
+      targetAmount.value = goal.goalType?.targetAmount.toDouble() ?? 0.0;
+      years.value = goal.goalTenure.toDouble() ;
+      annualRate.value = goal.expectedReturnRate.toDouble();
     }
 
     /// =========================
@@ -481,6 +481,7 @@ class GoalSipController extends GetxController {
     if (!isFormValid) {
       return;
     }
+
     if (goalNameTextEditingController.text.isEmpty) {
       // Get.snackbar("Error", "Please enter a goal name");
       // showCustomToast(
@@ -498,7 +499,8 @@ class GoalSipController extends GetxController {
       );
       return;
     }
-
+    try{
+    isSavingGoal.value = true;
     final requestData = {
       "user_id": SessionManager.instance.getUserData?.id,
       "goal_name": goalNameTextEditingController.text.trim(),
@@ -552,6 +554,12 @@ class GoalSipController extends GetxController {
         isGoalSaved.value = true;
       },
     );
+    } catch(e){
+      Get.snackbar("Error", e.toString());
+      isGoalSaved.value = true;
+    } finally {
+      isSavingGoal.value = false;
+    }
   }
 
   int? getGoalFundId(String schemeCode) {
@@ -625,7 +633,7 @@ class GoalSipController extends GetxController {
         debugPrint("Fund ID for schemeCode $schemeCode is $fundId and goal id ${ savedDatabaseId.value }");
 
         if (fundId == null) continue;
-
+        debugPrint("Adding fund with ID $fundId, schemeCode $schemeCode, amount ${assignedAmounts[i]}");
         fundList.add({
           "id": fundId,
           "goal_id": savedDatabaseId.value ?? 0,
@@ -1067,6 +1075,12 @@ class GoalSipController extends GetxController {
     HapticFeedback.successNotification();
     debugPrint("savedInvestmentType.value: ${savedInvestmentType.value}");
     try {
+      final totalSip = (sipAmount).toDouble();
+      final selectedFundCount = selectedPopularFund.length;
+
+      final sipPerFund = selectedFundCount > 0
+          ? totalSip / selectedFundCount
+          : 0.0;
       final requestData = {
         "goal_id": goalId,
         "user_id": SessionManager.instance.getUserData!.id,
@@ -1075,7 +1089,7 @@ class GoalSipController extends GetxController {
         "order_type": savedInvestmentType.value,
         // "lumpsum_amount": lumpsumAmount,
         if (savedInvestmentType.value == "sip") ...{
-          "sip_amount": sipAmount,
+          "sip_amount": sipPerFund,
           "sip_day": sipDay,
           "sip_start_date": DateTime.now().toString().split(' ').first,
           "sip_end_date": DateTime.now()
