@@ -1266,7 +1266,6 @@ class _WebDashboardLayout extends StatelessWidget {
   Widget _buildWebCollectionGrid() {
     final nav = Get.find<NavigationBarController>();
     final funds = Get.find<FundhouseController>();
-    
 
     final items = [
       {
