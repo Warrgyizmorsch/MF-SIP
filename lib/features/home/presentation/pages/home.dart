@@ -1266,6 +1266,7 @@ class _WebDashboardLayout extends StatelessWidget {
   Widget _buildWebCollectionGrid() {
     final nav = Get.find<NavigationBarController>();
     final funds = Get.find<FundhouseController>();
+    
 
     final items = [
       {
@@ -1285,7 +1286,7 @@ class _WebDashboardLayout extends StatelessWidget {
         't': 'International',
         'i': UImages.interfund,
         'onTap': () => nav.navigateToExploreWithFilter(
-          () => funds.applyCustomSearch('international'),
+          () => funds.applyInternationalFilter(),
         ),
       },
       {

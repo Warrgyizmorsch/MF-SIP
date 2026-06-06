@@ -1,5 +1,3 @@
-
-
 // ignore_for_file: unused_local_variable
 
 import 'dart:async';
@@ -166,7 +164,6 @@ class NavigationBarController extends GetxController {
     }
   }
 
-
   void _syncTabWithUrl() {
     String currentRoute = Get.currentRoute;
     if (currentRoute.contains(AppRoutes.explorePage)) {
@@ -304,8 +301,14 @@ class NavigationBarController extends GetxController {
         Get.find<MutualFundController>().nextPopularGroup();
       }
 
+      // if (filterLogic != null) {
+      //   filterLogic();
+      // }
       if (filterLogic != null) {
-        filterLogic();
+        // 🚀 FIX: Give Web UI breathing room to navigate before filtering
+        Future.delayed(const Duration(milliseconds: 150), () {
+          filterLogic();
+        });
       }
     });
   }
@@ -328,7 +331,7 @@ class NavigationMenuBar extends StatelessWidget {
           context: context,
           barrierDismissible: true,
           barrierLabel: "ExitDialog",
-          barrierColor: Colors.black.withValues(alpha:0.5),
+          barrierColor: Colors.black.withValues(alpha: 0.5),
           transitionDuration: const Duration(milliseconds: 200),
           pageBuilder: (context, anim1, anim2) {
             return BackdropFilter(
@@ -338,11 +341,11 @@ class NavigationMenuBar extends StatelessWidget {
                   margin: const EdgeInsets.symmetric(horizontal: 24),
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha:0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha:0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 20,
                         spreadRadius: 5,
                       ),
@@ -356,7 +359,7 @@ class NavigationMenuBar extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            color: Colors.red.withValues(alpha:0.1),
+                            color: Colors.red.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -373,7 +376,7 @@ class NavigationMenuBar extends StatelessWidget {
                             fontWeight: FontWeight.w800,
                             letterSpacing: -0.5,
                             color: Color(0xFF1A1A1A),
-                              fontFamily: FontFamily.medium
+                            fontFamily: FontFamily.medium,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -539,7 +542,6 @@ class NavigationMenuBar extends StatelessWidget {
 
                                     case 2:
                                       return DashboardScreen();
-                                       
 
                                     case 3:
                                       return const GoalScreen();
@@ -767,127 +769,7 @@ class GlobalTopHeader extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // SizedBox(
-                  //   width: 300,
-                  //   height: 40,
-                  //   child: SearchBar(
-                  //     // 🚀 1. Fix Deprecation & Add Focus Animation
-                  //     elevation: WidgetStateProperty.all(0),
-                  //     backgroundColor: WidgetStateProperty.resolveWith((
-                  //       states,
-                  //     ) {
-                  //       // Jab user click karega toh background white ho jayega
-                  //       if (states.contains(WidgetState.focused)) {
-                  //         return Colors.white;
-                  //       }
-                  //       // Default state mein subtle grey
-                  //       return const Color(0xFFF3F4F6);
-                  //     }),
 
-                  //     // 🚀 2. Modern Pill Shape & Subtle Border
-                  //     shape: WidgetStateProperty.resolveWith((states) {
-                  //       return RoundedRectangleBorder(
-                  //         borderRadius: BorderRadius.circular(20), // Pill shape
-                  //         side: BorderSide(
-                  //           color: states.contains(WidgetState.focused)
-                  //               ? Ucolors.primary.withValues(alpha:
-                  //                   0.5,
-                  //                 ) // Focus par primary color ki border
-                  //               : Colors
-                  //                     .transparent, // Default invisible border
-                  //           width: 1,
-                  //         ),
-                  //       );
-                  //     }),
-
-                  //     // 🚀 3. Crisper Icon (Agar aap Iconsax use kar rahe hain toh 'Iconsax.search_normal' use karein)
-                  //     leading: const Padding(
-                  //       padding: EdgeInsets.only(left: 4),
-                  //       child: Icon(
-                  //         Icons
-                  //             .search, // Replace with Iconsax.search_normal for a thinner, modern look
-                  //         size: 18,
-                  //         color: Color(0xFF6B7280), // Modern darker grey
-                  //       ),
-                  //     ),
-
-                  //     // 🚀 4. Better Hint Typography
-                  //     hintText: 'Search funds...',
-                  //     hintStyle: WidgetStateProperty.all(
-                  //       const TextStyle(
-                  //         color: Color(0xFF9CA3AF),
-                  //         fontSize: 14,
-                  //         fontWeight: FontWeight.w400,
-                  //         letterSpacing: 0.2, // Thoda sa space
-                  //       ),
-                  //     ),
-                  //     textStyle: WidgetStateProperty.all(
-                  //       const TextStyle(
-                  //         color: Colors.black87,
-                  //         fontSize: 14,
-                  //         fontWeight: FontWeight.w500,
-                  //       ),
-                  //     ),
-
-                  //     padding: WidgetStateProperty.all(
-                  //       const EdgeInsets.symmetric(horizontal: 16),
-                  //     ),
-
-                  //     onChanged: (value) =>
-                  //         mutualController.onSearchQueryChanged(value),
-                  //   ),
-                  // ),
-                  // SizedBox(
-                  //   width: 300,
-                  //   height: 40,
-                  //   child: TextField(
-                  //     onChanged: (value) =>
-                  //         mutualController.onSearchQueryChanged(value),
-                  //     cursorColor: Ucolors.primary,
-                  //     style: const TextStyle(
-                  //       fontSize: 14,
-                  //       color: Colors.black87,
-                  //       fontWeight: FontWeight.w500,
-                  //     ),
-                  //     decoration: InputDecoration(
-                  //       hintText: 'Search funds...',
-                  //       hintStyle: const TextStyle(
-                  //         color: Color(0xFF9CA3AF),
-                  //         fontSize: 14,
-                  //         fontWeight: FontWeight.w400,
-                  //       ),
-                  //       // Search Icon
-                  //       prefixIcon: const Icon(
-                  //         Icons.search,
-                  //         color: Color(0xFF9CA3AF),
-                  //         size: 20,
-                  //       ),
-                  //       filled: true,
-                  //       fillColor: Colors.white,
-
-                  //       contentPadding: const EdgeInsets.symmetric(
-                  //         vertical: 0,
-                  //         horizontal: 16,
-                  //       ),
-
-                  //       enabledBorder: OutlineInputBorder(
-                  //         borderRadius: BorderRadius.circular(8),
-                  //         borderSide: BorderSide(
-                  //           color: Colors.grey.shade300,
-                  //           width: 1,
-                  //         ),
-                  //       ),
-
-                  //       focusedBorder: OutlineInputBorder(
-                  //         borderRadius: BorderRadius.circular(8),
-                  //         borderSide: BorderSide(
-                  //           color: Ucolors.primary,
-                  //           width: 1.5,
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
                   const SizedBox(width: 15),
                   Obx(() {
                     final activeCount =
@@ -902,7 +784,7 @@ class GlobalTopHeader extends StatelessWidget {
                         },
                         style: OutlinedButton.styleFrom(
                           backgroundColor: isActive
-                              ? Ucolors.primary.withValues(alpha:0.08)
+                              ? Ucolors.primary.withValues(alpha: 0.08)
                               : Colors.transparent,
                           side: BorderSide(
                             color: isActive
@@ -980,22 +862,7 @@ class GlobalTopHeader extends StatelessWidget {
                   icon: const Icon(Iconsax.notification),
                   color: Ucolors.darkgrey,
                 ),
-                // const SizedBox(width: 16),
 
-                // 2. Cart Icon (Inside Obx Stack)
-                // IconButton(
-                //   icon: const Icon(Iconsax.shopping_cart),
-                //   color: Ucolors.darkgrey,
-                //   onPressed: () {
-                //     cartController.filterGoalId.value = null;
-                //     if (isDesktop) {
-                //       navController.selectedIndex.value = 100;
-                //       Get.toNamed(AppRoutes.cart, id: 1);
-                //     } else {
-                //       Get.toNamed(AppRoutes.cart);
-                //     }
-                //   },
-                // ),
                 Obx(() {
                   final controller = Get.find<CartController>();
                   return Stack(
@@ -1004,7 +871,7 @@ class GlobalTopHeader extends StatelessWidget {
                       IconButton(
                         icon: const Icon(Iconsax.shopping_cart),
                         color: Ucolors.darkgrey,
-                        hoverColor: Ucolors.primary.withValues(alpha:0.1),
+                        hoverColor: Ucolors.primary.withValues(alpha: 0.1),
                         onPressed: () {
                           controller.filterGoalId.value = null;
                           // Get.toNamed(AppRoutes.cart, id: 1);
@@ -1107,7 +974,7 @@ class _DesktopSideNav extends StatelessWidget {
         border: Border(right: BorderSide(color: Colors.grey.shade200)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(2, 0),
           ),
@@ -1486,14 +1353,14 @@ class _DesktopNavItem extends StatelessWidget {
 
             decoration: BoxDecoration(
               color: isSelected
-                  ? Ucolors.blue.withValues(alpha:0.08)
+                  ? Ucolors.blue.withValues(alpha: 0.08)
                   : Colors.transparent,
 
               borderRadius: BorderRadius.circular(14),
 
               border: Border.all(
                 color: isSelected
-                    ? Ucolors.blue.withValues(alpha:0.18)
+                    ? Ucolors.blue.withValues(alpha: 0.18)
                     : Colors.transparent,
               ),
             ),
@@ -1585,7 +1452,7 @@ class _MobileBottomNavBar extends StatelessWidget {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha:0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, -2),
                 ),
