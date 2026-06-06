@@ -19,7 +19,9 @@ import 'package:my_sip/features/explore/presentation/controller/fundhouse_contro
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
 import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
+import 'package:my_sip/features/goal/presentation/pages/master_goals_page.dart';
 import 'package:my_sip/features/goal/presentation/widget/GoalDetailsIndicator.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../domain/entity/goal_entity.dart';
 
@@ -44,6 +46,8 @@ class GoalDetailsPage extends GetView<GoalSipController> {
 
     final String title = goal?.goalName ?? 'Goal Details';
     final int currentGoalId = goal?.id ?? 0;
+
+    final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Scaffold(
       backgroundColor: Color(0xffF3F4F6),
@@ -166,13 +170,20 @@ class GoalDetailsPage extends GetView<GoalSipController> {
       bottomNavigationBar: UElevatedBUtton(
         onPressed: () {
           if (currentGoalId != 0) {
+            MasterGoalsPage.tempArgs = {
+              'isAddFund': true,
+              "goalId": currentGoalId,
+              "goal": goal,
+            };
             Get.toNamed(
               AppRoutes.masterGoalsPage,
-              arguments: {
-                'isAddFund': true,
-                "goalId": currentGoalId,
-                "goal": goal,
-              },
+              // arguments: {
+              //   'isAddFund': true,
+              //   "goalId": currentGoalId,
+              //   "goal": goal,
+              // },
+              arguments: MasterGoalsPage.tempArgs,
+              id: isDesktop ? 1 : null,
             );
           } else {
             Get.snackbar("Error", "Goal ID is missing.");

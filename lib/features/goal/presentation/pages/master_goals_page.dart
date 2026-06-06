@@ -35,6 +35,8 @@ import '../controller/goal_sip_controller.dart';
 class MasterGoalsPage extends GetView<GoalSipController> {
   const MasterGoalsPage({super.key});
 
+  static Map<String, dynamic>? tempArgs;
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<GoalSipController>(
@@ -42,7 +44,11 @@ class MasterGoalsPage extends GetView<GoalSipController> {
         controller.isHome.value = false;
         await controller.getMasterGoals();
 
-        final args = Get.arguments ?? {};
+        // final args = Get.arguments ?? {};
+        final args = (Get.arguments as Map<String, dynamic>?) ?? tempArgs;
+        tempArgs = null; // Clear bridge immediately
+
+        if (args == null) return;
 
         final String initialType = args['goalType'] ?? 'custom';
 
@@ -66,6 +72,7 @@ class MasterGoalsPage extends GetView<GoalSipController> {
           }
           if (controller.isAddFund.value && goal != null) {
             controller.loadGoalForAddFund(goal);
+            // controller.update();
           }
           // HOME GOAL
           if (controller.isHome.value) {
@@ -142,11 +149,17 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
               actions: [
                 TextButton(
                   onPressed: () => Get.back(result: false),
-                  child: const Text("Stay", style: TextStyle(color: Ucolors.primary)),
+                  child: const Text(
+                    "Stay",
+                    style: TextStyle(color: Ucolors.primary),
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: () => Get.back(result: true),
-                  child: const Text("Leave",style: TextStyle(color: Ucolors.primary)),
+                  child: const Text(
+                    "Leave",
+                    style: TextStyle(color: Ucolors.primary),
+                  ),
                 ),
               ],
             ),
@@ -227,40 +240,49 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                             vertical: 10,
                           ),
                           child: Obx(
-                                () => controller.isSavingGoal.value
+                            () => controller.isSavingGoal.value
                                 ? const Center(
-                              child: CircularProgressIndicator(color: Ucolors.primary,),
-                            )
+                                    child: CircularProgressIndicator(
+                                      color: Ucolors.primary,
+                                    ),
+                                  )
                                 : UElevatedBUtton(
-                              onPressed: () async {
-                                if (isEdit) {
-                                  // await controller.updateGoal();
-                                } else {
-                                  await controller.saveGoalToDb();
+                                    onPressed: () async {
+                                      if (isEdit) {
+                                        // await controller.updateGoal();
+                                      } else {
+                                        await controller.saveGoalToDb();
 
-                                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                                    if (popularFundsKey.currentContext != null) {
-                                      Scrollable.ensureVisible(
-                                        popularFundsKey.currentContext!,
-                                        duration: const Duration(milliseconds: 800),
-                                        curve: Curves.easeInOutCubic,
-                                        alignment: 0.1,
-                                      );
-                                    }
-                                  });
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                              if (popularFundsKey
+                                                      .currentContext !=
+                                                  null) {
+                                                Scrollable.ensureVisible(
+                                                  popularFundsKey
+                                                      .currentContext!,
+                                                  duration: const Duration(
+                                                    milliseconds: 800,
+                                                  ),
+                                                  curve: Curves.easeInOutCubic,
+                                                  alignment: 0.1,
+                                                );
+                                              }
+                                            });
 
-                                  await Get.find<MutualFundController>().fetchData();
-                                }
-                              },
-                              child: Center(
-                                child: Text(
-                                  isEdit ? "Update Goal" : "Save Goal",
-                                  style: AppTextStyles.bodyMedium(
-                                    color: Colors.white,
+                                        await Get.find<MutualFundController>()
+                                            .fetchData();
+                                      }
+                                    },
+                                    child: Center(
+                                      child: Text(
+                                        isEdit ? "Update Goal" : "Save Goal",
+                                        style: AppTextStyles.bodyMedium(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
                           ),
                         );
                       }
@@ -290,11 +312,10 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                 child: CartBottomBar(
                   isValid: controller.selectedPopularFund.isNotEmpty,
                   ontap: () {
-
                     if (controller.selectedPopularFund.isEmpty ||
                         controller.amountControllers.isEmpty ||
                         controller.amountControllers.values.any(
-                              (c) => c.text.trim().isEmpty,
+                          (c) => c.text.trim().isEmpty,
                         )) {
                       Get.snackbar(
                         "Error",
@@ -1205,7 +1226,8 @@ class PopularAndSelectedFund extends StatelessWidget {
                         goalId: goalSipController.savedDatabaseId.value ?? 0,
                         schemeCode: fund.schemeCode?.toString() ?? '',
                         schemeName: fund.baseSchemeName ?? '',
-                        sipAmount: (goalSipController.monthlySip.value).toDouble(),
+                        sipAmount: (goalSipController.monthlySip.value)
+                            .toDouble(),
                         sipDay: goalSipController.selectedSipDay.value,
                       );
 
@@ -2191,7 +2213,7 @@ class GoalsGridScreen extends GetView<GoalSipController> {
 
                           if (!['custom', 'other'].contains(goalType)) {
                             controller.goalNameTextEditingController.text =
-                                goal.goalType ;
+                                goal.goalType;
                           }
                           controller.setTarget(goal.targetAmount);
 

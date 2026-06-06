@@ -1635,7 +1635,8 @@ class _MobileDashboardLayout extends StatelessWidget {
 
           if (controller.selectedIndex.value == 0) {
             /// 🟦 MY PORTFOLIO TAB
-            return SliverList(
+            return 
+            SliverList(
               delegate: SliverChildListDelegate([
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -2052,7 +2053,7 @@ class PortfolioCard extends StatelessWidget {
                           ),
                           buildMenuItem(
                             icon: Icons.arrow_outward,
-                            text: 'Switch to Goal',
+                            text: 'Add to Goal',
                             value: PortfolioMenuAction.switchgoal,
                           ),
                         ],
