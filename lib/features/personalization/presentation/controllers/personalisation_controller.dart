@@ -44,7 +44,7 @@ class PersonalisationController extends GetxController {
     panController.addListener(_onPanTextChanged);
     loadRiskQuestions();
     _checkPanEditPermission();
-    fetchBanks();
+    // fetchBanks();
     fetchUserDetails();
     bankIfscController.addListener(() {
       final text = bankIfscController.text;
@@ -1565,7 +1565,7 @@ class PersonalisationController extends GetxController {
       final String fileName = isCapitalGain.value
           ? "CapitalGain_${folio}_${DateTime.now().millisecondsSinceEpoch}.pdf"
           : "AccountStatement_${folio}_${DateTime.now().millisecondsSinceEpoch}.pdf";
-      
+
       final String savePath = '${directory.path}/$fileName';
 
       // 3. Download the file using Dio

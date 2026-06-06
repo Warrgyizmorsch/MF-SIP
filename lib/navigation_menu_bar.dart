@@ -222,7 +222,7 @@ class NavigationBarController extends GetxController {
           route = AppRoutes.dashBoardPage;
           break;
         case 3:
-          route = AppRoutes.ihavegoal;
+          route = AppRoutes.goalScreen;
           break;
         case 40:
           route = AppRoutes.profilePage;
