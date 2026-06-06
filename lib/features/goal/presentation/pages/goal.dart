@@ -11,6 +11,7 @@ import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
+import 'package:my_sip/features/goal/presentation/pages/goaldetails.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
@@ -283,6 +284,7 @@ class _CircularUploadIndicatorState extends State<CircularUploadIndicator> {
     final Color goalColor = controller.getGoalColor(
       widget.goalEntity?.goalType?.typeName ?? '',
     );
+    final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -290,14 +292,22 @@ class _CircularUploadIndicatorState extends State<CircularUploadIndicator> {
       onExit: (_) => setState(() => _isHovered = false),
       child: GestureDetector(
         onTap: () {
+          GoalDetailsPage.tempData = {
+            'goal': widget.goalEntity,
+            'target': widget.targetAmount,
+            'invested': widget.investedAmount,
+            'logo': widget.iconUrl,
+          };
+
           Get.toNamed(
             AppRoutes.goaldetails,
-            arguments: {
-              'goal': widget.goalEntity,
-              'target': widget.targetAmount,
-              'invested': widget.investedAmount,
-              'logo': widget.iconUrl,
-            },
+            // arguments: {
+            //   'goal': widget.goalEntity,
+            //   'target': widget.targetAmount,
+            //   'invested': widget.investedAmount,
+            //   'logo': widget.iconUrl,
+            // },
+            id: isDesktop ? 1 : null,
           );
         },
         child: AnimatedContainer(

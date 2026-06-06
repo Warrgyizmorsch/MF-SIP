@@ -26,9 +26,16 @@ import '../../domain/entity/goal_entity.dart';
 class GoalDetailsPage extends GetView<GoalSipController> {
   const GoalDetailsPage({super.key});
 
+  static Map<String, dynamic>? tempData;
+
   @override
   Widget build(BuildContext context) {
-    final args = Get.arguments as Map<String, dynamic>? ?? {};
+    // final args = Get.arguments as Map<String, dynamic>? ?? {};
+    final args = (Get.arguments as Map<String, dynamic>?) ?? tempData;
+    tempData = null;
+    if (args == null) {
+      return Scaffold(body: Center(child: Text("Error: No data found")));
+    }
     final UserGoalEntity? goal = args['goal'];
     final String emoji = args['emoji'] ?? '🎯';
     final double target = args['target'] ?? 0.0;
