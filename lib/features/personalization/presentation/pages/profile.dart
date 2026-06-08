@@ -431,12 +431,12 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
               ),
             ],
           ),
-          Listtilecustom(
-            // onTap: () => Get.to(() => const KycDetailsScreen()),
-            onTap: () => Get.toNamed(AppRoutes.kycDeatailScreen),
-            title: 'KYC Details',
-            images: UImages.archiveadd,
-          ),
+          // Listtilecustom(
+          //   // onTap: () => Get.to(() => const KycDetailsScreen()),
+          //   onTap: () => Get.toNamed(AppRoutes.kycDeatailScreen),
+          //   title: 'KYC Details',
+          //   images: UImages.archiveadd,
+          // ),
           Listtilecustom(
             onTap: () => Get.toNamed(AppRoutes.personaldetails),
             title: 'Personal Details',
@@ -457,6 +457,7 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
           //   title: 'Documents',
           //   images: UImages.cardtick,
           // ),
+          Divider(thickness: 5, color: Colors.grey.shade200),
           const Row(
             children: [
               SizedBox(width: 16),
@@ -495,6 +496,8 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
             title: 'Rate Us',
             images: UImages.likedislike,
           ),
+          Divider(thickness: 5, color: Colors.grey.shade200),
+
           const Row(
             children: [
               SizedBox(width: 16),

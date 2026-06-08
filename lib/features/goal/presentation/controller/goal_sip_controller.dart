@@ -1271,7 +1271,7 @@ class GoalSipController extends GetxController {
     );
 
     isDeleting[id] = false;
-  }
+}
 
   Future<void> pickCoverImage(ImageSource source) async {
     try {

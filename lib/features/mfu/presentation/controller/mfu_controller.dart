@@ -318,7 +318,7 @@ class MfuController extends GetxController {
       systematicTransaction(
         MfuSystematicTxnRequest.sip(
           // uid: session.getUserData?.id ?? 7,
-          uid: 9105,
+          uid: 7,
           // can: session.getUserData?.canNumber ?? '14167AZA01',
           can: '14167AZA01',
           schemeCode: "012",

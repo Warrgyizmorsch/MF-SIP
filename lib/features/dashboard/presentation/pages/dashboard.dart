@@ -1635,8 +1635,7 @@ class _MobileDashboardLayout extends StatelessWidget {
 
           if (controller.selectedIndex.value == 0) {
             /// 🟦 MY PORTFOLIO TAB
-            return 
-            SliverList(
+            return SliverList(
               delegate: SliverChildListDelegate([
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
