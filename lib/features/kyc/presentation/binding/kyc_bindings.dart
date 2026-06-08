@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import 'package:my_sip/core/network/network_api_service.dart';
 import 'package:my_sip/features/kyc/data/datasource/kyc_remote_data_source.dart';
 import 'package:my_sip/features/kyc/data/repository/kyc_repository_impl.dart';
-import 'package:my_sip/features/kyc/domain/repository/kyc_repository.dart';
 import 'package:my_sip/features/kyc/domain/usecases/createPdf_usecase.dart';
 import 'package:my_sip/features/kyc/domain/usecases/create_esign_url_usecase.dart';
 import 'package:my_sip/features/kyc/domain/usecases/execute_penny_drop_use_case.dart';
