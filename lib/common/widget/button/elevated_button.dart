@@ -31,34 +31,34 @@ class UElevatedButton2 extends StatelessWidget {
         height: height ?? 30,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(borderRadiusValue),
-          border: outlined ? Border.all(color: const Color(0xffE7E7E7), width: 1) : null,
-          gradient: (!outlined && color == null) ? Ucolors.backgroundGradient : null,
+          border: outlined
+              ? Border.all(color: const Color(0xffE7E7E7), width: 1)
+              : null,
+          gradient: (!outlined && color == null)
+              ? Ucolors.backgroundGradient
+              : null,
           color: outlined ? Colors.white : color,
           boxShadow: outlined
               ? null
               : [
-            BoxShadow(
-              color: Colors.black.withValues(alpha:0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            )
-          ],
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
             onTap: onPressed,
             borderRadius: BorderRadius.circular(borderRadiusValue),
-            highlightColor: Colors.black.withValues(alpha:0.05),
-            splashColor: Colors.black.withValues(alpha:0.1),
+            highlightColor: Colors.black.withValues(alpha: 0.05),
+            splashColor: Colors.black.withValues(alpha: 0.1),
             child: Padding(
               // Professional buttons need horizontal breathing room
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Center(
-                widthFactor: 1.0,
-                heightFactor: 1.0,
-                child: child,
-              ),
+              child: Center(widthFactor: 1.0, heightFactor: 1.0, child: child),
             ),
           ),
         ),
@@ -66,7 +66,6 @@ class UElevatedButton2 extends StatelessWidget {
     );
   }
 }
-
 
 class UElevatedBUtton extends StatelessWidget {
   const UElevatedBUtton({

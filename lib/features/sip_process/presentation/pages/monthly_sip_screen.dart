@@ -476,6 +476,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: UElevatedBUtton(
+                    color: Ucolors.primary,
                     onPressed: () =>
                         Get.toNamed(AppRoutes.investingApproachScreen),
                     child: Center(

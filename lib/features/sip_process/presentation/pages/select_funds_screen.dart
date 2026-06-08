@@ -1106,7 +1106,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha:0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -1123,7 +1123,11 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                 const SizedBox(height: 8),
                 Text(
                   "Review and add shortlisted funds to your cart.",
-                  style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600, fontSize: 14),
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    color: Colors.grey.shade600,
+                    fontSize: 14,
+                  ),
                 ),
                 const SizedBox(height: 32),
 
@@ -1264,7 +1268,8 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                           const SizedBox(height: 4),
                           Text(
                             "Search and select funds for your portfolio.",
-                            style: TextStyle(fontFamily: FontFamily.medium,
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
                               fontSize: 13,
                               color: Colors.grey.shade500,
                               fontWeight: FontWeight.w500,
@@ -1305,7 +1310,8 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                           backgroundColor: Ucolors.primary,
                           label: Text(
                             '$filterCount',
-                            style: const TextStyle(fontFamily: FontFamily.medium,
+                            style: const TextStyle(
+                              fontFamily: FontFamily.medium,
                               color: Colors.white,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -1367,7 +1373,8 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                                     ),
                                     hintText: 'Search mutual funds...',
                                     hintStyle: WidgetStateProperty.all(
-                                      TextStyle(fontFamily: FontFamily.medium,
+                                      TextStyle(
+                                        fontFamily: FontFamily.medium,
                                         color: Colors.grey.shade500,
                                         fontSize: 14,
                                       ),
@@ -1425,7 +1432,10 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                       return Center(
                         child: Text(
                           "No mutual funds found",
-                          style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600),
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            color: Colors.grey.shade600,
+                          ),
                         ),
                       );
                     }
@@ -1493,8 +1503,8 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                                           vertical: 8,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Ucolors.primary.withValues(alpha:
-                                            0.05,
+                                          color: Ucolors.primary.withValues(
+                                            alpha: 0.05,
                                           ),
                                           borderRadius: BorderRadius.circular(
                                             16,
@@ -1534,7 +1544,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha:0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 10,
                         offset: const Offset(0, -5),
                       ),
@@ -1843,6 +1853,8 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
               SizedBox(
                 width: 200,
                 child: UElevatedBUtton(
+                  color: Ucolors.primary,
+
                   onPressed: controller.selectedFunds.isNotEmpty
                       ? controller.proceedToCart
                       : null,
@@ -1985,7 +1997,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha:0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               spreadRadius: 2,
             ),
@@ -2035,6 +2047,8 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: UElevatedBUtton(
+                      color: Ucolors.primary,
+
                       onPressed: controller.selectedFunds.isNotEmpty
                           ? controller.proceedToCart
                           : null,
@@ -2078,7 +2092,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: isSelected
-                ? Ucolors.primary.withValues(alpha:0.05)
+                ? Ucolors.primary.withValues(alpha: 0.05)
                 : Colors.white,
             border: Border.all(
               color: isSelected ? Ucolors.primary : Colors.grey.shade300,

@@ -292,6 +292,7 @@ class MfuController extends GetxController {
     sipAmountError.value = aErr;
     sipStepUpError.value = sErr;
     sipCapError.value = cErr;
+    final uid = session.getUserData?.id ?? 0;
 
     if (aErr != null || sErr != null || cErr != null) return;
 
@@ -343,30 +344,46 @@ class MfuController extends GetxController {
         ),
       );
     } else if (sipInvType.value == InvType.lumpsum) {
-      final folio = args.folio;
-      if (folio != null && folio.isNotEmpty) {
-        normalTransaction(
-          MfuNormalTxnRequest.lumpsumExistingFolio(
-            // uid: 9105,
-            uid: session.getUserData?.id ?? 0,
-            schemeCode: args.schemeCode,
-            amount: sipAmount.value.toDouble(),
-            folio: folio,
-          ),
-        );
-      } else {
-        normalTransaction(
-          MfuNormalTxnRequest.lumpsumNewFolio(
-            // uid: 9105,
-            uid: session.getUserData?.id ?? 0,
+      final folio = args.folio ?? 'NEW';
 
-            schemeCode: "012",
-            // schemeCode: args.schemeCode,
-            amount: sipAmount.value.toDouble(),
-          ),
-        );
-      }
+      final schemeItem = MfuTxnScheme(
+        schemeCode: "012", // ✅ Dynamic scheme code
+        // schemeCode: args.schemeCode, // ✅ Dynamic scheme code
+        folio: folio,
+        amount: sipAmount.value.toDouble(),
+        divOpt: 'N',
+      );
+
+      normalTransaction(
+        MfuNormalTxnRequest.lumpsumMultiple(uid: uid, schemes: [schemeItem]),
+      );
     }
+
+    // else if (sipInvType.value == InvType.lumpsum) {
+    //   final folio = args.folio;
+    //   if (folio != null && folio.isNotEmpty) {
+    //     normalTransaction(
+    //       MfuNormalTxnRequest.lumpsumExistingFolio(
+    //         // uid: 9105,
+    //         uid: session.getUserData?.id ?? 0,
+    //         schemeCode: args.schemeCode,
+    //         amount: sipAmount.value.toDouble(),
+    //         folio: folio,
+    //       ),
+    //     );
+    //   } else {
+    //     normalTransaction(
+    //       MfuNormalTxnRequest.lumpsumNewFolio(
+    //         // uid: 9105,
+    //         uid: session.getUserData?.id ?? 0,
+
+    //         schemeCode: "012",
+    //         // schemeCode: args.schemeCode,
+    //         amount: sipAmount.value.toDouble(),
+    //       ),
+    //     );
+    //   }
+    // }
   }
 
   ////////////////          ----------------------------           //////////////////

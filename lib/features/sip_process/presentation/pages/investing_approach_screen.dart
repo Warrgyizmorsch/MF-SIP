@@ -414,7 +414,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha:0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -432,7 +432,11 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                 const SizedBox(height: 8),
                 Text(
                   "Hi ${session.getUserData?.name ?? 'User'}, let's pick the best way to invest your money.",
-                  style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600, fontSize: 14),
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    color: Colors.grey.shade600,
+                    fontSize: 14,
+                  ),
                 ),
                 const SizedBox(height: 40),
 
@@ -748,7 +752,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha:0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               offset: const Offset(0, 4),
               blurRadius: 24,
               spreadRadius: -1,
@@ -806,7 +810,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -830,6 +834,8 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
             const SizedBox(width: 16),
             Expanded(
               child: UElevatedBUtton(
+                color: Ucolors.primary,
+
                 onPressed: () {
                   Get.toNamed(AppRoutes.selectFundsScreen);
                 },

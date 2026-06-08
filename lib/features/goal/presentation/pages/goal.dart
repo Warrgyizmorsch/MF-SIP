@@ -225,6 +225,7 @@ class GoalScreen extends GetView<GoalSipController> {
               ),
               const SizedBox(height: 32),
               UElevatedBUtton(
+                color: Ucolors.primary,
                 onPressed: () => Get.toNamed(AppRoutes.masterGoalsPage),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,

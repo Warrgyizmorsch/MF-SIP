@@ -67,7 +67,13 @@ class CartPage extends GetView<CartController> {
           actions: [
             TextButton(
               onPressed: () => Get.back(),
-              child: const Text('Close', style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey)),
+              child: const Text(
+                'Close',
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  color: Colors.grey,
+                ),
+              ),
             ),
             TextButton(
               onPressed: () {
@@ -79,7 +85,10 @@ class CartPage extends GetView<CartController> {
               },
               child: const Text(
                 'Set Up Auto Pay',
-                style: TextStyle(fontFamily: FontFamily.medium,color: Colors.blue),
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  color: Colors.blue,
+                ),
               ),
             ),
           ],
@@ -308,7 +317,8 @@ class CartPage extends GetView<CartController> {
                 const SizedBox(width: 8),
                 const Text(
                   "Recently Viewed",
-                  style: TextStyle(fontFamily: FontFamily.medium,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.5,
@@ -380,7 +390,8 @@ class CartPage extends GetView<CartController> {
                           ),
                           label: const Text(
                             "Add to Cart",
-                            style: TextStyle(fontFamily: FontFamily.medium,
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
                               fontSize: 12,
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -433,7 +444,8 @@ class CartPage extends GetView<CartController> {
         children: [
           const Text(
             'Order Summary',
-            style: TextStyle(fontFamily: FontFamily.medium,
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Ucolors.dark,
@@ -447,14 +459,19 @@ class CartPage extends GetView<CartController> {
             children: [
               Text(
                 'Total Amount Payable',
-                style: TextStyle(fontFamily: FontFamily.medium,fontSize: 14, color: Colors.grey.shade600),
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 14,
+                  color: Colors.grey.shade600,
+                ),
               ),
               Obx(
                 () => Text(
                   controller.isLoading.value || controller.isInitLoading.value
                       ? '₹ 0'
                       : '₹ ${controller.totalAmount}',
-                  style: const TextStyle(fontFamily: FontFamily.medium,
+                  style: const TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Ucolors.success,
@@ -476,7 +493,8 @@ class CartPage extends GetView<CartController> {
               child: const Center(
                 child: Text(
                   'Complete Purchase',
-                  style: TextStyle(fontFamily: FontFamily.medium,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -536,7 +554,8 @@ class CartBottomBar extends StatelessWidget {
                   ),
                   Text(
                     '₹ ${amount ?? 0}',
-                    style: const TextStyle(fontFamily: FontFamily.medium,
+                    style: const TextStyle(
+                      fontFamily: FontFamily.medium,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Ucolors.success,
@@ -548,7 +567,7 @@ class CartBottomBar extends StatelessWidget {
 
             Expanded(
               child: UElevatedBUtton(
-                color: isValid ? null : Colors.grey,
+                color: isValid ? Ucolors.primary : Colors.grey,
                 onPressed: isValid ? ontap : null,
                 child: Center(
                   child: Text(
@@ -631,7 +650,11 @@ class FundHeader extends StatelessWidget {
             children: [
               Text(
                 itemEntity.schemeName ?? '',
-                style: TextStyle(fontFamily: FontFamily.medium,fontSize: 12, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               SizedBox(height: 4),
               // RichText(
@@ -730,7 +753,8 @@ class FundHeader extends StatelessWidget {
                             onPressed: () => Navigator.maybePop(context),
                             child: const Text(
                               'No',
-                              style: TextStyle(fontFamily: FontFamily.medium,
+                              style: TextStyle(
+                                fontFamily: FontFamily.medium,
                                 fontSize: 14,
                                 color: Ucolors.blue,
                               ),
@@ -746,7 +770,11 @@ class FundHeader extends StatelessWidget {
                             },
                             child: const Text(
                               'Yes',
-                              style: TextStyle(fontFamily: FontFamily.medium,fontSize: 14, color: Colors.red),
+                              style: TextStyle(
+                                fontFamily: FontFamily.medium,
+                                fontSize: 14,
+                                color: Colors.red,
+                              ),
                             ),
                           ),
                         ],
@@ -978,15 +1006,33 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                     items: const [
                       DropdownMenuItem(
                         value: 'sip',
-                        child: Text('SIP', style: TextStyle(fontFamily: FontFamily.medium,fontSize: 12)),
+                        child: Text(
+                          'SIP',
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
                       DropdownMenuItem(
                         value: 'lumpsum',
-                        child: Text('Lumpsum', style: TextStyle(fontFamily: FontFamily.medium,fontSize: 12)),
+                        child: Text(
+                          'Lumpsum',
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
                       DropdownMenuItem(
                         value: 'stepup',
-                        child: Text('Step Up', style: TextStyle(fontFamily: FontFamily.medium,fontSize: 12)),
+                        child: Text(
+                          'Step Up',
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
                     ],
                     onChanged: (val) {
@@ -1041,7 +1087,10 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                           value: '${i + 1}',
                           child: Text(
                             '${i + 1}',
-                            style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 12),
+                            style: const TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                       ),
@@ -1196,11 +1245,23 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                     items: const [
                       DropdownMenuItem(
                         value: '6',
-                        child: Text('6 Months', style: TextStyle(fontFamily: FontFamily.medium,fontSize: 12)),
+                        child: Text(
+                          '6 Months',
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
                       DropdownMenuItem(
                         value: '12',
-                        child: Text('Yearly', style: TextStyle(fontFamily: FontFamily.medium,fontSize: 12)),
+                        child: Text(
+                          'Yearly',
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
                     ],
                     onChanged: (val) {
@@ -1278,7 +1339,8 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                                     ),
                                     child: Text(
                                       '₹',
-                                      style: TextStyle(fontFamily: FontFamily.medium,
+                                      style: TextStyle(
+                                        fontFamily: FontFamily.medium,
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
                                         color: stepUpType.value == 'amount'
@@ -1309,7 +1371,8 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                                     ),
                                     child: Text(
                                       '%',
-                                      style: TextStyle(fontFamily: FontFamily.medium,
+                                      style: TextStyle(
+                                        fontFamily: FontFamily.medium,
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
                                         color: stepUpType.value == 'percentage'
@@ -1585,7 +1648,8 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                                   ),
                                   child: Text(
                                     'Date',
-                                    style: TextStyle(fontFamily: FontFamily.medium,
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.medium,
                                       fontSize: 12,
                                       fontWeight: capType.value == 'date'
                                           ? FontWeight.w600
@@ -1653,7 +1717,8 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                                   ),
                                   child: Text(
                                     'Amount',
-                                    style: TextStyle(fontFamily: FontFamily.medium,
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.medium,
                                       fontSize: 12,
                                       fontWeight: capType.value == 'amount'
                                           ? FontWeight.w600
@@ -1897,7 +1962,8 @@ class _InvestmentInputsRowState extends State<InvestmentInputsRow> {
                                       localCapDate.value.isEmpty
                                           ? 'Select Date'
                                           : localCapDate.value,
-                                      style: TextStyle(fontFamily: FontFamily.medium,
+                                      style: TextStyle(
+                                        fontFamily: FontFamily.medium,
                                         color: localCapDate.value.isNotEmpty
                                             ? Colors.black87
                                             : Colors.grey.shade500,
@@ -2492,7 +2558,14 @@ class InputBox extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 11, color: Colors.grey)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 11,
+            color: Colors.grey,
+          ),
+        ),
         const SizedBox(height: 6),
         Container(
           height: 38,
@@ -2504,7 +2577,11 @@ class InputBox extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: Text(
             value,
-            style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 13, fontWeight: FontWeight.w500),
+            style: const TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ],
@@ -2532,9 +2609,7 @@ class DistributionRemainderCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isExtra
-              ? const Color(0xFFFFF3F3)
-              : const Color(0xFFF0FFF4),
+          color: isExtra ? const Color(0xFFFFF3F3) : const Color(0xFFF0FFF4),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isExtra ? Colors.red.shade200 : Colors.green.shade200,
@@ -2563,7 +2638,8 @@ class DistributionRemainderCard extends StatelessWidget {
                 children: [
                   Text(
                     isSaved ? 'Unallocated Amount' : 'Amount Exceeded',
-                    style: TextStyle(fontFamily: FontFamily.medium,
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: isExtra
@@ -2588,7 +2664,8 @@ class DistributionRemainderCard extends StatelessWidget {
 
             Text(
               '${isSaved ? '+' : '-'}₹${remainder.abs()}',
-              style: TextStyle(fontFamily: FontFamily.medium,
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: isExtra ? Colors.red : Colors.green,
