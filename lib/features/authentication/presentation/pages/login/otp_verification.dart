@@ -310,7 +310,6 @@ class OtpTopSection extends StatelessWidget {
   final AuthController controller;
 
   final bool isDesktop;
-  final AuthController authController;
 
   @override
   Widget build(BuildContext context) {
