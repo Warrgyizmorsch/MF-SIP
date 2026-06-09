@@ -46,14 +46,16 @@ class NomineeListScreen extends GetView<PersonalisationController> {
                     children: [
                       const Text(
                         "Your Nominees",
-                        style: TextStyle(fontFamily: FontFamily.medium,
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Obx(() {
-                        if (controller.remainingAllocation <= 0)
+                        if (controller.remainingAllocation <= 0) {
                           return const SizedBox.shrink();
+                        }
                         return ElevatedButton.icon(
                           onPressed: () =>
                               Get.toNamed(AppRoutes.nomineeDetail, id: 1),
@@ -64,7 +66,10 @@ class NomineeListScreen extends GetView<PersonalisationController> {
                           ),
                           label: const Text(
                             'Add Nominee',
-                            style: TextStyle(fontFamily: FontFamily.medium,color: Colors.white),
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              color: Colors.white,
+                            ),
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Ucolors.blue,
@@ -124,7 +129,10 @@ class NomineeListScreen extends GetView<PersonalisationController> {
                                 ),
                                 child: const Text(
                                   'Add Your First Nominee',
-                                  style: TextStyle(fontFamily: FontFamily.medium,color: Colors.white),
+                                  style: TextStyle(
+                                    fontFamily: FontFamily.medium,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                           ],
@@ -208,15 +216,19 @@ class NomineeListScreen extends GetView<PersonalisationController> {
                 if (!isDesktop) ...[
                   const Gap(20),
                   Obx(() {
-                    if (controller.remainingAllocation <= 0)
+                    if (controller.remainingAllocation <= 0) {
                       return const SizedBox.shrink();
+                    }
                     return UElevatedBUtton(
                       outlined: true,
                       onPressed: () => Get.toNamed(AppRoutes.nomineeDetail),
                       child: const Center(
                         child: Text(
                           'Add Another Nominee',
-                          style: TextStyle(fontFamily: FontFamily.medium,color: Ucolors.blue),
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            color: Ucolors.blue,
+                          ),
                         ),
                       ),
                     );
@@ -240,14 +252,26 @@ class NomineeListScreen extends GetView<PersonalisationController> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel", style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey)),
+            child: const Text(
+              "Cancel",
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                color: Colors.grey,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context); // Close dialog
               controller.deleteNominee(nominee); // Call API
             },
-            child: const Text("Delete", style: TextStyle(fontFamily: FontFamily.medium,color: Colors.red)),
+            child: const Text(
+              "Delete",
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                color: Colors.red,
+              ),
+            ),
           ),
         ],
       ),
@@ -303,8 +327,7 @@ class NomineeDetailsCard extends StatelessWidget {
         ),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize
-            .min,
+        mainAxisSize: MainAxisSize.min,
         children: [
           // --- TOP CARD: Summary Section ---
           Padding(
@@ -319,7 +342,8 @@ class NomineeDetailsCard extends StatelessWidget {
                     children: [
                       Text(
                         name,
-                        style: TextStyle(fontFamily: FontFamily.medium,
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: isDark
@@ -338,13 +362,14 @@ class NomineeDetailsCard extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: isDark
-                                  ? Colors.blue.withValues(alpha:0.15)
+                                  ? Colors.blue.withValues(alpha: 0.15)
                                   : const Color(0xFFEFF6FF),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               relation.toUpperCase(),
-                              style: const TextStyle(fontFamily: FontFamily.medium,
+                              style: const TextStyle(
+                                fontFamily: FontFamily.medium,
                                 fontSize: 10,
                                 fontWeight: FontWeight.w800,
                                 color: Color(0xFF1D4ED8),
@@ -356,12 +381,16 @@ class NomineeDetailsCard extends StatelessWidget {
                             padding: EdgeInsets.symmetric(horizontal: 8.0),
                             child: Text(
                               '•',
-                              style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey),
+                              style: TextStyle(
+                                fontFamily: FontFamily.medium,
+                                color: Colors.grey,
+                              ),
                             ),
                           ),
                           Text(
                             '$percentage Allocation',
-                            style: const TextStyle(fontFamily: FontFamily.medium,
+                            style: const TextStyle(
+                              fontFamily: FontFamily.medium,
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF059669),
@@ -403,7 +432,6 @@ class NomineeDetailsCard extends StatelessWidget {
           ),
 
           // --- BOTTOM CARD: Details List ---
-
           Column(
             children: [
               _buildDetailItem(
@@ -475,7 +503,7 @@ class NomineeDetailsCard extends StatelessWidget {
             : Border(
                 bottom: BorderSide(
                   color: isDark
-                      ? const Color(0xFF334155).withValues(alpha:0.5)
+                      ? const Color(0xFF334155).withValues(alpha: 0.5)
                       : const Color(0xFFF8FAFC),
                 ),
               ),
@@ -487,7 +515,7 @@ class NomineeDetailsCard extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: iconColor.withValues(alpha:0.1),
+              color: iconColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: iconColor, size: 16),
@@ -500,7 +528,8 @@ class NomineeDetailsCard extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(fontFamily: FontFamily.medium,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.5,
@@ -512,7 +541,8 @@ class NomineeDetailsCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: TextStyle(fontFamily: FontFamily.medium,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                     color: isDark

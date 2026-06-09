@@ -1,7 +1,9 @@
 import 'package:get/get.dart';
 import 'package:get/get_instance/src/bindings_interface.dart';
 import 'package:my_sip/features/personalization/domain/usecases/account_statement_usecases.dart';
+import 'package:my_sip/features/personalization/domain/usecases/add_bank_usecases.dart';
 import 'package:my_sip/features/personalization/domain/usecases/add_nominee_use_case.dart';
+import 'package:my_sip/features/personalization/domain/usecases/delete_bank_usecases.dart';
 import 'package:my_sip/features/personalization/domain/usecases/delete_nominee_use_case.dart';
 import 'package:my_sip/features/personalization/domain/usecases/get_bank_use_cases.dart';
 import 'package:my_sip/features/personalization/domain/usecases/get_nominee_use_case.dart';
@@ -72,6 +74,16 @@ class PersonalisationBinding extends Bindings {
       ),
     );
     Get.lazyPut(
+      () => AddBankUseCase(
+        personalisationRepository: Get.find<PersonalisationRepository>(),
+      ),
+    );
+    Get.lazyPut(
+      () => DeleteBankUseCase(
+        repository: Get.find<PersonalisationRepository>(),
+      ),
+    );
+    Get.lazyPut(
       () => PersonalisationUseCases(
         Get.find(),
         Get.find(),
@@ -82,6 +94,8 @@ class PersonalisationBinding extends Bindings {
         Get.find(),
         Get.find<RequestCapitalGainStatementUseCase>(),
         Get.find<RequestAccountStatementUseCase>(),
+        Get.find<AddBankUseCase>(),
+        Get.find<DeleteBankUseCase>()
       ),
       fenix: true,
     );

@@ -73,6 +73,7 @@ class PaymentScreen extends StatelessWidget {
 
             Obx(() {
               final method = paymentController.selectedMethod.value;
+              
               return AnimatedSwitcher(
                 duration: const Duration(milliseconds: 280),
                 transitionBuilder: (child, animation) => FadeTransition(
@@ -94,14 +95,14 @@ class PaymentScreen extends StatelessWidget {
                             personalisationController
                                 .userData
                                 .value
-                                ?.bankAccount
+                                ?.bankAccounts?.first
                                 ?.bankName ??
                             'Saved Bank',
                         maskedAccount:
                             personalisationController
                                 .userData
                                 .value
-                                ?.bankAccount
+                                ?.bankAccounts?.first
                                 ?.accountNumberEncrypted ??
                             '••••  ••••  1234',
                       )
@@ -111,14 +112,14 @@ class PaymentScreen extends StatelessWidget {
                             personalisationController
                                 .userData
                                 .value
-                                ?.bankAccount
+                                ?.bankAccounts?.first
                                 ?.bankName ??
                             'Saved Bank',
                         maskedAccount:
                             personalisationController
                                 .userData
                                 .value
-                                ?.bankAccount
+                                ?.bankAccounts?.first
                                 ?.accountNumberEncrypted ??
                             '••••  ••••  1234',
                       ),

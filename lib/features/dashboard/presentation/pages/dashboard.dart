@@ -10,6 +10,7 @@ import 'package:my_sip/common/widget/text/section_heading.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/dashboard/domain/entity/portfolio_entity.dart';
 import 'package:my_sip/features/dashboard/domain/entity/transactionlist_entity.dart';
 import 'package:my_sip/features/mfu/presentation/pages/redeem_page.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
@@ -1503,24 +1504,6 @@ class _MobileDashboardLayout extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              // SummaryItem(
-                              //   title: 'Invested',
-                              //   // value: '₹${invested.toStringAsFixed(2)}',
-                              //   value: isVisible
-                              //       ? '₹${invested.toStringAsFixed(2)}'
-                              //       : '₹ ••••••',
-                              // ),
-                              // SummaryItem(
-                              //   // isProfit: isProfit,
-                              //   isProfit: isVisible ? isProfit : null,
-                              //   title: 'Total Returns',
-
-                              //   // value:
-                              //   //     '₹${totalReturns.abs().toStringAsFixed(2)}',
-                              //   value: isVisible
-                              //       ? '₹${totalReturns.abs().toStringAsFixed(2)}'
-                              //       : '₹ ••••••',
-                              // ),
                               SummaryItem(
                                 title: 'Invested',
                                 amount: invested, // Pass the raw double
@@ -1632,9 +1615,53 @@ class _MobileDashboardLayout extends StatelessWidget {
 
         Obx(() {
           final controller = Get.find<DashboardController>();
+          final isVisible = controller.isBalanceVisible.value;
 
+          // if (controller.selectedIndex.value == 0) {
+          //   /// 🟦 MY PORTFOLIO TAB
+          //   return SliverList(
+          //     delegate: SliverChildListDelegate([
+          //       Padding(
+          //         padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          //         child: SectionHeading(
+          //           sectionTitle: 'My Portfolio',
+          //           fontWeight: FontWeight.w600,
+          //           fontSize: 14,
+          //           textcolor: const Color(0xff787878),
+          //         ),
+          //       ),
+          //       ...List.generate(6, (index) => const PortfolioCard()),
+          //     ]),
+          //   );
+          // }
           if (controller.selectedIndex.value == 0) {
             /// 🟦 MY PORTFOLIO TAB
+
+            // 1. Handle Loading State
+            if (controller.isLoadingPortfolio.value) {
+              return const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(32.0),
+                  child: Center(
+                    child: CircularProgressIndicator(color: Colors.blue),
+                  ),
+                ),
+              );
+            }
+
+            // 2. Extract portfolio list
+            final funds = controller.portfolioData.value?.portfolio ?? [];
+
+            // 3. Handle Empty State
+            if (funds.isEmpty) {
+              return const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(32.0),
+                  child: Center(child: Text("No funds in your portfolio yet.")),
+                ),
+              );
+            }
+
             return SliverList(
               delegate: SliverChildListDelegate([
                 Padding(
@@ -1646,7 +1673,10 @@ class _MobileDashboardLayout extends StatelessWidget {
                     textcolor: const Color(0xff787878),
                   ),
                 ),
-                ...List.generate(6, (index) => const PortfolioCard()),
+                // 4. Map the actual funds to PortfolioCard
+                ...funds
+                    .map((fund) => PortfolioCard(fund: fund, isVisible: true))
+                    .toList(),
               ]),
             );
           } else {
@@ -1873,19 +1903,27 @@ class TransactionCard extends StatelessWidget {
 }
 
 class PortfolioCard extends StatelessWidget {
+  final MfuPortfolioItemEntity fund;
+  final bool isVisible;
+  final bool subtitle;
+  final bool iconButton;
+
   const PortfolioCard({
     super.key,
+    required this.fund,
+    required this.isVisible,
     this.subtitle = true,
     this.iconButton = true,
   });
 
-  final bool subtitle;
-  final bool iconButton;
-
   @override
   Widget build(BuildContext context) {
+    // Determine Profit/Loss colors
+    final is1DProfit = fund.isOneDayProfit;
+    final isOverallProfit = fund.isProfit;
+
     return GestureDetector(
-      // onTap: () => Get.to(() => FundDetailsScreen()),
+      // onTap: () => Get.to(() => FundDetailsScreen(), arguments: fund),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         padding: const EdgeInsets.all(14),
@@ -1894,7 +1932,7 @@ class PortfolioCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
+              color: Colors.black.withOpacity(0.08),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -1906,20 +1944,30 @@ class PortfolioCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // / Fund Icon
+                /// Fund Logo
                 Container(
-                  height: 30,
-                  width: 30,
+                  height: 34,
+                  width: 34,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.grey.shade100,
                   ),
                   child: ClipOval(
-                    child: Image.asset(UImages.sbi, fit: BoxFit.cover),
+                    // Using network image if amcLogo is a URL
+                    child: fund.amcLogo.isNotEmpty
+                        ? Image.network(
+                            // Add your base URL if needed: '${Appurl.baseUrl}${fund.amcLogo}'
+                            fund.amcLogo,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const Icon(
+                              Icons.account_balance,
+                              size: 20,
+                              color: Colors.grey,
+                            ),
+                          )
+                        : Image.asset(UImages.sbi, fit: BoxFit.cover),
                   ),
                 ),
-
-                // CircleAvatar(backgroundImage: AssetImage(UImages.sbi)),
                 const SizedBox(width: 12),
 
                 /// Title + Subtitle
@@ -1927,47 +1975,53 @@ class PortfolioCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Nippon India Large Cap Fund- Growth Plan- Growth Option',
-                        style: TextStyle(
-                          fontSize: 12,
+                      Text(
+                        fund.fundName,
+                        style: const TextStyle(
+                          fontSize: 13,
                           fontWeight: FontWeight.w600,
                           height: 1.3,
                         ),
                       ),
                       if (subtitle) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         Row(
-                          children: const [
-                            Text(
+                          children: [
+                            const Text(
                               '1D Change:',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,
                               ),
                             ),
-                            SizedBox(width: 4),
+                            const SizedBox(width: 4),
                             Text(
-                              '-₹24.2',
-                              style: TextStyle(
+                              isVisible
+                                  ? '${is1DProfit ? "+" : ""}₹${fund.oneDayChange.abs().toStringAsFixed(2)}'
+                                  : '₹ •••',
+                              style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,
                               ),
                             ),
-                            SizedBox(width: 6),
-                            Icon(
-                              Icons.arrow_drop_down,
-                              size: 18,
-                              color: Colors.red,
-                            ),
-                            Text(
-                              '0.44%',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.red,
-                                fontWeight: FontWeight.w600,
+                            const SizedBox(width: 4),
+                            if (isVisible) ...[
+                              Icon(
+                                is1DProfit
+                                    ? Icons.arrow_drop_up
+                                    : Icons.arrow_drop_down,
+                                size: 18,
+                                color: is1DProfit ? Colors.green : Colors.red,
                               ),
-                            ),
+                              Text(
+                                '${fund.oneDayChangePercent.abs().toStringAsFixed(2)}%',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: is1DProfit ? Colors.green : Colors.red,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ],
@@ -1976,7 +2030,21 @@ class PortfolioCard extends StatelessWidget {
                 ),
 
                 /// Menu
-                // const Icon(Icons.more_vert, color: Colors.grey),
+                // if (iconButton)
+                //   PopupMenuButton<PortfolioMenuAction>(
+                //     color: Ucolors.light,
+                //     icon: const Icon(Icons.more_vert, color: Colors.grey),
+                //     shape: RoundedRectangleBorder(
+                //       borderRadius: BorderRadius.circular(16),
+                //     ),
+                //     offset: const Offset(0, 40),
+                //     onSelected: (value) {
+                //       // ... keep your existing switch statement ...
+                //     },
+                //     itemBuilder: (context) => [
+                //       // ... keep your existing menu items ...
+                //     ],
+                //   ),
                 iconButton
                     ? PopupMenuButton<PortfolioMenuAction>(
                         color: Ucolors.light,
@@ -2061,24 +2129,38 @@ class PortfolioCard extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 4),
+            const SizedBox(height: 5),
 
             /// 🔹 Bottom Stats
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                StatItem1(title: 'Invested', amount: '₹5K', percentage: ''),
+              children: [
                 StatItem1(
-                  percentage: '',
-                  title: 'Current Value',
-                  amount: '₹5.43K',
+                  title: 'Invested',
+                  amount: isVisible
+                      ? '₹${fund.investedAmount.toStringAsFixed(2)}'
+                      : '₹ ••••••',
+                  percentage: '', // Leave blank for Invested
                 ),
-
                 StatItem1(
-                  percentage: '8.55 %',
+                  title: 'Current Value',
+                  amount: isVisible
+                      ? '₹${fund.currentValue.toStringAsFixed(2)}'
+                      : '₹ ••••••',
+                  percentage: '',
+                ),
+                StatItem1(
                   title: 'Gain/Loss',
-
-                  amount: '₹427.35',
+                  amount: isVisible
+                      ? '${isOverallProfit ? "+" : ""}₹${fund.gainLoss.abs().toStringAsFixed(2)}'
+                      : '₹ ••••••',
+                  amountColor: isVisible
+                      ? (isOverallProfit ? Colors.green : Colors.red)
+                      : Colors.black,
+                  percentage: isVisible
+                      ? '${fund.gainLossPercent.abs().toStringAsFixed(2)}%'
+                      : '',
+                  percentageColor: isOverallProfit ? Colors.green : Colors.red,
                 ),
               ],
             ),
@@ -2088,6 +2170,223 @@ class PortfolioCard extends StatelessWidget {
     );
   }
 }
+
+// class PortfolioCard extends StatelessWidget {
+//   const PortfolioCard({
+//     super.key,
+//     this.subtitle = true,
+//     this.iconButton = true,
+//   });
+
+//   final bool subtitle;
+//   final bool iconButton;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return GestureDetector(
+//       // onTap: () => Get.to(() => FundDetailsScreen()),
+//       child: Container(
+//         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+//         padding: const EdgeInsets.all(14),
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           borderRadius: BorderRadius.circular(16),
+//           boxShadow: [
+//             BoxShadow(
+//               color: Colors.black.withValues(alpha: 0.15),
+//               blurRadius: 10,
+//               offset: const Offset(0, 4),
+//             ),
+//           ],
+//         ),
+//         child: Column(
+//           children: [
+//             /// 🔹 Top Row (Icon + Title + Menu)
+//             Row(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 // / Fund Icon
+//                 Container(
+//                   height: 30,
+//                   width: 30,
+//                   decoration: BoxDecoration(
+//                     shape: BoxShape.circle,
+//                     color: Colors.grey.shade100,
+//                   ),
+//                   child: ClipOval(
+//                     child: Image.asset(UImages.sbi, fit: BoxFit.cover),
+//                   ),
+//                 ),
+
+//                 // CircleAvatar(backgroundImage: AssetImage(UImages.sbi)),
+//                 const SizedBox(width: 12),
+
+//                 /// Title + Subtitle
+//                 Expanded(
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       const Text(
+//                         'Nippon India Large Cap Fund- Growth Plan- Growth Option',
+//                         style: TextStyle(
+//                           fontSize: 12,
+//                           fontWeight: FontWeight.w600,
+//                           height: 1.3,
+//                         ),
+//                       ),
+//                       if (subtitle) ...[
+//                         const SizedBox(height: 4),
+//                         Row(
+//                           children: const [
+//                             Text(
+//                               '1D Change:',
+//                               style: TextStyle(
+//                                 fontSize: 12,
+//                                 color: Colors.grey,
+//                               ),
+//                             ),
+//                             SizedBox(width: 4),
+//                             Text(
+//                               '-₹24.2',
+//                               style: TextStyle(
+//                                 fontSize: 12,
+//                                 color: Colors.grey,
+//                               ),
+//                             ),
+//                             SizedBox(width: 6),
+//                             Icon(
+//                               Icons.arrow_drop_down,
+//                               size: 18,
+//                               color: Colors.red,
+//                             ),
+//                             Text(
+//                               '0.44%',
+//                               style: TextStyle(
+//                                 fontSize: 11,
+//                                 color: Colors.red,
+//                                 fontWeight: FontWeight.w600,
+//                               ),
+//                             ),
+//                           ],
+//                         ),
+//                       ],
+//                     ],
+//                   ),
+//                 ),
+
+//                 /// Menu
+//                 // const Icon(Icons.more_vert, color: Colors.grey),
+//                 iconButton
+//                     ? PopupMenuButton<PortfolioMenuAction>(
+//                         color: Ucolors.light,
+//                         icon: const Icon(Icons.more_vert, color: Colors.grey),
+//                         shape: RoundedRectangleBorder(
+//                           borderRadius: BorderRadius.circular(16),
+//                         ),
+//                         // elevation: 6,
+//                         offset: const Offset(0, 40),
+//                         onSelected: (value) {
+//                           switch (value) {
+//                             case PortfolioMenuAction.topUp:
+//                               log('top up');
+//                               break;
+
+//                             case PortfolioMenuAction.modify:
+//                               break;
+//                             case PortfolioMenuAction.pause:
+//                               break;
+//                             case PortfolioMenuAction.cancel:
+//                               break;
+//                             case PortfolioMenuAction.redemption:
+//                               Get.to(
+//                                 () => RedeemPage(),
+//                                 arguments: RedeemArgs(
+//                                   schemeCode: '012',
+//                                   schemeName:
+//                                       'Nippon India Large Cap Fund- Growth Plan- Growth Option',
+//                                   folioNumber: '28975246',
+//                                   folioType: 'Individual',
+//                                   totalUnits: 0.049,
+//                                   totalValue: 104304,
+//                                   lockedUnits: 0.0,
+//                                   lockedValue: 0,
+//                                   freeUnits: 0.049,
+//                                   freeValue: 104304,
+//                                   investedAmt: 78500,
+//                                 ),
+//                               );
+
+//                               break;
+
+//                             case PortfolioMenuAction.switchgoal:
+//                               log('swith goal');
+//                               break;
+//                           }
+//                         },
+//                         itemBuilder: (context) => [
+//                           buildMenuItem(
+//                             icon: Iconsax.card_send,
+//                             text: 'Top Up',
+//                             value: PortfolioMenuAction.topUp,
+//                           ),
+//                           buildMenuItem(
+//                             icon: Iconsax.edit_2,
+//                             text: 'Modify',
+//                             value: PortfolioMenuAction.modify,
+//                           ),
+//                           buildMenuItem(
+//                             icon: Iconsax.pause,
+//                             text: 'Pause',
+//                             value: PortfolioMenuAction.pause,
+//                           ),
+//                           buildMenuItem(
+//                             icon: Iconsax.trash,
+//                             text: 'Cancel',
+//                             value: PortfolioMenuAction.cancel,
+//                           ),
+//                           buildMenuItem(
+//                             icon: Iconsax.receipt,
+//                             text: 'Redemption',
+//                             value: PortfolioMenuAction.redemption,
+//                           ),
+//                           buildMenuItem(
+//                             icon: Icons.arrow_outward,
+//                             text: 'Add to Goal',
+//                             value: PortfolioMenuAction.switchgoal,
+//                           ),
+//                         ],
+//                       )
+//                     : SizedBox(),
+//               ],
+//             ),
+
+//             const SizedBox(height: 4),
+
+//             /// 🔹 Bottom Stats
+//             Row(
+//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//               children: const [
+//                 StatItem1(title: 'Invested', amount: '₹5K', percentage: ''),
+//                 StatItem1(
+//                   percentage: '',
+//                   title: 'Current Value',
+//                   amount: '₹5.43K',
+//                 ),
+
+//                 StatItem1(
+//                   percentage: '8.55 %',
+//                   title: 'Gain/Loss',
+
+//                   amount: '₹427.35',
+//                 ),
+//               ],
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 class StatItem1 extends StatelessWidget {
   final String title;
@@ -2255,37 +2554,3 @@ class SummaryItem extends StatelessWidget {
     );
   }
 }
-
-/// 🔹 Summary Item Widget
-// class SummaryItem extends StatelessWidget {
-//   final String title;
-//   final String value;
-
-//   const SummaryItem({required this.title, required this.value});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text(
-//           title,
-//           //  style: const TextStyle(color: Colors.white70)
-//           style: Theme.of(context).textTheme.titleMedium!.copyWith(
-//             color: Ucolors.skyblue,
-//             fontSize: 14,
-//           ),
-//         ),
-//         const SizedBox(height: 2),
-//         Text(
-//           value,
-//           style: const TextStyle(
-//             color: Colors.white,
-//             fontSize: 14,
-//             fontWeight: FontWeight.w400,
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }

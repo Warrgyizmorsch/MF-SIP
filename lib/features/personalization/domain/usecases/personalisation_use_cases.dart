@@ -1,5 +1,7 @@
 import 'package:my_sip/features/personalization/domain/usecases/account_statement_usecases.dart';
+import 'package:my_sip/features/personalization/domain/usecases/add_bank_usecases.dart';
 import 'package:my_sip/features/personalization/domain/usecases/add_nominee_use_case.dart';
+import 'package:my_sip/features/personalization/domain/usecases/delete_bank_usecases.dart';
 import 'package:my_sip/features/personalization/domain/usecases/delete_nominee_use_case.dart';
 import 'package:my_sip/features/personalization/domain/usecases/get_bank_use_cases.dart';
 import 'package:my_sip/features/personalization/domain/usecases/get_nominee_use_case.dart';
@@ -18,6 +20,8 @@ class PersonalisationUseCases {
   final UpdateProfileUsecases updateProfileUsecases;
   final RequestCapitalGainStatementUseCase requestCapitalGainStatementUseCase;
   final RequestAccountStatementUseCase requestAccountStatementUseCase;
+  final AddBankUseCase addBankUseCase; 
+  final DeleteBankUseCase deleteBankUseCase;
 
   PersonalisationUseCases(
     this.getBankUseCases,
@@ -29,5 +33,7 @@ class PersonalisationUseCases {
     this.updateProfileUsecases,
     this.requestCapitalGainStatementUseCase,
     this.requestAccountStatementUseCase,
+     this.addBankUseCase,
+     this.deleteBankUseCase,
   );
 }

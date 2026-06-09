@@ -4,8 +4,10 @@ import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/features/personalization/data/model/account_statement_model.dart';
+import 'package:my_sip/features/personalization/data/model/add_bank_response_model.dart';
 import 'package:my_sip/features/personalization/data/model/bank_model.dart';
 import 'package:my_sip/features/personalization/data/model/capital_gain_statement_model.dart';
+import 'package:my_sip/features/personalization/data/model/delete_bank_model.dart';
 import 'package:my_sip/features/personalization/data/model/nominee_model.dart';
 import 'package:my_sip/features/personalization/data/model/profile_update_model.dart';
 import 'package:my_sip/features/personalization/data/model/risk_question_model.dart';
@@ -337,6 +339,89 @@ class PersonalisationRemoteDataSource {
       }
     } catch (e) {
       return Right(ApiError(message: 'requestAccountStatement Exception: $e'));
+    }
+  }
+
+  Future<Either<Result<AddBankResponseModel>, ApiError>> addBankAccount({
+    required int uid,
+    required String accountHolderName,
+    required String accountNumber,
+    required String ifscCode,
+    required String micrCode,
+    required String accountType,
+    required String bankName,
+  }) async {
+    try {
+      final body = {
+        "uid": uid,
+        "account_holder_name": accountHolderName,
+        "account_number": accountNumber,
+        "ifsc_code": ifscCode,
+        "micr_code": micrCode,
+        "account_type": accountType,
+        "bank_name": bankName,
+      };
+
+      createLog("[KycRemoteDataSource] addBankAccount Request: $body");
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/bank/add",
+        data: body,
+      );
+
+      createLog("[KycRemoteDataSource] addBankAccount Response: $resp");
+
+      if (resp != null) {
+        final result = AddBankResponseModel.fromJson(resp);
+        if (result.success == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(message: result.message ?? 'Failed to add bank account'),
+          );
+        }
+      } else {
+        return Right(
+          ApiError(message: 'addBankAccount: Invalid response structure'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'addBankAccount Exception: $e'));
+    }
+  }
+
+  Future<Either<Result<DeleteBankModel>, ApiError>> deleteBank({
+    required int uid,
+    required int bankId,
+  }) async {
+    try {
+      final body = {"uid": uid, "bank_id": bankId};
+
+      createLog("[PersonalisationRemoteDataSource] deleteBank Request: $body");
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/bank/delete",
+        data: body,
+      );
+
+      createLog("[PersonalisationRemoteDataSource] deleteBank Response: $resp");
+
+      if (resp != null) {
+        final result = DeleteBankModel.fromJson(resp);
+        if (result.success == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(message: result.message ?? 'Delete Bank Failed'),
+          );
+        }
+      } else {
+        return Right(
+          ApiError(message: 'deleteBank: Invalid response structure'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'deleteBank Exception: $e'));
     }
   }
 }

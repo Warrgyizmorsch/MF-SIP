@@ -21,7 +21,6 @@ import 'package:my_sip/features/personalization/domain/entity/bank_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/nominee_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/risk_question_entity.dart';
 import 'package:my_sip/features/personalization/domain/usecases/personalisation_use_cases.dart';
-import 'package:my_sip/features/personalization/presentation/widgets/download_statement.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 import 'dart:async';
@@ -30,7 +29,6 @@ import 'package:my_sip/features/personalization/domain/entity/profile_update_ent
     as profileEntity;
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class PersonalisationController extends GetxController {
   final PersonalisationUseCases _useCases;
@@ -254,7 +252,8 @@ class PersonalisationController extends GetxController {
   final bankErrorMessage = ''.obs;
   // --- Linked Bank Account State ---
   final isLinkedBankLoading = false.obs;
-  final linkedBankAccount = Rxn<dynamic>();
+  // final linkedBankAccount = Rxn<dynamic>();
+  final linkedBankAccounts = <profileEntity.BankAccountEntity>[].obs;
 
   final RxBool isFetchingIFSC = false.obs;
   final RxString resolvedBranch = ''.obs;
@@ -268,6 +267,8 @@ class PersonalisationController extends GetxController {
   final bankMicrController = TextEditingController();
   final bankAccHdNameController = TextEditingController();
   final bankAccountType = 'SB'.obs; // SB = Savings, CA = Current
+  bool get canAddMoreBanks => linkedBankAccounts.length < 3;
+  final isDeletingBank = <int, bool>{}.obs;
 
   void clearBankFields() {
     bankNameController.clear();
@@ -278,6 +279,7 @@ class PersonalisationController extends GetxController {
     autoFetchedBank.value = '';
     resolvedBranch.value = '';
     isFetchingIFSC.value = false;
+    bankAccHdNameController.clear();
   }
 
   Future<void> fetchBanks() async {
@@ -327,8 +329,20 @@ class PersonalisationController extends GetxController {
           if (profileData != null) {
             // 1. Check Bank Account
             userData.value = profileData;
-            linkedBankAccount.value = profileData.bankAccount;
-            hasBank.value = profileData.bankAccount != null;
+            // linkedBankAccount.value = profileData.bankAccount;
+            // hasBank.value = profileData.bankAccount != null;
+            // final hasBanks =
+            //     profileData.bankAccounts != null &&
+            //     profileData.bankAccounts!.isNotEmpty;
+            // linkedBankAccount.value = hasBanks
+            //     ? profileData.bankAccounts!.first
+            //     : null;
+            if (profileData.bankAccounts != null) {
+              linkedBankAccounts.assignAll(profileData.bankAccounts!);
+            } else {
+              linkedBankAccounts.clear(); // Empty the list if null
+            }
+            hasBank.value = linkedBankAccounts.isNotEmpty;
 
             // 2. Check KYC Status (Using toLowerCase to be safe against API text changes)
             final kyc = profileData.kycStatus?.toLowerCase() ?? '';
@@ -363,7 +377,7 @@ class PersonalisationController extends GetxController {
             final mfuController = Get.find<MfuController>();
             mfuController.resumePollingIfNeeded();
           } else {
-            linkedBankAccount.value = null;
+            linkedBankAccounts.clear();
           }
         },
         (error) {
@@ -583,47 +597,51 @@ class PersonalisationController extends GetxController {
         bankIfscController.text.isEmpty ||
         bankAccHdNameController.text.isEmpty ||
         bankNameController.text.isEmpty) {
-      Get.snackbar("Required", "Please fill all bank details");
+      CustomSnackbar.warning(
+        title: "Required",
+        message: "Please fill all bank details",
+      );
       return;
     }
 
     isBankAdding.value = true;
 
     try {
-      final Map<String, dynamic> data = {
-        "id": session.getUserData?.id,
-        "account_holder_name": bankAccHdNameController.text,
-        "account_number": bankAccountNumberController.text.trim(),
-        "ifsc_code": bankIfscController.text.trim().toUpperCase(),
-        "bank_name": bankNameController.text.trim(),
-        "micr_code": bankMicrController.text.trim(),
-        "account_type": bankAccountType.value,
-      };
+      final uid = session.getUserData?.id ?? 0;
+      if (uid == 0) {
+        Get.snackbar("Error", "User session not found.");
+        isBankAdding.value = false;
+        return;
+      }
 
-      log("Submitting Bank Data: $data");
+      log("Submitting Bank Data: $uid");
 
-      final result = await _useCases.updateProfileUsecases.call(data);
-      fetchUserDetails();
+      // final result = await _useCases.updateProfileUsecases.call(data);
+      final result = await _useCases.addBankUseCase.call(
+        uid: uid,
+        accountHolderName: bankAccHdNameController.text,
+        accountNumber: bankAccountNumberController.text.trim(),
+        ifscCode: bankIfscController.text.trim().toUpperCase(),
+        micrCode: bankMicrController.text.trim(),
+        accountType: bankAccountType.value,
+        bankName: bankNameController.text.trim(),
+      );
 
       result.fold(
-        (success) {
+        (success) async {
+          log("✅ Bank added successfully: ${success.data?.message}");
+          await fetchUserDetails();
           clearBankFields();
+
           Get.back();
-          // fetchUserDetails();
-          if (success.data?.data?.bankAccount != null) {
-            linkedBankAccount.value = success.data!.data?.bankAccount;
-          } else {
-            // Fallback just in case
-            fetchUserDetails();
-          }
-          Get.snackbar(
-            "Success",
-            "Bank account added successfully",
-            backgroundColor: Colors.green.shade50,
-            colorText: Colors.green.shade900,
+
+          CustomSnackbar.success(
+            title: "Success",
+            message: "Bank account added successfully",
           );
         },
         (error) {
+          isBankAdding.value = false;
           Get.snackbar(
             "Error",
             error.message ?? "Failed to add bank account",
@@ -635,10 +653,111 @@ class PersonalisationController extends GetxController {
     } catch (e) {
       log("Bank Addition Error: $e");
       Get.snackbar("Error", "Something went wrong while adding bank");
+      isBankAdding.value = false;
     } finally {
       isBankAdding.value = false;
     }
   }
+
+  Future<void> deleteBank(int bankId) async {
+    // 1. Set loading state for this specific bank ID
+    isDeletingBank[bankId] = true;
+
+    final uid = session.getUserData?.id ?? 0;
+
+    // 2. Show loading overlay
+    Get.dialog(
+      const Center(child: CircularProgressIndicator()),
+      barrierDismissible: false,
+    );
+
+    try {
+      final result = await _useCases.deleteBankUseCase(
+        uid: uid,
+        bankId: bankId,
+      );
+
+      result.fold(
+        (success) {
+          final data = success.data?.data;
+
+          // 3. Update local state
+          linkedBankAccounts.removeWhere((bank) => bank.id == bankId);
+          hasBank.value = linkedBankAccounts.isNotEmpty;
+
+          Get.back(); // Close loading dialog
+          CustomSnackbar.success(
+            title: "Success",
+            message: success.data?.message ?? "Bank deleted successfully",
+          );
+
+          // 4. Refresh profile to ensure full data sync with server
+          fetchUserDetails();
+
+          if (data != null) {
+            "[Bank] Remaining: ${data.count}/${data.maxAllowed} | Can add more: ${data.canAddMore}";
+          }
+        },
+        (error) {
+          Get.back(); // Close loading dialog
+          CustomSnackbar.error(
+            title: "Error", // Fixed title
+            message: error.message ?? "Failed to delete bank",
+          );
+        },
+      );
+    } catch (e) {
+      Get.back();
+      log("Delete Bank Exception: $e");
+    } finally {
+      // 5. Clean up loading state
+      isDeletingBank.remove(bankId);
+    }
+  }
+
+  // Future<void> deleteBank(int bankId) async {
+  //   isDeletingBank[bankId] = true;
+
+  //   final uid = session.getUserData?.id ?? 0;
+  //   Get.dialog(
+  //     const Center(child: CircularProgressIndicator()),
+  //     barrierDismissible: false,
+  //   );
+
+  //   final result = await _useCases.deleteBankUseCase(uid: uid, bankId: bankId);
+
+  //   result.fold(
+  //     (success) {
+  //       final data = success.data?.data;
+  //       linkedBankAccounts.removeWhere((bank) => bank.id == bankId);
+  //       hasBank.value = linkedBankAccounts.isNotEmpty;
+  //       Get.back(); // Close loading dialog
+  //       CustomSnackbar.success(
+  //         title: "Success",
+  //         message: success.data?.message ?? "Bank deleted successfully",
+  //       );
+
+  //       // ✅ Refresh profile to update bank list
+  //       fetchUserDetails();
+
+  //       // ✅ Show remaining slots info
+  //       if (data != null) {
+  //         log(
+  //           "[Bank] Remaining: ${data.count}/${data.maxAllowed} | Can add more: ${data.canAddMore}",
+  //         );
+  //       }
+  //     },
+  //     (error) {
+  //       Get.back(); // Close loading dialog
+  //       CustomSnackbar.error(
+  //         title: "Success",
+  //         message: error.message ?? "Failed to delete bank",
+  //       );
+  //     },
+  //   );
+
+  //   isDeletingBank[bankId] = false;
+  // }
 
   Future<void> _fetchBankDetailsFromIFSC(String ifsc) async {
     try {
@@ -979,6 +1098,13 @@ class PersonalisationController extends GetxController {
 
   void onPageChanged(int index) {
     currentQuestionIndex.value = index;
+  }
+
+  void showLoading() {
+    Get.dialog(
+      const Center(child: CircularProgressIndicator(color: Ucolors.primary)),
+      barrierDismissible: false,
+    );
   }
 
   // --- Analysis Logic ---

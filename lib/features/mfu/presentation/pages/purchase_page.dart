@@ -952,12 +952,18 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
           const SizedBox(height: 12),
           Obx(() {
             final user = Get.find<PersonalisationController>().userData.value;
+            final primaryBank = (user?.bankAccounts != null && user!.bankAccounts!.isNotEmpty) 
+            ? user.bankAccounts!.first 
+            : null;
             return _DetailTile(
               icon: Icons.account_balance_rounded,
               iconColor: _C.success,
               label: 'Bank Account',
-              value:
-                  '${user?.bankAccount?.bankName ?? ''}\n${user?.bankAccount?.accountNumberEncrypted ?? ''}',
+              // value:
+              //     '${user?.bankAccounts?.bankName ?? ''}\n${user?.bankAccount?.accountNumberEncrypted ?? ''}',
+              value: primaryBank != null 
+              ? '${primaryBank.bankName ?? ''}\n${primaryBank.accountNumberEncrypted ?? ''}'
+              : 'No bank linked',
               badge: const _Chip(label: 'Auto-pay', color: _C.success),
             );
           }),

@@ -66,7 +66,8 @@ class ProfileDataEntity extends Equatable {
   final CustomerDetailsEntity? customerDetails;
   final RiskProfileEntity? riskProfile;
   final NomineeEntity? nominee;
-  final BankAccountEntity? bankAccount;
+  // final BankAccountEntity? bankAccount;
+  final List<BankAccountEntity>? bankAccounts;
   final MfuMandateEntity? mfuMandate;
 
   const ProfileDataEntity({
@@ -109,7 +110,7 @@ class ProfileDataEntity extends Equatable {
     required this.customerDetails,
     required this.riskProfile,
     required this.nominee,
-    required this.bankAccount,
+    required this.bankAccounts,
     required this.mfuMandate,
   });
 
@@ -155,7 +156,7 @@ class ProfileDataEntity extends Equatable {
     customerDetails,
     riskProfile,
     nominee,
-    bankAccount,
+    bankAccounts,
     mfuMandate,
   ];
 }
@@ -202,7 +203,8 @@ extension ProfileDataEntityX on ProfileDataModel {
       customerDetails: customerDetails?.toEntity(),
       riskProfile: riskProfile?.toEntity(),
       nominee: nominee?.toEntity(),
-      bankAccount: bankAccount?.toEntity(),
+      // bankAccounts: bankAccounts?.toen,
+      bankAccounts: bankAccounts?.map((e) => e.toEntity()).toList(),
       mfuMandate: mfuMandate?.toEntity(),
     );
   }
@@ -409,13 +411,18 @@ extension NomineeEntityX on NomineeModel {
 }
 
 class BankAccountEntity extends Equatable {
-  final int? id;
+ final int? id;
   final int? userId;
+  final String? accountType; // Added
   final String? accountHolderName;
   final String? accountNumberEncrypted;
   final String? ifscCode;
+  final String? micrCode; // Added
   final String? bankName;
   final int? verified;
+  final String? verifiedAt; // Added
+  final String? createdAt; // Added
+  final String? updatedAt; // Added
 
   const BankAccountEntity({
     required this.id,
@@ -425,17 +432,20 @@ class BankAccountEntity extends Equatable {
     required this.ifscCode,
     required this.bankName,
     required this.verified,
+  
+    this.accountType,
+  
+    this.micrCode,
+   
+    this.verifiedAt,
+    this.createdAt,
+    this.updatedAt,
   });
 
   @override
   List<Object?> get props => [
-    id,
-    userId,
-    accountHolderName,
-    accountNumberEncrypted,
-    ifscCode,
-    bankName,
-    verified,
+   id, userId, accountType, accountHolderName, accountNumberEncrypted,
+        ifscCode, micrCode, bankName, verified, verifiedAt, createdAt, updatedAt
   ];
 }
 
@@ -444,11 +454,16 @@ extension BankAccountEntityX on BankAccountModel {
     return BankAccountEntity(
       id: id,
       userId: userId,
+      accountType: accountType, // Added
       accountHolderName: accountHolderName,
       accountNumberEncrypted: accountNumberEncrypted,
       ifscCode: ifscCode,
+      micrCode: micrCode, // Added
       bankName: bankName,
       verified: verified,
+      verifiedAt: verifiedAt, // Added
+      createdAt: createdAt, // Added
+      updatedAt: updatedAt, // Added
     );
   }
 }

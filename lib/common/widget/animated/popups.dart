@@ -14,6 +14,7 @@ class ULoaders {
     required IconData icon,
     required Color color,
     int durationInSeconds = 2,
+    double fontsize = 20,
   }) {
     Get.dialog(
       BackdropFilter(
@@ -36,12 +37,14 @@ class ULoaders {
                   ),
                   margin: const EdgeInsets.symmetric(horizontal: 20),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha:0.95),
+                    color: Colors.white.withValues(alpha: 0.95),
                     borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: Colors.white.withValues(alpha:0.5)),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.5),
+                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha:0.08),
+                        color: Colors.black.withValues(alpha: 0.08),
                         blurRadius: 25,
                         offset: const Offset(0, 10),
                       ),
@@ -54,7 +57,7 @@ class ULoaders {
                       Container(
                         padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
-                          color: color.withValues(alpha:0.12),
+                          color: color.withValues(alpha: 0.12),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(icon, color: color, size: 45),
@@ -124,7 +127,11 @@ class ULoaders {
     );
   }
 
-  static void warning({required String title, String message = ''}) {
+  static void warning({
+    required String title,
+    String message = '',
+    double fs = 20,
+  }) {
     _showOverlay(
       title: title,
       message: message,
@@ -156,11 +163,11 @@ class ULoaders {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha:0.95),
+                color: Colors.white.withValues(alpha: 0.95),
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha:0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 20,
                     offset: const Offset(0, 5),
                   ),
@@ -205,7 +212,7 @@ class ULoaders {
         ),
       ),
       barrierDismissible: false, // Prevents tapping outside to close
-      barrierColor: Colors.black.withValues(alpha:0.3), // Soft dark overlay
+      barrierColor: Colors.black.withValues(alpha: 0.3), // Soft dark overlay
     );
   }
 

@@ -59,7 +59,8 @@ class ProfileDataModel {
   final CustomerDetailsModel? customerDetails;
   final RiskProfileModel? riskProfile;
   final NomineeModel? nominee;
-  final BankAccountModel? bankAccount;
+  // final BankAccountModel? bankAccount;
+  final List<BankAccountModel>? bankAccounts;
   final MfuMandateModel? mfuMandate;
 
   ProfileDataModel({
@@ -100,7 +101,7 @@ class ProfileDataModel {
 
     this.riskProfile,
     this.customerDetails,
-    this.bankAccount,
+    this.bankAccounts,
     this.nominee,
     this.mfuMandate,
   });
@@ -156,10 +157,15 @@ class ProfileDataModel {
           ? NomineeModel.fromJson((json['nominees'] as List).first)
           : null,
 
-      bankAccount:
-          (json['bank_accounts'] != null &&
-              (json['bank_accounts'] as List).isNotEmpty)
-          ? BankAccountModel.fromJson((json['bank_accounts'] as List).first)
+      // bankAccount:
+      //     (json['bank_accounts'] != null &&
+      //         (json['bank_accounts'] as List).isNotEmpty)
+      //     ? BankAccountModel.fromJson((json['bank_accounts'] as List).first)
+      //     : null,
+      bankAccounts: json['bank_accounts'] != null
+          ? (json['bank_accounts'] as List)
+              .map((e) => BankAccountModel.fromJson(e as Map<String, dynamic>))
+              .toList()
           : null,
       mfuMandate:
           (json['mfu_mandates'] != null &&
@@ -326,34 +332,81 @@ class NomineeModel {
 class BankAccountModel {
   final int? id;
   final int? userId;
+  final String? accountType; // Added
   final String? accountHolderName;
   final String? accountNumberEncrypted;
   final String? ifscCode;
+  final String? micrCode; // Added
   final String? bankName;
   final int? verified;
+  final String? verifiedAt; // Added
+  final String? createdAt; // Added
+  final String? updatedAt; // Added
 
   BankAccountModel({
     this.id,
     this.userId,
+    this.accountType,
     this.accountHolderName,
     this.accountNumberEncrypted,
     this.ifscCode,
+    this.micrCode,
     this.bankName,
     this.verified,
+    this.verifiedAt,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory BankAccountModel.fromJson(Map<String, dynamic> json) {
     return BankAccountModel(
       id: json.parse<int>('id'),
       userId: json.parse<int>('user_id'),
+      accountType: json.parse<String>('account_type'), // Parses new field
       accountHolderName: json.parse<String>('account_holder_name'),
       accountNumberEncrypted: json.parse<String>('account_number_encrypted'),
       ifscCode: json.parse<String>('ifsc_code'),
+      micrCode: json.parse<String>('micr_code'), // Parses new field
       bankName: json.parse<String>('bank_name'),
       verified: json.parse<int>('verified'),
+      verifiedAt: json.parse<String>('verified_at'), // Parses new field
+      createdAt: json.parse<String>('created_at'), // Parses new field
+      updatedAt: json.parse<String>('updated_at'), // Parses new field
     );
   }
 }
+
+// class BankAccountModel {
+//   final int? id;
+//   final int? userId;
+//   final String? accountHolderName;
+//   final String? accountNumberEncrypted;
+//   final String? ifscCode;
+//   final String? bankName;
+//   final int? verified;
+
+//   BankAccountModel({
+//     this.id,
+//     this.userId,
+//     this.accountHolderName,
+//     this.accountNumberEncrypted,
+//     this.ifscCode,
+//     this.bankName,
+//     this.verified,
+//   });
+
+//   factory BankAccountModel.fromJson(Map<String, dynamic> json) {
+//     return BankAccountModel(
+//       id: json.parse<int>('id'),
+//       userId: json.parse<int>('user_id'),
+//       accountHolderName: json.parse<String>('account_holder_name'),
+//       accountNumberEncrypted: json.parse<String>('account_number_encrypted'),
+//       ifscCode: json.parse<String>('ifsc_code'),
+//       bankName: json.parse<String>('bank_name'),
+//       verified: json.parse<int>('verified'),
+//     );
+//   }
+// }
 
 class MfuMandateModel {
   final int? id;
