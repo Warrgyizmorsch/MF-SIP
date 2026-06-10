@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/common/widget/animated/custom_footer.dart';
 import 'package:my_sip/common/widget/animated/empty_filled.dart';
+import 'package:my_sip/core/utils/helper/purchase_scenario.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
@@ -76,20 +77,6 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Container(
-                  //   width: double.infinity,
-                  //   padding: const EdgeInsets.symmetric(vertical: 8),
-                  //   alignment: Alignment.center,
-                  //   color: Ucolors.light,
-                  //   child: Text(
-                  //     "ARN : 104807 || Kriti Hinger",
-                  //     style:  TextStyle(fontFamily: FontFamily.medium,
-                  //       fontSize: 11,
-                  //       color: Colors.grey.shade700,
-                  //       fontWeight: FontWeight.w500,
-                  //     ),
-                  //   ),
-                  // ),
                   CustomFooter(),
                   SafeArea(
                     top: false,
@@ -103,13 +90,6 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                             firstButton: 'Lumpsum',
                             secondButton: 'Invest now',
                             firstButtonP: () async {
-                              // await controller.addToCart(
-                              //     entity.schemeCode ?? '',
-                              //     entity.baseSchemeName ?? '',
-                              //     entity.minSipAmount ?? 0,
-                              //     null,
-                              //   );
-                              //   await controller.fetchCart();
                               await cartController.addToCart(
                                 controller.schemeCode,
                                 controller.schemeName,
@@ -123,116 +103,118 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                               );
                             },
                             secondButtonP: () async {
-                              final userCtrl =
-                                  Get.find<PersonalisationController>();
+                              GatekeeperHelper.runWithPrerequisites(
+                                onSuccess: () {
+                                  // This ONLY runs if KYC, Bank, CAN, and Mandate are all good!
+                                  final argVal = controller.fundDetail.value;
 
-                              if (!userCtrl.hasApprovedMandate) {
-                                Get.dialog(
-                                  AlertDialog(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    title: const Text('Auto Pay Required'),
-                                    content: const Text(
-                                      'Please set up your Auto Pay mandate to continue with your purchase.',
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Get.back(),
-                                        child: const Text(
-                                          'Close',
-                                          style: TextStyle(color: Colors.grey),
-                                        ),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Get.back(); // Close dialog
+                                  final purchaseArgs = SipPurchaseArgs(
+                                    schemeCode: controller.schemeCode,
+                                    fundName: controller.schemeName,
+                                    category: argVal?.schemeCategory ?? "",
+                                    riskLabel: argVal?.riskometerValue ?? "",
+                                    minSip: argVal?.sipMinimumAmount ?? 1000,
+                                    minLumpsum:
+                                        argVal?.minimumInvestment.toInt() ??
+                                        1000,
+                                    minTopup:
+                                        argVal?.minimumTopup.toInt() ?? 5000,
+                                    folio: null,
+                                    imgUrl: controller.imgUrl,
+                                  );
 
-                                          Get.toNamed(
-                                            AppRoutes.paymentScreen,
-                                            arguments: {
-                                              'isMandate': true,
-                                              'amount': '100000',
-                                            },
-                                          );
-                                        },
-                                        child: const Text(
-                                          'Set Up Auto Pay',
-                                          style: TextStyle(
-                                            color: Color.fromARGB(
-                                              255,
-                                              7,
-                                              72,
-                                              125,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  barrierDismissible: false,
-                                );
-                                return;
-                              }
-
-                              final argVal = controller.fundDetail.value;
-
-                              final purchaseArgs = SipPurchaseArgs(
-                                schemeCode: controller.schemeCode,
-                                fundName: controller
-                                    .schemeName, // Replace with variable
-                                category:
-                                    argVal?.schemeCategory ??
-                                    "", // Replace with variable
-                                riskLabel:
-                                    argVal?.riskometerValue ??
-                                    "", // Replace with variable
-                                minSip:
-                                    argVal?.sipMinimumAmount ??
-                                    1000, // Replace with variable from API
-                                minLumpsum:
-                                    argVal?.minimumInvestment.toInt() ??
-                                    1000, // Replace with variable from API
-                                minTopup:
-                                    argVal?.minimumTopup.toInt() ??
-                                    5000, // Replace with variable from API
-                                folio: null,
-                                imgUrl: controller
-                                    .imgUrl, // Pass folio if the user already has one, otherwise null
+                                  Get.to(
+                                    () => SIPPurchasePage(),
+                                    arguments: purchaseArgs,
+                                  );
+                                },
                               );
-
-                              Get.to(
-                                () => SIPPurchasePage(),
-                                arguments: purchaseArgs,
-                              );
-
-                              // await cartController.setInvestmentDetails(
-                              //   code: controller.schemeCode,
-                              //   name: controller.schemeName,
-                              //   minAmount:
-                              //       controller.fundDetail.value!.sipMinimumAmount,
-                              //   fundDetailEntity: controller.fundDetail.value!,
-                              //   amcLogo: controller.imgUrl,
-                              // );
-                              // Get.toNamed(
-                              //   AppRoutes.investNow,
-                              //   arguments: {
-                              //     "investNow":
-                              //         controller.fundDetail.value?.sipMinimumAmount,
-                              //   },
-                              // );
-
-                              // await cartController.addToCart(
-                              //   controller.schemeCode,
-                              //   controller.schemeName,
-                              //   controller.fundDetail.value?.sipMinimumAmount ??
-                              //       1000,
-                              //   transType: 'sip',
-                              //
-                              //   null,
-                              // );
-                              // Get.toNamed(AppRoutes.cart);
                             },
+                            // secondButtonP: () async {
+                            //   final userCtrl =
+                            //       Get.find<PersonalisationController>();
+
+                            //   if (!userCtrl.hasApprovedMandate) {
+                            //     Get.dialog(
+                            //       AlertDialog(
+                            //         shape: RoundedRectangleBorder(
+                            //           borderRadius: BorderRadius.circular(12),
+                            //         ),
+                            //         title: const Text('Auto Pay Required'),
+                            //         content: const Text(
+                            //           'Please set up your Auto Pay mandate to continue with your purchase.',
+                            //         ),
+                            //         actions: [
+                            //           TextButton(
+                            //             onPressed: () => Get.back(),
+                            //             child: const Text(
+                            //               'Close',
+                            //               style: TextStyle(color: Colors.grey),
+                            //             ),
+                            //           ),
+                            //           TextButton(
+                            //             onPressed: () {
+                            //               Get.back(); // Close dialog
+
+                            //               Get.toNamed(
+                            //                 AppRoutes.paymentScreen,
+                            //                 arguments: {
+                            //                   'isMandate': true,
+                            //                   'amount': '100000',
+                            //                 },
+                            //               );
+                            //             },
+                            //             child: const Text(
+                            //               'Set Up Auto Pay',
+                            //               style: TextStyle(
+                            //                 color: Color.fromARGB(
+                            //                   255,
+                            //                   7,
+                            //                   72,
+                            //                   125,
+                            //                 ),
+                            //               ),
+                            //             ),
+                            //           ),
+                            //         ],
+                            //       ),
+                            //       barrierDismissible: false,
+                            //     );
+                            //     return;
+                            //   }
+
+                            //   final argVal = controller.fundDetail.value;
+
+                            //   final purchaseArgs = SipPurchaseArgs(
+                            //     schemeCode: controller.schemeCode,
+                            //     fundName: controller
+                            //         .schemeName, // Replace with variable
+                            //     category:
+                            //         argVal?.schemeCategory ??
+                            //         "", // Replace with variable
+                            //     riskLabel:
+                            //         argVal?.riskometerValue ??
+                            //         "", // Replace with variable
+                            //     minSip:
+                            //         argVal?.sipMinimumAmount ??
+                            //         1000, // Replace with variable from API
+                            //     minLumpsum:
+                            //         argVal?.minimumInvestment.toInt() ??
+                            //         1000, // Replace with variable from API
+                            //     minTopup:
+                            //         argVal?.minimumTopup.toInt() ??
+                            //         5000, // Replace with variable from API
+                            //     folio: null,
+                            //     imgUrl: controller
+                            //         .imgUrl, // Pass folio if the user already has one, otherwise null
+                            //   );
+
+                            //   Get.to(
+                            //     () => SIPPurchasePage(),
+                            //     arguments: purchaseArgs,
+                            //   );
+
+                            // },
                           )
                         : const SizedBox.shrink(),
                   ),

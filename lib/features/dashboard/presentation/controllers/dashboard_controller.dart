@@ -26,9 +26,22 @@ class DashboardController extends GetxController {
   final errorMessageTranscation = ''.obs;
   final errorMessagePortfolio = ''.obs;
   final isBalanceVisible = false.obs;
+  final selectedTxnFilter = 'All'.obs;
 
   /// 0 = My Portfolio, 1 = Transactions
   final selectedIndex = 0.obs;
+  final txnFilters = [
+    'All',
+    'Successful',
+    'Pending',
+    'Failed',
+    'SIP',
+    'Lumpsum',
+    'Redeem',
+  ];
+
+  final transactionList = Rxn<MfuTransactionListEntity>();
+  final portfolioData = Rxn<MfuPortfolioEntity>();
 
   void changeTab(int index) {
     selectedIndex.value = index;
@@ -40,8 +53,35 @@ class DashboardController extends GetxController {
     }
   }
 
-  final transactionList = Rxn<MfuTransactionListEntity>();
-  final portfolioData = Rxn<MfuPortfolioEntity>();
+  void setTxnFilter(String filter) {
+    selectedTxnFilter.value = filter;
+  }
+
+  List<MfuTransactionEntity> get filteredTransactions {
+    final allTxns = transactionList.value?.transactions ?? [];
+
+    if (selectedTxnFilter.value == 'All') return allTxns;
+
+    return allTxns.where((txn) {
+      switch (selectedTxnFilter.value) {
+        case 'Successful':
+          return txn.isSuccess;
+        case 'Pending':
+          return txn.isPending;
+        case 'Failed':
+          return txn.isFailed;
+        case 'SIP':
+          return txn.isSip;
+        case 'Lumpsum':
+          return txn.isLumpsum;
+        // || txn.isNormal;
+        case 'Redeem':
+          return txn.isRedeem;
+        default:
+          return true;
+      }
+    }).toList();
+  }
 
   Future<void> getTransactions() async {
     isLoadingTransactions.value = true;

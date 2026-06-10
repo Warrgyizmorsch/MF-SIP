@@ -1,7 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:my_sip/core/utils/constant/colors.dart'; // Ensure correct path
+import 'package:my_sip/core/utils/constant/colors.dart';
+import 'package:my_sip/core/utils/constant/text_style.dart'; // Ensure correct path
 
 class CustomActionDialog extends StatefulWidget {
   final IconData icon;
@@ -63,10 +64,7 @@ class _CustomActionDialogState extends State<CustomActionDialog>
                     height: 90,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Ucolors.primary,
-                        width: 3,
-                      ),
+                      border: Border.all(color: Ucolors.primary, width: 3),
                     ),
                   ),
                 ),
@@ -80,11 +78,7 @@ class _CustomActionDialogState extends State<CustomActionDialog>
               shape: BoxShape.circle,
               color: Ucolors.primary.withAlpha(0x08),
             ),
-            child: Icon(
-              widget.icon,
-              size: 48,
-              color: Ucolors.primary,
-            ),
+            child: Icon(widget.icon, size: 48, color: Ucolors.primary),
           ),
         ],
       ),
@@ -138,10 +132,7 @@ class _CustomActionDialogState extends State<CustomActionDialog>
                     Text(
                       widget.description,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        height: 1.5,
-                      ),
+                      style: const TextStyle(color: Colors.grey, height: 1.5),
                     ),
                     const SizedBox(height: 24),
                     SizedBox(
@@ -178,6 +169,60 @@ class _CustomActionDialogState extends State<CustomActionDialog>
           ),
         ),
       ),
+    );
+  }
+}
+
+class DialogHelper {
+  static void showPrerequisiteDialog({
+    required String title,
+    required String message,
+    required String buttonText,
+    required VoidCallback onTap,
+  }) {
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontFamily: FontFamily.medium,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        content: Text(
+          message,
+          style: const TextStyle(
+            fontFamily: FontFamily.medium,
+            color: Colors.black87,
+            height: 1.4,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text(
+              'Close',
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: onTap,
+            child: Text(
+              buttonText,
+              style: const TextStyle(
+                fontFamily: FontFamily.medium,
+                color: Colors.blue, // Or use Ucolors.primary
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+      barrierDismissible: false,
     );
   }
 }

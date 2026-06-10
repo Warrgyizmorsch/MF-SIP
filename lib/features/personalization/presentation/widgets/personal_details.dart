@@ -109,7 +109,11 @@ class PersonalDetailsScreen extends GetView<AuthController> {
                   const Text(
                     "Keep your profile updated. Your PAN and identity details are strictly encrypted.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey, fontSize: 13),
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      color: Colors.grey,
+                      fontSize: 13,
+                    ),
                   ),
                 ],
               ),
@@ -136,7 +140,11 @@ class PersonalDetailsScreen extends GetView<AuthController> {
                 children: [
                   const Text(
                     "Edit Personal Details",
-                    style: TextStyle(fontFamily: FontFamily.medium,fontSize: 22, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 24),
 
@@ -212,7 +220,10 @@ class PersonalDetailsScreen extends GetView<AuthController> {
                                 )
                               : const Text(
                                   "Save Changes",
-                                  style: TextStyle(fontFamily: FontFamily.medium,color: Colors.white),
+                                  style: TextStyle(
+                                    fontFamily: FontFamily.medium,
+                                    color: Colors.white,
+                                  ),
                                 ),
                         ),
                       ),

@@ -1809,11 +1809,11 @@ class _MobileLayout extends StatelessWidget {
                     iconColor: Ucolors.light,
                     roleColor: Ucolors.borderColor,
                     greetingNameColor: Ucolors.light,
-                    avatar: const AssetImage(UImages.avatar),
+                    avatar: const AssetImage(UImages.mfsiplogo),
                     // img: UCircularImage(image: user?.img ?? ''),
                     img: UCircularImage(
                       image: personalisationController.imagePath.isEmpty
-                          ? (user?.img ?? UImages.avatar)
+                          ? (user?.img ?? UImages.mfsiplogo)
                           : personalisationController.imagePath.value,
                     ),
                     action: [

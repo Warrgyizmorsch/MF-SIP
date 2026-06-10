@@ -44,58 +44,224 @@ class CartPage extends GetView<CartController> {
 
     // 🚀 Access the user data controller to check mandate status
     final userCtrl = Get.find<PersonalisationController>();
-
-    if (userCtrl.hasApprovedMandate) {
-      Get.toNamed(
-        AppRoutes.paymentScreen,
-        arguments: {
-          'isMandate': false,
-          'amount': controller.totalAmount.toString(),
+    if (!userCtrl.isKycVerified.value) {
+      _showPrerequisiteDialog(
+        title: 'KYC Required',
+        message:
+            'Your KYC verification is pending or incomplete. Please complete your KYC to invest.',
+        buttonText: 'Complete KYC',
+        onTap: () {
+          Get.back();
+          Get.toNamed(AppRoutes.kycScreen, id: isDesktop ? 1 : null);
         },
-        id: isDesktop ? 1 : null,
       );
-    } else {
-      Get.dialog(
-        AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          title: const Text('Auto Pay Required'),
-          content: const Text(
-            'Please set up your Auto Pay mandate to continue with your purchase.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Get.back(),
-              child: const Text(
-                'Close',
-                style: TextStyle(
-                  fontFamily: FontFamily.medium,
-                  color: Colors.grey,
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Get.back(); // Close dialog
-                Get.toNamed(
-                  AppRoutes.paymentScreen,
-                  arguments: {'isMandate': true, 'amount': '100000'},
-                );
-              },
-              child: const Text(
-                'Set Up Auto Pay',
-                style: TextStyle(
-                  fontFamily: FontFamily.medium,
-                  color: Colors.blue,
-                ),
-              ),
-            ),
-          ],
-        ),
-        barrierDismissible: false,
-      );
+      return;
     }
+    if (!userCtrl.hasPersonalDetails.value) {
+      _showPrerequisiteDialog(
+        title: 'Additional Info Required',
+        message:
+            'Please provide a few more personal details (like family details) to complete your investor profile.',
+        buttonText: 'Add Details',
+        onTap: () {
+          Get.back();
+          // Route exactly where the user needs to fill out missing details
+          Get.toNamed(AppRoutes.additionalInfo, id: isDesktop ? 1 : null);
+        },
+      );
+      return;
+    }
+    if (!userCtrl.hasBank.value) {
+      _showPrerequisiteDialog(
+        title: 'Bank Account Required',
+        message:
+            'Please link a bank account to process your investments and receive withdrawals.',
+        buttonText: 'Add Bank',
+        onTap: () {
+          Get.back();
+          Get.toNamed(AppRoutes.addanotherbank, id: isDesktop ? 1 : null);
+        },
+      );
+      return;
+    }
+    final String? canNumber = userCtrl.userData.value?.canNumber;
+    final String? canError = userCtrl.userData.value?.canErrorMessage;
+    // if (canNumber == null || canNumber.isEmpty) {
+    //   _showPrerequisiteDialog(
+    //     title: 'CAN Registration Pending',
+    //     message:
+    //         'Your Common Account Number (CAN) has not been generated or approved yet. This is mandatory for mutual fund investments.',
+    //     buttonText: 'Check Status',
+    //     onTap: () {
+    //       Get.back();
+    //       // Route to the screen where they can see or complete CAN registration (e.g., Profile Page)
+    //       // Get.toNamed(AppRoutes.profilePage, id: isDesktop ? 1 : null);
+    //     },
+    //   );
+    //   return;
+    // }
+    if (canNumber == null || canNumber.isEmpty) {
+      // 🚀 If there's a specific error from the API (like "Invalid KYC Status")
+      if (canError != null && canError.isNotEmpty) {
+        _showPrerequisiteDialog(
+          title: 'CAN Registration Failed',
+          message:
+              'We could not generate your CAN because: \n\n"$canError"\n\nPlease resolve this issue to proceed.',
+          buttonText: 'Try Again',
+          onTap: () {
+            // Get.back();
+
+            userCtrl.checkAndTriggerCanRegistration(isManualTrigger: true);
+            Get.back();
+
+            // Get.toNamed(AppRoutes.profilePage, id: isDesktop ? 1 : null);
+          },
+        );
+      }
+      // 🚀 Fallback if it's just pending/processing with no explicit error
+      else {
+        _showPrerequisiteDialog(
+          title: 'CAN Registration Pending',
+          message:
+              'Your Common Account Number (CAN) has not been generated or approved yet. This is mandatory for mutual fund investments.',
+          buttonText: 'Check Status',
+          onTap: () {
+            Get.back();
+            // Get.toNamed(AppRoutes.profilePage, id: isDesktop ? 1 : null);
+          },
+        );
+      }
+      return;
+    }
+    if (!userCtrl.hasApprovedMandate) {
+      _showPrerequisiteDialog(
+        title: 'Auto Pay Required',
+        message:
+            'Please set up your Auto Pay mandate to continue with your purchase.',
+        buttonText: 'Set Up Auto Pay',
+        onTap: () {
+          Get.back();
+          Get.toNamed(
+            AppRoutes.paymentScreen,
+            arguments: {'isMandate': true, 'amount': '100000'},
+            id: isDesktop ? 1 : null,
+          );
+        },
+      );
+      return;
+    }
+    Get.toNamed(
+      AppRoutes.paymentScreen,
+      arguments: {
+        'isMandate': false,
+        'amount': controller.totalAmount.toString(),
+      },
+      id: isDesktop ? 1 : null,
+    );
+
+    // if (userCtrl.hasApprovedMandate) {
+    //   Get.toNamed(
+    //     AppRoutes.paymentScreen,
+    //     arguments: {
+    //       'isMandate': false,
+    //       'amount': controller.totalAmount.toString(),
+    //     },
+    //     id: isDesktop ? 1 : null,
+    //   );
+    // } else {
+    //   Get.dialog(
+    //     AlertDialog(
+    //       shape: RoundedRectangleBorder(
+    //         borderRadius: BorderRadius.circular(12),
+    //       ),
+    //       title: const Text('Auto Pay Required'),
+    //       content: const Text(
+    //         'Please set up your Auto Pay mandate to continue with your purchase.',
+    //       ),
+    //       actions: [
+    //         TextButton(
+    //           onPressed: () => Get.back(),
+    //           child: const Text(
+    //             'Close',
+    //             style: TextStyle(
+    //               fontFamily: FontFamily.medium,
+    //               color: Colors.grey,
+    //             ),
+    //           ),
+    //         ),
+    //         TextButton(
+    //           onPressed: () {
+    //             Get.back(); // Close dialog
+    //             Get.toNamed(
+    //               AppRoutes.paymentScreen,
+    //               arguments: {'isMandate': true, 'amount': '100000'},
+    //             );
+    //           },
+    //           child: const Text(
+    //             'Set Up Auto Pay',
+    //             style: TextStyle(
+    //               fontFamily: FontFamily.medium,
+    //               color: Colors.blue,
+    //             ),
+    //           ),
+    //         ),
+    //       ],
+    //     ),
+    //     barrierDismissible: false,
+    //   );
+    // }
+  }
+
+  void _showPrerequisiteDialog({
+    required String title,
+    required String message,
+    required String buttonText,
+    required VoidCallback onTap,
+  }) {
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontFamily: FontFamily.medium, // Use your custom font family
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        content: Text(
+          message,
+          style: const TextStyle(
+            fontFamily: FontFamily.medium,
+            color: Colors.black87,
+            height: 1.4,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text(
+              'Close',
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: onTap,
+            child: Text(
+              buttonText,
+              style: const TextStyle(
+                fontFamily: FontFamily.medium,
+                color: Colors.blue, // Or use Ucolors.primary
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
   }
 
   @override

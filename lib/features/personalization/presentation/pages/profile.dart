@@ -78,7 +78,7 @@ class _MobileProfileLayout extends StatelessWidget {
 
                 String displayImage = controller.imagePath.isNotEmpty
                     ? controller.imagePath.value
-                    : (reactiveUser?.img ?? UImages.avatar);
+                    : (reactiveUser?.img ?? UImages.mfsiplogo);
 
                 log(user1?.img ?? ' not ');
 

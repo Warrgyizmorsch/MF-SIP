@@ -1691,6 +1691,7 @@ class _MobileDashboardLayout extends StatelessWidget {
               );
             }
             final txns = controller.transactionList.value?.transactions ?? [];
+
             if (txns.isEmpty) {
               return const SliverToBoxAdapter(
                 child: Padding(
@@ -1699,6 +1700,8 @@ class _MobileDashboardLayout extends StatelessWidget {
                 ),
               );
             }
+
+            final filteredTxns = controller.filteredTransactions;
 
             /// 🟩 TRANSACTIONS TAB
             return SliverList(
@@ -1712,10 +1715,93 @@ class _MobileDashboardLayout extends StatelessWidget {
                     textcolor: const Color(0xff787878),
                   ),
                 ),
-                // ...List.generate(6, (index) => const TransactionCard()),
-                ...txns
-                    .map((txn) => TransactionCardDash(transaction: txn))
-                    .toList(),
+                SizedBox(
+                  height: 36, // Height of the filter bar
+                  child: ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: controller.txnFilters.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(width: 8),
+                    itemBuilder: (context, index) {
+                      final filter = controller.txnFilters[index];
+                      final isSelected =
+                          controller.selectedTxnFilter.value == filter;
+
+                      return GestureDetector(
+                        onTap: () => controller.setTxnFilter(filter),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            // Smooth color transitions
+                            color: isSelected ? Ucolors.primary : Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: isSelected
+                                  ? Ucolors.primary
+                                  : Colors.grey.shade300,
+                              width: 1,
+                            ),
+                            // Add a subtle glow/shadow to the active pill
+                            boxShadow: isSelected
+                                ? [
+                                    BoxShadow(
+                                      color: Ucolors.primary.withOpacity(0.3),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ]
+                                : [],
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            filter,
+                            style: TextStyle(
+                              color: isSelected
+                                  ? Colors.white
+                                  : Colors.grey.shade700,
+                              fontSize: 13,
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+                // ...txns
+                //     .map((txn) => TransactionCardDash(transaction: txn))
+                //     .toList(),
+                ...filteredTxns.isEmpty
+                    ? [
+                        Padding(
+                          padding: const EdgeInsets.all(40.0),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.receipt_long,
+                                  size: 48,
+                                  color: Colors.grey.shade300,
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  "No ${controller.selectedTxnFilter.value.toLowerCase()} transactions found.",
+                                  style: TextStyle(color: Colors.grey.shade500),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ]
+                    : filteredTxns
+                          .map((txn) => TransactionCardDash(transaction: txn))
+                          .toList(),
               ]),
             );
           }

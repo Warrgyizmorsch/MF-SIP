@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable, dead_null_aware_expression, dead_code
+
 import 'dart:async';
 import 'dart:developer';
 
@@ -17,9 +19,7 @@ import 'package:my_sip/features/mfu/domain/entity/emandate_status_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/mandate_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/mfu_bank_validation_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/normal_txn_entity.dart';
-import 'package:my_sip/features/dashboard/domain/entity/portfolio_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/systematic_txn_entity.dart';
-import 'package:my_sip/features/dashboard/domain/entity/transactionlist_entity.dart';
 import 'package:my_sip/features/mfu/domain/usecases/mfu_usecases.dart';
 import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
 import 'package:my_sip/services/session_manager.dart';
@@ -450,10 +450,10 @@ class MfuController extends GetxController {
       },
       (error) {
         errorMessage.value = error.message ?? 'Something went wrong';
-        CustomSnackbar.error(
-          title: 'MFU Error',
-          message: 'Something went wrong',
-        );
+        // CustomSnackbar.error(
+        //   title: 'MFU Error',
+        //   message: 'Something went wrong',
+        // );
       },
     );
 

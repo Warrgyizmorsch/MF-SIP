@@ -14,7 +14,6 @@ class ULoaders {
     required IconData icon,
     required Color color,
     int durationInSeconds = 2,
-    double fontsize = 20,
   }) {
     Get.dialog(
       BackdropFilter(

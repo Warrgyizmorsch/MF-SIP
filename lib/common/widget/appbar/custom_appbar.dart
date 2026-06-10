@@ -67,7 +67,7 @@ class CustomProfileAppbar extends StatelessWidget
 
                     child:
                         img ??
-                        UCircularImage(image: (user?.img ?? UImages.avatar)),
+                        UCircularImage(image: (user?.img ?? UImages.mfsiplogo)),
                   ),
                   const SizedBox(width: 5),
                   Column(

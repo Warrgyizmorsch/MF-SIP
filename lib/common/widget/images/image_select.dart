@@ -108,7 +108,12 @@ class UCircularImage extends StatelessWidget {
     final double size = radius * 2;
 
     if (image.isEmpty) {
-      return Image.asset(UImages.avatar, fit: fit, width: size, height: size);
+      return Image.asset(
+        UImages.mfsiplogo,
+        fit: fit,
+        width: size,
+        height: size,
+      );
     }
 
     // 1. Web Image Picker Check (blob: URL)
@@ -137,7 +142,7 @@ class UCircularImage extends StatelessWidget {
           );
         }
       } catch (e) {
-       debugPrint(e.toString());
+        debugPrint(e.toString());
       }
     }
 
@@ -169,12 +174,12 @@ class UCircularImage extends StatelessWidget {
 
   Widget _buildFallback(double size) {
     return Image.asset(
-      UImages.avatar,
+      UImages.mfsiplogo,
       fit: fit,
       width: size,
       height: size,
       errorBuilder: (context, error, stackTrace) =>
-          Icon(Icons.person, size: radius, color: Colors.grey),
+          Icon(Icons.person, color: Colors.grey),
     );
   }
 }

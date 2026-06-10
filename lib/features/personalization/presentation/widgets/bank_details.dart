@@ -98,143 +98,113 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                 ] else ...[
                   const Gap(10),
                 ],
-
-                // 💳 SHOW LINKED BANK ACCOUNT
-                // Obx(() {
-                //   // 1. Loading State
-                //   if (controller.isLinkedBankLoading.value) {
-                //     return const Center(
-                //       child: Padding(
-                //         padding: EdgeInsets.all(40.0),
-                //         child: CircularProgressIndicator(),
-                //       ),
-                //     );
-                //   }
-
-                //   // 2. Empty State (User hasn't linked a bank yet)
-                //   if (controller.linkedBankAccounts.isEmpty) {
-                //     return Center(
-                //       child: Padding(
-                //         padding: const EdgeInsets.all(40.0),
-                //         child: Column(
-                //           children: [
-                //             const Icon(
-                //               Icons.account_balance_wallet,
-                //               size: 60,
-                //               color: Colors.grey,
-                //             ),
-                //             const Gap(16),
-                //             const Text(
-                //               "No bank accounts linked yet.\nPlease add an account.",
-                //               textAlign: TextAlign.center,
-                //               style: TextStyle(
-                //                 fontFamily: FontFamily.medium,
-                //                 color: Colors.grey,
-                //                 fontSize: 16,
-                //               ),
-                //             ),
-                //             const Gap(20),
-                //             if (!isDesktop) // Show button here for mobile
-                //               UElevatedBUtton(
-                //                 onPressed: () =>
-                //                     Get.toNamed(AppRoutes.addanotherbank),
-                //                 child: const Center(
-                //                   child: Text(
-                //                     'Add Bank Account',
-                //                     style: TextStyle(
-                //                       fontFamily: FontFamily.medium,
-                //                       color: Colors.white,
-                //                     ),
-                //                   ),
-                //                 ),
-                //               ),
-                //           ],
-                //         ),
-                //       ),
-                //     );
-                //   }
-
-                //   return ListView.separated(
-                //     shrinkWrap: true, // Required inside SingleChildScrollView
-                //     physics: const NeverScrollableScrollPhysics(),
-                //     itemCount: controller.linkedBankAccounts.length,
-                //     separatorBuilder: (context, index) =>
-                //         const Gap(16), // Spacing between cards
-                //     itemBuilder: (context, index) {
-                //       final bank = controller.linkedBankAccounts[index];
-
-                //       final String bankName = bank.bankName ?? 'Unknown Bank';
-                //       final String accNumber =
-                //           bank.accountNumberEncrypted ?? 'XXXX';
-                //       final String ifsc = bank.ifscCode ?? 'XXXX';
-                //       final int isVerified = bank.verified ?? 0;
-
-                //       final gradient = Ucolors.deepOceanGradient;
-
-                //       return BankCard(
-                //         bankName: bankName,
-                //         cardNumber: accNumber,
-                //         ifsccode: ifsc,
-                //         isVerified: isVerified == 1,
-                //         bankLogo: UImages.sbi,
-                //         color: gradient,
-                //       );
-                //     },
-                //   );
-                // }),
                 // 💳 SHOW LINKED BANK ACCOUNTS
                 Obx(() {
                   final bankCount = controller.linkedBankAccounts.length;
+
+                  // 1. Loading State
                   // if (controller.isLinkedBankLoading.value) {
-                  //   return const Center(child: CircularProgressIndicator());
+                  //   return const Center(
+                  //     child: Padding(
+                  //       padding: EdgeInsets.all(40.0),
+                  //       child: CircularProgressIndicator(),
+                  //     ),
+                  //   );
                   // }
 
-                  return Column(
-                    children: [
-                      // 1. Render all current bank cards
-                      ...controller.linkedBankAccounts.map(
-                        (bank) => Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: BankCard(
-                            onDelete: () {
-                              // controller.deleteBank(bank.id ?? 0);
-                              if (bank.id != null) {
-                                // controller.deleteBank(bank.id!);
-                                _confirmDelete(
-                                  context,
-                                  bank.id!,
-                                  bank.bankName!,
-                                );
-                              } else {
-                                Get.snackbar("Error", "Bank ID not found");
-                              }
-                            },
-                            bankName: bank.bankName ?? 'Unknown',
-                            cardNumber: bank.accountNumberEncrypted ?? '****',
-                            ifsccode: bank.ifscCode ?? '',
-                            isVerified: bank.verified == 1,
-                            bankLogo: UImages.sbi,
-                            color: Ucolors.deepOceanGradient,
-                          ),
+                  // 2. EMPTY STATE (No Bank Accounts)
+                  if (bankCount == 0) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(40.0),
+                        child: Column(
+                          children: [
+                            const Icon(
+                              Icons.account_balance_wallet,
+                              size: 60,
+                              color: Colors.grey,
+                            ),
+                            const Gap(16),
+                            const Text(
+                              "No bank accounts linked yet.\nPlease add an account.",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: FontFamily.medium,
+                                color: Colors.grey,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const Gap(20),
+                            if (!isDesktop) // Show "Add Bank Account" button here
+                              UElevatedBUtton(
+                                onPressed: () {
+                                  controller.clearBankFields();
+                                  Get.toNamed(AppRoutes.addanotherbank);
+                                },
+                                color: Ucolors.primary,
+                                child: const Center(
+                                  child: Text(
+                                    'Add Bank Account',
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.medium,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
+                    );
+                  }
 
-                      // 2. Conditionally show "Add Another" button (Only if < 3)
-                      // if (bankCount < 3) ...[
+                  // 3. DATA STATE (1, 2, or 3 Banks Exist)
+                  return Column(
+                    children: [
+                      // Render all current bank cards
+                      ...controller.linkedBankAccounts
+                          .where((bank) => bank != null)
+                          .map(
+                            (bank) => Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: BankCard(
+                                onDelete: () {
+                                  if (bank.id != null) {
+                                    _confirmDelete(
+                                      context,
+                                      bank.id!,
+                                      bank.bankName ?? 'Unknown',
+                                    );
+                                  } else {
+                                    Get.snackbar("Error", "Bank ID not found");
+                                  }
+                                },
+                                bankName: bank.bankName ?? 'Unknown',
+                                cardNumber:
+                                    bank.accountNumberEncrypted ?? '****',
+                                ifsccode: bank.ifscCode ?? '',
+                                isVerified: bank.verified == 1,
+                                bankLogo: UImages.sbi,
+                                color: Ucolors.deepOceanGradient,
+                              ),
+                            ),
+                          )
+                          .toList(),
+
                       const Gap(16),
 
+                      // Show "Add Another" or "Manage" button
                       UElevatedBUtton(
                         color: Ucolors.primary,
                         onPressed: () {
                           if (bankCount < 3) {
-                            // Allow adding
+                            // Allow adding another
                             controller.clearBankFields();
                             Get.toNamed(AppRoutes.addanotherbank);
                           } else {
-                            // Show Modern Alert Dialog
-                            // _showMaxBankLimitDialog(context);
+                            // Limit Reached Warning
                             ULoaders.warning(
-                              title: 'Warning',
+                              title: 'Limit Reached',
                               message:
                                   "You can only link a maximum of 3 bank accounts. Please delete an existing account to add a new one.",
                             );
@@ -242,99 +212,83 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                         },
                         child: Center(
                           child: Text(
-                            // 'Add Another Bank Account',
                             bankCount < 3
-                                ? 'Add Another Bank Account'
+                                ? 'Add Another Account'
                                 : 'Manage Bank Accounts',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontFamily: FontFamily.medium,
                               color: Colors.white,
                             ),
                           ),
                         ),
                       ),
-                      // ],
                     ],
                   );
                 }),
 
+                // ⚙️ AUTO PAY SECTION (Only visible on Mobile AND when a Bank exists)
                 if (!isDesktop) ...[
-                  // const Gap(30),
                   Obx(() {
-                    if (controller.hasApprovedMandate) {
-                      return UElevatedBUtton(
-                        outlined: true,
-                        child: const Center(
-                          child: Text(
-                            '✅ Auto Pay Active',
-                            style: TextStyle(
-                              fontFamily: FontFamily.medium,
-                              color: Color(0xFF10B981),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      );
-                    }
-
-                    if (controller.hasPendingMandate) {
-                      return UElevatedBUtton(
-                        child: const Center(
-                          child: Text(
-                            '⏳ Auto Pay Pending Approval',
-                            style: TextStyle(
-                              fontFamily: FontFamily.medium,
-                              color: Color(0xFFE5941A),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      );
-                    }
-
-                    return UElevatedBUtton(
-                      outlined: true,
-                      onPressed: () {
-                        Get.toNamed(
-                          AppRoutes.paymentScreen,
-                          arguments: {'isMandate': true, 'amount': '100000'},
-                        );
-                      },
-                      child: const Center(
-                        child: Text(
-                          'Set Up Auto Pay',
-                          style: TextStyle(
-                            fontFamily: FontFamily.medium,
-                            color: Ucolors.blue,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-                  // "Add Another" button
-                  Obx(() {
+                    // HIDE EVERYTHING BELOW IF NO BANK ACCOUNTS
                     if (controller.linkedBankAccounts.isEmpty) {
-                      return UElevatedBUtton(
-                        onPressed: () {
-                          Get.find<PersonalisationController>()
-                              .clearBankFields();
-                          Get.toNamed(AppRoutes.addanotherbank);
-                        },
-                        outlined: true,
-                        child: const Center(
-                          child: Text(
-                            'Update Bank Account',
-                            style: TextStyle(
-                              fontFamily: FontFamily.medium,
-                              color: Ucolors.blue,
-                              fontWeight: FontWeight.w600,
+                      return const SizedBox.shrink();
+                    }
+
+                    return Column(
+                      children: [
+                        const Gap(10),
+                        if (controller.hasApprovedMandate)
+                          UElevatedBUtton(
+                            outlined: true,
+                            child: const Center(
+                              child: Text(
+                                '✅ Auto Pay Active',
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  color: Color(0xFF10B981),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          )
+                        else if (controller.hasPendingMandate)
+                          UElevatedBUtton(
+                            child: const Center(
+                              child: Text(
+                                '⏳ Auto Pay Pending Approval',
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  color: Color(0xFFE5941A),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          )
+                        else
+                          UElevatedBUtton(
+                            outlined: true,
+                            onPressed: () {
+                              Get.toNamed(
+                                AppRoutes.paymentScreen,
+                                arguments: {
+                                  'isMandate': true,
+                                  'amount': '100000',
+                                },
+                              );
+                            },
+                            child: const Center(
+                              child: Text(
+                                'Set Up Auto Pay',
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  color: Ucolors.blue,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    }
-                    return const SizedBox.shrink();
+                      ],
+                    );
                   }),
                 ],
               ],
@@ -346,17 +300,27 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
   }
 
   void _confirmDelete(BuildContext context, int bankid, String bankName) {
-    Get.defaultDialog(
-      title: "Delete Bank",
-      middleText: "Are you sure you want to delete $bankName?",
-      textCancel: "Cancel",
-      textConfirm: "Delete",
-      confirmTextColor: Colors.white,
-      onConfirm: () {
+    DialogHelper.showPrerequisiteDialog(
+      title: 'Delete Bank',
+      message: 'Are you sure you want to delete $bankName?',
+      buttonText: 'Delete',
+      onTap: () {
         Get.back(); // Close dialog
         controller.deleteBank(bankid);
       },
     );
+
+    // Get.defaultDialog(
+    //   title: "Delete Bank",
+    //   middleText: "Are you sure you want to delete $bankName?",
+    //   textCancel: "Cancel",
+    //   textConfirm: "Delete",
+    //   confirmTextColor: Colors.white,
+    //   onConfirm: () {
+    //     Get.back(); // Close dialog
+    //     controller.deleteBank(bankid);
+    //   },
+    // );
   }
 }
 

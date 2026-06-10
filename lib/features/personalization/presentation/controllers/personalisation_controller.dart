@@ -627,20 +627,21 @@ class PersonalisationController extends GetxController {
         bankName: bankNameController.text.trim(),
       );
 
-      result.fold(
+      await result.fold(
         (success) async {
           log("✅ Bank added successfully: ${success.data?.message}");
           await fetchUserDetails();
           clearBankFields();
 
           Get.back();
+          isBankAdding.value = false;
 
           CustomSnackbar.success(
             title: "Success",
             message: "Bank account added successfully",
           );
         },
-        (error) {
+        (error) async {
           isBankAdding.value = false;
           Get.snackbar(
             "Error",
@@ -654,9 +655,10 @@ class PersonalisationController extends GetxController {
       log("Bank Addition Error: $e");
       Get.snackbar("Error", "Something went wrong while adding bank");
       isBankAdding.value = false;
-    } finally {
-      isBankAdding.value = false;
     }
+    // finally {
+    //   isBankAdding.value = false;
+    // }
   }
 
   Future<void> deleteBank(int bankId) async {
@@ -928,12 +930,16 @@ class PersonalisationController extends GetxController {
         'father_name': fatherNameTextEditingController.text,
         'mother_name': motherNameTextEditingController.text,
 
-        'occupation': selectedOccupation.value == "Other"
-            ? occupationOtherTextEditingController.text
-            : selectedOccupation.value,
-        'wealth_source': wealthSource.text,
-        'yearly_income': getYearlyIncomeAsInt(yearlyIncome.text),
+        // 'occupation': selectedOccupation.value == "Other"
+        //     ? occupationOtherTextEditingController.text
+        //     : selectedOccupation.value,
 
+        // 'wealth_source': wealthSource.text,
+        // 'yearly_income': getYearlyIncomeAsInt(yearlyIncome.text),
+        'wealth_source': getWealthSourceId(wealthSource.text),
+        'yearly_income': getIncomeSlabId(yearlyIncome.text),
+
+        'occupation': getOccupationId(occupationTextEditingController.text),
         'pin_code': pinCodeTextEditingController.text,
         "city": cityTextEditingController.text,
 
