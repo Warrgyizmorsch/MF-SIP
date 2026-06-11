@@ -262,7 +262,7 @@ class BottomBarButton extends StatelessWidget {
   final String secondButton;
   final VoidCallback? firstButtonP;
   final VoidCallback? secondButtonP;
-  final bool isLoading; // <--- Add this
+  final bool isLoading; // <--- Add this for 
 
   @override
   Widget build(BuildContext context) {
