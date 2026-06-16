@@ -1150,6 +1150,8 @@ class _PopupWebViewState extends State<_PopupWebView> {
   }
 }
 
+/*
+
 // class MandateWebView extends StatefulWidget {
 //   final String url;
 
@@ -1271,3 +1273,97 @@ class _PopupWebViewState extends State<_PopupWebView> {
 //     );
 //   }
 // }
+
+*/
+
+
+/* 
+  Can 
+final isLoadingCanStatus = false.obs;
+final canStatusEntity = Rxn<MfuCanStatusEntity>();
+
+Future<void> getCanStatus({required String can}) async {
+  isLoadingCanStatus.value = true;
+  errorMessage.value = '';
+
+  await _mfuCall<MfuCanStatusEntity>(
+    request: MfuCanStatusRequest(can: can),
+    parser: (raw) => MfuCanStatusResponse.fromJson(raw).toEntity(),
+    onSuccess: (entity) {
+      canStatusEntity.value = entity;
+      log("[MfuController] CAN Status: ${entity.canStatus} | ${entity.msg}");
+
+      // Resume polling logic if still pending
+      if (entity.isPending) {
+        _startPolling();
+      } else {
+        _stopPolling();
+      }
+    },
+  );
+
+  isLoadingCanStatus.value = false;
+}
+controller.getCanStatus(can: session.getUserData?.canNumber ?? '');
+
+Obx(() {
+  final status = controller.canStatusEntity.value;
+  // status?.canStatus  → "Pending"
+  // status?.isApproved → bool
+  // status?.hasBlocks  → show error blocks
+  // status?.blockRespList → list of issues
+});
+
+----------   Can Val  ---------- 
+final isLoadingCanVal = false.obs;
+final canValEntity = Rxn<MfuCanValEntity>();
+
+Future<void> validateCan({
+  required String can,
+  required String pan,
+  required String dob,
+  required String emailId,
+}) async {
+  isLoadingCanVal.value = true;
+  errorMessage.value = '';
+
+  await _mfuCall<MfuCanValEntity>(
+    request: MfuCanValRequest(
+      can: can,
+      pan: pan,
+      dob: dob,
+      emailId: emailId,
+    ),
+    parser: (raw) => MfuCanValResponse.fromJson(raw).toEntity(),
+    onSuccess: (entity) {
+      canValEntity.value = entity;
+      log("[MfuController] CAN-VAL → canValid: ${entity.canValid} | panValid: ${entity.panValid} | status: ${entity.canStatus}");
+    },
+  );
+
+  isLoadingCanVal.value = false;
+}
+
+controller.validateCan(
+  can: "14163BEA01",
+  pan: "PPPPP5555P",
+  dob: "1970-06-01",
+  emailId: "user@gmail.com",
+);
+
+Obx(() {
+  final val = controller.canValEntity.value;
+  // val?.canValid      → true
+  // val?.panValid      → true
+  // val?.emailValid    → false
+  // val?.isApproved    → true (canStatus == "AP")
+  // val?.canAllowTrans → false
+});
+
+
+//////  ---------   
+
+*/
+
+
+/// Generic

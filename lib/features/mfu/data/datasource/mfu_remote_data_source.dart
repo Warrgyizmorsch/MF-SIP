@@ -10,6 +10,8 @@ import 'package:my_sip/features/mfu/data/model/can_status_model.dart';
 import 'package:my_sip/features/mfu/data/model/emandate_status.dart';
 import 'package:my_sip/features/mfu/data/model/mandate_model.dart';
 import 'package:my_sip/features/mfu/data/model/mandate_status_req.dart';
+import 'package:my_sip/features/mfu/data/model/mfu_call_request_base.dart';
+import 'package:my_sip/features/mfu/data/model/mfu_call_response_wrapper.dart';
 import 'package:my_sip/features/mfu/data/model/mfu_mandate_create_req.dart';
 import 'package:my_sip/features/mfu/data/model/normal_txn_model.dart';
 import 'package:my_sip/features/mfu/data/model/normal_txn_req_model.dart';
@@ -355,6 +357,37 @@ class MfuRemoteDataSource {
       return Right(ApiError(message: 'systematicTransaction Exception: $e'));
     }
   }
+
+  // mfu_remote_data_source.dart
+
+Future<Either<Result<MfuCallResponseWrapper>, ApiError>> mfuCall(
+  MfuCallRequestBase request,
+) async {
+  try {
+    final body = request.toRequestBody();
+    createLog("[MfuRemoteDataSource] mfuCall (${request.apiType}) → $body");
+
+    final resp = await _apiService.postApi(
+      "${Appurl.baseUrl}/api/v1/mfu/call",
+      data: body,
+    );
+
+    createLog("[MfuRemoteDataSource] mfuCall Response → $resp");
+
+    if (resp != null) {
+      final result = MfuCallResponseWrapper.fromJson(resp);
+      if (result.success == true) {
+        return Left(Result.success(result));
+      } else {
+        return Right(ApiError(message: 'MFU Call Failed [${request.apiType}]'));
+      }
+    } else {
+      return Right(ApiError(message: 'mfuCall: Invalid response structure'));
+    }
+  } catch (e) {
+    return Right(ApiError(message: 'mfuCall Exception: $e'));
+  }
+}
 
   
 }
