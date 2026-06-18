@@ -189,7 +189,7 @@ class _WebDashboardLayout extends StatelessWidget {
                 /// DESKTOP LAYOUT
                 : Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                  children: [
                       /// LEFT SECTION
                       Expanded(
                         flex: 6,

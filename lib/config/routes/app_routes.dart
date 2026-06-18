@@ -49,4 +49,6 @@ class AppRoutes {
   static const videoList = '/videoList';
   static const additionalInfo = '/additionalInfo';
   static const investNow = '/investNow';
+  static const investNowPage = '/investNowPage';
+  static const downloadStatement = '/downloadStatement';
 }

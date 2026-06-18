@@ -99,7 +99,7 @@ class WatchlistPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha:0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -418,224 +418,7 @@ class WatchlistPage extends StatelessWidget {
       );
     });
   }
-  // Widget _buildWatchlistContent() {
-  //   return Obx(() {
-  //     if (controllerr.isLoading.value) {
-  //       return const Center(
-  //         child: Padding(
-  //           padding: EdgeInsets.all(40.0),
-  //           child: CircularProgressIndicator(color: Ucolors.primary),
-  //         ),
-  //       );
-  //     }
-
-  //     if (controller.errorMessage.isNotEmpty) {
-  //       return Center(
-  //         child: Padding(
-  //           padding: const EdgeInsets.all(40.0),
-  //           child: Column(
-  //             mainAxisAlignment: MainAxisAlignment.center,
-  //             children: [
-  //               Text(
-  //                 controller.errorMessage.value,
-  //                 textAlign: TextAlign.center,
-  //               ),
-  //               const SizedBox(height: 16),
-  //               ElevatedButton(
-  //                 onPressed: () => controllerr.fetchWishlist(),
-  //                 child: const Text("Retry"),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       );
-  //     }
-
-  //     final wishlistItems =
-  //         controllerr.wishlistResponseEntity.value?.data ?? [];
-
-  //     // if (wishlistItems.isEmpty) {
-  //     //   return const Center(
-  //     //     child: Padding(
-  //     //       padding: EdgeInsets.all(40.0),
-  //     //       child: AnimatedEmptyState(
-  //     //         title: 'Empty Watchlist',
-  //     //         message: 'There are no funds in your watchlist',
-  //     //         icon: Icons.favorite_border,
-  //     //       ),
-  //     //     ),
-  //     //   );
-  //     // }
-  //     if (wishlistItems.isEmpty) {
-  //       return SingleChildScrollView(
-  //         physics: const BouncingScrollPhysics(), // Modern fluid scrolling
-  //         child: Column(
-  //           crossAxisAlignment: CrossAxisAlignment.start,
-  //           children: [
-  //             SizedBox(height: Get.height * 0.05), // Responsive top spacing
-  //             // 1. --- EMPTY STATE GRAPHIC & MODERN CTA ---
-  //             Padding(
-  //               padding: const EdgeInsets.symmetric(horizontal: 24.0),
-  //               child: Column(
-  //                 mainAxisAlignment: MainAxisAlignment.center,
-  //                 children: [
-  //                   const AnimatedEmptyState(
-  //                     title: 'Your Watchlist is Empty',
-  //                     message:
-  //                         'Track the funds you love. Add them to your watchlist to monitor their performance easily.',
-  //                     icon: Icons.favorite_border_rounded,
-  //                   ),
-  //                   const SizedBox(height: 32),
-
-  //                   // Modern Full-Width Action Button
-  //                   SizedBox(
-  //                     width: double.infinity,
-  //                     height: 56, // Tall, premium touch target
-  //                     child: ElevatedButton(
-  //                       onPressed: () {
-  //                         Get.toNamed(AppRoutes.explorePage);
-  //                       },
-  //                       style: ElevatedButton.styleFrom(
-  //                         backgroundColor: Ucolors.primary,
-  //                         foregroundColor: Colors.white,
-  //                         elevation: 0,
-  //                         shape: RoundedRectangleBorder(
-  //                           borderRadius: BorderRadius.circular(
-  //                             16,
-  //                           ), // Smooth corners
-  //                         ),
-  //                       ),
-  //                       child: Row(
-  //                         mainAxisAlignment: MainAxisAlignment.center,
-  //                         children: [
-  //                           const Icon(Icons.search_rounded, size: 20),
-  //                           const SizedBox(width: 8),
-  //                           Text(
-  //                             'Discover Funds',
-  //                             style: AppTextStyles.bodyMediumBold().copyWith(
-  //                               color: Colors.white,
-  //                               fontSize: 16,
-  //                             ),
-  //                           ),
-  //                         ],
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-
-  //             const SizedBox(height: 56),
-
-  //             // 2. --- RECENTLY VIEWED SECTION ---
-  //             Obx(() {
-  //               final recentFunds =
-  //                   Get.find<MutualFundController>().recentlyViewedFunds;
-
-  //               if (recentFunds.isEmpty) return const SizedBox.shrink();
-
-  //               return Column(
-  //                 crossAxisAlignment: CrossAxisAlignment.start,
-  //                 children: [
-  //                   // Modern Section Heading with Accent Bar
-  //                   Padding(
-  //                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
-  //                     child: Row(
-  //                       children: [
-  //                         Container(
-  //                           width: 4,
-  //                           height: 20,
-  //                           decoration: BoxDecoration(
-  //                             color: Ucolors.primary,
-  //                             borderRadius: BorderRadius.circular(4),
-  //                           ),
-  //                         ),
-  //                         const SizedBox(width: 8),
-  //                         const Text(
-  //                           "Recently Viewed",
-  //                           style: TextStyle(
-  //                             fontSize: 18,
-  //                             fontWeight: FontWeight.w700,
-  //                             letterSpacing: -0.5, // Tighter, modern tracking
-  //                           ),
-  //                         ),
-  //                       ],
-  //                     ),
-  //                   ),
-  //                   const SizedBox(height: 16),
-
-  //                   // Horizontal Scrollable List
-  //                   SizedBox(
-  //                     height: 100,
-  //                     child: ListView.separated(
-  //                       padding: const EdgeInsets.symmetric(horizontal: 24),
-  //                       clipBehavior: Clip.none,
-  //                       physics: const BouncingScrollPhysics(),
-  //                       scrollDirection: Axis.horizontal,
-  //                       itemCount: recentFunds.length,
-  //                       separatorBuilder: (context, index) =>
-  //                           const SizedBox(width: 16),
-  //                       itemBuilder: (context, index) {
-  //                         final fund = recentFunds[index];
-  //                         final img =
-  //                             "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
-  //                         final name = fund.baseSchemeName ?? 'Unknown Name';
-  //                         final threeyear = fund.returnsEntity?.threeYear ?? '';
-  //                         final schemeCode = fund.schemeCode.toString();
-
-  //                         return SizedBox(
-  //                           width:
-  //                               Get.width *
-  //                               0.45, // Slightly wider for breathing room
-  //                           child: PopularFundCard(
-  //                             onTap: () {
-  //                               Get.find<MutualFundController>()
-  //                                   .addToLocalRecentlyViewed(fund);
-  //                               Get.toNamed(
-  //                                 AppRoutes.funddetails,
-  //                                 arguments: {
-  //                                   'scheme': name,
-  //                                   'imgUrl': img,
-  //                                   'scheme_code': schemeCode,
-  //                                 },
-  //                               );
-  //                             },
-  //                             isNetwork: true,
-  //                             imgPath: img,
-  //                             name: name,
-  //                             threeYear: threeyear,
-  //                           ),
-  //                         );
-  //                       },
-  //                     ),
-  //                   ),
-
-  //                   const SizedBox(height: 40),
-  //                 ],
-  //               );
-  //             }),
-  //           ],
-  //         ),
-  //       );
-  //     }
-
-  //     return ListView.builder(
-  //       shrinkWrap: true, // Needed for Web nested scroll
-  //       physics: kIsWeb
-  //           ? const NeverScrollableScrollPhysics()
-  //           : null, // Let parent handle scroll
-  //       itemCount: wishlistItems.length,
-  //       itemBuilder: (context, index) {
-  //         final item = wishlistItems[index];
-  //         return MutualFundCard1(
-  //           isDelete: true,
-  //           containercolor: const Color(0xffFEF0F0),
-  //           entity: item,
-  //         );
-  //       },
-  //     );
-  //   });
-  // }
+ 
 }
 
 // =========================================
@@ -727,6 +510,9 @@ class MutualFundCard1 extends StatelessWidget {
           );
           mutualFundController.addToLocalRecentlyViewed(
             MutualFundListEntity(
+              schemecategory: null,
+              nav: null,
+              minTopUp: null,
               returnsEntity: null,
               schemeCode: displaySchemeCode,
               baseSchemeName: displaySchemeName,
@@ -756,7 +542,7 @@ class MutualFundCard1 extends StatelessWidget {
           ), // Added border for crisp look
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha:0.04), // Lighter shadow
+              color: Colors.black.withValues(alpha: 0.04), // Lighter shadow
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

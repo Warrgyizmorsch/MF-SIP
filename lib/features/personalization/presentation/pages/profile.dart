@@ -359,7 +359,7 @@ class LogoutButton extends StatelessWidget {
           backgroundColor: compact
               ? Colors.white
               : web
-              ? Ucolors.blue
+              ? Ucolors.primary
               : null,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadiusGeometry.circular(14),
@@ -515,7 +515,6 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
               Get.to(() => DownloadStatementsScreen());
             },
             title: 'Account Statement',
-            // images: UImages.likedislike,
             icon: Icons.sip_outlined,
           ),
           Listtilecustom(

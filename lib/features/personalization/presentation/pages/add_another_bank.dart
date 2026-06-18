@@ -193,25 +193,7 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
         ),
         const Gap(20),
 
-        // 🔠 IFSC Code
-        // CustomTextField(
-        //   controller: controller.bankIfscController,
-        //   leading: Icon(Icons.account_balance),
-        //   hint: 'IFSC Code',
-        //   inputFormatters: [IfscTextInputFormatter()],
-        // ),
-        // const Gap(20),
-
-        // // 🔠 MICR Code (MANDATORY FOR MFU)
-        // UTextFormField(
-        //   controller: controller.bankMicrController,
-        //   prefixIcon: Icons.pin,
-        //   hintText: 'MICR Code (9 Digits)',
-        //   keyboardType: TextInputType.number,
-        // ),
-        // const Gap(20),
-
-        // 📋 Account Type Selector (MANDATORY FOR MFU)
+      
         Text(
           'Account Type',
           style: TextStyle(

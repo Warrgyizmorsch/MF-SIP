@@ -399,6 +399,9 @@ class MutualFundController extends GetxController {
           // Rebuild the Entity with ONLY the data the UI needs
           // Everything else is left as null or empty to save memory
           return MutualFundListEntity(
+            nav: null,
+            schemecategory: null,
+            minTopUp: null,
             schemeCode: item['schemeCode'],
             baseSchemeName: item['baseSchemeName'],
             schemeType: null,

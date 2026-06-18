@@ -28,6 +28,7 @@ import 'package:my_sip/features/home/presentation/widgets/product_tool/top_up_ca
 import 'package:my_sip/features/kyc/presentation/binding/kyc_bindings.dart';
 import 'package:my_sip/features/kyc/presentation/pages/kyc_screen.dart';
 import 'package:my_sip/features/mfu/presentation/Binding/mfu_binding.dart';
+import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
 import 'package:my_sip/features/nfo/presentation/bindings/nfo_list_binding.dart';
 import 'package:my_sip/features/nfo/presentation/page/nfo_details_page.dart';
 import 'package:my_sip/features/nfo/presentation/page/nfo_list_page.dart';
@@ -39,6 +40,7 @@ import 'package:my_sip/features/personalization/presentation/pages/risk_profile.
 import 'package:my_sip/features/personalization/presentation/widgets/additional_info.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/document.dart';
+import 'package:my_sip/features/personalization/presentation/widgets/download_statement.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/kyc_details.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/nominee_list.dart';
 import 'package:my_sip/features/sip_process/presentation/pages/payment_screen.dart';
@@ -236,5 +238,7 @@ class AppPages {
 
     GetPage(name: AppRoutes.additionalInfo, page: () => AdditionalInfoScreen()),
     GetPage(name: AppRoutes.investNow, page: () => InvestNowPage()),
+    GetPage(name: AppRoutes.investNowPage, page: () => SIPPurchasePage()),
+    GetPage(name: AppRoutes.downloadStatement, page: () => DownloadStatementsScreen()),
   ];
 }

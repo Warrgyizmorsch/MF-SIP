@@ -3,6 +3,7 @@
 import 'dart:developer';
 import 'dart:ui';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -900,25 +901,37 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                               );
                             },
 
+                            
                             secondButtonP: () async {
-                              await cartController.setInvestmentDetails(
-                                code: controller.schemeCode,
-                                name: controller.schemeName,
-                                minAmount: controller
-                                    .fundDetail
-                                    .value!
-                                    .sipMinimumAmount,
-                                fundDetailEntity: controller.fundDetail.value!,
-                                amcLogo: controller.imgUrl,
-                              );
+                              GatekeeperHelper.runWithPrerequisites(
+                                onSuccess: () {
+                                  // This ONLY runs if KYC, Bank, CAN, and Mandate are all good!
+                                  final argVal = controller.fundDetail.value;
 
-                              Get.toNamed(
-                                AppRoutes.investNow,
-                                arguments: {
-                                  "investNow": controller
-                                      .fundDetail
-                                      .value
-                                      ?.sipMinimumAmount,
+                                  final purchaseArgs = SipPurchaseArgs(
+                                    schemeCode: controller.schemeCode,
+                                    fundName: controller.schemeName,
+                                    category: argVal?.schemeCategory ?? "",
+                                    riskLabel: argVal?.riskometerValue ?? "",
+                                    minSip: argVal?.sipMinimumAmount ?? 1000,
+                                    minLumpsum:
+                                        argVal?.minimumInvestment.toInt() ??
+                                        1000,
+                                    minTopup:
+                                        argVal?.minimumTopup.toInt() ?? 5000,
+                                    folio: null,
+                                    imgUrl: controller.imgUrl,
+                                  );
+
+                                  SIPPurchasePage.tempData = purchaseArgs;
+
+                                  Get.toNamed(
+                                    AppRoutes.investNowPage,
+                                    // id: 1,
+                                    id: kIsWeb ? 1 : null,
+
+                                    arguments: purchaseArgs,
+                                  );
                                 },
                               );
                             },

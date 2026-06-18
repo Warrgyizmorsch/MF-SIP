@@ -73,7 +73,7 @@ class PaymentScreen extends StatelessWidget {
 
             Obx(() {
               final method = paymentController.selectedMethod.value;
-              
+
               return AnimatedSwitcher(
                 duration: const Duration(milliseconds: 280),
                 transitionBuilder: (child, animation) => FadeTransition(
@@ -95,14 +95,16 @@ class PaymentScreen extends StatelessWidget {
                             personalisationController
                                 .userData
                                 .value
-                                ?.bankAccounts?.first
+                                ?.bankAccounts
+                                ?.first
                                 ?.bankName ??
                             'Saved Bank',
                         maskedAccount:
                             personalisationController
                                 .userData
                                 .value
-                                ?.bankAccounts?.first
+                                ?.bankAccounts
+                                ?.first
                                 ?.accountNumberEncrypted ??
                             '••••  ••••  1234',
                       )
@@ -112,14 +114,16 @@ class PaymentScreen extends StatelessWidget {
                             personalisationController
                                 .userData
                                 .value
-                                ?.bankAccounts?.first
+                                ?.bankAccounts
+                                ?.first
                                 ?.bankName ??
                             'Saved Bank',
                         maskedAccount:
                             personalisationController
                                 .userData
                                 .value
-                                ?.bankAccounts?.first
+                                ?.bankAccounts
+                                ?.first
                                 ?.accountNumberEncrypted ??
                             '••••  ••••  1234',
                       ),
@@ -142,7 +146,7 @@ class PaymentScreen extends StatelessWidget {
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: GestureDetector(
-        onTap: () => Get.back(),
+        onTap: () => Navigator.pop(context),
         child: Container(
           margin: const EdgeInsets.all(10),
           decoration: BoxDecoration(

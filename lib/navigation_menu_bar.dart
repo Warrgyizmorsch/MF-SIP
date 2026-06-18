@@ -41,6 +41,7 @@ import 'package:my_sip/features/personalization/presentation/widgets/nominee_lis
 
 class NavigationBarController extends GetxController {
   static NavigationBarController get instance => Get.find();
+  final PersonalisationController personalisationController = Get.find();
 
   final RxInt selectedIndex = 0.obs;
   final RxBool isProfileExpanded = false.obs;
@@ -224,6 +225,14 @@ class NavigationBarController extends GetxController {
         case 3:
           route = AppRoutes.goalScreen;
           break;
+        case 5:
+          personalisationController.setStatementMode(isCapital: false);
+          route = AppRoutes.downloadStatement;
+          break;
+        case 6:
+          personalisationController.setStatementMode(isCapital: true);
+          route = AppRoutes.downloadStatement;
+          break;
         case 40:
           route = AppRoutes.profilePage;
           break;
@@ -242,6 +251,7 @@ class NavigationBarController extends GetxController {
         case 45:
           route = AppRoutes.documentsScreen;
           break;
+
         case 50:
           route = AppRoutes.webView;
           webTitle = 'Contact Support';
@@ -1146,9 +1156,9 @@ class _DesktopSideNav extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 18),
+                    // const SizedBox(height: 18),
 
-                    if (showText) _buildSectionTitle("SETTINGS"),
+                    // if (showText) _buildSectionTitle("SETTINGS"),
 
                     /// PROFILE
                     Obx(() {
@@ -1206,6 +1216,33 @@ class _DesktopSideNav extends StatelessWidget {
                         ],
                       );
                     }),
+                    const SizedBox(height: 18),
+
+                    if (showText) _buildSectionTitle("REPORTS"),
+                    Obx(
+                      () => _buildNavItem(
+                        controller,
+                        5,
+                        Icons.info_outline,
+                        'Account Statement',
+                        showText,
+                        navFontSize,
+                        iconSize,
+                        horizontalPadding,
+                      ),
+                    ),
+                    Obx(
+                      () => _buildNavItem(
+                        controller,
+                        6,
+                        Icons.library_books_outlined,
+                        'ELSS Report',
+                        showText,
+                        navFontSize,
+                        iconSize,
+                        horizontalPadding,
+                      ),
+                    ),
                   ],
                 ),
               ),

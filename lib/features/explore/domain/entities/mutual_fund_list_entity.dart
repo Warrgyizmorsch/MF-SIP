@@ -34,13 +34,19 @@ class MutualFundListEntity extends Equatable {
   final AmcEntity? amc;
   final ReturnsEntity? returnsEntity;
 
+  final double? nav;
+
   final int? minSipAmount;
   final int? minLumpsum;
+  final int? minTopUp;
+  final String?  schemecategory;
+
   final List<VariantModelEntity> variants;
 
   const MutualFundListEntity({
     required this.returnsEntity,
     required this.schemeCode,
+    required this.nav,
 
     required this.baseSchemeName,
     required this.schemeType,
@@ -49,7 +55,9 @@ class MutualFundListEntity extends Equatable {
     required this.amc,
     required this.minSipAmount,
     required this.minLumpsum,
+    required this.minTopUp,
     required this.variants,
+    required this.schemecategory
   });
 
   @override
@@ -61,8 +69,11 @@ class MutualFundListEntity extends Equatable {
     isin,
     amc,
     minSipAmount,
+    schemecategory,
     minLumpsum,
+    minTopUp,
     variants,
+    nav
   ];
 }
 
@@ -71,13 +82,16 @@ extension MutualFundListEntityX on MutualFundListModel {
     return MutualFundListEntity(
       returnsEntity: returns?.toEntity(),
       schemeCode: schemeCode,
+      nav: nav,
       baseSchemeName: baseSchemeName,
       schemeType: schemeType,
+      schemecategory: schemecategory,
       riskLevel: riskLevel,
       isin: isin,
       amc: amc?.toEntity(),
       minSipAmount: minSipAmount,
       minLumpsum: minLumpsum,
+      minTopUp: minTopUp,
       variants: variants.map((e) => e.toEntity()).toList(),
     );
   }

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
@@ -56,21 +57,18 @@ class AuthController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final GoogleSignIn _googleSignIn = GoogleSignIn.standard();
-  RxString applicationId =''.obs;
+  RxString applicationId = ''.obs;
+
   /// GOOGLE SIGN IN
   /// GOOGLE SIGN IN
 
   Future<void> signInWithGoogle() async {
-
     if (isGoogleSignInLoading.value) return;
 
     try {
-
       isGoogleSignInLoading.value = true;
 
-      debugPrint(
-        "========== GOOGLE SIGN IN START ==========",
-      );
+      debugPrint("========== GOOGLE SIGN IN START ==========");
 
       /// CLEAR PREVIOUS ACCOUNT
       await _googleSignIn.signOut();
@@ -78,12 +76,10 @@ class AuthController extends GetxController {
       debugPrint("OLD GOOGLE SESSION CLEARED");
 
       /// OPEN GOOGLE ACCOUNT PICKER
-      final GoogleSignInAccount? googleUser =
-      await _googleSignIn.signIn();
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       /// USER CANCELLED
       if (googleUser == null) {
-
         debugPrint("USER CANCELLED LOGIN");
 
         isGoogleSignInLoading.value = false;
@@ -91,196 +87,125 @@ class AuthController extends GetxController {
         return;
       }
 
-      debugPrint(
-        "SELECTED EMAIL : ${googleUser.email}",
-      );
+      debugPrint("SELECTED EMAIL : ${googleUser.email}");
 
       /// GOOGLE AUTH
       final GoogleSignInAuthentication googleAuth =
-      await googleUser.authentication;
+          await googleUser.authentication;
 
       /// ID TOKEN
-      final String idToken =
-          googleAuth.idToken ?? "";
+      final String idToken = googleAuth.idToken ?? "";
 
       if (idToken.isEmpty) {
-
         isGoogleSignInLoading.value = false;
 
-        Get.snackbar(
-          "Error",
-          "Google ID Token not found",
-        );
+        Get.snackbar("Error", "Google ID Token not found");
 
         return;
       }
 
       /// FIREBASE CREDENTIAL
-      final credential =
-      GoogleAuthProvider.credential(
+      final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: idToken,
       );
 
       /// FIREBASE LOGIN
-      final UserCredential userCredential =
-      await _auth.signInWithCredential(
+      final UserCredential userCredential = await _auth.signInWithCredential(
         credential,
       );
 
       /// FIREBASE USER
-      final User? user =
-          userCredential.user;
+      final User? user = userCredential.user;
 
       if (user != null) {
-
         /// CHECK NEW USER
         final bool isNewUser =
-            userCredential
-                .additionalUserInfo
-                ?.isNewUser ??
-                false;
+            userCredential.additionalUserInfo?.isNewUser ?? false;
 
         /// NEW USER
         if (isNewUser) {
-
           /// GOOGLE DATA
-          nameController.text =
-              googleUser.displayName ?? "";
+          nameController.text = googleUser.displayName ?? "";
 
-          emailController.text =
-              googleUser.email;
+          emailController.text = googleUser.email;
 
           /// MOSTLY EMPTY IN GOOGLE LOGIN
-          mobileController.text =
-              user.phoneNumber ?? "";
+          mobileController.text = user.phoneNumber ?? "";
 
           applicationId.value = idToken;
 
           isGoogleSignInLoading.value = false;
 
-          Get.offNamed(
-            AppRoutes.registerAccountScreen,
+          Get.offNamed(AppRoutes.registerAccountScreen);
+        } else {
+          /// EXISTING USER API LOGIN
+          final fcmToken = await FirebaseMessaging.instance.getToken();
+
+          final requestData = {"google_token": idToken, "fcm_token": fcmToken};
+
+          final result = await _authUseCases.googleSignInUseCase.call(
+            requestData,
           );
 
-        } else {
-
-          /// EXISTING USER API LOGIN
-          final fcmToken =
-          await FirebaseMessaging.instance
-              .getToken();
-
-          final requestData = {
-            "google_token": idToken,
-            "fcm_token": fcmToken,
-          };
-
-          final result =
-          await _authUseCases
-              .googleSignInUseCase
-              .call(requestData);
-
           result.fold(
-
             /// SUCCESS
-                (success) async {
-
-              final userModel =
-                  success.data?.userModel;
+            (success) async {
+              final userModel = success.data?.userModel;
 
               /// SAVE SESSION
-              await SessionManager.instance
-                  .setSession(
-                jwtAccessToken:
-                success.data?.token,
+              await SessionManager.instance.setSession(
+                jwtAccessToken: success.data?.token,
                 userData: userModel,
               );
 
               /// SAVE RISK PROFILE
-              if (userModel?.riskProfileModel !=
-                  null) {
+              if (userModel?.riskProfileModel != null) {
+                final profile = userModel!.riskProfileModel!;
 
-                final profile =
-                userModel!.riskProfileModel!;
-
-                final riskResult =
-                RiskResultModel(
+                final riskResult = RiskResultModel(
                   status: true,
-                  totalScore: int.tryParse(
-                    userModel.riskScore
-                        .toString(),
-                  ) ??
-                      0,
-                  riskSlabId:
-                  profile.id ?? 0,
-                  profileName:
-                  profile.profileName ??
-                      '',
+                  totalScore: int.tryParse(userModel.riskScore.toString()) ?? 0,
+                  riskSlabId: profile.id ?? 0,
+                  profileName: profile.profileName ?? '',
                 );
 
-                await SessionManager.instance
-                    .saveRiskScore(
-                  riskResult,
-                );
-
+                await SessionManager.instance.saveRiskScore(riskResult);
               } else {
-
-                await SessionManager.instance
-                    .saveRiskScore(null);
+                await SessionManager.instance.saveRiskScore(null);
               }
 
-              isGoogleSignInLoading.value =
-              false;
+              isGoogleSignInLoading.value = false;
 
-              Get.offAllNamed(
-                AppRoutes.navMenuBar,
-              );
+              Get.offAllNamed(AppRoutes.navMenuBar);
             },
 
             /// ERROR
-                (error) async {
+            (error) async {
+              isGoogleSignInLoading.value = false;
 
-              isGoogleSignInLoading.value =
-              false;
-
-              debugPrint(
-                "GOOGLE LOGIN API ERROR : ${error.message}",
-              );
+              debugPrint("GOOGLE LOGIN API ERROR : ${error.message}");
 
               /// OPTIONAL LOGOUT ON API FAIL
               await _auth.signOut();
 
               await _googleSignIn.signOut();
 
-              Get.snackbar(
-                "Error",
-                error.message ,
-              );
+              Get.snackbar("Error", error.message);
             },
           );
         }
       } else {
-
         isGoogleSignInLoading.value = false;
 
-        Get.snackbar(
-          "Error",
-          "Firebase user not found",
-        );
+        Get.snackbar("Error", "Firebase user not found");
       }
-
     } catch (e) {
-
       isGoogleSignInLoading.value = false;
 
-      debugPrint(
-        "GOOGLE LOGIN ERROR : $e",
-      );
+      debugPrint("GOOGLE LOGIN ERROR : $e");
 
-      Get.snackbar(
-        "Error",
-        "Google Sign-In failed",
-      );
+      Get.snackbar("Error", "Google Sign-In failed");
     }
   }
 
@@ -364,7 +289,7 @@ class AuthController extends GetxController {
           "Error",
           "Please agree to the Terms and Privacy Policy",
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha:0.1),
+          backgroundColor: Colors.red.withValues(alpha: 0.1),
           colorText: Colors.red,
         );
         return;
@@ -376,8 +301,7 @@ class AuthController extends GetxController {
         mobileController.text.trim(),
         panController.text.trim(),
         passwordController.text.trim(),
-        applicationId.value
-
+        applicationId.value,
       );
     }
   }
@@ -429,65 +353,70 @@ class AuthController extends GetxController {
         //   colorText: Colors.white,
         //   backgroundColor: Colors.green,
         // );
-        Get.snackbar(
-          "", // Leave empty because we are using custom titleText
-          "", // Leave empty because we are using custom messageText
-          // 1. Modern Typography Hierarchy
-          titleText: const Text(
-            "OTP Sent Successfully",
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-              letterSpacing: -0.5,
-            ),
-          ),
-          messageText: Text(
-            "Hey, we just sent an OTP to ${mobileController.text.trim()}",
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.white.withValues(alpha:
-                0.9,
-              ), // Slightly faded for contrast
-              height: 1.4, // Better line spacing
-            ),
-          ),
-
-          // 2. Premium Iconography
-          icon: const Icon(
-            Icons.check_circle_rounded, // Rounded modern icon
-            color: Colors.white,
-            size: 28,
-          ),
-          shouldIconPulse:
-              false, // Disabling pulse makes it feel more solid/premium
-          // 3. Layout & Positioning
-          snackPosition: SnackPosition.TOP, // Top avoids blocking the keyboard!
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          borderRadius: 16, // Smooth modern corners
-          // 4. Color & Elevation
-          backgroundColor: const Color(
-            0xFF2E7D32,
-          ), // A deep, premium success green
-          barBlur:
-              20, // Adds a subtle glassmorphism effect if background is slightly transparent
-          boxShadows: [
-            BoxShadow(
-              color: const Color(0xFF2E7D32).withValues(alpha:0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-
-          // 5. Smooth Animation
-          animationDuration: const Duration(milliseconds: 400),
-          duration: const Duration(
-            seconds: 4,
-          ), // Give them time to read the number
-          isDismissible: true,
-          dismissDirection: DismissDirection.horizontal,
+        CustomSnackbar.success(
+          title: 'OTP Sent Successfully',
+          message:
+              'Hey, we just sent an OTP to ${mobileController.text.trim()}',
         );
+        // Get.snackbar(
+        //   "", // Leave empty because we are using custom titleText
+        //   "", // Leave empty because we are using custom messageText
+        //   // 1. Modern Typography Hierarchy
+        //   titleText: const Text(
+        //     "OTP Sent Successfully",
+        //     style: TextStyle(
+        //       fontSize: 16,
+        //       fontWeight: FontWeight.w700,
+        //       color: Colors.white,
+        //       letterSpacing: -0.5,
+        //     ),
+        //   ),
+        //   messageText: Text(
+        //     "Hey, we just sent an OTP to ${mobileController.text.trim()}",
+        //     style: TextStyle(
+        //       fontSize: 14,
+        //       color: Colors.white.withValues(alpha:
+        //         0.9,
+        //       ), // Slightly faded for contrast
+        //       height: 1.4, // Better line spacing
+        //     ),
+        //   ),
+
+        //   // 2. Premium Iconography
+        //   icon: const Icon(
+        //     Icons.check_circle_rounded, // Rounded modern icon
+        //     color: Colors.white,
+        //     size: 28,
+        //   ),
+        //   shouldIconPulse:
+        //       false, // Disabling pulse makes it feel more solid/premium
+        //   // 3. Layout & Positioning
+        //   snackPosition: SnackPosition.TOP, // Top avoids blocking the keyboard!
+        //   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        //   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        //   borderRadius: 16, // Smooth modern corners
+        //   // 4. Color & Elevation
+        //   backgroundColor: const Color(
+        //     0xFF2E7D32,
+        //   ), // A deep, premium success green
+        //   barBlur:
+        //       20, // Adds a subtle glassmorphism effect if background is slightly transparent
+        //   boxShadows: [
+        //     BoxShadow(
+        //       color: const Color(0xFF2E7D32).withValues(alpha:0.3),
+        //       blurRadius: 20,
+        //       offset: const Offset(0, 10),
+        //     ),
+        //   ],
+
+        //   // 5. Smooth Animation
+        //   animationDuration: const Duration(milliseconds: 400),
+        //   duration: const Duration(
+        //     seconds: 4,
+        //   ), // Give them time to read the number
+        //   isDismissible: true,
+        //   dismissDirection: DismissDirection.horizontal,
+        // );
 
         Get.toNamed(AppRoutes.otpVerificationScreen);
       },
@@ -684,11 +613,9 @@ class AuthController extends GetxController {
 
         createLog("Verify Otp Error $error");
 
-        Get.snackbar(
-          "Invalid OTP",
-          "The OTP you entered is incorrect. Please try again.",
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
+        CustomSnackbar.error(
+          title: 'Invalid OTP',
+          message: 'The OTP you entered is incorrect. Please try again.',
         );
 
         isOtpVerifyLoading.value = false;
@@ -715,7 +642,7 @@ class AuthController extends GetxController {
       "email": email,
       "mobile": mobile,
       "pan_card": pan,
-      "application_id":applicationId
+      "application_id": applicationId,
       // "password": password,
     };
 

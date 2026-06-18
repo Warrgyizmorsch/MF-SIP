@@ -1617,23 +1617,7 @@ class _MobileDashboardLayout extends StatelessWidget {
           final controller = Get.find<DashboardController>();
           final isVisible = controller.isBalanceVisible.value;
 
-          // if (controller.selectedIndex.value == 0) {
-          //   /// 🟦 MY PORTFOLIO TAB
-          //   return SliverList(
-          //     delegate: SliverChildListDelegate([
-          //       Padding(
-          //         padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          //         child: SectionHeading(
-          //           sectionTitle: 'My Portfolio',
-          //           fontWeight: FontWeight.w600,
-          //           fontSize: 14,
-          //           textcolor: const Color(0xff787878),
-          //         ),
-          //       ),
-          //       ...List.generate(6, (index) => const PortfolioCard()),
-          //     ]),
-          //   );
-          // }
+         
           if (controller.selectedIndex.value == 0) {
             /// 🟦 MY PORTFOLIO TAB
 
