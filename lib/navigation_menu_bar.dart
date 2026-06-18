@@ -554,7 +554,7 @@ class NavigationMenuBar extends StatelessWidget {
                                       return DashboardScreen();
 
                                     case 3:
-                                      return const GoalScreen();
+                                      return  GoalScreen();
 
                                     case 40:
                                       return const ProfileScreen();
@@ -656,7 +656,7 @@ class WebFooter extends StatelessWidget {
         border: Border(top: BorderSide(color: Colors.grey.shade300)),
       ),
       child: Text(
-        "ARN : 104807 || Kriti Hinger",
+        "AMFI registered mutual fund distributor   ||   ARN : 104807 | Kriti Hinger",
         style: TextStyle(
           fontSize: 13,
           fontFamily: FontFamily.medium,

@@ -1,177 +1,88 @@
-// // ignore_for_file: dead_null_aware_expression, dead_code
-// ignore_for_file: dead_null_aware_expression, dead_code
-
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
-import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
-import 'package:my_sip/common/widget/button/elevated_button.dart';
-import 'package:my_sip/config/routes/app_routes.dart';
-import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/text_style.dart';
-import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
-import 'package:my_sip/features/goal/presentation/pages/goaldetails.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 
+import '../../../../common/widget/appbar/custom_appbar_normal.dart';
+import '../../../../common/widget/appbar/widget/compact_icon.dart';
+import '../../../../common/widget/button/elevated_button.dart';
 import '../../../../common/widget/shimmer/shimmer.dart';
+import '../../../../config/routes/app_routes.dart';
 import '../../../../core/utils/constant/appUrl.dart';
+import '../../../../core/utils/constant/colors.dart';
+import '../../../../core/utils/constant/text_style.dart';
+import '../../domain/entity/goal_entity.dart';
 import '../controller/goal_sip_controller.dart';
+import 'goaldetails.dart';
+import 'master_goals_page.dart';
+
+// TODO: Add your internal project imports here (AppRoutes, Ucolors, UTextStyles, etc.)
+// import 'master_goals_page.dart'; // Import this to use it in the Drawer
 
 class GoalScreen extends GetView<GoalSipController> {
-  const GoalScreen({super.key});
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  GoalScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.getAllGoals();
     });
+
     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Scaffold(
-      backgroundColor: Ucolors.light,
+      key: _scaffoldKey,
+      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Ucolors.light,
       appBar: isDesktop
           ? null
           : CustomAppBarNormal(
-              backgroundColor: Ucolors.light,
-              title: 'Goals',
-              backIcon: false,
-              actionsPadding: 10,
-              action: [
-                CompactIcon(icon: Iconsax.info_circle, onPressed: () {}),
+        backgroundColor: Ucolors.light,
+        title: 'Goals',
+        backIcon: false,
+        actionsPadding: 10,
+        action: [
+          CompactIcon(icon: Iconsax.info_circle, onPressed: () {}),
+        ],
+      ),
+      endDrawer: isDesktop
+          ? Drawer(
+        width: MediaQuery.of(context).size.width * 0.42,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: SafeArea(
+          child: Container(
+            padding: const EdgeInsets.all(28),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(28),
+                bottomLeft: Radius.circular(28),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: .08),
+                  blurRadius: 30,
+                  offset: const Offset(-4, 10),
+                ),
               ],
             ),
-      body: Obx(() {
-        if (controller.isLoadingGoals.value) {
-          return const Center(child: GoalShimmerGrid());
-        }
-
-        final goals = controller.goalResponse.value?.data ?? [];
-
-        if (goals.isEmpty) {
-          return _buildEmptyState();
-        }
-
-        return RefreshIndicator(
-          onRefresh: () => controller.getAllGoals(),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              // Responsive Breakpoints
-              final width = constraints.maxWidth;
-              int crossAxisCount;
-              double aspectRatio;
-              double titleFontSize;
-
-              if (width < 600) {
-                crossAxisCount = 2; // Mobile
-                aspectRatio = 0.82;
-                titleFontSize = 12.0;
-              } else if (width < 900) {
-                crossAxisCount = 3; // Tablet
-                aspectRatio = 0.85;
-                titleFontSize = 14.0;
-              } else if (width < 1200) {
-                crossAxisCount = 4; // Web / Small Desktop
-                aspectRatio = 0.90;
-                titleFontSize = 14.0;
-              } else {
-                crossAxisCount = 5; // Large Desktop
-                aspectRatio = 0.95;
-                titleFontSize = 16.0;
-              }
-
-              return Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: 1400,
-                  ), // Web Optimization
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Static header outside scroll
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 12.0,
-                        ),
-                        child: Text(
-                          '${goals.length} Active Goal${goals.length == 1 ? '' : 's'}',
-                          style: UTextStyles.bodySmall.copyWith(
-                            fontSize: width > 600
-                                ? 16
-                                : 14, // Responsive Header Text
-                          ),
-                        ),
-                      ),
-
-                      // Expanded so CustomScrollView takes remaining space
-                      Expanded(
-                        child: CustomScrollView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          slivers: [
-                            SliverPadding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                                vertical: 8.0,
-                              ),
-                              sliver: SliverGrid(
-                                delegate: SliverChildBuilderDelegate((
-                                  context,
-                                  index,
-                                ) {
-                                  final goal = goals[index];
-                                  final double target =
-                                      double.tryParse(
-                                        goal.goalType?.targetAmount
-                                                .toString() ??
-                                            '0',
-                                      ) ??
-                                      0.0;
-                                  final double invested =
-                                      double.tryParse(
-                                        goal.goalType?.investedAmount
-                                                .toString() ??
-                                            '0',
-                                      ) ??
-                                      0.0;
-                                  final String name =
-                                      goal.goalName ?? 'Goal ${index + 1}';
-                                  final String logo = goal.goalType?.logo ?? '';
-
-                                  return CircularUploadIndicator(
-                                    goalEntity: goal,
-                                    goalName: name,
-                                    targetAmount: target,
-                                    investedAmount: invested,
-                                    iconUrl: logo,
-                                    titleFontSize:
-                                        titleFontSize, // Pass responsive typography
-                                  );
-                                }, childCount: goals.length),
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: crossAxisCount,
-                                      mainAxisSpacing: 16,
-                                      crossAxisSpacing: 16,
-                                      childAspectRatio: aspectRatio,
-                                    ),
-                              ),
-                            ),
-                            const SliverToBoxAdapter(
-                              child: SizedBox(height: 80),
-                            ), // Bottom spacing for FAB
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Expanded(
+                  child: MasterGoalsPage(),
                 ),
-              );
-            },
+              ],
+            ),
           ),
-        );
-      }),
+        ),
+      )
+          : null,
+      body: isDesktop ? const _WebLayout() : const _MobileLayout(),
       floatingActionButton: Obx(() {
         final hasGoals = (controller.goalResponse.value?.data ?? []).isNotEmpty;
 
@@ -183,7 +94,12 @@ class GoalScreen extends GetView<GoalSipController> {
           onPressed: () async {
             await controller.getMasterGoals();
             controller.selectedGoalIndex.value = -1;
-            Get.toNamed(AppRoutes.masterGoalsPage);
+
+            if (isDesktop) {
+              _scaffoldKey.currentState?.openEndDrawer();
+            } else {
+              Get.toNamed(AppRoutes.masterGoalsPage);
+            }
           },
           backgroundColor: Ucolors.primary,
           child: const Icon(Icons.add, color: Colors.white),
@@ -191,10 +107,164 @@ class GoalScreen extends GetView<GoalSipController> {
       }),
     );
   }
+}
 
-  // Extracted Empty State with Web Constraints
-  Widget _buildEmptyState() {
+class _WebLayout extends StatelessWidget {
+  const _WebLayout();
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final double safeHeight = size.height - kToolbarHeight;
+
     return Center(
+      child: SizedBox(
+        width: size.width > 1500 ? 1500 : size.width,
+        height: safeHeight > 0 ? safeHeight : 800,
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Active Goals",
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xff111827),
+                ),
+              ),
+              const Gap(6),
+              Text(
+                "Track and manage your financial milestones",
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+              const Gap(24),
+              const Expanded(child: GoalGridContent(isDesktop: true)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MobileLayout extends StatelessWidget {
+  const _MobileLayout();
+
+  @override
+  Widget build(BuildContext context) {
+    return const GoalGridContent(isDesktop: false);
+  }
+}
+
+class GoalGridContent extends GetView<GoalSipController> {
+  final bool isDesktop;
+
+  const GoalGridContent({super.key, required this.isDesktop});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double availableWidth = constraints.maxWidth > 0 ? constraints.maxWidth : 400;
+
+        int crossAxisCount;
+        double aspectRatio;
+        double titleFontSize;
+
+        if (availableWidth < 500) {
+          crossAxisCount = 2;
+          aspectRatio = 0.82;
+          titleFontSize = 12.0;
+        } else if (availableWidth < 900) {
+          crossAxisCount = 3;
+          aspectRatio = 0.85;
+          titleFontSize = 14.0;
+        } else if (availableWidth < 1200) {
+          crossAxisCount = 4;
+          aspectRatio = 0.90;
+          titleFontSize = 16.0;
+        } else {
+          crossAxisCount = 5;
+          aspectRatio = 0.95;
+          titleFontSize = 16.0;
+        }
+
+        return Obx(() {
+          if (controller.isLoadingGoals.value) {
+            return const GoalShimmerGrid();
+          }
+
+          final goals = controller.goalResponse.value?.data ?? [];
+
+          if (goals.isEmpty) {
+            return _buildEmptyState();
+          }
+
+          Widget gridContent = CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              if (!isDesktop)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                    child: Text(
+                      '${goals.length} Active Goal${goals.length == 1 ? '' : 's'}',
+                      style: UTextStyles.bodySmall.copyWith(fontSize: availableWidth > 600 ? 16 : 14),
+                    ),
+                  ),
+                ),
+              SliverPadding(
+                padding: EdgeInsets.symmetric(horizontal: isDesktop ? 0 : 16.0, vertical: 8.0),
+                sliver: SliverGrid(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final goal = goals[index];
+                    final double target = double.tryParse(goal.goalType?.targetAmount.toString() ?? '0') ?? 0.0;
+                    final double invested = double.tryParse(goal.goalType?.investedAmount.toString() ?? '0') ?? 0.0;
+                    final String name = goal.goalName ?? 'Goal ${index + 1}';
+                    final String logo = goal.goalType?.logo ?? '';
+
+                    return CircularUploadIndicator(
+                      goalEntity: goal,
+                      goalName: name,
+                      targetAmount: target,
+                      investedAmount: invested,
+                      iconUrl: logo,
+                      titleFontSize: titleFontSize,
+                      isDesktop: isDesktop,
+                    );
+                  }, childCount: goals.length),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    childAspectRatio: aspectRatio,
+                  ),
+                ),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 80)),
+            ],
+          );
+
+          if (isDesktop) {
+            return gridContent;
+          } else {
+            return RefreshIndicator(
+              onRefresh: () => controller.getAllGoals(),
+              child: gridContent,
+            );
+          }
+        });
+      },
+    );
+  }
+
+  Widget _buildEmptyState() {
+    Widget content = Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 500),
         child: Padding(
@@ -205,38 +275,19 @@ class GoalScreen extends GetView<GoalSipController> {
               const CircleAvatar(
                 radius: 50,
                 backgroundColor: Ucolors.skyblue1,
-                child: Icon(
-                  Iconsax.note_remove5,
-                  color: Ucolors.blue,
-                  size: 45,
-                ),
+                child: Icon(Iconsax.note_remove5, color: Ucolors.blue, size: 45),
               ),
-              const SizedBox(height: 24),
-              Text(
-                'Ready to start saving?',
-                style: UTextStyles.large.copyWith(fontSize: 22),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'You haven\'t set any savings goals yet. Start small and watch your wealth grow.',
-                style: UTextStyles.bodySmall.copyWith(fontSize: 14),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
+              const Gap(24),
+              Text('Ready to start saving?', style: UTextStyles.large.copyWith(fontSize: 22), textAlign: TextAlign.center),
+              const Gap(8),
+              Text('You haven\'t set any savings goals yet. Start small and watch your wealth grow.', style: UTextStyles.bodySmall.copyWith(fontSize: 14), textAlign: TextAlign.center),
+              const Gap(32),
               UElevatedBUtton(
                 color: Ucolors.primary,
                 onPressed: () => Get.toNamed(AppRoutes.masterGoalsPage),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Create Your First Goal',
-                      style: UTextStyles.buttonText,
-                    ),
-                    const SizedBox(width: 10),
-                    const Icon(Icons.add, color: Ucolors.light),
-                  ],
+                  children: [Text('Create Your First Goal', style: UTextStyles.buttonText), const Gap(10), const Icon(Icons.add, color: Ucolors.light)],
                 ),
               ),
             ],
@@ -244,10 +295,21 @@ class GoalScreen extends GetView<GoalSipController> {
         ),
       ),
     );
+
+    if (isDesktop) return content;
+
+    return RefreshIndicator(
+      onRefresh: () => controller.getAllGoals(),
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverFillRemaining(hasScrollBody: false, child: content),
+        ],
+      ),
+    );
   }
 }
 
-// Converted to StatefulWidget to handle sophisticated Web Hover Effects
 class CircularUploadIndicator extends StatefulWidget {
   final UserGoalEntity? goalEntity;
   final String goalName;
@@ -255,6 +317,7 @@ class CircularUploadIndicator extends StatefulWidget {
   final double investedAmount;
   final String? iconUrl;
   final double titleFontSize;
+  final bool isDesktop;
 
   const CircularUploadIndicator({
     super.key,
@@ -264,11 +327,11 @@ class CircularUploadIndicator extends StatefulWidget {
     this.iconUrl,
     this.goalEntity,
     required this.titleFontSize,
+    required this.isDesktop,
   });
 
   @override
-  State<CircularUploadIndicator> createState() =>
-      _CircularUploadIndicatorState();
+  State<CircularUploadIndicator> createState() => _CircularUploadIndicatorState();
 }
 
 class _CircularUploadIndicatorState extends State<CircularUploadIndicator> {
@@ -277,15 +340,12 @@ class _CircularUploadIndicatorState extends State<CircularUploadIndicator> {
   @override
   Widget build(BuildContext context) {
     final GoalSipController controller = Get.find<GoalSipController>();
-    final double percentage = widget.targetAmount > 0
-        ? (widget.investedAmount / widget.targetAmount).clamp(0.0, 1.0)
-        : 0.0;
 
+    final double safeTarget = widget.targetAmount > 0 ? widget.targetAmount : 1;
+    final double percentage = (widget.investedAmount / safeTarget).clamp(0.0, 1.0);
     final String percentString = "${(percentage * 100).toStringAsFixed(0)}%";
-    final Color goalColor = controller.getGoalColor(
-      widget.goalEntity?.goalType?.typeName ?? '',
-    );
-    final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+
+    final Color goalColor = controller.getGoalColor(widget.goalEntity?.goalType?.typeName ?? '');
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -299,912 +359,76 @@ class _CircularUploadIndicatorState extends State<CircularUploadIndicator> {
             'invested': widget.investedAmount,
             'logo': widget.iconUrl,
           };
-
-          Get.toNamed(
-            AppRoutes.goaldetails,
-            // arguments: {
-            //   'goal': widget.goalEntity,
-            //   'target': widget.targetAmount,
-            //   'invested': widget.investedAmount,
-            //   'logo': widget.iconUrl,
-            // },
-            id: isDesktop ? 1 : null,
-          );
+          Get.toNamed(AppRoutes.goaldetails);
         },
-        child: AnimatedContainer(
+        child: AnimatedScale(
+          scale: _isHovered ? 1.02 : 1.0,
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeInOut,
-          transform: Matrix4.identity()
-            ..scale(_isHovered ? 1.02 : 1.0), // Hover scale effect
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(
-                  alpha: _isHovered ? 0.1 : 0.05,
-                ), // Deepen shadow on hover
-                blurRadius: _isHovered ? 15 : 10,
-                offset: Offset(0, _isHovered ? 6 : 4),
-              ),
-            ],
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              // Responsive Circle Sizing
-              final double circleSize = constraints.maxHeight * 0.45;
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(color: Colors.black.withValues(alpha: _isHovered ? 0.1 : 0.05), blurRadius: _isHovered ? 15 : 10, offset: Offset(0, _isHovered ? 6 : 4)),
+              ],
+            ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final double rawSize = constraints.maxHeight * 0.45;
+                final double circleSize = rawSize.clamp(20.0, 300.0);
 
-              final imageWidget =
-                  (widget.iconUrl != null && widget.iconUrl!.isNotEmpty)
-                  ? Image.network(
-                      widget.iconUrl!.startsWith('http')
-                          ? widget.iconUrl!
-                          : '${Appurl.baseUrl}/${widget.iconUrl}',
-                      width: circleSize * 0.55,
-                      height: circleSize * 0.55,
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) {
-                        return Icon(
-                          Icons.flag,
-                          size: circleSize * 0.25,
-                          color: Colors.grey,
-                        );
-                      },
-                    )
-                  : Icon(
-                      Icons.flag,
-                      size: circleSize * 0.25,
-                      color: Colors.grey,
-                    );
+                final imageWidget = (widget.iconUrl != null && widget.iconUrl!.isNotEmpty)
+                    ? Image.network(
+                  widget.iconUrl!.startsWith('http') ? widget.iconUrl! : '${Appurl.baseUrl}/${widget.iconUrl}',
+                  width: circleSize * 0.55, height: circleSize * 0.55, fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => Icon(Icons.flag, size: circleSize * 0.25, color: Colors.grey),
+                )
+                    : Icon(Icons.flag, size: circleSize * 0.25, color: Colors.grey);
 
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // BACK CIRCLE
-                      CircularPercentIndicator(
-                        radius: circleSize / 1.3,
-                        lineWidth: 8,
-                        percent: 1,
-                        backgroundColor: Colors.transparent,
-                        progressColor: Colors.grey.shade200,
-                      ),
-
-                      // PROGRESS CIRCLE
-                      CircularPercentIndicator(
-                        radius: circleSize / 1.3,
-                        lineWidth: 8,
-                        percent: percentage,
-                        animation: true,
-                        circularStrokeCap: CircularStrokeCap.round,
-                        backgroundColor: Colors.transparent,
-                        progressColor: goalColor,
-                        center: Container(
-                          width: circleSize * 0.9,
-                          height: circleSize * 0.9,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade50,
-                            shape: BoxShape.circle,
-                          ),
-                          alignment: Alignment.center,
-                          child: Stack(
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CircularPercentIndicator(radius: circleSize / 1.3, lineWidth: 8, percent: 1, backgroundColor: Colors.transparent, progressColor: Colors.grey.shade200),
+                        CircularPercentIndicator(
+                          radius: circleSize / 1.3, lineWidth: 8, percent: percentage, animation: true, circularStrokeCap: CircularStrokeCap.round, backgroundColor: Colors.transparent, progressColor: goalColor,
+                          center: Container(
+                            width: circleSize * 0.9, height: circleSize * 0.9,
+                            decoration: BoxDecoration(color: Colors.grey.shade50, shape: BoxShape.circle),
                             alignment: Alignment.center,
-                            children: [
-                              // BACK (GRAY VERSION)
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(100),
-                                child: ColorFiltered(
-                                  colorFilter: ColorFilter.mode(
-                                    Colors.grey.shade300,
-                                    BlendMode.modulate,
-                                  ),
-                                  child: imageWidget,
-                                ),
-                              ),
-
-                              // FILL (BASED ON PERCENTAGE)
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(100),
-                                child: ShaderMask(
-                                  blendMode: BlendMode.srcIn,
-                                  shaderCallback: (Rect bounds) {
-                                    return LinearGradient(
-                                      begin: Alignment.bottomCenter,
-                                      end: Alignment.topCenter,
-                                      stops: [0.0, percentage, percentage, 1.0],
-                                      colors: [
-                                        goalColor,
-                                        goalColor,
-                                        Colors.transparent,
-                                        Colors.transparent,
-                                      ],
-                                    ).createShader(bounds);
-                                  },
-                                  child: imageWidget,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      // PERCENT LABEL
-                      Positioned(
-                        right: 0,
-                        bottom: 0,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: const [
-                              BoxShadow(color: Colors.black12, blurRadius: 4),
-                            ],
-                          ),
-                          child: Text(
-                            percentString,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: FontFamily.medium,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                ClipRRect(borderRadius: BorderRadius.circular(100), child: ColorFiltered(colorFilter: ColorFilter.mode(Colors.grey.shade300, BlendMode.modulate), child: imageWidget)),
+                                ClipRRect(borderRadius: BorderRadius.circular(100), child: ShaderMask(blendMode: BlendMode.srcIn, shaderCallback: (Rect bounds) => LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter, stops: [0.0, percentage, percentage, 1.0], colors: [goalColor, goalColor, Colors.transparent, Colors.transparent]).createShader(bounds), child: imageWidget)),
+                              ],
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  FittedBox(
-                    child: Text(
-                      widget.goalName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: UTextStyles.large.copyWith(
-                        fontSize: widget.titleFontSize, // Responsive Title
-                      ),
+                        Positioned(
+                          right: 0, bottom: 0,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8), boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)]),
+                            child: Text(percentString, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, fontFamily: FontFamily.medium)),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  FittedBox(
-                    child: Text(
-                      '₹ ${widget.targetAmount.toStringAsFixed(0)}',
-                      style: UTextStyles.medium.copyWith(
-                        color: Colors.grey.shade600,
-                        fontSize:
-                            widget.titleFontSize -
-                            2, // Scales proportionally with title
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            },
+                    const Gap(4),
+                    FittedBox(child: Text(widget.goalName, maxLines: 1, overflow: TextOverflow.ellipsis, style: UTextStyles.large.copyWith(fontSize: widget.titleFontSize))),
+                    FittedBox(child: Text('₹ ${widget.targetAmount.toStringAsFixed(0)}', style: UTextStyles.medium.copyWith(color: Colors.grey.shade600, fontSize: widget.titleFontSize - 2))),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),
     );
   }
 }
-
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-// import 'package:iconsax/iconsax.dart';
-// import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
-// import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
-// import 'package:my_sip/common/widget/button/elevated_button.dart';
-// import 'package:my_sip/config/routes/app_routes.dart';
-// import 'package:my_sip/core/utils/constant/colors.dart';
-// import 'package:my_sip/core/utils/constant/text_style.dart';
-// import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
-// import 'package:percent_indicator/circular_percent_indicator.dart';
-
-// import '../../../../common/widget/shimmer/shimmer.dart';
-// import '../../../../core/utils/constant/appUrl.dart';
-// import '../controller/goal_sip_controller.dart';
-
-// class GoalScreen extends GetView<GoalSipController> {
-//   const GoalScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     WidgetsBinding.instance.addPostFrameCallback((_) {
-//       controller.getAllGoals();
-//     });
-
-//     return Scaffold(
-//       backgroundColor: Ucolors.light,
-//       appBar: CustomAppBarNormal(
-//         backgroundColor: Ucolors.light,
-//         title: 'Goals',
-//         backIcon: false,
-//         actionsPadding: 10,
-//         action: [CompactIcon(icon: Iconsax.info_circle, onPressed: () {})],
-//       ),
-
-//       body: Obx(() {
-//         if (controller.isLoadingGoals.value) {
-//           return const Center(child: GoalShimmerGrid());
-//         }
-
-//         final goals = controller.goalResponse.value?.data ?? [];
-
-//         if (goals.isEmpty) {
-//           return Padding(
-//             padding: const EdgeInsets.all(16.0),
-//             child: Column(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               children: [
-//                 const CircleAvatar(
-//                   radius: 40,
-//                   backgroundColor: Ucolors.skyblue1,
-//                   child: Icon(
-//                     Iconsax.note_remove5,
-//                     color: Ucolors.blue,
-//                     size: 35,
-//                   ),
-//                 ),
-//                 const SizedBox(height: 20),
-//                 Text(
-//                   'Ready to start saving?',
-//                   style: UTextStyles.large.copyWith(fontSize: 20),
-//                 ),
-//                 const SizedBox(height: 4),
-//                 Text(
-//                   'You haven\'t set any savings goals yet',
-//                   style: UTextStyles.bodySmall,
-//                 ),
-//                 const SizedBox(height: 25),
-//                 UElevatedBUtton(
-//                   onPressed: () => Get.toNamed(AppRoutes.masterGoalsPage),
-//                   child: Row(
-//                     mainAxisAlignment: MainAxisAlignment.center,
-//                     children: [
-//                       Text(
-//                         'Create Your First Goal',
-//                         style: UTextStyles.buttonText,
-//                       ),
-//                       const SizedBox(width: 10),
-//                       const Icon(Icons.add, color: Ucolors.light),
-//                     ],
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           );
-//         }
-
-//         return RefreshIndicator(
-//           onRefresh: () => controller.getAllGoals(),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               // ✅ Static header outside scroll
-//               Padding(
-//                 padding: const EdgeInsets.all(8.0),
-//                 child: Text(
-//                   '${goals.length} Active Goal${goals.length == 1 ? '' : 's'}',
-//                   style: UTextStyles.bodySmall,
-//                 ),
-//               ),
-
-//               // ✅ Expanded so CustomScrollView takes remaining space
-//               Expanded(
-//                 child: CustomScrollView(
-//                   physics: const AlwaysScrollableScrollPhysics(),
-//                   slivers: [
-//                     SliverPadding(
-//                       padding: const EdgeInsets.all(12),
-//                       sliver: SliverGrid(
-//                         delegate: SliverChildBuilderDelegate((context, index) {
-//                           final goal = goals[index];
-//                           final double target =
-//                               double.tryParse(
-//                                 goal.goalType?.targetAmount.toString() ?? '0',
-//                               ) ??
-//                               0.0;
-//                           final double invested =
-//                               double.tryParse(
-//                                 goal.goalType?.investedAmount.toString() ?? '0',
-//                               ) ??
-//                               0.0;
-//                           final String name =
-//                               goal.goalName ?? 'Goal ${index + 1}';
-//                           final String logo = goal.goalType?.logo ?? '';
-
-//                           return CircularUploadIndicator(
-//                             goalEntity: goal,
-//                             goalName: name,
-//                             targetAmount: target,
-//                             investedAmount: invested,
-//                             iconUrl: logo,
-//                           );
-//                         }, childCount: goals.length),
-//                         gridDelegate:
-//                             const SliverGridDelegateWithFixedCrossAxisCount(
-//                               crossAxisCount: 2,
-//                               mainAxisSpacing: 16,
-//                               crossAxisSpacing: 16,
-//                               childAspectRatio: 0.82,
-//                             ),
-//                       ),
-//                     ),
-//                     const SliverToBoxAdapter(child: SizedBox(height: 80)),
-//                   ],
-//                 ),
-//               ),
-//             ],
-//           ),
-//         );
-//       }),
-
-//       floatingActionButton: Obx(() {
-//         final hasGoals = (controller.goalResponse.value?.data ?? []).isNotEmpty;
-
-//         if (!hasGoals || controller.isLoadingGoals.value) {
-//           return const SizedBox.shrink();
-//         }
-
-//         return FloatingActionButton(
-//           onPressed: () async {
-//             await controller.getMasterGoals();
-//             controller.selectedGoalIndex.value = -1;
-//             Get.toNamed(AppRoutes.masterGoalsPage);
-//           },
-//           backgroundColor: Ucolors.primary,
-//           child: const Icon(Icons.add, color: Colors.white),
-//         );
-//       }),
-//     );
-//   }
-// }
-
-// class CircularUploadIndicator extends StatelessWidget {
-//   final UserGoalEntity? goalEntity;
-//   final String goalName;
-//   final double targetAmount;
-//   final double investedAmount;
-//   final String? iconUrl;
-
-//   const CircularUploadIndicator({
-//     super.key,
-//     required this.goalName,
-//     required this.targetAmount,
-//     required this.investedAmount,
-//     this.iconUrl,
-//     this.goalEntity,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final GoalSipController controller = Get.find<GoalSipController>();
-//     final double percentage = targetAmount > 0
-//         ? (investedAmount / targetAmount).clamp(0.0, 1.0)
-//         : 0.0;
-
-//     final String percentString = "${(percentage * 100).toStringAsFixed(0)}%";
-//     final Color goalColor = controller.getGoalColor(
-//       goalEntity?.goalType?.typeName ?? '',
-//     );
-//     return GestureDetector(
-//       onTap: () {
-//         Get.toNamed(
-//           AppRoutes.goaldetails,
-//           arguments: {
-//             'goal': goalEntity,
-//             'target': targetAmount,
-//             'invested': investedAmount,
-//             'logo': iconUrl,
-//           },
-//         );
-//       },
-//       child: Container(
-//         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-//         decoration: BoxDecoration(
-//           color: Colors.white,
-//           borderRadius: BorderRadius.circular(16),
-//           boxShadow: [
-//             BoxShadow(
-//               color: Colors.black.withValues(alpha: 0.05),
-//               blurRadius: 10,
-//               offset: const Offset(0, 4),
-//             ),
-//           ],
-//         ),
-//         child: LayoutBuilder(
-//           builder: (context, constraints) {
-//             final double circleSize = constraints.maxHeight * 0.45;
-
-//             final imageWidget = (iconUrl != null && iconUrl!.isNotEmpty)
-//                 ? Image.network(
-//                     iconUrl!.startsWith('http')
-//                         ? iconUrl!
-//                         : '${Appurl.baseUrl}/$iconUrl',
-//                     width: circleSize * 0.55,
-//                     height: circleSize * 0.55,
-//                     fit: BoxFit.contain,
-//                     errorBuilder: (_, __, ___) {
-//                       return Icon(
-//                         Icons.flag,
-//                         size: circleSize * 0.25,
-//                         color: Colors.grey,
-//                       );
-//                     },
-//                   )
-//                 : Icon(Icons.flag, size: circleSize * 0.25, color: Colors.grey);
-
-//             return Column(
-//               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//               children: [
-//                 Stack(
-//                   alignment: Alignment.center,
-//                   children: [
-//                     // BACK CIRCLE
-//                     CircularPercentIndicator(
-//                       radius: circleSize / 1.3,
-//                       lineWidth: 8,
-//                       percent: 1,
-//                       backgroundColor: Colors.transparent,
-//                       progressColor: Colors.grey.shade200,
-//                     ),
-
-//                     // PROGRESS CIRCLE
-//                     CircularPercentIndicator(
-//                       radius: circleSize / 1.3,
-//                       lineWidth: 8,
-//                       percent: percentage,
-//                       animation: true,
-//                       circularStrokeCap: CircularStrokeCap.round,
-//                       backgroundColor: Colors.transparent,
-//                       progressColor: goalColor,
-//                       center: Container(
-//                         width: circleSize * 0.9,
-//                         height: circleSize * 0.9,
-//                         decoration: BoxDecoration(
-//                           color: Colors.grey.shade50,
-//                           shape: BoxShape.circle,
-//                         ),
-//                         alignment: Alignment.center,
-//                         child: Stack(
-//                           alignment: Alignment.center,
-//                           children: [
-//                             // BACK (GRAY VERSION)
-//                             ClipRRect(
-//                               borderRadius: BorderRadius.circular(100),
-//                               child: ColorFiltered(
-//                                 colorFilter: ColorFilter.mode(
-//                                   Colors.grey.shade300,
-//                                   BlendMode.modulate,
-//                                 ),
-//                                 child: imageWidget,
-//                               ),
-//                             ),
-
-//                             // FILL (BASED ON PERCENTAGE)
-//                             ClipRRect(
-//                               borderRadius: BorderRadius.circular(100),
-//                               child: ShaderMask(
-//                                 blendMode: BlendMode.srcIn,
-//                                 shaderCallback: (Rect bounds) {
-//                                   return LinearGradient(
-//                                     begin: Alignment.bottomCenter,
-//                                     end: Alignment.topCenter,
-//                                     stops: [0.0, percentage, percentage, 1.0],
-//                                     colors: [
-//                                       goalColor,
-//                                       goalColor,
-//                                       Colors.transparent,
-//                                       Colors.transparent,
-//                                     ],
-//                                   ).createShader(bounds);
-//                                 },
-//                                 child: imageWidget,
-//                               ),
-//                             ),
-//                           ],
-//                         ),
-//                       ),
-//                     ),
-
-//                     // PERCENT LABEL
-//                     Positioned(
-//                       right: 0,
-//                       bottom: 0,
-//                       child: Container(
-//                         padding: const EdgeInsets.symmetric(
-//                           horizontal: 5,
-//                           vertical: 2,
-//                         ),
-//                         decoration: BoxDecoration(
-//                           color: Colors.white,
-//                           borderRadius: BorderRadius.circular(8),
-//                           boxShadow: const [
-//                             BoxShadow(color: Colors.black12, blurRadius: 4),
-//                           ],
-//                         ),
-//                         child: Text(
-//                           percentString,
-//                           style: const TextStyle(
-//                             fontSize: 10,
-//                             fontWeight: FontWeight.bold,
-//                             fontFamily: FontFamily.medium,
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-
-//                 const SizedBox(height: 4),
-
-//                 FittedBox(
-//                   child: Text(
-//                     goalName,
-//                     maxLines: 1,
-//                     overflow: TextOverflow.ellipsis,
-//                     style: UTextStyles.large.copyWith(fontSize: 14),
-//                   ),
-//                 ),
-
-//                 FittedBox(
-//                   child: Text(
-//                     '₹ ${targetAmount.toStringAsFixed(0)}',
-//                     style: UTextStyles.medium.copyWith(
-//                       color: Colors.grey.shade600,
-//                       fontSize: 12,
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             );
-//           },
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// // import 'package:flutter/material.dart';
-// // import 'package:gap/gap.dart';
-// // import 'package:get/get.dart';
-// // import 'package:iconsax/iconsax.dart';
-// // import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
-// // import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
-// // import 'package:my_sip/common/widget/button/elevated_button.dart';
-// // import 'package:my_sip/config/routes/app_routes.dart';
-// // import 'package:my_sip/core/utils/constant/colors.dart';
-// // import 'package:my_sip/core/utils/constant/text_style.dart';
-// // import 'package:my_sip/features/goal/domain/entity/goal_entity.dart';
-// // import 'package:percent_indicator/circular_percent_indicator.dart';
-// //
-// // import '../controller/goal_sip_controller.dart';
-// // import 'ihavegoal.dart';
-// //
-// // class GoalScreen extends GetView<GoalSipController> {
-// //   const GoalScreen({super.key});
-// //
-// //   String _goalEmoji(String goalName) {
-// //     final lower = goalName.toLowerCase();
-// //     if (lower.contains('car')) return '🚗';
-// //     if (lower.contains('bike')) return '🏍️';
-// //     if (lower.contains('home') || lower.contains('house')) return '🏠';
-// //     if (lower.contains('marriage') || lower.contains('wedding')) return '💍';
-// //     if (lower.contains('vacation') || lower.contains('travel')) return '✈️';
-// //     if (lower.contains('education') || lower.contains('study')) return '📚';
-// //     if (lower.contains('retirement')) return '🏖️';
-// //     return '🎯';
-// //   }
-// //
-// //   @override
-// //   Widget build(BuildContext context) {
-// //     // Fetch goals when screen opens
-// //     WidgetsBinding.instance.addPostFrameCallback((_) {
-// //       controller.getAllGoals();
-// //     });
-// //
-// //     return Scaffold(
-// //       backgroundColor: Ucolors.light,
-// //       appBar: CustomAppBarNormal(
-// //         backgroundColor: Ucolors.light,
-// //         title: 'Goals',
-// //         backIcon: false,
-// //         actionsPadding: 10,
-// //         action: [CompactIcon(icon: Iconsax.info_circle, onPressed: () {})],
-// //       ),
-// //       body: Obx(() {
-// //         // ── Loading ──────────────────────────────────────────────
-// //         if (controller.isLoadingGoals.value) {
-// //           return const Center(child: CircularProgressIndicator());
-// //         }
-// //
-// //         final goals = controller.goalResponse.value?.data ?? [];
-// //
-// //         // ── Empty State ──────────────────────────────────────────
-// //         if (goals.isEmpty) {
-// //           return Padding(
-// //             padding: const EdgeInsets.all(16.0),
-// //             child: Column(
-// //               crossAxisAlignment: CrossAxisAlignment.center,
-// //               mainAxisAlignment: MainAxisAlignment.center,
-// //               children: [
-// //                 const Center(
-// //                   child: CircleAvatar(
-// //                     radius: 40,
-// //                     backgroundColor: Ucolors.skyblue1,
-// //                     child: Icon(
-// //                       Iconsax.note_remove5,
-// //                       color: Ucolors.blue,
-// //                       size: 35,
-// //                     ),
-// //                   ),
-// //                 ),
-// //                 const SizedBox(height: 20),
-// //                 Text(
-// //                   'Ready to start saving?',
-// //                   style: UTextStyles.large.copyWith(fontSize: 20),
-// //                 ),
-// //                 const SizedBox(height: 4),
-// //                 Text(
-// //                   'You haven\'t set any savings goals yet',
-// //                   style: UTextStyles.bodySmall,
-// //                 ),
-// //                 const SizedBox(height: 25),
-// //                 UElevatedBUtton(
-// //                   onPressed: () => Get.toNamed(AppRoutes.ihavegoal),
-// //                   child: Row(
-// //                     mainAxisAlignment: MainAxisAlignment.center,
-// //                     children: [
-// //                       Text(
-// //                         'Create Your First Goal',
-// //                         style: UTextStyles.buttonText,
-// //                       ),
-// //                       const SizedBox(width: 10),
-// //                       const Icon(Icons.add, color: Ucolors.light),
-// //                     ],
-// //                   ),
-// //                 ),
-// //               ],
-// //             ),
-// //           );
-// //         }
-// //
-// //         // ── Goals Grid ───────────────────────────────────────────
-// //         return RefreshIndicator(
-// //           onRefresh: () => controller.getAllGoals(),
-// //           child: Padding(
-// //             padding: const EdgeInsets.all(16.0),
-// //             child: Column(
-// //               crossAxisAlignment: CrossAxisAlignment.start,
-// //               children: [
-// //                 // Subtitle count
-// //                 Text(
-// //                   '${goals.length} Active Goal${goals.length == 1 ? '' : 's'}',
-// //                   style: UTextStyles.bodySmall,
-// //                 ),
-// //                 const SizedBox(height: 16),
-// //
-// //                 // 2-column grid
-// //                 Expanded(
-// //                   child: GridView.builder(
-// //                     physics: const AlwaysScrollableScrollPhysics(),
-// //                     itemCount: goals.length,
-// //                     gridDelegate:
-// //                         const SliverGridDelegateWithFixedCrossAxisCount(
-// //                           crossAxisCount: 2,
-// //                           mainAxisSpacing: 16,
-// //                           crossAxisSpacing: 16,
-// //                           childAspectRatio: 0.88,
-// //                         ),
-// //                     itemBuilder: (context, index) {
-// //                       final goal = goals[index];
-// //
-// //                       final double target =
-// //                           double.tryParse(
-// //                             goal.goalType?.targetAmount.toString() ?? '0',
-// //                           ) ??
-// //                           0.0;
-// //                       final double invested =
-// //                           double.tryParse(
-// //                             goal.goalType?.investedAmount.toString() ?? '0',
-// //                           ) ??
-// //                           0.0;
-// //                       final String name = goal.goalName ?? 'Goal ${index + 1}';
-// //
-// //                       return CircularUploadIndicator(
-// //                         goalEntity: goal,
-// //                         goalName: name,
-// //                         targetAmount: target,
-// //                         investedAmount: invested,
-// //                         iconEmoji: _goalEmoji(goal.goalType?.logo ?? ''),
-// //                       );
-// //                     },
-// //                   ),
-// //                 ),
-// //               ],
-// //             ),
-// //           ),
-// //         );
-// //       }),
-// //
-// //       // FAB only visible when goals exist
-// //       floatingActionButton: Obx(() {
-// //         final hasGoals = (controller.goalResponse.value?.data ?? []).isNotEmpty;
-// //         if (!hasGoals || controller.isLoadingGoals.value)
-// //           return const SizedBox.shrink();
-// //         return FloatingActionButton(
-// //           onPressed: () async {
-// //            await controller.getMasterGoals();
-// //            controller.selectedGoalIndex.value = -1;
-// //
-// //            Get.toNamed(AppRoutes.masterGoalsPage);},
-// //           backgroundColor: Ucolors.primary,
-// //           child: const Icon(Icons.add, color: Colors.white),
-// //         );
-// //       }),
-// //     );
-// //   }
-// // }
-// //
-// // class CircularUploadIndicator extends StatelessWidget {
-// //   final UserGoalEntity? goalEntity;
-// //   final String goalName;
-// //   final double targetAmount;
-// //   final double investedAmount;
-// //   final String? iconEmoji; // Optional: e.g., "🚗"
-// //
-// //   const CircularUploadIndicator({
-// //     super.key,
-// //     required this.goalName,
-// //     required this.targetAmount,
-// //     required this.investedAmount,
-// //     this.iconEmoji,
-// //     this.goalEntity,
-// //   });
-// //
-// //   @override
-// //   Widget build(BuildContext context) {
-// //     // Calculate percentage (0.0 to 1.0)
-// //     final double percentage = targetAmount > 0
-// //         ? (investedAmount / targetAmount).clamp(0.0, 1.0)
-// //         : 0.0;
-// //
-// //     // Format percentage string (e.g., "33%")
-// //     final String percentString = "${(percentage * 100).toStringAsFixed(0)}%";
-// //
-// //     final size = MediaQuery.of(context).size;
-// //
-// //     return GestureDetector(
-// //       onTap: () {
-// //         // Navigate to details if needed, passing ID or data
-// //         Get.toNamed(
-// //           AppRoutes.goaldetails,
-// //           //  arguments: {'goalName': goalName}
-// //           arguments: {
-// //             'goal': goalEntity,
-// //             'emoji': iconEmoji,
-// //             'target': targetAmount,
-// //             'invested': investedAmount,
-// //           },
-// //         );
-// //       },
-// //       child: Container(
-// //         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-// //         decoration: BoxDecoration(
-// //           color: Colors.white,
-// //           borderRadius: BorderRadius.circular(16),
-// //           boxShadow: [
-// //             BoxShadow(
-// //               color: Colors.black.withValues(alpha:0.05),
-// //               blurRadius: 10,
-// //               offset: const Offset(0, 4),
-// //             ),
-// //           ],
-// //         ),
-// //         child: LayoutBuilder(
-// //           builder: (context, constraints) {
-// //             final double circleSize = constraints.maxHeight * 0.45;
-// //
-// //             return Column(
-// //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-// //               children: [
-// //                 Stack(
-// //                   alignment: Alignment.center,
-// //                   children: [
-// //                     CircularPercentIndicator(
-// //                       radius: circleSize / 1.3,
-// //                       lineWidth: 8,
-// //                       percent: 1,
-// //                       backgroundColor: Colors.transparent,
-// //                       progressColor: Colors.grey.shade200,
-// //                     ),
-// //
-// //                     CircularPercentIndicator(
-// //                       radius: circleSize / 1.3,
-// //                       lineWidth: 8,
-// //                       percent: percentage,
-// //                       animation: true,
-// //                       circularStrokeCap: CircularStrokeCap.round,
-// //                       backgroundColor: Colors.transparent,
-// //                       progressColor: Ucolors.blue,
-// //
-// //                       center: Container(
-// //                         width: circleSize * 0.9,
-// //                         height: circleSize * 0.9,
-// //                         decoration: BoxDecoration(
-// //                           color: Colors.grey.shade50,
-// //                           shape: BoxShape.circle,
-// //                         ),
-// //                         alignment: Alignment.center,
-// //                         child: Text(
-// //                           iconEmoji ?? "🎯",
-// //                           style: TextStyle(
-// //                             fontSize: circleSize * 0.22,
-// //                           ),
-// //                         ),
-// //                       ),
-// //                     ),
-// //
-// //                     Positioned(
-// //                       right: 0,
-// //                       bottom: 0,
-// //                       child: Container(
-// //                         padding: const EdgeInsets.symmetric(
-// //                           horizontal: 5,
-// //                           vertical: 2,
-// //                         ),
-// //                         decoration: BoxDecoration(
-// //                           color: Colors.white,
-// //                           borderRadius: BorderRadius.circular(8),
-// //                           boxShadow: const [
-// //                             BoxShadow(
-// //                               color: Colors.black12,
-// //                               blurRadius: 4,
-// //                             ),
-// //                           ],
-// //                         ),
-// //                         child: Text(
-// //                           percentString,
-// //                           style: const TextStyle(
-// //                             fontSize: 10,
-// //                             fontWeight: FontWeight.bold,
-// //                           ),
-// //                         ),
-// //                       ),
-// //                     ),
-// //                   ],
-// //                 ),
-// //
-// //                 const SizedBox(height: 4),
-// //
-// //                 FittedBox(
-// //                   child: Text(
-// //                     goalName,
-// //                     maxLines: 1,
-// //                     overflow: TextOverflow.ellipsis,
-// //                     style: UTextStyles.large.copyWith(
-// //                       fontSize: 14,
-// //                     ),
-// //                   ),
-// //                 ),
-// //
-// //                 FittedBox(
-// //                   child: Text(
-// //                     '₹ ${targetAmount.toStringAsFixed(0)}',
-// //                     style: UTextStyles.medium.copyWith(
-// //                       color: Colors.grey.shade600,
-// //                       fontSize: 12,
-// //                     ),
-// //                   ),
-// //                 ),
-// //               ],
-// //             );
-// //           },
-// //         ),
-// //       ),
-// //     );
-// //   }
-// // }
