@@ -579,17 +579,22 @@ class FundShimmerCard extends StatelessWidget {
   }
 }
 
+
+
 class GoalShimmerGrid extends StatelessWidget {
   const GoalShimmerGrid({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Check if we are on Desktop
+    final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Header shimmer
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Shimmer.fromColors(
             baseColor: Colors.grey.shade300,
             highlightColor: Colors.grey.shade100,
@@ -608,13 +613,15 @@ class GoalShimmerGrid extends StatelessWidget {
         Expanded(
           child: GridView.builder(
             padding: const EdgeInsets.all(12),
-            itemCount: 9,
+            itemCount: isDesktop ? 6 : 4, // Show fewer on desktop if needed
             physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              // Web: 3 columns, Mobile: 2 columns
+              crossAxisCount: isDesktop ? 3 : 2,
               mainAxisSpacing: 16,
               crossAxisSpacing: 16,
-              childAspectRatio: 0.82,
+              // Fixed height for cards avoids squishing/stretching issues
+              mainAxisExtent: isDesktop ? 240 : 270,
             ),
             itemBuilder: (context, index) => const GoalShimmerCard(),
           ),
@@ -633,48 +640,54 @@ class GoalShimmerCard extends StatelessWidget {
       baseColor: Colors.grey.shade300,
       highlightColor: Colors.grey.shade100,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(18),
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Circle shimmer
+            // Icon Placeholder
             Container(
-              width: 90,
-              height: 90,
-              decoration: const BoxDecoration(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
                 color: Colors.white,
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(14),
               ),
             ),
+            const Spacer(),
 
             // Goal name shimmer
             Container(
-              width: 80,
+              width: double.infinity,
+              height: 16,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            // Description/Amount shimmer
+            Container(
+              width: 100,
               height: 12,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(6),
               ),
             ),
+            const SizedBox(height: 12),
 
-            // Amount shimmer
+            // Bottom Info Bar Shimmer
             Container(
-              width: 60,
-              height: 10,
+              width: double.infinity,
+              height: 40,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(14),
               ),
             ),
           ],

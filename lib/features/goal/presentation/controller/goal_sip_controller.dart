@@ -44,7 +44,7 @@ class GoalSipController extends GetxController {
   final RxBool isHome = false.obs;
   final RxBool isAddFund = false.obs;
   final RxBool hasChanges = false.obs;
-
+  final RxBool isNewGoal = false.obs;
   final RxDouble existingSipAmount = 0.0.obs;
   final RxDouble additionalSipAmount = 0.0.obs;
 
@@ -66,6 +66,7 @@ class GoalSipController extends GetxController {
   void onInit() {
     super.onInit();
     investmentMode.value = 'sip';
+   getAllGoals();
     _recalculate();
     recalculateLumpsum();
   }
