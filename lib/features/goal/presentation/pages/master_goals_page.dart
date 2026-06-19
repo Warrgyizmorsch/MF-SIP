@@ -28,8 +28,10 @@ import '../../../../navigation_menu_bar.dart';
 import '../../../cart/presentation/controllers/cart_controller.dart';
 import '../../../cart/presentation/pages/cart_page.dart';
 
+import '../../../explore/presentation/controller/fundhouse_controller.dart';
 import '../../../explore/presentation/controller/mutual_fund_controller.dart';
 
+import '../../../explore/presentation/pages/explore.dart';
 import '../../../fund_details/data/models/return_model.dart';
 import '../../../fund_details/presentation/pages/fund_deatails.dart';
 import '../../../fund_details/presentation/widgets/return.dart';
@@ -444,7 +446,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
             showActionButton: true,
             buttonTitle: selectedCount > 0 ? 'Add Funds' : 'View All',
             onPressed: () {
-              // Add explore bottom sheet call
+              _showExploreMoreBottomSheet(context);
             },
           );
         }),
@@ -453,6 +455,668 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
         const Gap(10),
       ],
     );
+  }
+  void _showExploreMoreBottomSheet(BuildContext context) {
+    final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+
+    if (isDesktop) {
+      // WEB: Use a clean, centered dialog
+      Get.generalDialog(
+        barrierDismissible: true,
+        barrierLabel: "Explore Funds",
+        pageBuilder: (context, _, __) {
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600, maxHeight: 850),
+              child: Material(
+                borderRadius: BorderRadius.circular(24),
+                clipBehavior: Clip.antiAlias,
+                child: _buildSheetContent(context, isDesktop: true),
+              ),
+            ),
+          );
+        },
+      ).whenComplete(_onDismiss);
+    } else {
+      // MOBILE: Use standard BottomSheet
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        backgroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        builder: (context) => _buildSheetContent(context, isDesktop: false),
+      ).whenComplete(_onDismiss);
+    }
+  }
+  Widget _buildSheetContent(BuildContext context, {required bool isDesktop}) {
+    final mutualController = Get.find<MutualFundController>();
+    final goalSipController = Get.find<GoalSipController>();
+
+    return Column(
+      children: [
+        /// Drag Handle (Only for mobile)
+        if (!isDesktop)
+          Center(
+            child: Container(
+              margin: const EdgeInsets.only(top: 12, bottom: 16),
+              height: 5,
+              width: 48,
+              decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+
+        /// Header
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Explore Funds", style: AppTextStyles.h2(color: Ucolors.dark)),
+                  const SizedBox(height: 4),
+                  Text("Search and select funds for your goal.", style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+                ],
+              ),
+              IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+            ],
+          ),
+        ),
+
+        /// Search Bar
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: SearchBar(
+            hintText: "Search mutual funds...",
+            leading: const Icon(Icons.search),
+            onChanged: (value) => mutualController.onSearchQueryChanged(value),
+          ),
+        ),
+
+        Divider(color: Colors.grey.shade200),
+
+        /// Fund List
+        Expanded(
+          child: Obx(() {
+            if (mutualController.isLoading.value) return const Center(child: CircularProgressIndicator());
+
+            return ListView.builder(
+              padding: const EdgeInsets.only(bottom: 20),
+              itemCount: mutualController.searchFund.length,
+              itemBuilder: (context, index) {
+                final fund = mutualController.searchFund[index];
+                return _buildFundItem(fund, goalSipController);
+              },
+            );
+          }),
+        ),
+
+        /// Bottom Button
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)]),
+          child: UElevatedBUtton(
+            onPressed: () => Get.back(),
+            child: Center(child: Text("Done", style: AppTextStyles.bodyMedium(color: Colors.white))),
+          ),
+        ),
+      ],
+    );
+  }
+  void _onDismiss() {
+    final mutualController = Get.find<MutualFundController>();
+    Future.delayed(const Duration(milliseconds: 300), () {
+      mutualController.setSearchFocus(false);
+      Get.find<FundhouseController>().clearAllFilters();
+      mutualController.silentReset();
+    });
+  }
+  Widget _buildFundItem(dynamic fund, GoalSipController goalSipController) {
+    final String name = fund.baseSchemeName ?? "Unknown Name";
+
+    return Obx(() {
+      final bool isSelected = goalSipController.isSelectedFund(name);
+
+      return Stack(
+        children: [
+          /// Fund Card
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+            child: MutualFundCard(
+              entity: fund,
+              showTrainlings: false,
+              onTapOverride: () async {
+                // Extracting the tap logic here
+                await _handleFundSelection(fund, name, isSelected);
+              },
+            ),
+          ),
+
+          /// Selected Border Overlay
+          if (isSelected)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Ucolors.primary.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Ucolors.primary, width: 2),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      );
+    });
+  }
+
+// Logic for handling the selection/deletion
+  Future<void> _handleFundSelection(dynamic fund, String name, bool isSelected) async {
+    final goalSipController = Get.find<GoalSipController>();
+
+    try {
+      if (goalSipController.savedInvestmentType.value == "lumpsum" ||
+          goalSipController.savedInvestmentType.value == "sip") {
+        goalSipController.showLoading();
+      }
+
+      if (isSelected) {
+        // Logic for deleting an existing fund
+        final goalFundId = goalSipController.getGoalFundId(fund.schemeCode?.toString() ?? '');
+        if (goalFundId != null) {
+          await goalSipController.deleteGoalFund(
+              id: goalFundId,
+              isEdit: false,
+              schemeName: fund.schemeCode?.toString() ?? ''
+          );
+          goalSipController.toggleFund(name);
+          // ... (re-distribute logic)
+        }
+      } else {
+        // Logic for adding a new fund
+        goalSipController.toggleFund(name);
+        await goalSipController.saveGoalFund(
+          goalId: goalSipController.savedDatabaseId.value ?? 0,
+          schemeCode: fund.schemeCode?.toString() ?? '',
+          schemeName: fund.baseSchemeName ?? '',
+          sipAmount: (fund.minSipAmount ?? 0).toDouble(),
+          sipDay: goalSipController.selectedSipDay.value,
+        );
+        // ... (re-distribute logic)
+      }
+    } catch (e) {
+      debugPrint("Error: $e");
+    } finally {
+      goalSipController.hideLoading();
+    }
+  }
+  // void _showExploreMoreBottomSheet(BuildContext context) {
+  //   final mutualController = Get.find<MutualFundController>();
+  //   final goalSipController = Get.find<GoalSipController>();
+  //   final FocusNode searchFocus = FocusNode();
+  //
+  //   showModalBottomSheet(
+  //     context: context,
+  //     isScrollControlled: true,
+  //     backgroundColor: Colors.white,
+  //     useSafeArea: true,
+  //     shape: const RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+  //     ),
+  //     builder: (BuildContext context) {
+  //       return DraggableScrollableSheet(
+  //         initialChildSize: 0.9,
+  //         minChildSize: 0.5,
+  //         maxChildSize: 0.96,
+  //         expand: false,
+  //         builder: (context, scrollController) {
+  //           return Column(
+  //             children: [
+  //               /// Drag Handle
+  //               Center(
+  //                 child: Container(
+  //                   margin: const EdgeInsets.only(top: 12, bottom: 16),
+  //                   height: 5,
+  //                   width: 48,
+  //                   decoration: BoxDecoration(
+  //                     color: Colors.grey.shade300,
+  //                     borderRadius: BorderRadius.circular(10),
+  //                   ),
+  //                 ),
+  //               ),
+  //
+  //               /// Header
+  //               Padding(
+  //                 padding: const EdgeInsets.symmetric(horizontal: 20),
+  //                 child: Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   children: [
+  //                     Column(
+  //                       crossAxisAlignment: CrossAxisAlignment.start,
+  //                       children: [
+  //                         Text(
+  //                           "Explore Funds",
+  //                           style: AppTextStyles.h2(color: Ucolors.dark),
+  //                         ),
+  //                         const SizedBox(height: 4),
+  //                         Text(
+  //                           "Search and select funds for your goal.",
+  //                           style: TextStyle(
+  //                             fontFamily: FontFamily.medium,
+  //                             fontSize: 13,
+  //                             color: Colors.grey.shade500,
+  //                             fontWeight: FontWeight.w500,
+  //                           ),
+  //                         ),
+  //                       ],
+  //                     ),
+  //
+  //                     IconButton(
+  //                       icon: const Icon(Icons.close, color: Colors.grey),
+  //                       onPressed: () {
+  //                         FocusScope.of(context).unfocus();
+  //                         Navigator.pop(context);
+  //                       },
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //
+  //               const SizedBox(height: 10),
+  //
+  //               /// Search Bar
+  //               Padding(
+  //                 padding: const EdgeInsets.symmetric(
+  //                   horizontal: 16,
+  //                   vertical: 8,
+  //                 ),
+  //                 child: SizedBox(
+  //                   height: 44,
+  //                   child: SearchBar(
+  //                     focusNode: searchFocus,
+  //
+  //                     onTap: () {
+  //                       mutualController.setSearchFocus(true);
+  //                     },
+  //
+  //                     onTapOutside: (event) {
+  //                       searchFocus.unfocus();
+  //                       mutualController.setSearchFocus(false);
+  //                     },
+  //
+  //                     backgroundColor: WidgetStateProperty.all(
+  //                       Colors.grey.shade50,
+  //                     ),
+  //
+  //                     leading: Icon(Icons.search, color: Colors.grey.shade600),
+  //
+  //                     hintText: "Search mutual funds...",
+  //
+  //                     hintStyle: WidgetStateProperty.all(
+  //                       TextStyle(
+  //                         fontFamily: FontFamily.medium,
+  //                         color: Colors.grey.shade500,
+  //                         fontSize: 14,
+  //                       ),
+  //                     ),
+  //
+  //                     elevation: WidgetStateProperty.all(0),
+  //
+  //                     side: WidgetStateProperty.all(
+  //                       BorderSide(color: Colors.grey.shade200),
+  //                     ),
+  //
+  //                     onChanged: (value) {
+  //                       mutualController.onSearchQueryChanged(value);
+  //                     },
+  //                   ),
+  //                 ),
+  //               ),
+  //
+  //               Divider(color: Colors.grey.shade200, height: 20),
+  //
+  //               /// Fund List
+  //               Expanded(
+  //                 child: Obx(() {
+  //                   if (mutualController.isLoading.value) {
+  //                     return const Center(
+  //                       child: CircularProgressIndicator(
+  //                         color: Ucolors.primary,
+  //                       ),
+  //                     );
+  //                   }
+  //
+  //                   if (mutualController.searchFund.isEmpty) {
+  //                     return Center(
+  //                       child: Text(
+  //                         "No mutual funds found",
+  //                         style: TextStyle(
+  //                           fontFamily: FontFamily.medium,
+  //                           color: Colors.grey.shade600,
+  //                         ),
+  //                       ),
+  //                     );
+  //                   }
+  //
+  //                   return ListView.builder(
+  //                     controller: scrollController,
+  //                     padding: const EdgeInsets.only(bottom: 20),
+  //                     itemCount: mutualController.searchFund.length,
+  //
+  //                     itemBuilder: (context, index) {
+  //                       final fund = mutualController.searchFund[index];
+  //
+  //                       final name = fund.baseSchemeName ?? "Unknown Name";
+  //
+  //                       return Obx(() {
+  //                         final isSelected = goalSipController.isSelectedFund(
+  //                           name,
+  //                         );
+  //
+  //                         return Stack(
+  //                           children: [
+  //                             /// Fund Card
+  //                             Container(
+  //                               margin: const EdgeInsets.symmetric(vertical: 6),
+  //
+  //                               child: MutualFundCard(
+  //                                 entity: fund,
+  //                                 showTrainlings: false,
+  //
+  //                                 onTapOverride: () async {
+  //                                   FocusScope.of(context).unfocus();
+  //
+  //                                   final isSelected = goalSipController
+  //                                       .isSelectedFund(name);
+  //
+  //                                   try {
+  //                                     if (goalSipController
+  //                                         .savedInvestmentType
+  //                                         .value ==
+  //                                         "lumpsum" ||
+  //                                         goalSipController
+  //                                             .savedInvestmentType
+  //                                             .value ==
+  //                                             "sip") {
+  //                                       goalSipController.showLoading();
+  //                                     }
+  //
+  //                                     /// ================= DELETE FUND =================
+  //                                     if (isSelected) {
+  //                                       final goalFundId = goalSipController
+  //                                           .getGoalFundId(
+  //                                         fund.schemeCode?.toString() ?? '',
+  //                                       );
+  //
+  //                                       if (goalFundId != null) {
+  //                                         await goalSipController
+  //                                             .deleteGoalFund(
+  //                                           id: goalFundId,
+  //                                           isEdit: false,
+  //                                           schemeName:
+  //                                           fund.schemeCode
+  //                                               ?.toString() ??
+  //                                               '',
+  //                                         );
+  //
+  //                                         goalSipController.toggleFund(name);
+  //
+  //                                         if (goalSipController
+  //                                             .selectedPopularFund
+  //                                             .isNotEmpty) {
+  //                                           if (goalSipController
+  //                                               .savedInvestmentType
+  //                                               .value ==
+  //                                               "lumpsum") {
+  //                                             await goalSipController
+  //                                                 .distributeMonthlyAmount();
+  //                                           } else if (goalSipController
+  //                                               .savedInvestmentType
+  //                                               .value ==
+  //                                               "sip") {
+  //                                             await goalSipController
+  //                                                 .distributeSipAmount();
+  //                                           }
+  //                                         }
+  //                                       }
+  //
+  //                                       return;
+  //                                     }
+  //
+  //                                     /// ================= SIP DATE =================
+  //                                     if (goalSipController
+  //                                         .savedInvestmentType
+  //                                         .value ==
+  //                                         "sip" &&
+  //                                         goalSipController
+  //                                             .selectedPopularFund
+  //                                             .isEmpty) {
+  //                                       final confirmed =
+  //                                       await _showSipDateDialog(
+  //                                         context,
+  //                                         goalSipController,
+  //                                       );
+  //
+  //                                       if (confirmed != true) return;
+  //                                     }
+  //
+  //                                     /// ================= ADD FUND =================
+  //                                     goalSipController.toggleFund(name);
+  //
+  //                                     await goalSipController.saveGoalFund(
+  //                                       goalId:
+  //                                       goalSipController
+  //                                           .savedDatabaseId
+  //                                           .value ??
+  //                                           0,
+  //                                       schemeCode:
+  //                                       fund.schemeCode?.toString() ?? '',
+  //                                       schemeName: fund.baseSchemeName ?? '',
+  //                                       sipAmount: (fund.minSipAmount ?? 0)
+  //                                           .toDouble(),
+  //                                       sipDay: goalSipController
+  //                                           .selectedSipDay
+  //                                           .value,
+  //                                     );
+  //
+  //                                     if (goalSipController
+  //                                         .savedInvestmentType
+  //                                         .value ==
+  //                                         "lumpsum") {
+  //                                       await goalSipController
+  //                                           .distributeMonthlyAmount();
+  //                                     } else if (goalSipController
+  //                                         .savedInvestmentType
+  //                                         .value ==
+  //                                         "sip") {
+  //                                       await goalSipController
+  //                                           .distributeSipAmount();
+  //                                     }
+  //                                   } catch (e, stackTrace) {
+  //                                     debugPrint("Error: $e");
+  //                                     debugPrintStack(stackTrace: stackTrace);
+  //                                   } finally {
+  //                                     goalSipController.hideLoading();
+  //                                   }
+  //                                 },
+  //                               ),
+  //                             ),
+  //
+  //                             /// Selected Border
+  //                             if (isSelected)
+  //                               Positioned.fill(
+  //                                 child: IgnorePointer(
+  //                                   child: Container(
+  //                                     margin: const EdgeInsets.symmetric(
+  //                                       horizontal: 16,
+  //                                       vertical: 10,
+  //                                     ),
+  //
+  //                                     decoration: BoxDecoration(
+  //                                       color: Ucolors.primary.withValues(
+  //                                         alpha: 0.05,
+  //                                       ),
+  //
+  //                                       borderRadius: BorderRadius.circular(16),
+  //
+  //                                       border: Border.all(
+  //                                         color: Ucolors.primary,
+  //                                         width: 2,
+  //                                       ),
+  //                                     ),
+  //                                   ),
+  //                                 ),
+  //                               ),
+  //                           ],
+  //                         );
+  //                       });
+  //                     },
+  //                   );
+  //                 }),
+  //               ),
+  //
+  //               /// Bottom Button
+  //               Container(
+  //                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+  //
+  //                 decoration: BoxDecoration(
+  //                   color: Colors.white,
+  //                   boxShadow: [
+  //                     BoxShadow(
+  //                       color: Colors.black.withValues(alpha: 0.05),
+  //                       blurRadius: 10,
+  //                       offset: const Offset(0, -5),
+  //                     ),
+  //                   ],
+  //                 ),
+  //
+  //                 child: Obx(() {
+  //                   final selectedCount =
+  //                       goalSipController.selectedPopularFund.length;
+  //
+  //                   return UElevatedBUtton(
+  //                     onPressed: () {
+  //                       Get.back();
+  //                     },
+  //
+  //                     child: Center(
+  //                       child: Text(
+  //                         selectedCount > 0
+  //                             ? "Add $selectedCount Funds"
+  //                             : "Done",
+  //
+  //                         style: AppTextStyles.bodyMedium(color: Colors.white),
+  //                       ),
+  //                     ),
+  //                   );
+  //                 }),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     },
+  //   ).whenComplete(() {
+  //     Future.delayed(const Duration(milliseconds: 300), () {
+  //       mutualController.setSearchFocus(false);
+  //
+  //       Get.find<FundhouseController>().clearAllFilters();
+  //
+  //       mutualController.silentReset();
+  //     });
+  //   });
+  // }
+
+  Future<bool?> _showSipDateDialog(
+      BuildContext context,
+      GoalSipController controller,
+      ) {
+    RxString selectedSipDay = (controller.selectedSipDay.value).toString().obs;
+
+    return Get.dialog<bool>(
+      Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("Select SIP Date"),
+              const SizedBox(height: 16),
+              Obx(
+                    () => DropdownButton<String>(
+                  value: selectedSipDay.value,
+                  isExpanded: true,
+                  items: List.generate(
+                    28,
+                        (i) => DropdownMenuItem(
+                      value: '${i + 1}',
+                      child: Text('${i + 1}'),
+                    ),
+                  ),
+                  onChanged: (val) {
+                    if (val != null) {
+                      selectedSipDay.value = val;
+                      controller.selectedSipDay.value = int.parse(val);
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Get.back(result: false),
+                    child: const Text("Cancel"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => Get.back(result: true),
+                    child: const Text("Confirm"),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Fund toggle logic extracted — used by both bottom sheet and grid
+  void _toggleFundInBottomSheet({
+    required GoalSipController goalSipController,
+    required CartController cartController,
+    required dynamic fund,
+    required String name,
+    required String schemeCodeStr,
+    required bool isSelected,
+  }) {
+    final int? currentGoalId = goalSipController.savedDatabaseId.value;
+
+    if (!isSelected) {
+      goalSipController.toggleFund(name);
+      cartController.addToCart(
+        title: 'Goal',
+        fund.schemeCode ?? '',
+        name,
+        fund.minSipAmount ?? 0, // Always use minSipAmount here
+        currentGoalId,
+      );
+    } else {
+      final cartItem = cartController.cartResponseEntity.value?.items
+          .firstWhereOrNull(
+            (item) => item.schemeCode.toString() == schemeCodeStr,
+      );
+      if (cartItem != null && cartItem.id != null) {
+        cartController.deleteCartItem(cartItem.id!, name);
+        goalSipController.toggleFund(name);
+      }
+    }
   }
 }
 
