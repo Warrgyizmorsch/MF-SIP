@@ -301,15 +301,7 @@ class SipProcessController extends GetxController
       setInvestmentMode(Get.arguments['isLumpsum']);
     }
 
-    // selectedFunds.clear();
-    // fundAmounts.clear();
-    // for (var c in textControllers.values) {
-    //   c.dispose();
-    // }
-    // textControllers.clear();
-
-    // Fetch Best SIP funds on start
-    // getBestSipFunds();
+    
     fetchFundsByApproach();
     _calculateSipProjection();
     ever(amount, (_) => _calculateSipProjection());

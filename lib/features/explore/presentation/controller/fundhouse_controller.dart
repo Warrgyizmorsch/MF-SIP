@@ -265,6 +265,23 @@ class FundhouseController extends GetxController {
     Get.find<MutualFundController>().applyFreshFilter({'search': query});
   }
 
+  // ---------- Quick Collection: Gold Funds ----------
+  void applyGoldFilter() {
+    // 1. Clear all existing filters
+    _clearStatesOnly();
+
+    // 2. Update the UI state so this checkbox is ticked in the Filter Page
+    selectedSchemeTypes.add('Fund of Funds-Domestic-Gold');
+
+    fetchCount();
+
+    // 3. Send the exact string to the master list controller
+    mutualController.applyFreshFilter({
+      'scheme_category': 'Fund of Funds-Domestic-Gold',
+    });
+  }
+
+
   void applyBestSipFilter(int value) {
     _clearStatesOnly();
     bestSipValue.value = value;

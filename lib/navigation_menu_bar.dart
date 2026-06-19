@@ -27,6 +27,7 @@ import 'package:my_sip/features/kyc/presentation/controllers/kyc_controller.dart
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/document.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/personal_details.dart';
+import 'package:my_sip/features/sip_process/presentation/controllers/sip_process_controller.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import 'package:my_sip/core/utils/constant/colors.dart';
@@ -46,6 +47,7 @@ class NavigationBarController extends GetxController {
   final RxInt selectedIndex = 0.obs;
   final RxBool isProfileExpanded = false.obs;
   final RxBool isHelpExpanded = false.obs;
+  final RxBool isInvestExpanded = false.obs;
   Timer? _camsPollingTimer;
 
   @override
@@ -181,13 +183,64 @@ class NavigationBarController extends GetxController {
     }
   }
 
+  final RxInt profileDashboardTabIndex = 0.obs;
+
+  int profileTabFromNavIndex(int index) {
+    switch (index) {
+      // case 40:
+      //   return 0; // Overview
+      case 41:
+        return 0; // KYC Details
+      case 42:
+        return 1; // Personal Details
+      case 43:
+        return 2; // Bank Account
+      case 44:
+        return 3; // Nominee Details
+      case 45:
+        return 4; // Documents
+      default:
+        return 0;
+    }
+  }
+
+  void openProfileDashboardTab(int tabIndex, {bool isDesktop = true}) {
+    profileDashboardTabIndex.value = tabIndex;
+    selectedIndex.value = 40;
+    isProfileExpanded.value = false;
+
+    if (isDesktop) {
+      Get.toNamed(AppRoutes.profilePage, id: 1);
+    }
+  }
+
   void changePage(int index, {bool isDesktop = true}) {
+    // if (index == 4) {
+    //   if (isDesktop) {
+    //     isProfileExpanded.value = !isProfileExpanded.value;
+    //   } else {
+    //     selectedIndex.value = 40;
+    //   }
+    //   return;
+    // }
+    if (index == 11) {
+      if (isDesktop) {
+        isInvestExpanded.value = !isInvestExpanded.value;
+        isProfileExpanded.value = false;
+        isHelpExpanded.value = false;
+      }
+      return;
+    }
     if (index == 4) {
       if (isDesktop) {
-        isProfileExpanded.value = !isProfileExpanded.value;
+        openProfileDashboardTab(0, isDesktop: true);
       } else {
         selectedIndex.value = 40;
       }
+      return;
+    }
+    if (isDesktop && index >= 40 && index <= 45) {
+      openProfileDashboardTab(profileTabFromNavIndex(index), isDesktop: true);
       return;
     }
 
@@ -195,6 +248,7 @@ class NavigationBarController extends GetxController {
 
     if (index < 4) {
       isProfileExpanded.value = false;
+      isInvestExpanded.value = false;
     }
 
     selectedIndex.value = index;
@@ -473,6 +527,7 @@ class NavigationMenuBar extends StatelessWidget {
     final controller = Get.find<NavigationBarController>();
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
     final isTablet = ResponsiveBreakpoints.of(context).equals(TABLET);
+    final fundhousecontroller = Get.find<FundhouseController>();
 
     return PopScope(
       canPop: kIsWeb && controller.selectedIndex.value == 0,
@@ -497,7 +552,11 @@ class NavigationMenuBar extends StatelessWidget {
         body: Row(
           children: [
             if (isDesktop || isTablet)
-              _DesktopSideNav(isDesktop: isDesktop, isTablet: isTablet),
+              _DesktopSideNav(
+                isDesktop: isDesktop,
+                isTablet: isTablet,
+                fundhouseController: fundhousecontroller,
+              ),
 
             Expanded(
               child: Column(
@@ -514,6 +573,16 @@ class NavigationMenuBar extends StatelessWidget {
                                   key: Get.nestedKey(1),
                                   initialRoute: AppRoutes.home,
                                   onGenerateRoute: (settings) {
+                                    if ((isDesktop || isTablet) &&
+                                        settings.name ==
+                                            AppRoutes.profilePage) {
+                                      return GetPageRoute(
+                                        settings: settings,
+                                        page: () =>
+                                            const WebProfileDashboardScreen(),
+                                        transition: Transition.fadeIn,
+                                      );
+                                    }
                                     final List<GetPage> allPages =
                                         AppPages.pages();
 
@@ -554,7 +623,7 @@ class NavigationMenuBar extends StatelessWidget {
                                       return DashboardScreen();
 
                                     case 3:
-                                      return  GoalScreen();
+                                      return GoalScreen();
 
                                     case 40:
                                       return const ProfileScreen();
@@ -946,8 +1015,13 @@ class GlobalTopHeader extends StatelessWidget {
 class _DesktopSideNav extends StatelessWidget {
   final bool isDesktop;
   final bool isTablet;
+  final FundhouseController fundhouseController;
 
-  const _DesktopSideNav({required this.isDesktop, required this.isTablet});
+  const _DesktopSideNav({
+    required this.isDesktop,
+    required this.isTablet,
+    required this.fundhouseController,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1155,21 +1229,15 @@ class _DesktopSideNav extends StatelessWidget {
                         horizontalPadding,
                       ),
                     ),
-
-                    // const SizedBox(height: 18),
-
-                    // if (showText) _buildSectionTitle("SETTINGS"),
-
-                    /// PROFILE
                     Obx(() {
-                      final isExpanded = controller.isProfileExpanded.value;
+                      final isExpanded = controller.isInvestExpanded.value;
 
                       return Column(
                         children: [
                           _DesktopNavItem(
-                            icon: Iconsax.user4,
-                            label: 'Profile',
-                            isSelected: false,
+                            icon: Iconsax.briefcase,
+                            label: 'Invest',
+                            isSelected: isExpanded,
                             isDesktop: showText,
                             fontSize: navFontSize,
                             iconSize: iconSize,
@@ -1184,7 +1252,7 @@ class _DesktopSideNav extends StatelessWidget {
                                   )
                                 : null,
                             onTap: () {
-                              controller.changePage(4, isDesktop: showText);
+                              controller.changePage(11, isDesktop: showText);
                             },
                           ),
 
@@ -1196,19 +1264,74 @@ class _DesktopSideNav extends StatelessWidget {
                                   : CrossFadeState.showSecond,
                               firstChild: Column(
                                 children: [
-                                  _buildSubItem(controller, 41, "KYC Details"),
-                                  _buildSubItem(
+                                  _buildInvestSubItem(
                                     controller,
-                                    42,
-                                    "Personal Details",
+                                    "Start SIP",
+                                    () {
+                                      Get.delete<SipProcessController>();
+                                      SipProcessController.navIsLumpsum = false;
+
+                                      Get.toNamed(
+                                        AppRoutes.startSipScreen,
+                                        id: 1,
+                                        arguments: {'isLumpsum': false},
+                                      );
+                                    },
                                   ),
-                                  _buildSubItem(controller, 43, "Bank Account"),
-                                  _buildSubItem(
+                                  _buildInvestSubItem(
                                     controller,
-                                    44,
-                                    "Nominee Details",
+                                    "Start Lumpsum",
+                                    () {
+                                      Get.delete<SipProcessController>();
+                                      SipProcessController.navIsLumpsum = true;
+
+                                      Get.toNamed(
+                                        AppRoutes.startSipScreen,
+                                        id: 1,
+                                        arguments: {'isLumpsum': true},
+                                      );
+                                    },
                                   ),
-                                  _buildSubItem(controller, 45, "Documents"),
+                                  _buildInvestSubItem(
+                                    controller,
+                                    "Invest in Index Fund",
+                                    () =>
+                                        controller.navigateToExploreWithFilter(
+                                          () => fundhouseController
+                                              .applyCustomSearch('index'),
+                                        ),
+                                  ),
+                                  _buildInvestSubItem(
+                                    controller,
+                                    "Invest in International Fund",
+                                    () =>
+                                        controller.navigateToExploreWithFilter(
+                                          () => fundhouseController
+                                              .applyInternationalFilter(),
+                                        ),
+                                  ),
+                                  _buildInvestSubItem(
+                                    controller,
+                                    "Start Tax Saving",
+                                    () => controller
+                                        .navigateToExploreWithFilter(null),
+                                  ),
+                                  _buildInvestSubItem(
+                                    controller,
+                                    "Gold Investment",
+                                    () =>
+                                        // controller
+                                        //     .navigateToExploreWithFilter(null),
+                                        controller.navigateToExploreWithFilter(
+                                          () => fundhouseController
+                                              .applyGoldFilter(),
+                                        ),
+                                  ),
+                                  _buildInvestSubItem(
+                                    controller,
+                                    "New Fund Offer (NFO)",
+                                    () => Get.toNamed(AppRoutes.nfolist, id: 1),
+                                  ),
                                 ],
                               ),
                               secondChild: const SizedBox.shrink(),
@@ -1216,8 +1339,132 @@ class _DesktopSideNav extends StatelessWidget {
                         ],
                       );
                     }),
-                    const SizedBox(height: 18),
 
+                    // const SizedBox(height: 18),
+
+                    // if (showText) _buildSectionTitle("SETTINGS"),
+
+                    /// PROFILE
+                    // Obx(() {
+                    //   final isExpanded = controller.isProfileExpanded.value;
+
+                    //   return Column(
+                    //     children: [
+                    //       _DesktopNavItem(
+                    //         icon: Iconsax.user4,
+                    //         label: 'Profile',
+                    //         isSelected: false,
+                    //         isDesktop: showText,
+                    //         fontSize: navFontSize,
+                    //         iconSize: iconSize,
+                    //         horizontalPadding: horizontalPadding,
+                    //         trailing: showText
+                    //             ? Icon(
+                    //                 isExpanded
+                    //                     ? Icons.keyboard_arrow_up
+                    //                     : Icons.keyboard_arrow_down,
+                    //                 size: 18,
+                    //                 color: Colors.grey.shade600,
+                    //               )
+                    //             : null,
+                    //         onTap: () {
+                    //           controller.changePage(4, isDesktop: showText);
+                    //         },
+                    //       ),
+
+                    //       if (showText)
+                    //         AnimatedCrossFade(
+                    //           duration: const Duration(milliseconds: 250),
+                    //           crossFadeState: isExpanded
+                    //               ? CrossFadeState.showFirst
+                    //               : CrossFadeState.showSecond,
+                    //           firstChild: Column(
+                    //             children: [
+                    //               _buildSubItem(controller, 41, "KYC Details"),
+                    //               _buildSubItem(
+                    //                 controller,
+                    //                 42,
+                    //                 "Personal Details",
+                    //               ),
+                    //               _buildSubItem(controller, 43, "Bank Account"),
+                    //               _buildSubItem(
+                    //                 controller,
+                    //                 44,
+                    //                 "Nominee Details",
+                    //               ),
+                    //               _buildSubItem(controller, 45, "Documents"),
+                    //             ],
+                    //           ),
+                    //           secondChild: const SizedBox.shrink(),
+                    //         ),
+                    //     ],
+                    //   );
+                    // }),
+                    Obx(() {
+                      return _DesktopNavItem(
+                        icon: Iconsax.user4,
+                        label: 'Profile',
+                        isSelected: controller.isProfileActive,
+                        isDesktop: showText,
+                        fontSize: navFontSize,
+                        iconSize: iconSize,
+                        horizontalPadding: horizontalPadding,
+                        onTap: () {
+                          controller.changePage(4, isDesktop: showText);
+                        },
+                      );
+                    }),
+                    if (showText) _buildSectionTitle("TRANSACTIONS"),
+                    Obx(
+                      () => _buildNavItem(
+                        controller,
+                        10,
+                        Icons.currency_rupee_sharp,
+                        'My Transactions',
+                        showText,
+                        navFontSize,
+                        iconSize,
+                        horizontalPadding,
+                      ),
+                    ),
+                    Obx(
+                      () => _buildNavItem(
+                        controller,
+                        7,
+                        Icons.sip_outlined,
+                        'Manage SIP',
+                        showText,
+                        navFontSize,
+                        iconSize,
+                        horizontalPadding,
+                      ),
+                    ),
+                    Obx(
+                      () => _buildNavItem(
+                        controller,
+                        8,
+                        Icons.autorenew,
+                        'Manage SWP',
+                        showText,
+                        navFontSize,
+                        iconSize,
+                        horizontalPadding,
+                      ),
+                    ),
+                    Obx(
+                      () => _buildNavItem(
+                        controller,
+                        9,
+                        Icons.info_outline,
+                        'All Orders',
+                        showText,
+                        navFontSize,
+                        iconSize,
+                        horizontalPadding,
+                      ),
+                    ),
+
+                    // const SizedBox(height: 18),
                     if (showText) _buildSectionTitle("REPORTS"),
                     Obx(
                       () => _buildNavItem(
@@ -1236,7 +1483,7 @@ class _DesktopSideNav extends StatelessWidget {
                         controller,
                         6,
                         Icons.library_books_outlined,
-                        'ELSS Report',
+                        'Capital Gain',
                         showText,
                         navFontSize,
                         iconSize,
@@ -1271,6 +1518,35 @@ class _DesktopSideNav extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInvestSubItem(
+    NavigationBarController controller,
+    String label,
+    VoidCallback onTap,
+  ) {
+    return InkWell(
+      onTap: () {
+        controller.isInvestExpanded.value = true;
+        controller.isProfileExpanded.value = false;
+        onTap();
+      },
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontFamily: FontFamily.medium,
+            fontWeight: FontWeight.w400,
+            color: Colors.grey.shade700,
+            height: 1.35,
+          ),
         ),
       ),
     );
@@ -1370,7 +1646,7 @@ class _DesktopNavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 0),
 
       child: Material(
         color: Colors.transparent,
@@ -1384,30 +1660,29 @@ class _DesktopNavItem extends StatelessWidget {
             duration: const Duration(milliseconds: 220),
 
             padding: EdgeInsets.symmetric(
-              vertical: 14,
+              vertical: 11,
               horizontal: horizontalPadding,
             ),
 
             decoration: BoxDecoration(
               color: isSelected
-                  ? Ucolors.blue.withValues(alpha: 0.08)
+                  ? Ucolors.blue.withValues(alpha: 0.04)
                   : Colors.transparent,
 
               borderRadius: BorderRadius.circular(14),
 
-              border: Border.all(
-                color: isSelected
-                    ? Ucolors.blue.withValues(alpha: 0.18)
-                    : Colors.transparent,
-              ),
+              // border: Border.all(
+              //   color: isSelected
+              //       ? Ucolors.blue.withValues(alpha: 0.18)
+              //       : Colors.transparent,
+              // ),
             ),
-
             child: Row(
               children: [
                 Icon(
                   icon,
                   size: iconSize,
-                  color: isSelected ? Ucolors.blue : Colors.grey.shade700,
+                  color: isSelected ? Ucolors.primary : Colors.grey.shade700,
                 ),
 
                 if (isDesktop) ...[
@@ -1425,7 +1700,9 @@ class _DesktopNavItem extends StatelessWidget {
                         fontWeight: isSelected
                             ? FontWeight.w600
                             : FontWeight.w500,
-                        color: isSelected ? Ucolors.blue : Colors.grey.shade800,
+                        color: isSelected
+                            ? Ucolors.primary
+                            : Colors.grey.shade800,
                       ),
                     ),
                   ),
@@ -1581,4 +1858,571 @@ class _MobileNavItem extends StatelessWidget {
       );
     });
   }
+}
+
+class WebProfileDashboardScreen extends StatelessWidget {
+  const WebProfileDashboardScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final navController = Get.find<NavigationBarController>();
+
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      color: const Color(0xFFF5F7FA),
+      padding: const EdgeInsets.all(28),
+      child: Obx(() {
+        // final selectedTab = navController.profileDashboardTabIndex.value;
+        final rawTab = navController.profileDashboardTabIndex.value;
+        final selectedTab = rawTab < 0
+            ? 0
+            : rawTab > 4
+            ? 4
+            : rawTab;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            /// Header
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //   children: [
+            //     const Column(
+            //       crossAxisAlignment: CrossAxisAlignment.start,
+            //       children: [
+            //         Text(
+            //           'Profile Dashboard',
+            //           style: TextStyle(
+            //             fontFamily: FontFamily.medium,
+            //             fontSize: 28,
+            //             fontWeight: FontWeight.w800,
+            //             color: Ucolors.dark,
+            //           ),
+            //         ),
+            //         SizedBox(height: 6),
+            //         Text(
+            //           'Manage all your profile details from one place.',
+            //           style: TextStyle(
+            //             fontFamily: FontFamily.medium,
+            //             fontSize: 14,
+            //             color: Colors.grey,
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ],
+            // ),
+            // const SizedBox(height: 24),
+
+            /// Tabs
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Row(
+                children: [
+                  // _ProfileTabButton(
+                  //   title: 'Overview',
+                  //   index: 0,
+                  //   selectedIndex: selectedTab,
+                  //   onTap: () =>
+                  //       navController.profileDashboardTabIndex.value = 0,
+                  // ),
+                  _ProfileTabButton(
+                    title: 'KYC Details',
+                    index: 0,
+                    selectedIndex: selectedTab,
+                    onTap: () =>
+                        navController.profileDashboardTabIndex.value = 0,
+                  ),
+                  _ProfileTabButton(
+                    title: 'Personal Details',
+                    index: 1,
+                    selectedIndex: selectedTab,
+                    onTap: () =>
+                        navController.profileDashboardTabIndex.value = 1,
+                  ),
+                  _ProfileTabButton(
+                    title: 'Bank Account',
+                    index: 2,
+                    selectedIndex: selectedTab,
+                    onTap: () =>
+                        navController.profileDashboardTabIndex.value = 2,
+                  ),
+                  _ProfileTabButton(
+                    title: 'Nominee',
+                    index: 3,
+                    selectedIndex: selectedTab,
+                    onTap: () =>
+                        navController.profileDashboardTabIndex.value = 3,
+                  ),
+                  _ProfileTabButton(
+                    title: 'Documents',
+                    index: 4,
+                    selectedIndex: selectedTab,
+                    onTap: () =>
+                        navController.profileDashboardTabIndex.value = 4,
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            /// Important: bounded height
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: IndexedStack(
+                    index: selectedTab,
+                    children: const [
+                      // ProfileScreen(),
+                      KycDetailsScreen(),
+                      _PersonalDetailsTabWrapper(),
+                      BankDetailsScreen(),
+                      NomineeListScreen(),
+                      DocumentScreen(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      }),
+    );
+  }
+}
+
+class _PersonalDetailsTabWrapper extends StatelessWidget {
+  const _PersonalDetailsTabWrapper();
+
+  @override
+  Widget build(BuildContext context) {
+    return PersonalDetailsScreen();
+  }
+}
+
+class _ProfileTabButton extends StatelessWidget {
+  final String title;
+  final int index;
+  final int selectedIndex;
+  final VoidCallback onTap;
+
+  const _ProfileTabButton({
+    required this.title,
+    required this.index,
+    required this.selectedIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isSelected = index == selectedIndex;
+
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: isSelected ? Ucolors.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Center(
+            child: Text(
+              title,
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected ? Colors.white : Colors.grey.shade700,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// class WebProfileDashboardScreen extends StatelessWidget {
+//   const WebProfileDashboardScreen({super.key});
+
+//   static const List<_ProfileTabData> _tabs = [
+//     _ProfileTabData(
+//       title: 'Overview',
+//       subtitle: 'Profile summary',
+//       icon: Iconsax.user,
+//       navIndex: 40,
+//     ),
+//     _ProfileTabData(
+//       title: 'KYC Details',
+//       subtitle: 'Verification status',
+//       icon: Iconsax.security_safe,
+//       navIndex: 41,
+//     ),
+//     _ProfileTabData(
+//       title: 'Personal Details',
+//       subtitle: 'Identity and contact',
+//       icon: Iconsax.personalcard,
+//       navIndex: 42,
+//     ),
+//     _ProfileTabData(
+//       title: 'Bank Account',
+//       subtitle: 'Linked bank details',
+//       icon: Iconsax.bank,
+//       navIndex: 43,
+//     ),
+//     _ProfileTabData(
+//       title: 'Nominee Details',
+//       subtitle: 'Manage nominees',
+//       icon: Iconsax.people,
+//       navIndex: 44,
+//     ),
+//     _ProfileTabData(
+//       title: 'Documents',
+//       subtitle: 'Uploaded records',
+//       icon: Iconsax.document_text,
+//       navIndex: 45,
+//     ),
+//   ];
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final navController = NavigationBarController.instance;
+//     final user = SessionManager.instance.userObs.value;
+
+//     return Container(
+//       color: const Color(0xFFF5F7FB),
+//       child: SingleChildScrollView(
+//         padding: const EdgeInsets.fromLTRB(32, 28, 32, 32),
+//         child: Center(
+//           child: ConstrainedBox(
+//             constraints: const BoxConstraints(maxWidth: 1320),
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 _ProfileDashboardHero(userName: user?.name ?? 'Investor'),
+//                 const SizedBox(height: 22),
+
+//                 Container(
+//                   decoration: BoxDecoration(
+//                     color: Colors.white,
+//                     borderRadius: BorderRadius.circular(24),
+//                     border: Border.all(color: Colors.grey.shade200),
+//                     boxShadow: [
+//                       BoxShadow(
+//                         color: Colors.black.withValues(alpha: 0.04),
+//                         blurRadius: 24,
+//                         offset: const Offset(0, 10),
+//                       ),
+//                     ],
+//                   ),
+//                   child: Column(
+//                     children: [
+//                       Padding(
+//                         padding: const EdgeInsets.fromLTRB(22, 22, 22, 0),
+//                         child: Obx(
+//                           () => _ProfileTabsBar(
+//                             tabs: _tabs,
+//                             selectedIndex:
+//                                 navController.profileDashboardTabIndex.value,
+//                             onTap: (index) =>
+//                                 navController.openProfileDashboardTab(
+//                                   index,
+//                                   isDesktop: true,
+//                                 ),
+//                           ),
+//                         ),
+//                       ),
+//                       const SizedBox(height: 18),
+//                       Divider(height: 1, color: Colors.grey.shade200),
+//                       Obx(
+//                         () => AnimatedSwitcher(
+//                           duration: const Duration(milliseconds: 220),
+//                           switchInCurve: Curves.easeOutCubic,
+//                           switchOutCurve: Curves.easeInCubic,
+//                           child: _ProfileTabBody(
+//                             key: ValueKey(
+//                               navController.profileDashboardTabIndex.value,
+//                             ),
+//                             index: navController.profileDashboardTabIndex.value,
+//                           ),
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+class _ProfileDashboardHero extends StatelessWidget {
+  const _ProfileDashboardHero({required this.userName});
+
+  final String userName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: Ucolors.backgroundGradient,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Ucolors.primary.withValues(alpha: 0.22),
+            blurRadius: 28,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.16),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
+            ),
+            child: const Icon(Iconsax.user_tick, color: Colors.white, size: 30),
+          ),
+          const SizedBox(width: 18),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Profile Dashboard',
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Manage all profile, KYC, bank, nominee and document details from one place.',
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    color: Colors.white.withValues(alpha: 0.82),
+                    fontSize: 14,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.20)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Iconsax.shield_tick, color: Colors.white, size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  userName,
+                  style: const TextStyle(
+                    fontFamily: FontFamily.medium,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileTabsBar extends StatelessWidget {
+  const _ProfileTabsBar({
+    required this.tabs,
+    required this.selectedIndex,
+    required this.onTap,
+  });
+
+  final List<_ProfileTabData> tabs;
+  final int selectedIndex;
+  final ValueChanged<int> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 980;
+
+        return Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: List.generate(tabs.length, (index) {
+            final tab = tabs[index];
+            final selected = selectedIndex == index;
+
+            return InkWell(
+              onTap: () => onTap(index),
+              borderRadius: BorderRadius.circular(16),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                width: compact ? 210 : 198,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? Ucolors.primary.withValues(alpha: 0.08)
+                      : const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: selected
+                        ? Ucolors.primary.withValues(alpha: 0.35)
+                        : Colors.grey.shade200,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: selected ? Ucolors.primary : Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: selected
+                            ? [
+                                BoxShadow(
+                                  color: Ucolors.primary.withValues(
+                                    alpha: 0.22,
+                                  ),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 5),
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: Icon(
+                        tab.icon,
+                        size: 18,
+                        color: selected ? Colors.white : Ucolors.darkgrey,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            tab.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 13,
+                              fontWeight: selected
+                                  ? FontWeight.w800
+                                  : FontWeight.w600,
+                              color: selected ? Ucolors.primary : Ucolors.dark,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            tab.subtitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 11,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        );
+      },
+    );
+  }
+}
+
+class _ProfileTabBody extends StatelessWidget {
+  const _ProfileTabBody({super.key, required this.index});
+
+  final int index;
+
+  Widget _child() {
+    switch (index) {
+      case 0:
+        return const ProfileScreen();
+      case 1:
+        return const KycDetailsScreen();
+      case 2:
+        return PersonalDetailsScreen();
+      case 3:
+        return const BankDetailsScreen();
+      case 4:
+        return const NomineeListScreen();
+      case 5:
+        return const DocumentScreen();
+      default:
+        return const ProfileScreen();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minHeight: 520),
+      padding: const EdgeInsets.all(22),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: _child(),
+      ),
+    );
+  }
+}
+
+class _ProfileTabData {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final int navIndex;
+
+  const _ProfileTabData({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.navIndex,
+  });
 }

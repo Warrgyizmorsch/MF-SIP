@@ -191,15 +191,7 @@ class _WebExploreLayout extends StatefulWidget {
 
 class _WebExploreLayoutState extends State<_WebExploreLayout> {
   WebFundViewType selectedView = WebFundViewType.grid;
-  // Widget _headerText(String text) {
-  //   return Expanded(
-  //     child: Text(
-  //       text,
-  //       textAlign: TextAlign.center,
-  //       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-  //     ),
-  //   );
-  // }
+ 
   bool showViewButtons = true;
   double lastScrollOffset = 0;
   @override

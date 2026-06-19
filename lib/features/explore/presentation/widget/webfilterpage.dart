@@ -209,6 +209,8 @@ class WebFilterContent extends StatelessWidget {
                     //   () =>
                     ElevatedButton(
                       onPressed: () {
+                                                Navigator.pop(context);
+
                         // Sync params aur close dialog
                         final params = controller.buildParam();
                         if (Get.isRegistered<MutualFundController>()) {
@@ -216,7 +218,7 @@ class WebFilterContent extends StatelessWidget {
                             params,
                           );
                         }
-                        Get.back(); // Close sliding panel
+                        // Get.back(); // Close sliding panel
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Ucolors.primary,

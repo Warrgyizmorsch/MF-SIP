@@ -189,7 +189,7 @@ class _WebDashboardLayout extends StatelessWidget {
                 /// DESKTOP LAYOUT
                 : Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                    children: [
                       /// LEFT SECTION
                       Expanded(
                         flex: 6,
@@ -1232,6 +1232,7 @@ class _WebDashboardLayout extends StatelessWidget {
           Expanded(
             flex: 5,
             child: _WebQuickActionItem("SIP", UImages.startsip, () {
+              Get.delete<SipProcessController>();
               SipProcessController.navIsLumpsum = false;
 
               Get.toNamed(
@@ -1245,6 +1246,7 @@ class _WebDashboardLayout extends StatelessWidget {
           Expanded(
             flex: 5,
             child: _WebQuickActionItem("Lumpsum", UImages.glyph, () {
+              Get.delete<SipProcessController>();
               SipProcessController.navIsLumpsum = true;
 
               Get.toNamed(
@@ -1271,8 +1273,9 @@ class _WebDashboardLayout extends StatelessWidget {
       {
         't': 'Best SIP',
         'i': UImages.savingbank,
-        'onTap': () =>
-            nav.navigateToExploreWithFilter(() => funds.applyBestSipFilter(1)),
+        'onTap': () {
+          nav.navigateToExploreWithFilter(() => funds.applyBestSipFilter(1));
+        },
       },
       {
         't': 'High Return',
@@ -1284,9 +1287,13 @@ class _WebDashboardLayout extends StatelessWidget {
       {
         't': 'International',
         'i': UImages.interfund,
-        'onTap': () => nav.navigateToExploreWithFilter(
-          () => funds.applyInternationalFilter(),
-        ),
+        'onTap': () async {
+          await Future.delayed(const Duration(milliseconds: 100));
+
+          nav.navigateToExploreWithFilter(
+            () => funds.applyInternationalFilter(),
+          );
+        },
       },
       {
         't': 'Index Funds',
@@ -1859,44 +1866,6 @@ class _MobileLayout extends StatelessWidget {
                       ),
                       const SizedBox(width: 2),
 
-                      // Obx(
-                      //   () => Stack(
-                      //     children: [
-                      //       IconButton(
-                      //         color: Ucolors.light,
-                      //         icon: const Icon(Iconsax.shopping_cart),
-                      //         onPressed: () {
-                      //           // Reset filter to ensure regular cart items are shown
-                      //           Get.find<CartController>().filterGoalId.value =
-                      //               null;
-                      //           Get.toNamed(AppRoutes.cart);
-                      //         },
-                      //         hoverColor: Ucolors.primary.withValues(alpha:0.1),
-                      //       ),
-                      //       // Use the new getter here
-                      //       if (cartController.generalItemsCount > 0)
-                      //         Positioned(
-                      //           right: 5,
-                      //           top: 5,
-                      //           child: Container(
-                      //             padding: const EdgeInsets.all(4),
-                      //             decoration: const BoxDecoration(
-                      //               color: Ucolors.red,
-                      //               shape: BoxShape.circle,
-                      //             ),
-                      //             child: Text(
-                      //               // Display the count of goal_id: null items
-                      //               cartController.generalItemsCount.toString(),
-                      //               style: const TextStyle(
-                      //                 fontSize: 10,
-                      //                 color: Colors.white,
-                      //               ),
-                      //             ),
-                      //           ),
-                      //         ),
-                      //     ],
-                      //   ),
-                      // ),
                       CompactIcon(
                         icon: Iconsax.archive_tick,
                         onPressed: () => Get.toNamed(AppRoutes.watchlist),
@@ -1931,12 +1900,7 @@ class _MobileLayout extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         GestureDetector(
-                          // onTap: () => Get.toNamed(AppRoutes.startSipScreen),
                           onTap: () {
-                            // Get.find<SipProcessController>().setInvestmentMode(
-                            //   false,
-                            // );
-                            // Get.toNamed(AppRoutes.startSipScreen);
                             Get.toNamed(
                               AppRoutes.startSipScreen,
                               arguments: {'isLumpsum': false},
