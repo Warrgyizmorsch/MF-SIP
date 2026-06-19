@@ -761,6 +761,11 @@ class GlobalTopHeader extends StatelessWidget {
                     height: 40,
                     child: SearchBar(
                       // focusNode: searchFocus,
+                      shape: WidgetStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0), // Correct syntax for a slight curve
+                        ),
+                      ),
                       elevation: WidgetStateProperty.all(0),
                       backgroundColor: WidgetStateProperty.all(
                         const Color(0xFFF0F2F5),
