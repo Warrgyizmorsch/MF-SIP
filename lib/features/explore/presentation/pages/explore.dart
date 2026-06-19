@@ -460,14 +460,14 @@ class _WebExploreLayoutState extends State<_WebExploreLayout> {
           const SizedBox(width: 54),
 
           const Expanded(
-            flex: 3,
+            flex: 4,
             child: Text(
               "Fund Name",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
             ),
           ),
 
-          _headerText("1W"),
+          // _headerText("1W"),
           _headerText("1M"),
           _headerText("1Y"),
           _headerText("3Y"),
@@ -476,6 +476,7 @@ class _WebExploreLayoutState extends State<_WebExploreLayout> {
           _headerText("NAV"),
 
           const Expanded(
+            flex:2,
             child: Text(
               " ",
               textAlign: TextAlign.center,
@@ -562,6 +563,7 @@ class WebFundListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final RxBool isPressed = false.obs;
     return WebHoverRow(
       onTap: () {
         Get.delete<FundDetailsController>();
@@ -591,7 +593,7 @@ class WebFundListCard extends StatelessWidget {
               const Gap(14),
 
               Expanded(
-                flex: 3,
+                flex: 4,
                 child: Text(
                   entity.baseSchemeName ?? 'Unknown Fund',
                   maxLines: 2,
@@ -604,7 +606,7 @@ class WebFundListCard extends StatelessWidget {
                 ),
               ),
 
-              Expanded(child: _valueText(entity.returnsEntity?.oneWeek)),
+              // Expanded(child: _valueText(entity.returnsEntity?.oneWeek)),
               Expanded(child: _valueText(entity.returnsEntity?.oneMonth)),
               Expanded(child: _valueText(entity.returnsEntity?.oneYear)),
               Expanded(child: _valueText(entity.returnsEntity?.threeYear)),
@@ -616,52 +618,142 @@ class WebFundListCard extends StatelessWidget {
 
               // _riskChip(entity),
               Expanded(
-                child: SizedBox(
-                  height: 34,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      GatekeeperHelper.runWithPrerequisites(
-                        onSuccess: () {
-                          final purchaseArgs = SipPurchaseArgs(
-                            schemeCode: entity.schemeCode ?? '',
-                            fundName: entity.baseSchemeName ?? '',
-                            category: "Unknown",
-                            riskLabel: entity.riskLevel ?? "",
-                            minSip: entity.minSipAmount ?? 1000,
-                            minLumpsum: entity.minLumpsum ?? 1000,
-                            minTopup: entity.minTopUp ?? 5000,
-                            folio: null,
-                            imgUrl:
-                                '${Appurl.baseUrl}${entity.amc?.amcLogoUrl}',
-                          );
+                flex: 2,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                      height: 34,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          GatekeeperHelper.runWithPrerequisites(
+                            onSuccess: () {
+                              final purchaseArgs = SipPurchaseArgs(
+                                schemeCode: entity.schemeCode ?? '',
+                                fundName: entity.baseSchemeName ?? '',
+                                category: "Unknown",
+                                riskLabel: entity.riskLevel ?? "",
+                                minSip: entity.minSipAmount ?? 1000,
+                                minLumpsum: entity.minLumpsum ?? 1000,
+                                minTopup: entity.minTopUp ?? 5000,
+                                folio: null,
+                                imgUrl:
+                                    '${Appurl.baseUrl}${entity.amc?.amcLogoUrl}',
+                              );
 
-                          SIPPurchasePage.tempData = purchaseArgs;
+                              SIPPurchasePage.tempData = purchaseArgs;
 
-                          Get.toNamed(
-                            AppRoutes.investNowPage,
-                            id: kIsWeb ? 1 : null,
-                            arguments: purchaseArgs,
+                              Get.toNamed(
+                                AppRoutes.investNowPage,
+                                id: kIsWeb ? 1 : null,
+                                arguments: purchaseArgs,
+                              );
+                            },
                           );
                         },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Ucolors.primary,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.zero,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          "Invest",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Obx(() {
+                      final wishlistController = Get.find<WishlistController>();
+                      final String code = entity.schemeCode ?? '';
+                      final String name = entity.baseSchemeName ?? "";
+                      final bool isFav = wishlistController.isFavorite(code);
+
+                      return PremiumHeartButton(
+                        isFav: isFav,
+                        onTap: () => wishlistController.toggleWishlist(code, name),
                       );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Ucolors.primary,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.zero,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      "Invest",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
+                    }),
+                    Obx(() {
+                      final cartController = Get.find<CartController>();
+                      final String code = entity.schemeCode ?? "";
+
+                      final matchingItems = cartController.displayedItems.where(
+                              (item) => item.schemeCode.toString() == code
+                      ).toList();
+
+                      final cartItem = matchingItems.isNotEmpty ? matchingItems.first : null;
+                      final bool isInCart = cartItem != null;
+
+                      return AnimatedScale(
+                        // A more dramatic shrink when processing, with a 'pull back' curve
+                        scale: isPressed.value ? 0.6 : 1.0,
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeInBack,
+
+                        child: AnimatedSwitcher(
+                          // Extended duration to let the elastic spring finish its movement
+                          duration: const Duration(milliseconds: 650),
+                          switchInCurve: Curves.elasticOut, // The secret sauce for the bouncy feel
+                          switchOutCurve: Curves.easeOut,
+
+                          transitionBuilder: (child, animation) {
+                            return ScaleTransition(
+                              scale: animation,
+                              // Adds a dynamic 180-degree flip as it scales in
+                              child: RotationTransition(
+                                turns: Tween<double>(begin: 0.5, end: 1.0).animate(animation),
+                                child: FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                ),
+                              ),
+                            );
+                          },
+                          child: CompactIcon(
+                            key: ValueKey<bool>(isInCart),
+                            icon: isInCart ? Iconsax.shopping_cart5 : Iconsax.shopping_cart,
+                            iconColor: isInCart ? Ucolors.primary : Ucolors.darkgrey,
+
+                            onPressed: () async {
+                              if (isPressed.value) return;
+
+                              isPressed.value = true;
+
+                              try {
+                                if (isInCart) {
+                                  final itemId = cartItem?.id;
+                                  if (itemId != null) {
+                                    await cartController.deleteCartItem(
+                                        itemId,
+                                        entity.schemeCode ?? ""
+                                    );
+                                  }
+                                } else {
+                                  await cartController.addToCart(
+                                    code,
+                                    entity.baseSchemeName ?? "",
+                                    entity.minSipAmount ?? 5000,
+                                    transType: 'sip',
+                                    null,
+                                  );
+                                }
+                              } finally {
+                                isPressed.value = false;
+                              }
+                            },
+                          ),
+                        ),
+                      );
+                    })
+
+                  ],
                 ),
               ),
             ],
@@ -1044,6 +1136,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
 
     double scale(double baseSize) =>
         (baseSize * (width / 1200)).clamp(baseSize * 0.8, baseSize * 1.1);
+    final RxBool isPressed = false.obs;
 
     return GestureDetector(
       onTap: () {
@@ -1056,51 +1149,41 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
 
         Get.toNamed(AppRoutes.funddetails, id: 1);
       },
-
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
-
               children: [
                 Row(
                   children: [
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 250),
-
                       width: scale(isHover ? 38 : 32),
-
                       height: scale(isHover ? 38 : 32),
-
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-
                         boxShadow: isHover
                             ? [
-                                BoxShadow(
-                                  blurRadius: 10,
-                                  color: Ucolors.primary.withValues(alpha: .18),
-                                ),
-                              ]
+                          BoxShadow(
+                            blurRadius: 10,
+                            color: Ucolors.primary.withValues(alpha: .18),
+                          ),
+                        ]
                             : [],
                       ),
-
                       child: ClipOval(
                         child: CustomCachedImage(
-                          imageUrl:
-                              "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}",
+                          imageUrl: "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}",
                         ),
                       ),
                     ),
-
                     Gap(scale(12)),
-
                     Expanded(
                       child: AnimatedDefaultTextStyle(
                         duration: const Duration(milliseconds: 220),
-
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: scale(isHover ? 16 : 15),
@@ -1108,24 +1191,18 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                               ? Ucolors.primary
                               : const Color(0xff383838),
                         ),
-
                         child: Text(
                           entity.baseSchemeName ?? 'Unknown Fund',
-
                           maxLines: 3,
-
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
                   ],
                 ),
-
                 Gap(scale(12)),
-
                 Padding(
                   padding: EdgeInsets.only(left: scale(44)),
-
                   child: RichText(
                     text: TextSpan(
                       children: [
@@ -1136,15 +1213,11 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                             color: Colors.grey.shade600,
                           ),
                         ),
-
                         TextSpan(
                           text: entity.riskLevel ?? 'N/A',
-
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
-
                             fontSize: scale(12),
-
                             color: getRiskMeter(entity.riskLevel).color,
                           ),
                         ),
@@ -1152,51 +1225,137 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                     ),
                   ),
                 ),
-
                 Gap(scale(8)),
-
                 Padding(
                   padding: EdgeInsets.only(left: scale(44)),
-
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _miniReturnRow(
-                        "1Y",
-                        entity.returnsEntity?.oneYear,
-                        scale,
-                      ),
-
+                      _miniReturnRow("1Y", entity.returnsEntity?.oneYear, scale),
                       Gap(scale(12)),
-
-                      _miniReturnRow(
-                        "3Y",
-                        entity.returnsEntity?.threeYear,
-                        scale,
-                      ),
-
+                      _miniReturnRow("3Y", entity.returnsEntity?.threeYear, scale),
                       Gap(scale(12)),
-
-                      _miniReturnRow(
-                        "5Y",
-                        entity.returnsEntity?.fiveYear,
-                        scale,
-                      ),
+                      _miniReturnRow("5Y", entity.returnsEntity?.fiveYear, scale),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-
           Gap(scale(12)),
 
-          AnimatedScale(
-            scale: isHover ? 1.04 : 1,
-            duration: const Duration(milliseconds: 220),
+          // Right side: Icons + Invest Button stacked
+          // Right side: Icons + Invest Button stacked
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // Wishlist & Cart Icons
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Wishlist Icon
+                  Obx(() {
+                    final wishlistController = Get.find<WishlistController>();
+                    final String code = entity.schemeCode ?? '';
+                    final String name = entity.baseSchemeName ?? "";
+                    final bool isFav = wishlistController.isFavorite(code);
 
-            child: _investButton(controller, entity, scale),
-          ),
+                    return PremiumHeartButton(
+                      isFav: isFav,
+                      onTap: () => wishlistController.toggleWishlist(code, name),
+                    );
+                  }),
+
+                  Gap(scale(12)),
+
+                  // Add to Cart / Go to Cart Icon
+                  // Add to Cart / Go to Cart Icon
+                  Obx(() {
+                    final cartController = Get.find<CartController>();
+                    final String code = entity.schemeCode ?? "";
+
+                    final matchingItems = cartController.displayedItems.where(
+                            (item) => item.schemeCode.toString() == code
+                    ).toList();
+
+                    final cartItem = matchingItems.isNotEmpty ? matchingItems.first : null;
+                    final bool isInCart = cartItem != null;
+
+                    return AnimatedScale(
+                      // A more dramatic shrink when processing, with a 'pull back' curve
+                      scale: isPressed.value ? 0.6 : 1.0,
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeInBack,
+
+                      child: AnimatedSwitcher(
+                        // Extended duration to let the elastic spring finish its movement
+                        duration: const Duration(milliseconds: 650),
+                        switchInCurve: Curves.elasticOut, // The secret sauce for the bouncy feel
+                        switchOutCurve: Curves.easeOut,
+
+                        transitionBuilder: (child, animation) {
+                          return ScaleTransition(
+                            scale: animation,
+                            // Adds a dynamic 180-degree flip as it scales in
+                            child: RotationTransition(
+                              turns: Tween<double>(begin: 0.5, end: 1.0).animate(animation),
+                              child: FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              ),
+                            ),
+                          );
+                        },
+                        child: CompactIcon(
+                          key: ValueKey<bool>(isInCart),
+                          icon: isInCart ? Iconsax.shopping_cart5 : Iconsax.shopping_cart,
+                          iconColor: isInCart ? Ucolors.primary : Ucolors.darkgrey,
+
+                          onPressed: () async {
+                            if (isPressed.value) return;
+
+                            isPressed.value = true;
+
+                            try {
+                              if (isInCart) {
+                                final itemId = cartItem?.id;
+                                if (itemId != null) {
+                                  await cartController.deleteCartItem(
+                                      itemId,
+                                      entity.schemeCode ?? ""
+                                  );
+                                }
+                              } else {
+                                await cartController.addToCart(
+                                  code,
+                                  entity.baseSchemeName ?? "",
+                                  entity.minSipAmount ?? 5000,
+                                  transType: 'sip',
+                                  null,
+                                );
+                              }
+                            } finally {
+                              isPressed.value = false;
+                            }
+                          },
+                        ),
+                      ),
+                    );
+                  })
+                ],
+              ),
+
+              Gap(scale(12)),
+
+              // Original Invest Button
+              AnimatedScale(
+                scale: isHover ? 1.04 : 1,
+                duration: const Duration(milliseconds: 220),
+                child: _investButton(controller, entity, scale),
+              ),
+            ],
+          )
         ],
       ),
     );
@@ -1405,6 +1564,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
             const Gap(12),
 
             Expanded(child: _investButton(controller, entity, (size) => size)),
+
           ],
         ),
       ],
@@ -2054,6 +2214,98 @@ class _FilterChip extends StatelessWidget {
               ).textTheme.labelSmall!.copyWith(fontSize: 10),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+class PremiumHeartButton extends StatefulWidget {
+  final bool isFav;
+  final VoidCallback onTap;
+
+  const PremiumHeartButton({
+    super.key,
+    required this.isFav,
+    required this.onTap,
+  });
+
+  @override
+  State<PremiumHeartButton> createState() => _PremiumHeartButtonState();
+}
+
+class _PremiumHeartButtonState extends State<PremiumHeartButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+
+    // This sequence creates the "Shrink -> Explode -> Settle" effect
+    _scaleAnimation = TweenSequence<double>([
+      // 1. Instantly shrink down slightly when tapped
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.0, end: 0.6)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 20.0,
+      ),
+      // 2. Explode outwards past the normal size
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.6, end: 1.3)
+            .chain(CurveTween(curve: Curves.fastOutSlowIn)),
+        weight: 40.0,
+      ),
+      // 3. Wobble back down to standard size
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.3, end: 1.0)
+            .chain(CurveTween(curve: Curves.elasticOut)),
+        weight: 40.0,
+      ),
+    ]).animate(_controller);
+  }
+
+  @override
+  void didUpdateWidget(covariant PremiumHeartButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Trigger the animation only when changing FROM false TO true
+    if (widget.isFav && !oldWidget.isFav) {
+      _controller.forward(from: 0.0);
+    }
+    // Optional: play in reverse when un-favoriting, or leave it as is
+    else if (!widget.isFav && oldWidget.isFav) {
+      _controller.reverse(from: 1.0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      // We use behavior: HitTestBehavior.opaque to ensure the whole area is clickable
+      behavior: HitTestBehavior.opaque,
+      onTap: widget.onTap,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimation.value,
+            child: child,
+          );
+        },
+        child: Icon(
+          widget.isFav ? Iconsax.heart5 : Iconsax.heart,
+          color: widget.isFav ? Colors.red : Colors.grey, // Update with your Ucolors
+          size: 24, // Update with your standard CompactIcon size
         ),
       ),
     );
