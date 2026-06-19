@@ -779,6 +779,7 @@ import 'package:my_sip/features/fund_details/presentation/widgets/helper.dart';
 import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/wishlist/domain/entity/wishlist_entity.dart';
 import 'package:my_sip/features/wishlist/presentation/controller/wishlist_controller.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 
 class WatchlistPage extends StatelessWidget {
   WatchlistPage({super.key});
@@ -981,6 +982,7 @@ class WatchlistPage extends StatelessWidget {
             count: cartController.generalItemsCount,
             onTap: () {
               Get.find<CartController>().filterGoalId.value = null;
+              Get.find<NavigationBarController>().selectedIndex.value = 100;
               Get.toNamed(AppRoutes.cart, id: 1);
             },
           ),

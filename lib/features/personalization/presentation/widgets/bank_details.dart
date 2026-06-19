@@ -194,34 +194,35 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                       const Gap(16),
 
                       // Show "Add Another" or "Manage" button
-                      UElevatedBUtton(
-                        color: Ucolors.primary,
-                        onPressed: () {
-                          if (bankCount < 3) {
-                            // Allow adding another
-                            controller.clearBankFields();
-                            Get.toNamed(AppRoutes.addanotherbank);
-                          } else {
-                            // Limit Reached Warning
-                            ULoaders.warning(
-                              title: 'Limit Reached',
-                              message:
-                                  "You can only link a maximum of 3 bank accounts. Please delete an existing account to add a new one.",
-                            );
-                          }
-                        },
-                        child: Center(
-                          child: Text(
-                            bankCount < 3
-                                ? 'Add Another Account'
-                                : 'Manage Bank Accounts',
-                            style: const TextStyle(
-                              fontFamily: FontFamily.medium,
-                              color: Colors.white,
+                      if (!isDesktop)
+                        UElevatedBUtton(
+                          color: Ucolors.primary,
+                          onPressed: () {
+                            if (bankCount < 3) {
+                              // Allow adding another
+                              controller.clearBankFields();
+                              Get.toNamed(AppRoutes.addanotherbank);
+                            } else {
+                              // Limit Reached Warning
+                              ULoaders.warning(
+                                title: 'Limit Reached',
+                                message:
+                                    "You can only link a maximum of 3 bank accounts. Please delete an existing account to add a new one.",
+                              );
+                            }
+                          },
+                          child: Center(
+                            child: Text(
+                              bankCount < 3
+                                  ? 'Add Another Account'
+                                  : 'Manage Bank Accounts',
+                              style: const TextStyle(
+                                fontFamily: FontFamily.medium,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
-                      ),
                     ],
                   );
                 }),
