@@ -792,35 +792,25 @@ class GoalSipController extends GetxController {
 
       final MutualFundController mutualController = Get.find();
       final allFunds = mutualController.searchFund;
-
       final count = selectedFunds.length;
 
-      int perFund = (totalSip / count).round();
-
+      // Apply rounding to the base per-fund amount
+      int perFund = roundToNearest100(totalSip / count);
       final amounts = List.generate(count, (_) => perFund);
 
+      // Reconcile total
       int assigned = amounts.fold(0, (a, b) => a + b);
       int diff = totalSip.toInt() - assigned;
-
-      if (diff != 0) {
-        amounts.last += diff;
-      }
+      if (diff != 0) amounts.last += diff;
 
       final List<Map<String, dynamic>> funds = [];
 
       for (int i = 0; i < selectedFunds.length; i++) {
-        final fundName = selectedFunds[i];
-
-        final fund = allFunds.firstWhereOrNull(
-          (f) => f.baseSchemeName == fundName,
-        );
-
+        final fund = allFunds.firstWhereOrNull((f) => f.baseSchemeName == selectedFunds[i]);
         final schemeCode = fund?.schemeCode?.toString() ?? '';
 
         getAmountController(schemeCode).text = amounts[i].toString();
-
         final fundId = getGoalFundId(schemeCode);
-        debugPrint("Fund ID for schemeCode $schemeCode is $fundId and goal id ${ savedDatabaseId.value }");
 
         if (fundId != null) {
           funds.add({
@@ -828,20 +818,14 @@ class GoalSipController extends GetxController {
             "order_type": "sip",
             "id": fundId,
             "status": "pending",
-            "scheme_code":schemeCode,
+            "scheme_code": schemeCode,
             "sip_amount": amounts[i].toDouble(),
             "sip_day": selectedSipDay.value,
             "sip_start_date": DateTime.now().toString().split(' ').first,
-            "sip_end_date": DateTime.now()
-                .add(const Duration(days: 365 * 3))
-                .toString()
-                .split(' ')
-                .first,
+            "sip_end_date": DateTime.now().add(const Duration(days: 365 * 3)).toString().split(' ').first,
           });
         }
       }
-
-      debugPrint("SIP BULK REQUEST => $funds");
 
       await updateGoalFundOrder(
         goalId: savedDatabaseId.value ?? 0,
@@ -870,79 +854,49 @@ class GoalSipController extends GetxController {
       showLoading();
       isDistributingAmount.value = true;
 
-      final MutualFundController mutualController = Get.find();
-
-      final selectedFunds = selectedPopularFund.toList();
-
-      if (selectedFunds.isEmpty) return;
-
       final totalSip = monthlySip.value;
       final remainingAmount = totalSip - editedAmount;
-
       if (remainingAmount < 0) return;
 
-      final allFunds = mutualController.searchFund;
+      final selectedFunds = selectedPopularFund.toList();
+      final allFunds = Get.find<MutualFundController>().searchFund;
+      final remainingSchemeCodes = selectedFunds
+          .map((name) => allFunds.firstWhereOrNull((f) => f.baseSchemeName == name)?.schemeCode?.toString())
+          .where((code) => code != null && code != editedSchemeCode)
+          .cast<String>()
+          .toList();
 
-      final remainingSchemeCodes = <String>[];
       final List<Map<String, dynamic>> funds = [];
 
-      for (final fundName in selectedFunds) {
-        final fund = allFunds.firstWhereOrNull(
-          (f) => f.baseSchemeName == fundName,
-        );
-
-        final schemeCode = fund?.schemeCode?.toString() ?? '';
-
-        if (schemeCode != editedSchemeCode) {
-          remainingSchemeCodes.add(schemeCode);
-        }
-      }
-
-      /// Edited Fund
-      getAmountController(editedSchemeCode).text = editedAmount
-          .toInt()
-          .toString();
-
+      // Process Edited Fund
+      getAmountController(editedSchemeCode).text = editedAmount.toInt().toString();
       final editedFundId = getGoalFundId(editedSchemeCode);
-
       if (editedFundId != null) {
         funds.add({
           "goal_id": savedDatabaseId.value ?? 0,
           "order_type": "sip",
-          "fund_id": editedFundId,
+          "id": editedFundId, // Adjusted key to match distributeSipAmount
+          "status": "pending",
+          "scheme_code": editedSchemeCode,
           "sip_amount": editedAmount,
           "sip_day": selectedSipDay.value,
           "sip_start_date": DateTime.now().toString().split(' ').first,
-          "sip_end_date": DateTime.now()
-              .add(const Duration(days: 365 * 3))
-              .toString()
-              .split(' ')
-              .first,
+          "sip_end_date": DateTime.now().add(const Duration(days: 365 * 3)).toString().split(' ').first,
         });
       }
 
-      /// Remaining Funds Distribution
+      // Process Remaining Funds
       if (remainingSchemeCodes.isNotEmpty) {
-        int perFund = (remainingAmount / remainingSchemeCodes.length).round();
-
-        final amounts = List.generate(
-          remainingSchemeCodes.length,
-          (_) => perFund,
-        );
+        int perFund = roundToNearest100(remainingAmount / remainingSchemeCodes.length);
+        final amounts = List.generate(remainingSchemeCodes.length, (_) => perFund);
 
         int assigned = amounts.fold(0, (a, b) => a + b);
         int diff = remainingAmount.round() - assigned;
-
-        if (diff != 0) {
-          amounts.last += diff;
-        }
+        if (diff != 0) amounts.last += diff;
 
         for (int i = 0; i < remainingSchemeCodes.length; i++) {
           final schemeCode = remainingSchemeCodes[i];
-          final amount = amounts[i];
-
-          getAmountController(schemeCode).text = amount.toString();
-
+          getAmountController(schemeCode).text = amounts[i].toString();
           final fundId = getGoalFundId(schemeCode);
 
           if (fundId != null) {
@@ -951,21 +905,15 @@ class GoalSipController extends GetxController {
               "order_type": "sip",
               "id": fundId,
               "status": "pending",
-              "scheme_code":schemeCode,
-              "sip_amount": amount.toDouble(),
+              "scheme_code": schemeCode,
+              "sip_amount": amounts[i].toDouble(),
               "sip_day": selectedSipDay.value,
               "sip_start_date": DateTime.now().toString().split(' ').first,
-              "sip_end_date": DateTime.now()
-                  .add(const Duration(days: 365 * 3))
-                  .toString()
-                  .split(' ')
-                  .first,
+              "sip_end_date": DateTime.now().add(const Duration(days: 365 * 3)).toString().split(' ').first,
             });
           }
         }
       }
-
-      debugPrint("SIP EDIT BULK REQUEST => $funds");
 
       await updateGoalFundOrder(
         goalId: savedDatabaseId.value ?? 0,
@@ -976,7 +924,6 @@ class GoalSipController extends GetxController {
         lumpsumAmount: 0,
         funds: funds,
       );
-
       await getAllGoals();
     } catch (e) {
       debugPrint("redistributeSipAmountAfterEdit Error: $e");
@@ -1549,5 +1496,7 @@ class GoalSipController extends GetxController {
     years.value = 0;
     savedDatabaseId.value = null;
     selectedPopularFund.clear();
+    debugPrint("Goal save 1${isGoalSaved.value},${isEdit.value},${isHome.value},${isAddFund.value},${isNewGoal.value},");
+
   }
 }

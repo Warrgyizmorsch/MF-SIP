@@ -40,7 +40,6 @@ class _SipSliderTileState extends State<SipSliderTile2> {
   @override
   void initState() {
     super.initState();
-    debugPrint("widget.value 0 ${widget.value} ");
     _currentValue = widget.value;
     _controller = TextEditingController(text: _currentValue.toInt().toString());
   }
@@ -52,7 +51,6 @@ class _SipSliderTileState extends State<SipSliderTile2> {
 
       _currentValue = widget.value;
       _controller.text = _currentValue.toInt().toString();
-      debugPrint("widget.value 1${widget.value}, ${_currentValue} ${_controller.text} ");
     }
   }
 

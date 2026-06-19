@@ -17,6 +17,7 @@ import '../../domain/entity/goal_entity.dart';
 import '../controller/goal_sip_controller.dart';
 import 'goaldetails.dart';
 import 'master_goals_page.dart';
+import 'web_master_goals_pages.dart';
 
 // TODO: Add your internal project imports here (AppRoutes, Ucolors, UTextStyles, etc.)
 // import 'master_goals_page.dart'; // Import this to use it in the Drawer
@@ -33,6 +34,10 @@ class GoalScreen extends GetView<GoalSipController> {
     });
 
     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+    final double screenWidth = MediaQuery.of(context).size.width;
+
+    // Dynamically calculate the drawer width: 45% of screen, but never smaller than 450px and never larger than 700px.
+    final double responsiveDrawerWidth = (screenWidth * 0.45).clamp(450.0, 700.0);
 
     return Scaffold(
       key: _scaffoldKey,
@@ -49,34 +54,67 @@ class GoalScreen extends GetView<GoalSipController> {
         ],
       ),
       endDrawer: isDesktop
-          ? Drawer(
-        width: MediaQuery.of(context).size.width * 0.42,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        child: SafeArea(
-          child: Container(
-            padding: const EdgeInsets.all(28),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(28),
-                bottomLeft: Radius.circular(28),
+          ? Theme(
+        // Removes the default white background block of the drawer to allow custom rounding
+        data: Theme.of(context).copyWith(canvasColor: Colors.transparent),
+        child: Drawer(
+          width: responsiveDrawerWidth,
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          child: SafeArea(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(28),
+                  bottomLeft: Radius.circular(28),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: .06),
+                    blurRadius: 40,
+                    offset: const Offset(-10, 0),
+                  ),
+                ],
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: .08),
-                  blurRadius: 30,
-                  offset: const Offset(-4, 10),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Expanded(
-                  child: MasterGoalsPage(),
-                ),
-              ],
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Web Drawer Header & Close Mechanism
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 20, 20, 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Manage Goals',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontFamily: FontFamily.medium,
+                            fontWeight: FontWeight.w700,
+                            color: Ucolors.dark,
+                          ),
+                        ),
+                        IconButton(
+                          hoverColor: Colors.grey.shade100,
+                          splashRadius: 24,
+                          icon: const Icon(Icons.close_rounded, size: 24),
+                          color: Colors.grey.shade700,
+                          onPressed: () {
+                            _scaffoldKey.currentState?.closeEndDrawer();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Divider(height: 1, color: Colors.grey.shade200),
+
+                  // Main Content
+                  const Expanded(
+                    child: WebMasterGoalsPage(),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -94,10 +132,13 @@ class GoalScreen extends GetView<GoalSipController> {
           onPressed: () async {
             await controller.getMasterGoals();
             controller.selectedGoalIndex.value = -1;
+            controller.isGoalSaved.value = false;
 
             if (isDesktop) {
+              controller.isGoalSaved.value= false;
               _scaffoldKey.currentState?.openEndDrawer();
             } else {
+              controller.isGoalSaved.value= false;
               Get.toNamed(AppRoutes.masterGoalsPage);
             }
           },
@@ -359,7 +400,7 @@ class _CircularUploadIndicatorState extends State<CircularUploadIndicator> {
             'invested': widget.investedAmount,
             'logo': widget.iconUrl,
           };
-          Get.toNamed(AppRoutes.goaldetails);
+          Get.toNamed(AppRoutes.goaldetails,id:1);
         },
         child: AnimatedScale(
           scale: _isHovered ? 1.02 : 1.0,
