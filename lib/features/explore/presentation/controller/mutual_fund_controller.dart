@@ -62,35 +62,127 @@ class MutualFundController extends GetxController {
 
   /// ACTION A: User types in Search Bar
   /// Usage: onChanged: (val) => controller.onSearchQueryChanged(val)
+  int _searchRequestId = 0;
   void onSearchQueryChanged(String query) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    if (_debounce?.isActive ?? false) {
+      _debounce!.cancel();
+    }
 
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      _currentSearchQuery = query.trim();
+    _debounce = Timer(const Duration(milliseconds: 500), () async {
+      final String searchText = query.trim();
+
+      _currentSearchQuery = searchText;
 
       if (_currentSearchQuery.toLowerCase() == 'international') {
         if (Get.isRegistered<FundhouseController>()) {
-          // Trigger the specific filter logic instead of a text search
-          Get.find<FundhouseController>().applyInternationalFilter();
-          return; // Exit early so we don't run the generic search below
+          final fundhouse = Get.find<FundhouseController>();
+
+          fundhouse.resetUiStatesOnly();
+          _currentFilters.clear();
+
+          await fundhouse.applyInternationalFilter();
+          return;
         }
       }
 
-      ///       ----------------------       //
       if (_currentSearchQuery.isNotEmpty) {
         if (Get.isRegistered<FundhouseController>()) {
-          final fundhouse = Get.find<FundhouseController>();
-          fundhouse.resetUiStatesOnly();
+          Get.find<FundhouseController>().resetUiStatesOnly();
         }
 
         _currentFilters.clear();
       }
 
-      /// ---------------------------------  ///
-      _resetAndFetch(); // Start over from Page 1
+      currentPage = 1;
+      canLoadMore = true;
+      searchFund.clear();
+
+      await _resetAndFetch();
     });
-    update();
   }
+
+  // void onSearchQueryChanged(String query) {
+  //   if (_debounce?.isActive ?? false) {
+  //     _debounce!.cancel();
+  //   }
+
+  //   _debounce = Timer(const Duration(milliseconds: 500), () async {
+  //     final String searchText = query.trim();
+  //     final int requestId = ++_searchRequestId;
+
+  //     _currentSearchQuery = searchText;
+
+  //     // Special case: International
+  //     if (_currentSearchQuery.toLowerCase() == 'international') {
+  //       if (Get.isRegistered<FundhouseController>()) {
+  //         final fundhouse = Get.find<FundhouseController>();
+
+  //         fundhouse.resetUiStatesOnly();
+  //         _currentFilters.clear();
+
+  //         await fundhouse.applyInternationalFilter();
+
+  //         update();
+  //         return;
+  //       }
+  //     }
+
+  //     // When searching, clear filter UI state
+  //     if (_currentSearchQuery.isNotEmpty) {
+  //       if (Get.isRegistered<FundhouseController>()) {
+  //         Get.find<FundhouseController>().resetUiStatesOnly();
+  //       }
+
+  //       _currentFilters.clear();
+  //     }
+
+  //     // Reset pagination/list before API call
+  //     currentPage = 1;
+  //     canLoadMore = true;
+  //     searchFund.clear();
+
+  //     update();
+
+  //     await _resetAndFetch();
+
+  //     // Ignore old response if user typed something newer
+  //     if (requestId != _searchRequestId) {
+  //       return;
+  //     }
+
+  //     update();
+  //   });
+  // }
+
+  // void onSearchQueryChanged(String query) {
+  //   if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+  //   _debounce = Timer(const Duration(milliseconds: 500), () {
+  //     _currentSearchQuery = query.trim();
+
+  //     if (_currentSearchQuery.toLowerCase() == 'international') {
+  //       if (Get.isRegistered<FundhouseController>()) {
+  //         // Trigger the specific filter logic instead of a text search
+  //         Get.find<FundhouseController>().applyInternationalFilter();
+  //         return; // Exit early so we don't run the generic search below
+  //       }
+  //     }
+
+  //     ///       ----------------------       //
+  //     if (_currentSearchQuery.isNotEmpty) {
+  //       if (Get.isRegistered<FundhouseController>()) {
+  //         final fundhouse = Get.find<FundhouseController>();
+  //         fundhouse.resetUiStatesOnly();
+  //       }
+
+  //       _currentFilters.clear();
+  //     }
+
+  //     /// ---------------------------------  ///
+  //     _resetAndFetch(); // Start over from Page 1
+  //   });
+  //   update();
+  // }
 
   void applyFilters(Map<String, dynamic> newFilters) {
     // Update internal memory with cumulative filters
@@ -193,7 +285,7 @@ class MutualFundController extends GetxController {
     fetchData(isLoadMore: true);
   }
 
-  void applyFreshFilter(Map<String, dynamic> newFilters) {
+  Future<void> applyFreshFilter(Map<String, dynamic> newFilters) async {
     _currentSearchQuery = ""; // Clear search bar text
     _currentFilters.clear(); // WIPE everything (AMC, Category, Risk, Sort)
 
@@ -204,13 +296,15 @@ class MutualFundController extends GetxController {
     // Apply the new specific filter from Home
     _currentFilters.addAll(newFilters);
 
-    _resetAndFetch();
+    await _resetAndFetch();
   }
+
+  int _activeFetchToken = 0;
 
   // =========================================================
   //  4. CORE DATA FETCHING (The "Master Merge")
   // =========================================================
-  Future<void> fetchData({bool isLoadMore = false}) async {
+  Future<void> fetchData({bool isLoadMore = false, int? fetchToken}) async {
     // 1. Guard Clauses (Prevent duplicate/invalid calls)
     if (isLoadMore) {
       if (isMoreLoading.value || !canLoadMore) return;
@@ -256,7 +350,14 @@ class MutualFundController extends GetxController {
       }
 
       // 4. Call API
+      log("FETCH CTRL HASH: ${identityHashCode(this)}");
       final result = await _getMutualFundListUsecases.call(apiParams);
+      log("FETCH CTRL HASH: ${identityHashCode(this)}");
+      if (!isLoadMore &&
+          fetchToken != null &&
+          fetchToken != _activeFetchToken) {
+        return;
+      }
 
       result.fold(
         (success) {
@@ -269,10 +370,14 @@ class MutualFundController extends GetxController {
           if (isLoadMore) {
             // Append Mode (Pagination)
             searchFund.addAll(newData);
+            searchFund.refresh();
+
             currentPage++;
           } else {
             // Replace Mode (New Search/Filter)
             searchFund.assignAll(newData);
+            searchFund.refresh();
+
             currentPage = 1;
             currentPopularIndex.value = 0;
           }
@@ -286,6 +391,10 @@ class MutualFundController extends GetxController {
 
           log(
             "Fetched Page: $currentPage | Search: $_currentSearchQuery | Items: ${newData.length}",
+          );
+          log("UI LIST COUNT: ${searchFund.length}");
+          log(
+            "FIRST FUND: ${searchFund.isNotEmpty ? searchFund.first.baseSchemeName : 'empty'}",
           );
         },
         (error) {
@@ -301,10 +410,12 @@ class MutualFundController extends GetxController {
   }
 
   /// Resets pagination variables and triggers a fresh fetch
-  void _resetAndFetch() {
+  Future<void> _resetAndFetch() async {
     currentPage = 1;
     canLoadMore = true;
-    fetchData(isLoadMore: false);
+    final int fetchToken = ++_activeFetchToken;
+
+    await fetchData(isLoadMore: false, fetchToken: fetchToken);
   }
 
   /// Helper for Filter Page (Gets count without affecting main list)

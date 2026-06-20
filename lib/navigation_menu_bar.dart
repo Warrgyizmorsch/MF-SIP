@@ -1,6 +1,7 @@
 // ignore_for_file: unused_local_variable
 
 import 'dart:async';
+import 'dart:developer';
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -286,7 +287,14 @@ class NavigationBarController extends GetxController {
         case 6:
           personalisationController.setStatementMode(isCapital: true);
           route = AppRoutes.downloadStatement;
+        case 7:
+          route = AppRoutes.myTransactionsweb;
           break;
+
+        case 8:
+          route = AppRoutes.managePortfolioweb;
+          break;
+
         case 40:
           route = AppRoutes.profilePage;
           break;
@@ -737,9 +745,14 @@ class WebFooter extends StatelessWidget {
   }
 }
 
-class GlobalTopHeader extends StatelessWidget {
+class GlobalTopHeader extends StatefulWidget {
   const GlobalTopHeader({super.key});
 
+  @override
+  State<GlobalTopHeader> createState() => _GlobalTopHeaderState();
+}
+
+class _GlobalTopHeaderState extends State<GlobalTopHeader> {
   String _getPageTitle(int index) {
     switch (index) {
       case 0:
@@ -750,6 +763,10 @@ class GlobalTopHeader extends StatelessWidget {
         return 'My Dashboard';
       case 3:
         return 'My Goals';
+      case 7:
+        return 'Transactions';
+      case 8:
+        return 'Manage Portfolio';
 
       // Profile Section
       case 40:
@@ -789,11 +806,22 @@ class GlobalTopHeader extends StatelessWidget {
     }
   }
 
+  final TextEditingController searchController = TextEditingController();
+  final FocusNode searchFocusNode = FocusNode();
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    searchFocusNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final cartController = Get.find<CartController>();
     final navController = Get.find<NavigationBarController>();
     final mutualController = Get.find<MutualFundController>();
+    log("HEADER CTRL HASH: ${identityHashCode(mutualController)}");
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Container(
@@ -829,10 +857,15 @@ class GlobalTopHeader extends StatelessWidget {
                     width: 300,
                     height: 40,
                     child: SearchBar(
+                      controller: searchController,
+                      focusNode: searchFocusNode,
+
                       // focusNode: searchFocus,
                       shape: WidgetStateProperty.all(
                         RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0), // Correct syntax for a slight curve
+                          borderRadius: BorderRadius.circular(
+                            8.0,
+                          ), // Correct syntax for a slight curve
                         ),
                       ),
                       elevation: WidgetStateProperty.all(0),
@@ -1423,7 +1456,7 @@ class _DesktopSideNav extends StatelessWidget {
                     Obx(
                       () => _buildNavItem(
                         controller,
-                        10,
+                        7,
                         Icons.currency_rupee_sharp,
                         'My Transactions',
                         showText,
@@ -1435,39 +1468,39 @@ class _DesktopSideNav extends StatelessWidget {
                     Obx(
                       () => _buildNavItem(
                         controller,
-                        7,
-                        Icons.sip_outlined,
-                        'Manage SIP',
-                        showText,
-                        navFontSize,
-                        iconSize,
-                        horizontalPadding,
-                      ),
-                    ),
-                    Obx(
-                      () => _buildNavItem(
-                        controller,
                         8,
-                        Icons.autorenew,
-                        'Manage SWP',
+                        Icons.sip_outlined,
+                        'Manage Portfolio',
                         showText,
                         navFontSize,
                         iconSize,
                         horizontalPadding,
                       ),
                     ),
-                    Obx(
-                      () => _buildNavItem(
-                        controller,
-                        9,
-                        Icons.info_outline,
-                        'All Orders',
-                        showText,
-                        navFontSize,
-                        iconSize,
-                        horizontalPadding,
-                      ),
-                    ),
+                    // Obx(
+                    //   () => _buildNavItem(
+                    //     controller,
+                    //     8,
+                    //     Icons.autorenew,
+                    //     'Manage SWP',
+                    //     showText,
+                    //     navFontSize,
+                    //     iconSize,
+                    //     horizontalPadding,
+                    //   ),
+                    // ),
+                    // Obx(
+                    //   () => _buildNavItem(
+                    //     controller,
+                    //     9,
+                    //     Icons.info_outline,
+                    //     'All Orders',
+                    //     showText,
+                    //     navFontSize,
+                    //     iconSize,
+                    //     horizontalPadding,
+                    //   ),
+                    // ),
 
                     // const SizedBox(height: 18),
                     if (showText) _buildSectionTitle("REPORTS"),

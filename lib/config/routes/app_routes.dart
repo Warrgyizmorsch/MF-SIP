@@ -51,4 +51,6 @@ class AppRoutes {
   static const investNow = '/investNow';
   static const investNowPage = '/investNowPage';
   static const downloadStatement = '/downloadStatement';
+  static const myTransactionsweb = '/my-transactions';
+static const managePortfolioweb = '/manage-portfolio';
 }

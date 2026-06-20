@@ -281,7 +281,6 @@ class FundhouseController extends GetxController {
     });
   }
 
-
   void applyBestSipFilter(int value) {
     _clearStatesOnly();
     bestSipValue.value = value;
@@ -326,7 +325,7 @@ class FundhouseController extends GetxController {
   }
 
   // ---------- Quick Collection: International Funds ----------
-  void applyInternationalFilter() {
+  Future<void> applyInternationalFilter() async {
     // 1. Clear all existing filters
     _clearStatesOnly();
 
@@ -336,11 +335,11 @@ class FundhouseController extends GetxController {
       'Fund of Funds-Overseas',
     ]);
 
-    fetchCount();
+    await fetchCount();
 
     // 3. Send the exact string to the master list controller
     // (Your HTTP client like Dio or http will automatically URL-encode the colons, spaces, and commas into %3A, +, and %2C)
-    mutualController.applyFreshFilter({
+    await mutualController.applyFreshFilter({
       'scheme_category':
           'Equity: Thematic-International,Fund of Funds-Overseas',
     });

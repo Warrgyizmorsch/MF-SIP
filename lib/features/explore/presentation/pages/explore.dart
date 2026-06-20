@@ -1,5 +1,7 @@
 // ignore_for_file: dead_null_aware_expression, dead_code, unused_element_parameter
 
+import 'dart:developer';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -227,6 +229,7 @@ class _WebExploreLayoutState extends State<_WebExploreLayout> {
   @override
   Widget build(BuildContext context) {
     final MutualFundController controller = Get.find();
+    log("WEB UI CTRL HASH: ${identityHashCode(controller)}");
 
     return Scaffold(
       body: Center(
@@ -404,7 +407,11 @@ class _WebExploreLayoutState extends State<_WebExploreLayout> {
                                 itemCount: controller.searchFund.length,
                                 itemBuilder: (context, index) {
                                   final fund = controller.searchFund[index];
-                                  return WebFundListCard(entity: fund);
+                                  return WebFundListCard(entity: fund,
+                                    key: ValueKey('${fund.schemeCode}_${fund.baseSchemeName}'),
+
+
+                                  );
                                 },
                               ),
                             ),
@@ -430,6 +437,7 @@ class _WebExploreLayoutState extends State<_WebExploreLayout> {
                         itemBuilder: (context, index) {
                           final fund = controller.searchFund[index];
                           return ResponsiveFundCard(
+                             key: ValueKey('${fund.schemeCode}_${fund.baseSchemeName}'),
                             entity: fund,
                             isMobile: crossAxisCount == 1,
                           );
