@@ -111,7 +111,6 @@ class GoalSipController extends GetxController {
   bool get isFormValid =>
       goalError.value.isEmpty && goalNameTextEditingController.text.isNotEmpty;
   final Map<String, Map<String, dynamic>> goalConfig = {
-    // ✅ Added 'db_id' to each category (Check with your backend team for the exact IDs!)
     'car': {
       'db_id': "1",
       'amount': 1000000.0,
@@ -809,7 +808,6 @@ class GoalSipController extends GetxController {
       debugPrint("Initial Base perFund: $perFund");
       final amounts = List.generate(count, (_) => perFund);
 
-      // Reconcile total with perfect round-up to nearest 5
       int assigned = amounts.fold(0, (a, b) => a + b);
       int diff = totalSip.toInt() - assigned;
 
@@ -865,15 +863,13 @@ class GoalSipController extends GetxController {
     required String editedSchemeCode,
     required double editedAmount,
   }) async {
-    // 1. Guard against double-triggers (Prevents Infinite Loop)
     if (isDistributingAmount.value) {
       debugPrint("Skipping: Already distributing.");
       return;
     }
 
     try {
-      isDistributingAmount.value = true; // Lock the function
-      // 🚀 NO showLoading() here to prevent GetX dialog glitches interrupting the keyboard
+      isDistributingAmount.value = true;
 
       final totalSip = monthlySip.value;
       final remainingAmount = totalSip - editedAmount;
@@ -1142,7 +1138,6 @@ class GoalSipController extends GetxController {
 
     result.fold(
       (success) async {
-        // 2. Highlight the card in the UI
         toggleFund(fundName);
 
         // 3. Add to Cart Controller for Checkout
@@ -1339,16 +1334,12 @@ class GoalSipController extends GetxController {
     // PV = FV / (1 + r)^n
     final double exactPv = fv / pow(1 + r, n);
 
-    // 🚀 Step 2: ROUND PV to nearest 10 (e.g., 56743 -> 56740)
-    // .toDouble() lagaya hai taaki variable type match kare
     final double roundedPv = (exactPv / 10).round() * 10.0;
     lumpsumAmount.value = roundedPv;
 
-    // 🚀 Step 3: Calculate Return and round it to nearest 10 as well
     final double exactReturn = fv - roundedPv;
     lumpsumTotalReturn.value = (exactReturn / 10).round() * 10.0;
 
-    // Step 4: Calculate Percentage based on the rounded values
     if (roundedPv > 0) {
       lumpsumReturnPercent.value = (lumpsumTotalReturn.value / roundedPv) * 100;
     } else {
@@ -1365,13 +1356,12 @@ class GoalSipController extends GetxController {
       invested.value = 0;
       futureValue.value = 0;
       totalReturn.value = 0;
-      yearlyReport.clear(); // clear report
+      yearlyReport.clear();
       return;
     }
 
     final r = _effectiveMonthlyRate(annualRate.value);
 
-    // Step 1: exact SIP (double)
     double exactSip;
     if (r == 0) {
       exactSip = targetAmount.value / totalMonths;
@@ -1422,9 +1412,9 @@ class GoalSipController extends GetxController {
       rows.add(
         ReturnRow(
           period: year.toString(),
-          scheme: principal, // Invested Amount
-          category: currentValue, // Current Value
-          benchmark: profit, // Profit
+          scheme: principal,
+          category: currentValue,
+          benchmark: profit,
         ),
       );
     }
@@ -1526,7 +1516,6 @@ class GoalSipController extends GetxController {
     return selectedPopularFund.contains(fundName);
   }
 
-  // ✅ ADD THIS METHOD to GoalSipController
   void resetStateForNewGoal() {
     isGoalSaved.value = false;
     savedDatabaseId.value = null;
