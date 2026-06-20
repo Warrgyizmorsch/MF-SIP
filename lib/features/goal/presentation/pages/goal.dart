@@ -37,7 +37,10 @@ class GoalScreen extends GetView<GoalSipController> {
     final double screenWidth = MediaQuery.of(context).size.width;
 
     // Dynamically calculate the drawer width: 45% of screen, but never smaller than 450px and never larger than 700px.
-    final double responsiveDrawerWidth = (screenWidth * 0.45).clamp(450.0, 700.0);
+    final double responsiveDrawerWidth = (screenWidth * 0.45).clamp(
+      450.0,
+      700.0,
+    );
 
     return Scaffold(
       key: _scaffoldKey,
@@ -45,80 +48,78 @@ class GoalScreen extends GetView<GoalSipController> {
       appBar: isDesktop
           ? null
           : CustomAppBarNormal(
-        backgroundColor: Ucolors.light,
-        title: 'Goals',
-        backIcon: false,
-        actionsPadding: 10,
-        action: [
-          CompactIcon(icon: Iconsax.info_circle, onPressed: () {}),
-        ],
-      ),
+              backgroundColor: Ucolors.light,
+              title: 'Goals',
+              backIcon: false,
+              actionsPadding: 10,
+              action: [
+                CompactIcon(icon: Iconsax.info_circle, onPressed: () {}),
+              ],
+            ),
       endDrawer: isDesktop
           ? Theme(
-        // Removes the default white background block of the drawer to allow custom rounding
-        data: Theme.of(context).copyWith(canvasColor: Colors.transparent),
-        child: Drawer(
-          width: responsiveDrawerWidth,
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          child: SafeArea(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(28),
-                  bottomLeft: Radius.circular(28),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: .06),
-                    blurRadius: 40,
-                    offset: const Offset(-10, 0),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Web Drawer Header & Close Mechanism
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 20, 20, 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Manage Goals',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontFamily: FontFamily.medium,
-                            fontWeight: FontWeight.w700,
-                            color: Ucolors.dark,
-                          ),
-                        ),
-                        IconButton(
-                          hoverColor: Colors.grey.shade100,
-                          splashRadius: 24,
-                          icon: const Icon(Icons.close_rounded, size: 24),
-                          color: Colors.grey.shade700,
-                          onPressed: () {
-                            _scaffoldKey.currentState?.closeEndDrawer();
-                          },
+              // Removes the default white background block of the drawer to allow custom rounding
+              data: Theme.of(context).copyWith(canvasColor: Colors.transparent),
+              child: Drawer(
+                width: responsiveDrawerWidth,
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+                child: SafeArea(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(28),
+                        bottomLeft: Radius.circular(28),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: .06),
+                          blurRadius: 40,
+                          offset: const Offset(-10, 0),
                         ),
                       ],
                     ),
-                  ),
-                  Divider(height: 1, color: Colors.grey.shade200),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Web Drawer Header & Close Mechanism
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 20, 20, 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Manage Goals',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontFamily: FontFamily.medium,
+                                  fontWeight: FontWeight.w700,
+                                  color: Ucolors.dark,
+                                ),
+                              ),
+                              IconButton(
+                                hoverColor: Colors.grey.shade100,
+                                splashRadius: 24,
+                                icon: const Icon(Icons.close_rounded, size: 24),
+                                color: Colors.grey.shade700,
+                                onPressed: () {
+                                  _scaffoldKey.currentState?.closeEndDrawer();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        Divider(height: 1, color: Colors.grey.shade200),
 
-                  // Main Content
-                  const Expanded(
-                    child: WebMasterGoalsPage(),
+                        // Main Content
+                        const Expanded(child: WebMasterGoalsPage()),
+                      ],
+                    ),
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
-        ),
-      )
+            )
           : null,
       body: isDesktop ? const _WebLayout() : const _MobileLayout(),
       floatingActionButton: Obx(() {
@@ -135,10 +136,10 @@ class GoalScreen extends GetView<GoalSipController> {
             controller.isGoalSaved.value = false;
 
             if (isDesktop) {
-              controller.isGoalSaved.value= false;
+              controller.isGoalSaved.value = false;
               _scaffoldKey.currentState?.openEndDrawer();
             } else {
-              controller.isGoalSaved.value= false;
+              controller.isGoalSaved.value = false;
               Get.toNamed(AppRoutes.masterGoalsPage);
             }
           },
@@ -178,10 +179,7 @@ class _WebLayout extends StatelessWidget {
               const Gap(6),
               Text(
                 "Track and manage your financial milestones",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
               ),
               const Gap(24),
               const Expanded(child: GoalGridContent(isDesktop: true)),
@@ -211,7 +209,9 @@ class GoalGridContent extends GetView<GoalSipController> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final double availableWidth = constraints.maxWidth > 0 ? constraints.maxWidth : 400;
+        final double availableWidth = constraints.maxWidth > 0
+            ? constraints.maxWidth
+            : 400;
 
         int crossAxisCount;
         double aspectRatio;
@@ -252,20 +252,36 @@ class GoalGridContent extends GetView<GoalSipController> {
               if (!isDesktop)
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 12.0,
+                    ),
                     child: Text(
                       '${goals.length} Active Goal${goals.length == 1 ? '' : 's'}',
-                      style: UTextStyles.bodySmall.copyWith(fontSize: availableWidth > 600 ? 16 : 14),
+                      style: UTextStyles.bodySmall.copyWith(
+                        fontSize: availableWidth > 600 ? 16 : 14,
+                      ),
                     ),
                   ),
                 ),
               SliverPadding(
-                padding: EdgeInsets.symmetric(horizontal: isDesktop ? 0 : 16.0, vertical: 8.0),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isDesktop ? 0 : 16.0,
+                  vertical: 8.0,
+                ),
                 sliver: SliverGrid(
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final goal = goals[index];
-                    final double target = double.tryParse(goal.goalType?.targetAmount.toString() ?? '0') ?? 0.0;
-                    final double invested = double.tryParse(goal.goalType?.investedAmount.toString() ?? '0') ?? 0.0;
+                    final double target =
+                        double.tryParse(
+                          goal.goalType?.targetAmount.toString() ?? '0',
+                        ) ??
+                        0.0;
+                    final double invested =
+                        double.tryParse(
+                          goal.goalType?.investedAmount.toString() ?? '0',
+                        ) ??
+                        0.0;
                     final String name = goal.goalName ?? 'Goal ${index + 1}';
                     final String logo = goal.goalType?.logo ?? '';
 
@@ -316,19 +332,38 @@ class GoalGridContent extends GetView<GoalSipController> {
               const CircleAvatar(
                 radius: 50,
                 backgroundColor: Ucolors.skyblue1,
-                child: Icon(Iconsax.note_remove5, color: Ucolors.blue, size: 45),
+                child: Icon(
+                  Iconsax.note_remove5,
+                  color: Ucolors.blue,
+                  size: 45,
+                ),
               ),
               const Gap(24),
-              Text('Ready to start saving?', style: UTextStyles.large.copyWith(fontSize: 22), textAlign: TextAlign.center),
+              Text(
+                'Ready to start saving?',
+                style: UTextStyles.large.copyWith(fontSize: 22),
+                textAlign: TextAlign.center,
+              ),
               const Gap(8),
-              Text('You haven\'t set any savings goals yet. Start small and watch your wealth grow.', style: UTextStyles.bodySmall.copyWith(fontSize: 14), textAlign: TextAlign.center),
+              Text(
+                'You haven\'t set any savings goals yet. Start small and watch your wealth grow.',
+                style: UTextStyles.bodySmall.copyWith(fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
               const Gap(32),
               UElevatedBUtton(
                 color: Ucolors.primary,
                 onPressed: () => Get.toNamed(AppRoutes.masterGoalsPage),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Text('Create Your First Goal', style: UTextStyles.buttonText), const Gap(10), const Icon(Icons.add, color: Ucolors.light)],
+                  children: [
+                    Text(
+                      'Create Your First Goal',
+                      style: UTextStyles.buttonText,
+                    ),
+                    const Gap(10),
+                    const Icon(Icons.add, color: Ucolors.light),
+                  ],
                 ),
               ),
             ],
@@ -343,9 +378,7 @@ class GoalGridContent extends GetView<GoalSipController> {
       onRefresh: () => controller.getAllGoals(),
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        slivers: [
-          SliverFillRemaining(hasScrollBody: false, child: content),
-        ],
+        slivers: [SliverFillRemaining(hasScrollBody: false, child: content)],
       ),
     );
   }
@@ -372,7 +405,8 @@ class CircularUploadIndicator extends StatefulWidget {
   });
 
   @override
-  State<CircularUploadIndicator> createState() => _CircularUploadIndicatorState();
+  State<CircularUploadIndicator> createState() =>
+      _CircularUploadIndicatorState();
 }
 
 class _CircularUploadIndicatorState extends State<CircularUploadIndicator> {
@@ -383,10 +417,16 @@ class _CircularUploadIndicatorState extends State<CircularUploadIndicator> {
     final GoalSipController controller = Get.find<GoalSipController>();
 
     final double safeTarget = widget.targetAmount > 0 ? widget.targetAmount : 1;
-    final double percentage = (widget.investedAmount / safeTarget).clamp(0.0, 1.0);
+    final double percentage = (widget.investedAmount / safeTarget).clamp(
+      0.0,
+      1.0,
+    );
     final String percentString = "${(percentage * 100).toStringAsFixed(0)}%";
 
-    final Color goalColor = controller.getGoalColor(widget.goalEntity?.goalType?.typeName ?? '');
+    final Color goalColor = controller.getGoalColor(
+      widget.goalEntity?.goalType?.typeName ?? '',
+    );
+    final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -400,7 +440,11 @@ class _CircularUploadIndicatorState extends State<CircularUploadIndicator> {
             'invested': widget.investedAmount,
             'logo': widget.iconUrl,
           };
-          Get.toNamed(AppRoutes.goaldetails,id:1);
+          if (isDesktop) {
+            Get.toNamed(AppRoutes.goaldetails, id: 1);
+          } else {
+            Get.toNamed(AppRoutes.goaldetails);
+          }
         },
         child: AnimatedScale(
           scale: _isHovered ? 1.02 : 1.0,
@@ -412,7 +456,13 @@ class _CircularUploadIndicatorState extends State<CircularUploadIndicator> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
-                BoxShadow(color: Colors.black.withValues(alpha: _isHovered ? 0.1 : 0.05), blurRadius: _isHovered ? 15 : 10, offset: Offset(0, _isHovered ? 6 : 4)),
+                BoxShadow(
+                  color: Colors.black.withValues(
+                    alpha: _isHovered ? 0.1 : 0.05,
+                  ),
+                  blurRadius: _isHovered ? 15 : 10,
+                  offset: Offset(0, _isHovered ? 6 : 4),
+                ),
               ],
             ),
             child: LayoutBuilder(
@@ -420,13 +470,26 @@ class _CircularUploadIndicatorState extends State<CircularUploadIndicator> {
                 final double rawSize = constraints.maxHeight * 0.45;
                 final double circleSize = rawSize.clamp(20.0, 300.0);
 
-                final imageWidget = (widget.iconUrl != null && widget.iconUrl!.isNotEmpty)
+                final imageWidget =
+                    (widget.iconUrl != null && widget.iconUrl!.isNotEmpty)
                     ? Image.network(
-                  widget.iconUrl!.startsWith('http') ? widget.iconUrl! : '${Appurl.baseUrl}/${widget.iconUrl}',
-                  width: circleSize * 0.55, height: circleSize * 0.55, fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) => Icon(Icons.flag, size: circleSize * 0.25, color: Colors.grey),
-                )
-                    : Icon(Icons.flag, size: circleSize * 0.25, color: Colors.grey);
+                        widget.iconUrl!.startsWith('http')
+                            ? widget.iconUrl!
+                            : '${Appurl.baseUrl}/${widget.iconUrl}',
+                        width: circleSize * 0.55,
+                        height: circleSize * 0.55,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) => Icon(
+                          Icons.flag,
+                          size: circleSize * 0.25,
+                          color: Colors.grey,
+                        ),
+                      )
+                    : Icon(
+                        Icons.flag,
+                        size: circleSize * 0.25,
+                        color: Colors.grey,
+                      );
 
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -434,35 +497,117 @@ class _CircularUploadIndicatorState extends State<CircularUploadIndicator> {
                     Stack(
                       alignment: Alignment.center,
                       children: [
-                        CircularPercentIndicator(radius: circleSize / 1.3, lineWidth: 8, percent: 1, backgroundColor: Colors.transparent, progressColor: Colors.grey.shade200),
                         CircularPercentIndicator(
-                          radius: circleSize / 1.3, lineWidth: 8, percent: percentage, animation: true, circularStrokeCap: CircularStrokeCap.round, backgroundColor: Colors.transparent, progressColor: goalColor,
+                          radius: circleSize / 1.3,
+                          lineWidth: 8,
+                          percent: 1,
+                          backgroundColor: Colors.transparent,
+                          progressColor: Colors.grey.shade200,
+                        ),
+                        CircularPercentIndicator(
+                          radius: circleSize / 1.3,
+                          lineWidth: 8,
+                          percent: percentage,
+                          animation: true,
+                          circularStrokeCap: CircularStrokeCap.round,
+                          backgroundColor: Colors.transparent,
+                          progressColor: goalColor,
                           center: Container(
-                            width: circleSize * 0.9, height: circleSize * 0.9,
-                            decoration: BoxDecoration(color: Colors.grey.shade50, shape: BoxShape.circle),
+                            width: circleSize * 0.9,
+                            height: circleSize * 0.9,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade50,
+                              shape: BoxShape.circle,
+                            ),
                             alignment: Alignment.center,
                             child: Stack(
                               alignment: Alignment.center,
                               children: [
-                                ClipRRect(borderRadius: BorderRadius.circular(100), child: ColorFiltered(colorFilter: ColorFilter.mode(Colors.grey.shade300, BlendMode.modulate), child: imageWidget)),
-                                ClipRRect(borderRadius: BorderRadius.circular(100), child: ShaderMask(blendMode: BlendMode.srcIn, shaderCallback: (Rect bounds) => LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter, stops: [0.0, percentage, percentage, 1.0], colors: [goalColor, goalColor, Colors.transparent, Colors.transparent]).createShader(bounds), child: imageWidget)),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(100),
+                                  child: ColorFiltered(
+                                    colorFilter: ColorFilter.mode(
+                                      Colors.grey.shade300,
+                                      BlendMode.modulate,
+                                    ),
+                                    child: imageWidget,
+                                  ),
+                                ),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(100),
+                                  child: ShaderMask(
+                                    blendMode: BlendMode.srcIn,
+                                    shaderCallback: (Rect bounds) =>
+                                        LinearGradient(
+                                          begin: Alignment.bottomCenter,
+                                          end: Alignment.topCenter,
+                                          stops: [
+                                            0.0,
+                                            percentage,
+                                            percentage,
+                                            1.0,
+                                          ],
+                                          colors: [
+                                            goalColor,
+                                            goalColor,
+                                            Colors.transparent,
+                                            Colors.transparent,
+                                          ],
+                                        ).createShader(bounds),
+                                    child: imageWidget,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
                         ),
                         Positioned(
-                          right: 0, bottom: 0,
+                          right: 0,
+                          bottom: 0,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8), boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)]),
-                            child: Text(percentString, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, fontFamily: FontFamily.medium)),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: const [
+                                BoxShadow(color: Colors.black12, blurRadius: 4),
+                              ],
+                            ),
+                            child: Text(
+                              percentString,
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: FontFamily.medium,
+                              ),
+                            ),
                           ),
                         ),
                       ],
                     ),
                     const Gap(4),
-                    FittedBox(child: Text(widget.goalName, maxLines: 1, overflow: TextOverflow.ellipsis, style: UTextStyles.large.copyWith(fontSize: widget.titleFontSize))),
-                    FittedBox(child: Text('₹ ${widget.targetAmount.toStringAsFixed(0)}', style: UTextStyles.medium.copyWith(color: Colors.grey.shade600, fontSize: widget.titleFontSize - 2))),
+                    FittedBox(
+                      child: Text(
+                        widget.goalName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: UTextStyles.large.copyWith(
+                          fontSize: widget.titleFontSize,
+                        ),
+                      ),
+                    ),
+                    FittedBox(
+                      child: Text(
+                        '₹ ${widget.targetAmount.toStringAsFixed(0)}',
+                        style: UTextStyles.medium.copyWith(
+                          color: Colors.grey.shade600,
+                          fontSize: widget.titleFontSize - 2,
+                        ),
+                      ),
+                    ),
                   ],
                 );
               },

@@ -54,7 +54,6 @@ class IhavegoalPage extends GetView<GoalSipController> {
     final bool isEdit =args['isEdit']??false;
     final int goalId =args['goalId']??0;
     final UserGoalEntity? goal =args['goal']??null;
-    debugPrint("isEdit:$isEdit, goal id:$goalId, UserGoal:$goal");
     WidgetsBinding.instance.addPostFrameCallback((_) {
       /// reset only when create new goal
       if (!isEdit) {
