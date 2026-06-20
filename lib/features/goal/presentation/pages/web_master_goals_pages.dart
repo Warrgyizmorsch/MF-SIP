@@ -314,7 +314,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                 top: false,
                 child: CartBottomBar(
                   isValid: controller.selectedPopularFund.isNotEmpty,
-                  ontap: () {
+                  ontap: () async {
                     if (controller.selectedPopularFund.isEmpty ||
                         controller.amountControllers.isEmpty) {
                       Get.snackbar(
@@ -326,7 +326,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
 
                     final mutualController = Get.find<MutualFundController>();
                     final mfuController =
-                    Get.find<MfuController>(); // 🚀 Fetch MfuController
+                    Get.find<MfuController>();
 
                     final selectedFunds = mutualController.searchFund
                         .where(
@@ -335,10 +335,10 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                       ),
                     )
                         .toList();
+
                     final String goalIdString = controller.savedDatabaseId.value
                         .toString();
                     final int? parsedGoalId = int.tryParse(goalIdString);
-                    // Only use it if it's greater than 0
                     final int? finalGoalId =
                     (parsedGoalId != null && parsedGoalId > 0)
                         ? parsedGoalId
@@ -346,142 +346,161 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
 
                     debugPrint("Selected Funds Count: ${selectedFunds.length}");
 
-                    // for (final fund in selectedFunds) {
-                    //   debugPrint("""
-                    // Fund Name : ${fund.baseSchemeName}
-                    // Scheme Code : ${fund.schemeCode}
-                    // AMC Name : ${fund.amc?.amcName}
-                    // Min SIP : ${fund.minSipAmount}
-                    // Goal Fund Id : ${controller.getGoalFundId(fund.schemeCode?.toString() ?? '')}
-                    // Amount : ${controller.getAmountController(fund.schemeCode?.toString() ?? '').text}
-                    // Goal Id : ${controller.savedDatabaseId.value}
-                    // Investment Type : ${controller.savedInvestmentType.value}
-                    // ----------------------------------
-                    // """);
-                    // }
-                    if (controller.savedInvestmentType.value == 'lumpsum') {
-                      List<MfuTxnScheme> lumpsumSchemes = [];
 
+                    controller.isLoading.value = true;
+
+                    try {
                       for (final fund in selectedFunds) {
                         final schemeCode = fund.schemeCode?.toString() ?? '';
                         final amountText = controller
                             .getAmountController(schemeCode)
                             .text;
                         final amount = double.tryParse(amountText) ?? 0.0;
-
-                        // Only add if scheme code exists and amount is valid
-                        if (schemeCode.isNotEmpty && amount > 0) {
-                          lumpsumSchemes.add(
-                            MfuTxnScheme(
-                              schemeCode: "012", // static
-                              // schemeCode: schemeCode,
-                              amount: amount,
-                              folio:
-                              "NEW", // Or fetch existing folio if applicable
-                              divOpt: "N",
-                            ),
+                        debugPrint("Amount $amount,schemeCode $schemeCode ");
+                        if (schemeCode.isNotEmpty &&
+                            amount > 0 &&
+                            finalGoalId != null) {
+                          await controller.saveGoalFund(
+                            goalId: finalGoalId,
+                            schemeCode: schemeCode,
+                            schemeName: fund.baseSchemeName ?? '',
+                            sipAmount:
+                            amount,
+                            sipDay:
+                            controller.selectedSipDay.value,
                           );
                         }
                       }
 
-                      if (lumpsumSchemes.isEmpty) {
-                        Get.snackbar(
-                          "Error",
-                          "Please enter valid amounts for selected funds.",
-                        );
-                        return;
-                      }
+                      /// Lumpsum Transaction
+                      if (controller.savedInvestmentType.value == 'lumpsum') {
+                        List<MfuTxnScheme> lumpsumSchemes = [];
 
-                      final uid = session.getUserData?.id ?? 0;
+                        for (final fund in selectedFunds) {
+                          final schemeCode = fund.schemeCode?.toString() ?? '';
+                          final amountText = controller
+                              .getAmountController(schemeCode)
+                              .text;
+                          final amount = double.tryParse(amountText) ?? 0.0;
 
-                      // 🚀 Fire the Multi-Lumpsum API!
-                      mfuController.normalTransaction(
-                        MfuNormalTxnRequest.lumpsumMultiple(
-                          // uid: 1008,
-                          uid: uid,
-                          goalId: finalGoalId,
-                          schemes: lumpsumSchemes,
-                        ),
-                      );
-                    }
-                    ///       SIP
-                    else if (controller.savedInvestmentType.value == "sip") {
-                      List<MfuSysTxnScheme> sipSchemes = [];
-                      for (final fund in selectedFunds) {
-                        final schemeCode = fund.schemeCode?.toString() ?? '';
-                        final amountText = controller
-                            .getAmountController(schemeCode)
-                            .text;
-                        final amount = int.tryParse(amountText) ?? 0;
-
-                        if (schemeCode.isNotEmpty && amount > 0) {
-                          sipSchemes.add(
-                            MfuSysTxnScheme(
-                              schemeCode: "001",
-                              // schemeCode: schemeCode,
-                              amount: 2000,
-                              // amount: amount,
-                              folio: "NEW",
-                              divOpt: "R", // Default Growth
-                            ),
-                          );
+                          // Only add if scheme code exists and amount is valid
+                          if (schemeCode.isNotEmpty && amount > 0) {
+                            lumpsumSchemes.add(
+                              MfuTxnScheme(
+                                schemeCode: "012", // static
+                                // schemeCode: schemeCode,
+                                amount: amount,
+                                folio:
+                                "NEW",
+                                divOpt: "N",
+                              ),
+                            );
+                          }
                         }
-                      }
-                      final user = SessionManager.instance.getUserData;
-                      // final can = user?.canNumber ?? '';
-                      // final accNo = user?.bankAccount?.accountNumber ?? '';
-                      // final ifsc = user?.bankAccount?.ifscCode ?? '';
-                      // final micr = user?.bankAccount?.micrCode ?? '000000000';
-                      // final accType = user?.bankAccount?.accountType ?? 'SB';
-                      final mandateRefNo =
-                          mfuController.mandateStatusResponse.value?.mumrn ??
-                              mfuController.mandateStatusResponse.value?.mmrn ??
-                              '';
-                      final now = DateTime.now();
-                      // Assuming default 10th of the month for Cart SIPs. Adjust as needed!
-                      DateTime startDate = DateTime(
-                        now.year,
-                        now.month + 1,
-                        10,
-                      );
-                      if (startDate.difference(now).inDays < 30) {
-                        startDate = DateTime(now.year, now.month + 2, 10);
-                      }
-                      final endDate = DateTime(
-                        startDate.year + 30,
-                        startDate.month,
-                        startDate.day,
-                      );
-                      mfuController.systematicTransaction(
-                        MfuSystematicTxnRequest.sipMultiple(
-                          uid: 7,
-                          goalId: finalGoalId,
-                          can: "14167AZA01",
-                          frequency: "M",
-                          day: "10",
 
-                          startMonth: startDate.month.toString().padLeft(
-                            2,
-                            '0',
+                        if (lumpsumSchemes.isEmpty) {
+                          Get.snackbar(
+                            "Error",
+                            "Please enter valid amounts for selected funds.",
+                          );
+                          return;
+                        }
+
+                        final uid =
+                            SessionManager.instance.getUserData?.id ?? 0;
+
+                        // 🚀 Fire the Multi-Lumpsum API!
+                        mfuController.normalTransaction(
+                          MfuNormalTxnRequest.lumpsumMultiple(
+                            uid: uid,
+                            goalId: finalGoalId,
+                            schemes: lumpsumSchemes,
                           ),
-                          startYear: startDate.year.toString(),
-                          // endMonth: endDate.month.toString().padLeft(2, '0'),
-                          endMonth: "08",
-                          endYear: "2027",
-                          // endYear: endDate.year.toString(),
-                          paymentMode: "DM",
-                          accType: "SB",
-                          accNo: "654321",
-                          ifsc: "ABHY0065002",
-                          micr: "400065002",
-                          mandateRefNo: "PRNUAT001",
-                          schemes:
-                          sipSchemes, // 🚀 Multi-Fund List injected here!
-                        ),
+                        );
+                      }
+                      /// SIP Transaction
+                      else if (controller.savedInvestmentType.value == "sip") {
+                        List<MfuSysTxnScheme> sipSchemes = [];
+                        for (final fund in selectedFunds) {
+                          final schemeCode = fund.schemeCode?.toString() ?? '';
+                          final amountText = controller
+                              .getAmountController(schemeCode)
+                              .text;
+                          final amount = int.tryParse(amountText) ?? 0;
+
+                          if (schemeCode.isNotEmpty && amount > 0) {
+                            sipSchemes.add(
+                              MfuSysTxnScheme(
+                                schemeCode: "001",
+                                // schemeCode: schemeCode,
+                                amount: 2000,
+                                // amount: amount,
+                                folio: "NEW",
+                                divOpt: "R", // Default Growth
+                              ),
+                            );
+                          }
+                        }
+
+                        // final user = SessionManager.instance.getUserData;
+                        final mandateRefNo =
+                            mfuController.mandateStatusResponse.value?.mumrn ??
+                                mfuController.mandateStatusResponse.value?.mmrn ??
+                                '';
+
+                        final now = DateTime.now();
+                        // Assuming default 10th of the month for Cart SIPs. Adjust as needed!
+                        DateTime startDate = DateTime(
+                          now.year,
+                          now.month + 1,
+                          10,
+                        );
+                        if (startDate.difference(now).inDays < 30) {
+                          startDate = DateTime(now.year, now.month + 2, 10);
+                        }
+                        final endDate = DateTime(
+                          startDate.year + 30,
+                          startDate.month,
+                          startDate.day,
+                        );
+
+                        mfuController.systematicTransaction(
+                          MfuSystematicTxnRequest.sipMultiple(
+                            uid: 7,
+                            goalId: finalGoalId,
+                            can: "14167AZA01",
+                            frequency: "M",
+                            day: "10",
+                            startMonth: startDate.month.toString().padLeft(
+                              2,
+                              '0',
+                            ),
+                            startYear: startDate.year.toString(),
+                            endMonth: "08",
+                            endYear: "2027",
+                            paymentMode: "DM",
+                            accType: "SB",
+                            accNo: "654321",
+                            ifsc: "ABHY0065002",
+                            micr: "400065002",
+                            mandateRefNo: "PRNUAT001",
+                            schemes:
+                            sipSchemes, // 🚀 Multi-Fund List injected here!
+                          ),
+                        );
+                      } else {
+                        // Your SIP cart logic goes here later
+                        Get.snackbar("Info", "Processing SIP Checkout...");
+                      }
+                    } catch (e) {
+                      debugPrint("Transaction Error: $e");
+                      Get.snackbar(
+                        "Error",
+                        "Something went wrong while processing.",
                       );
-                    } else {
-                      // Your SIP cart logic goes here later
-                      Get.snackbar("Info", "Processing SIP Checkout...");
+                    } finally {
+                      // 🚀 End Loading State (runs whether it succeeds or fails)
+                      controller.isLoading.value = false;
                     }
                   },
                   amount: controller.savedInvestmentType.value == 'lumpsum'
@@ -757,13 +776,13 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
 
                                             goalSipController.toggleFund(name);
 
-                                            await goalSipController.saveGoalFund(
-                                              goalId: goalSipController.savedDatabaseId.value ?? 0,
-                                              schemeCode: fund.schemeCode?.toString() ?? '',
-                                              schemeName: fund.baseSchemeName ?? '',
-                                              sipAmount: (goalSipController.monthlySip.value).toDouble(),
-                                              sipDay: goalSipController.selectedSipDay.value,
-                                            );
+                                            // await goalSipController.saveGoalFund(
+                                            //   goalId: goalSipController.savedDatabaseId.value ?? 0,
+                                            //   schemeCode: fund.schemeCode?.toString() ?? '',
+                                            //   schemeName: fund.baseSchemeName ?? '',
+                                            //   sipAmount: (goalSipController.monthlySip.value).toDouble(),
+                                            //   sipDay: goalSipController.selectedSipDay.value,
+                                            // );
 
                                             if (goalSipController.savedInvestmentType.value == "lumpsum") {
                                               await goalSipController.distributeMonthlyAmount();
@@ -1404,13 +1423,13 @@ class PopularAndSelectedFund extends StatelessWidget {
                       /// ================= ADD FUND =================
                       goalSipController.toggleFund(name);
 
-                      await goalSipController.saveGoalFund(
-                        goalId: goalSipController.savedDatabaseId.value ?? 0,
-                        schemeCode: fund.schemeCode?.toString() ?? '',
-                        schemeName: fund.baseSchemeName ?? '',
-                        sipAmount: (goalSipController.monthlySip.value).toDouble(),
-                        sipDay: goalSipController.selectedSipDay.value,
-                      );
+                      // await goalSipController.saveGoalFund(
+                      //   goalId: goalSipController.savedDatabaseId.value ?? 0,
+                      //   schemeCode: fund.schemeCode?.toString() ?? '',
+                      //   schemeName: fund.baseSchemeName ?? '',
+                      //   sipAmount: (goalSipController.monthlySip.value).toDouble(),
+                      //   sipDay: goalSipController.selectedSipDay.value,
+                      // );
 
                       if (goalSipController.savedInvestmentType.value == "lumpsum") {
                         await goalSipController.distributeMonthlyAmount();

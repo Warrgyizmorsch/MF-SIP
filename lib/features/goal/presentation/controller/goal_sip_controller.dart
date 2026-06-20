@@ -33,7 +33,7 @@ class GoalSipController extends GetxController {
   final Map<String, TextEditingController> amountControllers = {};
   final RxBool isSavingGoal = false.obs;
 
-
+  RxInt additionalRoundingAmount = 0.obs;
   final RxBool isMasterGoalLoading = false.obs;
 
   /// =======================================
@@ -587,6 +587,16 @@ class GoalSipController extends GetxController {
       return a - remainder;
     }
   }
+  int roundToNearest5(num amount) {
+    final int a = amount.round();
+    final int remainder = a % 5;
+
+    if (remainder >= 3) {
+      return a + (5 - remainder);
+    } else {
+      return a - remainder;
+    }
+  }
 
   final isDistributingAmount = false.obs;
   Future<void> distributeMonthlyAmount() async {
@@ -603,8 +613,8 @@ class GoalSipController extends GetxController {
 
       if (count == 0) return;
 
-      final int roundedTotal = roundToNearest100(lumpsumAmount.value);
-      int baseAmount = roundToNearest100((roundedTotal / count).round());
+      final int roundedTotal = roundToNearest5(lumpsumAmount.value);
+      int baseAmount = roundToNearest5((roundedTotal / count).round());
 
       final List<int> assignedAmounts = List.generate(count, (_) => baseAmount);
 
@@ -679,7 +689,7 @@ class GoalSipController extends GetxController {
       final selectedFunds = selectedPopularFund.toList();
       if (selectedFunds.isEmpty) return;
 
-      final totalAmount = roundToNearest100(lumpsumAmount.value);
+      final totalAmount = roundToNearest5(lumpsumAmount.value);
       final remainingAmount = totalAmount - editedAmount;
 
       if (remainingAmount < 0) return;
@@ -719,9 +729,10 @@ class GoalSipController extends GetxController {
 
       /// Remaining Funds Distribution
       if (remainingSchemeCodes.isNotEmpty) {
-        int perFund = roundToNearest100(
+        int perFund = roundToNearest5(
           (remainingAmount / remainingSchemeCodes.length).round(),
         );
+
 
         final amounts = List.generate(
           remainingSchemeCodes.length,
@@ -776,7 +787,6 @@ class GoalSipController extends GetxController {
       hideLoading();
     }
   }
-
   Future<void> distributeSipAmount() async {
     if (savedInvestmentType.value != "sip") return;
 
@@ -795,13 +805,18 @@ class GoalSipController extends GetxController {
       final count = selectedFunds.length;
 
       // Apply rounding to the base per-fund amount
-      int perFund = roundToNearest100(totalSip / count);
+      int perFund = roundToNearest5(totalSip / count);
+      debugPrint("Initial Base perFund: $perFund");
       final amounts = List.generate(count, (_) => perFund);
 
-      // Reconcile total
+      // Reconcile total with perfect round-up to nearest 5
       int assigned = amounts.fold(0, (a, b) => a + b);
       int diff = totalSip.toInt() - assigned;
-      if (diff != 0) amounts.last += diff;
+
+      if (diff != 0) {
+        amounts[amounts.length - 1] += diff;
+        amounts[amounts.length - 1] = ((amounts.last / 5.0).ceil()) * 5;
+      }
 
       final List<Map<String, dynamic>> funds = [];
 
@@ -809,9 +824,13 @@ class GoalSipController extends GetxController {
         final fund = allFunds.firstWhereOrNull((f) => f.baseSchemeName == selectedFunds[i]);
         final schemeCode = fund?.schemeCode?.toString() ?? '';
 
+        // Set the amount in the controller
         getAmountController(schemeCode).text = amounts[i].toString();
         final fundId = getGoalFundId(schemeCode);
+        final newTotal = amounts.fold(0, (a, b) => a + b);
 
+        int extraAdded = newTotal - totalSip.toInt();
+        additionalRoundingAmount.value = extraAdded;
         if (fundId != null) {
           funds.add({
             "goal_id": savedDatabaseId.value ?? 0,
@@ -827,17 +846,9 @@ class GoalSipController extends GetxController {
         }
       }
 
-      await updateGoalFundOrder(
-        goalId: savedDatabaseId.value ?? 0,
-        orderType: "sip",
-        sipAmount: 0,
-        sipDay: selectedSipDay.value,
-        fundId: 0,
-        lumpsumAmount: 0,
-        funds: funds,
-      );
+      // await updateGoalFundOrder(...);
+      // await getAllGoals();
 
-      await getAllGoals();
     } catch (e) {
       debugPrint("distributeSipAmount Error: $e");
     } finally {
@@ -846,20 +857,35 @@ class GoalSipController extends GetxController {
     }
   }
 
+// ==========================================
+// 2. REDISTRIBUTION (When user edits a text field)
+// ==========================================
+
   Future<void> redistributeSipAmountAfterEdit({
     required String editedSchemeCode,
     required double editedAmount,
   }) async {
+    // 1. Guard against double-triggers (Prevents Infinite Loop)
+    if (isDistributingAmount.value) {
+      debugPrint("Skipping: Already distributing.");
+      return;
+    }
+
     try {
-      showLoading();
-      isDistributingAmount.value = true;
+      isDistributingAmount.value = true; // Lock the function
+      // 🚀 NO showLoading() here to prevent GetX dialog glitches interrupting the keyboard
 
       final totalSip = monthlySip.value;
       final remainingAmount = totalSip - editedAmount;
-      if (remainingAmount < 0) return;
+
+      if (remainingAmount < 0) {
+        Get.snackbar("Error", "Fund amount cannot exceed total SIP.");
+        return;
+      }
 
       final selectedFunds = selectedPopularFund.toList();
       final allFunds = Get.find<MutualFundController>().searchFund;
+
       final remainingSchemeCodes = selectedFunds
           .map((name) => allFunds.firstWhereOrNull((f) => f.baseSchemeName == name)?.schemeCode?.toString())
           .where((code) => code != null && code != editedSchemeCode)
@@ -871,11 +897,12 @@ class GoalSipController extends GetxController {
       // Process Edited Fund
       getAmountController(editedSchemeCode).text = editedAmount.toInt().toString();
       final editedFundId = getGoalFundId(editedSchemeCode);
+
       if (editedFundId != null) {
         funds.add({
           "goal_id": savedDatabaseId.value ?? 0,
           "order_type": "sip",
-          "id": editedFundId, // Adjusted key to match distributeSipAmount
+          "id": editedFundId,
           "status": "pending",
           "scheme_code": editedSchemeCode,
           "sip_amount": editedAmount,
@@ -887,16 +914,25 @@ class GoalSipController extends GetxController {
 
       // Process Remaining Funds
       if (remainingSchemeCodes.isNotEmpty) {
-        int perFund = roundToNearest100(remainingAmount / remainingSchemeCodes.length);
+        int perFund = roundToNearest5(remainingAmount / remainingSchemeCodes.length);
         final amounts = List.generate(remainingSchemeCodes.length, (_) => perFund);
 
         int assigned = amounts.fold(0, (a, b) => a + b);
         int diff = remainingAmount.round() - assigned;
-        if (diff != 0) amounts.last += diff;
+
+        if (diff != 0) {
+          amounts[amounts.length - 1] += diff;
+          // 🚀 FORCE ROUND UP TO MULTIPLE OF 5
+          amounts[amounts.length - 1] = ((amounts.last / 5.0).ceil()) * 5;
+        }
 
         for (int i = 0; i < remainingSchemeCodes.length; i++) {
           final schemeCode = remainingSchemeCodes[i];
+
+          // Update Text Field instantly
           getAmountController(schemeCode).text = amounts[i].toString();
+          debugPrint("Final Edited Amount for $schemeCode: ${amounts[i]}");
+
           final fundId = getGoalFundId(schemeCode);
 
           if (fundId != null) {
@@ -915,23 +951,16 @@ class GoalSipController extends GetxController {
         }
       }
 
-      await updateGoalFundOrder(
-        goalId: savedDatabaseId.value ?? 0,
-        orderType: "sip",
-        sipAmount: 0,
-        sipDay: selectedSipDay.value,
-        fundId: 0,
-        lumpsumAmount: 0,
-        funds: funds,
-      );
-      await getAllGoals();
+
+
     } catch (e) {
       debugPrint("redistributeSipAmountAfterEdit Error: $e");
     } finally {
-      isDistributingAmount.value = false;
-      hideLoading();
+      isDistributingAmount.value = false; // Unlock
+      // 🚀 NO hideLoading() here to prevent GetX dialog glitches
     }
   }
+
 
   void showLoading() {
     if (Get.isDialogOpen == true) return;
@@ -1012,7 +1041,7 @@ class GoalSipController extends GetxController {
     }
     super.onClose();
   }
-
+  RxBool isLoading =false.obs;
   Future<void> saveGoalFund({
     required int goalId,
     required String schemeCode,
@@ -1037,7 +1066,7 @@ class GoalSipController extends GetxController {
         "order_type": savedInvestmentType.value,
         // "lumpsum_amount": lumpsumAmount,
         if (savedInvestmentType.value == "sip") ...{
-          "sip_amount": sipPerFund,
+          "sip_amount": sipAmount,
           "sip_day": sipDay,
           "sip_start_date": DateTime.now().toString().split(' ').first,
           "sip_end_date": DateTime.now()
@@ -1294,26 +1323,37 @@ class GoalSipController extends GetxController {
   // ── Lumpsum Calculation ───────────────────────────────────────────────────────
   void recalculateLumpsum() {
     final double fv = lumpsumFutureValue.value;
-
     final double r = annualRate.value / 100;
-
     final int n = years.value.toInt();
 
     if (fv <= 0 || r <= 0 || n <= 0) {
+      // Reset defaults if inputs are invalid/empty
+      lumpsumAmount.value = 0;
+      lumpsumTotalReturn.value = 0;
+      lumpsumReturnPercent.value = 0;
+      update();
       return;
     }
 
+    // Step 1: Calculate exact Present Value (PV)
     // PV = FV / (1 + r)^n
-    final double pv = fv / pow(1 + r, n);
+    final double exactPv = fv / pow(1 + r, n);
 
-    // ONLY ROUND HERE
-    final double roundedPv = smartRoundOff(pv);
-
+    // 🚀 Step 2: ROUND PV to nearest 10 (e.g., 56743 -> 56740)
+    // .toDouble() lagaya hai taaki variable type match kare
+    final double roundedPv = (exactPv / 10).round() * 10.0;
     lumpsumAmount.value = roundedPv;
 
-    lumpsumTotalReturn.value = fv - roundedPv;
+    // 🚀 Step 3: Calculate Return and round it to nearest 10 as well
+    final double exactReturn = fv - roundedPv;
+    lumpsumTotalReturn.value = (exactReturn / 10).round() * 10.0;
 
-    lumpsumReturnPercent.value = ((fv - roundedPv) / roundedPv) * 100;
+    // Step 4: Calculate Percentage based on the rounded values
+    if (roundedPv > 0) {
+      lumpsumReturnPercent.value = (lumpsumTotalReturn.value / roundedPv) * 100;
+    } else {
+      lumpsumReturnPercent.value = 0;
+    }
 
     update();
   }
@@ -1325,14 +1365,13 @@ class GoalSipController extends GetxController {
       invested.value = 0;
       futureValue.value = 0;
       totalReturn.value = 0;
-      yearlyReport.clear(); //  clear report
-
+      yearlyReport.clear(); // clear report
       return;
     }
 
     final r = _effectiveMonthlyRate(annualRate.value);
 
-    //  Step 1: exact SIP (double)
+    // Step 1: exact SIP (double)
     double exactSip;
     if (r == 0) {
       exactSip = targetAmount.value / totalMonths;
@@ -1341,11 +1380,9 @@ class GoalSipController extends GetxController {
       exactSip = targetAmount.value / factor;
     }
 
-    //  Step 2: ROUND like website
-    final int roundedSip = exactSip.round();
+    final int roundedSip = (exactSip / 10).round() * 10;
     monthlySip.value = roundedSip;
 
-    //  Step 3: build projection using ROUNDED SIP ONLY
     int investedTmp = 0;
     double valueTmp = 0;
 
@@ -1354,10 +1391,13 @@ class GoalSipController extends GetxController {
       valueTmp = (valueTmp + roundedSip) * (1 + r);
     }
 
+
     invested.value = investedTmp;
-    futureValue.value = valueTmp.round();
-    // totalReturn.value = futureValue.value - invested.value;
-    totalReturn.value = (targetAmount.value - invested.value).round();
+
+    futureValue.value = (valueTmp / 10).round() * 10;
+
+    double exactTotalReturn = targetAmount.value - invested.value;
+    totalReturn.value = (exactTotalReturn / 10).round() * 10;
 
     yearlyReport.value = buildYearlyReport();
   }

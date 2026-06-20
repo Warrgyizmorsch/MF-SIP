@@ -83,7 +83,7 @@ class MasterGoalsPage extends GetView<GoalSipController> {
           // HOME GOAL
           if (controller.isHome.value) {
             final masterGoal = controller.masterGoals.firstWhereOrNull(
-                  (e) => e.goalType == initialType,
+              (e) => e.goalType == initialType,
             );
 
             if (masterGoal != null) {
@@ -140,7 +140,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
         final currentGoal = controller.goalResponse.value?.data
             .firstWhereOrNull(
               (e) => e.goalId == controller.savedDatabaseId.value,
-        );
+            );
         debugPrint("Current Goal Status: ${currentGoal?.status}");
         if (currentGoal?.status == "pending" ||
             currentGoal?.status == null ||
@@ -198,7 +198,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                   Future.delayed(const Duration(milliseconds: 100), () {
                     if (Get.isRegistered<NavigationBarController>()) {
                       Get.find<NavigationBarController>().selectedIndex.value =
-                      3;
+                          3;
                     }
                   });
                 },
@@ -247,49 +247,49 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                             vertical: 10,
                           ),
                           child: Obx(
-                                () => controller.isSavingGoal.value
+                            () => controller.isSavingGoal.value
                                 ? const Center(
-                              child: CircularProgressIndicator(
-                                color: Ucolors.primary,
-                              ),
-                            )
+                                    child: CircularProgressIndicator(
+                                      color: Ucolors.primary,
+                                    ),
+                                  )
                                 : UElevatedBUtton(
-                              onPressed: () async {
-                                if (isEdit) {
-                                  // await controller.updateGoal();
-                                } else {
-                                  await controller.saveGoalToDb();
+                                    onPressed: () async {
+                                      if (isEdit) {
+                                        // await controller.updateGoal();
+                                      } else {
+                                        await controller.saveGoalToDb();
 
-                                  WidgetsBinding.instance
-                                      .addPostFrameCallback((_) {
-                                    if (popularFundsKey
-                                        .currentContext !=
-                                        null) {
-                                      Scrollable.ensureVisible(
-                                        popularFundsKey
-                                            .currentContext!,
-                                        duration: const Duration(
-                                          milliseconds: 800,
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                              if (popularFundsKey
+                                                      .currentContext !=
+                                                  null) {
+                                                Scrollable.ensureVisible(
+                                                  popularFundsKey
+                                                      .currentContext!,
+                                                  duration: const Duration(
+                                                    milliseconds: 800,
+                                                  ),
+                                                  curve: Curves.easeInOutCubic,
+                                                  alignment: 0.1,
+                                                );
+                                              }
+                                            });
+
+                                        await Get.find<MutualFundController>()
+                                            .fetchData();
+                                      }
+                                    },
+                                    child: Center(
+                                      child: Text(
+                                        isEdit ? "Update Goal" : "Save Goal",
+                                        style: AppTextStyles.bodyMedium(
+                                          color: Colors.white,
                                         ),
-                                        curve: Curves.easeInOutCubic,
-                                        alignment: 0.1,
-                                      );
-                                    }
-                                  });
-
-                                  await Get.find<MutualFundController>()
-                                      .fetchData();
-                                }
-                              },
-                              child: Center(
-                                child: Text(
-                                  isEdit ? "Update Goal" : "Save Goal",
-                                  style: AppTextStyles.bodyMedium(
-                                    color: Colors.white,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
                           ),
                         );
                       }
@@ -318,7 +318,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                 top: false,
                 child: CartBottomBar(
                   isValid: controller.selectedPopularFund.isNotEmpty,
-                  ontap: () {
+                  ontap: () async {
                     if (controller.selectedPopularFund.isEmpty ||
                         controller.amountControllers.isEmpty) {
                       Get.snackbar(
@@ -330,162 +330,181 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
 
                     final mutualController = Get.find<MutualFundController>();
                     final mfuController =
-                    Get.find<MfuController>(); // 🚀 Fetch MfuController
+                        Get.find<MfuController>();
 
                     final selectedFunds = mutualController.searchFund
                         .where(
                           (fund) => controller.selectedPopularFund.contains(
-                        fund.baseSchemeName,
-                      ),
-                    )
+                            fund.baseSchemeName,
+                          ),
+                        )
                         .toList();
+
                     final String goalIdString = controller.savedDatabaseId.value
                         .toString();
                     final int? parsedGoalId = int.tryParse(goalIdString);
-                    // Only use it if it's greater than 0
                     final int? finalGoalId =
-                    (parsedGoalId != null && parsedGoalId > 0)
+                        (parsedGoalId != null && parsedGoalId > 0)
                         ? parsedGoalId
                         : null;
 
                     debugPrint("Selected Funds Count: ${selectedFunds.length}");
 
-                    // for (final fund in selectedFunds) {
-                    //   debugPrint("""
-                    // Fund Name : ${fund.baseSchemeName}
-                    // Scheme Code : ${fund.schemeCode}
-                    // AMC Name : ${fund.amc?.amcName}
-                    // Min SIP : ${fund.minSipAmount}
-                    // Goal Fund Id : ${controller.getGoalFundId(fund.schemeCode?.toString() ?? '')}
-                    // Amount : ${controller.getAmountController(fund.schemeCode?.toString() ?? '').text}
-                    // Goal Id : ${controller.savedDatabaseId.value}
-                    // Investment Type : ${controller.savedInvestmentType.value}
-                    // ----------------------------------
-                    // """);
-                    // }
-                    if (controller.savedInvestmentType.value == 'lumpsum') {
-                      List<MfuTxnScheme> lumpsumSchemes = [];
 
+                    controller.isLoading.value = true;
+
+                    try {
                       for (final fund in selectedFunds) {
                         final schemeCode = fund.schemeCode?.toString() ?? '';
                         final amountText = controller
                             .getAmountController(schemeCode)
                             .text;
                         final amount = double.tryParse(amountText) ?? 0.0;
-
-                        // Only add if scheme code exists and amount is valid
-                        if (schemeCode.isNotEmpty && amount > 0) {
-                          lumpsumSchemes.add(
-                            MfuTxnScheme(
-                              schemeCode: "012", // static
-                              // schemeCode: schemeCode,
-                              amount: amount,
-                              folio:
-                              "NEW", // Or fetch existing folio if applicable
-                              divOpt: "N",
-                            ),
+                        debugPrint("Amount $amount,schemeCode $schemeCode ");
+                        if (schemeCode.isNotEmpty &&
+                            amount > 0 &&
+                            finalGoalId != null) {
+                          await controller.saveGoalFund(
+                            goalId: finalGoalId,
+                            schemeCode: schemeCode,
+                            schemeName: fund.baseSchemeName ?? '',
+                            sipAmount:
+                                amount,
+                            sipDay:
+                           controller.selectedSipDay.value,
                           );
                         }
                       }
 
-                      if (lumpsumSchemes.isEmpty) {
-                        Get.snackbar(
-                          "Error",
-                          "Please enter valid amounts for selected funds.",
-                        );
-                        return;
-                      }
+                      /// Lumpsum Transaction
+                      if (controller.savedInvestmentType.value == 'lumpsum') {
+                        List<MfuTxnScheme> lumpsumSchemes = [];
 
-                      final uid = session.getUserData?.id ?? 0;
+                        for (final fund in selectedFunds) {
+                          final schemeCode = fund.schemeCode?.toString() ?? '';
+                          final amountText = controller
+                              .getAmountController(schemeCode)
+                              .text;
+                          final amount = double.tryParse(amountText) ?? 0.0;
 
-                      // 🚀 Fire the Multi-Lumpsum API!
-                      mfuController.normalTransaction(
-                        MfuNormalTxnRequest.lumpsumMultiple(
-                          // uid: 1008,
-                          uid: uid,
-                          goalId: finalGoalId,
-                          schemes: lumpsumSchemes,
-                        ),
-                      );
-                    }
-                    ///       SIP
-                    else if (controller.savedInvestmentType.value == "sip") {
-                      List<MfuSysTxnScheme> sipSchemes = [];
-                      for (final fund in selectedFunds) {
-                        final schemeCode = fund.schemeCode?.toString() ?? '';
-                        final amountText = controller
-                            .getAmountController(schemeCode)
-                            .text;
-                        final amount = int.tryParse(amountText) ?? 0;
-
-                        if (schemeCode.isNotEmpty && amount > 0) {
-                          sipSchemes.add(
-                            MfuSysTxnScheme(
-                              schemeCode: "001",
-                              // schemeCode: schemeCode,
-                              amount: 2000,
-                              // amount: amount,
-                              folio: "NEW",
-                              divOpt: "R", // Default Growth
-                            ),
-                          );
+                          // Only add if scheme code exists and amount is valid
+                          if (schemeCode.isNotEmpty && amount > 0) {
+                            lumpsumSchemes.add(
+                              MfuTxnScheme(
+                                schemeCode: "012", // static
+                                // schemeCode: schemeCode,
+                                amount: amount,
+                                folio:
+                                    "NEW",
+                                divOpt: "N",
+                              ),
+                            );
+                          }
                         }
-                      }
-                      final user = SessionManager.instance.getUserData;
-                      // final can = user?.canNumber ?? '';
-                      // final accNo = user?.bankAccount?.accountNumber ?? '';
-                      // final ifsc = user?.bankAccount?.ifscCode ?? '';
-                      // final micr = user?.bankAccount?.micrCode ?? '000000000';
-                      // final accType = user?.bankAccount?.accountType ?? 'SB';
-                      final mandateRefNo =
-                          mfuController.mandateStatusResponse.value?.mumrn ??
-                              mfuController.mandateStatusResponse.value?.mmrn ??
-                              '';
-                      final now = DateTime.now();
-                      // Assuming default 10th of the month for Cart SIPs. Adjust as needed!
-                      DateTime startDate = DateTime(
-                        now.year,
-                        now.month + 1,
-                        10,
-                      );
-                      if (startDate.difference(now).inDays < 30) {
-                        startDate = DateTime(now.year, now.month + 2, 10);
-                      }
-                      final endDate = DateTime(
-                        startDate.year + 30,
-                        startDate.month,
-                        startDate.day,
-                      );
-                      mfuController.systematicTransaction(
-                        MfuSystematicTxnRequest.sipMultiple(
-                          uid: 7,
-                          goalId: finalGoalId,
-                          can: "14167AZA01",
-                          frequency: "M",
-                          day: "10",
 
-                          startMonth: startDate.month.toString().padLeft(
-                            2,
-                            '0',
+                        if (lumpsumSchemes.isEmpty) {
+                          Get.snackbar(
+                            "Error",
+                            "Please enter valid amounts for selected funds.",
+                          );
+                          return;
+                        }
+
+                        final uid =
+                            SessionManager.instance.getUserData?.id ?? 0;
+
+                        // 🚀 Fire the Multi-Lumpsum API!
+                        mfuController.normalTransaction(
+                          MfuNormalTxnRequest.lumpsumMultiple(
+                            uid: uid,
+                            goalId: finalGoalId,
+                            schemes: lumpsumSchemes,
                           ),
-                          startYear: startDate.year.toString(),
-                          // endMonth: endDate.month.toString().padLeft(2, '0'),
-                          endMonth: "08",
-                          endYear: "2027",
-                          // endYear: endDate.year.toString(),
-                          paymentMode: "DM",
-                          accType: "SB",
-                          accNo: "654321",
-                          ifsc: "ABHY0065002",
-                          micr: "400065002",
-                          mandateRefNo: "PRNUAT001",
-                          schemes:
-                          sipSchemes, // 🚀 Multi-Fund List injected here!
-                        ),
+                        );
+                      }
+                      /// SIP Transaction
+                      else if (controller.savedInvestmentType.value == "sip") {
+                        List<MfuSysTxnScheme> sipSchemes = [];
+                        for (final fund in selectedFunds) {
+                          final schemeCode = fund.schemeCode?.toString() ?? '';
+                          final amountText = controller
+                              .getAmountController(schemeCode)
+                              .text;
+                          final amount = int.tryParse(amountText) ?? 0;
+
+                          if (schemeCode.isNotEmpty && amount > 0) {
+                            sipSchemes.add(
+                              MfuSysTxnScheme(
+                                schemeCode: "001",
+                                // schemeCode: schemeCode,
+                                amount: 2000,
+                                // amount: amount,
+                                folio: "NEW",
+                                divOpt: "R", // Default Growth
+                              ),
+                            );
+                          }
+                        }
+
+                        // final user = SessionManager.instance.getUserData;
+                        final mandateRefNo =
+                            mfuController.mandateStatusResponse.value?.mumrn ??
+                            mfuController.mandateStatusResponse.value?.mmrn ??
+                            '';
+
+                        final now = DateTime.now();
+                        // Assuming default 10th of the month for Cart SIPs. Adjust as needed!
+                        DateTime startDate = DateTime(
+                          now.year,
+                          now.month + 1,
+                          10,
+                        );
+                        if (startDate.difference(now).inDays < 30) {
+                          startDate = DateTime(now.year, now.month + 2, 10);
+                        }
+                        final endDate = DateTime(
+                          startDate.year + 30,
+                          startDate.month,
+                          startDate.day,
+                        );
+
+                        mfuController.systematicTransaction(
+                          MfuSystematicTxnRequest.sipMultiple(
+                            uid: 7,
+                            goalId: finalGoalId,
+                            can: "14167AZA01",
+                            frequency: "M",
+                            day: "10",
+                            startMonth: startDate.month.toString().padLeft(
+                              2,
+                              '0',
+                            ),
+                            startYear: startDate.year.toString(),
+                            endMonth: "08",
+                            endYear: "2027",
+                            paymentMode: "DM",
+                            accType: "SB",
+                            accNo: "654321",
+                            ifsc: "ABHY0065002",
+                            micr: "400065002",
+                            mandateRefNo: "PRNUAT001",
+                            schemes:
+                                sipSchemes, // 🚀 Multi-Fund List injected here!
+                          ),
+                        );
+                      } else {
+                        // Your SIP cart logic goes here later
+                        Get.snackbar("Info", "Processing SIP Checkout...");
+                      }
+                    } catch (e) {
+                      debugPrint("Transaction Error: $e");
+                      Get.snackbar(
+                        "Error",
+                        "Something went wrong while processing.",
                       );
-                    } else {
-                      // Your SIP cart logic goes here later
-                      Get.snackbar("Info", "Processing SIP Checkout...");
+                    } finally {
+                      // 🚀 End Loading State (runs whether it succeeds or fails)
+                      controller.isLoading.value = false;
                     }
                   },
                   amount: controller.savedInvestmentType.value == 'lumpsum'
@@ -717,12 +736,12 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
 
                                     try {
                                       if (goalSipController
-                                          .savedInvestmentType
-                                          .value ==
-                                          "lumpsum" ||
+                                                  .savedInvestmentType
+                                                  .value ==
+                                              "lumpsum" ||
                                           goalSipController
-                                              .savedInvestmentType
-                                              .value ==
+                                                  .savedInvestmentType
+                                                  .value ==
                                               "sip") {
                                         goalSipController.showLoading();
                                       }
@@ -731,19 +750,19 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                                       if (isSelected) {
                                         final goalFundId = goalSipController
                                             .getGoalFundId(
-                                          fund.schemeCode?.toString() ?? '',
-                                        );
+                                              fund.schemeCode?.toString() ?? '',
+                                            );
 
                                         if (goalFundId != null) {
                                           await goalSipController
                                               .deleteGoalFund(
-                                            id: goalFundId,
-                                            isEdit: false,
-                                            schemeName:
-                                            fund.schemeCode
-                                                ?.toString() ??
-                                                '',
-                                          );
+                                                id: goalFundId,
+                                                isEdit: false,
+                                                schemeName:
+                                                    fund.schemeCode
+                                                        ?.toString() ??
+                                                    '',
+                                              );
 
                                           goalSipController.toggleFund(name);
 
@@ -751,14 +770,14 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                                               .selectedPopularFund
                                               .isNotEmpty) {
                                             if (goalSipController
-                                                .savedInvestmentType
-                                                .value ==
+                                                    .savedInvestmentType
+                                                    .value ==
                                                 "lumpsum") {
                                               await goalSipController
                                                   .distributeMonthlyAmount();
                                             } else if (goalSipController
-                                                .savedInvestmentType
-                                                .value ==
+                                                    .savedInvestmentType
+                                                    .value ==
                                                 "sip") {
                                               await goalSipController
                                                   .distributeSipAmount();
@@ -771,17 +790,17 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
 
                                       /// ================= SIP DATE =================
                                       if (goalSipController
-                                          .savedInvestmentType
-                                          .value ==
-                                          "sip" &&
+                                                  .savedInvestmentType
+                                                  .value ==
+                                              "sip" &&
                                           goalSipController
                                               .selectedPopularFund
                                               .isEmpty) {
                                         final confirmed =
-                                        await _showSipDateDialog(
-                                          context,
-                                          goalSipController,
-                                        );
+                                            await _showSipDateDialog(
+                                              context,
+                                              goalSipController,
+                                            );
 
                                         if (confirmed != true) return;
                                       }
@@ -789,31 +808,31 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                                       /// ================= ADD FUND =================
                                       goalSipController.toggleFund(name);
 
-                                      await goalSipController.saveGoalFund(
-                                        goalId:
-                                        goalSipController
-                                            .savedDatabaseId
-                                            .value ??
-                                            0,
-                                        schemeCode:
-                                        fund.schemeCode?.toString() ?? '',
-                                        schemeName: fund.baseSchemeName ?? '',
-                                        sipAmount: (fund.minSipAmount ?? 0)
-                                            .toDouble(),
-                                        sipDay: goalSipController
-                                            .selectedSipDay
-                                            .value,
-                                      );
+                                      // await goalSipController.saveGoalFund(
+                                      //   goalId:
+                                      //   goalSipController
+                                      //       .savedDatabaseId
+                                      //       .value ??
+                                      //       0,
+                                      //   schemeCode:
+                                      //   fund.schemeCode?.toString() ?? '',
+                                      //   schemeName: fund.baseSchemeName ?? '',
+                                      //   sipAmount: (fund.minSipAmount ?? 0)
+                                      //       .toDouble(),
+                                      //   sipDay: goalSipController
+                                      //       .selectedSipDay
+                                      //       .value,
+                                      // );
 
                                       if (goalSipController
-                                          .savedInvestmentType
-                                          .value ==
+                                              .savedInvestmentType
+                                              .value ==
                                           "lumpsum") {
                                         await goalSipController
                                             .distributeMonthlyAmount();
                                       } else if (goalSipController
-                                          .savedInvestmentType
-                                          .value ==
+                                              .savedInvestmentType
+                                              .value ==
                                           "sip") {
                                         await goalSipController
                                             .distributeSipAmount();
@@ -914,9 +933,9 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
   }
 
   Future<bool?> _showSipDateDialog(
-      BuildContext context,
-      GoalSipController controller,
-      ) {
+    BuildContext context,
+    GoalSipController controller,
+  ) {
     RxString selectedSipDay = (controller.selectedSipDay.value).toString().obs;
 
     return Get.dialog<bool>(
@@ -929,12 +948,12 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
               const Text("Select SIP Date"),
               const SizedBox(height: 16),
               Obx(
-                    () => DropdownButton<String>(
+                () => DropdownButton<String>(
                   value: selectedSipDay.value,
                   isExpanded: true,
                   items: List.generate(
                     28,
-                        (i) => DropdownMenuItem(
+                    (i) => DropdownMenuItem(
                       value: '${i + 1}',
                       child: Text('${i + 1}'),
                     ),
@@ -992,7 +1011,7 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
       final cartItem = cartController.cartResponseEntity.value?.items
           .firstWhereOrNull(
             (item) => item.schemeCode.toString() == schemeCodeStr,
-      );
+          );
       if (cartItem != null && cartItem.id != null) {
         cartController.deleteCartItem(cartItem.id!, name);
         goalSipController.toggleFund(name);
@@ -1222,13 +1241,13 @@ class PopularAndSelectedFund extends StatelessWidget {
       final selectedFunds = allFunds
           .where(
             (f) => goalSipController.isSelectedFund(f.baseSchemeName ?? ''),
-      )
+          )
           .toList();
 
       final popularFunds = allFunds
           .where(
             (f) => !goalSipController.isSelectedFund(f.baseSchemeName ?? ''),
-      )
+          )
           .toList();
 
       final List<dynamic> displayFunds = selectedFunds.isNotEmpty
@@ -1275,7 +1294,7 @@ class PopularAndSelectedFund extends StatelessWidget {
       final double spacing = 16;
       final double cardWidth =
           (screenWidth - horizontalPadding - (spacing * (crossAxisCount - 1))) /
-              crossAxisCount;
+          crossAxisCount;
 
       return Wrap(
         spacing: spacing,
@@ -1306,7 +1325,7 @@ class PopularAndSelectedFund extends StatelessWidget {
 
                     try {
                       if (goalSipController.savedInvestmentType.value ==
-                          "lumpsum" ||
+                              "lumpsum" ||
                           goalSipController.savedInvestmentType.value ==
                               "sip") {
                         goalSipController.showLoading();
@@ -1334,8 +1353,8 @@ class PopularAndSelectedFund extends StatelessWidget {
                                 "lumpsum") {
                               await goalSipController.distributeMonthlyAmount();
                             } else if (goalSipController
-                                .savedInvestmentType
-                                .value ==
+                                    .savedInvestmentType
+                                    .value ==
                                 "sip") {
                               await goalSipController.distributeSipAmount();
                             }
@@ -1347,7 +1366,7 @@ class PopularAndSelectedFund extends StatelessWidget {
 
                       /// ================= SIP DATE =================
                       if (goalSipController.savedInvestmentType.value ==
-                          "sip" &&
+                              "sip" &&
                           goalSipController.selectedPopularFund.isEmpty) {
                         final confirmed = await _showSipDateDialog(
                           context,
@@ -1360,14 +1379,14 @@ class PopularAndSelectedFund extends StatelessWidget {
                       /// ================= ADD FUND =================
                       goalSipController.toggleFund(name);
 
-                      await goalSipController.saveGoalFund(
-                        goalId: goalSipController.savedDatabaseId.value ?? 0,
-                        schemeCode: fund.schemeCode?.toString() ?? '',
-                        schemeName: fund.baseSchemeName ?? '',
-                        sipAmount: (goalSipController.monthlySip.value)
-                            .toDouble(),
-                        sipDay: goalSipController.selectedSipDay.value,
-                      );
+                      // await goalSipController.saveGoalFund(
+                      //   goalId: goalSipController.savedDatabaseId.value ?? 0,
+                      //   schemeCode: fund.schemeCode?.toString() ?? '',
+                      //   schemeName: fund.baseSchemeName ?? '',
+                      //   sipAmount: (goalSipController.monthlySip.value)
+                      //       .toDouble(),
+                      //   sipDay: goalSipController.selectedSipDay.value,
+                      // );
 
                       if (goalSipController.savedInvestmentType.value ==
                           "lumpsum") {
@@ -1376,6 +1395,8 @@ class PopularAndSelectedFund extends StatelessWidget {
                           "sip") {
                         await goalSipController.distributeSipAmount();
                       }
+                      print("Amount2 ${goalSipController.getAmountController(fund.schemeCode??"").text}");
+
                     } catch (e, stackTrace) {
                       debugPrint("Error: $e");
                       debugPrintStack(stackTrace: stackTrace);
@@ -1396,9 +1417,9 @@ class PopularAndSelectedFund extends StatelessWidget {
                     tenYear: tenYear,
                     isSelected: isSelected,
                     showAmountField:
-                    isSelected &&
+                        isSelected &&
                         (goalSipController.savedInvestmentType.value ==
-                            "lumpsum" ||
+                                "lumpsum" ||
                             goalSipController.savedInvestmentType.value ==
                                 "sip"),
                     amountController: goalSipController.getAmountController(
@@ -1432,9 +1453,9 @@ class PopularAndSelectedFund extends StatelessWidget {
   }
 
   Future<bool?> _showSipDateDialog(
-      BuildContext context,
-      GoalSipController controller,
-      ) {
+    BuildContext context,
+    GoalSipController controller,
+  ) {
     RxString selectedSipDay = (controller.selectedSipDay.value).toString().obs;
 
     return Get.dialog<bool>(
@@ -1447,12 +1468,12 @@ class PopularAndSelectedFund extends StatelessWidget {
               const Text("Select SIP Date"),
               const SizedBox(height: 16),
               Obx(
-                    () => DropdownButton<String>(
+                () => DropdownButton<String>(
                   value: selectedSipDay.value,
                   isExpanded: true,
                   items: List.generate(
                     28,
-                        (i) => DropdownMenuItem(
+                    (i) => DropdownMenuItem(
                       value: '${i + 1}',
                       child: Text('${i + 1}'),
                     ),
@@ -1516,9 +1537,9 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
       decoration: isDesktop
           ? null
           : BoxDecoration(
-        color: Ucolors.light,
-        borderRadius: BorderRadius.circular(12),
-      ),
+              color: Ucolors.light,
+              borderRadius: BorderRadius.circular(12),
+            ),
       child: Column(
         children: [
           /// Header
@@ -1695,7 +1716,7 @@ class SIPSectionGoal extends GetView<GoalSipController> {
         children: [
           // ── Goal Title Field ──────────────────────────────────────────────
           Obx(
-                () => IgnorePointer(
+            () => IgnorePointer(
               ignoring: controller.isGoalSaved.value,
               child: TextFormFieldCustom(
                 title: "Goal Title",
@@ -1739,18 +1760,18 @@ class SIPSectionGoal extends GetView<GoalSipController> {
             ),
           ),
           Obx(
-                () => controller.goalError.isNotEmpty
+            () => controller.goalError.isNotEmpty
                 ? Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                controller.goalError.value,
-                style: TextStyle(
-                  fontFamily: FontFamily.medium,
-                  fontSize: 12,
-                  color: Ucolors.red,
-                ),
-              ),
-            )
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      controller.goalError.value,
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 12,
+                        color: Ucolors.red,
+                      ),
+                    ),
+                  )
                 : const SizedBox.shrink(),
           ),
 
@@ -1824,12 +1845,12 @@ class _TabButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             boxShadow: isSelected
                 ? [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ]
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
                 : [],
           ),
           child: Center(
@@ -1861,7 +1882,7 @@ class _SipTabContent extends GetView<GoalSipController> {
       children: [
         // Target Amount
         Obx(
-              () => IgnorePointer(
+          () => IgnorePointer(
             ignoring: controller.isGoalSaved.value,
             child: SipSliderTile2(
               prefix: '₹',
@@ -1880,7 +1901,7 @@ class _SipTabContent extends GetView<GoalSipController> {
 
         // Duration
         Obx(
-              () => IgnorePointer(
+          () => IgnorePointer(
             ignoring: controller.isGoalSaved.value,
             child: SipSliderTile2(
               title: 'Duration',
@@ -1896,7 +1917,7 @@ class _SipTabContent extends GetView<GoalSipController> {
 
         // Expected Return
         Obx(
-              () => IgnorePointer(
+          () => IgnorePointer(
             ignoring: controller.isGoalSaved.value,
             child: SipSliderTile2(
               title: 'Expected Return',
@@ -1912,7 +1933,7 @@ class _SipTabContent extends GetView<GoalSipController> {
 
         // Value Cards
         Obx(
-              () => Wrap(
+          () => Wrap(
             spacing: 10,
             runSpacing: 10,
             children: [
@@ -2048,7 +2069,7 @@ class _LumpsumTabContent extends GetView<GoalSipController> {
 
         // Duration
         Obx(
-              () => IgnorePointer(
+          () => IgnorePointer(
             ignoring: controller.isGoalSaved.value,
             child: SipSliderTile2(
               title: 'Duration',
@@ -2064,7 +2085,7 @@ class _LumpsumTabContent extends GetView<GoalSipController> {
 
         // Expected Return
         Obx(
-              () => IgnorePointer(
+          () => IgnorePointer(
             ignoring: controller.isGoalSaved.value,
             child: SipSliderTile2(
               title: 'Expected Return',
@@ -2080,7 +2101,7 @@ class _LumpsumTabContent extends GetView<GoalSipController> {
 
         // Value Cards
         Obx(
-              () => Wrap(
+          () => Wrap(
             spacing: 10,
             runSpacing: 10,
             children: [
@@ -2127,7 +2148,7 @@ class _LumpsumTabContent extends GetView<GoalSipController> {
                 child: _ValueCard(
                   title: 'Return %',
                   value:
-                  '${controller.lumpsumReturnPercent.value.toStringAsFixed(1)}%',
+                      '${controller.lumpsumReturnPercent.value.toStringAsFixed(1)}%',
                   accent: false,
                 ),
               ),
@@ -2165,9 +2186,9 @@ class _ValueCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: accent
             ? Border.all(
-          color: Ucolors.primary.withValues(alpha: 0.35),
-          width: 1.2,
-        )
+                color: Ucolors.primary.withValues(alpha: 0.35),
+                width: 1.2,
+              )
             : null,
       ),
       child: Column(
@@ -2310,11 +2331,11 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                           end: Alignment.bottomRight,
                           colors: isSelected
                               ? [
-                            controller.getGoalColor(goal.goalType),
-                            controller
-                                .getGoalColor(goal.goalType)
-                                .withValues(alpha: .75),
-                          ]
+                                  controller.getGoalColor(goal.goalType),
+                                  controller
+                                      .getGoalColor(goal.goalType)
+                                      .withValues(alpha: .75),
+                                ]
                               : [Colors.white, Colors.white],
                         ),
                         border: Border.all(
@@ -2327,8 +2348,8 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                           BoxShadow(
                             color: isSelected
                                 ? controller
-                                .getGoalColor(goal.goalType)
-                                .withValues(alpha: .20)
+                                      .getGoalColor(goal.goalType)
+                                      .withValues(alpha: .20)
                                 : Colors.black.withValues(alpha: .04),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
@@ -2394,8 +2415,8 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                       color: isSelected
                                           ? Colors.white.withValues(alpha: .18)
                                           : controller
-                                          .getGoalColor(goal.goalType)
-                                          .withValues(alpha: .10),
+                                                .getGoalColor(goal.goalType)
+                                                .withValues(alpha: .10),
                                       borderRadius: BorderRadius.circular(14),
                                     ),
                                     child: Icon(
@@ -2403,8 +2424,8 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                       color: isSelected
                                           ? Colors.white
                                           : controller.getGoalColor(
-                                        goal.goalType,
-                                      ),
+                                              goal.goalType,
+                                            ),
                                       size: width < 500 ? 22 : 28,
                                     ),
                                   ),
@@ -2427,12 +2448,12 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                                     ),
                                     child: isSelected
                                         ? Icon(
-                                      Icons.check,
-                                      size: 14,
-                                      color: controller.getGoalColor(
-                                        goal.goalType,
-                                      ),
-                                    )
+                                            Icons.check,
+                                            size: 14,
+                                            color: controller.getGoalColor(
+                                              goal.goalType,
+                                            ),
+                                          )
                                         : null,
                                   ),
                                 ],
@@ -2574,86 +2595,16 @@ class GoalsGridScreen extends GetView<GoalSipController> {
           // Edit mode FAB
           floatingActionButton: controller.isEdit.value
               ? FloatingActionButton(
-            onPressed: () => Get.to(() => GoalDetailsScreen()),
-            backgroundColor: Ucolors.primary,
-            child: const Icon(Icons.check, color: Colors.white),
-          )
+                  onPressed: () => Get.to(() => GoalDetailsScreen()),
+                  backgroundColor: Ucolors.primary,
+                  child: const Icon(Icons.check, color: Colors.white),
+                )
               : null,
         );
       },
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // // ignore_for_file: dead_null_aware_expression, dead_code, unnecessary_null_in_if_null_operators
 //
