@@ -138,7 +138,6 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
             .firstWhereOrNull(
               (e) => e.goalId == controller.savedDatabaseId.value,
         );
-        debugPrint("Current Goal Status: ${currentGoal?.status}");
         if (currentGoal?.status == "pending" ||
             currentGoal?.status == null ||
             !controller.isGoalSaved.value ||
@@ -344,9 +343,6 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                         ? parsedGoalId
                         : null;
 
-                    debugPrint("Selected Funds Count: ${selectedFunds.length}");
-
-
                     controller.isLoading.value = true;
 
                     try {
@@ -356,7 +352,6 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                             .getAmountController(schemeCode)
                             .text;
                         final amount = double.tryParse(amountText) ?? 0.0;
-                        debugPrint("Amount $amount,schemeCode $schemeCode ");
                         if (schemeCode.isNotEmpty &&
                             amount > 0 &&
                             finalGoalId != null) {
@@ -791,7 +786,6 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                                             }
 
                                           } catch (e, stackTrace) {
-                                            debugPrint("Error: $e");
                                             debugPrintStack(stackTrace: stackTrace);
                                           } finally {
                                             goalSipController.hideLoading();
@@ -879,25 +873,20 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
     // Using native showModalBottomSheet instead of a Dialog
     return showModalBottomSheet<bool>(
       context: context,
-      backgroundColor: Colors.transparent, // Let Container handle styling
+      backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        // SafeArea ensures it doesn't get blocked by mobile nav bars
         return SafeArea(
           child: Align(
-            // On Web: Bottom Right floating panel. On Mobile: Bottom Center sheet
             alignment: isDesktop ? Alignment.bottomRight : Alignment.bottomCenter,
             child: Container(
-              // CRITICAL: Strict width on Web (350px), Full width on Mobile
               width: isDesktop ? 350 : double.infinity,
-              // On web, give it margin so it floats elegantly. On mobile, 0 margin.
               margin: isDesktop
                   ? const EdgeInsets.only(right: 30, bottom: 30)
                   : EdgeInsets.zero,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: Colors.white,
-                // Floating rounded box on Web, standard top-rounded sheet on Mobile
                 borderRadius: isDesktop
                     ? BorderRadius.circular(20)
                     : const BorderRadius.vertical(top: Radius.circular(24)),
@@ -1035,7 +1024,6 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
     );
   }
 
-  /// Fund toggle logic extracted — used by both bottom sheet and grid
   void _toggleFundInBottomSheet({
     required GoalSipController goalSipController,
     required CartController cartController,
@@ -2253,7 +2241,6 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                 crossAxisCount = 2;
                 childAspectRatio = .82;
               }
-              debugPrint("childAspectRatio$childAspectRatio");
               return GridView.builder(
                 padding: const EdgeInsets.all(10),
                 itemCount: controller.masterGoals.length,

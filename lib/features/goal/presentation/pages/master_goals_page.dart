@@ -141,7 +141,6 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
             .firstWhereOrNull(
               (e) => e.goalId == controller.savedDatabaseId.value,
             );
-        debugPrint("Current Goal Status: ${currentGoal?.status}");
         if (currentGoal?.status == "pending" ||
             currentGoal?.status == null ||
             !controller.isGoalSaved.value ||
@@ -348,7 +347,6 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                         ? parsedGoalId
                         : null;
 
-                    debugPrint("Selected Funds Count: ${selectedFunds.length}");
 
 
                     controller.isLoading.value = true;
@@ -360,7 +358,6 @@ class GoalDetailsScreen extends GetView<GoalSipController> {
                             .getAmountController(schemeCode)
                             .text;
                         final amount = double.tryParse(amountText) ?? 0.0;
-                        debugPrint("Amount $amount,schemeCode $schemeCode ");
                         if (schemeCode.isNotEmpty &&
                             amount > 0 &&
                             finalGoalId != null) {
@@ -1395,7 +1392,6 @@ class PopularAndSelectedFund extends StatelessWidget {
                           "sip") {
                         await goalSipController.distributeSipAmount();
                       }
-                      print("Amount2 ${goalSipController.getAmountController(fund.schemeCode??"").text}");
 
                     } catch (e, stackTrace) {
                       debugPrint("Error: $e");
@@ -2030,20 +2026,16 @@ class _LumpsumTabContent extends GetView<GoalSipController> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("build${controller.lumpsumAmount.value.toString()}");
     final double lumpsumAmount = controller.smartRoundOff(
       controller.lumpsumAmount.value,
     );
-    debugPrint("after build${lumpsumAmount.toString()}");
     return Column(
       children: [
         // Lumpsum Amount
         Obx(() {
-          debugPrint("Obx build${controller.lumpsumAmount.value.toString()}");
           final double lumpsumAmount = controller.smartRoundOff(
             controller.lumpsumAmount.value,
           );
-          debugPrint("Obx after build${lumpsumAmount.toString()}");
           return IgnorePointer(
             ignoring: controller.isGoalSaved.value,
             child: SipSliderTile2(
@@ -2054,13 +2046,9 @@ class _LumpsumTabContent extends GetView<GoalSipController> {
               max: controller.lumpsumFutureValue.value.toDouble(),
               suffix: '',
               onChanged: (value) {
-                debugPrint(
-                  "onchange ${controller.lumpsumAmount.value},value $value",
-                );
+
                 controller.setLumpsumAmount(value);
-                debugPrint(
-                  "onchange2 ${controller.lumpsumAmount.value},value $value",
-                );
+
               },
             ),
           );
@@ -2313,7 +2301,7 @@ class GoalsGridScreen extends GetView<GoalSipController> {
                 ),
                 itemBuilder: (context, index) {
                   final goal = controller.masterGoals[index];
-                  debugPrint("goal: ${goal.goalType}");
+
                   final isSelected =
                       controller.selectedGoalIndex.value == index;
 
@@ -2386,9 +2374,7 @@ class GoalsGridScreen extends GetView<GoalSipController> {
 
                           controller.lumpsumAmount.value = controller
                               .smartRoundOff(pv);
-                          debugPrint(
-                            "onTap${controller.lumpsumAmount.value}",
-                          ); // invest amount
+                           // invest amount
                           controller.lumpsumFutureValue.value =
                               goal.targetAmount; // fixed FV
                           controller.lumpsumTotalReturn.value =

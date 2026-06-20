@@ -182,7 +182,6 @@ class GoalSipController extends GetxController {
 
     lumpsumTotalReturn.value = goal.targetAmount - pv;
 
-    debugPrint("init${lumpsumAmount.value}");
     update();
   }
   // Yearly report
@@ -460,7 +459,6 @@ class GoalSipController extends GetxController {
       return result.fold(
         (success) {
           goalResponse.value = success.data;
-          debugPrint("Goals fetched: ${goalResponse.value?.data.length ?? 0}");
           return true;
         },
         (error) {
@@ -545,9 +543,6 @@ class GoalSipController extends GetxController {
         savedDatabaseId.value = success.data?.data.id ?? 0;
         savedInvestmentType.value = success.data?.data.txnType ?? 'sip';
 
-        debugPrint('Saved Goal Id: ${savedDatabaseId.value}');
-
-        debugPrint('goal id save ${success.data}');
       },
       (error) {
         Get.snackbar("Error", error.message);
@@ -640,10 +635,8 @@ class GoalSipController extends GetxController {
         getAmountController(schemeCode).text = assignedAmounts[i].toString();
 
         final fundId = getGoalFundId(schemeCode);
-        debugPrint("Fund ID for schemeCode $schemeCode is $fundId and goal id ${ savedDatabaseId.value }");
 
         if (fundId == null) continue;
-        debugPrint("Adding fund with ID $fundId, schemeCode $schemeCode, amount ${assignedAmounts[i]}");
         fundList.add({
           "id": fundId,
           "goal_id": savedDatabaseId.value ?? 0,
@@ -655,19 +648,18 @@ class GoalSipController extends GetxController {
         });
       }
 
-      debugPrint("REQUEST => $fundList");
 
-      await updateGoalFundOrder(
-        goalId: savedDatabaseId.value ?? 0,
-        orderType: "sip",
-        sipAmount: 0,
-        sipDay: selectedSipDay.value,
-        fundId: 0,
-        lumpsumAmount: 0,
-        funds: fundList,
-      );
+      // await updateGoalFundOrder(
+      //   goalId: savedDatabaseId.value ?? 0,
+      //   orderType: "sip",
+      //   sipAmount: 0,
+      //   sipDay: selectedSipDay.value,
+      //   fundId: 0,
+      //   lumpsumAmount: 0,
+      //   funds: fundList,
+      // );
 
-      await getAllGoals();
+      // await getAllGoals();
     } catch (e) {
       debugPrint("distributeMonthlyAmount Error: $e");
     } finally {
@@ -726,7 +718,6 @@ class GoalSipController extends GetxController {
         });
       }
 
-      /// Remaining Funds Distribution
       if (remainingSchemeCodes.isNotEmpty) {
         int perFund = roundToNearest5(
           (remainingAmount / remainingSchemeCodes.length).round(),
@@ -766,19 +757,18 @@ class GoalSipController extends GetxController {
         }
       }
 
-      debugPrint("BULK UPDATE REQUEST => $funds");
 
-      await updateGoalFundOrder(
-        goalId: savedDatabaseId.value ?? 0,
-        orderType: "lumpsum",
-        sipAmount: 0,
-        sipDay: 0,
-        fundId: 0,
-        lumpsumAmount: 0,
-        funds: funds,
-      );
-
-      await getAllGoals();
+      // await updateGoalFundOrder(
+      //   goalId: savedDatabaseId.value ?? 0,
+      //   orderType: "lumpsum",
+      //   sipAmount: 0,
+      //   sipDay: 0,
+      //   fundId: 0,
+      //   lumpsumAmount: 0,
+      //   funds: funds,
+      // );
+      //
+      // await getAllGoals();
     } catch (e) {
       debugPrint("redistributeRemainingAmount Error: $e");
     } finally {
@@ -803,9 +793,7 @@ class GoalSipController extends GetxController {
       final allFunds = mutualController.searchFund;
       final count = selectedFunds.length;
 
-      // Apply rounding to the base per-fund amount
       int perFund = roundToNearest5(totalSip / count);
-      debugPrint("Initial Base perFund: $perFund");
       final amounts = List.generate(count, (_) => perFund);
 
       int assigned = amounts.fold(0, (a, b) => a + b);
@@ -843,9 +831,6 @@ class GoalSipController extends GetxController {
           });
         }
       }
-
-      // await updateGoalFundOrder(...);
-      // await getAllGoals();
 
     } catch (e) {
       debugPrint("distributeSipAmount Error: $e");
@@ -908,7 +893,6 @@ class GoalSipController extends GetxController {
         });
       }
 
-      // Process Remaining Funds
       if (remainingSchemeCodes.isNotEmpty) {
         int perFund = roundToNearest5(remainingAmount / remainingSchemeCodes.length);
         final amounts = List.generate(remainingSchemeCodes.length, (_) => perFund);
@@ -918,7 +902,6 @@ class GoalSipController extends GetxController {
 
         if (diff != 0) {
           amounts[amounts.length - 1] += diff;
-          // 🚀 FORCE ROUND UP TO MULTIPLE OF 5
           amounts[amounts.length - 1] = ((amounts.last / 5.0).ceil()) * 5;
         }
 
@@ -927,7 +910,6 @@ class GoalSipController extends GetxController {
 
           // Update Text Field instantly
           getAmountController(schemeCode).text = amounts[i].toString();
-          debugPrint("Final Edited Amount for $schemeCode: ${amounts[i]}");
 
           final fundId = getGoalFundId(schemeCode);
 
@@ -953,7 +935,7 @@ class GoalSipController extends GetxController {
       debugPrint("redistributeSipAmountAfterEdit Error: $e");
     } finally {
       isDistributingAmount.value = false; // Unlock
-      // 🚀 NO hideLoading() here to prevent GetX dialog glitches
+
     }
   }
 
@@ -968,11 +950,10 @@ class GoalSipController extends GetxController {
   }
 
   void hideLoading() {
-    debugPrint("hideLoading called");
-    debugPrint("isDialogOpen: ${Get.isDialogOpen}");
+
 
     if (Get.isDialogOpen ?? false) {
-      Get.close(1); // ya Get.back(closeOverlays: true);
+      Get.close(1);
     }
   }
 
@@ -992,11 +973,9 @@ class GoalSipController extends GetxController {
     required double lumpsumAmount,
     required List<Map<String, dynamic>> funds,
   }) async {
-    debugPrint("orderType: $orderType");
 
     try {
-      debugPrint("UPDATE FUND REQUEST => $funds");
-      debugPrint("FUND ID => $fundId");
+
 
       final result = await goalUseCases.updateGoalFundOrderUseCase(
         funds,
@@ -1005,7 +984,6 @@ class GoalSipController extends GetxController {
 
       result.fold(
         (success) async {
-          debugPrint("UPDATE SUCCESS => ${success.data?.id}");
 
           await getAllGoals();
         },
@@ -1046,7 +1024,6 @@ class GoalSipController extends GetxController {
     required int sipDay,
   }) async {
     HapticFeedback.successNotification();
-    debugPrint("savedInvestmentType.value: ${savedInvestmentType.value}");
     try {
       final totalSip = (sipAmount).toDouble();
       final selectedFundCount = selectedPopularFund.length;
@@ -1509,7 +1486,7 @@ class GoalSipController extends GetxController {
 
     await Get.find<MutualFundController>().fetchData();
     // fundList.assignAll(result);
-    debugPrint("Fund Result:");
+
   }
 
   bool isSelectedFund(String fundName) {
@@ -1525,7 +1502,6 @@ class GoalSipController extends GetxController {
     years.value = 0;
     savedDatabaseId.value = null;
     selectedPopularFund.clear();
-    debugPrint("Goal save 1${isGoalSaved.value},${isEdit.value},${isHome.value},${isAddFund.value},${isNewGoal.value},");
 
   }
 }

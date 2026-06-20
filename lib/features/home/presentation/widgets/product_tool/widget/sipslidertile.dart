@@ -62,7 +62,6 @@ class _SipSliderTileState extends State<SipSliderTile2> {
     setState(() {
       _currentValue = clamped;
     });
-    debugPrint("widget.value 2${widget.value}, ${_currentValue} ${_controller.text} ");
 
     widget.onChanged(clamped);
   }
@@ -71,7 +70,6 @@ class _SipSliderTileState extends State<SipSliderTile2> {
   Widget build(BuildContext context) {
     // Determine the active color (fallback to Ucolors.primary)
     final effectiveColor = widget.activeColor ?? Ucolors.primary;
-    debugPrint("widget.value 3${widget.value}, ${_currentValue} ${_controller.text} ");
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
