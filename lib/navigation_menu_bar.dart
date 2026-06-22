@@ -1241,7 +1241,7 @@ class _DesktopSideNav extends StatelessWidget {
                         () => _buildNavItem(
                           controller,
                           0,
-                          Iconsax.home,
+                          Icons.home_outlined,
                           'Home',
                           showText,
                           navFontSize,
@@ -1383,7 +1383,10 @@ class _DesktopSideNav extends StatelessWidget {
                                         controller,
                                         "Best SIP Funds",
                                         () => controller
-                                            .navigateToExploreWithFilter(null),
+                                            .navigateToExploreWithFilter(
+                                              () => fundhouseController
+                                                  .applyBestSipFilter(1),
+                                            ),
                                       ),
                                       _buildInvestSubItem(
                                         controller,
