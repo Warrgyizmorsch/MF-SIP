@@ -407,31 +407,65 @@ class _WebExploreLayoutState extends State<WebExploreLayout> {
                               return _buildEmptyState();
                             }
 
+                            // if (selectedView == WebFundViewType.list) {
+                            //   return Column(
+                            //     children: [
+                            //       _listHeader(),
+                            //       const Gap(8),
+                            //       Expanded(
+                            //         child: ListView.builder(
+                            //           controller: widget.scrollController,
+                            //           padding: const EdgeInsets.only(
+                            //             bottom: 20,
+                            //           ),
+                            //           itemCount: controller.searchFund.length,
+                            //           itemBuilder: (context, index) {
+                            //             final fund =
+                            //                 controller.searchFund[index];
+                            //             return WebFundListCard(
+                            //               entity: fund,
+                            //               key: ValueKey(
+                            //                 '${fund.schemeCode}_${fund.baseSchemeName}',
+                            //               ),
+                            //             );
+                            //           },
+                            //         ),
+                            //       ),
+                            //     ],
+                            //   );
+                            // }
+                            // if (selectedView == WebFundViewType.list) {
+                            //   return ListView.builder(
+                            //     controller: widget.scrollController,
+                            //     padding: const EdgeInsets.only(bottom: 20),
+                            //     itemCount: controller.searchFund.length,
+                            //     itemBuilder: (context, index) {
+                            //       final fund = controller.searchFund[index];
+
+                            //       return WebFundListCard(
+                            //         entity: fund,
+                            //         key: ValueKey(
+                            //           '${fund.schemeCode}_${fund.baseSchemeName}',
+                            //         ),
+                            //       );
+                            //     },
+                            //   );
+                            // }
                             if (selectedView == WebFundViewType.list) {
-                              return Column(
-                                children: [
-                                  _listHeader(),
-                                  const Gap(8),
-                                  Expanded(
-                                    child: ListView.builder(
-                                      controller: widget.scrollController,
-                                      padding: const EdgeInsets.only(
-                                        bottom: 20,
-                                      ),
-                                      itemCount: controller.searchFund.length,
-                                      itemBuilder: (context, index) {
-                                        final fund =
-                                            controller.searchFund[index];
-                                        return WebFundListCard(
-                                          entity: fund,
-                                          key: ValueKey(
-                                            '${fund.schemeCode}_${fund.baseSchemeName}',
-                                          ),
-                                        );
-                                      },
+                              return ListView.builder(
+                                controller: widget.scrollController,
+                                padding: EdgeInsets.zero,
+                                itemCount: controller.searchFund.length,
+                                itemBuilder: (context, index) {
+                                  final fund = controller.searchFund[index];
+
+                                  return WebFundListCard(
+                                    entity: fund,
+                                    key: ValueKey(
+                                      '${fund.schemeCode}_${fund.baseSchemeName}',
                                     ),
-                                  ),
-                                ],
+                                  );
+                                },
                               );
                             }
 
@@ -449,7 +483,8 @@ class _WebExploreLayoutState extends State<WebExploreLayout> {
                                     crossAxisCount: crossAxisCount,
                                     crossAxisSpacing: 16,
                                     mainAxisSpacing: 16,
-                                    mainAxisExtent: 170,
+                                    // mainAxisExtent: 170,
+                                    mainAxisExtent: 225,
                                   ),
                               itemBuilder: (context, index) {
                                 final fund = controller.searchFund[index];
@@ -1292,204 +1327,170 @@ class WebFundListCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final RxBool isPressed = false.obs;
-    return WebHoverRow(
-      onTap: () {
-        Get.delete<FundDetailsController>();
-        FundDetailsScreen.navData = {
-          'scheme': entity.baseSchemeName,
-          'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}",
-          'scheme_code': entity.schemeCode.toString(),
-        };
 
-        Get.toNamed(AppRoutes.funddetails, id: 1);
-      },
+    return WebHoverRow(
+      onTap: () => _openFundDetails(entity),
       builder: (isHovered) {
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          height: 118,
+          margin: const EdgeInsets.only(bottom: 0),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border(
+              bottom: BorderSide(color: Colors.grey.shade200, width: 1),
+            ),
+          ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: Colors.transparent,
+              /// LOGO
+              Container(
+                width: 58,
+                height: 58,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.grey.shade50,
+                ),
                 child: ClipOval(
                   child: CustomCachedImage(
-                    imageUrl: "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}",
+                    imageUrl:
+                        '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
                   ),
                 ),
               ),
 
-              const Gap(14),
+              const SizedBox(width: 22),
 
-              Expanded(
-                flex: 4,
-                child: Text(
-                  entity.baseSchemeName ?? 'Unknown Fund',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: isHovered ? Ucolors.primary : Colors.black87,
-                  ),
+              /// FUND NAME + RISK
+              SizedBox(
+                width: 360,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      entity.baseSchemeName ?? 'Unknown Fund',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 17,
+                        height: 1.28,
+                        fontWeight: FontWeight.w800,
+                        color: isHovered
+                            ? Ucolors.primary
+                            : const Color(0xFF111827),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _riskPill(entity.riskLevel),
+                  ],
                 ),
               ),
 
-              // Expanded(child: _valueText(entity.returnsEntity?.oneWeek)),
-              Expanded(child: _valueText(entity.returnsEntity?.oneMonth)),
-              Expanded(child: _valueText(entity.returnsEntity?.oneYear)),
-              Expanded(child: _valueText(entity.returnsEntity?.threeYear)),
-              Expanded(child: _valueText(entity.returnsEntity?.fiveYear)),
-              Expanded(child: _valueText(entity.returnsEntity?.tenYear)),
-              Expanded(child: _navValue(entity.nav)),
+              const SizedBox(width: 26),
 
-              const Gap(12),
-
-              // _riskChip(entity),
+              /// RETURNS
               Expanded(
-                flex: 2,
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: _returnColumn('1Y', entity.returnsEntity?.oneYear),
+                    ),
+                    _divider(),
+                    Expanded(
+                      child: _returnColumn(
+                        '3Y',
+                        entity.returnsEntity?.threeYear,
+                      ),
+                    ),
+                    _divider(),
+                    Expanded(
+                      child: _returnColumn(
+                        '5Y',
+                        entity.returnsEntity?.fiveYear,
+                      ),
+                    ),
+                    _divider(),
+                    Expanded(
+                      child: _returnColumn(
+                        '10Y',
+                        entity.returnsEntity?.tenYear,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(width: 34),
+
+              /// ACTIONS
+              SizedBox(
+                width: 330,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Obx(() {
                       final wishlistController = Get.find<WishlistController>();
                       final String code = entity.schemeCode ?? '';
-                      final String name = entity.baseSchemeName ?? "";
+                      final String name = entity.baseSchemeName ?? '';
                       final bool isFav = wishlistController.isFavorite(code);
 
-                      return PremiumHeartButton(
-                        isFav: isFav,
-                        onTap: () =>
-                            wishlistController.toggleWishlist(code, name),
-                      );
-                    }),
-                    Obx(() {
-                      final cartController = Get.find<CartController>();
-                      final String code = entity.schemeCode ?? "";
-
-                      final matchingItems = cartController.displayedItems
-                          .where((item) => item.schemeCode.toString() == code)
-                          .toList();
-
-                      final cartItem = matchingItems.isNotEmpty
-                          ? matchingItems.first
-                          : null;
-                      final bool isInCart = cartItem != null;
-
-                      return AnimatedScale(
-                        // A more dramatic shrink when processing, with a 'pull back' curve
-                        scale: isPressed.value ? 0.6 : 1.0,
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeInBack,
-
-                        child: AnimatedSwitcher(
-                          // Extended duration to let the elastic spring finish its movement
-                          duration: const Duration(milliseconds: 650),
-                          switchInCurve: Curves
-                              .elasticOut, // The secret sauce for the bouncy feel
-                          switchOutCurve: Curves.easeOut,
-
-                          transitionBuilder: (child, animation) {
-                            return ScaleTransition(
-                              scale: animation,
-                              // Adds a dynamic 180-degree flip as it scales in
-                              child: RotationTransition(
-                                turns: Tween<double>(
-                                  begin: 0.5,
-                                  end: 1.0,
-                                ).animate(animation),
-                                child: FadeTransition(
-                                  opacity: animation,
-                                  child: child,
-                                ),
-                              ),
-                            );
+                      return _squareActionButton(
+                        child: PremiumHeartButton(
+                          isFav: isFav,
+                          onTap: () {
+                            wishlistController.toggleWishlist(code, name);
                           },
-                          child: CompactIcon(
-                            key: ValueKey<bool>(isInCart),
-                            icon: isInCart
-                                ? Iconsax.shopping_cart5
-                                : Iconsax.shopping_cart,
-                            iconColor: isInCart
-                                ? Ucolors.primary
-                                : Ucolors.darkgrey,
-
-                            onPressed: () async {
-                              if (isPressed.value) return;
-
-                              isPressed.value = true;
-
-                              try {
-                                if (isInCart) {
-                                  final itemId = cartItem?.id;
-                                  if (itemId != null) {
-                                    await cartController.deleteCartItem(
-                                      itemId,
-                                      entity.schemeCode ?? "",
-                                    );
-                                  }
-                                } else {
-                                  await cartController.addToCart(
-                                    code,
-                                    entity.baseSchemeName ?? "",
-                                    entity.minSipAmount ?? 5000,
-                                    transType: 'sip',
-                                    null,
-                                  );
-                                }
-                              } finally {
-                                isPressed.value = false;
-                              }
-                            },
-                          ),
                         ),
                       );
                     }),
-                    SizedBox(
-                      height: 34,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          GatekeeperHelper.runWithPrerequisites(
-                            onSuccess: () {
-                              final purchaseArgs = SipPurchaseArgs(
-                                schemeCode: entity.schemeCode ?? '',
-                                fundName: entity.baseSchemeName ?? '',
-                                category: "Unknown",
-                                riskLabel: entity.riskLevel ?? "",
-                                minSip: entity.minSipAmount ?? 1000,
-                                minLumpsum: entity.minLumpsum ?? 1000,
-                                minTopup: entity.minTopUp ?? 5000,
-                                folio: null,
-                                imgUrl:
-                                    '${Appurl.baseUrl}${entity.amc?.amcLogoUrl}',
-                              );
 
-                              SIPPurchasePage.tempData = purchaseArgs;
+                    const SizedBox(width: 18),
 
-                              Get.toNamed(
-                                AppRoutes.investNowPage,
-                                id: kIsWeb ? 1 : null,
-                                arguments: purchaseArgs,
-                              );
-                            },
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Ucolors.primary,
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.zero,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                    _cartButton(entity, isPressed),
+
+                    const SizedBox(width: 24),
+
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        _investNowButton(entity),
+                        const SizedBox(height: 12),
+                        InkWell(
+                          onTap: () => _openFundDetails(entity),
+                          borderRadius: BorderRadius.circular(8),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 2,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'View Details',
+                                  style: TextStyle(
+                                    fontFamily: FontFamily.medium,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: Ucolors.primary,
+                                  ),
+                                ),
+                                SizedBox(width: 10),
+                                Icon(
+                                  Icons.arrow_forward_ios_rounded,
+                                  size: 13,
+                                  color: Ucolors.primary,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        child: const Text(
-                          "Invest",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
@@ -1501,94 +1502,460 @@ class WebFundListCard extends StatelessWidget {
     );
   }
 
-  Widget _valueText(dynamic value) {
-    final double val = double.tryParse(value?.toString() ?? '0') ?? 0;
-
-    return Center(
-      child: Text(
-        "${val > 0 ? '+' : ''}$val%",
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: val < 0 ? Colors.redAccent : const Color(0xFF00C853),
-        ),
-      ),
-    );
-  }
-
-  Widget _navValue(dynamic value) {
-    return Center(
-      child: Text(
-        value?.toString() ?? "N/A",
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-      ),
-    );
-  }
-
-  // Widget _returnText(String label, dynamic value) {
-  //   final double val = double.tryParse(value?.toString() ?? '0') ?? 0;
-
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       Text(
-  //         label,
-  //         style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
-  //       ),
-  //       const Gap(3),
-  //       Text(
-  //         "${val > 0 ? '+' : ''}$val%",
-  //         style: TextStyle(
-  //           fontSize: 12,
-  //           fontWeight: FontWeight.bold,
-  //           color: val < 0 ? Colors.redAccent : const Color(0xFF00C853),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
-
-  // Widget _navText(String label, dynamic value) {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       Text(
-  //         label,
-  //         style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
-  //       ),
-  //       const Gap(3),
-  //       Text(
-  //         value == null ? "N/A" : value.toString(),
-  //         style: const TextStyle(
-  //           fontSize: 12,
-  //           fontWeight: FontWeight.bold,
-  //           color: Colors.black87,
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
-
-  Widget _riskChip(MutualFundListEntity entity) {
-    final risk = getRiskMeter(entity.riskLevel);
+  Widget _riskPill(String? riskLevel) {
+    final risk = getRiskMeter(riskLevel);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       decoration: BoxDecoration(
-        color: risk.color.withValues(alpha: .10),
-        borderRadius: BorderRadius.circular(20),
+        color: risk.color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        entity.riskLevel ?? "N/A",
+        riskLevel ?? 'N/A',
         style: TextStyle(
-          color: risk.color,
-          fontWeight: FontWeight.bold,
-          fontSize: 11,
+          fontFamily: FontFamily.medium,
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          color: Ucolors.darkBlue,
         ),
       ),
     );
   }
+
+  Widget _returnColumn(String label, dynamic value) {
+    final double val =
+        double.tryParse(value?.toString().replaceAll('%', '') ?? '0') ?? 0;
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.blueGrey.shade600,
+          ),
+        ),
+        const SizedBox(height: 9),
+        Text(
+          '${val > 0 ? '+' : ''}${val.toStringAsFixed(2)}%',
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: val < 0 ? Colors.redAccent : const Color(0xFF00B85C),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _divider() {
+    return Container(width: 1, height: 54, color: Colors.grey.shade200);
+  }
+
+  Widget _squareActionButton({required Widget child}) {
+    return Container(
+      width: 48,
+      height: 48,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(9),
+        border: Border.all(color: const Color(0xFFD8DEE8), width: 1),
+      ),
+      child: child,
+    );
+  }
+
+  Widget _cartButton(MutualFundListEntity entity, RxBool isPressed) {
+    return Obx(() {
+      final cartController = Get.find<CartController>();
+      final String code = entity.schemeCode ?? '';
+
+      final matchingItems = cartController.displayedItems
+          .where((item) => item.schemeCode.toString() == code)
+          .toList();
+
+      final cartItem = matchingItems.isNotEmpty ? matchingItems.first : null;
+      final bool isInCart = cartItem != null;
+
+      return InkWell(
+        onTap: () async {
+          if (isPressed.value) return;
+
+          isPressed.value = true;
+
+          try {
+            if (isInCart) {
+              final itemId = cartItem?.id;
+
+              if (itemId != null) {
+                await cartController.deleteCartItem(
+                  itemId,
+                  entity.schemeCode ?? '',
+                );
+              }
+            } else {
+              await cartController.addToCart(
+                code,
+                entity.baseSchemeName ?? '',
+                entity.minSipAmount ?? 5000,
+                transType: 'sip',
+                null,
+              );
+            }
+          } finally {
+            isPressed.value = false;
+          }
+        },
+        borderRadius: BorderRadius.circular(9),
+        child: Container(
+          width: 48,
+          height: 48,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(9),
+            border: Border.all(color: const Color(0xFFD8DEE8), width: 1),
+          ),
+          child: Icon(
+            isInCart ? Iconsax.shopping_cart5 : Iconsax.shopping_cart,
+            size: 25,
+            color: isInCart ? Ucolors.primary : Ucolors.primary,
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget _investNowButton(MutualFundListEntity entity) {
+    return SizedBox(
+      width: 145,
+      height: 45,
+      child: ElevatedButton(
+        onPressed: () {
+          GatekeeperHelper.runWithPrerequisites(
+            onSuccess: () {
+              final purchaseArgs = SipPurchaseArgs(
+                schemeCode: entity.schemeCode ?? '',
+                fundName: entity.baseSchemeName ?? '',
+                category: 'Unknown',
+                riskLabel: entity.riskLevel ?? '',
+                minSip: entity.minSipAmount ?? 1000,
+                minLumpsum: entity.minLumpsum ?? 1000,
+                minTopup: entity.minTopUp ?? 5000,
+                folio: null,
+                imgUrl: '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
+              );
+
+              SIPPurchasePage.tempData = purchaseArgs;
+
+              Get.toNamed(
+                AppRoutes.investNowPage,
+                id: kIsWeb ? 1 : null,
+                arguments: purchaseArgs,
+              );
+            },
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Ucolors.primary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          padding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+        ),
+        child: const Text(
+          'Invest Now',
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openFundDetails(MutualFundListEntity entity) {
+    Get.delete<FundDetailsController>();
+
+    FundDetailsScreen.navData = {
+      'scheme': entity.baseSchemeName,
+      'imgUrl': '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
+      'scheme_code': entity.schemeCode.toString(),
+    };
+
+    Get.toNamed(AppRoutes.funddetails, id: 1);
+  }
 }
+
+// class WebFundListCard extends StatelessWidget {
+//   final MutualFundListEntity entity;
+
+//   const WebFundListCard({super.key, required this.entity});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final RxBool isPressed = false.obs;
+//     return WebHoverRow(
+//       onTap: () {
+//         Get.delete<FundDetailsController>();
+//         FundDetailsScreen.navData = {
+//           'scheme': entity.baseSchemeName,
+//           'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}",
+//           'scheme_code': entity.schemeCode.toString(),
+//         };
+
+//         Get.toNamed(AppRoutes.funddetails, id: 1);
+//       },
+//       builder: (isHovered) {
+//         return Container(
+//           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+//           child: Row(
+//             children: [
+//               CircleAvatar(
+//                 radius: 20,
+//                 backgroundColor: Colors.transparent,
+//                 child: ClipOval(
+//                   child: CustomCachedImage(
+//                     imageUrl: "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}",
+//                   ),
+//                 ),
+//               ),
+
+//               const Gap(14),
+
+//               Expanded(
+//                 flex: 4,
+//                 child: Text(
+//                   entity.baseSchemeName ?? 'Unknown Fund',
+//                   maxLines: 2,
+//                   overflow: TextOverflow.ellipsis,
+//                   style: TextStyle(
+//                     fontSize: 14,
+//                     fontWeight: FontWeight.w700,
+//                     color: isHovered ? Ucolors.primary : Colors.black87,
+//                   ),
+//                 ),
+//               ),
+
+//               // Expanded(child: _valueText(entity.returnsEntity?.oneWeek)),
+//               Expanded(child: _valueText(entity.returnsEntity?.oneMonth)),
+//               Expanded(child: _valueText(entity.returnsEntity?.oneYear)),
+//               Expanded(child: _valueText(entity.returnsEntity?.threeYear)),
+//               Expanded(child: _valueText(entity.returnsEntity?.fiveYear)),
+//               Expanded(child: _valueText(entity.returnsEntity?.tenYear)),
+//               Expanded(child: _navValue(entity.nav)),
+
+//               const Gap(12),
+
+//               // _riskChip(entity),
+//               Expanded(
+//                 flex: 2,
+//                 child: Row(
+//                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                   children: [
+//                     Obx(() {
+//                       final wishlistController = Get.find<WishlistController>();
+//                       final String code = entity.schemeCode ?? '';
+//                       final String name = entity.baseSchemeName ?? "";
+//                       final bool isFav = wishlistController.isFavorite(code);
+
+//                       return PremiumHeartButton(
+//                         isFav: isFav,
+//                         onTap: () =>
+//                             wishlistController.toggleWishlist(code, name),
+//                       );
+//                     }),
+//                     Obx(() {
+//                       final cartController = Get.find<CartController>();
+//                       final String code = entity.schemeCode ?? "";
+
+//                       final matchingItems = cartController.displayedItems
+//                           .where((item) => item.schemeCode.toString() == code)
+//                           .toList();
+
+//                       final cartItem = matchingItems.isNotEmpty
+//                           ? matchingItems.first
+//                           : null;
+//                       final bool isInCart = cartItem != null;
+
+//                       return AnimatedScale(
+//                         // A more dramatic shrink when processing, with a 'pull back' curve
+//                         scale: isPressed.value ? 0.6 : 1.0,
+//                         duration: const Duration(milliseconds: 200),
+//                         curve: Curves.easeInBack,
+
+//                         child: AnimatedSwitcher(
+//                           // Extended duration to let the elastic spring finish its movement
+//                           duration: const Duration(milliseconds: 650),
+//                           switchInCurve: Curves
+//                               .elasticOut, // The secret sauce for the bouncy feel
+//                           switchOutCurve: Curves.easeOut,
+
+//                           transitionBuilder: (child, animation) {
+//                             return ScaleTransition(
+//                               scale: animation,
+//                               // Adds a dynamic 180-degree flip as it scales in
+//                               child: RotationTransition(
+//                                 turns: Tween<double>(
+//                                   begin: 0.5,
+//                                   end: 1.0,
+//                                 ).animate(animation),
+//                                 child: FadeTransition(
+//                                   opacity: animation,
+//                                   child: child,
+//                                 ),
+//                               ),
+//                             );
+//                           },
+//                           child: CompactIcon(
+//                             key: ValueKey<bool>(isInCart),
+//                             icon: isInCart
+//                                 ? Iconsax.shopping_cart5
+//                                 : Iconsax.shopping_cart,
+//                             iconColor: isInCart
+//                                 ? Ucolors.primary
+//                                 : Ucolors.darkgrey,
+
+//                             onPressed: () async {
+//                               if (isPressed.value) return;
+
+//                               isPressed.value = true;
+
+//                               try {
+//                                 if (isInCart) {
+//                                   final itemId = cartItem?.id;
+//                                   if (itemId != null) {
+//                                     await cartController.deleteCartItem(
+//                                       itemId,
+//                                       entity.schemeCode ?? "",
+//                                     );
+//                                   }
+//                                 } else {
+//                                   await cartController.addToCart(
+//                                     code,
+//                                     entity.baseSchemeName ?? "",
+//                                     entity.minSipAmount ?? 5000,
+//                                     transType: 'sip',
+//                                     null,
+//                                   );
+//                                 }
+//                               } finally {
+//                                 isPressed.value = false;
+//                               }
+//                             },
+//                           ),
+//                         ),
+//                       );
+//                     }),
+//                     SizedBox(
+//                       height: 34,
+//                       child: ElevatedButton(
+//                         onPressed: () {
+//                           GatekeeperHelper.runWithPrerequisites(
+//                             onSuccess: () {
+//                               final purchaseArgs = SipPurchaseArgs(
+//                                 schemeCode: entity.schemeCode ?? '',
+//                                 fundName: entity.baseSchemeName ?? '',
+//                                 category: "Unknown",
+//                                 riskLabel: entity.riskLevel ?? "",
+//                                 minSip: entity.minSipAmount ?? 1000,
+//                                 minLumpsum: entity.minLumpsum ?? 1000,
+//                                 minTopup: entity.minTopUp ?? 5000,
+//                                 folio: null,
+//                                 imgUrl:
+//                                     '${Appurl.baseUrl}${entity.amc?.amcLogoUrl}',
+//                               );
+
+//                               SIPPurchasePage.tempData = purchaseArgs;
+
+//                               Get.toNamed(
+//                                 AppRoutes.investNowPage,
+//                                 id: kIsWeb ? 1 : null,
+//                                 arguments: purchaseArgs,
+//                               );
+//                             },
+//                           );
+//                         },
+//                         style: ElevatedButton.styleFrom(
+//                           backgroundColor: Ucolors.primary,
+//                           foregroundColor: Colors.white,
+//                           padding: EdgeInsets.zero,
+//                           elevation: 0,
+//                           shape: RoundedRectangleBorder(
+//                             borderRadius: BorderRadius.circular(8),
+//                           ),
+//                         ),
+//                         child: const Text(
+//                           "Invest",
+//                           style: TextStyle(
+//                             fontSize: 12,
+//                             fontWeight: FontWeight.w600,
+//                           ),
+//                         ),
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ],
+//           ),
+//         );
+//       },
+//     );
+//   }
+
+//   Widget _valueText(dynamic value) {
+//     final double val = double.tryParse(value?.toString() ?? '0') ?? 0;
+
+//     return Center(
+//       child: Text(
+//         "${val > 0 ? '+' : ''}$val%",
+//         style: TextStyle(
+//           fontSize: 12,
+//           fontWeight: FontWeight.w600,
+//           color: val < 0 ? Colors.redAccent : const Color(0xFF00C853),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _navValue(dynamic value) {
+//     return Center(
+//       child: Text(
+//         value?.toString() ?? "N/A",
+//         style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+//       ),
+//     );
+//   }
+
+//   Widget _riskChip(MutualFundListEntity entity) {
+//     final risk = getRiskMeter(entity.riskLevel);
+
+//     return Container(
+//       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+//       decoration: BoxDecoration(
+//         color: risk.color.withValues(alpha: .10),
+//         borderRadius: BorderRadius.circular(20),
+//       ),
+//       child: Text(
+//         entity.riskLevel ?? "N/A",
+//         style: TextStyle(
+//           color: risk.color,
+//           fontWeight: FontWeight.bold,
+//           fontSize: 11,
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 // class _WebExploreLayout extends StatelessWidget {
 //   final ScrollController scrollController;
@@ -1863,153 +2230,88 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
   // =======================================================
   // DESKTOP LAYOUT
   // =======================================================
-
   Widget _buildDesktopLayout(
     CartController controller,
     MutualFundController mutualFundController,
   ) {
     final entity = widget.entity;
-
-    final double width = MediaQuery.of(context).size.width;
-
-    double scale(double baseSize) =>
-        (baseSize * (width / 1200)).clamp(baseSize * 0.8, baseSize * 1.1);
     final RxBool isPressed = false.obs;
 
-    return GestureDetector(
-      onTap: () {
-        Get.delete<FundDetailsController>();
-        FundDetailsScreen.navData = {
-          'scheme': entity.baseSchemeName,
-          'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
-          'scheme_code': entity.schemeCode.toString(),
-        };
-
-        Get.toNamed(AppRoutes.funddetails, id: 1);
-      },
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+    return Container(
+      padding: const EdgeInsets.fromLTRB(18, 10, 18, 10),
+      // decoration: BoxDecoration(
+      //   color: Colors.white,
+      //   borderRadius: BorderRadius.circular(14),
+      //   border: Border.all(
+      //     color: isHover
+      //         ? Ucolors.primary.withValues(alpha: 0.30)
+      //         : const Color(0xFFE5E7EB),
+      //   ),
+      //   boxShadow: [
+      //     BoxShadow(
+      //       color: Colors.black.withValues(alpha: isHover ? 0.08 : 0.04),
+      //       blurRadius: isHover ? 18 : 10,
+      //       offset: Offset(0, isHover ? 8 : 4),
+      //     ),
+      //   ],
+      // ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          /// TOP ROW
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: ClipOval(
+                  child: CustomCachedImage(
+                    imageUrl:
+                        '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
+                  ),
+                ),
+              ),
+
+              const Gap(14),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
-                      width: scale(isHover ? 38 : 32),
-                      height: scale(isHover ? 38 : 32),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: isHover
-                            ? [
-                                BoxShadow(
-                                  blurRadius: 10,
-                                  color: Ucolors.primary.withValues(alpha: .18),
-                                ),
-                              ]
-                            : [],
-                      ),
-                      child: ClipOval(
-                        child: CustomCachedImage(
-                          imageUrl:
-                              "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}",
-                        ),
+                    Text(
+                      entity.baseSchemeName ?? 'Unknown Fund',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF111827),
+                        height: 1.25,
                       ),
                     ),
-                    Gap(scale(12)),
-                    Expanded(
-                      child: AnimatedDefaultTextStyle(
-                        duration: const Duration(milliseconds: 220),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: scale(isHover ? 16 : 15),
-                          color: isHover
-                              ? Ucolors.primary
-                              : const Color(0xff383838),
-                        ),
-                        child: Text(
-                          entity.baseSchemeName ?? 'Unknown Fund',
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
+
+                    const Gap(8),
+
+                    _webRiskPill(entity.riskLevel),
                   ],
                 ),
-                Gap(scale(12)),
-                Padding(
-                  padding: EdgeInsets.only(left: scale(44)),
-                  child: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Risk: ',
-                          style: TextStyle(
-                            fontSize: scale(12),
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                        TextSpan(
-                          text: entity.riskLevel ?? 'N/A',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: scale(12),
-                            color: getRiskMeter(entity.riskLevel).color,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Gap(scale(8)),
-                Padding(
-                  padding: EdgeInsets.only(left: scale(44)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _miniReturnRow(
-                        "1Y",
-                        entity.returnsEntity?.oneYear,
-                        scale,
-                      ),
-                      Gap(scale(12)),
-                      _miniReturnRow(
-                        "3Y",
-                        entity.returnsEntity?.threeYear,
-                        scale,
-                      ),
-                      Gap(scale(12)),
-                      _miniReturnRow(
-                        "5Y",
-                        entity.returnsEntity?.fiveYear,
-                        scale,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Gap(scale(12)),
+              ),
 
-          // Right side: Icons + Invest Button stacked
-          // Right side: Icons + Invest Button stacked
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              // Wishlist & Cart Icons
+              const Gap(10),
+
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Wishlist Icon
                   Obx(() {
                     final wishlistController = Get.find<WishlistController>();
                     final String code = entity.schemeCode ?? '';
-                    final String name = entity.baseSchemeName ?? "";
+                    final String name = entity.baseSchemeName ?? '';
                     final bool isFav = wishlistController.isFavorite(code);
 
                     return PremiumHeartButton(
@@ -2019,108 +2321,528 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                     );
                   }),
 
-                  Gap(scale(12)),
+                  const Gap(10),
 
-                  // Add to Cart / Go to Cart Icon
-                  // Add to Cart / Go to Cart Icon
-                  Obx(() {
-                    final cartController = Get.find<CartController>();
-                    final String code = entity.schemeCode ?? "";
-
-                    final matchingItems = cartController.displayedItems
-                        .where((item) => item.schemeCode.toString() == code)
-                        .toList();
-
-                    final cartItem = matchingItems.isNotEmpty
-                        ? matchingItems.first
-                        : null;
-                    final bool isInCart = cartItem != null;
-
-                    return AnimatedScale(
-                      // A more dramatic shrink when processing, with a 'pull back' curve
-                      scale: isPressed.value ? 0.6 : 1.0,
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeInBack,
-
-                      child: AnimatedSwitcher(
-                        // Extended duration to let the elastic spring finish its movement
-                        duration: const Duration(milliseconds: 650),
-                        switchInCurve: Curves
-                            .elasticOut, // The secret sauce for the bouncy feel
-                        switchOutCurve: Curves.easeOut,
-
-                        transitionBuilder: (child, animation) {
-                          return ScaleTransition(
-                            scale: animation,
-                            // Adds a dynamic 180-degree flip as it scales in
-                            child: RotationTransition(
-                              turns: Tween<double>(
-                                begin: 0.5,
-                                end: 1.0,
-                              ).animate(animation),
-                              child: FadeTransition(
-                                opacity: animation,
-                                child: child,
-                              ),
-                            ),
-                          );
-                        },
-                        child: CompactIcon(
-                          key: ValueKey<bool>(isInCart),
-                          icon: isInCart
-                              ? Iconsax.shopping_cart5
-                              : Iconsax.shopping_cart,
-                          iconColor: isInCart
-                              ? Ucolors.primary
-                              : Ucolors.darkgrey,
-
-                          onPressed: () async {
-                            if (isPressed.value) return;
-
-                            isPressed.value = true;
-
-                            try {
-                              if (isInCart) {
-                                final itemId = cartItem?.id;
-                                if (itemId != null) {
-                                  await cartController.deleteCartItem(
-                                    itemId,
-                                    entity.schemeCode ?? "",
-                                  );
-                                }
-                              } else {
-                                await cartController.addToCart(
-                                  code,
-                                  entity.baseSchemeName ?? "",
-                                  entity.minSipAmount ?? 5000,
-                                  transType: 'sip',
-                                  null,
-                                );
-                              }
-                            } finally {
-                              isPressed.value = false;
-                            }
-                          },
-                        ),
-                      ),
-                    );
-                  }),
+                  _webCartButton(entity, isPressed),
                 ],
               ),
+            ],
+          ),
 
-              Gap(scale(12)),
+          const Gap(14),
 
-              // Original Invest Button
-              AnimatedScale(
-                scale: isHover ? 1.04 : 1,
-                duration: const Duration(milliseconds: 220),
-                child: _investButton(controller, entity, scale),
+          Divider(height: 1, color: Colors.grey.shade200),
+
+          const Gap(10),
+
+          /// RETURNS ROW
+          Row(
+            children: [
+              Expanded(
+                child: _webReturnItem('1Y', entity.returnsEntity?.oneYear),
               ),
+              _verticalDivider(),
+              Expanded(
+                child: _webReturnItem('3Y', entity.returnsEntity?.threeYear),
+              ),
+              _verticalDivider(),
+              Expanded(
+                child: _webReturnItem('5Y', entity.returnsEntity?.fiveYear),
+              ),
+              _verticalDivider(),
+              Expanded(
+                child: _webReturnItem('10Y', entity.returnsEntity?.tenYear),
+              ),
+            ],
+          ),
+
+          const Gap(10),
+          Divider(height: 1, color: Colors.grey.shade200),
+
+          // const Gap(10),
+          const Spacer(),
+
+          /// BOTTOM ACTION ROW
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              InkWell(
+                onTap: () {
+                  _openFundDetails(entity);
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                  child: Row(
+                    children: [
+                      Text(
+                        'View Details',
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: Ucolors.primary,
+                        ),
+                      ),
+                      SizedBox(width: 6),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 12,
+                        color: Ucolors.primary,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              _webInvestNowButton(controller, entity),
             ],
           ),
         ],
       ),
     );
+  }
+
+  // Widget _buildDesktopLayout(
+  //   CartController controller,
+  //   MutualFundController mutualFundController,
+  // ) {
+  //   final entity = widget.entity;
+
+  //   final double width = MediaQuery.of(context).size.width;
+
+  //   double scale(double baseSize) =>
+  //       (baseSize * (width / 1200)).clamp(baseSize * 0.8, baseSize * 1.1);
+  //   final RxBool isPressed = false.obs;
+
+  //   return GestureDetector(
+  //     onTap: () {
+  //       Get.delete<FundDetailsController>();
+  //       FundDetailsScreen.navData = {
+  //         'scheme': entity.baseSchemeName,
+  //         'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
+  //         'scheme_code': entity.schemeCode.toString(),
+  //       };
+
+  //       Get.toNamed(AppRoutes.funddetails, id: 1);
+  //     },
+  //     child: Row(
+  //       crossAxisAlignment: CrossAxisAlignment.center,
+  //       children: [
+  //         Expanded(
+  //           child: Column(
+  //             mainAxisAlignment: MainAxisAlignment.center,
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               Row(
+  //                 children: [
+  //                   AnimatedContainer(
+  //                     duration: const Duration(milliseconds: 250),
+  //                     width: scale(isHover ? 38 : 32),
+  //                     height: scale(isHover ? 38 : 32),
+  //                     decoration: BoxDecoration(
+  //                       shape: BoxShape.circle,
+  //                       boxShadow: isHover
+  //                           ? [
+  //                               BoxShadow(
+  //                                 blurRadius: 10,
+  //                                 color: Ucolors.primary.withValues(alpha: .18),
+  //                               ),
+  //                             ]
+  //                           : [],
+  //                     ),
+  //                     child: ClipOval(
+  //                       child: CustomCachedImage(
+  //                         imageUrl:
+  //                             "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}",
+  //                       ),
+  //                     ),
+  //                   ),
+  //                   Gap(scale(12)),
+  //                   Expanded(
+  //                     child: AnimatedDefaultTextStyle(
+  //                       duration: const Duration(milliseconds: 220),
+  //                       style: TextStyle(
+  //                         fontWeight: FontWeight.bold,
+  //                         fontSize: scale(isHover ? 16 : 15),
+  //                         color: isHover
+  //                             ? Ucolors.primary
+  //                             : const Color(0xff383838),
+  //                       ),
+  //                       child: Text(
+  //                         entity.baseSchemeName ?? 'Unknown Fund',
+  //                         maxLines: 3,
+  //                         overflow: TextOverflow.ellipsis,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //               Gap(scale(12)),
+  //               Padding(
+  //                 padding: EdgeInsets.only(left: scale(44)),
+  //                 child: RichText(
+  //                   text: TextSpan(
+  //                     children: [
+  //                       TextSpan(
+  //                         text: 'Risk: ',
+  //                         style: TextStyle(
+  //                           fontSize: scale(12),
+  //                           color: Colors.grey.shade600,
+  //                         ),
+  //                       ),
+  //                       TextSpan(
+  //                         text: entity.riskLevel ?? 'N/A',
+  //                         style: TextStyle(
+  //                           fontWeight: FontWeight.w700,
+  //                           fontSize: scale(12),
+  //                           color: getRiskMeter(entity.riskLevel).color,
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //               ),
+  //               Gap(scale(8)),
+  //               Padding(
+  //                 padding: EdgeInsets.only(left: scale(44)),
+  //                 child: Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   children: [
+  //                     _miniReturnRow(
+  //                       "1Y",
+  //                       entity.returnsEntity?.oneYear,
+  //                       scale,
+  //                     ),
+  //                     Gap(scale(12)),
+  //                     _miniReturnRow(
+  //                       "3Y",
+  //                       entity.returnsEntity?.threeYear,
+  //                       scale,
+  //                     ),
+  //                     Gap(scale(12)),
+  //                     _miniReturnRow(
+  //                       "5Y",
+  //                       entity.returnsEntity?.fiveYear,
+  //                       scale,
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //         Gap(scale(12)),
+
+  //         // Right side: Icons + Invest Button stacked
+  //         // Right side: Icons + Invest Button stacked
+  //         Column(
+  //           mainAxisAlignment: MainAxisAlignment.center,
+  //           crossAxisAlignment: CrossAxisAlignment.end,
+  //           children: [
+  //             // Wishlist & Cart Icons
+  //             Row(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //                 // Wishlist Icon
+  //                 Obx(() {
+  //                   final wishlistController = Get.find<WishlistController>();
+  //                   final String code = entity.schemeCode ?? '';
+  //                   final String name = entity.baseSchemeName ?? "";
+  //                   final bool isFav = wishlistController.isFavorite(code);
+
+  //                   return PremiumHeartButton(
+  //                     isFav: isFav,
+  //                     onTap: () =>
+  //                         wishlistController.toggleWishlist(code, name),
+  //                   );
+  //                 }),
+
+  //                 Gap(scale(12)),
+
+  //                 // Add to Cart / Go to Cart Icon
+  //                 // Add to Cart / Go to Cart Icon
+  //                 Obx(() {
+  //                   final cartController = Get.find<CartController>();
+  //                   final String code = entity.schemeCode ?? "";
+
+  //                   final matchingItems = cartController.displayedItems
+  //                       .where((item) => item.schemeCode.toString() == code)
+  //                       .toList();
+
+  //                   final cartItem = matchingItems.isNotEmpty
+  //                       ? matchingItems.first
+  //                       : null;
+  //                   final bool isInCart = cartItem != null;
+
+  //                   return AnimatedScale(
+  //                     // A more dramatic shrink when processing, with a 'pull back' curve
+  //                     scale: isPressed.value ? 0.6 : 1.0,
+  //                     duration: const Duration(milliseconds: 200),
+  //                     curve: Curves.easeInBack,
+
+  //                     child: AnimatedSwitcher(
+  //                       // Extended duration to let the elastic spring finish its movement
+  //                       duration: const Duration(milliseconds: 650),
+  //                       switchInCurve: Curves
+  //                           .elasticOut, // The secret sauce for the bouncy feel
+  //                       switchOutCurve: Curves.easeOut,
+
+  //                       transitionBuilder: (child, animation) {
+  //                         return ScaleTransition(
+  //                           scale: animation,
+  //                           // Adds a dynamic 180-degree flip as it scales in
+  //                           child: RotationTransition(
+  //                             turns: Tween<double>(
+  //                               begin: 0.5,
+  //                               end: 1.0,
+  //                             ).animate(animation),
+  //                             child: FadeTransition(
+  //                               opacity: animation,
+  //                               child: child,
+  //                             ),
+  //                           ),
+  //                         );
+  //                       },
+  //                       child: CompactIcon(
+  //                         key: ValueKey<bool>(isInCart),
+  //                         icon: isInCart
+  //                             ? Iconsax.shopping_cart5
+  //                             : Iconsax.shopping_cart,
+  //                         iconColor: isInCart
+  //                             ? Ucolors.primary
+  //                             : Ucolors.darkgrey,
+
+  //                         onPressed: () async {
+  //                           if (isPressed.value) return;
+
+  //                           isPressed.value = true;
+
+  //                           try {
+  //                             if (isInCart) {
+  //                               final itemId = cartItem?.id;
+  //                               if (itemId != null) {
+  //                                 await cartController.deleteCartItem(
+  //                                   itemId,
+  //                                   entity.schemeCode ?? "",
+  //                                 );
+  //                               }
+  //                             } else {
+  //                               await cartController.addToCart(
+  //                                 code,
+  //                                 entity.baseSchemeName ?? "",
+  //                                 entity.minSipAmount ?? 5000,
+  //                                 transType: 'sip',
+  //                                 null,
+  //                               );
+  //                             }
+  //                           } finally {
+  //                             isPressed.value = false;
+  //                           }
+  //                         },
+  //                       ),
+  //                     ),
+  //                   );
+  //                 }),
+  //               ],
+  //             ),
+
+  //             Gap(scale(12)),
+
+  //             // Original Invest Button
+  //             AnimatedScale(
+  //               scale: isHover ? 1.04 : 1,
+  //               duration: const Duration(milliseconds: 220),
+  //               child: _investButton(controller, entity, scale),
+  //             ),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  Widget _webRiskPill(String? riskLevel) {
+    final risk = getRiskMeter(riskLevel);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: risk.color.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        riskLevel ?? 'N/A',
+        style: TextStyle(
+          fontFamily: FontFamily.medium,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: Colors.black,
+        ),
+      ),
+    );
+  }
+
+  Widget _webReturnItem(String title, dynamic value) {
+    final double val =
+        double.tryParse(value?.toString().replaceAll('%', '') ?? '0') ?? 0;
+
+    return Column(
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey.shade600,
+          ),
+        ),
+        const Gap(4),
+        Text(
+          '${val > 0 ? '+' : ''}${val.toStringAsFixed(2)}%',
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
+            color: val < 0 ? Colors.redAccent : const Color(0xFF00A85A),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _verticalDivider() {
+    return Container(height: 34, width: 1, color: Colors.grey.shade200);
+  }
+
+  Widget _webCartButton(MutualFundListEntity entity, RxBool isPressed) {
+    return Obx(() {
+      final cartController = Get.find<CartController>();
+      final String code = entity.schemeCode ?? '';
+
+      final matchingItems = cartController.displayedItems
+          .where((item) => item.schemeCode.toString() == code)
+          .toList();
+
+      final cartItem = matchingItems.isNotEmpty ? matchingItems.first : null;
+      final bool isInCart = cartItem != null;
+
+      return InkWell(
+        onTap: () async {
+          if (isPressed.value) return;
+
+          isPressed.value = true;
+
+          try {
+            if (isInCart) {
+              final itemId = cartItem?.id;
+              if (itemId != null) {
+                await cartController.deleteCartItem(
+                  itemId,
+                  entity.schemeCode ?? '',
+                );
+              }
+            } else {
+              await cartController.addToCart(
+                code,
+                entity.baseSchemeName ?? '',
+                entity.minSipAmount ?? 5000,
+                transType: 'sip',
+                null,
+              );
+            }
+          } finally {
+            isPressed.value = false;
+          }
+        },
+        borderRadius: BorderRadius.circular(10),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: isInCart
+                ? Ucolors.primary.withValues(alpha: 0.08)
+                : Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isInCart ? Ucolors.primary : Colors.grey.shade300,
+            ),
+          ),
+          child: Icon(
+            isInCart ? Iconsax.shopping_cart5 : Iconsax.shopping_cart,
+            size: 20,
+            color: isInCart ? Ucolors.primary : Colors.grey.shade600,
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget _webInvestNowButton(
+    CartController controller,
+    MutualFundListEntity entity,
+  ) {
+    return SizedBox(
+      height: 34,
+      width: 112,
+      child: ElevatedButton(
+        onPressed: () async {
+          GatekeeperHelper.runWithPrerequisites(
+            onSuccess: () {
+              final purchaseArgs = SipPurchaseArgs(
+                schemeCode: entity.schemeCode ?? '',
+                fundName: entity.baseSchemeName ?? '',
+                category: 'Unknown',
+                riskLabel: entity.riskLevel ?? '',
+                minSip: entity.minSipAmount ?? 1000,
+                minLumpsum: entity.minLumpsum ?? 1000,
+                minTopup: entity.minTopUp ?? 5000,
+                folio: null,
+                imgUrl: '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
+              );
+
+              SIPPurchasePage.tempData = purchaseArgs;
+
+              Get.toNamed(
+                AppRoutes.investNowPage,
+                id: kIsWeb ? 1 : null,
+                arguments: purchaseArgs,
+              );
+            },
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Ucolors.primary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          padding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child: const Text(
+          'Invest Now',
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 12,
+            fontWeight: FontWeight.w800,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openFundDetails(MutualFundListEntity entity) {
+    Get.delete<FundDetailsController>();
+
+    FundDetailsScreen.navData = {
+      'scheme': entity.baseSchemeName,
+      'imgUrl': '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
+      'scheme_code': entity.schemeCode.toString(),
+    };
+
+    Get.toNamed(AppRoutes.funddetails, id: 1);
   }
 
   /// =======================================================
