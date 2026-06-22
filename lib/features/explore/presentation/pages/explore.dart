@@ -622,53 +622,6 @@ class WebFundListCard extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(
-                      height: 34,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          GatekeeperHelper.runWithPrerequisites(
-                            onSuccess: () {
-                              final purchaseArgs = SipPurchaseArgs(
-                                schemeCode: entity.schemeCode ?? '',
-                                fundName: entity.baseSchemeName ?? '',
-                                category: "Unknown",
-                                riskLabel: entity.riskLevel ?? "",
-                                minSip: entity.minSipAmount ?? 1000,
-                                minLumpsum: entity.minLumpsum ?? 1000,
-                                minTopup: entity.minTopUp ?? 5000,
-                                folio: null,
-                                imgUrl:
-                                    '${Appurl.baseUrl}${entity.amc?.amcLogoUrl}',
-                              );
-
-                              SIPPurchasePage.tempData = purchaseArgs;
-
-                              Get.toNamed(
-                                AppRoutes.investNowPage,
-                                id: kIsWeb ? 1 : null,
-                                arguments: purchaseArgs,
-                              );
-                            },
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Ucolors.primary,
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.zero,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text(
-                          "Invest",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
                     Obx(() {
                       final wishlistController = Get.find<WishlistController>();
                       final String code = entity.schemeCode ?? '';
@@ -751,7 +704,55 @@ class WebFundListCard extends StatelessWidget {
                           ),
                         ),
                       );
-                    })
+                    }),
+                    SizedBox(
+                      height: 34,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          GatekeeperHelper.runWithPrerequisites(
+                            onSuccess: () {
+                              final purchaseArgs = SipPurchaseArgs(
+                                schemeCode: entity.schemeCode ?? '',
+                                fundName: entity.baseSchemeName ?? '',
+                                category: "Unknown",
+                                riskLabel: entity.riskLevel ?? "",
+                                minSip: entity.minSipAmount ?? 1000,
+                                minLumpsum: entity.minLumpsum ?? 1000,
+                                minTopup: entity.minTopUp ?? 5000,
+                                folio: null,
+                                imgUrl:
+                                    '${Appurl.baseUrl}${entity.amc?.amcLogoUrl}',
+                              );
+
+                              SIPPurchasePage.tempData = purchaseArgs;
+
+                              Get.toNamed(
+                                AppRoutes.investNowPage,
+                                id: kIsWeb ? 1 : null,
+                                arguments: purchaseArgs,
+                              );
+                            },
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Ucolors.primary,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.zero,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          "Invest",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+
 
                   ],
                 ),

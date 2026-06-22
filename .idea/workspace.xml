@@ -10,12 +10,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="add web updates">
-      <change afterPath="$PROJECT_DIR$/lib/services/network_services.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/services/no_internet_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/features/goal/presentation/pages/web_master_goals_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/my_app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/my_app.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/config/routes/app_routes.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/routes/app_routes.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/cart/presentation/pages/cart_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/cart/presentation/pages/cart_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/explore/presentation/pages/explore.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/explore/presentation/pages/explore.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/pages/goal.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/pages/goal.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/pages/web_master_goals_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/pages/web_master_goals_pages.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/mfu/presentation/pages/purchase_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/mfu/presentation/pages/purchase_page.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,6 +39,14 @@
             <option name="chatType" value="PANEL" />
             <option name="id" value="4d7be3e4-29e9-433f-8eec-bdc34338d142" />
             <option name="modeId" value="Ask" />
+            <option name="modelType" value="builtin_family" />
+            <option name="modelValue" value="auto" />
+            <option name="targetType" value="LOCAL" />
+          </session>
+          <session>
+            <option name="chatType" value="PANEL" />
+            <option name="id" value="75ea1f0e-56b1-49e4-81f9-f51114579edc" />
+            <option name="modeId" value="Agent" />
             <option name="modelType" value="builtin_family" />
             <option name="modelValue" value="auto" />
             <option name="targetType" value="LOCAL" />
@@ -104,7 +117,7 @@
     "cidr.known.project.marker": "true",
     "com.google.services.firebase.aqiPopupShown": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "hk__03__june__goal",
+    "git-widget-placeholder": "hk__20__june__goal__updates",
     "io.flutter.project.isFirstOpen": "true",
     "io.flutter.reload.alreadyRun": "true",
     "kotlin-language-version-configured": "true",
@@ -188,11 +201,6 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="Dart">
-          <url>file://$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart</url>
-          <line>675</line>
-          <option name="timeStamp" value="42" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/features/goal/presentation/controller/goal_sip_controller.dart</url>
           <line>155</line>
           <option name="timeStamp" value="45" />
@@ -204,12 +212,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/features/goal/presentation/pages/ihavegoal.dart</url>
-          <line>1455</line>
+          <line>1436</line>
           <option name="timeStamp" value="48" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/features/goal/presentation/controller/goal_sip_controller.dart</url>
-          <line>200</line>
+          <line>199</line>
           <option name="timeStamp" value="58" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
@@ -224,18 +232,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/features/dashboard/presentation/pages/comparison_screen.dart</url>
-          <line>369</line>
+          <line>374</line>
           <option name="timeStamp" value="62" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/features/goal/presentation/controller/goal_sip_controller.dart</url>
-          <line>1100</line>
+          <line>1050</line>
           <option name="timeStamp" value="65" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="Dart">
-          <url>file://$PROJECT_DIR$/lib/features/goal/presentation/pages/master_goals_page.dart</url>
-          <line>1937</line>
-          <option name="timeStamp" value="67" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/features/goal/data/model/goal_model.dart</url>
@@ -249,8 +252,23 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/features/goal/domain/entity/goal_entity.dart</url>
-          <line>217</line>
+          <line>216</line>
           <option name="timeStamp" value="71" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/features/goal/presentation/pages/master_goals_page.dart</url>
+          <line>515</line>
+          <option name="timeStamp" value="75" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/features/cart/presentation/controllers/cart_controller.dart</url>
+          <line>358</line>
+          <option name="timeStamp" value="78" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart</url>
+          <line>3076</line>
+          <option name="timeStamp" value="81" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

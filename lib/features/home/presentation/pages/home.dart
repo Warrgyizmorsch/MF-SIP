@@ -306,11 +306,12 @@ class _WebDashboardLayout extends StatelessWidget {
       return LayoutBuilder(
         builder: (context, constraints) {
           final width = constraints.maxWidth;
+          final bool isSmallMobile = width < 500;
           final bool isMobile = width < 700;
           final bool isTablet = width >= 700 && width < 1100;
 
           final int crossAxisCount = isMobile
-              ? 1
+              ? isSmallMobile?1:2
               : isTablet
               ? 3
               : 4;
@@ -318,7 +319,7 @@ class _WebDashboardLayout extends StatelessWidget {
           return Container(
             width: double.infinity,
             margin: const EdgeInsets.only(top: 20, bottom: 10),
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(24),
@@ -1271,7 +1272,7 @@ class _WebDashboardLayout extends StatelessWidget {
 
     final items = [
       {
-        't': 'Best SIP',
+        't': 'Best SIP Funds',
         'i': UImages.savingbank,
         'onTap': () {
           nav.navigateToExploreWithFilter(() => funds.applyBestSipFilter(1));
@@ -1285,7 +1286,7 @@ class _WebDashboardLayout extends StatelessWidget {
         ),
       },
       {
-        't': 'International',
+        't': 'International Funds',
         'i': UImages.interfund,
         'onTap': () async {
           await Future.delayed(const Duration(milliseconds: 100));
@@ -4193,7 +4194,7 @@ class _CollectionItemState extends State<CollectionItem> {
 
         /// Scaling logic based on local constraints
         final double iconSize = isSmall ? 32 : (isLarge ? 60 : 48);
-        final double fontSize = isSmall ? 10 : (isLarge ? 18 : 13);
+        final double fontSize = isSmall ? 10 : (isLarge ? 18 : 15);
         final double containerPadding = isSmall ? 8 : 14;
         final double borderRadius = isSmall ? 12 : 18;
         final double iconBoxSize = isSmall ? 54 : (isLarge ? 74 : 64);
@@ -4284,12 +4285,11 @@ class _CollectionItemState extends State<CollectionItem> {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: fontSize,
-                            height: 1.2,
-                            fontFamily: FontFamily.medium,
-                            fontWeight: FontWeight.w600,
+                            height: 1.4,
+                            fontWeight: FontWeight.normal,
+                            fontFamily: FontFamily.bold,
                             color: isHovered
-                                ? Ucolors.primary
-                                : const Color(0xff2A2A2A),
+                                ?  const Color(0xff2A7BBF):Ucolors.black,
                           ),
                         ),
                       ],
