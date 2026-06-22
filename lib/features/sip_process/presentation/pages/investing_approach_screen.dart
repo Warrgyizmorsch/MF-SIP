@@ -33,6 +33,8 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
   }
 
   Widget _buildWebLayout(BuildContext context) {
+    final session = SessionManager.instance;
+
     return Center(
       // Padding ensures it doesn't touch the edges on smaller web screens
       child: Padding(
@@ -63,7 +65,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
               // Left Blue Panel (Your Profile)
               Expanded(
                 flex: 4,
-                child: _buildLeftProfilePanel(),
+                child: _buildLeftProfilePanel(session),
               ),
               // Right White Panel (Strategy Selection)
               Expanded(
@@ -77,7 +79,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
     );
   }
 
-  Widget _buildLeftProfilePanel() {
+  Widget _buildLeftProfilePanel(SessionManager session) {
     return Container(
       color: const Color(0xFF0061A0),
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
@@ -129,13 +131,13 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
           _buildProfileDetailCard(
             icon: Icons.person_outline,
             title: "Investor Type",
-            value: "Young Investor",
+            value: "Experienced Investor",
           ),
           const SizedBox(height: 16),
           _buildProfileDetailCard(
             icon: Icons.shield_outlined,
             title: "Risk Appetite",
-            value: "High",
+            value:  session.riskScoreObs.value?.profileName ?? '',
           ),
           const SizedBox(height: 16),
           Obx(
@@ -568,7 +570,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
             () => _buildProfileRow(
               UImages.logoShield,
               "Risk Appetite",
-              '${session.riskScoreObs.value?.profileName ?? ''}',
+              session.riskScoreObs.value?.profileName ?? '',
             ),
           ),
           const SizedBox(height: 10),

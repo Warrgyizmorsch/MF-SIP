@@ -384,7 +384,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
           },
         ),
         const SizedBox(height: 32),
-
+        controller.isLumpsum.value?SizedBox.shrink():
         Text(
           "SIP Date",
           style: Theme.of(
