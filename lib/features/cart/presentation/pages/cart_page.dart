@@ -1972,7 +1972,6 @@ import 'package:get/get.dart';
 
 import 'package:my_sip/common/widget/animated/empty_filled.dart';
 import 'package:my_sip/common/widget/animated/custom_toast.dart';
-import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';

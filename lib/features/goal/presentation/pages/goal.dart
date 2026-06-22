@@ -23,9 +23,7 @@ import 'web_master_goals_pages.dart';
 // import 'master_goals_page.dart'; // Import this to use it in the Drawer
 
 class GoalScreen extends GetView<GoalSipController> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  GoalScreen({super.key});
+  const GoalScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -34,93 +32,20 @@ class GoalScreen extends GetView<GoalSipController> {
     });
 
     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
-    final double screenWidth = MediaQuery.of(context).size.width;
-
-    // Dynamically calculate the drawer width: 45% of screen, but never smaller than 450px and never larger than 700px.
-    final double responsiveDrawerWidth = (screenWidth * 0.45).clamp(
-      450.0,
-      700.0,
-    );
 
     return Scaffold(
-      key: _scaffoldKey,
       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Ucolors.light,
       appBar: isDesktop
           ? null
           : CustomAppBarNormal(
-              backgroundColor: Ucolors.light,
-              title: 'Goals',
-              backIcon: false,
-              actionsPadding: 10,
-              action: [
-                CompactIcon(icon: Iconsax.info_circle, onPressed: () {}),
-              ],
-            ),
-      endDrawer: isDesktop
-          ? Theme(
-              // Removes the default white background block of the drawer to allow custom rounding
-              data: Theme.of(context).copyWith(canvasColor: Colors.transparent),
-              child: Drawer(
-                width: responsiveDrawerWidth,
-                elevation: 0,
-                backgroundColor: Colors.transparent,
-                child: SafeArea(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(28),
-                        bottomLeft: Radius.circular(28),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: .06),
-                          blurRadius: 40,
-                          offset: const Offset(-10, 0),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Web Drawer Header & Close Mechanism
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(24, 20, 20, 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Manage Goals',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontFamily: FontFamily.medium,
-                                  fontWeight: FontWeight.w700,
-                                  color: Ucolors.dark,
-                                ),
-                              ),
-                              IconButton(
-                                hoverColor: Colors.grey.shade100,
-                                splashRadius: 24,
-                                icon: const Icon(Icons.close_rounded, size: 24),
-                                color: Colors.grey.shade700,
-                                onPressed: () {
-                                  _scaffoldKey.currentState?.closeEndDrawer();
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        Divider(height: 1, color: Colors.grey.shade200),
-
-                        // Main Content
-                        const Expanded(child: WebMasterGoalsPage()),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            )
-          : null,
+        backgroundColor: Ucolors.light,
+        title: 'Goals',
+        backIcon: false,
+        actionsPadding: 10,
+        action: [
+          CompactIcon(icon: Iconsax.info_circle, onPressed: () {}),
+        ],
+      ),
       body: isDesktop ? const _WebLayout() : const _MobileLayout(),
       floatingActionButton: Obx(() {
         final hasGoals = (controller.goalResponse.value?.data ?? []).isNotEmpty;
@@ -135,11 +60,14 @@ class GoalScreen extends GetView<GoalSipController> {
             controller.selectedGoalIndex.value = -1;
             controller.isGoalSaved.value = false;
 
+            // 🚀 Split Routing Logic
             if (isDesktop) {
-              controller.isGoalSaved.value = false;
-              _scaffoldKey.currentState?.openEndDrawer();
+              Get.toNamed(AppRoutes.webMasterGoalsPage,id:1);
+
+              controller.resetStateForNewGoal();
+              controller.update();
             } else {
-              controller.isGoalSaved.value = false;
+              // Mobile Routing
               Get.toNamed(AppRoutes.masterGoalsPage);
             }
           },
