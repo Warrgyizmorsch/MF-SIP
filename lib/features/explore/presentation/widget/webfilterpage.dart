@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -47,53 +48,167 @@ class WebFilterDrawer {
   }
 }
 
-class WebFilterContent extends StatelessWidget {
-  const WebFilterContent({super.key});
+class WebFilterContent extends StatefulWidget {
+  const WebFilterContent({
+    super.key,
+    this.showCloseButton = false,
+    this.showSearchBar = true,
+    this.autoApply = true,
+  });
+
+  final bool showCloseButton;
+  final bool showSearchBar;
+  final bool autoApply;
+
+  @override
+  State<WebFilterContent> createState() => _WebFilterContentState();
+}
+
+class _WebFilterContentState extends State<WebFilterContent> {
+  final FundhouseController controller = Get.find();
+  final MutualFundController mutualController = Get.find();
+
+  final List<Worker> _workers = [];
+  Timer? _debounce;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.autoApply) {
+      _workers.addAll([
+        ever(controller.indexFundOnly, (_) => _autoApplyFilters()),
+        ever(controller.selectedSchemeTypes, (_) => _autoApplyFilters()),
+        ever(controller.selectedRisks, (_) => _autoApplyFilters()),
+        ever(controller.selectedAmcIds, (_) => _autoApplyFilters()),
+        ever(controller.selectedReturnFilterYear, (_) => _autoApplyFilters()),
+        ever(controller.returnRange, (_) => _autoApplyFilters()),
+        ever(controller.isReturnRangeActive, (_) => _autoApplyFilters()),
+      ]);
+    }
+  }
+
+  void _autoApplyFilters() {
+    _debounce?.cancel();
+
+    _debounce = Timer(const Duration(milliseconds: 350), () {
+      final params = controller.buildParam();
+
+      if (Get.isRegistered<MutualFundController>()) {
+        Get.find<MutualFundController>().syncFilterPageParams(params);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+
+    for (final worker in _workers) {
+      worker.dispose();
+    }
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final FundhouseController controller = Get.find();
-
     return Column(
       children: [
-        // 1. HEADER
         Container(
-          height: 70,
+          height: widget.showSearchBar ? 130 : 70,
           padding: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
             border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Row(
                 children: [
                   const Icon(Iconsax.filter, size: 20, color: Ucolors.primary),
                   const SizedBox(width: 10),
-                  const Text(
-                    'Filters',
-                    style: TextStyle(
-                      fontFamily: FontFamily.medium,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                  const Expanded(
+                    child: Text(
+                      'Filters by',
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
+                  const SizedBox(width: 8),
+
+                  Obx(() {
+                    final count = controller.activeFilterCount;
+
+                    if (count == 0) return const SizedBox.shrink();
+
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Ucolors.primary,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '$count',
+                        style: const TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    );
+                  }),
+                  if (widget.showCloseButton)
+                    IconButton(
+                      onPressed: () => Get.back(),
+                      icon: const Icon(Icons.close),
+                    ),
                 ],
               ),
-              IconButton(
-                onPressed: () => Get.back(), // Close Icon
-                icon: const Icon(Icons.close),
-              ),
+
+              if (widget.showSearchBar) ...[
+                const SizedBox(height: 14),
+                SizedBox(
+                  height: 44,
+                  child: SearchBar(
+                    elevation: WidgetStateProperty.all(0),
+                    backgroundColor: WidgetStateProperty.all(Colors.white),
+                    side: WidgetStateProperty.all(
+                      BorderSide(color: Colors.grey.shade300),
+                    ),
+                    shape: WidgetStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    leading: const Icon(
+                      Icons.search,
+                      size: 20,
+                      color: Colors.grey,
+                    ),
+                    hintText: 'Search funds...',
+                    onChanged: mutualController.onSearchQueryChanged,
+                    padding: WidgetStateProperty.all(
+                      const EdgeInsets.symmetric(horizontal: 12),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
 
-        // 2. SCROLLABLE BODY (Expansion Tiles)
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.all(0),
+            padding: EdgeInsets.zero,
             children: [
-              // Categories Section
               ExpansionTile(
                 initiallyExpanded: true,
                 title: const Text(
@@ -103,15 +218,9 @@ class WebFilterContent extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                children: [
-                  SizedBox(
-                    height: 300,
-                    child: CategoriesPanel(),
-                  ), // Reusing your widget
-                ],
+                children: [SizedBox(height: 300, child: CategoriesPanel())],
               ),
 
-              // Risk Section
               ExpansionTile(
                 initiallyExpanded: false,
                 title: const Text(
@@ -121,15 +230,9 @@ class WebFilterContent extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                children: [
-                  SizedBox(
-                    height: 250,
-                    child: RiskPanel(),
-                  ), // Reusing your widget
-                ],
+                children: [SizedBox(height: 250, child: RiskPanel())],
               ),
 
-              // Fund House Section
               ExpansionTile(
                 initiallyExpanded: false,
                 title: const Text(
@@ -139,13 +242,9 @@ class WebFilterContent extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                children: [
-                  SizedBox(
-                    height: 400,
-                    child: FundHousePanel(),
-                  ), // Reusing your widget
-                ],
+                children: [SizedBox(height: 400, child: FundHousePanel())],
               ),
+
               ExpansionTile(
                 initiallyExpanded: false,
                 title: const Text(
@@ -155,18 +254,12 @@ class WebFilterContent extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                children: [
-                  SizedBox(
-                    height: 400,
-                    child: ReturnRangePanel(),
-                  ), // Reusing your widget
-                ],
+                children: [SizedBox(height: 400, child: ReturnRangePanel())],
               ),
             ],
           ),
         ),
 
-        // 3. BOTTOM ACTION BAR
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -182,14 +275,19 @@ class WebFilterContent extends StatelessWidget {
           ),
           child: Row(
             children: [
-              // Reset Button
               Expanded(
                 child: OutlinedButton(
                   onPressed: () {
                     controller.clearAllFilters();
+
+                    if (Get.isRegistered<MutualFundController>()) {
+                      Get.find<MutualFundController>().syncFilterPageParams(
+                        controller.buildParam(),
+                      );
+                    }
                   },
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     side: const BorderSide(color: Ucolors.primary),
                   ),
                   child: const Text(
@@ -201,40 +299,37 @@ class WebFilterContent extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 15),
-              // Apply Button
-              Expanded(
-                child:
-                    //  Obx(
-                    //   () =>
-                    ElevatedButton(
-                      onPressed: () {
-                                                Navigator.pop(context);
 
-                        // Sync params aur close dialog
-                        final params = controller.buildParam();
-                        if (Get.isRegistered<MutualFundController>()) {
-                          Get.find<MutualFundController>().syncFilterPageParams(
-                            params,
-                          );
-                        }
-                        // Get.back(); // Close sliding panel
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Ucolors.primary,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                      ),
-                      child: Text(
-                        'Apply',
-                        // 'Apply (${controller.selectedFundCount})',
-                        style: const TextStyle(
-                          fontFamily: FontFamily.medium,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                // ),
-              ),
+              const SizedBox(width: 15),
+
+              // Expanded(
+              //   child: ElevatedButton(
+              //     onPressed: () {
+              //       final params = controller.buildParam();
+
+              //       if (Get.isRegistered<MutualFundController>()) {
+              //         Get.find<MutualFundController>().syncFilterPageParams(
+              //           params,
+              //         );
+              //       }
+
+              //       if (widget.showCloseButton) {
+              //         Navigator.pop(context);
+              //       }
+              //     },
+              //     style: ElevatedButton.styleFrom(
+              //       backgroundColor: Ucolors.primary,
+              //       padding: const EdgeInsets.symmetric(vertical: 16),
+              //     ),
+              //     child: const Text(
+              //       'Apply',
+              //       style: TextStyle(
+              //         fontFamily: FontFamily.medium,
+              //         color: Colors.white,
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),
@@ -242,3 +337,199 @@ class WebFilterContent extends StatelessWidget {
     );
   }
 }
+
+// class WebFilterContent extends StatelessWidget {
+//   const WebFilterContent({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final FundhouseController controller = Get.find();
+
+//     return Column(
+//       children: [
+//         // 1. HEADER
+//         Container(
+//           height: 70,
+//           padding: const EdgeInsets.symmetric(horizontal: 20),
+//           decoration: BoxDecoration(
+//             border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+//           ),
+//           child: Row(
+//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//             children: [
+//               Row(
+//                 children: [
+//                   const Icon(Iconsax.filter, size: 20, color: Ucolors.primary),
+//                   const SizedBox(width: 10),
+//                   const Text(
+//                     'Filters',
+//                     style: TextStyle(
+//                       fontFamily: FontFamily.medium,
+//                       fontSize: 18,
+//                       fontWeight: FontWeight.bold,
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//               IconButton(
+//                 onPressed: () => Get.back(), // Close Icon
+//                 icon: const Icon(Icons.close),
+//               ),
+//             ],
+//           ),
+//         ),
+
+//         // 2. SCROLLABLE BODY (Expansion Tiles)
+//         Expanded(
+//           child: ListView(
+//             padding: const EdgeInsets.all(0),
+//             children: [
+//               // Categories Section
+//               ExpansionTile(
+//                 initiallyExpanded: true,
+//                 title: const Text(
+//                   'Categories',
+//                   style: TextStyle(
+//                     fontFamily: FontFamily.medium,
+//                     fontWeight: FontWeight.w600,
+//                   ),
+//                 ),
+//                 children: [
+//                   SizedBox(
+//                     height: 300,
+//                     child: CategoriesPanel(),
+//                   ), // Reusing your widget
+//                 ],
+//               ),
+
+//               // Risk Section
+//               ExpansionTile(
+//                 initiallyExpanded: false,
+//                 title: const Text(
+//                   'Risk Profile',
+//                   style: TextStyle(
+//                     fontFamily: FontFamily.medium,
+//                     fontWeight: FontWeight.w600,
+//                   ),
+//                 ),
+//                 children: [
+//                   SizedBox(
+//                     height: 250,
+//                     child: RiskPanel(),
+//                   ), // Reusing your widget
+//                 ],
+//               ),
+
+//               // Fund House Section
+//               ExpansionTile(
+//                 initiallyExpanded: false,
+//                 title: const Text(
+//                   'Fund House (AMC)',
+//                   style: TextStyle(
+//                     fontFamily: FontFamily.medium,
+//                     fontWeight: FontWeight.w600,
+//                   ),
+//                 ),
+//                 children: [
+//                   SizedBox(
+//                     height: 400,
+//                     child: FundHousePanel(),
+//                   ), // Reusing your widget
+//                 ],
+//               ),
+//               ExpansionTile(
+//                 initiallyExpanded: false,
+//                 title: const Text(
+//                   'Returns Range',
+//                   style: TextStyle(
+//                     fontFamily: FontFamily.medium,
+//                     fontWeight: FontWeight.w600,
+//                   ),
+//                 ),
+//                 children: [
+//                   SizedBox(
+//                     height: 400,
+//                     child: ReturnRangePanel(),
+//                   ), // Reusing your widget
+//                 ],
+//               ),
+//             ],
+//           ),
+//         ),
+
+//         // 3. BOTTOM ACTION BAR
+//         Container(
+//           padding: const EdgeInsets.all(20),
+//           decoration: BoxDecoration(
+//             color: Colors.white,
+//             border: Border(top: BorderSide(color: Colors.grey.shade200)),
+//             boxShadow: [
+//               BoxShadow(
+//                 color: Colors.black.withValues(alpha: 0.05),
+//                 blurRadius: 10,
+//                 offset: const Offset(0, -5),
+//               ),
+//             ],
+//           ),
+//           child: Row(
+//             children: [
+//               // Reset Button
+//               Expanded(
+//                 child: OutlinedButton(
+//                   onPressed: () {
+//                     controller.clearAllFilters();
+//                   },
+//                   style: OutlinedButton.styleFrom(
+//                     padding: const EdgeInsets.symmetric(vertical: 18),
+//                     side: const BorderSide(color: Ucolors.primary),
+//                   ),
+//                   child: const Text(
+//                     'Reset All',
+//                     style: TextStyle(
+//                       fontFamily: FontFamily.medium,
+//                       color: Ucolors.primary,
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//               const SizedBox(width: 15),
+//               // Apply Button
+//               Expanded(
+//                 child:
+//                     //  Obx(
+//                     //   () =>
+//                     ElevatedButton(
+//                       onPressed: () {
+//                                                 Navigator.pop(context);
+
+//                         // Sync params aur close dialog
+//                         final params = controller.buildParam();
+//                         if (Get.isRegistered<MutualFundController>()) {
+//                           Get.find<MutualFundController>().syncFilterPageParams(
+//                             params,
+//                           );
+//                         }
+//                         // Get.back(); // Close sliding panel
+//                       },
+//                       style: ElevatedButton.styleFrom(
+//                         backgroundColor: Ucolors.primary,
+//                         padding: const EdgeInsets.symmetric(vertical: 18),
+//                       ),
+//                       child: Text(
+//                         'Apply',
+//                         // 'Apply (${controller.selectedFundCount})',
+//                         style: const TextStyle(
+//                           fontFamily: FontFamily.medium,
+//                           color: Colors.white,
+//                         ),
+//                       ),
+//                     ),
+//                 // ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }

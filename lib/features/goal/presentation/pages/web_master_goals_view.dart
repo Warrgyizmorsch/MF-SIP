@@ -128,7 +128,9 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
 
                     // 🚀 STEP 2: Wait for frame to update, then pop screen
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      Get.back(); // Use Get.close(2) if you need to pop multiple screens
+                      Navigator.pop(
+                        context,
+                      ); // Use Get.close(2) if you need to pop multiple screens
                     });
                   }
                   return;
@@ -137,7 +139,8 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                 // 🚀 IF NO WARNING NEEDED: Allow navigation and pop immediately
                 setState(() => canPopScope = true);
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Get.back();
+                  // Get.back();
+                  Navigator.pop(context);
                 });
               },
               child: Scaffold(

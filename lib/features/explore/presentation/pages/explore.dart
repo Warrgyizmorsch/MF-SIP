@@ -21,6 +21,7 @@ import 'package:my_sip/features/cart/presentation/controllers/cart_controller.da
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
+import 'package:my_sip/features/explore/presentation/widget/webfilterpage.dart';
 import 'package:my_sip/features/fund_details/presentation/widgets/helper.dart';
 import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart'; // Ensure this import exists for Deleteiconwithcontainer
@@ -155,13 +156,13 @@ class _ExploreScreenState extends State<ExploreScreen> {
     return Scaffold(
       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
       body: isDesktop
-          ? _WebExploreLayout(
+          ? WebExploreLayout(
               scrollController: _scrollController,
               searchFocus: _searchFocus,
               sortController: sort,
               sortItems: items,
             )
-          : _MobileExploreLayout(
+          : MobileExploreLayout(
               scrollController: _scrollController,
               searchFocus: _searchFocus,
               sortController: sort,
@@ -173,13 +174,13 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
 enum WebFundViewType { grid, list }
 
-class _WebExploreLayout extends StatefulWidget {
+class WebExploreLayout extends StatefulWidget {
   final ScrollController scrollController;
   final FocusNode searchFocus;
   final TextEditingController sortController;
   final List<String> sortItems;
 
-  const _WebExploreLayout({
+  const WebExploreLayout({
     super.key,
     required this.scrollController,
     required this.searchFocus,
@@ -188,10 +189,10 @@ class _WebExploreLayout extends StatefulWidget {
   });
 
   @override
-  State<_WebExploreLayout> createState() => _WebExploreLayoutState();
+  State<WebExploreLayout> createState() => _WebExploreLayoutState();
 }
 
-class _WebExploreLayoutState extends State<_WebExploreLayout> {
+class _WebExploreLayoutState extends State<WebExploreLayout> {
   WebFundViewType selectedView = WebFundViewType.grid;
 
   bool showViewButtons = true;
@@ -199,262 +200,648 @@ class _WebExploreLayoutState extends State<_WebExploreLayout> {
   @override
   void initState() {
     super.initState();
-    widget.scrollController.addListener(_handleScrollDirection);
+    // widget.scrollController.addListener(_handleScrollDirection);
   }
 
-  void _handleScrollDirection() {
-    if (!widget.scrollController.hasClients) return;
+  // void _handleScrollDirection() {
+  //   if (!widget.scrollController.hasClients) return;
 
-    final currentOffset = widget.scrollController.offset;
+  //   final currentOffset = widget.scrollController.offset;
 
-    // Scroll down = hide buttons
-    if (currentOffset > lastScrollOffset + 8 && showViewButtons) {
-      setState(() => showViewButtons = false);
-    }
+  //   // Scroll down = hide buttons
+  //   if (currentOffset > lastScrollOffset + 8 && showViewButtons) {
+  //     setState(() => showViewButtons = false);
+  //   }
 
-    // Scroll up = show buttons
-    if (currentOffset < lastScrollOffset - 8 && !showViewButtons) {
-      setState(() => showViewButtons = true);
-    }
+  //   // Scroll up = show buttons
+  //   if (currentOffset < lastScrollOffset - 8 && !showViewButtons) {
+  //     setState(() => showViewButtons = true);
+  //   }
 
-    lastScrollOffset = currentOffset;
-  }
+  //   lastScrollOffset = currentOffset;
+  // }
 
   @override
   void dispose() {
-    widget.scrollController.removeListener(_handleScrollDirection);
+    // widget.scrollController.removeListener(_handleScrollDirection);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final MutualFundController controller = Get.find();
-    log("WEB UI CTRL HASH: ${identityHashCode(controller)}");
-
-    return Scaffold(
-      body: Center(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final double width = constraints.maxWidth;
-
-            int getCrossAxisCount() {
-              if (width > 1100) return 3;
-              if (width >= 800) return 2;
-              return 1;
-            }
-
-            final int crossAxisCount = getCrossAxisCount();
-
-            return Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.end,
-                  //   children: [
-                  //     _viewButton(
-                  //       icon: Icons.grid_view_rounded,
-                  //       isSelected: selectedView == WebFundViewType.grid,
-                  //       onTap: () {
-                  //         setState(() => selectedView = WebFundViewType.grid);
-                  //       },
-                  //     ),
-                  //     const Gap(8),
-                  //     _viewButton(
-                  //       icon: Icons.view_list_rounded,
-                  //       isSelected: selectedView == WebFundViewType.list,
-                  //       onTap: () {
-                  //         setState(() => selectedView = WebFundViewType.list);
-                  //       },
-                  //     ),
-                  //   ],
-                  // ),
-                  AnimatedSize(
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.easeInOut,
-                    child: showViewButtons
-                        ? Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              _viewButton(
-                                icon: Icons.grid_view_rounded,
-                                isSelected:
-                                    selectedView == WebFundViewType.grid,
-                                onTap: () {
-                                  setState(
-                                    () => selectedView = WebFundViewType.grid,
-                                  );
-                                },
-                              ),
-                              const Gap(8),
-                              _viewButton(
-                                icon: Icons.view_list_rounded,
-                                isSelected:
-                                    selectedView == WebFundViewType.list,
-                                onTap: () {
-                                  setState(
-                                    () => selectedView = WebFundViewType.list,
-                                  );
-                                },
-                              ),
-                            ],
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-
-                  if (showViewButtons) const Gap(14),
-
-                  const Gap(14),
-
-                  Expanded(
-                    child: Obx(() {
-                      if (controller.isLoading.value) {
-                        return _buildLoadingGrid(crossAxisCount);
-                      }
-
-                      if (controller.searchFund.isEmpty) {
-                        return _buildEmptyState();
-                      }
-
-                      // if (selectedView == WebFundViewType.list) {
-                      //   return ListView.builder(
-                      //     controller: widget.scrollController,
-                      //     padding: const EdgeInsets.only(bottom: 20),
-                      //     itemCount: controller.searchFund.length,
-                      //     itemBuilder: (context, index) {
-                      //       final fund = controller.searchFund[index];
-                      //       return WebFundListCard(entity: fund);
-                      //     },
-                      //   );
-                      // }
-                      // if (selectedView == WebFundViewType.list) {
-                      //   return Column(
-                      //     children: [
-                      //       Container(
-                      //         height: 50,
-                      //         padding: const EdgeInsets.symmetric(
-                      //           horizontal: 18,
-                      //           vertical: 10,
-                      //         ),
-                      //         decoration: BoxDecoration(
-                      //           color: const Color(0xFFF5F7FA),
-                      //           borderRadius: BorderRadius.circular(12),
-                      //           border: Border.all(color: Colors.grey.shade300),
-                      //         ),
-                      //         child: Row(
-                      //           children: [
-                      //             const SizedBox(width: 40),
-
-                      //             const Expanded(
-                      //               flex: 3,
-                      //               child: Text(
-                      //                 "Fund Name",
-                      //                 style: TextStyle(
-                      //                   fontWeight: FontWeight.bold,
-                      //                   fontSize: 13,
-                      //                 ),
-                      //               ),
-                      //             ),
-
-                      //             _headerText("1W"),
-                      //             _headerText("1M"),
-                      //             _headerText("1Y"),
-                      //             _headerText("3Y"),
-                      //             _headerText("5Y"),
-                      //             _headerText("10Y"),
-                      //             _headerText("NAV"),
-
-                      //             const Expanded(
-                      //               child: Text(
-                      //                 "",
-                      //                 textAlign: TextAlign.center,
-                      //                 style: TextStyle(
-                      //                   fontWeight: FontWeight.bold,
-                      //                   fontSize: 13,
-                      //                 ),
-                      //               ),
-                      //             ),
-                      //           ],
-                      //         ),
-                      //       ),
-
-                      //       const SizedBox(height: 8),
-
-                      //       Expanded(
-                      //         child: ListView.builder(
-                      //           controller: widget.scrollController,
-                      //           itemCount: controller.searchFund.length,
-                      //           itemBuilder: (context, index) {
-                      //             final fund = controller.searchFund[index];
-                      //             return WebFundListCard(entity: fund);
-                      //           },
-                      //         ),
-                      //       ),
-                      //     ],
-                      //   );
-                      // }
-                      if (selectedView == WebFundViewType.list) {
-                        return Column(
-                          children: [
-                            _listHeader(),
-
-                            const Gap(8),
-
-                            Expanded(
-                              child: ListView.builder(
-                                controller: widget.scrollController,
-                                padding: const EdgeInsets.only(bottom: 20),
-                                itemCount: controller.searchFund.length,
-                                itemBuilder: (context, index) {
-                                  final fund = controller.searchFund[index];
-                                  return WebFundListCard(
-                                    entity: fund,
-                                    key: ValueKey(
-                                      '${fund.schemeCode}_${fund.baseSchemeName}',
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        );
-                      }
-
-                      return GridView.builder(
-                        controller: widget.scrollController,
-                        itemCount: controller.searchFund.length,
-                        padding: const EdgeInsets.only(
-                          bottom: 20,
-                          left: 8,
-                          right: 8,
-                          top: 8,
-                        ),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: crossAxisCount,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                          mainAxisExtent: 170,
-                        ),
-                        itemBuilder: (context, index) {
-                          final fund = controller.searchFund[index];
-                          return ResponsiveFundCard(
-                            key: ValueKey(
-                              '${fund.schemeCode}_${fund.baseSchemeName}',
-                            ),
-                            entity: fund,
-                            isMobile: crossAxisCount == 1,
-                          );
-                        },
-                      );
-                    }),
-                  ),
-                ],
-              ),
-            );
-          },
+    // log("WEB UI CTRL HASH: ${identityHashCode(controller)}");
+    return Row(
+      children: [
+        Container(
+          width: 300,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(right: BorderSide(color: Colors.grey.shade200)),
+          ),
+          child: const WebFilterContent(
+            showCloseButton: false,
+            showSearchBar: true,
+          ),
         ),
-      ),
+
+        Expanded(
+          child: Scaffold(
+            backgroundColor: const Color(0xFFF5F7FA),
+            body: Center(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final double width = constraints.maxWidth;
+
+                  int getCrossAxisCount() {
+                    if (width > 1100) return 3;
+                    if (width >= 800) return 2;
+                    return 1;
+                  }
+
+                  final int crossAxisCount = getCrossAxisCount();
+
+                  return Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Invest in the right fund for you',
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.medium,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w800,
+                                      color: Ucolors.dark,
+                                      letterSpacing: -0.4,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    'Browse all fund categories and find the best match for your goals.',
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.medium,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                _viewButton(
+                                  icon: Icons.grid_view_rounded,
+                                  isSelected:
+                                      selectedView == WebFundViewType.grid,
+                                  onTap: () {
+                                    setState(
+                                      () => selectedView = WebFundViewType.grid,
+                                    );
+                                  },
+                                ),
+                                const Gap(8),
+                                _viewButton(
+                                  icon: Icons.view_list_rounded,
+                                  isSelected:
+                                      selectedView == WebFundViewType.list,
+                                  onTap: () {
+                                    setState(
+                                      () => selectedView = WebFundViewType.list,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+
+                            // AnimatedSize(
+                            //   duration: const Duration(milliseconds: 250),
+                            //   curve: Curves.easeInOut,
+                            //   child: showViewButtons
+                            //       ? Row(
+                            //           children: [
+                            //             _viewButton(
+                            //               icon: Icons.grid_view_rounded,
+                            //               isSelected:
+                            //                   selectedView ==
+                            //                   WebFundViewType.grid,
+                            //               onTap: () {
+                            //                 setState(
+                            //                   () => selectedView =
+                            //                       WebFundViewType.grid,
+                            //                 );
+                            //               },
+                            //             ),
+                            //             const Gap(8),
+                            //             _viewButton(
+                            //               icon: Icons.view_list_rounded,
+                            //               isSelected:
+                            //                   selectedView ==
+                            //                   WebFundViewType.list,
+                            //               onTap: () {
+                            //                 setState(
+                            //                   () => selectedView =
+                            //                       WebFundViewType.list,
+                            //                 );
+                            //               },
+                            //             ),
+                            //           ],
+                            //         )
+                            //       : const SizedBox.shrink(),
+                            // ),
+                          ],
+                        ),
+
+                        const Gap(18),
+
+                        // AnimatedSize(
+                        //   duration: const Duration(milliseconds: 250),
+                        //   curve: Curves.easeInOut,
+                        //   child: showViewButtons
+                        //       ? Row(
+                        //           mainAxisAlignment: MainAxisAlignment.end,
+                        //           children: [
+                        //             _viewButton(
+                        //               icon: Icons.grid_view_rounded,
+                        //               isSelected:
+                        //                   selectedView == WebFundViewType.grid,
+                        //               onTap: () {
+                        //                 setState(
+                        //                   () => selectedView =
+                        //                       WebFundViewType.grid,
+                        //                 );
+                        //               },
+                        //             ),
+                        //             const Gap(8),
+                        //             _viewButton(
+                        //               icon: Icons.view_list_rounded,
+                        //               isSelected:
+                        //                   selectedView == WebFundViewType.list,
+                        //               onTap: () {
+                        //                 setState(
+                        //                   () => selectedView =
+                        //                       WebFundViewType.list,
+                        //                 );
+                        //               },
+                        //             ),
+                        //           ],
+                        //         )
+                        //       : const SizedBox.shrink(),
+                        // ),
+
+                        // if (showViewButtons) const Gap(14),
+                        Expanded(
+                          child: Obx(() {
+                            if (controller.isLoading.value) {
+                              return _buildLoadingGrid(crossAxisCount);
+                            }
+
+                            if (controller.searchFund.isEmpty) {
+                              return _buildEmptyState();
+                            }
+
+                            if (selectedView == WebFundViewType.list) {
+                              return Column(
+                                children: [
+                                  _listHeader(),
+                                  const Gap(8),
+                                  Expanded(
+                                    child: ListView.builder(
+                                      controller: widget.scrollController,
+                                      padding: const EdgeInsets.only(
+                                        bottom: 20,
+                                      ),
+                                      itemCount: controller.searchFund.length,
+                                      itemBuilder: (context, index) {
+                                        final fund =
+                                            controller.searchFund[index];
+                                        return WebFundListCard(
+                                          entity: fund,
+                                          key: ValueKey(
+                                            '${fund.schemeCode}_${fund.baseSchemeName}',
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+
+                            return GridView.builder(
+                              controller: widget.scrollController,
+                              itemCount: controller.searchFund.length,
+                              padding: const EdgeInsets.only(
+                                bottom: 20,
+                                left: 8,
+                                right: 8,
+                                top: 8,
+                              ),
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: crossAxisCount,
+                                    crossAxisSpacing: 16,
+                                    mainAxisSpacing: 16,
+                                    mainAxisExtent: 170,
+                                  ),
+                              itemBuilder: (context, index) {
+                                final fund = controller.searchFund[index];
+                                return ResponsiveFundCard(
+                                  key: ValueKey(
+                                    '${fund.schemeCode}_${fund.baseSchemeName}',
+                                  ),
+                                  entity: fund,
+                                  isMobile: crossAxisCount == 1,
+                                );
+                              },
+                            );
+                          }),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ],
     );
+    // return Row(
+    //   children: [
+    //     SizedBox(
+    //       width: 300,
+    //       child: WebExploreFilterPanel(searchFocus: widget.searchFocus),
+    //     ),
+
+    //     Container(width: 1, color: Colors.grey.shade200),
+
+    //     Expanded(
+    //       child: Scaffold(
+    //         backgroundColor: const Color(0xFFF5F7FA),
+    //         body: Center(
+    //           child: LayoutBuilder(
+    //             builder: (context, constraints) {
+    //               final double width = constraints.maxWidth;
+
+    //               int getCrossAxisCount() {
+    //                 if (width > 1100) return 3;
+    //                 if (width >= 800) return 2;
+    //                 return 1;
+    //               }
+
+    //               final int crossAxisCount = getCrossAxisCount();
+
+    //               return Padding(
+    //                 padding: const EdgeInsets.all(24),
+    //                 child: Column(
+    //                   children: [
+    //                     AnimatedSize(
+    //                       duration: const Duration(milliseconds: 250),
+    //                       curve: Curves.easeInOut,
+    //                       child: showViewButtons
+    //                           ? Row(
+    //                               mainAxisAlignment: MainAxisAlignment.end,
+    //                               children: [
+    //                                 _viewButton(
+    //                                   icon: Icons.grid_view_rounded,
+    //                                   isSelected:
+    //                                       selectedView == WebFundViewType.grid,
+    //                                   onTap: () {
+    //                                     setState(
+    //                                       () => selectedView =
+    //                                           WebFundViewType.grid,
+    //                                     );
+    //                                   },
+    //                                 ),
+    //                                 const Gap(8),
+    //                                 _viewButton(
+    //                                   icon: Icons.view_list_rounded,
+    //                                   isSelected:
+    //                                       selectedView == WebFundViewType.list,
+    //                                   onTap: () {
+    //                                     setState(
+    //                                       () => selectedView =
+    //                                           WebFundViewType.list,
+    //                                     );
+    //                                   },
+    //                                 ),
+    //                               ],
+    //                             )
+    //                           : const SizedBox.shrink(),
+    //                     ),
+
+    //                     if (showViewButtons) const Gap(14),
+
+    //                     Expanded(
+    //                       child: Obx(() {
+    //                         if (controller.isLoading.value) {
+    //                           return _buildLoadingGrid(crossAxisCount);
+    //                         }
+
+    //                         if (controller.searchFund.isEmpty) {
+    //                           return _buildEmptyState();
+    //                         }
+
+    //                         if (selectedView == WebFundViewType.list) {
+    //                           return Column(
+    //                             children: [
+    //                               _listHeader(),
+    //                               const Gap(8),
+    //                               Expanded(
+    //                                 child: ListView.builder(
+    //                                   controller: widget.scrollController,
+    //                                   padding: const EdgeInsets.only(
+    //                                     bottom: 20,
+    //                                   ),
+    //                                   itemCount: controller.searchFund.length,
+    //                                   itemBuilder: (context, index) {
+    //                                     final fund =
+    //                                         controller.searchFund[index];
+    //                                     return WebFundListCard(
+    //                                       entity: fund,
+    //                                       key: ValueKey(
+    //                                         '${fund.schemeCode}_${fund.baseSchemeName}',
+    //                                       ),
+    //                                     );
+    //                                   },
+    //                                 ),
+    //                               ),
+    //                             ],
+    //                           );
+    //                         }
+
+    //                         return GridView.builder(
+    //                           controller: widget.scrollController,
+    //                           itemCount: controller.searchFund.length,
+    //                           padding: const EdgeInsets.only(
+    //                             bottom: 20,
+    //                             left: 8,
+    //                             right: 8,
+    //                             top: 8,
+    //                           ),
+    //                           gridDelegate:
+    //                               SliverGridDelegateWithFixedCrossAxisCount(
+    //                                 crossAxisCount: crossAxisCount,
+    //                                 crossAxisSpacing: 16,
+    //                                 mainAxisSpacing: 16,
+    //                                 mainAxisExtent: 170,
+    //                               ),
+    //                           itemBuilder: (context, index) {
+    //                             final fund = controller.searchFund[index];
+    //                             return ResponsiveFundCard(
+    //                               key: ValueKey(
+    //                                 '${fund.schemeCode}_${fund.baseSchemeName}',
+    //                               ),
+    //                               entity: fund,
+    //                               isMobile: crossAxisCount == 1,
+    //                             );
+    //                           },
+    //                         );
+    //                       }),
+    //                     ),
+    //                   ],
+    //                 ),
+    //               );
+    //             },
+    //           ),
+    //         ),
+    //       ),
+    //     ),
+    //   ],
+    // );
+
+    // return Scaffold(
+    //   body: Center(
+    //     child: LayoutBuilder(
+    //       builder: (context, constraints) {
+    //         final double width = constraints.maxWidth;
+
+    //         int getCrossAxisCount() {
+    //           if (width > 1100) return 3;
+    //           if (width >= 800) return 2;
+    //           return 1;
+    //         }
+
+    //         final int crossAxisCount = getCrossAxisCount();
+
+    //         return Padding(
+    //           padding: const EdgeInsets.all(24),
+    //           child: Column(
+    //             children: [
+    //               // Row(
+    //               //   mainAxisAlignment: MainAxisAlignment.end,
+    //               //   children: [
+    //               //     _viewButton(
+    //               //       icon: Icons.grid_view_rounded,
+    //               //       isSelected: selectedView == WebFundViewType.grid,
+    //               //       onTap: () {
+    //               //         setState(() => selectedView = WebFundViewType.grid);
+    //               //       },
+    //               //     ),
+    //               //     const Gap(8),
+    //               //     _viewButton(
+    //               //       icon: Icons.view_list_rounded,
+    //               //       isSelected: selectedView == WebFundViewType.list,
+    //               //       onTap: () {
+    //               //         setState(() => selectedView = WebFundViewType.list);
+    //               //       },
+    //               //     ),
+    //               //   ],
+    //               // ),
+    //               AnimatedSize(
+    //                 duration: const Duration(milliseconds: 250),
+    //                 curve: Curves.easeInOut,
+    //                 child: showViewButtons
+    //                     ? Row(
+    //                         mainAxisAlignment: MainAxisAlignment.end,
+    //                         children: [
+    //                           _viewButton(
+    //                             icon: Icons.grid_view_rounded,
+    //                             isSelected:
+    //                                 selectedView == WebFundViewType.grid,
+    //                             onTap: () {
+    //                               setState(
+    //                                 () => selectedView = WebFundViewType.grid,
+    //                               );
+    //                             },
+    //                           ),
+    //                           const Gap(8),
+    //                           _viewButton(
+    //                             icon: Icons.view_list_rounded,
+    //                             isSelected:
+    //                                 selectedView == WebFundViewType.list,
+    //                             onTap: () {
+    //                               setState(
+    //                                 () => selectedView = WebFundViewType.list,
+    //                               );
+    //                             },
+    //                           ),
+    //                         ],
+    //                       )
+    //                     : const SizedBox.shrink(),
+    //               ),
+
+    //               if (showViewButtons) const Gap(14),
+
+    //               const Gap(14),
+
+    //               Expanded(
+    //                 child: Obx(() {
+    //                   if (controller.isLoading.value) {
+    //                     return _buildLoadingGrid(crossAxisCount);
+    //                   }
+
+    //                   if (controller.searchFund.isEmpty) {
+    //                     return _buildEmptyState();
+    //                   }
+
+    //                   // if (selectedView == WebFundViewType.list) {
+    //                   //   return ListView.builder(
+    //                   //     controller: widget.scrollController,
+    //                   //     padding: const EdgeInsets.only(bottom: 20),
+    //                   //     itemCount: controller.searchFund.length,
+    //                   //     itemBuilder: (context, index) {
+    //                   //       final fund = controller.searchFund[index];
+    //                   //       return WebFundListCard(entity: fund);
+    //                   //     },
+    //                   //   );
+    //                   // }
+    //                   // if (selectedView == WebFundViewType.list) {
+    //                   //   return Column(
+    //                   //     children: [
+    //                   //       Container(
+    //                   //         height: 50,
+    //                   //         padding: const EdgeInsets.symmetric(
+    //                   //           horizontal: 18,
+    //                   //           vertical: 10,
+    //                   //         ),
+    //                   //         decoration: BoxDecoration(
+    //                   //           color: const Color(0xFFF5F7FA),
+    //                   //           borderRadius: BorderRadius.circular(12),
+    //                   //           border: Border.all(color: Colors.grey.shade300),
+    //                   //         ),
+    //                   //         child: Row(
+    //                   //           children: [
+    //                   //             const SizedBox(width: 40),
+
+    //                   //             const Expanded(
+    //                   //               flex: 3,
+    //                   //               child: Text(
+    //                   //                 "Fund Name",
+    //                   //                 style: TextStyle(
+    //                   //                   fontWeight: FontWeight.bold,
+    //                   //                   fontSize: 13,
+    //                   //                 ),
+    //                   //               ),
+    //                   //             ),
+
+    //                   //             _headerText("1W"),
+    //                   //             _headerText("1M"),
+    //                   //             _headerText("1Y"),
+    //                   //             _headerText("3Y"),
+    //                   //             _headerText("5Y"),
+    //                   //             _headerText("10Y"),
+    //                   //             _headerText("NAV"),
+
+    //                   //             const Expanded(
+    //                   //               child: Text(
+    //                   //                 "",
+    //                   //                 textAlign: TextAlign.center,
+    //                   //                 style: TextStyle(
+    //                   //                   fontWeight: FontWeight.bold,
+    //                   //                   fontSize: 13,
+    //                   //                 ),
+    //                   //               ),
+    //                   //             ),
+    //                   //           ],
+    //                   //         ),
+    //                   //       ),
+
+    //                   //       const SizedBox(height: 8),
+
+    //                   //       Expanded(
+    //                   //         child: ListView.builder(
+    //                   //           controller: widget.scrollController,
+    //                   //           itemCount: controller.searchFund.length,
+    //                   //           itemBuilder: (context, index) {
+    //                   //             final fund = controller.searchFund[index];
+    //                   //             return WebFundListCard(entity: fund);
+    //                   //           },
+    //                   //         ),
+    //                   //       ),
+    //                   //     ],
+    //                   //   );
+    //                   // }
+    //                   if (selectedView == WebFundViewType.list) {
+    //                     return Column(
+    //                       children: [
+    //                         _listHeader(),
+
+    //                         const Gap(8),
+
+    //                         Expanded(
+    //                           child: ListView.builder(
+    //                             controller: widget.scrollController,
+    //                             padding: const EdgeInsets.only(bottom: 20),
+    //                             itemCount: controller.searchFund.length,
+    //                             itemBuilder: (context, index) {
+    //                               final fund = controller.searchFund[index];
+    //                               return WebFundListCard(
+    //                                 entity: fund,
+    //                                 key: ValueKey(
+    //                                   '${fund.schemeCode}_${fund.baseSchemeName}',
+    //                                 ),
+    //                               );
+    //                             },
+    //                           ),
+    //                         ),
+    //                       ],
+    //                     );
+    //                   }
+
+    //                   return GridView.builder(
+    //                     controller: widget.scrollController,
+    //                     itemCount: controller.searchFund.length,
+    //                     padding: const EdgeInsets.only(
+    //                       bottom: 20,
+    //                       left: 8,
+    //                       right: 8,
+    //                       top: 8,
+    //                     ),
+    //                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+    //                       crossAxisCount: crossAxisCount,
+    //                       crossAxisSpacing: 16,
+    //                       mainAxisSpacing: 16,
+    //                       mainAxisExtent: 170,
+    //                     ),
+    //                     itemBuilder: (context, index) {
+    //                       final fund = controller.searchFund[index];
+    //                       return ResponsiveFundCard(
+    //                         key: ValueKey(
+    //                           '${fund.schemeCode}_${fund.baseSchemeName}',
+    //                         ),
+    //                         entity: fund,
+    //                         isMobile: crossAxisCount == 1,
+    //                       );
+    //                     },
+    //                   );
+    //                 }),
+    //               ),
+    //             ],
+    //           ),
+    //         );
+    //       },
+    //     ),
+    //   ),
+    // );
   }
 
   Widget _listHeader() {
@@ -560,6 +947,336 @@ class _WebExploreLayoutState extends State<_WebExploreLayout> {
           const Text(
             "No Funds Found",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WebFilterTile extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Widget trailing;
+
+  const _WebFilterTile({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.trailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: Ucolors.primary.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: Ucolors.primary, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Ucolors.dark,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 10,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          trailing,
+        ],
+      ),
+    );
+  }
+}
+
+class _WebFilterCategoryTile extends StatelessWidget {
+  final String title;
+  final VoidCallback onTap;
+
+  const _WebFilterCategoryTile({required this.title, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          height: 54,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.check_box_outline_blank_rounded,
+                size: 20,
+                color: Colors.grey.shade600,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Ucolors.dark,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.keyboard_arrow_down_rounded,
+                size: 18,
+                color: Colors.grey.shade600,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _WebFilterAccordionTitle extends StatelessWidget {
+  final String title;
+
+  const _WebFilterAccordionTitle({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 54,
+      margin: const EdgeInsets.only(bottom: 6),
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: Colors.grey.shade200)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: Ucolors.dark,
+              ),
+            ),
+          ),
+          Icon(
+            Icons.keyboard_arrow_down_rounded,
+            size: 20,
+            color: Colors.grey.shade700,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class WebExploreFilterPanel extends StatelessWidget {
+  final FocusNode searchFocus;
+
+  const WebExploreFilterPanel({super.key, required this.searchFocus});
+
+  @override
+  Widget build(BuildContext context) {
+    final MutualFundController mutualController = Get.find();
+    final FundhouseController fundhouseController = Get.find();
+
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Iconsax.filter, color: Ucolors.primary, size: 22),
+              const SizedBox(width: 8),
+              const Text(
+                'Filters',
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: Ucolors.dark,
+                ),
+              ),
+              const Spacer(),
+              Obx(() {
+                final count = fundhouseController.activeFilterCount;
+                if (count == 0) return const SizedBox.shrink();
+
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Ucolors.primary,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '$count',
+                    style: const TextStyle(
+                      fontFamily: FontFamily.medium,
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+
+          const SizedBox(height: 18),
+
+          SizedBox(
+            height: 46,
+            child: SearchBar(
+              focusNode: searchFocus,
+              elevation: WidgetStateProperty.all(0),
+              backgroundColor: WidgetStateProperty.all(Colors.white),
+              side: WidgetStateProperty.all(
+                BorderSide(color: Colors.grey.shade300),
+              ),
+              shape: WidgetStateProperty.all(
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              leading: const Icon(Icons.search, size: 20, color: Colors.grey),
+              hintText: 'Search funds...',
+              onChanged: mutualController.onSearchQueryChanged,
+              padding: WidgetStateProperty.all(
+                const EdgeInsets.symmetric(horizontal: 12),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 22),
+
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  _WebFilterTile(
+                    title: 'Index Funds Only',
+                    subtitle: 'Showing only index funds in filter',
+                    icon: Icons.trending_up,
+                    trailing: Switch(
+                      value: false,
+                      onChanged: (_) {
+                        fundhouseController.applyCustomSearch('index');
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  _WebFilterCategoryTile(title: 'Commodities', onTap: () {}),
+                  _WebFilterCategoryTile(title: 'Debt', onTap: () {}),
+                  _WebFilterCategoryTile(title: 'Equity', onTap: () {}),
+                  _WebFilterCategoryTile(title: 'Fund of Funds', onTap: () {}),
+
+                  const SizedBox(height: 18),
+
+                  _WebFilterAccordionTitle(title: 'Risk Profile'),
+                  _WebFilterAccordionTitle(title: 'Fund House (AMC)'),
+                  _WebFilterAccordionTitle(title: 'Returns Range'),
+                ],
+              ),
+            ),
+          ),
+
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () {
+                    fundhouseController.clearAllFilters();
+                    mutualController.onSearchQueryChanged('');
+                  },
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(44),
+                    side: const BorderSide(color: Ucolors.primary),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                  ),
+                  child: const Text(
+                    'Reset All',
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      color: Ucolors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 12),
+
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    fundhouseController.buildParam();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(44),
+                    backgroundColor: Ucolors.primary,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                  ),
+                  child: const Text(
+                    'Apply',
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -774,8 +1491,6 @@ class WebFundListCard extends StatelessWidget {
                         ),
                       ),
                     ),
-
-
                   ],
                 ),
               ),
@@ -1682,13 +2397,13 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
 // ==========================================
 // 📱 MOBILE LAYOUT (Original Logic Preserved)
 // ==========================================
-class _MobileExploreLayout extends StatelessWidget {
+class MobileExploreLayout extends StatelessWidget {
   final ScrollController scrollController;
   final FocusNode searchFocus;
   final TextEditingController sortController;
   final List<String> sortItems;
 
-  const _MobileExploreLayout({
+  const MobileExploreLayout({
     required this.scrollController,
     required this.searchFocus,
     required this.sortController,

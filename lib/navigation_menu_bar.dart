@@ -49,6 +49,7 @@ class NavigationBarController extends GetxController {
   final RxBool isProfileExpanded = false.obs;
   final RxBool isHelpExpanded = false.obs;
   final RxBool isInvestExpanded = false.obs;
+  final RxString customHeaderTitle = ''.obs;
   Timer? _camsPollingTimer;
 
   @override
@@ -224,6 +225,9 @@ class NavigationBarController extends GetxController {
     //   }
     //   return;
     // }
+    if (index != 11) {
+      customHeaderTitle.value = '';
+    }
     if (index == 11) {
       if (isDesktop) {
         isInvestExpanded.value = !isInvestExpanded.value;
@@ -837,7 +841,12 @@ class _GlobalTopHeaderState extends State<GlobalTopHeader> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Obx(() {
-            final title = _getPageTitle(navController.selectedIndex.value);
+            final customTitle = navController.customHeaderTitle.value;
+
+            // final title = _getPageTitle(navController.selectedIndex.value);
+            final title = customTitle.isNotEmpty
+                ? customTitle
+                : _getPageTitle(navController.selectedIndex.value);
             return Text(
               title,
               style: const TextStyle(
@@ -849,197 +858,201 @@ class _GlobalTopHeaderState extends State<GlobalTopHeader> {
               ),
             );
           }),
-          Obx(
-            () => Row(
-              children: [
-                if (navController.selectedIndex.value == 1) ...[
-                  SizedBox(
-                    width: 300,
-                    height: 40,
-                    child: SearchBar(
-                      controller: searchController,
-                      focusNode: searchFocusNode,
 
-                      // focusNode: searchFocus,
-                      shape: WidgetStateProperty.all(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            8.0,
-                          ), // Correct syntax for a slight curve
-                        ),
-                      ),
-                      elevation: WidgetStateProperty.all(0),
-                      backgroundColor: WidgetStateProperty.all(
-                        const Color(0xFFF0F2F5),
-                      ),
-                      leading: const Icon(
-                        Icons.search,
-                        size: 20,
-                        color: Colors.grey,
-                      ),
-                      hintText: 'Search funds...',
+          // Obx(
+          //   () =>
+          Row(
+            children: [
+              // if (navController.selectedIndex.value == 1) ...[
+              //   SizedBox(
+              //     width: 300,
+              //     height: 40,
+              //     child: SearchBar(
+              //       controller: searchController,
+              //       focusNode: searchFocusNode,
 
-                      onChanged: (value) =>
-                          mutualController.onSearchQueryChanged(value),
-                      padding: WidgetStateProperty.all(
-                        const EdgeInsets.symmetric(horizontal: 10),
-                      ),
+              //       // focusNode: searchFocus,
+              //       shape: WidgetStateProperty.all(
+              //         RoundedRectangleBorder(
+              //           borderRadius: BorderRadius.circular(
+              //             8.0,
+              //           ), // Correct syntax for a slight curve
+              //         ),
+              //       ),
+              //       elevation: WidgetStateProperty.all(0),
+              //       backgroundColor: WidgetStateProperty.all(
+              //         const Color(0xFFF0F2F5),
+              //       ),
+              //       leading: const Icon(
+              //         Icons.search,
+              //         size: 20,
+              //         color: Colors.grey,
+              //       ),
+              //       hintText: 'Search funds...',
+
+              //       onChanged: (value) =>
+              //           mutualController.onSearchQueryChanged(value),
+              //       padding: WidgetStateProperty.all(
+              //         const EdgeInsets.symmetric(horizontal: 10),
+              //       ),
+              //     ),
+              //   ),
+
+              //   const SizedBox(width: 15),
+              //   Obx(() {
+              //     final activeCount =
+              //         Get.find<FundhouseController>().activeFilterCount;
+              //     final isActive = activeCount > 0;
+
+              //     return SizedBox(
+              //       height: 40,
+              //       child: OutlinedButton(
+              //         onPressed: () {
+              //           WebFilterDrawer.show(context);
+              //         },
+              //         style: OutlinedButton.styleFrom(
+              //           backgroundColor: isActive
+              //               ? Ucolors.primary.withValues(alpha: 0.08)
+              //               : Colors.transparent,
+              //           side: BorderSide(
+              //             color: isActive
+              //                 ? Ucolors.primary
+              //                 : Colors.grey.shade300,
+              //             width: isActive ? 1.5 : 1.0,
+              //           ),
+              //           shape: RoundedRectangleBorder(
+              //             borderRadius: BorderRadius.circular(8),
+              //           ),
+              //           padding: const EdgeInsets.symmetric(horizontal: 16),
+              //         ),
+              //         child: Row(
+              //           mainAxisSize: MainAxisSize.min,
+              //           children: [
+              //             Icon(
+              //               Iconsax.filter,
+              //               size: 18,
+              //               color: isActive ? Ucolors.primary : Ucolors.dark,
+              //             ),
+              //             const SizedBox(width: 8),
+              //             Text(
+              //               'Filters',
+              //               style: TextStyle(
+              //                 fontFamily: FontFamily.medium,
+              //                 color: isActive
+              //                     ? Ucolors.primary
+              //                     : Ucolors.dark,
+              //                 fontWeight: isActive
+              //                     ? FontWeight.w600
+              //                     : FontWeight.w500,
+              //               ),
+              //             ),
+
+              //             if (isActive) ...[
+              //               const SizedBox(width: 8),
+              //               Container(
+              //                 padding: const EdgeInsets.symmetric(
+              //                   horizontal: 6,
+              //                   vertical: 2,
+              //                 ),
+              //                 decoration: BoxDecoration(
+              //                   color: Ucolors.primary,
+              //                   borderRadius: BorderRadius.circular(20),
+              //                 ),
+              //                 child: Text(
+              //                   '$activeCount',
+              //                   style: const TextStyle(
+              //                     color: Colors.white,
+              //                     fontSize: 11,
+              //                     fontFamily: FontFamily.medium,
+              //                     fontWeight: FontWeight.bold,
+              //                   ),
+              //                 ),
+              //               ),
+              //             ],
+              //           ],
+              //         ),
+              //       ),
+              //     );
+              //   }),
+              // ],
+              const SizedBox(width: 15),
+
+              // 1. Notification Icon
+              IconButton(
+                onPressed: () {
+                  navController.customHeaderTitle.value = '';
+                  if (isDesktop) {
+                    navController.selectedIndex.value = 102;
+                    Get.toNamed(AppRoutes.notification, id: 1);
+                  } else {
+                    Get.toNamed(AppRoutes.notification);
+                  }
+                },
+                icon: const Icon(Iconsax.notification),
+                color: Ucolors.darkgrey,
+              ),
+
+              Obx(() {
+                final controller = Get.find<CartController>();
+                return Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Iconsax.shopping_cart),
+                      color: Ucolors.darkgrey,
+                      hoverColor: Ucolors.primary.withValues(alpha: 0.1),
+                      onPressed: () {
+                        navController.customHeaderTitle.value = '';
+                        controller.filterGoalId.value = null;
+                        // Get.toNamed(AppRoutes.cart, id: 1);
+                        if (isDesktop) {
+                          navController.selectedIndex.value = 100;
+                          Get.toNamed(AppRoutes.cart, id: 1);
+                        } else {
+                          Get.toNamed(AppRoutes.cart);
+                        }
+                      },
                     ),
-                  ),
-
-                  const SizedBox(width: 15),
-                  Obx(() {
-                    final activeCount =
-                        Get.find<FundhouseController>().activeFilterCount;
-                    final isActive = activeCount > 0;
-
-                    return SizedBox(
-                      height: 40,
-                      child: OutlinedButton(
-                        onPressed: () {
-                          WebFilterDrawer.show(context);
-                        },
-                        style: OutlinedButton.styleFrom(
-                          backgroundColor: isActive
-                              ? Ucolors.primary.withValues(alpha: 0.08)
-                              : Colors.transparent,
-                          side: BorderSide(
-                            color: isActive
-                                ? Ucolors.primary
-                                : Colors.grey.shade300,
-                            width: isActive ? 1.5 : 1.0,
+                    if (controller.generalItemsCount > 0)
+                      Positioned(
+                        right: 4,
+                        top: 4,
+                        child: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: const BoxDecoration(
+                            color: Ucolors.red,
+                            shape: BoxShape.circle,
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                          child: Text(
+                            controller.generalItemsCount.toString(),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontFamily: FontFamily.medium,
+                            ),
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Iconsax.filter,
-                              size: 18,
-                              color: isActive ? Ucolors.primary : Ucolors.dark,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Filters',
-                              style: TextStyle(
-                                fontFamily: FontFamily.medium,
-                                color: isActive
-                                    ? Ucolors.primary
-                                    : Ucolors.dark,
-                                fontWeight: isActive
-                                    ? FontWeight.w600
-                                    : FontWeight.w500,
-                              ),
-                            ),
-
-                            if (isActive) ...[
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Ucolors.primary,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  '$activeCount',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontFamily: FontFamily.medium,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
                         ),
                       ),
-                    );
-                  }),
-                ],
-                const SizedBox(width: 15),
+                  ],
+                );
+              }),
 
-                // 1. Notification Icon
-                IconButton(
-                  onPressed: () {
-                    if (isDesktop) {
-                      navController.selectedIndex.value = 102;
-                      Get.toNamed(AppRoutes.notification, id: 1);
-                    } else {
-                      Get.toNamed(AppRoutes.notification);
-                    }
-                  },
-                  icon: const Icon(Iconsax.notification),
-                  color: Ucolors.darkgrey,
-                ),
-
-                Obx(() {
-                  final controller = Get.find<CartController>();
-                  return Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Iconsax.shopping_cart),
-                        color: Ucolors.darkgrey,
-                        hoverColor: Ucolors.primary.withValues(alpha: 0.1),
-                        onPressed: () {
-                          controller.filterGoalId.value = null;
-                          // Get.toNamed(AppRoutes.cart, id: 1);
-                          if (isDesktop) {
-                            navController.selectedIndex.value = 100;
-                            Get.toNamed(AppRoutes.cart, id: 1);
-                          } else {
-                            Get.toNamed(AppRoutes.cart);
-                          }
-                        },
-                      ),
-                      if (controller.generalItemsCount > 0)
-                        Positioned(
-                          right: 4,
-                          top: 4,
-                          child: Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: const BoxDecoration(
-                              color: Ucolors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Text(
-                              controller.generalItemsCount.toString(),
-                              style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontFamily: FontFamily.medium,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  );
-                }),
-
-                // 3. Watchlist Icon
-                IconButton(
-                  onPressed: () {
-                    if (isDesktop) {
-                      navController.selectedIndex.value = 101;
-                      Get.toNamed(AppRoutes.watchlist, id: 1); // Nested Open
-                    } else {
-                      Get.toNamed(AppRoutes.watchlist);
-                    }
-                  },
-                  icon: const Icon(Iconsax.archive_tick),
-                  color: Ucolors.darkgrey,
-                ),
-              ],
-            ),
+              // 3. Watchlist Icon
+              IconButton(
+                onPressed: () {
+                  navController.customHeaderTitle.value = '';
+                  if (isDesktop) {
+                    navController.selectedIndex.value = 101;
+                    Get.toNamed(AppRoutes.watchlist, id: 1); // Nested Open
+                  } else {
+                    Get.toNamed(AppRoutes.watchlist);
+                  }
+                },
+                icon: const Icon(Iconsax.archive_tick),
+                color: Ucolors.darkgrey,
+              ),
+            ],
           ),
         ],
       ),
@@ -1210,325 +1223,349 @@ class _DesktopSideNav extends StatelessWidget {
 
             /// NAVIGATION
             Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: showText ? 12 : 8),
-                child: Column(
-                  children: [
-                    if (showText) _buildSectionTitle("GENERALS"),
+              child: ScrollbarTheme(
+                data: ScrollbarThemeData(
+                  thumbColor: WidgetStateProperty.all(const Color(0xFF0B3C5D)),
+                  trackColor: WidgetStateProperty.all(const Color(0xFFEAF2F8)),
+                  trackBorderColor: WidgetStateProperty.all(Colors.transparent),
+                  radius: const Radius.circular(20),
+                  thickness: WidgetStateProperty.all(5),
+                ),
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(horizontal: showText ? 12 : 8),
+                  child: Column(
+                    children: [
+                      if (showText) _buildSectionTitle("GENERALS"),
 
-                    Obx(
-                      () => _buildNavItem(
-                        controller,
-                        0,
-                        Iconsax.home,
-                        'Home',
-                        showText,
-                        navFontSize,
-                        iconSize,
-                        horizontalPadding,
+                      Obx(
+                        () => _buildNavItem(
+                          controller,
+                          0,
+                          Iconsax.home,
+                          'Home',
+                          showText,
+                          navFontSize,
+                          iconSize,
+                          horizontalPadding,
+                        ),
                       ),
-                    ),
 
-                    Obx(
-                      () => _buildNavItem(
-                        controller,
-                        1,
-                        Icons.trending_up,
-                        'Explore',
-                        showText,
-                        navFontSize,
-                        iconSize,
-                        horizontalPadding,
+                      Obx(
+                        () => _buildNavItem(
+                          controller,
+                          1,
+                          Iconsax.setting_2,
+                          'Explore Funds',
+                          showText,
+                          navFontSize,
+                          iconSize,
+                          horizontalPadding,
+                        ),
                       ),
-                    ),
 
-                    Obx(
-                      () => _buildNavItem(
-                        controller,
-                        2,
-                        Iconsax.chart_1,
-                        'Dashboard',
-                        showText,
-                        navFontSize,
-                        iconSize,
-                        horizontalPadding,
+                      Obx(
+                        () => _buildNavItem(
+                          controller,
+                          2,
+                          Icons.grid_view_rounded,
+                          'Dashboard',
+                          showText,
+                          navFontSize,
+                          iconSize,
+                          horizontalPadding,
+                        ),
                       ),
-                    ),
 
-                    Obx(
-                      () => _buildNavItem(
-                        controller,
-                        3,
-                        Iconsax.cup,
-                        'Goal',
-                        showText,
-                        navFontSize,
-                        iconSize,
-                        horizontalPadding,
+                      Obx(
+                        () => _buildNavItem(
+                          controller,
+                          3,
+                          Iconsax.cup,
+                          'Goal',
+                          showText,
+                          navFontSize,
+                          iconSize,
+                          horizontalPadding,
+                        ),
                       ),
-                    ),
-                    Obx(() {
-                      final isExpanded = controller.isInvestExpanded.value;
+                      Obx(() {
+                        final isExpanded = controller.isInvestExpanded.value;
 
-                      return Column(
-                        children: [
-                          _DesktopNavItem(
-                            icon: Iconsax.briefcase,
-                            label: 'Invest',
-                            isSelected: isExpanded,
-                            isDesktop: showText,
-                            fontSize: navFontSize,
-                            iconSize: iconSize,
-                            horizontalPadding: horizontalPadding,
-                            trailing: showText
-                                ? Icon(
-                                    isExpanded
-                                        ? Icons.keyboard_arrow_up
-                                        : Icons.keyboard_arrow_down,
-                                    size: 18,
-                                    color: Colors.grey.shade600,
-                                  )
-                                : null,
-                            onTap: () {
-                              controller.changePage(11, isDesktop: showText);
-                            },
-                          ),
-
-                          if (showText)
-                            AnimatedCrossFade(
-                              duration: const Duration(milliseconds: 250),
-                              crossFadeState: isExpanded
-                                  ? CrossFadeState.showFirst
-                                  : CrossFadeState.showSecond,
-                              firstChild: Column(
-                                children: [
-                                  _buildInvestSubItem(
-                                    controller,
-                                    "Start SIP",
-                                    () {
-                                      Get.delete<SipProcessController>();
-                                      SipProcessController.navIsLumpsum = false;
-
-                                      Get.toNamed(
-                                        AppRoutes.startSipScreen,
-                                        id: 1,
-                                        arguments: {'isLumpsum': false},
-                                      );
-                                    },
-                                  ),
-                                  _buildInvestSubItem(
-                                    controller,
-                                    "Start Lumpsum",
-                                    () {
-                                      Get.delete<SipProcessController>();
-                                      SipProcessController.navIsLumpsum = true;
-
-                                      Get.toNamed(
-                                        AppRoutes.startSipScreen,
-                                        id: 1,
-                                        arguments: {'isLumpsum': true},
-                                      );
-                                    },
-                                  ),
-                                  _buildInvestSubItem(
-                                    controller,
-                                    "Invest in Index Fund",
-                                    () =>
-                                        controller.navigateToExploreWithFilter(
-                                          () => fundhouseController
-                                              .applyCustomSearch('index'),
-                                        ),
-                                  ),
-                                  _buildInvestSubItem(
-                                    controller,
-                                    "Invest in International Fund",
-                                    () =>
-                                        controller.navigateToExploreWithFilter(
-                                          () => fundhouseController
-                                              .applyInternationalFilter(),
-                                        ),
-                                  ),
-                                  _buildInvestSubItem(
-                                    controller,
-                                    "Start Tax Saving",
-                                    () => controller
-                                        .navigateToExploreWithFilter(null),
-                                  ),
-                                  _buildInvestSubItem(
-                                    controller,
-                                    "Gold Investment",
-                                    () =>
-                                        // controller
-                                        //     .navigateToExploreWithFilter(null),
-                                        controller.navigateToExploreWithFilter(
-                                          () => fundhouseController
-                                              .applyGoldFilter(),
-                                        ),
-                                  ),
-                                  _buildInvestSubItem(
-                                    controller,
-                                    "New Fund Offer (NFO)",
-                                    () => Get.toNamed(AppRoutes.nfolist, id: 1),
-                                  ),
-                                ],
-                              ),
-                              secondChild: const SizedBox.shrink(),
+                        return Column(
+                          children: [
+                            _DesktopNavItem(
+                              icon: Iconsax.briefcase,
+                              label: 'Invest',
+                              isSelected: isExpanded,
+                              isDesktop: showText,
+                              fontSize: navFontSize,
+                              iconSize: iconSize,
+                              horizontalPadding: horizontalPadding,
+                              trailing: showText
+                                  ? Icon(
+                                      isExpanded
+                                          ? Icons.keyboard_arrow_up
+                                          : Icons.keyboard_arrow_down,
+                                      size: 18,
+                                      color: Colors.grey.shade600,
+                                    )
+                                  : null,
+                              onTap: () {
+                                controller.changePage(11, isDesktop: showText);
+                              },
                             ),
-                        ],
-                      );
-                    }),
 
-                    // const SizedBox(height: 18),
+                            if (showText)
+                              AnimatedCrossFade(
+                                duration: const Duration(milliseconds: 250),
+                                crossFadeState: isExpanded
+                                    ? CrossFadeState.showFirst
+                                    : CrossFadeState.showSecond,
+                                firstChild: Container(
+                                  width: double.infinity,
+                                  color: const Color(0xFFFAFAFA),
+                                  padding: const EdgeInsets.only(
+                                    left: 22,
+                                    top: 4,
+                                    bottom: 4,
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      _buildInvestSubItem(
+                                        controller,
+                                        "Start SIP",
+                                        () {
+                                          Get.delete<SipProcessController>();
+                                          SipProcessController.navIsLumpsum =
+                                              false;
 
-                    // if (showText) _buildSectionTitle("SETTINGS"),
+                                          Get.toNamed(
+                                            AppRoutes.startSipScreen,
+                                            id: 1,
+                                            arguments: {'isLumpsum': false},
+                                          );
+                                        },
+                                      ),
+                                      _buildInvestSubItem(
+                                        controller,
+                                        "Start Lumpsum",
+                                        () {
+                                          Get.delete<SipProcessController>();
+                                          SipProcessController.navIsLumpsum =
+                                              true;
 
-                    /// PROFILE
-                    // Obx(() {
-                    //   final isExpanded = controller.isProfileExpanded.value;
+                                          Get.toNamed(
+                                            AppRoutes.startSipScreen,
+                                            id: 1,
+                                            arguments: {'isLumpsum': true},
+                                          );
+                                        },
+                                      ),
+                                      _buildInvestSubItem(
+                                        controller,
+                                        "Invest in Index Fund",
+                                        () => controller
+                                            .navigateToExploreWithFilter(
+                                              () => fundhouseController
+                                                  .applyCustomSearch('index'),
+                                            ),
+                                      ),
+                                      _buildInvestSubItem(
+                                        controller,
+                                        "Invest in International Fund",
+                                        () => controller
+                                            .navigateToExploreWithFilter(
+                                              () => fundhouseController
+                                                  .applyInternationalFilter(),
+                                            ),
+                                      ),
+                                      _buildInvestSubItem(
+                                        controller,
+                                        "Best SIP Funds",
+                                        () => controller
+                                            .navigateToExploreWithFilter(null),
+                                      ),
+                                      _buildInvestSubItem(
+                                        controller,
+                                        "Gold Investment",
+                                        () =>
+                                            // controller
+                                            //     .navigateToExploreWithFilter(null),
+                                            controller
+                                                .navigateToExploreWithFilter(
+                                                  () => fundhouseController
+                                                      .applyGoldFilter(),
+                                                ),
+                                      ),
+                                      _buildInvestSubItem(
+                                        controller,
+                                        "New Fund Offer (NFO)",
+                                        () => Get.toNamed(
+                                          AppRoutes.nfolist,
+                                          id: 1,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                secondChild: const SizedBox.shrink(),
+                              ),
+                          ],
+                        );
+                      }),
 
-                    //   return Column(
-                    //     children: [
-                    //       _DesktopNavItem(
-                    //         icon: Iconsax.user4,
-                    //         label: 'Profile',
-                    //         isSelected: false,
-                    //         isDesktop: showText,
-                    //         fontSize: navFontSize,
-                    //         iconSize: iconSize,
-                    //         horizontalPadding: horizontalPadding,
-                    //         trailing: showText
-                    //             ? Icon(
-                    //                 isExpanded
-                    //                     ? Icons.keyboard_arrow_up
-                    //                     : Icons.keyboard_arrow_down,
-                    //                 size: 18,
-                    //                 color: Colors.grey.shade600,
-                    //               )
-                    //             : null,
-                    //         onTap: () {
-                    //           controller.changePage(4, isDesktop: showText);
-                    //         },
-                    //       ),
+                      // const SizedBox(height: 18),
 
-                    //       if (showText)
-                    //         AnimatedCrossFade(
-                    //           duration: const Duration(milliseconds: 250),
-                    //           crossFadeState: isExpanded
-                    //               ? CrossFadeState.showFirst
-                    //               : CrossFadeState.showSecond,
-                    //           firstChild: Column(
-                    //             children: [
-                    //               _buildSubItem(controller, 41, "KYC Details"),
-                    //               _buildSubItem(
-                    //                 controller,
-                    //                 42,
-                    //                 "Personal Details",
-                    //               ),
-                    //               _buildSubItem(controller, 43, "Bank Account"),
-                    //               _buildSubItem(
-                    //                 controller,
-                    //                 44,
-                    //                 "Nominee Details",
-                    //               ),
-                    //               _buildSubItem(controller, 45, "Documents"),
-                    //             ],
-                    //           ),
-                    //           secondChild: const SizedBox.shrink(),
-                    //         ),
-                    //     ],
-                    //   );
-                    // }),
-                    Obx(() {
-                      return _DesktopNavItem(
-                        icon: Iconsax.user4,
-                        label: 'Profile',
-                        isSelected: controller.isProfileActive,
-                        isDesktop: showText,
-                        fontSize: navFontSize,
-                        iconSize: iconSize,
-                        horizontalPadding: horizontalPadding,
-                        onTap: () {
-                          controller.changePage(4, isDesktop: showText);
-                        },
-                      );
-                    }),
-                    if (showText) _buildSectionTitle("TRANSACTIONS"),
-                    Obx(
-                      () => _buildNavItem(
-                        controller,
-                        7,
-                        Icons.currency_rupee_sharp,
-                        'My Transactions',
-                        showText,
-                        navFontSize,
-                        iconSize,
-                        horizontalPadding,
+                      // if (showText) _buildSectionTitle("SETTINGS"),
+
+                      /// PROFILE
+                      // Obx(() {
+                      //   final isExpanded = controller.isProfileExpanded.value;
+
+                      //   return Column(
+                      //     children: [
+                      //       _DesktopNavItem(
+                      //         icon: Iconsax.user4,
+                      //         label: 'Profile',
+                      //         isSelected: false,
+                      //         isDesktop: showText,
+                      //         fontSize: navFontSize,
+                      //         iconSize: iconSize,
+                      //         horizontalPadding: horizontalPadding,
+                      //         trailing: showText
+                      //             ? Icon(
+                      //                 isExpanded
+                      //                     ? Icons.keyboard_arrow_up
+                      //                     : Icons.keyboard_arrow_down,
+                      //                 size: 18,
+                      //                 color: Colors.grey.shade600,
+                      //               )
+                      //             : null,
+                      //         onTap: () {
+                      //           controller.changePage(4, isDesktop: showText);
+                      //         },
+                      //       ),
+
+                      //       if (showText)
+                      //         AnimatedCrossFade(
+                      //           duration: const Duration(milliseconds: 250),
+                      //           crossFadeState: isExpanded
+                      //               ? CrossFadeState.showFirst
+                      //               : CrossFadeState.showSecond,
+                      //           firstChild: Column(
+                      //             children: [
+                      //               _buildSubItem(controller, 41, "KYC Details"),
+                      //               _buildSubItem(
+                      //                 controller,
+                      //                 42,
+                      //                 "Personal Details",
+                      //               ),
+                      //               _buildSubItem(controller, 43, "Bank Account"),
+                      //               _buildSubItem(
+                      //                 controller,
+                      //                 44,
+                      //                 "Nominee Details",
+                      //               ),
+                      //               _buildSubItem(controller, 45, "Documents"),
+                      //             ],
+                      //           ),
+                      //           secondChild: const SizedBox.shrink(),
+                      //         ),
+                      //     ],
+                      //   );
+                      // }),
+                      if (showText) _buildSectionTitle("ACCOUNTS"),
+                      Obx(() {
+                        return _DesktopNavItem(
+                          icon: Iconsax.user,
+                          label: 'Profile',
+                          isSelected: controller.isProfileActive,
+                          isDesktop: showText,
+                          fontSize: navFontSize,
+                          iconSize: iconSize,
+                          horizontalPadding: horizontalPadding,
+                          onTap: () {
+                            controller.changePage(4, isDesktop: showText);
+                          },
+                        );
+                      }),
+                      Obx(
+                        () => _buildNavItem(
+                          controller,
+                          7,
+                          Icons.info_outline_rounded,
+                          'My Transactions',
+                          showText,
+                          navFontSize,
+                          iconSize,
+                          horizontalPadding,
+                        ),
                       ),
-                    ),
-                    Obx(
-                      () => _buildNavItem(
-                        controller,
-                        8,
-                        Icons.sip_outlined,
-                        'Manage Portfolio',
-                        showText,
-                        navFontSize,
-                        iconSize,
-                        horizontalPadding,
+                      Obx(
+                        () => _buildNavItem(
+                          controller,
+                          8,
+                          Icons.access_time_filled_rounded,
+                          'Manage Portfolio',
+                          showText,
+                          navFontSize,
+                          iconSize,
+                          horizontalPadding,
+                        ),
                       ),
-                    ),
-                    // Obx(
-                    //   () => _buildNavItem(
-                    //     controller,
-                    //     8,
-                    //     Icons.autorenew,
-                    //     'Manage SWP',
-                    //     showText,
-                    //     navFontSize,
-                    //     iconSize,
-                    //     horizontalPadding,
-                    //   ),
-                    // ),
-                    // Obx(
-                    //   () => _buildNavItem(
-                    //     controller,
-                    //     9,
-                    //     Icons.info_outline,
-                    //     'All Orders',
-                    //     showText,
-                    //     navFontSize,
-                    //     iconSize,
-                    //     horizontalPadding,
-                    //   ),
-                    // ),
+                      // Obx(
+                      //   () => _buildNavItem(
+                      //     controller,
+                      //     8,
+                      //     Icons.autorenew,
+                      //     'Manage SWP',
+                      //     showText,
+                      //     navFontSize,
+                      //     iconSize,
+                      //     horizontalPadding,
+                      //   ),
+                      // ),
+                      // Obx(
+                      //   () => _buildNavItem(
+                      //     controller,
+                      //     9,
+                      //     Icons.info_outline,
+                      //     'All Orders',
+                      //     showText,
+                      //     navFontSize,
+                      //     iconSize,
+                      //     horizontalPadding,
+                      //   ),
+                      // ),
 
-                    // const SizedBox(height: 18),
-                    if (showText) _buildSectionTitle("REPORTS"),
-                    Obx(
-                      () => _buildNavItem(
-                        controller,
-                        5,
-                        Icons.info_outline,
-                        'Account Statement',
-                        showText,
-                        navFontSize,
-                        iconSize,
-                        horizontalPadding,
+                      // const SizedBox(height: 18),
+                      if (showText) _buildSectionTitle("REPORTS"),
+                      Obx(
+                        () => _buildNavItem(
+                          controller,
+                          5,
+                          Icons.description_outlined,
+                          'Account Statement',
+                          showText,
+                          navFontSize,
+                          iconSize,
+                          horizontalPadding,
+                        ),
                       ),
-                    ),
-                    Obx(
-                      () => _buildNavItem(
-                        controller,
-                        6,
-                        Icons.library_books_outlined,
-                        'Capital Gain',
-                        showText,
-                        navFontSize,
-                        iconSize,
-                        horizontalPadding,
+                      Obx(
+                        () => _buildNavItem(
+                          controller,
+                          6,
+                          Icons.library_books_outlined,
+                          'Capital Gain',
+                          showText,
+                          navFontSize,
+                          iconSize,
+                          horizontalPadding,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -1568,46 +1605,100 @@ class _DesktopSideNav extends StatelessWidget {
   ) {
     return InkWell(
       onTap: () {
+        controller.customHeaderTitle.value = label;
+        controller.selectedIndex.value = 11;
         controller.isInvestExpanded.value = true;
         controller.isProfileExpanded.value = false;
         onTap();
       },
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(8),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
+        // padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 14,
             fontFamily: FontFamily.medium,
             fontWeight: FontWeight.w400,
             color: Colors.grey.shade700,
-            height: 1.35,
+            // height: 1.35,
           ),
         ),
       ),
     );
   }
 
+  // Widget _buildInvestSubItem(
+  //   NavigationBarController controller,
+  //   String label,
+  //   VoidCallback onTap,
+  // ) {
+  //   return InkWell(
+  //     onTap: () {
+  //       controller.customHeaderTitle.value = label;
+  //       controller.selectedIndex.value = 11;
+
+  //       controller.isInvestExpanded.value = true;
+  //       controller.isProfileExpanded.value = false;
+  //       onTap();
+  //     },
+  //     borderRadius: BorderRadius.circular(10),
+  //     child: Container(
+  //       width: double.infinity,
+  //       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+  //       child: Text(
+  //         label,
+  //         style: TextStyle(
+  //           fontSize: 13,
+  //           fontFamily: FontFamily.medium,
+  //           fontWeight: FontWeight.w400,
+  //           color: Colors.grey.shade700,
+  //           height: 1.35,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
   Widget _buildSectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.only(left: 14, bottom: 10, top: 4),
+      padding: const EdgeInsets.only(left: 16, bottom: 10, top: 8),
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
           title,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 12,
             fontFamily: FontFamily.medium,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w800,
             color: Colors.grey.shade500,
-            letterSpacing: 0.5,
+            letterSpacing: 0.6,
           ),
         ),
       ),
     );
   }
+
+  // Widget _buildSectionTitle(String title) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(left: 14, bottom: 10, top: 4),
+  //     child: Align(
+  //       alignment: Alignment.centerLeft,
+  //       child: Text(
+  //         title,
+  //         style: TextStyle(
+  //           fontSize: 11,
+  //           fontFamily: FontFamily.medium,
+  //           fontWeight: FontWeight.bold,
+  //           color: Colors.grey.shade500,
+  //           letterSpacing: 0.5,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildNavItem(
     NavigationBarController controller,
@@ -1683,78 +1774,182 @@ class _DesktopNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 0),
+    const selectedColor = Color(0xFF0B3C5D);
+    const normalIconColor = Color(0xFF6B7280);
+    const normalTextColor = Color(0xFF4B5563);
 
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
       child: Material(
         color: Colors.transparent,
-
         child: InkWell(
           onTap: onTap,
-
-          borderRadius: BorderRadius.circular(14),
-
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 220),
-
-            padding: EdgeInsets.symmetric(
-              vertical: 11,
-              horizontal: horizontalPadding,
-            ),
-
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? Ucolors.blue.withValues(alpha: 0.04)
-                  : Colors.transparent,
-
-              borderRadius: BorderRadius.circular(14),
-
-              // border: Border.all(
-              //   color: isSelected
-              //       ? Ucolors.blue.withValues(alpha: 0.18)
-              //       : Colors.transparent,
-              // ),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  icon,
-                  size: iconSize,
-                  color: isSelected ? Ucolors.primary : Colors.grey.shade700,
+          borderRadius: BorderRadius.circular(8),
+          child: Stack(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: horizontalPadding,
                 ),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? const Color(0xFFEAF6FC)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      icon,
+                      size: iconSize,
+                      color: isSelected ? selectedColor : normalIconColor,
+                    ),
 
-                if (isDesktop) ...[
-                  const SizedBox(width: 14),
+                    if (isDesktop) ...[
+                      const SizedBox(width: 14),
 
-                  Expanded(
-                    child: Text(
-                      label,
-
-                      overflow: TextOverflow.ellipsis,
-
-                      style: TextStyle(
-                        fontSize: fontSize,
-                        fontFamily: FontFamily.medium,
-                        fontWeight: isSelected
-                            ? FontWeight.w600
-                            : FontWeight.w500,
-                        color: isSelected
-                            ? Ucolors.primary
-                            : Colors.grey.shade800,
+                      Expanded(
+                        child: Text(
+                          label,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: fontSize,
+                            fontFamily: FontFamily.medium,
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                            color: isSelected ? selectedColor : normalTextColor,
+                          ),
+                        ),
                       ),
+
+                      if (trailing != null) trailing!,
+                    ],
+                  ],
+                ),
+              ),
+
+              if (isSelected)
+                Positioned(
+                  right: 0,
+                  top: 6,
+                  bottom: 6,
+                  child: Container(
+                    width: 4,
+                    decoration: BoxDecoration(
+                      color: selectedColor,
+                      borderRadius: BorderRadius.circular(20),
                     ),
                   ),
-
-                  if (trailing != null) trailing!,
-                ],
-              ],
-            ),
+                ),
+            ],
           ),
         ),
       ),
     );
   }
 }
+
+// class _DesktopNavItem extends StatelessWidget {
+//   final IconData icon;
+//   final String label;
+//   final bool isSelected;
+//   final bool isDesktop;
+//   final VoidCallback onTap;
+//   final Widget? trailing;
+
+//   final double fontSize;
+//   final double iconSize;
+//   final double horizontalPadding;
+
+//   const _DesktopNavItem({
+//     required this.icon,
+//     required this.label,
+//     required this.isSelected,
+//     required this.isDesktop,
+//     required this.onTap,
+//     required this.fontSize,
+//     required this.iconSize,
+//     required this.horizontalPadding,
+//     this.trailing,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: const EdgeInsets.symmetric(vertical: 0),
+
+//       child: Material(
+//         color: Colors.transparent,
+
+//         child: InkWell(
+//           onTap: onTap,
+
+//           borderRadius: BorderRadius.circular(14),
+
+//           child: AnimatedContainer(
+//             duration: const Duration(milliseconds: 220),
+
+//             padding: EdgeInsets.symmetric(
+//               vertical: 11,
+//               horizontal: horizontalPadding,
+//             ),
+
+//             decoration: BoxDecoration(
+//               color: isSelected
+//                   ? Ucolors.blue.withValues(alpha: 0.04)
+//                   : Colors.transparent,
+
+//               borderRadius: BorderRadius.circular(14),
+
+//               // border: Border.all(
+//               //   color: isSelected
+//               //       ? Ucolors.blue.withValues(alpha: 0.18)
+//               //       : Colors.transparent,
+//               // ),
+//             ),
+//             child: Row(
+//               children: [
+//                 Icon(
+//                   icon,
+//                   size: iconSize,
+//                   color: isSelected ? Ucolors.primary : Colors.grey.shade700,
+//                 ),
+
+//                 if (isDesktop) ...[
+//                   const SizedBox(width: 14),
+
+//                   Expanded(
+//                     child: Text(
+//                       label,
+
+//                       overflow: TextOverflow.ellipsis,
+
+//                       style: TextStyle(
+//                         fontSize: fontSize,
+//                         fontFamily: FontFamily.medium,
+//                         fontWeight: isSelected
+//                             ? FontWeight.w600
+//                             : FontWeight.w500,
+//                         color: isSelected
+//                             ? Ucolors.primary
+//                             : Colors.grey.shade800,
+//                       ),
+//                     ),
+//                   ),
+
+//                   if (trailing != null) trailing!,
+//                 ],
+//               ],
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 // 4. MOBILE BOTTOM NAV
 class _MobileBottomNavBar extends StatelessWidget {
