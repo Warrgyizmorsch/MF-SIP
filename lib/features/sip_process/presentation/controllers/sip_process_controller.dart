@@ -32,8 +32,7 @@ class SipProcessController extends GetxController
   final RxDouble amount = 1000.0.obs;
   final RxInt selectedApproach = 0.obs;
   final RxBool isLumpsum = false.obs; // Track if it's Lumpsum mode
-
-  // Output variables (Observables)
+  final ValueNotifier<String?> selectedSipDay = ValueNotifier<String?>('10');
   final RxDouble totalInvested = 0.0.obs;
   final RxDouble totalProjected = 0.0.obs;
   final RxList<FlSpot> chartInvestedSpots = <FlSpot>[].obs;
@@ -55,7 +54,21 @@ class SipProcessController extends GetxController
   final RxMap<String, double> fundAmounts = <String, double>{}.obs;
 
   static bool? navIsLumpsum;
-
+  String getOrdinal(int number) {
+    if (number >= 11 && number <= 13) {
+      return '${number}th';
+    }
+    switch (number % 10) {
+      case 1:
+        return '${number}st';
+      case 2:
+        return '${number}nd';
+      case 3:
+        return '${number}rd';
+      default:
+        return '${number}th';
+    }
+  }
   void setInvestmentMode(bool lumpsum) {
     isLumpsum.value = lumpsum;
     if (lumpsum) {

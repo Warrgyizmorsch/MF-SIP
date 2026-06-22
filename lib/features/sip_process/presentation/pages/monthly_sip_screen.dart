@@ -13,6 +13,7 @@ import '../../../../core/utils/constant/images.dart';
 import '../../../../core/utils/constant/text.dart';
 import '../../../../core/utils/constant/text_style.dart';
 import '../controllers/sip_process_controller.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 
 class MonthlySipScreen extends GetView<SipProcessController> {
   const MonthlySipScreen({super.key});
@@ -40,99 +41,134 @@ class MonthlySipScreen extends GetView<SipProcessController> {
   // 💻 WEB / DESKTOP LAYOUT (2-Column Card)
   // =========================================
   Widget _buildWebLayout(BuildContext context) {
-    double width = Get.width * 0.75;
-
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: 1000,
-        ), // Perfect max-width for web
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
+        constraints: const BoxConstraints(maxWidth: 1000),
+        child: Container(
+          clipBehavior: Clip
+              .antiAlias, // Ensures the left blue panel curves with the container
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 30,
+                offset: const Offset(0, 15),
+              ),
+            ],
+          ),
+          // IntrinsicHeight makes both Expanded children stretch to the exact same height
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // --- LEFT SIDE: Projection Panel (Blue) ---
+                Expanded(flex: 4, child: _buildLeftBluePanelWeb(context)),
+
+                // --- RIGHT SIDE: Input Panel (White) ---
+                Expanded(flex: 6, child: _buildRightWhitePanelWeb(context)),
               ],
             ),
-            padding: const EdgeInsets.all(40),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLeftBluePanelWeb(BuildContext context) {
+    return Container(
+      color: const Color(0xFF0061A0), // Dark blue background from the design
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // --- Header ---
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white, width: 1.5),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Icon(
+                  Icons.trending_up,
+                  color: Colors.white,
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                "BUILD YOUR WEALTH WITH SIP",
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 60),
+
+          // --- Inner Value Card ---
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.1),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // --- Web Header ---
-                Text(
-                  "Plan Your Investment",
-                  style: AppTextStyles.h2(color: Ucolors.dark),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  "Start small, grow big. Adjust the slider to see your projected wealth.",
-                  style: TextStyle(
-                    fontFamily: FontFamily.medium,
-                    color: Colors.grey.shade600,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 40),
-
-                // --- 2 Column Layout ---
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Left Side: Inputs
-                    Expanded(flex: 5, child: _buildInputSection()),
-                    const SizedBox(width: 40),
-
-                    // Right Side: Projection Chart
-                    Expanded(flex: 6, child: _buildProjectionSection()),
-                  ],
-                ),
-
-                const SizedBox(height: 40),
-                Divider(color: Colors.grey.shade200),
-                const SizedBox(height: 24),
-
-                // --- Action Buttons (Web) ---
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    SizedBox(
-                      width: 140,
-                      child: UElevatedBUtton(
-                        onPressed: () => Get.back(id: 1),
-                        outlined: true,
-                        child: Center(
-                          child: Text(
-                            'Back',
-                            style: AppTextStyles.bodyMedium(
-                              color: Ucolors.primary,
-                            ),
-                          ),
+                    const Text(
+                      "Projected Value (5Years)",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Obx(
+                      () => Text(
+                        controller.formatCurrency(
+                          controller.totalProjected.value,
+                        ),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    SizedBox(
-                      width: 200,
-                      child: UElevatedBUtton(
-                        // 🚀 Web Nested Navigation
-                        onPressed: () => Get.toNamed(
-                          AppRoutes.investingApproachScreen,
-                          id: 1,
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Invested Amount",
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontSize: 12,
+                      ),
+                    ),
+                    Obx(
+                      () => Text(
+                        controller.formatCurrency(
+                          controller.totalInvested.value,
                         ),
-                        child: Center(
-                          child: Text(
-                            'Select Sip Fund',
-                            style: AppTextStyles.bodyMedium(
-                              color: Colors.white,
-                            ),
-                          ),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -141,9 +177,108 @@ class MonthlySipScreen extends GetView<SipProcessController> {
               ],
             ),
           ),
-        ),
+
+          const SizedBox(height: 40),
+
+          // --- Chart Section ---
+          Expanded(
+            child: Center(
+              child: Obx(
+                () => SipProjectionChart(
+                  showLeftNumbers: true,
+                  // Make sure your chart supports white text so axis labels are visible!
+                  // textColor: Colors.white,
+                  investedSpots: controller.chartInvestedSpots.toList(),
+                  projectedSpots: controller.chartProjectedSpots.toList(),
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // --- Dynamic Disclaimer ---
+          Center(
+            child: Text(
+              "*Based on historical returns of ${controller.expectedReturnRate.toStringAsFixed(0)}%. Past performance is not an indicator of\nfuture returns.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.6),
+                fontSize: 10,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  Widget _buildRightWhitePanelWeb(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 40),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // --- Input Section (Title, Chips, Dropdown) ---
+          _buildInputSection(context),
+
+          // Pushes the buttons to the very bottom of the card
+          const Spacer(),
+          const SizedBox(height: 32),
+          Divider(color: Colors.grey.shade200),
+          const SizedBox(height: 24),
+
+          // --- Bottom Action Buttons ---
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              SizedBox(
+                width: 140,
+                child: UElevatedButtonWeb(
+                  // Using the Web optimized button
+                  onPressed: () => Get.back(id: 1),
+                  outlined: true,
+                  child: Text(
+                    'Back',
+                    style: AppTextStyles.bodyMedium(color: Ucolors.primary),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              SizedBox(
+                width: 200,
+                child: UElevatedButtonWeb(
+                  // Using the Web optimized button
+                  onPressed: () =>
+                      Get.toNamed(AppRoutes.investingApproachScreen, id: 1),
+                  child: Text(
+                    'Continue',
+                    style: AppTextStyles.bodyMedium(color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Quick helper function for "1st", "2nd", "3rd", "4th"
+  String _getDaySuffix(int day) {
+    if (day >= 11 && day <= 13) return 'th';
+    switch (day % 10) {
+      case 1:
+        return 'st';
+      case 2:
+        return 'nd';
+      case 3:
+        return 'rd';
+      default:
+        return 'th';
+    }
   }
 
   // =========================================
@@ -190,7 +325,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                       vertical: 8.0,
                       horizontal: 30,
                     ),
-                    child: _buildInputSection(),
+                    child: _buildInputSection(context),
                   ),
                   const SizedBox(height: 20),
                   Padding(
@@ -212,7 +347,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
   // =========================================
 
   // 1. Input Section (Slider & Chips)
-  Widget _buildInputSection() {
+  Widget _buildInputSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -248,11 +383,74 @@ class MonthlySipScreen extends GetView<SipProcessController> {
             }
           },
         ),
+        const SizedBox(height: 32),
+
+        Text(
+          "SIP Date",
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonHideUnderline(
+          child: DropdownButton2<String>(
+            isExpanded: true,
+
+            valueListenable: controller.selectedSipDay,
+
+            items: List.generate(
+              28,
+              (i) => DropdownItem<String>(
+                value: '${i + 1}',
+                child: Text(
+                  '${controller.getOrdinal(i + 1)} of every month',
+                  style: const TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    color: Color(0xFF142438),
+                  ),
+                ),
+              ),
+            ),
+            onChanged: (val) {
+              if (val != null) {
+                controller.selectedSipDay.value = val;
+              }
+            },
+            buttonStyleData: ButtonStyleData(
+              padding: const EdgeInsets.only(right: 16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade300, width: 1.5),
+                color: Colors.white,
+              ),
+            ),
+            iconStyleData: IconStyleData(
+              icon: Icon(
+                Icons.keyboard_arrow_down_rounded,
+                size: 24,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            dropdownStyleData: DropdownStyleData(
+              maxHeight: 200,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color: Colors.white,
+              ),
+            ),
+            menuItemStyleData: const MenuItemStyleData(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+            ),
+          ),
+        ),
       ],
     );
   }
 
   // 2. Projection Card Section (Blue Gradient & Chart)
+
   Widget _buildProjectionSection() {
     return Container(
       width: double.infinity,
