@@ -193,7 +193,7 @@ class _WebExploreLayout extends StatefulWidget {
 
 class _WebExploreLayoutState extends State<_WebExploreLayout> {
   WebFundViewType selectedView = WebFundViewType.grid;
- 
+
   bool showViewButtons = true;
   double lastScrollOffset = 0;
   @override
@@ -407,10 +407,11 @@ class _WebExploreLayoutState extends State<_WebExploreLayout> {
                                 itemCount: controller.searchFund.length,
                                 itemBuilder: (context, index) {
                                   final fund = controller.searchFund[index];
-                                  return WebFundListCard(entity: fund,
-                                    key: ValueKey('${fund.schemeCode}_${fund.baseSchemeName}'),
-
-
+                                  return WebFundListCard(
+                                    entity: fund,
+                                    key: ValueKey(
+                                      '${fund.schemeCode}_${fund.baseSchemeName}',
+                                    ),
                                   );
                                 },
                               ),
@@ -437,7 +438,9 @@ class _WebExploreLayoutState extends State<_WebExploreLayout> {
                         itemBuilder: (context, index) {
                           final fund = controller.searchFund[index];
                           return ResponsiveFundCard(
-                             key: ValueKey('${fund.schemeCode}_${fund.baseSchemeName}'),
+                            key: ValueKey(
+                              '${fund.schemeCode}_${fund.baseSchemeName}',
+                            ),
                             entity: fund,
                             isMobile: crossAxisCount == 1,
                           );
@@ -484,7 +487,7 @@ class _WebExploreLayoutState extends State<_WebExploreLayout> {
           _headerText("NAV"),
 
           const Expanded(
-            flex:2,
+            flex: 2,
             child: Text(
               " ",
               textAlign: TextAlign.center,
@@ -685,18 +688,21 @@ class WebFundListCard extends StatelessWidget {
 
                       return PremiumHeartButton(
                         isFav: isFav,
-                        onTap: () => wishlistController.toggleWishlist(code, name),
+                        onTap: () =>
+                            wishlistController.toggleWishlist(code, name),
                       );
                     }),
                     Obx(() {
                       final cartController = Get.find<CartController>();
                       final String code = entity.schemeCode ?? "";
 
-                      final matchingItems = cartController.displayedItems.where(
-                              (item) => item.schemeCode.toString() == code
-                      ).toList();
+                      final matchingItems = cartController.displayedItems
+                          .where((item) => item.schemeCode.toString() == code)
+                          .toList();
 
-                      final cartItem = matchingItems.isNotEmpty ? matchingItems.first : null;
+                      final cartItem = matchingItems.isNotEmpty
+                          ? matchingItems.first
+                          : null;
                       final bool isInCart = cartItem != null;
 
                       return AnimatedScale(
@@ -708,7 +714,8 @@ class WebFundListCard extends StatelessWidget {
                         child: AnimatedSwitcher(
                           // Extended duration to let the elastic spring finish its movement
                           duration: const Duration(milliseconds: 650),
-                          switchInCurve: Curves.elasticOut, // The secret sauce for the bouncy feel
+                          switchInCurve: Curves
+                              .elasticOut, // The secret sauce for the bouncy feel
                           switchOutCurve: Curves.easeOut,
 
                           transitionBuilder: (child, animation) {
@@ -716,7 +723,10 @@ class WebFundListCard extends StatelessWidget {
                               scale: animation,
                               // Adds a dynamic 180-degree flip as it scales in
                               child: RotationTransition(
-                                turns: Tween<double>(begin: 0.5, end: 1.0).animate(animation),
+                                turns: Tween<double>(
+                                  begin: 0.5,
+                                  end: 1.0,
+                                ).animate(animation),
                                 child: FadeTransition(
                                   opacity: animation,
                                   child: child,
@@ -726,8 +736,12 @@ class WebFundListCard extends StatelessWidget {
                           },
                           child: CompactIcon(
                             key: ValueKey<bool>(isInCart),
-                            icon: isInCart ? Iconsax.shopping_cart5 : Iconsax.shopping_cart,
-                            iconColor: isInCart ? Ucolors.primary : Ucolors.darkgrey,
+                            icon: isInCart
+                                ? Iconsax.shopping_cart5
+                                : Iconsax.shopping_cart,
+                            iconColor: isInCart
+                                ? Ucolors.primary
+                                : Ucolors.darkgrey,
 
                             onPressed: () async {
                               if (isPressed.value) return;
@@ -739,8 +753,8 @@ class WebFundListCard extends StatelessWidget {
                                   final itemId = cartItem?.id;
                                   if (itemId != null) {
                                     await cartController.deleteCartItem(
-                                        itemId,
-                                        entity.schemeCode ?? ""
+                                      itemId,
+                                      entity.schemeCode ?? "",
                                     );
                                   }
                                 } else {
@@ -759,8 +773,7 @@ class WebFundListCard extends StatelessWidget {
                           ),
                         ),
                       );
-                    })
-
+                    }),
                   ],
                 ),
               ),
@@ -1175,16 +1188,17 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                         shape: BoxShape.circle,
                         boxShadow: isHover
                             ? [
-                          BoxShadow(
-                            blurRadius: 10,
-                            color: Ucolors.primary.withValues(alpha: .18),
-                          ),
-                        ]
+                                BoxShadow(
+                                  blurRadius: 10,
+                                  color: Ucolors.primary.withValues(alpha: .18),
+                                ),
+                              ]
                             : [],
                       ),
                       child: ClipOval(
                         child: CustomCachedImage(
-                          imageUrl: "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}",
+                          imageUrl:
+                              "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}",
                         ),
                       ),
                     ),
@@ -1239,11 +1253,23 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _miniReturnRow("1Y", entity.returnsEntity?.oneYear, scale),
+                      _miniReturnRow(
+                        "1Y",
+                        entity.returnsEntity?.oneYear,
+                        scale,
+                      ),
                       Gap(scale(12)),
-                      _miniReturnRow("3Y", entity.returnsEntity?.threeYear, scale),
+                      _miniReturnRow(
+                        "3Y",
+                        entity.returnsEntity?.threeYear,
+                        scale,
+                      ),
                       Gap(scale(12)),
-                      _miniReturnRow("5Y", entity.returnsEntity?.fiveYear, scale),
+                      _miniReturnRow(
+                        "5Y",
+                        entity.returnsEntity?.fiveYear,
+                        scale,
+                      ),
                     ],
                   ),
                 ),
@@ -1271,7 +1297,8 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
 
                     return PremiumHeartButton(
                       isFav: isFav,
-                      onTap: () => wishlistController.toggleWishlist(code, name),
+                      onTap: () =>
+                          wishlistController.toggleWishlist(code, name),
                     );
                   }),
 
@@ -1283,11 +1310,13 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                     final cartController = Get.find<CartController>();
                     final String code = entity.schemeCode ?? "";
 
-                    final matchingItems = cartController.displayedItems.where(
-                            (item) => item.schemeCode.toString() == code
-                    ).toList();
+                    final matchingItems = cartController.displayedItems
+                        .where((item) => item.schemeCode.toString() == code)
+                        .toList();
 
-                    final cartItem = matchingItems.isNotEmpty ? matchingItems.first : null;
+                    final cartItem = matchingItems.isNotEmpty
+                        ? matchingItems.first
+                        : null;
                     final bool isInCart = cartItem != null;
 
                     return AnimatedScale(
@@ -1299,7 +1328,8 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                       child: AnimatedSwitcher(
                         // Extended duration to let the elastic spring finish its movement
                         duration: const Duration(milliseconds: 650),
-                        switchInCurve: Curves.elasticOut, // The secret sauce for the bouncy feel
+                        switchInCurve: Curves
+                            .elasticOut, // The secret sauce for the bouncy feel
                         switchOutCurve: Curves.easeOut,
 
                         transitionBuilder: (child, animation) {
@@ -1307,7 +1337,10 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                             scale: animation,
                             // Adds a dynamic 180-degree flip as it scales in
                             child: RotationTransition(
-                              turns: Tween<double>(begin: 0.5, end: 1.0).animate(animation),
+                              turns: Tween<double>(
+                                begin: 0.5,
+                                end: 1.0,
+                              ).animate(animation),
                               child: FadeTransition(
                                 opacity: animation,
                                 child: child,
@@ -1317,8 +1350,12 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                         },
                         child: CompactIcon(
                           key: ValueKey<bool>(isInCart),
-                          icon: isInCart ? Iconsax.shopping_cart5 : Iconsax.shopping_cart,
-                          iconColor: isInCart ? Ucolors.primary : Ucolors.darkgrey,
+                          icon: isInCart
+                              ? Iconsax.shopping_cart5
+                              : Iconsax.shopping_cart,
+                          iconColor: isInCart
+                              ? Ucolors.primary
+                              : Ucolors.darkgrey,
 
                           onPressed: () async {
                             if (isPressed.value) return;
@@ -1330,8 +1367,8 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                                 final itemId = cartItem?.id;
                                 if (itemId != null) {
                                   await cartController.deleteCartItem(
-                                      itemId,
-                                      entity.schemeCode ?? ""
+                                    itemId,
+                                    entity.schemeCode ?? "",
                                   );
                                 }
                               } else {
@@ -1350,7 +1387,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                         ),
                       ),
                     );
-                  })
+                  }),
                 ],
               ),
 
@@ -1363,7 +1400,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                 child: _investButton(controller, entity, scale),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -1572,7 +1609,6 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
             const Gap(12),
 
             Expanded(child: _investButton(controller, entity, (size) => size)),
-
           ],
         ),
       ],
@@ -2227,6 +2263,7 @@ class _FilterChip extends StatelessWidget {
     );
   }
 }
+
 class PremiumHeartButton extends StatefulWidget {
   final bool isFav;
   final VoidCallback onTap;
@@ -2258,20 +2295,26 @@ class _PremiumHeartButtonState extends State<PremiumHeartButton>
     _scaleAnimation = TweenSequence<double>([
       // 1. Instantly shrink down slightly when tapped
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.0, end: 0.6)
-            .chain(CurveTween(curve: Curves.easeOut)),
+        tween: Tween<double>(
+          begin: 1.0,
+          end: 0.6,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 20.0,
       ),
       // 2. Explode outwards past the normal size
       TweenSequenceItem(
-        tween: Tween<double>(begin: 0.6, end: 1.3)
-            .chain(CurveTween(curve: Curves.fastOutSlowIn)),
+        tween: Tween<double>(
+          begin: 0.6,
+          end: 1.3,
+        ).chain(CurveTween(curve: Curves.fastOutSlowIn)),
         weight: 40.0,
       ),
       // 3. Wobble back down to standard size
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.3, end: 1.0)
-            .chain(CurveTween(curve: Curves.elasticOut)),
+        tween: Tween<double>(
+          begin: 1.3,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.elasticOut)),
         weight: 40.0,
       ),
     ]).animate(_controller);
@@ -2305,14 +2348,13 @@ class _PremiumHeartButtonState extends State<PremiumHeartButton>
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: child,
-          );
+          return Transform.scale(scale: _scaleAnimation.value, child: child);
         },
         child: Icon(
           widget.isFav ? Iconsax.heart5 : Iconsax.heart,
-          color: widget.isFav ? Colors.red : Colors.grey, // Update with your Ucolors
+          color: widget.isFav
+              ? Colors.red
+              : Colors.grey, // Update with your Ucolors
           size: 24, // Update with your standard CompactIcon size
         ),
       ),
