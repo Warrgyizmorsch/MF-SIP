@@ -126,3 +126,62 @@ class UElevatedBUtton extends StatelessWidget {
     );
   }
 }
+class UElevatedButtonWeb extends StatelessWidget {
+  const UElevatedButtonWeb({
+    super.key,
+    this.onPressed,
+    this.icon,
+    this.text,
+    required this.child,
+    this.height = 48, // 🚀 Fixed default height for Web (Standard desktop size)
+    this.width,
+    this.outlined = false,
+    this.color,
+    this.circular = 12,
+  });
+
+  final VoidCallback? onPressed;
+  final IconData? icon;
+  final String? text;
+  final Widget child;
+  final double height;
+  final double? width;
+  final bool outlined;
+  final Color? color;
+  final double circular;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: height,
+      width: width, // If null, it will size to fit its parent/child perfectly
+      child: TextButton(
+        onPressed: onPressed,
+        style: TextButton.styleFrom(
+          padding: EdgeInsets.zero, // Removes default gap so Ink fills entirely
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(circular),
+          ),
+        ),
+        // 🚀 Ink must be inside the button child so the ripple effect clips to the radius
+        child: Ink(
+          decoration: outlined
+              ? BoxDecoration(
+            color: Ucolors.light, // Make sure Ucolors is imported
+            border: Border.all(color: const Color(0xffE7E7E7), width: 1.5),
+            borderRadius: BorderRadius.circular(circular),
+          )
+              : BoxDecoration(
+            borderRadius: BorderRadius.circular(circular),
+            color: color,
+            gradient: color != null ? null : Ucolors.backgroundGradient,
+          ),
+          child: Container(
+            alignment: Alignment.center, // Perfectly centers the text/child
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+}

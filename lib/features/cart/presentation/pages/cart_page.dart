@@ -3494,7 +3494,97 @@ class CartBottomBar extends StatelessWidget {
     );
   }
 }
+class CartBottomBarWeb extends StatelessWidget {
+  const CartBottomBarWeb({
+    super.key,
+    this.title,
+    this.buttonText,
+    this.amountColor,
+    required this.ontap,
+    this.amount,
+    this.goalAmount,
+    this.isValid = true,
+  });
 
+  final String? title;
+  final String? buttonText;
+  final Color? amountColor;
+  final VoidCallback ontap;
+  final String? amount;
+  final String? goalAmount;
+  final bool isValid;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xffE8F4FF),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // --- LEFT SIDE: Amount Details ---
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title ?? 'Amount Payable',
+                    style: UTextStyles.small.copyWith(
+                      fontSize: 14, // Slightly larger for readability on web
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '₹ ${amount ?? 0}',
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 28, // Scaled up for desktop
+                      fontWeight: FontWeight.bold,
+                      color:  Ucolors.success,
+                    ),
+                  ),
+                ],
+              ),
+              // --- RIGHT SIDE: Purchase Button ---
+              SizedBox(
+                width: 250, // 🚀 Fixed width prevents comical stretching
+                height: 52,
+                child: UElevatedButtonWeb(
+                  color: isValid ? Ucolors.primary : Colors.grey.shade400,
+                  onPressed: isValid ? ontap : null,
+                  child: Center(
+                    child: Text(
+                      buttonText ?? 'Purchase',
+                      style: UTextStyles.buttonText.copyWith(
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 class CartItemCard extends StatelessWidget {
   const CartItemCard({
     super.key,

@@ -10,17 +10,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cdbf9060-101a-4ca2-a23e-a22c81aaf0d9" name="Changes" comment="add web updates">
-      <change afterPath="$PROJECT_DIR$/lib/features/goal/presentation/pages/web_master_goals_view.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/routes/app_pages.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/config/routes/app_routes.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config/routes/app_routes.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/common/widget/button/elevated_button.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/common/widget/button/elevated_button.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/features/cart/presentation/pages/cart_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/cart/presentation/pages/cart_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/explore/presentation/pages/explore.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/explore/presentation/pages/explore.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/pages/goal.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/pages/goal.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/pages/web_master_goals_pages.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/pages/web_master_goals_pages.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/mfu/presentation/pages/purchase_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/mfu/presentation/pages/purchase_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/goal/presentation/pages/web_master_goals_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/goal/presentation/pages/web_master_goals_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/sip_process/presentation/controllers/sip_process_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/sip_process/presentation/controllers/sip_process_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/sip_process/presentation/pages/investing_approach_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/sip_process/presentation/pages/investing_approach_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/sip_process/presentation/pages/monthly_sip_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/sip_process/presentation/pages/monthly_sip_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/sip_process/presentation/pages/select_funds_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/sip_process/presentation/pages/select_funds_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -117,7 +116,7 @@
     "cidr.known.project.marker": "true",
     "com.google.services.firebase.aqiPopupShown": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "hk__20__june__goal__updates",
+    "git-widget-placeholder": "imam__web__update",
     "io.flutter.project.isFirstOpen": "true",
     "io.flutter.reload.alreadyRun": "true",
     "kotlin-language-version-configured": "true",
@@ -226,11 +225,6 @@
           <option name="timeStamp" value="59" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
-          <url>file://$PROJECT_DIR$/lib/features/sip_process/presentation/pages/monthly_sip_screen.dart</url>
-          <line>45</line>
-          <option name="timeStamp" value="60" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/features/dashboard/presentation/pages/comparison_screen.dart</url>
           <line>374</line>
           <option name="timeStamp" value="62" />
@@ -269,6 +263,26 @@
           <url>file://$PROJECT_DIR$/lib/features/home/presentation/pages/home.dart</url>
           <line>3076</line>
           <option name="timeStamp" value="81" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/features/goal/presentation/pages/web_master_goals_pages.dart</url>
+          <line>869</line>
+          <option name="timeStamp" value="82" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/features/sip_process/presentation/pages/investing_approach_screen.dart</url>
+          <line>588</line>
+          <option name="timeStamp" value="84" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/common/widget/text_form/text_field_component.dart</url>
+          <line>16</line>
+          <option name="timeStamp" value="93" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/features/sip_process/presentation/pages/select_funds_screen.dart</url>
+          <line>251</line>
+          <option name="timeStamp" value="94" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
