@@ -166,1210 +166,1195 @@ class _WebDashboardLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<PersonalisationController>();
+    final personalController = Get.find<PersonalisationController>();
 
-    final isPending = controller.isKycPending.value;
+    return Scaffold(
+      backgroundColor: const Color(0xFFF6F8FC),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final double width = constraints.maxWidth;
+          final bool compact = width < 1180;
+
+          return SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              compact ? 22 : 28,
+              24,
+              compact ? 22 : 28,
+              32,
+            ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1500),
+                child: compact
+                    ? Column(
+                        children: [
+                          _buildMainColumn(context, personalController),
+                          const SizedBox(height: 24),
+                          _buildRightColumn(context),
+                        ],
+                      )
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 66,
+                            child: _buildMainColumn(
+                              context,
+                              personalController,
+                            ),
+                          ),
+                          const SizedBox(width: 24),
+                          Expanded(flex: 34, child: _buildRightColumn(context)),
+                        ],
+                      ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildMainColumn(
+    BuildContext context,
+    PersonalisationController personalController,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildWelcomeHero(),
+        const SizedBox(height: 24),
+        _buildSmartActionRow(),
+        const SizedBox(height: 24),
+        _buildExploreCategories(),
+        const SizedBox(height: 24),
+        _buildPopularFunds(),
+        const SizedBox(height: 24),
+        _buildLearnGrow(),
+      ],
+    );
+  }
+
+  Widget _buildRightColumn(BuildContext context) {
+    return Column(
+      children: [
+        _buildInvestNowPanel(context),
+        const SizedBox(height: 24),
+        _buildRecentlyViewedPanel(),
+        const SizedBox(height: 24),
+        _buildGoalsPanel(),
+        const SizedBox(height: 24),
+        _buildFinancialToolsPanel(),
+      ],
+    );
+  }
+
+  // =========================================================
+  // HERO
+  // =========================================================
+  Widget _buildWelcomeHero() {
+    final name = authController.user.value?.name ?? 'Investor';
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        final width = constraints.maxWidth;
+        final double width = constraints.maxWidth;
 
-        final bool isTablet = width < 800;
+        final bool small = width < 900;
+        final bool verySmall = width < 560;
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: SizedBox(
-            width: double.infinity,
+        final double horizontalPadding = verySmall
+            ? 18
+            : small
+            ? 22
+            : 30;
 
-            child: isTablet
-                /// TABLET LAYOUT
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [_buildLeftSectionTable(context, isPending)],
-                  )
-                /// DESKTOP LAYOUT
-                : Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      /// LEFT SECTION
-                      Expanded(
-                        flex: 6,
-                        child: _buildLeftSection(context, isPending),
-                      ),
+        final double titleSize = verySmall
+            ? 22
+            : small
+            ? 24
+            : 27;
 
-                      const SizedBox(width: 30),
+        final int metricCount = verySmall
+            ? 1
+            : small
+            ? 2
+            : 4;
 
-                      /// RIGHT SECTION
-                      Expanded(flex: 4, child: _buildRightSection(context)),
-                    ],
+        return Container(
+          width: double.infinity,
+          padding: EdgeInsets.fromLTRB(
+            horizontalPadding,
+            small ? 22 : 26,
+            horizontalPadding,
+            small ? 22 : 24,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            gradient: const LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [Color(0xFFE9F9FF), Color(0xFFDFF4FF), Color(0xFFEAF7FF)],
+            ),
+            border: Border.all(color: const Color(0xFFE6EEF8)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.025),
+                blurRadius: 22,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              RichText(
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                text: TextSpan(
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: titleSize,
+                    height: 1.2,
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xFF111827),
                   ),
+                  children: [
+                    const TextSpan(text: 'Welcome back, '),
+                    TextSpan(
+                      text: '$name!',
+                      style: const TextStyle(color: Color(0xFF005DFF)),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              Text(
+                'Stay consistent with your SIPs and reach your financial goals faster.',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: small ? 14 : 15,
+                  height: 1.4,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.blueGrey.shade700,
+                ),
+              ),
+
+              SizedBox(height: small ? 22 : 26),
+
+              GridView.count(
+                crossAxisCount: metricCount,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisSpacing: 14,
+                mainAxisSpacing: 14,
+                childAspectRatio: verySmall
+                    ? 3.8
+                    : small
+                    ? 3.25
+                    : 2.25,
+                children: [
+                  _heroMetric(
+                    icon: Icons.wallet_outlined,
+                    iconColor: const Color(0xFF246BDB),
+                    title: 'Portfolio Value',
+                    value: '₹2,75,430',
+                    subtitle: '+12.45%',
+                    trailing: 'All Time',
+                    compact: small,
+                  ),
+                  _heroMetric(
+                    icon: Icons.calendar_month_outlined,
+                    iconColor: const Color(0xFF0097A7),
+                    title: 'SIP Due This Month',
+                    value: '₹12,000',
+                    subtitle: 'Due on 05 Jun 2025',
+                    trailing: '',
+                    compact: small,
+                  ),
+                  _heroMetric(
+                    icon: Icons.track_changes_rounded,
+                    iconColor: const Color(0xFF6D35D9),
+                    title: 'Active Goals',
+                    value: '4 Goals',
+                    subtitle: 'On Track',
+                    trailing: '',
+                    compact: small,
+                  ),
+                  _heroMetric(
+                    icon: Icons.trending_up_rounded,
+                    iconColor: const Color(0xFF43A047),
+                    title: 'Overall Returns',
+                    value: '+₹35,430',
+                    subtitle: '+14.75%',
+                    trailing: '',
+                    compact: small,
+                  ),
+                ],
+              ),
+            ],
           ),
         );
       },
     );
   }
 
-  Widget _buildLeftSectionTable(BuildContext context, bool isPending) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  // Widget _buildWelcomeHero() {
+  //   final name = authController.user.value?.name ?? 'Investor';
 
-      children: [
-        /// HERo
-        isPending ? _buildHeroBanner() : _buildKycIsComplete(),
+  //   return Container(
+  //     width: double.infinity,
+  //     height: 220,
+  //     padding: const EdgeInsets.fromLTRB(30, 26, 30, 24),
+  //     decoration: BoxDecoration(
+  //       borderRadius: BorderRadius.circular(18),
+  //       gradient: const LinearGradient(
+  //         begin: Alignment.centerLeft,
+  //         end: Alignment.centerRight,
+  //         colors: [Color(0xFFE9F9FF), Color(0xFFDFF4FF), Color(0xFFEAF7FF)],
+  //       ),
+  //       border: Border.all(color: const Color(0xFFE6EEF8)),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Colors.black.withValues(alpha: 0.025),
+  //           blurRadius: 22,
+  //           offset: const Offset(0, 10),
+  //         ),
+  //       ],
+  //     ),
+  //     child: Column(
+  //       children: [
+  //         Expanded(
+  //           child: Row(
+  //             children: [
+  //               Expanded(
+  //                 child: Padding(
+  //                   padding: const EdgeInsets.only(top: 4),
+  //                   child: Column(
+  //                     crossAxisAlignment: CrossAxisAlignment.start,
+  //                     children: [
+  //                       RichText(
+  //                         text: TextSpan(
+  //                           style: const TextStyle(
+  //                             fontFamily: FontFamily.medium,
+  //                             fontSize: 27,
+  //                             height: 1.2,
+  //                             fontWeight: FontWeight.w900,
+  //                             color: Color(0xFF111827),
+  //                           ),
+  //                           children: [
+  //                             const TextSpan(text: 'Welcome back, '),
+  //                             TextSpan(
+  //                               text: '$name!',
+  //                               style: const TextStyle(
+  //                                 color: Color(0xFF005DFF),
+  //                               ),
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ),
+  //                       const SizedBox(height: 10),
+  //                       Text(
+  //                         'Stay consistent with your SIPs and reach your financial goals faster.',
+  //                         style: TextStyle(
+  //                           fontFamily: FontFamily.medium,
+  //                           fontSize: 15,
+  //                           height: 1.4,
+  //                           fontWeight: FontWeight.w500,
+  //                           color: Colors.blueGrey.shade700,
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //               ),
 
-        const Gap(24),
+  //               const SizedBox(width: 20),
 
-        _buildQuickActionsCard(context),
+  //               // Container(
+  //               //   width: 190,
+  //               //   height: 115,
+  //               //   alignment: Alignment.center,
+  //               //   child: Stack(
+  //               //     alignment: Alignment.center,
+  //               //     children: [
+  //               //       Container(
+  //               //         width: 170,
+  //               //         height: 88,
+  //               //         decoration: BoxDecoration(
+  //               //           color: Colors.white.withValues(alpha: 0.50),
+  //               //           borderRadius: BorderRadius.circular(50),
+  //               //         ),
+  //               //       ),
+  //               //       const Icon(
+  //               //         Icons.show_chart_rounded,
+  //               //         size: 96,
+  //               //         color: Color(0xFF188BD8),
+  //               //       ),
+  //               //       Positioned(
+  //               //         right: 24,
+  //               //         bottom: 14,
+  //               //         child: Icon(
+  //               //           Icons.monetization_on_rounded,
+  //               //           color: Colors.orange.shade400,
+  //               //           size: 32,
+  //               //         ),
+  //               //       ),
+  //               //     ],
+  //               //   ),
+  //               // ),
+  //             ],
+  //           ),
+  //         ),
 
-        const Gap(24),
+  //         Row(
+  //           children: [
+  //             Expanded(
+  //               child: _heroMetric(
+  //                 icon: Icons.wallet_outlined,
+  //                 iconColor: const Color(0xFF246BDB),
+  //                 title: 'Portfolio Value',
+  //                 value: '₹2,75,430',
+  //                 subtitle: '+12.45%',
+  //                 trailing: 'All Time',
+  //               ),
+  //             ),
+  //             const SizedBox(width: 14),
+  //             Expanded(
+  //               child: _heroMetric(
+  //                 icon: Icons.calendar_month_outlined,
+  //                 iconColor: const Color(0xFF0097A7),
+  //                 title: 'SIP Due This Month',
+  //                 value: '₹12,000',
+  //                 subtitle: 'Due on 05 Jun 2025',
+  //                 trailing: '',
+  //               ),
+  //             ),
+  //             const SizedBox(width: 14),
+  //             Expanded(
+  //               child: _heroMetric(
+  //                 icon: Icons.track_changes_rounded,
+  //                 iconColor: const Color(0xFF6D35D9),
+  //                 title: 'Active Goals',
+  //                 value: '4 Goals',
+  //                 subtitle: 'On Track',
+  //                 trailing: '',
+  //               ),
+  //             ),
+  //             const SizedBox(width: 14),
+  //             Expanded(
+  //               child: _heroMetric(
+  //                 icon: Icons.trending_up_rounded,
+  //                 iconColor: const Color(0xFF43A047),
+  //                 title: 'Overall Returns',
+  //                 value: '+₹35,430',
+  //                 subtitle: '+14.75%',
+  //                 trailing: '',
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-        _buildWebCollectionGrid(),
-
-        const Gap(24),
-
-        _buildRecentCard(),
-
-        const Gap(24),
-
-        _buildWebFundGrid(),
-
-        const Gap(24),
-
-        _buildWebGoalSection(),
-
-        const Gap(24),
-
-        _buildWebToolsSection(),
-
-        /// FUNDS
-        const Gap(30),
-
-        /// VIDEOS
-        _buildWebVideoRow(),
-      ],
-    );
-  }
-
-  // =========================================================
-  // LEFT SECTION
-  // =========================================================
-
-  Widget _buildLeftSection(BuildContext context, bool isPending) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        /// HERO
-        ///
-        isPending ? _buildHeroBanner() : _buildKycIsComplete(),
-
-        const Gap(24),
-
-        _buildWebCollectionGrid(),
-        const Gap(24),
-
-        _buildWebFundGrid(),
-
-        const Gap(24),
-
-        /// VIDEOS
-        _buildWebVideoRow(),
-      ],
-    );
-  }
-
-  // =========================================================
-  // RIGHT SECTION
-  // =========================================================
-
-  Widget _buildRightSection(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        _buildQuickActionsCard(context),
-
-        const Gap(24),
-
-        _buildRecentCard(),
-        const Gap(28),
-        _buildWebGoalSection(),
-        const Gap(24),
-
-        _buildWebToolsSection(),
-      ],
-    );
-  }
-
-  Widget _buildRecentCard() {
-    return Obx(() {
-      final bool isLoading = mutualController.isLoading.value;
-      final List recentList = mutualController.recentlyViewedFunds;
-
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          final width = constraints.maxWidth;
-          final bool isSmallMobile = width < 500;
-          final bool isMobile = width < 700;
-          final bool isTablet = width >= 700 && width < 1100;
-
-          final int crossAxisCount = isMobile
-              ? isSmallMobile?1:2
-              : isTablet
-              ? 3
-              : 4;
-
-          return Container(
-            width: double.infinity,
-            margin: const EdgeInsets.only(top: 20, bottom: 10),
-            padding: const EdgeInsets.all(18),
+  Widget _heroMetric({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String value,
+    required String subtitle,
+    required String trailing,
+    bool compact = false,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 14 : 16,
+        vertical: compact ? 9 : 10,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.035),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: compact ? 38 : 42,
+            height: compact ? 38 : 42,
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.grey.shade100),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  iconColor.withValues(alpha: 0.95),
+                  iconColor.withValues(alpha: 0.75),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
-                  blurRadius: 15,
+                  color: iconColor.withValues(alpha: 0.22),
+                  blurRadius: 10,
                   offset: const Offset(0, 5),
                 ),
               ],
             ),
+            child: Icon(icon, color: Colors.white, size: compact ? 20 : 22),
+          ),
+
+          const SizedBox(width: 12),
+
+          Expanded(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const USectionHeading(
-                  title: 'Recently Viewed',
-                  fontSize: 22,
-                  showActionButton: false,
-                ),
-                const SizedBox(height: 16),
-
-                /// 1. LOADING STATE
-                if (isLoading)
-                  FundShimmerLoading(crossAxisCount: crossAxisCount)
-                /// 2. EMPTY STATE
-                else if (recentList.isEmpty)
-                  Container(
-                    width: double.infinity,
-                    height: 340,
-                    padding: const EdgeInsets.symmetric(vertical: 40),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Iconsax.clock,
-                          size: 44,
-                          color: Colors.grey.shade300,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          "No recently viewed funds",
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 15,
-                            fontFamily: FontFamily.medium,
-
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          "Your history will appear here.",
-                          style: TextStyle(
-                            fontFamily: FontFamily.medium,
-
-                            color: Colors.grey.shade400,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                /// 3. DATA LOADED (Sirf 2 Rows dikhenge, baki ke liye Scroll hoga)
-                else
-                  SizedBox(
-                    height: 345,
-                    child: GridView.builder(
-                      shrinkWrap: false,
-                      physics: const BouncingScrollPhysics(),
-                      itemCount: recentList.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
-                        mainAxisExtent: 160,
-                        crossAxisSpacing: 18,
-                        mainAxisSpacing: 18,
-                      ),
-                      itemBuilder: (context, index) {
-                        final fund = recentList[index];
-
-                        // Logo Image handling
-                        final rawLogo = fund.amc?.amcLogoUrl ?? '';
-                        final img = rawLogo.startsWith('http')
-                            ? rawLogo
-                            : "${Appurl.baseUrl}$rawLogo";
-
-                        final name = fund.baseSchemeName ?? 'Unknown Name';
-
-                        return PopularFundCard(
-                          onTap: () {
-                            Get.delete<FundDetailsController>();
-                            FundDetailsScreen.navData = {
-                              'scheme': name,
-                              'imgUrl': img,
-                              'scheme_code': fund.schemeCode.toString(),
-                            };
-                            Get.toNamed(AppRoutes.funddetails, id: 1);
-                          },
-                          isNetwork: true,
-                          imgPath: img,
-                          name: name,
-                          threeYear: fund.returnsEntity?.threeYear ?? '--',
-                        );
-                      },
-                    ),
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: compact ? 11.5 : 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.blueGrey.shade600,
                   ),
-              ],
-            ),
-          );
-        },
-      );
-    });
-  }
-
-  // =========================================================
-  // VIDEO SECTION
-  // =========================================================
-
-  Widget _buildWebVideoRow() {
-    final videos = [
-      {
-        "thumbnail": "https://img.youtube.com/vi/yo5aL4Plbso/maxresdefault.jpg",
-        "videoId": "yo5aL4Plbso",
-      },
-      {
-        "thumbnail": "https://img.youtube.com/vi/t7lUSiddFd4/maxresdefault.jpg",
-        "videoId": "t7lUSiddFd4",
-      },
-    ];
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        final bool isMobile = width < 600;
-
-        return Container(
-          width: double.infinity,
-          margin: const EdgeInsets.symmetric(vertical: 20),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.grey.shade100),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
-                blurRadius: 15,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Title inside the card
-              const Text(
-                "Learn & Grow",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: FontFamily.medium,
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              Flex(
-                direction: isMobile ? Axis.vertical : Axis.horizontal,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: List.generate(videos.length, (index) {
-                  final item = videos[index];
-
-                  return Expanded(
-                    flex: isMobile
-                        ? 2
-                        : videos
-                              .length, // Mobile par fixed height, Web par equal width
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        // Desktop par beech mein space, Mobile par niche space
-                        right: (!isMobile && index == 0) ? 20 : 0,
-                        bottom: (isMobile && index != videos.length - 1)
-                            ? 20
-                            : 0,
-                      ),
-                      child: SizedBox(
-                        height: isMobile ? 180 : 220, // Fixed height for videos
-                        child: WebHoverScale(
-                          scale: 1.02,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              // Sub-card border effect
-                              border: Border.all(color: Colors.grey.shade50),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
-                              child: InlineYouTubePlayer(
-                                thumbnailUrl: item['thumbnail'] as String,
-                                videoId: item['videoId'] as String,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  // =========================================================
-  // GOAL SECTION
-  // =========================================================
-
-  Widget _buildWebGoalSection() {
-    final goals = [
-      {
-        "title": "Car Goal",
-        "icon": Icons.directions_car_filled_rounded,
-        "goalType": "car",
-      },
-      {
-        "title": "Marriage Goal",
-        "icon": Icons.favorite_border_outlined,
-        "goalType": "marriage",
-      },
-      {"title": "Home Goal", "icon": Icons.home_rounded, "goalType": "home"},
-      {
-        "title": "Vacation Goal",
-        "icon": Icons.flight_takeoff_rounded,
-        "goalType": "vacation",
-      },
-    ];
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          /// TITLE
-          const Text(
-            "Plan Your Goals",
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              fontFamily: FontFamily.medium,
-            ),
-          ),
-
-          const Gap(20),
-
-          /// ROW BUTTONS
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final width = constraints.maxWidth;
-
-              /// MOBILE = 2
-              /// WEB = 4
-
-              final bool isMobile = width < 700;
-              final bool isTablet = width >= 700 && width < 1100;
-
-              final int crossAxisCount = width < 300
-                  ? 1
-                  : isMobile
-                  ? 2
-                  : isTablet
-                  ? 3
-                  : 4;
-              return GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-
-                itemCount: goals.length,
-
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-
-                  mainAxisExtent: 75,
-
-                  crossAxisSpacing: 14,
-                  mainAxisSpacing: 14,
                 ),
 
-                itemBuilder: (context, index) {
-                  final item = goals[index];
+                const SizedBox(height: 3),
 
-                  return _buildGoalTile(
-                    title: item['title'] as String,
-                    icon: item['icon'] as IconData,
-                    goalType: item['goalType'] as String,
-                  );
-                },
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  // =========================================================
-  // GOAL TILE
-  // =========================================================
-
-  Widget _buildGoalTile({
-    required String title,
-    required IconData icon,
-    required String goalType,
-  }) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = MediaQuery.of(context).size.width;
-
-        /// RESPONSIVE FONT
-        final bool isMobile = width < 400;
-        final bool isTablet = width >= 400 && width < 1800;
-
-        final double titleFontSize = isMobile
-            ? 12
-            : isTablet
-            ? 14
-            : 16;
-
-        final double iconBoxSize = isMobile ? 32 : 44;
-
-        final double arrowSize = isMobile ? 13 : 16;
-        final double iconSize = isMobile ? 16 : 20;
-
-        return WebHoverTile(
-          onTap: () {},
-
-          builder: (isHovered) {
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-
-              padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 8 : 10,
-                vertical: isMobile ? 8 : 10,
-              ),
-
-              decoration: BoxDecoration(
-                color: isHovered
-                    ? Ucolors.primary.withValues(alpha: 0.06)
-                    : Colors.grey.shade50,
-
-                borderRadius: BorderRadius.circular(14),
-
-                border: Border.all(
-                  color: isHovered
-                      ? Ucolors.primary.withValues(alpha: 0.15)
-                      : Colors.grey.shade200,
-                ),
-              ),
-
-              child: Row(
-                children: [
-                  /// ICON
-                  Container(
-                    height: iconBoxSize,
-                    width: iconBoxSize,
-                    decoration: BoxDecoration(
-                      color: isHovered
-                          ? Ucolors.primary.withValues(alpha: 0.12)
-                          : Colors.white,
-
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-
-                    child: Icon(
-                      icon,
-                      size: iconSize,
-                      color: isHovered ? Ucolors.primary : Colors.grey.shade700,
-                    ),
-                  ),
-
-                  SizedBox(width: isMobile ? 6 : 8),
-
-                  /// TITLE
-                  Expanded(
-                    child: Text(
-                      title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: titleFontSize,
-                        height: 1.2,
-                        fontFamily: FontFamily.medium,
-
-                        fontWeight: isHovered
-                            ? FontWeight.w600
-                            : FontWeight.w500,
-                        color: isHovered ? Ucolors.primary : Colors.black87,
-                      ),
-                    ),
-                  ),
-
-                  SizedBox(width: isMobile ? 6 : 10),
-
-                  /// ARROW
-                  Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    size: arrowSize,
-                    color: isHovered ? Ucolors.primary : Colors.grey.shade400,
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  // =========================================================
-  // TOOLS SECTION
-  // =========================================================
-
-  Widget _buildWebToolsSection() {
-    final tools = [
-      {
-        "title": "SIP Calculator",
-        "img": UImages.sipcalci,
-        "onTap": () => Get.toNamed(AppRoutes.sipCalculator, id: 1),
-      },
-      {
-        "title": "SWP Calculator",
-        "img": UImages.swpcali,
-        "onTap": () => Get.toNamed(AppRoutes.swpCalculator, id: 1),
-      },
-      {
-        "title": "Step-Up Calculator",
-        "img": UImages.siptopcalci,
-        "onTap": () => Get.toNamed(AppRoutes.stepUpCalculator, id: 1),
-      },
-      {
-        "title": "Compare Fund",
-        "img": UImages.comparefund,
-        "onTap": () => Get.toNamed(AppRoutes.comparefund, id: 1),
-      },
-    ];
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          /// TITLE
-          const Text(
-            "Financial Tools",
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              fontFamily: FontFamily.medium,
-            ),
-          ),
-
-          const Gap(20),
-
-          /// GRID
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final width = constraints.maxWidth;
-
-              /// MOBILE = 1
-              /// TABLET/WEB = 2
-
-              final bool isMobile = width < 700;
-              final bool isTablet = width >= 700 && width < 1100;
-
-              final int crossAxisCount = width < 300
-                  ? 1
-                  : isMobile
-                  ? 2
-                  : isTablet
-                  ? 3
-                  : 4;
-              return GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-
-                itemCount: tools.length,
-
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-
-                  mainAxisExtent: 75,
-
-                  crossAxisSpacing: 14,
-                  mainAxisSpacing: 14,
-                ),
-
-                itemBuilder: (context, index) {
-                  final item = tools[index];
-
-                  return _buildToolItem(
-                    item['title'] as String,
-                    item['img'] as String,
-                    item['onTap'] as VoidCallback,
-                  );
-                },
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  // =========================================================
-  // TOOL ITEM
-  // =========================================================
-
-  Widget _buildToolItem(String title, String img, VoidCallback onTap) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = MediaQuery.of(context).size.width;
-
-        /// RESPONSIVE FONT
-        /// RESPONSIVE FONT
-        final bool isMobile = width < 400;
-        final bool isTablet = width >= 400 && width < 1800;
-
-        final double titleFontSize = isMobile
-            ? 12
-            : isTablet
-            ? 14
-            : 16;
-
-        final double iconBoxSize = isMobile ? 32 : 44;
-
-        final double arrowSize = isMobile ? 13 : 16;
-        final double iconSize = isMobile ? 16 : 20;
-
-        return WebHoverTile(
-          onTap: onTap,
-          builder: (isHovered) {
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 8 : 10,
-                vertical: isMobile ? 8 : 10,
-              ),
-              decoration: BoxDecoration(
-                color: isHovered
-                    ? Ucolors.primary.withValues(alpha: 0.06)
-                    : Colors.grey.shade50,
-
-                borderRadius: BorderRadius.circular(14),
-
-                border: Border.all(
-                  color: isHovered
-                      ? Ucolors.primary.withValues(alpha: 0.15)
-                      : Colors.grey.shade200,
-                ),
-              ),
-
-              child: Row(
-                children: [
-                  /// IMAGE
-                  Container(
-                    height: iconBoxSize,
-                    width: iconBoxSize,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Image.asset(img, fit: BoxFit.contain),
-                  ),
-
-                  SizedBox(width: isMobile ? 6 : 8),
-
-                  /// TITLE
-                  Expanded(
-                    child: Text(
-                      title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: titleFontSize,
-                        height: 1.2,
-                        fontFamily: FontFamily.medium,
-
-                        fontWeight: isHovered
-                            ? FontWeight.w600
-                            : FontWeight.w500,
-                        color: isHovered ? Ucolors.primary : Colors.black87,
-                      ),
-                    ),
-                  ),
-
-                  SizedBox(width: isMobile ? 6 : 10),
-
-                  /// ARROW
-                  Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    size: arrowSize,
-                    color: isHovered ? Ucolors.primary : Colors.grey.shade400,
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-  // =========================================================
-  // HERO BANNER
-  // =========================================================
-
-  Widget _buildHeroBanner() {
-    return WebHoverScale(
-      scale: 1.01,
-      onTap: () {
-        if (kIsWeb) {
-          // Show Dialog for Web Users
-          Get.dialog(
-            AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              title: Row(
-                children: [
-                  Icon(Icons.smartphone, color: Ucolors.primary),
-                  const SizedBox(width: 10),
-                  const Text("Mobile App Required"),
-                ],
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "For security and verification purposes, the KYC process can only be completed via our Mobile Application.",
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    value,
+                    maxLines: 1,
+                    softWrap: false,
                     style: TextStyle(
-                      fontSize: 15,
                       fontFamily: FontFamily.medium,
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  Text(
-                    "Please download the app from the Play Store or App Store to continue.",
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
-                      fontFamily: FontFamily.medium,
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Get.back(),
-                  child: const Text(
-                    "Got it",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontFamily: FontFamily.medium,
+                      fontSize: compact ? 16 : 17,
+                      fontWeight: FontWeight.w900,
+                      color: const Color(0xFF111827),
                     ),
                   ),
                 ),
-              ],
-            ),
-          );
-        } else {
-          // Navigate for Mobile Users
-          Get.toNamed(AppRoutes.kycScreen, id: 1);
-        }
-      },
-      child: Container(
-        width: double.infinity,
-        constraints: const BoxConstraints(minHeight: 180),
-        padding: const EdgeInsets.all(30),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF07315C), Color(0xff0280C0)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(22),
-          boxShadow: [
-            BoxShadow(
-              color: Ucolors.primary.withValues(alpha: 0.2),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            /// LEFT
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Welcome Back, ${authController.user.value?.name ?? 'Investor'}!",
-                    style: UTextStyles.heading2.copyWith(color: Colors.white),
-                  ),
 
-                  const Gap(10),
+                const SizedBox(height: 1),
 
-                  Text(
-                    "Track your investments and achieve your financial freedom.",
-                    style: UTextStyles.medium.copyWith(color: Colors.white70),
-                  ),
-                ],
-              ),
-            ),
-
-            const Gap(20),
-
-            /// KYC CARD
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white24),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.verified_user_outlined, color: Colors.white),
-
-                  const Gap(10),
-
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "KYC Status",
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
                           fontFamily: FontFamily.medium,
+                          fontSize: compact ? 10.5 : 11,
+                          fontWeight: FontWeight.w700,
+                          color: subtitle.contains('+')
+                              ? const Color(0xFF00A85A)
+                              : Colors.blueGrey.shade600,
                         ),
                       ),
+                    ),
 
-                      Text(
-                        "Pending Action",
-                        style: UTextStyles.subtitle1.copyWith(
-                          color: Colors.white,
+                    if (trailing.isNotEmpty) ...[
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          trailing,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: compact ? 10.5 : 11,
+                            color: Colors.blueGrey.shade500,
+                          ),
                         ),
                       ),
                     ],
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+  // Widget _heroMetric({
+  //   required IconData icon,
+  //   required Color iconColor,
+  //   required String title,
+  //   required String value,
+  //   required String subtitle,
+  //   required String trailing,
+  // }) {
+  //   return Container(
+  //     height: 85,
+  //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+  //     decoration: BoxDecoration(
+  //       color: Colors.white.withValues(alpha: 0.92),
+  //       borderRadius: BorderRadius.circular(14),
+  //       border: Border.all(color: Colors.white),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Colors.black.withValues(alpha: 0.035),
+  //           blurRadius: 18,
+  //           offset: const Offset(0, 8),
+  //         ),
+  //       ],
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         Container(
+  //           width: 42,
+  //           height: 42,
+  //           decoration: BoxDecoration(
+  //             gradient: LinearGradient(
+  //               begin: Alignment.topLeft,
+  //               end: Alignment.bottomRight,
+  //               colors: [
+  //                 iconColor.withValues(alpha: 0.95),
+  //                 iconColor.withValues(alpha: 0.75),
+  //               ],
+  //             ),
+  //             borderRadius: BorderRadius.circular(12),
+  //             boxShadow: [
+  //               BoxShadow(
+  //                 color: iconColor.withValues(alpha: 0.22),
+  //                 blurRadius: 10,
+  //                 offset: const Offset(0, 5),
+  //               ),
+  //             ],
+  //           ),
+  //           child: Icon(icon, color: Colors.white, size: 22),
+  //         ),
+  //         const SizedBox(width: 14),
+  //         Expanded(
+  //           child: Column(
+  //             mainAxisAlignment: MainAxisAlignment.center,
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               Text(
+  //                 title,
+  //                 maxLines: 1,
+  //                 overflow: TextOverflow.ellipsis,
+  //                 style: TextStyle(
+  //                   fontFamily: FontFamily.medium,
+  //                   fontSize: 12,
+  //                   fontWeight: FontWeight.w600,
+  //                   color: Colors.blueGrey.shade600,
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 4),
+  //               Text(
+  //                 value,
+  //                 maxLines: 1,
+  //                 overflow: TextOverflow.ellipsis,
+  //                 style: const TextStyle(
+  //                   fontFamily: FontFamily.medium,
+  //                   fontSize: 17,
+  //                   fontWeight: FontWeight.w900,
+  //                   color: Color(0xFF111827),
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 2),
+  //               Row(
+  //                 children: [
+  //                   Flexible(
+  //                     child: Text(
+  //                       subtitle,
+  //                       maxLines: 1,
+  //                       overflow: TextOverflow.ellipsis,
+  //                       style: TextStyle(
+  //                         fontFamily: FontFamily.medium,
+  //                         fontSize: 11,
+  //                         fontWeight: FontWeight.w700,
+  //                         color: subtitle.contains('+')
+  //                             ? const Color(0xFF00A85A)
+  //                             : Colors.blueGrey.shade600,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                   if (trailing.isNotEmpty) ...[
+  //                     const SizedBox(width: 8),
+  //                     Text(
+  //                       trailing,
+  //                       style: TextStyle(
+  //                         fontFamily: FontFamily.medium,
+  //                         fontSize: 11,
+  //                         color: Colors.blueGrey.shade500,
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Widget _buildKycIsComplete() {
+  // =========================================================
+  // SMART ACTION ROW
+  // =========================================================
+  Widget _buildSmartActionRow() {
+    final items = [
+      {
+        'icon': Icons.track_changes_rounded,
+        'title': 'Plan your goals',
+        'sub': 'Set clear financial targets',
+        'color': const Color(0xFF1677FF),
+      },
+      {
+        'icon': Icons.person_add_alt_1_rounded,
+        'title': 'Know your investment personality',
+        'sub': 'Discover your risk profile',
+        'color': const Color(0xFF8E46E8),
+      },
+      {
+        'icon': Icons.shopping_basket_outlined,
+        'title': 'Explore your investment basket',
+        'sub': 'Diversify across funds',
+        'color': const Color(0xFF3AAE59),
+      },
+    ];
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool isMobile = constraints.maxWidth < 700;
+        final double width = constraints.maxWidth;
 
-        return Container(
-          width: constraints.maxHeight * 0.4,
-          padding: const EdgeInsets.all(20),
+        final bool compact = width < 760;
+        final bool laptopTight = width >= 760 && width < 980;
+
+        final int crossAxisCount = compact ? 1 : 3;
+
+        final double aspectRatio = compact
+            ? 3.65
+            : laptopTight
+            ? 2.15
+            : 2.25;
+
+        return GridView.builder(
+          itemCount: items.length,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: 18,
+            mainAxisSpacing: 18,
+            childAspectRatio: aspectRatio,
+          ),
+          itemBuilder: (context, index) {
+            final item = items[index];
+
+            return _smartActionCard(
+              icon: item['icon'] as IconData,
+              title: item['title'] as String,
+              subtitle: item['sub'] as String,
+              color: item['color'] as Color,
+            );
+          },
+        );
+      },
+    );
+  }
+  // Widget _buildSmartActionRow() {
+  //   final items = [
+  //     {
+  //       'icon': Icons.track_changes_rounded,
+  //       'title': 'Plan your goals',
+  //       'sub': 'Set clear financial targets',
+  //       'color': const Color(0xFF1677FF),
+  //     },
+  //     {
+  //       'icon': Icons.person_add_alt_1_rounded,
+  //       'title': 'Know your investment personality',
+  //       'sub': 'Discover your risk profile',
+  //       'color': const Color(0xFF8E46E8),
+  //     },
+  //     {
+  //       'icon': Icons.shopping_basket_outlined,
+  //       'title': 'Explore your investment basket',
+  //       'sub': 'Diversify across funds',
+  //       'color': const Color(0xFF3AAE59),
+  //     },
+  //   ];
+
+  //   return LayoutBuilder(
+  //     builder: (context, constraints) {
+  //       final bool compact = constraints.maxWidth < 760;
+
+  //       return GridView.builder(
+  //         itemCount: items.length,
+  //         shrinkWrap: true,
+  //         physics: const NeverScrollableScrollPhysics(),
+  //         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+  //           crossAxisCount: compact ? 1 : 3,
+  //           crossAxisSpacing: 18,
+  //           mainAxisSpacing: 18,
+  //           childAspectRatio: compact ? 4.2 : 2.55,
+  //         ),
+  //         itemBuilder: (context, index) {
+  //           final item = items[index];
+
+  //           return _smartActionCard(
+  //             icon: item['icon'] as IconData,
+  //             title: item['title'] as String,
+  //             subtitle: item['sub'] as String,
+  //             color: item['color'] as Color,
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
+
+  // Widget _buildSmartActionRow() {
+  //   final items = [
+  //     {
+  //       'icon': Icons.track_changes_rounded,
+  //       'title': 'Plan your goals',
+  //       'sub': 'Set clear financial\ntargets',
+  //       'color': const Color(0xFF1677FF),
+  //     },
+  //     {
+  //       'icon': Icons.person_add_alt_1_rounded,
+  //       'title': 'Know your investment\npersonality',
+  //       'sub': 'Discover your risk profile',
+  //       'color': const Color(0xFF8E46E8),
+  //     },
+  //     {
+  //       'icon': Icons.shopping_basket_outlined,
+  //       'title': 'Explore your\ninvestment basket',
+  //       'sub': 'Diversify across funds',
+  //       'color': const Color(0xFF3AAE59),
+  //     },
+  //   ];
+
+  //   return Row(
+  //     children: List.generate(items.length, (index) {
+  //       final item = items[index];
+
+  //       return Expanded(
+  //         child: Padding(
+  //           padding: EdgeInsets.only(right: index == items.length - 1 ? 0 : 18),
+  //           child: _smartActionCard(
+  //             icon: item['icon'] as IconData,
+  //             title: item['title'] as String,
+  //             subtitle: item['sub'] as String,
+  //             color: item['color'] as Color,
+  //           ),
+  //         ),
+  //       );
+  //     }),
+  //   );
+  // }
+  Widget _smartActionCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+  }) {
+    return WebHoverTile(
+      onTap: () {},
+      builder: (hover) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.all(15),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.grey.shade100),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: hover
+                  ? color.withValues(alpha: 0.25)
+                  : const Color(0xFFE7ECF4),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: hover
+                    ? color.withValues(alpha: 0.12)
+                    : Colors.black.withValues(alpha: 0.025),
+                blurRadius: hover ? 18 : 12,
+                offset: Offset(0, hover ? 8 : 5),
+              ),
+            ],
           ),
-
-          /// MOBILE = HORIZONTAL SCROLL
-          child: isMobile
-              ? SizedBox(
-                  height: 180,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: 3,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(width: 12),
-                    itemBuilder: (context, index) {
-                      final items = [
-                        {
-                          "icon": Icons.flag,
-                          "title": "Plan your goals",
-                          "subtitle": "Set clear financial targets",
-                          "color": Colors.blueAccent,
-                        },
-                        {
-                          "icon": Icons.person_search,
-                          "title": "Know your investment personality",
-                          "subtitle": "Discover your risk profile",
-                          "color": Colors.deepPurpleAccent,
-                        },
-                        {
-                          "icon": Icons.shopping_basket,
-                          "title": "Explore your investment basket",
-                          "subtitle": "Diversify across funds",
-                          "color": Colors.green,
-                        },
-                      ];
-
-                      final item = items[index];
-
-                      return SizedBox(
-                        width: constraints.maxWidth * 0.3,
-                        child: WebActionCard(
-                          icon: item["icon"] as IconData,
-                          title: item["title"] as String,
-                          subtitle: item["subtitle"] as String,
-                          color: item["color"] as Color,
-                        ),
-                      );
-                    },
-                  ),
-                )
-              /// TABLET / WEB
-              : Row(
+          child: Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Icon(icon, color: color, size: 28),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: WebActionCard(
-                        icon: Icons.flag,
-                        title: "Plan your goals",
-                        subtitle: "Set clear financial targets",
-                        color: Colors.blueAccent,
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 14,
+                        height: 1.25,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF111827),
                       ),
                     ),
-
-                    const SizedBox(width: 16),
-
-                    Expanded(
-                      child: WebActionCard(
-                        icon: Icons.person_search,
-                        title: "Know your investment personality",
-                        subtitle: "Discover your risk profile",
-                        color: Colors.deepPurpleAccent,
-                      ),
-                    ),
-
-                    const SizedBox(width: 16),
-
-                    Expanded(
-                      child: WebActionCard(
-                        icon: Icons.shopping_basket,
-                        title: "Explore your investment basket",
-                        subtitle: "Diversify across funds",
-                        color: Colors.green,
+                    const SizedBox(height: 6),
+                    Text(
+                      subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 12,
+                        height: 1.25,
+                        color: Colors.blueGrey.shade600,
                       ),
                     ),
                   ],
                 ),
+              ),
+              Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.arrow_forward_rounded,
+                  size: 17,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
   }
 
+  // Widget _smartActionCard({
+  //   required IconData icon,
+  //   required String title,
+  //   required String subtitle,
+  //   required Color color,
+  // }) {
+  //   return WebHoverTile(
+  //     onTap: () {},
+  //     builder: (hover) {
+  //       return AnimatedContainer(
+  //         duration: const Duration(milliseconds: 180),
+  //         height: 112,
+  //         padding: const EdgeInsets.all(20),
+  //         decoration: BoxDecoration(
+  //           color: Colors.white,
+  //           borderRadius: BorderRadius.circular(16),
+  //           border: Border.all(
+  //             color: hover
+  //                 ? color.withValues(alpha: 0.25)
+  //                 : const Color(0xFFE7ECF4),
+  //           ),
+  //           boxShadow: [
+  //             BoxShadow(
+  //               color: hover
+  //                   ? color.withValues(alpha: 0.12)
+  //                   : Colors.black.withValues(alpha: 0.025),
+  //               blurRadius: hover ? 18 : 12,
+  //               offset: Offset(0, hover ? 8 : 5),
+  //             ),
+  //           ],
+  //         ),
+  //         child: Row(
+  //           children: [
+  //             Container(
+  //               width: 54,
+  //               height: 54,
+  //               decoration: BoxDecoration(
+  //                 color: color.withValues(alpha: 0.10),
+  //                 borderRadius: BorderRadius.circular(18),
+  //               ),
+  //               child: Icon(icon, color: color, size: 30),
+  //             ),
+  //             const SizedBox(width: 18),
+  //             Expanded(
+  //               child: Column(
+  //                 mainAxisAlignment: MainAxisAlignment.center,
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   Text(
+  //                     title,
+  //                     maxLines: 2,
+  //                     overflow: TextOverflow.ellipsis,
+  //                     style: const TextStyle(
+  //                       fontFamily: FontFamily.medium,
+  //                       fontSize: 14,
+  //                       height: 1.25,
+  //                       fontWeight: FontWeight.w900,
+  //                       color: Color(0xFF111827),
+  //                     ),
+  //                   ),
+  //                   const SizedBox(height: 7),
+  //                   Text(
+  //                     subtitle,
+  //                     maxLines: 2,
+  //                     overflow: TextOverflow.ellipsis,
+  //                     style: TextStyle(
+  //                       fontFamily: FontFamily.medium,
+  //                       fontSize: 12,
+  //                       height: 1.3,
+  //                       color: Colors.blueGrey.shade600,
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //             Container(
+  //               width: 30,
+  //               height: 30,
+  //               decoration: BoxDecoration(
+  //                 color: color.withValues(alpha: 0.12),
+  //                 shape: BoxShape.circle,
+  //               ),
+  //               child: Icon(
+  //                 Icons.arrow_forward_rounded,
+  //                 size: 17,
+  //                 color: color,
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+
   // =========================================================
-  // QUICK ACTIONS
+  // PANELS
   // =========================================================
 
-  Widget _buildQuickActionsCard(BuildContext context) {
+  Widget _panel({
+    required String title,
+    Widget? trailing,
+    required Widget child,
+    EdgeInsets padding = const EdgeInsets.all(18),
+  }) {
     return Container(
       width: double.infinity,
-      constraints: const BoxConstraints(minHeight: 180),
-      padding: const EdgeInsets.all(20),
+      padding: padding,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.grey.shade100),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE7ECF4)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.025),
+            blurRadius: 18,
+            offset: const Offset(0, 7),
+          ),
+        ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      child: Column(
         children: [
-          Expanded(
-            flex: 5,
-            child: _WebQuickActionItem("SIP", UImages.startsip, () {
-              Get.delete<SipProcessController>();
-              SipProcessController.navIsLumpsum = false;
-
-              Get.toNamed(
-                id: 1,
-                AppRoutes.startSipScreen,
-                arguments: {'isLumpsum': false},
-              );
-            }),
+          Row(
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF111827),
+                ),
+              ),
+              const Spacer(),
+              if (trailing != null) trailing,
+            ],
           ),
-          Gap(20),
-          Expanded(
-            flex: 5,
-            child: _WebQuickActionItem("Lumpsum", UImages.glyph, () {
-              Get.delete<SipProcessController>();
-              SipProcessController.navIsLumpsum = true;
-
-              Get.toNamed(
-                id: 1,
-                AppRoutes.startSipScreen,
-                arguments: {'isLumpsum': true},
-              );
-            }),
-          ),
+          const SizedBox(height: 16),
+          child,
         ],
       ),
     );
   }
 
+  Widget _viewAllButton(VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        child: Text(
+          'View All',
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 12,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF005DFF),
+          ),
+        ),
+      ),
+    );
+  }
+
   // =========================================================
-  // COLLECTION GRID
+  // EXPLORE CATEGORIES
   // =========================================================
 
-  Widget _buildWebCollectionGrid() {
-    final nav = Get.find<NavigationBarController>();
+  Widget _buildExploreCategories() {
     final funds = Get.find<FundhouseController>();
 
     final items = [
       {
-        't': 'Best SIP Funds',
-        'i': UImages.savingbank,
-        'onTap': () {
-          nav.navigateToExploreWithFilter(() => funds.applyBestSipFilter(1));
-        },
+        'title': 'Best SIP',
+        'img': UImages.savingbank,
+        'tap': () => navController.navigateToExploreWithFilter(
+          () => funds.applyBestSipFilter(1),
+        ),
       },
       {
-        't': 'High Return',
-        'i': UImages.highreturn,
-        'onTap': () => nav.navigateToExploreWithFilter(
+        'title': 'High Return',
+        'img': UImages.highreturn,
+        'tap': () => navController.navigateToExploreWithFilter(
           () => funds.applyHighReturnFilter(),
         ),
       },
       {
-        't': 'International Funds',
-        'i': UImages.interfund,
-        'onTap': () async {
-          await Future.delayed(const Duration(milliseconds: 100));
-
-          nav.navigateToExploreWithFilter(
-            () => funds.applyInternationalFilter(),
-          );
-        },
+        'title': 'International',
+        'img': UImages.interfund,
+        'tap': () => navController.navigateToExploreWithFilter(
+          () => funds.applyInternationalFilter(),
+        ),
       },
       {
-        't': 'Index Funds',
-        'i': UImages.indexfund,
-        'onTap': () => nav.navigateToExploreWithFilter(
+        'title': 'Index Funds',
+        'img': UImages.indexfund,
+        'tap': () => navController.navigateToExploreWithFilter(
           () => funds.applyCustomSearch('index'),
         ),
       },
       {
-        't': 'Commodities',
-        'i': UImages.moneygold,
-        'onTap': () =>
-            nav.navigateToExploreWithFilter(() => funds.applyCommodityFilter()),
+        'title': 'Commodities',
+        'img': UImages.moneygold,
+        'tap': () => navController.navigateToExploreWithFilter(
+          () => funds.applyCommodityFilter(),
+        ),
       },
       {
-        't': 'NFO',
-        'i': UImages.equity,
-        'onTap': () => Get.toNamed(AppRoutes.nfolist, id: 1),
+        'title': 'NFO',
+        'img': UImages.equity,
+        'tap': () => Get.toNamed(AppRoutes.nfolist, id: 1),
       },
     ];
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        final bool isMobile = width < 600;
-        final int crossAxisCount = isMobile ? 2 : 3;
+    return _panel(
+      title: 'Explore Categories',
+      trailing: _viewAllButton(() {
+        navController.changePage(1, isDesktop: true);
+      }),
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final bool compact = constraints.maxWidth < 700;
+          final int count = compact ? 3 : 6;
 
-        return Container(
-          width: double.infinity,
-          margin: const EdgeInsets.symmetric(vertical: 20),
-          padding: const EdgeInsets.all(20),
+          return GridView.builder(
+            itemCount: items.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: count,
+              crossAxisSpacing: 18,
+              mainAxisSpacing: 18,
+              mainAxisExtent: 88,
+            ),
+            itemBuilder: (context, index) {
+              final item = items[index];
+
+              return _categoryTile(
+                title: item['title'] as String,
+                img: item['img'] as String,
+                onTap: item['tap'] as VoidCallback,
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _categoryTile({
+    required String title,
+    required String img,
+    required VoidCallback onTap,
+  }) {
+    return WebHoverTile(
+      onTap: onTap,
+      builder: (hover) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.grey.shade100),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
-                blurRadius: 15,
-                offset: const Offset(0, 5),
-              ),
-            ],
+            color: hover ? const Color(0xFFF2F7FF) : const Color(0xFFFBFCFF),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: hover
+                  ? Ucolors.primary.withValues(alpha: 0.22)
+                  : const Color(0xFFE2E8F0),
+            ),
+            boxShadow: hover
+                ? [
+                    BoxShadow(
+                      color: Ucolors.primary.withValues(alpha: 0.10),
+                      blurRadius: 14,
+                      offset: const Offset(0, 7),
+                    ),
+                  ]
+                : null,
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                "Explore Categories",
+              Image.asset(img, width: 38, height: 38, fit: BoxFit.contain),
+              const SizedBox(height: 7),
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 22, // Slightly adjusted for card look
-                  fontWeight: FontWeight.bold,
                   fontFamily: FontFamily.medium,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: hover ? Ucolors.primary : const Color(0xFF111827),
                 ),
-              ),
-              const SizedBox(height: 20),
-
-              // Categories Grid (Buttons as Sub-cards)
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: items.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  // Dynamic height based on screen size
-                  mainAxisExtent: isMobile ? 130 : 160,
-                  crossAxisSpacing: 18,
-                  mainAxisSpacing: 18,
-                ),
-                itemBuilder: (ctx, i) {
-                  return CollectionItem(
-                    title: items[i]['t']! as String,
-                    iconImg: items[i]['i']! as String,
-                    onTap: items[i]['onTap'] as VoidCallback,
-                  );
-                },
               ),
             ],
           ),
@@ -1379,116 +1364,76 @@ class _WebDashboardLayout extends StatelessWidget {
   }
 
   // =========================================================
-  // FUND GRID
+  // POPULAR FUNDS
   // =========================================================
 
-  Widget _buildWebFundGrid() {
+  Widget _buildPopularFunds() {
     return Obx(() {
       final bool isLoading = mutualController.isLoading.value;
-      final List funds = mutualController.searchFund;
+      final funds = mutualController.searchFund;
 
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          final width = constraints.maxWidth;
-          final bool isMobile = width < 700;
-          final bool isTablet = width >= 700 && width < 1100;
-
-          final int crossAxisCount = isMobile
-              ? 2
-              : isTablet
-              ? 3
-              : 4;
-
-          return Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+      return _panel(
+        title: 'Popular Funds',
+        trailing: _viewAllButton(() {
+          navController.changePage(1, isDesktop: true);
+        }),
+        child: isLoading
+            ? const Padding(
+                padding: EdgeInsets.symmetric(vertical: 40),
+                child: Center(
+                  child: CircularProgressIndicator(color: Ucolors.primary),
                 ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Popular Funds",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: FontFamily.medium,
-                  ),
-                ),
-                const SizedBox(height: 20),
+              )
+            : funds.isEmpty
+            ? _emptyMiniState(
+                icon: Iconsax.folder_open,
+                title: 'No funds found',
+                subtitle: 'Explore funds will appear here.',
+              )
+            : LayoutBuilder(
+                builder: (context, constraints) {
+                  // final bool compact = constraints.maxWidth < 700;
+                  // final int crossAxisCount = compact ? 1 : 3;
+                  final bool compact = constraints.maxWidth < 700;
+                  final bool laptopTight = constraints.maxWidth < 960;
 
-                /// Loading State
-                if (isLoading)
-                  FundShimmerLoading(crossAxisCount: crossAxisCount)
-                else if (funds.isEmpty)
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 40),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Iconsax.folder_open,
-                            size: 52,
-                            color: Colors.grey.shade400,
-                          ),
-                          const SizedBox(height: 14),
-                          const Text(
-                            "No Funds Found",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontFamily: FontFamily.medium,
+                  final int crossAxisCount = compact
+                      ? 1
+                      : laptopTight
+                      ? 2
+                      : 3;
 
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          Text(
-                            "Try exploring other funds or check back later.",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontFamily: FontFamily.medium,
-
-                              color: Colors.grey.shade500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                /// Data Loaded State
-                else
-                  GridView.builder(
+                  return GridView.builder(
+                    itemCount: funds.length > 8 ? 8 : funds.length,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: funds.length > 8 ? 8 : funds.length,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      // crossAxisCount: crossAxisCount,
+                      // crossAxisSpacing: 14,
+                      // mainAxisSpacing: 14,
+                      // mainAxisExtent: 86,
                       crossAxisCount: crossAxisCount,
-                      mainAxisExtent: 160,
-                      crossAxisSpacing: 18,
-                      mainAxisSpacing: 18,
+                      crossAxisSpacing: 14,
+                      mainAxisSpacing: 14,
+                      childAspectRatio: compact ? 4.4 : 3.05,
                     ),
                     itemBuilder: (context, index) {
                       final fund = funds[index];
-                      final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
-                      final name = fund.baseSchemeName ?? 'Unknown Name';
+                      final rawLogo = fund.amc?.amcLogoUrl ?? '';
+                      final img = rawLogo.startsWith('http')
+                          ? rawLogo
+                          : '${Appurl.baseUrl}$rawLogo';
 
-                      return PopularFundCard(
-                        threeYear: fund.returnsEntity?.threeYear ?? '--',
-                        isNetwork: true,
-                        imgPath: img,
-                        name: name,
+                      return _popularFundTile(
+                        logo: img,
+                        name: fund.baseSchemeName ?? 'Unknown Fund',
+                        threeYear:
+                            fund.returnsEntity?.threeYear?.toString() ?? '--',
                         onTap: () {
+                          mutualController.addToLocalRecentlyViewed(fund);
                           Get.delete<FundDetailsController>();
                           FundDetailsScreen.navData = {
-                            'scheme': name,
+                            'scheme': fund.baseSchemeName ?? '',
                             'imgUrl': img,
                             'scheme_code': fund.schemeCode.toString(),
                           };
@@ -1496,15 +1441,2507 @@ class _WebDashboardLayout extends StatelessWidget {
                         },
                       );
                     },
-                  ),
-              ],
-            ),
-          );
-        },
+                  );
+                },
+              ),
       );
     });
   }
+
+  Widget _popularFundTile({
+    required String logo,
+    required String name,
+    required String threeYear,
+    required VoidCallback onTap,
+  }) {
+    return WebHoverTile(
+      onTap: onTap,
+      builder: (hover) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: hover
+                  ? Ucolors.primary.withValues(alpha: 0.22)
+                  : const Color(0xFFE2E8F0),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: hover
+                    ? Ucolors.primary.withValues(alpha: 0.10)
+                    : Colors.black.withValues(alpha: 0.015),
+                blurRadius: hover ? 14 : 8,
+                offset: Offset(0, hover ? 7 : 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              ClipOval(
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  color: const Color(0xFFF8FAFC),
+                  child: CustomCachedImage(imageUrl: logo, size: 44),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 12,
+                        height: 1.2,
+                        fontWeight: FontWeight.w900,
+                        color: hover
+                            ? Ucolors.primary
+                            : const Color(0xFF111827),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Regular Plan',
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 10,
+                        color: Colors.blueGrey.shade500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '3Y Return',
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 10,
+                      color: Colors.blueGrey.shade500,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.arrow_upward_rounded,
+                        color: Color(0xFF00A85A),
+                        size: 13,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$threeYear%',
+                        style: const TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF00A85A),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(width: 10),
+              Container(
+                height: 30,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF2F7FF),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFD8E8FF)),
+                ),
+                alignment: Alignment.center,
+                child: const Text(
+                  'Invest',
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF005DFF),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // =========================================================
+  // RIGHT SIDE
+  // =========================================================
+  Widget _buildInvestNowPanel(BuildContext context) {
+    return _panel(
+      title: 'Invest Now',
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final bool compact = constraints.maxWidth < 360;
+
+          if (compact) {
+            return Column(
+              children: [
+                _investModeCard(
+                  icon: UImages.startsip,
+                  title: 'Start SIP',
+                  subtitle: 'Invest regularly',
+                  onTap: () {
+                    SipProcessController.navIsLumpsum = false;
+                    Get.toNamed(
+                      AppRoutes.startSipScreen,
+                      id: 1,
+                      arguments: {'isLumpsum': false},
+                    );
+                  },
+                ),
+                const SizedBox(height: 14),
+                _investModeCard(
+                  icon: UImages.glyph,
+                  title: 'Invest Lumpsum',
+                  subtitle: 'Invest once',
+                  onTap: () {
+                    SipProcessController.navIsLumpsum = true;
+                    Get.toNamed(
+                      AppRoutes.startSipScreen,
+                      id: 1,
+                      arguments: {'isLumpsum': true},
+                    );
+                  },
+                ),
+              ],
+            );
+          }
+
+          return Row(
+            children: [
+              Expanded(
+                child: _investModeCard(
+                  icon: UImages.startsip,
+                  title: 'Start SIP',
+                  subtitle: 'Invest regularly',
+                  onTap: () {
+                    SipProcessController.navIsLumpsum = false;
+                    Get.toNamed(
+                      AppRoutes.startSipScreen,
+                      id: 1,
+                      arguments: {'isLumpsum': false},
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 18),
+              Expanded(
+                child: _investModeCard(
+                  icon: UImages.glyph,
+                  title: 'Invest Lumpsum',
+                  subtitle: 'Invest once',
+                  onTap: () {
+                    SipProcessController.navIsLumpsum = true;
+                    Get.toNamed(
+                      AppRoutes.startSipScreen,
+                      id: 1,
+                      arguments: {'isLumpsum': true},
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  // Widget _buildInvestNowPanel(BuildContext context) {
+  //   return _panel(
+  //     title: 'Invest Now',
+  //     child: Row(
+  //       children: [
+  //         Expanded(
+  //           child: _investModeCard(
+  //             icon: UImages.startsip,
+  //             title: 'Start SIP',
+  //             subtitle: 'Invest regularly',
+  //             onTap: () {
+  //               SipProcessController.navIsLumpsum = false;
+  //               Get.toNamed(
+  //                 AppRoutes.startSipScreen,
+  //                 id: 1,
+  //                 arguments: {'isLumpsum': false},
+  //               );
+  //             },
+  //           ),
+  //         ),
+  //         const SizedBox(width: 18),
+  //         Expanded(
+  //           child: _investModeCard(
+  //             icon: UImages.glyph,
+  //             title: 'Invest Lumpsum',
+  //             subtitle: 'Invest once',
+  //             onTap: () {
+  //               SipProcessController.navIsLumpsum = true;
+  //               Get.toNamed(
+  //                 AppRoutes.startSipScreen,
+  //                 id: 1,
+  //                 arguments: {'isLumpsum': true},
+  //               );
+  //             },
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+  Widget _investModeCard({
+    required String icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return WebHoverTile(
+      onTap: onTap,
+      builder: (hover) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
+          decoration: BoxDecoration(
+            color: hover ? const Color(0xFFF5FAFF) : Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: hover
+                  ? Ucolors.primary.withValues(alpha: 0.22)
+                  : const Color(0xFFE2E8F0),
+            ),
+            boxShadow: hover
+                ? [
+                    BoxShadow(
+                      color: Ucolors.primary.withValues(alpha: 0.12),
+                      blurRadius: 16,
+                      offset: const Offset(0, 7),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 54,
+                height: 54,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Ucolors.primary,
+                      Ucolors.primary.withValues(alpha: 0.78),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Ucolors.primary.withValues(alpha: 0.20),
+                      blurRadius: 14,
+                      offset: const Offset(0, 7),
+                    ),
+                  ],
+                ),
+                child: SvgPicture.asset(
+                  icon,
+                  colorFilter: const ColorFilter.mode(
+                    Colors.white,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF111827),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 12,
+                  color: Colors.blueGrey.shade600,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Container(
+                width: 36,
+                height: 36,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF005DFF),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.arrow_forward_rounded,
+                  size: 18,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+  // Widget _investModeCard({
+  //   required String icon,
+  //   required String title,
+  //   required String subtitle,
+  //   required VoidCallback onTap,
+  // }) {
+  //   return WebHoverTile(
+  //     onTap: onTap,
+  //     builder: (hover) {
+  //       return AnimatedContainer(
+  //         duration: const Duration(milliseconds: 180),
+  //         height: 170,
+  //         padding: const EdgeInsets.all(18),
+  //         decoration: BoxDecoration(
+  //           color: hover ? const Color(0xFFF5FAFF) : Colors.white,
+  //           borderRadius: BorderRadius.circular(16),
+  //           border: Border.all(
+  //             color: hover
+  //                 ? Ucolors.primary.withValues(alpha: 0.22)
+  //                 : const Color(0xFFE2E8F0),
+  //           ),
+  //           boxShadow: hover
+  //               ? [
+  //                   BoxShadow(
+  //                     color: Ucolors.primary.withValues(alpha: 0.12),
+  //                     blurRadius: 16,
+  //                     offset: const Offset(0, 7),
+  //                   ),
+  //                 ]
+  //               : null,
+  //         ),
+  //         child: Column(
+  //           mainAxisAlignment: MainAxisAlignment.center,
+  //           children: [
+  //             Container(
+  //               width: 54,
+  //               height: 54,
+  //               padding: const EdgeInsets.all(14),
+  //               decoration: BoxDecoration(
+  //                 gradient: LinearGradient(
+  //                   colors: [
+  //                     Ucolors.primary,
+  //                     Ucolors.primary.withValues(alpha: 0.78),
+  //                   ],
+  //                 ),
+  //                 borderRadius: BorderRadius.circular(16),
+  //                 boxShadow: [
+  //                   BoxShadow(
+  //                     color: Ucolors.primary.withValues(alpha: 0.20),
+  //                     blurRadius: 14,
+  //                     offset: const Offset(0, 7),
+  //                   ),
+  //                 ],
+  //               ),
+  //               child: SvgPicture.asset(
+  //                 icon,
+  //                 colorFilter: const ColorFilter.mode(
+  //                   Colors.white,
+  //                   BlendMode.srcIn,
+  //                 ),
+  //               ),
+  //             ),
+  //             const SizedBox(height: 18),
+  //             Text(
+  //               title,
+  //               textAlign: TextAlign.center,
+  //               style: const TextStyle(
+  //                 fontFamily: FontFamily.medium,
+  //                 fontSize: 15,
+  //                 fontWeight: FontWeight.w900,
+  //                 color: Color(0xFF111827),
+  //               ),
+  //             ),
+  //             const SizedBox(height: 8),
+  //             Text(
+  //               subtitle,
+  //               style: TextStyle(
+  //                 fontFamily: FontFamily.medium,
+  //                 fontSize: 12,
+  //                 color: Colors.blueGrey.shade600,
+  //               ),
+  //             ),
+  //             const SizedBox(height: 18),
+  //             Container(
+  //               width: 36,
+  //               height: 36,
+  //               decoration: const BoxDecoration(
+  //                 color: Color(0xFF005DFF),
+  //                 shape: BoxShape.circle,
+  //               ),
+  //               child: const Icon(
+  //                 Icons.arrow_forward_rounded,
+  //                 size: 18,
+  //                 color: Colors.white,
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+
+  Widget _buildRecentlyViewedPanel() {
+    return Obx(() {
+      final recentList = mutualController.recentlyViewedFunds;
+
+      return _panel(
+        title: 'Recently Viewed',
+        trailing: _viewAllButton(() {}),
+        child: recentList.isEmpty
+            ? SizedBox(
+                height: 166,
+                child: _emptyMiniState(
+                  icon: Icons.visibility_outlined,
+                  title: 'No recently viewed funds',
+                  subtitle: 'Your viewed funds will appear here.',
+                ),
+              )
+            : Column(
+                children: recentList.take(3).map((fund) {
+                  final rawLogo = fund.amc?.amcLogoUrl ?? '';
+                  final img = rawLogo.startsWith('http')
+                      ? rawLogo
+                      : '${Appurl.baseUrl}$rawLogo';
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: _miniFundRow(
+                      logo: img,
+                      title: fund.baseSchemeName ?? 'Unknown Fund',
+                      value:
+                          '${fund.returnsEntity?.threeYear?.toString() ?? '--'}%',
+                      onTap: () {
+                        Get.delete<FundDetailsController>();
+                        FundDetailsScreen.navData = {
+                          'scheme': fund.baseSchemeName ?? '',
+                          'imgUrl': img,
+                          'scheme_code': fund.schemeCode.toString(),
+                        };
+                        Get.toNamed(AppRoutes.funddetails, id: 1);
+                      },
+                    ),
+                  );
+                }).toList(),
+              ),
+      );
+    });
+  }
+
+  Widget _miniFundRow({
+    required String logo,
+    required String title,
+    required String value,
+    required VoidCallback onTap,
+  }) {
+    return WebHoverTile(
+      onTap: onTap,
+      builder: (hover) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: hover ? const Color(0xFFF5FAFF) : const Color(0xFFFBFCFF),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: hover
+                  ? Ucolors.primary.withValues(alpha: 0.20)
+                  : const Color(0xFFE2E8F0),
+            ),
+          ),
+          child: Row(
+            children: [
+              ClipOval(
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  color: Colors.white,
+                  child: CustomCachedImage(imageUrl: logo, size: 38),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF111827),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF00A85A),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildGoalsPanel() {
+    final goals = [
+      {
+        'title': 'Car Goal',
+        'icon': Icons.directions_car_filled_rounded,
+        'type': 'car',
+      },
+      {
+        'title': 'Marriage Goal',
+        'icon': Icons.favorite_border_rounded,
+        'type': 'marriage',
+      },
+      {'title': 'Home Goal', 'icon': Icons.home_rounded, 'type': 'home'},
+      {
+        'title': 'Vacation Goal',
+        'icon': Icons.flight_takeoff_rounded,
+        'type': 'vacation',
+      },
+    ];
+
+    return _panel(
+      title: 'Plan Your Goals',
+      trailing: _viewAllButton(() {
+        Get.toNamed(AppRoutes.masterGoalsPage, id: 1);
+      }),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final bool tightWidth = constraints.maxWidth < 390;
+
+          return GridView.builder(
+            itemCount: goals.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: tightWidth ? 2.85 : 3.0,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+            ),
+            itemBuilder: (context, index) {
+              final goal = goals[index];
+
+              return _goalTile(
+                title: goal['title'] as String,
+                icon: goal['icon'] as IconData,
+                type: goal['type'] as String,
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  // Widget _buildGoalsPanel() {
+  //   final goals = [
+  //     {
+  //       'title': 'Car Goal',
+  //       'icon': Icons.directions_car_filled_rounded,
+  //       'type': 'car',
+  //     },
+  //     {
+  //       'title': 'Marriage Goal',
+  //       'icon': Icons.favorite_border_rounded,
+  //       'type': 'marriage',
+  //     },
+  //     {'title': 'Home Goal', 'icon': Icons.home_rounded, 'type': 'home'},
+  //     {
+  //       'title': 'Vacation Goal',
+  //       'icon': Icons.flight_takeoff_rounded,
+  //       'type': 'vacation',
+  //     },
+  //   ];
+
+  //   return _panel(
+  //     title: 'Plan Your Goals',
+  //     trailing: _viewAllButton(() {
+  //       Get.toNamed(AppRoutes.masterGoalsPage, id: 1);
+  //     }),
+  //     child: GridView.builder(
+  //       itemCount: goals.length,
+  //       shrinkWrap: true,
+  //       physics: const NeverScrollableScrollPhysics(),
+  //       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+  //         // crossAxisCount: 2,
+  //         // mainAxisExtent: 66,
+  //         // crossAxisSpacing: 12,
+  //         // mainAxisSpacing: 12,
+  //         crossAxisCount: 2,
+  //         childAspectRatio: 3.21,
+  //         crossAxisSpacing: 10,
+  //         mainAxisSpacing: 10,
+  //       ),
+  //       itemBuilder: (context, index) {
+  //         final goal = goals[index];
+
+  //         return _goalTile(
+  //           title: goal['title'] as String,
+  //           icon: goal['icon'] as IconData,
+  //           type: goal['type'] as String,
+  //         );
+  //       },
+  //     ),
+
+  //   );
+  // }
+
+  Widget _goalTile({
+    required String title,
+    required IconData icon,
+    required String type,
+  }) {
+    return WebHoverTile(
+      onTap: () {
+        Get.toNamed(
+          AppRoutes.masterGoalsPage,
+          id: 1,
+          arguments: {'goalType': type, 'isHome': true},
+        );
+      },
+      builder: (hover) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+          decoration: BoxDecoration(
+            color: hover ? const Color(0xFFF5FAFF) : const Color(0xFFFBFCFF),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: hover
+                  ? Ucolors.primary.withValues(alpha: 0.20)
+                  : const Color(0xFFE2E8F0),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, size: 22, color: Ucolors.primary),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF111827),
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    const Text(
+                      'On Track',
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF00A85A),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 12,
+                color: hover ? Ucolors.primary : Colors.blueGrey.shade400,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFinancialToolsPanel() {
+    final tools = [
+      {
+        'title': 'SIP Calculator',
+        'img': UImages.sipcalci,
+        'tap': () => Get.toNamed(AppRoutes.sipCalculator, id: 1),
+      },
+      {
+        'title': 'SWP Calculator',
+        'img': UImages.swpcali,
+        'tap': () => Get.toNamed(AppRoutes.swpCalculator, id: 1),
+      },
+      {
+        'title': 'Step-Up Calculator',
+        'img': UImages.siptopcalci,
+        'tap': () => Get.toNamed(AppRoutes.stepUpCalculator, id: 1),
+      },
+      {
+        'title': 'Compare Fund',
+        'img': UImages.comparefund,
+        'tap': () => Get.toNamed(AppRoutes.comparefund, id: 1),
+      },
+    ];
+
+    return _panel(
+      title: 'Financial Tools',
+      child: GridView.builder(
+        itemCount: tools.length,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          // crossAxisCount: 2,
+          // mainAxisExtent: 66,
+          // crossAxisSpacing: 12,
+          // mainAxisSpacing: 12,
+          crossAxisCount: 2,
+          childAspectRatio: 3.25,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+        ),
+        itemBuilder: (context, index) {
+          final item = tools[index];
+
+          return _toolTile(
+            title: item['title'] as String,
+            img: item['img'] as String,
+            onTap: item['tap'] as VoidCallback,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _toolTile({
+    required String title,
+    required String img,
+    required VoidCallback onTap,
+  }) {
+    return WebHoverTile(
+      onTap: onTap,
+      builder: (hover) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+          decoration: BoxDecoration(
+            color: hover ? const Color(0xFFF5FAFF) : const Color(0xFFFBFCFF),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: hover
+                  ? Ucolors.primary.withValues(alpha: 0.20)
+                  : const Color(0xFFE2E8F0),
+            ),
+          ),
+          child: Row(
+            children: [
+              Image.asset(img, width: 28, height: 28, fit: BoxFit.contain),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 12,
+                    height: 1.15,
+                    fontWeight: FontWeight.w800,
+                    color: hover ? Ucolors.primary : const Color(0xFF111827),
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 12,
+                color: hover ? Ucolors.primary : Colors.blueGrey.shade400,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // =========================================================
+  // LEARN & GROW
+  // =========================================================
+
+  Widget _buildLearnGrow() {
+    final videos = [
+      {
+        'title': 'Understanding\nMutual Funds',
+        'time': '12:45 min',
+        'thumbnail': 'https://img.youtube.com/vi/yo5aL4Plbso/maxresdefault.jpg',
+        'videoId': 'yo5aL4Plbso',
+      },
+      {
+        'title': 'Figma to Flutter\nMasterclass',
+        'time': '21:30 min',
+        'thumbnail': 'https://img.youtube.com/vi/t7lUSiddFd4/maxresdefault.jpg',
+        'videoId': 't7lUSiddFd4',
+      },
+    ];
+
+    return _panel(
+      title: 'Learn & Grow',
+      trailing: _viewAllButton(() => Get.toNamed(AppRoutes.videoList, id: 1)),
+      child: Row(
+        children: List.generate(videos.length, (index) {
+          final video = videos[index];
+
+          return Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(right: index == 0 ? 16 : 0),
+              child: _videoMiniCard(
+                title: video['title'] as String,
+                time: video['time'] as String,
+                thumbnail: video['thumbnail'] as String,
+                videoId: video['videoId'] as String,
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _videoMiniCard({
+    required String title,
+    required String time,
+    required String thumbnail,
+    required String videoId,
+  }) {
+    return Container(
+      constraints: const BoxConstraints(minHeight: 118),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFBFCFF),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 45,
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.horizontal(
+                  left: Radius.circular(12),
+                ),
+                child: InlineYouTubePlayer(
+                  thumbnailUrl: thumbnail,
+                  videoId: videoId,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            flex: 55,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 13,
+                      height: 1.25,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF111827),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.access_time_rounded,
+                        size: 14,
+                        color: Colors.blueGrey.shade500,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        time,
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 11,
+                          color: Colors.blueGrey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 32,
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF005DFF),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'Watch Now',
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget _videoMiniCard({
+  //   required String title,
+  //   required String time,
+  //   required String thumbnail,
+  //   required String videoId,
+  // }) {
+  //   return Container(
+  //     height: 118,
+  //     decoration: BoxDecoration(
+  //       color: const Color(0xFFFBFCFF),
+  //       borderRadius: BorderRadius.circular(12),
+  //       border: Border.all(color: const Color(0xFFE2E8F0)),
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         SizedBox(
+  //           width: 210,
+  //           height: double.infinity,
+  //           child: ClipRRect(
+  //             borderRadius: const BorderRadius.horizontal(
+  //               left: Radius.circular(12),
+  //             ),
+  //             child: InlineYouTubePlayer(
+  //               thumbnailUrl: thumbnail,
+  //               videoId: videoId,
+  //             ),
+  //           ),
+  //         ),
+  //         const SizedBox(width: 14),
+  //         Expanded(
+  //           child: Padding(
+  //             padding: const EdgeInsets.symmetric(vertical: 14),
+  //             child: Column(
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 Text(
+  //                   title,
+  //                   maxLines: 2,
+  //                   overflow: TextOverflow.ellipsis,
+  //                   style: const TextStyle(
+  //                     fontFamily: FontFamily.medium,
+  //                     fontSize: 13,
+  //                     height: 1.25,
+  //                     fontWeight: FontWeight.w900,
+  //                     color: Color(0xFF111827),
+  //                   ),
+  //                 ),
+  //                 const SizedBox(height: 8),
+  //                 Row(
+  //                   children: [
+  //                     Icon(
+  //                       Icons.access_time_rounded,
+  //                       size: 14,
+  //                       color: Colors.blueGrey.shade500,
+  //                     ),
+  //                     const SizedBox(width: 5),
+  //                     Text(
+  //                       time,
+  //                       style: TextStyle(
+  //                         fontFamily: FontFamily.medium,
+  //                         fontSize: 11,
+  //                         color: Colors.blueGrey.shade600,
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 const Spacer(),
+  //                 SizedBox(
+  //                   height: 32,
+  //                   width: 102,
+  //                   child: ElevatedButton(
+  //                     onPressed: () {},
+  //                     style: ElevatedButton.styleFrom(
+  //                       backgroundColor: const Color(0xFF005DFF),
+  //                       foregroundColor: Colors.white,
+  //                       elevation: 0,
+  //                       padding: EdgeInsets.zero,
+  //                       shape: RoundedRectangleBorder(
+  //                         borderRadius: BorderRadius.circular(8),
+  //                       ),
+  //                     ),
+  //                     child: const Text(
+  //                       'Watch Now',
+  //                       style: TextStyle(
+  //                         fontFamily: FontFamily.medium,
+  //                         fontSize: 11,
+  //                         fontWeight: FontWeight.w900,
+  //                         color: Colors.white,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  Widget _emptyMiniState({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 54, color: const Color(0xFFB8C7E2)),
+          const SizedBox(height: 12),
+          Text(
+            title,
+            style: const TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF475467),
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            subtitle,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 12,
+              color: Colors.blueGrey.shade500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
+// class _WebDashboardLayout extends StatelessWidget {
+//   final AuthController authController;
+//   final CartController cartController;
+//   final MutualFundController mutualController;
+//   final NavigationBarController navController;
+
+//   const _WebDashboardLayout({
+//     required this.authController,
+//     required this.cartController,
+//     required this.mutualController,
+//     required this.navController,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final controller = Get.find<PersonalisationController>();
+
+//     final isPending = controller.isKycPending.value;
+//     return LayoutBuilder(
+//       builder: (context, constraints) {
+//         final width = constraints.maxWidth;
+
+//         final bool isTablet = width < 800;
+
+//         return SingleChildScrollView(
+//           padding: const EdgeInsets.all(24),
+//           child: SizedBox(
+//             width: double.infinity,
+
+//             child: isTablet
+//                 /// TABLET LAYOUT
+//                 ? Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [_buildLeftSectionTable(context, isPending)],
+//                   )
+//                 /// DESKTOP LAYOUT
+//                 : Row(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       /// LEFT SECTION
+//                       Expanded(
+//                         flex: 6,
+//                         child: _buildLeftSection(context, isPending),
+//                       ),
+
+//                       const SizedBox(width: 30),
+
+//                       /// RIGHT SECTION
+//                       Expanded(flex: 4, child: _buildRightSection(context)),
+//                     ],
+//                   ),
+//           ),
+//         );
+//       },
+//     );
+//   }
+
+//   Widget _buildLeftSectionTable(BuildContext context, bool isPending) {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+
+//       children: [
+//         /// HERo
+//         isPending ? _buildHeroBanner() : _buildKycIsComplete(),
+
+//         const Gap(24),
+
+//         _buildQuickActionsCard(context),
+
+//         const Gap(24),
+
+//         _buildWebCollectionGrid(),
+
+//         const Gap(24),
+
+//         _buildRecentCard(),
+
+//         const Gap(24),
+
+//         _buildWebFundGrid(),
+
+//         const Gap(24),
+
+//         _buildWebGoalSection(),
+
+//         const Gap(24),
+
+//         _buildWebToolsSection(),
+
+//         /// FUNDS
+//         const Gap(30),
+
+//         /// VIDEOS
+//         _buildWebVideoRow(),
+//       ],
+//     );
+//   }
+
+//   // =========================================================
+//   // LEFT SECTION
+//   // =========================================================
+
+//   Widget _buildLeftSection(BuildContext context, bool isPending) {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         /// HERO
+//         ///
+//         isPending ? _buildHeroBanner() : _buildKycIsComplete(),
+
+//         const Gap(24),
+
+//         _buildWebCollectionGrid(),
+//         const Gap(24),
+
+//         _buildWebFundGrid(),
+
+//         const Gap(24),
+
+//         /// VIDEOS
+//         _buildWebVideoRow(),
+//       ],
+//     );
+//   }
+
+//   // =========================================================
+//   // RIGHT SECTION
+//   // =========================================================
+
+//   Widget _buildRightSection(BuildContext context) {
+//     return Column(
+//       mainAxisAlignment: MainAxisAlignment.start,
+//       children: [
+//         _buildQuickActionsCard(context),
+
+//         const Gap(24),
+
+//         _buildRecentCard(),
+//         const Gap(28),
+//         _buildWebGoalSection(),
+//         const Gap(24),
+
+//         _buildWebToolsSection(),
+//       ],
+//     );
+//   }
+
+//   Widget _buildRecentCard() {
+//     return Obx(() {
+//       final bool isLoading = mutualController.isLoading.value;
+//       final List recentList = mutualController.recentlyViewedFunds;
+
+//       return LayoutBuilder(
+//         builder: (context, constraints) {
+//           final width = constraints.maxWidth;
+//           final bool isSmallMobile = width < 500;
+//           final bool isMobile = width < 700;
+//           final bool isTablet = width >= 700 && width < 1100;
+
+//           final int crossAxisCount = isMobile
+//               ? isSmallMobile?1:2
+//               : isTablet
+//               ? 3
+//               : 4;
+
+//           return Container(
+//             width: double.infinity,
+//             margin: const EdgeInsets.only(top: 20, bottom: 10),
+//             padding: const EdgeInsets.all(18),
+//             decoration: BoxDecoration(
+//               color: Colors.white,
+//               borderRadius: BorderRadius.circular(24),
+//               border: Border.all(color: Colors.grey.shade100),
+//               boxShadow: [
+//                 BoxShadow(
+//                   color: Colors.black.withValues(alpha: 0.02),
+//                   blurRadius: 15,
+//                   offset: const Offset(0, 5),
+//                 ),
+//               ],
+//             ),
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 const USectionHeading(
+//                   title: 'Recently Viewed',
+//                   fontSize: 22,
+//                   showActionButton: false,
+//                 ),
+//                 const SizedBox(height: 16),
+
+//                 /// 1. LOADING STATE
+//                 if (isLoading)
+//                   FundShimmerLoading(crossAxisCount: crossAxisCount)
+//                 /// 2. EMPTY STATE
+//                 else if (recentList.isEmpty)
+//                   Container(
+//                     width: double.infinity,
+//                     height: 340,
+//                     padding: const EdgeInsets.symmetric(vertical: 40),
+//                     decoration: BoxDecoration(
+//                       color: Colors.grey.shade50,
+//                       borderRadius: BorderRadius.circular(16),
+//                     ),
+//                     child: Column(
+//                       mainAxisAlignment: MainAxisAlignment.center,
+//                       children: [
+//                         Icon(
+//                           Iconsax.clock,
+//                           size: 44,
+//                           color: Colors.grey.shade300,
+//                         ),
+//                         const SizedBox(height: 12),
+//                         Text(
+//                           "No recently viewed funds",
+//                           style: TextStyle(
+//                             color: Colors.grey.shade600,
+//                             fontSize: 15,
+//                             fontFamily: FontFamily.medium,
+
+//                             fontWeight: FontWeight.w500,
+//                           ),
+//                         ),
+//                         const SizedBox(height: 4),
+//                         Text(
+//                           "Your history will appear here.",
+//                           style: TextStyle(
+//                             fontFamily: FontFamily.medium,
+
+//                             color: Colors.grey.shade400,
+//                             fontSize: 13,
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                   )
+//                 /// 3. DATA LOADED (Sirf 2 Rows dikhenge, baki ke liye Scroll hoga)
+//                 else
+//                   SizedBox(
+//                     height: 345,
+//                     child: GridView.builder(
+//                       shrinkWrap: false,
+//                       physics: const BouncingScrollPhysics(),
+//                       itemCount: recentList.length,
+//                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+//                         crossAxisCount: crossAxisCount,
+//                         mainAxisExtent: 160,
+//                         crossAxisSpacing: 18,
+//                         mainAxisSpacing: 18,
+//                       ),
+//                       itemBuilder: (context, index) {
+//                         final fund = recentList[index];
+
+//                         // Logo Image handling
+//                         final rawLogo = fund.amc?.amcLogoUrl ?? '';
+//                         final img = rawLogo.startsWith('http')
+//                             ? rawLogo
+//                             : "${Appurl.baseUrl}$rawLogo";
+
+//                         final name = fund.baseSchemeName ?? 'Unknown Name';
+
+//                         return PopularFundCard(
+//                           onTap: () {
+//                             Get.delete<FundDetailsController>();
+//                             FundDetailsScreen.navData = {
+//                               'scheme': name,
+//                               'imgUrl': img,
+//                               'scheme_code': fund.schemeCode.toString(),
+//                             };
+//                             Get.toNamed(AppRoutes.funddetails, id: 1);
+//                           },
+//                           isNetwork: true,
+//                           imgPath: img,
+//                           name: name,
+//                           threeYear: fund.returnsEntity?.threeYear ?? '--',
+//                         );
+//                       },
+//                     ),
+//                   ),
+//               ],
+//             ),
+//           );
+//         },
+//       );
+//     });
+//   }
+
+//   // =========================================================
+//   // VIDEO SECTION
+//   // =========================================================
+
+//   Widget _buildWebVideoRow() {
+//     final videos = [
+//       {
+//         "thumbnail": "https://img.youtube.com/vi/yo5aL4Plbso/maxresdefault.jpg",
+//         "videoId": "yo5aL4Plbso",
+//       },
+//       {
+//         "thumbnail": "https://img.youtube.com/vi/t7lUSiddFd4/maxresdefault.jpg",
+//         "videoId": "t7lUSiddFd4",
+//       },
+//     ];
+
+//     return LayoutBuilder(
+//       builder: (context, constraints) {
+//         final width = constraints.maxWidth;
+//         final bool isMobile = width < 600;
+
+//         return Container(
+//           width: double.infinity,
+//           margin: const EdgeInsets.symmetric(vertical: 20),
+//           padding: const EdgeInsets.all(20),
+//           decoration: BoxDecoration(
+//             color: Colors.white,
+//             borderRadius: BorderRadius.circular(24),
+//             border: Border.all(color: Colors.grey.shade100),
+//             boxShadow: [
+//               BoxShadow(
+//                 color: Colors.black.withValues(alpha: 0.02),
+//                 blurRadius: 15,
+//                 offset: const Offset(0, 5),
+//               ),
+//             ],
+//           ),
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               // Title inside the card
+//               const Text(
+//                 "Learn & Grow",
+//                 style: TextStyle(
+//                   fontSize: 22,
+//                   fontWeight: FontWeight.bold,
+//                   fontFamily: FontFamily.medium,
+//                 ),
+//               ),
+//               const SizedBox(height: 20),
+
+//               Flex(
+//                 direction: isMobile ? Axis.vertical : Axis.horizontal,
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: List.generate(videos.length, (index) {
+//                   final item = videos[index];
+
+//                   return Expanded(
+//                     flex: isMobile
+//                         ? 2
+//                         : videos
+//                               .length, // Mobile par fixed height, Web par equal width
+//                     child: Padding(
+//                       padding: EdgeInsets.only(
+//                         // Desktop par beech mein space, Mobile par niche space
+//                         right: (!isMobile && index == 0) ? 20 : 0,
+//                         bottom: (isMobile && index != videos.length - 1)
+//                             ? 20
+//                             : 0,
+//                       ),
+//                       child: SizedBox(
+//                         height: isMobile ? 180 : 220, // Fixed height for videos
+//                         child: WebHoverScale(
+//                           scale: 1.02,
+//                           child: Container(
+//                             decoration: BoxDecoration(
+//                               borderRadius: BorderRadius.circular(20),
+//                               // Sub-card border effect
+//                               border: Border.all(color: Colors.grey.shade50),
+//                             ),
+//                             child: ClipRRect(
+//                               borderRadius: BorderRadius.circular(20),
+//                               child: InlineYouTubePlayer(
+//                                 thumbnailUrl: item['thumbnail'] as String,
+//                                 videoId: item['videoId'] as String,
+//                               ),
+//                             ),
+//                           ),
+//                         ),
+//                       ),
+//                     ),
+//                   );
+//                 }),
+//               ),
+//             ],
+//           ),
+//         );
+//       },
+//     );
+//   }
+
+//   // =========================================================
+//   // GOAL SECTION
+//   // =========================================================
+
+//   Widget _buildWebGoalSection() {
+//     final goals = [
+//       {
+//         "title": "Car Goal",
+//         "icon": Icons.directions_car_filled_rounded,
+//         "goalType": "car",
+//       },
+//       {
+//         "title": "Marriage Goal",
+//         "icon": Icons.favorite_border_outlined,
+//         "goalType": "marriage",
+//       },
+//       {"title": "Home Goal", "icon": Icons.home_rounded, "goalType": "home"},
+//       {
+//         "title": "Vacation Goal",
+//         "icon": Icons.flight_takeoff_rounded,
+//         "goalType": "vacation",
+//       },
+//     ];
+
+//     return Container(
+//       width: double.infinity,
+//       padding: const EdgeInsets.all(24),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(20),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withValues(alpha: 0.04),
+//             blurRadius: 12,
+//             offset: const Offset(0, 4),
+//           ),
+//         ],
+//       ),
+
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           /// TITLE
+//           const Text(
+//             "Plan Your Goals",
+//             style: TextStyle(
+//               fontSize: 22,
+//               fontWeight: FontWeight.bold,
+//               fontFamily: FontFamily.medium,
+//             ),
+//           ),
+
+//           const Gap(20),
+
+//           /// ROW BUTTONS
+//           LayoutBuilder(
+//             builder: (context, constraints) {
+//               final width = constraints.maxWidth;
+
+//               /// MOBILE = 2
+//               /// WEB = 4
+
+//               final bool isMobile = width < 700;
+//               final bool isTablet = width >= 700 && width < 1100;
+
+//               final int crossAxisCount = width < 300
+//                   ? 1
+//                   : isMobile
+//                   ? 2
+//                   : isTablet
+//                   ? 3
+//                   : 4;
+//               return GridView.builder(
+//                 shrinkWrap: true,
+//                 physics: const NeverScrollableScrollPhysics(),
+
+//                 itemCount: goals.length,
+
+//                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+//                   crossAxisCount: crossAxisCount,
+
+//                   mainAxisExtent: 75,
+
+//                   crossAxisSpacing: 14,
+//                   mainAxisSpacing: 14,
+//                 ),
+
+//                 itemBuilder: (context, index) {
+//                   final item = goals[index];
+
+//                   return _buildGoalTile(
+//                     title: item['title'] as String,
+//                     icon: item['icon'] as IconData,
+//                     goalType: item['goalType'] as String,
+//                   );
+//                 },
+//               );
+//             },
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   // =========================================================
+//   // GOAL TILE
+//   // =========================================================
+
+//   Widget _buildGoalTile({
+//     required String title,
+//     required IconData icon,
+//     required String goalType,
+//   }) {
+//     return LayoutBuilder(
+//       builder: (context, constraints) {
+//         final width = MediaQuery.of(context).size.width;
+
+//         /// RESPONSIVE FONT
+//         final bool isMobile = width < 400;
+//         final bool isTablet = width >= 400 && width < 1800;
+
+//         final double titleFontSize = isMobile
+//             ? 12
+//             : isTablet
+//             ? 14
+//             : 16;
+
+//         final double iconBoxSize = isMobile ? 32 : 44;
+
+//         final double arrowSize = isMobile ? 13 : 16;
+//         final double iconSize = isMobile ? 16 : 20;
+
+//         return WebHoverTile(
+//           onTap: () {},
+
+//           builder: (isHovered) {
+//             return AnimatedContainer(
+//               duration: const Duration(milliseconds: 200),
+
+//               padding: EdgeInsets.symmetric(
+//                 horizontal: isMobile ? 8 : 10,
+//                 vertical: isMobile ? 8 : 10,
+//               ),
+
+//               decoration: BoxDecoration(
+//                 color: isHovered
+//                     ? Ucolors.primary.withValues(alpha: 0.06)
+//                     : Colors.grey.shade50,
+
+//                 borderRadius: BorderRadius.circular(14),
+
+//                 border: Border.all(
+//                   color: isHovered
+//                       ? Ucolors.primary.withValues(alpha: 0.15)
+//                       : Colors.grey.shade200,
+//                 ),
+//               ),
+
+//               child: Row(
+//                 children: [
+//                   /// ICON
+//                   Container(
+//                     height: iconBoxSize,
+//                     width: iconBoxSize,
+//                     decoration: BoxDecoration(
+//                       color: isHovered
+//                           ? Ucolors.primary.withValues(alpha: 0.12)
+//                           : Colors.white,
+
+//                       borderRadius: BorderRadius.circular(12),
+//                     ),
+
+//                     child: Icon(
+//                       icon,
+//                       size: iconSize,
+//                       color: isHovered ? Ucolors.primary : Colors.grey.shade700,
+//                     ),
+//                   ),
+
+//                   SizedBox(width: isMobile ? 6 : 8),
+
+//                   /// TITLE
+//                   Expanded(
+//                     child: Text(
+//                       title,
+//                       maxLines: 2,
+//                       overflow: TextOverflow.ellipsis,
+//                       style: TextStyle(
+//                         fontSize: titleFontSize,
+//                         height: 1.2,
+//                         fontFamily: FontFamily.medium,
+
+//                         fontWeight: isHovered
+//                             ? FontWeight.w600
+//                             : FontWeight.w500,
+//                         color: isHovered ? Ucolors.primary : Colors.black87,
+//                       ),
+//                     ),
+//                   ),
+
+//                   SizedBox(width: isMobile ? 6 : 10),
+
+//                   /// ARROW
+//                   Icon(
+//                     Icons.arrow_forward_ios_rounded,
+//                     size: arrowSize,
+//                     color: isHovered ? Ucolors.primary : Colors.grey.shade400,
+//                   ),
+//                 ],
+//               ),
+//             );
+//           },
+//         );
+//       },
+//     );
+//   }
+
+//   // =========================================================
+//   // TOOLS SECTION
+//   // =========================================================
+
+//   Widget _buildWebToolsSection() {
+//     final tools = [
+//       {
+//         "title": "SIP Calculator",
+//         "img": UImages.sipcalci,
+//         "onTap": () => Get.toNamed(AppRoutes.sipCalculator, id: 1),
+//       },
+//       {
+//         "title": "SWP Calculator",
+//         "img": UImages.swpcali,
+//         "onTap": () => Get.toNamed(AppRoutes.swpCalculator, id: 1),
+//       },
+//       {
+//         "title": "Step-Up Calculator",
+//         "img": UImages.siptopcalci,
+//         "onTap": () => Get.toNamed(AppRoutes.stepUpCalculator, id: 1),
+//       },
+//       {
+//         "title": "Compare Fund",
+//         "img": UImages.comparefund,
+//         "onTap": () => Get.toNamed(AppRoutes.comparefund, id: 1),
+//       },
+//     ];
+
+//     return Container(
+//       width: double.infinity,
+//       padding: const EdgeInsets.all(24),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(20),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withValues(alpha: 0.04),
+//             blurRadius: 12,
+//             offset: const Offset(0, 4),
+//           ),
+//         ],
+//       ),
+
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           /// TITLE
+//           const Text(
+//             "Financial Tools",
+//             style: TextStyle(
+//               fontSize: 22,
+//               fontWeight: FontWeight.bold,
+//               fontFamily: FontFamily.medium,
+//             ),
+//           ),
+
+//           const Gap(20),
+
+//           /// GRID
+//           LayoutBuilder(
+//             builder: (context, constraints) {
+//               final width = constraints.maxWidth;
+
+//               /// MOBILE = 1
+//               /// TABLET/WEB = 2
+
+//               final bool isMobile = width < 700;
+//               final bool isTablet = width >= 700 && width < 1100;
+
+//               final int crossAxisCount = width < 300
+//                   ? 1
+//                   : isMobile
+//                   ? 2
+//                   : isTablet
+//                   ? 3
+//                   : 4;
+//               return GridView.builder(
+//                 shrinkWrap: true,
+//                 physics: const NeverScrollableScrollPhysics(),
+
+//                 itemCount: tools.length,
+
+//                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+//                   crossAxisCount: crossAxisCount,
+
+//                   mainAxisExtent: 75,
+
+//                   crossAxisSpacing: 14,
+//                   mainAxisSpacing: 14,
+//                 ),
+
+//                 itemBuilder: (context, index) {
+//                   final item = tools[index];
+
+//                   return _buildToolItem(
+//                     item['title'] as String,
+//                     item['img'] as String,
+//                     item['onTap'] as VoidCallback,
+//                   );
+//                 },
+//               );
+//             },
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   // =========================================================
+//   // TOOL ITEM
+//   // =========================================================
+
+//   Widget _buildToolItem(String title, String img, VoidCallback onTap) {
+//     return LayoutBuilder(
+//       builder: (context, constraints) {
+//         final width = MediaQuery.of(context).size.width;
+
+//         /// RESPONSIVE FONT
+//         /// RESPONSIVE FONT
+//         final bool isMobile = width < 400;
+//         final bool isTablet = width >= 400 && width < 1800;
+
+//         final double titleFontSize = isMobile
+//             ? 12
+//             : isTablet
+//             ? 14
+//             : 16;
+
+//         final double iconBoxSize = isMobile ? 32 : 44;
+
+//         final double arrowSize = isMobile ? 13 : 16;
+//         final double iconSize = isMobile ? 16 : 20;
+
+//         return WebHoverTile(
+//           onTap: onTap,
+//           builder: (isHovered) {
+//             return AnimatedContainer(
+//               duration: const Duration(milliseconds: 200),
+//               padding: EdgeInsets.symmetric(
+//                 horizontal: isMobile ? 8 : 10,
+//                 vertical: isMobile ? 8 : 10,
+//               ),
+//               decoration: BoxDecoration(
+//                 color: isHovered
+//                     ? Ucolors.primary.withValues(alpha: 0.06)
+//                     : Colors.grey.shade50,
+
+//                 borderRadius: BorderRadius.circular(14),
+
+//                 border: Border.all(
+//                   color: isHovered
+//                       ? Ucolors.primary.withValues(alpha: 0.15)
+//                       : Colors.grey.shade200,
+//                 ),
+//               ),
+
+//               child: Row(
+//                 children: [
+//                   /// IMAGE
+//                   Container(
+//                     height: iconBoxSize,
+//                     width: iconBoxSize,
+//                     padding: const EdgeInsets.all(8),
+//                     decoration: BoxDecoration(
+//                       color: Colors.white,
+//                       borderRadius: BorderRadius.circular(12),
+//                     ),
+//                     child: Image.asset(img, fit: BoxFit.contain),
+//                   ),
+
+//                   SizedBox(width: isMobile ? 6 : 8),
+
+//                   /// TITLE
+//                   Expanded(
+//                     child: Text(
+//                       title,
+//                       maxLines: 2,
+//                       overflow: TextOverflow.ellipsis,
+//                       style: TextStyle(
+//                         fontSize: titleFontSize,
+//                         height: 1.2,
+//                         fontFamily: FontFamily.medium,
+
+//                         fontWeight: isHovered
+//                             ? FontWeight.w600
+//                             : FontWeight.w500,
+//                         color: isHovered ? Ucolors.primary : Colors.black87,
+//                       ),
+//                     ),
+//                   ),
+
+//                   SizedBox(width: isMobile ? 6 : 10),
+
+//                   /// ARROW
+//                   Icon(
+//                     Icons.arrow_forward_ios_rounded,
+//                     size: arrowSize,
+//                     color: isHovered ? Ucolors.primary : Colors.grey.shade400,
+//                   ),
+//                 ],
+//               ),
+//             );
+//           },
+//         );
+//       },
+//     );
+//   }
+//   // =========================================================
+//   // HERO BANNER
+//   // =========================================================
+
+//   Widget _buildHeroBanner() {
+//     return WebHoverScale(
+//       scale: 1.01,
+//       onTap: () {
+//         if (kIsWeb) {
+//           // Show Dialog for Web Users
+//           Get.dialog(
+//             AlertDialog(
+//               shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(20),
+//               ),
+//               title: Row(
+//                 children: [
+//                   Icon(Icons.smartphone, color: Ucolors.primary),
+//                   const SizedBox(width: 10),
+//                   const Text("Mobile App Required"),
+//                 ],
+//               ),
+//               content: Column(
+//                 mainAxisSize: MainAxisSize.min,
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   const Text(
+//                     "For security and verification purposes, the KYC process can only be completed via our Mobile Application.",
+//                     style: TextStyle(
+//                       fontSize: 15,
+//                       fontFamily: FontFamily.medium,
+//                     ),
+//                   ),
+//                   const SizedBox(height: 15),
+//                   Text(
+//                     "Please download the app from the Play Store or App Store to continue.",
+//                     style: TextStyle(
+//                       color: Colors.grey[600],
+//                       fontSize: 14,
+//                       fontFamily: FontFamily.medium,
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//               actions: [
+//                 TextButton(
+//                   onPressed: () => Get.back(),
+//                   child: const Text(
+//                     "Got it",
+//                     style: TextStyle(
+//                       fontWeight: FontWeight.bold,
+//                       fontFamily: FontFamily.medium,
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           );
+//         } else {
+//           // Navigate for Mobile Users
+//           Get.toNamed(AppRoutes.kycScreen, id: 1);
+//         }
+//       },
+//       child: Container(
+//         width: double.infinity,
+//         constraints: const BoxConstraints(minHeight: 180),
+//         padding: const EdgeInsets.all(30),
+//         decoration: BoxDecoration(
+//           gradient: const LinearGradient(
+//             colors: [Color(0xFF07315C), Color(0xff0280C0)],
+//             begin: Alignment.topLeft,
+//             end: Alignment.bottomRight,
+//           ),
+//           borderRadius: BorderRadius.circular(22),
+//           boxShadow: [
+//             BoxShadow(
+//               color: Ucolors.primary.withValues(alpha: 0.2),
+//               blurRadius: 20,
+//               offset: const Offset(0, 10),
+//             ),
+//           ],
+//         ),
+//         child: Row(
+//           children: [
+//             /// LEFT
+//             Expanded(
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 mainAxisAlignment: MainAxisAlignment.center,
+//                 children: [
+//                   Text(
+//                     "Welcome Back, ${authController.user.value?.name ?? 'Investor'}!",
+//                     style: UTextStyles.heading2.copyWith(color: Colors.white),
+//                   ),
+
+//                   const Gap(10),
+
+//                   Text(
+//                     "Track your investments and achieve your financial freedom.",
+//                     style: UTextStyles.medium.copyWith(color: Colors.white70),
+//                   ),
+//                 ],
+//               ),
+//             ),
+
+//             const Gap(20),
+
+//             /// KYC CARD
+//             Container(
+//               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+//               decoration: BoxDecoration(
+//                 color: Colors.white.withValues(alpha: 0.12),
+//                 borderRadius: BorderRadius.circular(16),
+//                 border: Border.all(color: Colors.white24),
+//               ),
+//               child: Row(
+//                 children: [
+//                   const Icon(Icons.verified_user_outlined, color: Colors.white),
+
+//                   const Gap(10),
+
+//                   Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       const Text(
+//                         "KYC Status",
+//                         style: TextStyle(
+//                           color: Colors.white70,
+//                           fontSize: 12,
+//                           fontFamily: FontFamily.medium,
+//                         ),
+//                       ),
+
+//                       Text(
+//                         "Pending Action",
+//                         style: UTextStyles.subtitle1.copyWith(
+//                           color: Colors.white,
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildKycIsComplete() {
+//     return LayoutBuilder(
+//       builder: (context, constraints) {
+//         final bool isMobile = constraints.maxWidth < 700;
+
+//         return Container(
+//           width: constraints.maxHeight * 0.4,
+//           padding: const EdgeInsets.all(20),
+//           decoration: BoxDecoration(
+//             color: Colors.white,
+//             borderRadius: BorderRadius.circular(24),
+//             border: Border.all(color: Colors.grey.shade100),
+//           ),
+
+//           /// MOBILE = HORIZONTAL SCROLL
+//           child: isMobile
+//               ? SizedBox(
+//                   height: 180,
+//                   child: ListView.separated(
+//                     scrollDirection: Axis.horizontal,
+//                     physics: const BouncingScrollPhysics(),
+//                     itemCount: 3,
+//                     separatorBuilder: (context, index) =>
+//                         const SizedBox(width: 12),
+//                     itemBuilder: (context, index) {
+//                       final items = [
+//                         {
+//                           "icon": Icons.flag,
+//                           "title": "Plan your goals",
+//                           "subtitle": "Set clear financial targets",
+//                           "color": Colors.blueAccent,
+//                         },
+//                         {
+//                           "icon": Icons.person_search,
+//                           "title": "Know your investment personality",
+//                           "subtitle": "Discover your risk profile",
+//                           "color": Colors.deepPurpleAccent,
+//                         },
+//                         {
+//                           "icon": Icons.shopping_basket,
+//                           "title": "Explore your investment basket",
+//                           "subtitle": "Diversify across funds",
+//                           "color": Colors.green,
+//                         },
+//                       ];
+
+//                       final item = items[index];
+
+//                       return SizedBox(
+//                         width: constraints.maxWidth * 0.3,
+//                         child: WebActionCard(
+//                           icon: item["icon"] as IconData,
+//                           title: item["title"] as String,
+//                           subtitle: item["subtitle"] as String,
+//                           color: item["color"] as Color,
+//                         ),
+//                       );
+//                     },
+//                   ),
+//                 )
+//               /// TABLET / WEB
+//               : Row(
+//                   children: [
+//                     Expanded(
+//                       child: WebActionCard(
+//                         icon: Icons.flag,
+//                         title: "Plan your goals",
+//                         subtitle: "Set clear financial targets",
+//                         color: Colors.blueAccent,
+//                       ),
+//                     ),
+
+//                     const SizedBox(width: 16),
+
+//                     Expanded(
+//                       child: WebActionCard(
+//                         icon: Icons.person_search,
+//                         title: "Know your investment personality",
+//                         subtitle: "Discover your risk profile",
+//                         color: Colors.deepPurpleAccent,
+//                       ),
+//                     ),
+
+//                     const SizedBox(width: 16),
+
+//                     Expanded(
+//                       child: WebActionCard(
+//                         icon: Icons.shopping_basket,
+//                         title: "Explore your investment basket",
+//                         subtitle: "Diversify across funds",
+//                         color: Colors.green,
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//         );
+//       },
+//     );
+//   }
+
+//   // =========================================================
+//   // QUICK ACTIONS
+//   // =========================================================
+
+//   Widget _buildQuickActionsCard(BuildContext context) {
+//     return Container(
+//       width: double.infinity,
+//       constraints: const BoxConstraints(minHeight: 180),
+//       padding: const EdgeInsets.all(20),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(24),
+//         border: Border.all(color: Colors.grey.shade100),
+//       ),
+//       child: Row(
+//         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//         children: [
+//           Expanded(
+//             flex: 5,
+//             child: _WebQuickActionItem("SIP", UImages.startsip, () {
+//               Get.delete<SipProcessController>();
+//               SipProcessController.navIsLumpsum = false;
+
+//               Get.toNamed(
+//                 id: 1,
+//                 AppRoutes.startSipScreen,
+//                 arguments: {'isLumpsum': false},
+//               );
+//             }),
+//           ),
+//           Gap(20),
+//           Expanded(
+//             flex: 5,
+//             child: _WebQuickActionItem("Lumpsum", UImages.glyph, () {
+//               Get.delete<SipProcessController>();
+//               SipProcessController.navIsLumpsum = true;
+
+//               Get.toNamed(
+//                 id: 1,
+//                 AppRoutes.startSipScreen,
+//                 arguments: {'isLumpsum': true},
+//               );
+//             }),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   // =========================================================
+//   // COLLECTION GRID
+//   // =========================================================
+
+//   Widget _buildWebCollectionGrid() {
+//     final nav = Get.find<NavigationBarController>();
+//     final funds = Get.find<FundhouseController>();
+
+//     final items = [
+//       {
+//         't': 'Best SIP Funds',
+//         'i': UImages.savingbank,
+//         'onTap': () {
+//           nav.navigateToExploreWithFilter(() => funds.applyBestSipFilter(1));
+//         },
+//       },
+//       {
+//         't': 'High Return',
+//         'i': UImages.highreturn,
+//         'onTap': () => nav.navigateToExploreWithFilter(
+//           () => funds.applyHighReturnFilter(),
+//         ),
+//       },
+//       {
+//         't': 'International Funds',
+//         'i': UImages.interfund,
+//         'onTap': () async {
+//           await Future.delayed(const Duration(milliseconds: 100));
+
+//           nav.navigateToExploreWithFilter(
+//             () => funds.applyInternationalFilter(),
+//           );
+//         },
+//       },
+//       {
+//         't': 'Index Funds',
+//         'i': UImages.indexfund,
+//         'onTap': () => nav.navigateToExploreWithFilter(
+//           () => funds.applyCustomSearch('index'),
+//         ),
+//       },
+//       {
+//         't': 'Commodities',
+//         'i': UImages.moneygold,
+//         'onTap': () =>
+//             nav.navigateToExploreWithFilter(() => funds.applyCommodityFilter()),
+//       },
+//       {
+//         't': 'NFO',
+//         'i': UImages.equity,
+//         'onTap': () => Get.toNamed(AppRoutes.nfolist, id: 1),
+//       },
+//     ];
+
+//     return LayoutBuilder(
+//       builder: (context, constraints) {
+//         final width = constraints.maxWidth;
+//         final bool isMobile = width < 600;
+//         final int crossAxisCount = isMobile ? 2 : 3;
+
+//         return Container(
+//           width: double.infinity,
+//           margin: const EdgeInsets.symmetric(vertical: 20),
+//           padding: const EdgeInsets.all(20),
+//           decoration: BoxDecoration(
+//             color: Colors.white,
+//             borderRadius: BorderRadius.circular(24),
+//             border: Border.all(color: Colors.grey.shade100),
+//             boxShadow: [
+//               BoxShadow(
+//                 color: Colors.black.withValues(alpha: 0.02),
+//                 blurRadius: 15,
+//                 offset: const Offset(0, 5),
+//               ),
+//             ],
+//           ),
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               const Text(
+//                 "Explore Categories",
+//                 style: TextStyle(
+//                   fontSize: 22, // Slightly adjusted for card look
+//                   fontWeight: FontWeight.bold,
+//                   fontFamily: FontFamily.medium,
+//                 ),
+//               ),
+//               const SizedBox(height: 20),
+
+//               // Categories Grid (Buttons as Sub-cards)
+//               GridView.builder(
+//                 shrinkWrap: true,
+//                 physics: const NeverScrollableScrollPhysics(),
+//                 itemCount: items.length,
+//                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+//                   crossAxisCount: crossAxisCount,
+//                   // Dynamic height based on screen size
+//                   mainAxisExtent: isMobile ? 130 : 160,
+//                   crossAxisSpacing: 18,
+//                   mainAxisSpacing: 18,
+//                 ),
+//                 itemBuilder: (ctx, i) {
+//                   return CollectionItem(
+//                     title: items[i]['t']! as String,
+//                     iconImg: items[i]['i']! as String,
+//                     onTap: items[i]['onTap'] as VoidCallback,
+//                   );
+//                 },
+//               ),
+//             ],
+//           ),
+//         );
+//       },
+//     );
+//   }
+
+//   // =========================================================
+//   // FUND GRID
+//   // =========================================================
+
+//   Widget _buildWebFundGrid() {
+//     return Obx(() {
+//       final bool isLoading = mutualController.isLoading.value;
+//       final List funds = mutualController.searchFund;
+
+//       return LayoutBuilder(
+//         builder: (context, constraints) {
+//           final width = constraints.maxWidth;
+//           final bool isMobile = width < 700;
+//           final bool isTablet = width >= 700 && width < 1100;
+
+//           final int crossAxisCount = isMobile
+//               ? 2
+//               : isTablet
+//               ? 3
+//               : 4;
+
+//           return Container(
+//             width: double.infinity,
+//             padding: const EdgeInsets.all(16),
+//             decoration: BoxDecoration(
+//               color: Colors.white,
+//               borderRadius: BorderRadius.circular(24),
+//               boxShadow: [
+//                 BoxShadow(
+//                   color: Colors.black.withValues(alpha: 0.05),
+//                   blurRadius: 10,
+//                   offset: const Offset(0, 4),
+//                 ),
+//               ],
+//             ),
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 const Text(
+//                   "Popular Funds",
+//                   style: TextStyle(
+//                     fontSize: 22,
+//                     fontWeight: FontWeight.bold,
+//                     fontFamily: FontFamily.medium,
+//                   ),
+//                 ),
+//                 const SizedBox(height: 20),
+
+//                 /// Loading State
+//                 if (isLoading)
+//                   FundShimmerLoading(crossAxisCount: crossAxisCount)
+//                 else if (funds.isEmpty)
+//                   Center(
+//                     child: Padding(
+//                       padding: const EdgeInsets.symmetric(vertical: 40),
+//                       child: Column(
+//                         children: [
+//                           Icon(
+//                             Iconsax.folder_open,
+//                             size: 52,
+//                             color: Colors.grey.shade400,
+//                           ),
+//                           const SizedBox(height: 14),
+//                           const Text(
+//                             "No Funds Found",
+//                             style: TextStyle(
+//                               fontSize: 18,
+//                               fontFamily: FontFamily.medium,
+
+//                               fontWeight: FontWeight.w600,
+//                             ),
+//                           ),
+//                           Text(
+//                             "Try exploring other funds or check back later.",
+//                             style: TextStyle(
+//                               fontSize: 14,
+//                               fontFamily: FontFamily.medium,
+
+//                               color: Colors.grey.shade500,
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+//                   )
+//                 /// Data Loaded State
+//                 else
+//                   GridView.builder(
+//                     shrinkWrap: true,
+//                     physics: const NeverScrollableScrollPhysics(),
+//                     itemCount: funds.length > 8 ? 8 : funds.length,
+//                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+//                       crossAxisCount: crossAxisCount,
+//                       mainAxisExtent: 160,
+//                       crossAxisSpacing: 18,
+//                       mainAxisSpacing: 18,
+//                     ),
+//                     itemBuilder: (context, index) {
+//                       final fund = funds[index];
+//                       final img = "${Appurl.baseUrl}${fund.amc?.amcLogoUrl}";
+//                       final name = fund.baseSchemeName ?? 'Unknown Name';
+
+//                       return PopularFundCard(
+//                         threeYear: fund.returnsEntity?.threeYear ?? '--',
+//                         isNetwork: true,
+//                         imgPath: img,
+//                         name: name,
+//                         onTap: () {
+//                           Get.delete<FundDetailsController>();
+//                           FundDetailsScreen.navData = {
+//                             'scheme': name,
+//                             'imgUrl': img,
+//                             'scheme_code': fund.schemeCode.toString(),
+//                           };
+//                           Get.toNamed(AppRoutes.funddetails, id: 1);
+//                         },
+//                       );
+//                     },
+//                   ),
+//               ],
+//             ),
+//           );
+//         },
+//       );
+//     });
+//   }
+// }
 
 class _WebQuickActionItem extends StatefulWidget {
   final String label;
@@ -4289,7 +6726,8 @@ class _CollectionItemState extends State<CollectionItem> {
                             fontWeight: FontWeight.normal,
                             fontFamily: FontFamily.bold,
                             color: isHovered
-                                ?  const Color(0xff2A7BBF):Ucolors.black,
+                                ? const Color(0xff2A7BBF)
+                                : Ucolors.black,
                           ),
                         ),
                       ],

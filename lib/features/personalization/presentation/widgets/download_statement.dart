@@ -964,8 +964,13 @@ class _MobileDownloadStatementsLayout extends StatelessWidget {
 // ─────────────────────────────────────────────
 //  WEB / DESKTOP LAYOUT
 // ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
+//  WEB / DESKTOP LAYOUT - PIXEL STYLE
+// ─────────────────────────────────────────────
+
 class _DesktopDownloadStatementsLayout extends StatelessWidget {
   final PersonalisationController ctrl;
+
   const _DesktopDownloadStatementsLayout({required this.ctrl});
 
   @override
@@ -973,121 +978,134 @@ class _DesktopDownloadStatementsLayout extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F8FC),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1180),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _DesktopHeader(ctrl: ctrl),
-                  const SizedBox(height: 28),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final bool isLaptop = constraints.maxWidth < 1200;
 
-                  Row(
+            return SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(
+                isLaptop ? 24 : 32,
+                isLaptop ? 22 : 28,
+                isLaptop ? 24 : 32,
+                32,
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1280),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(flex: 7, child: _DesktopFormPanel(ctrl: ctrl)),
-                      const SizedBox(width: 24),
-                      SizedBox(
-                        width: 370,
-                        child: _DesktopSummaryPanel(ctrl: ctrl),
-                      ),
+                      _WebStatementHeader(ctrl: ctrl),
+                      const SizedBox(height: 26),
+                      _WebStatementFormCard(ctrl: ctrl),
+                      const SizedBox(height: 18),
+                      _WebStatementPreviewCard(ctrl: ctrl),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
   }
 }
 
-class _DesktopHeader extends StatelessWidget {
+class _WebStatementHeader extends StatelessWidget {
   final PersonalisationController ctrl;
-  const _DesktopHeader({required this.ctrl});
+
+  const _WebStatementHeader({required this.ctrl});
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final title = ctrl.isCapitalGain.value
           ? 'Capital Gain'
-          : 'Download Statements';
+          : 'Account Statements';
 
       return Row(
         children: [
           InkWell(
-            onTap: () => Navigator.pop(context),
-            borderRadius: BorderRadius.circular(14),
+            onTap: () => Navigator.maybePop(context),
+            borderRadius: BorderRadius.circular(18),
             child: Container(
-              height: 46,
-              width: 46,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Ucolors.surfaceVariant),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 18,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
+                color: const Color(0xFFEFF4FF),
+                borderRadius: BorderRadius.circular(18),
               ),
               child: const Icon(
                 Icons.arrow_back_ios_new_rounded,
-                size: 18,
-                color: Ucolors.onSurface,
+                size: 17,
+                color: Color(0xFF1545E8),
               ),
             ),
           ),
-          const SizedBox(width: 16),
+
+          const SizedBox(width: 18),
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: UTextStyles.sectionHeading.copyWith(
                     fontSize: 28,
-                    fontWeight: FontWeight.w800,
-                    color: Ucolors.onSurface,
+                    height: 1.15,
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xFF111827),
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 7),
                 Text(
-                  'Generate, download or email your investment statement securely.',
+                  'Generate, preview, download or email your mutual fund statements securely.',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: UTextStyles.bodyMedium.copyWith(
-                    fontSize: 14,
-                    color: Ucolors.onSurfaceVariant,
-                    height: 1.4,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF667085),
                   ),
                 ),
               ],
             ),
           ),
+
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            height: 46,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             decoration: BoxDecoration(
-              color: Ucolors.infoBanner,
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: Ucolors.infoBannerBorder),
+              color: const Color(0xFFF3F7FF),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFFDCE8FF)),
             ),
             child: Row(
               children: [
-                const Icon(
-                  Icons.verified_user_outlined,
-                  size: 18,
-                  color: Ucolors.primaryContainer,
+                Container(
+                  width: 26,
+                  height: 26,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE8F0FF),
+                    borderRadius: BorderRadius.circular(9),
+                  ),
+                  child: const Icon(
+                    Icons.verified_user_outlined,
+                    size: 17,
+                    color: Color(0xFF174CEA),
+                  ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 10),
                 Text(
                   'Secure statement centre',
-                  style: UTextStyles.caption.copyWith(
-                    color: Ucolors.primaryContainer,
-                    fontWeight: FontWeight.w700,
+                  style: UTextStyles.bodyMedium.copyWith(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF174CEA),
                   ),
                 ),
               ],
@@ -1099,402 +1117,1438 @@ class _DesktopHeader extends StatelessWidget {
   }
 }
 
-class _DesktopFormPanel extends StatelessWidget {
+class _WebStatementFormCard extends StatelessWidget {
   final PersonalisationController ctrl;
-  const _DesktopFormPanel({required this.ctrl});
+
+  const _WebStatementFormCard({required this.ctrl});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(26),
+      padding: const EdgeInsets.fromLTRB(28, 24, 28, 22),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.86),
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: Ucolors.surfaceVariant),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE6ECF5)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.045),
-            blurRadius: 28,
+            blurRadius: 26,
             offset: const Offset(0, 12),
           ),
         ],
       ),
-      child: Column(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final bool compact = constraints.maxWidth < 950;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              compact
+                  ? Column(
+                      children: [
+                        _WebStatementSource(ctrl: ctrl),
+                        const SizedBox(height: 18),
+                        _WebPanFolioInput(ctrl: ctrl),
+                      ],
+                    )
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: _WebStatementSource(ctrl: ctrl)),
+                        const SizedBox(width: 42),
+                        Expanded(child: _WebPanFolioInput(ctrl: ctrl)),
+                      ],
+                    ),
+
+              const SizedBox(height: 28),
+
+              _WebDurationSection(ctrl: ctrl),
+
+              const SizedBox(height: 16),
+
+              _WebDateRangeBar(ctrl: ctrl),
+
+              const SizedBox(height: 16),
+
+              Row(
+                children: [
+                  Expanded(child: _WebTaxReadyInfo()),
+                  const SizedBox(width: 16),
+                  Obx(() {
+                    final loading =
+                        ctrl.isRequestingStatement.value ||
+                        ctrl.isRequestingAccountStatement.value;
+
+                    return SizedBox(
+                      height: 54,
+                      width: 250,
+                      child: ElevatedButton(
+                        onPressed: loading ? null : ctrl.onDownload,
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          backgroundColor: const Color(0xFF134BE8),
+                          disabledBackgroundColor: const Color(0xFFBFD0FF),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: loading
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.4,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.post_add_rounded,
+                                    size: 24,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    'Generate Statement',
+                                    style: UTextStyles.bodyMedium.copyWith(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _WebStatementSource extends StatelessWidget {
+  final PersonalisationController ctrl;
+
+  const _WebStatementSource({required this.ctrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      if (ctrl.isCapitalGain.value) {
+        return const SizedBox.shrink();
+      }
+
+      return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _DesktopPanelTitle(
-            icon: Icons.description_outlined,
-            title: 'Statement details',
-            subtitle:
-                'Choose the statement source and duration before generating the file.',
-          ),
-          const SizedBox(height: 22),
-
-          Obx(() {
-            if (ctrl.isCapitalGain.value) {
-              return const SizedBox.shrink();
-            }
-
-            return Column(
+          _WebStepTitle(number: '1.', title: 'Statement Source'),
+          const SizedBox(height: 12),
+          Container(
+            height: 44,
+            padding: const EdgeInsets.all(3),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFFD8E1F0)),
+            ),
+            child: Row(
               children: [
-                _StatementTypeCard(ctrl: ctrl),
-                const SizedBox(height: 16),
+                _WebSegmentButton(
+                  label: 'PAN Number',
+                  active: ctrl.statementTypeIndex.value == 0,
+                  onTap: () => ctrl.selectStatementType(0),
+                ),
+                _WebSegmentButton(
+                  label: 'Folio Number',
+                  active: ctrl.statementTypeIndex.value == 1,
+                  onTap: () => ctrl.selectStatementType(1),
+                ),
               ],
-            );
-          }),
-
-          Obx(
-            () => ctrl.statementTypeIndex.value == 0
-                ? _PanInputCard(ctrl: ctrl)
-                : _FolioInputCard(ctrl: ctrl),
+            ),
           ),
-          const SizedBox(height: 16),
+        ],
+      );
+    });
+  }
+}
 
-          _DurationCard(ctrl: ctrl),
+class _WebSegmentButton extends StatelessWidget {
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+
+  const _WebSegmentButton({
+    required this.label,
+    required this.active,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(22),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+            gradient: active
+                ? const LinearGradient(
+                    colors: [Color(0xFF143FE2), Color(0xFF003CCB)],
+                  )
+                : null,
+          ),
+          child: Text(
+            label,
+            style: UTextStyles.bodyMedium.copyWith(
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+              color: active ? Colors.white : const Color(0xFF475467),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _WebPanFolioInput extends StatelessWidget {
+  final PersonalisationController ctrl;
+
+  const _WebPanFolioInput({required this.ctrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final bool isPan = ctrl.statementTypeIndex.value == 0;
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _WebStepTitle(
+            number: '2.',
+            title: isPan ? 'Enter PAN' : 'Select Folio',
+          ),
           const SizedBox(height: 12),
 
-          Obx(() {
-            if (ctrl.selectedDuration.value == 3) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
-                child: _CustomDateSelector(ctrl: ctrl),
-              );
-            }
-            return const SizedBox.shrink();
-          }),
+          isPan
+              ? _WebReadOnlyPanField(ctrl: ctrl)
+              : _WebFolioDropdown(ctrl: ctrl),
 
-          _InfoBanner(email: ctrl.emailController.text),
+          const SizedBox(height: 10),
+
+          Row(
+            children: [
+              const Icon(
+                Icons.check_circle_outline_rounded,
+                size: 16,
+                color: Color(0xFF12B76A),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                isPan
+                    ? 'Verified securely via NSDL'
+                    : 'Folio verified securely',
+                style: UTextStyles.bodyMedium.copyWith(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF667085),
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    });
+  }
+}
+
+class _WebReadOnlyPanField extends StatelessWidget {
+  final PersonalisationController ctrl;
+
+  const _WebReadOnlyPanField({required this.ctrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Container(
+        height: 48,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xFF2F69F6), width: 1.2),
+        ),
+        child: TextField(
+          controller: ctrl.panController,
+          inputFormatters: [
+            UpperCaseTextFormatter(),
+            LengthLimitingTextInputFormatter(10),
+          ],
+          style: UTextStyles.bodyMedium.copyWith(
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            color: const Color(0xFF344054),
+          ),
+          decoration: const InputDecoration(
+            border: InputBorder.none,
+            prefixIcon: Icon(
+              Icons.badge_outlined,
+              size: 22,
+              color: Color(0xFF344054),
+            ),
+            suffixIcon: Icon(
+              Icons.check_circle_outline_rounded,
+              size: 24,
+              color: Color(0xFF12B76A),
+            ),
+            contentPadding: EdgeInsets.only(top: 13),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _WebFolioDropdown extends StatelessWidget {
+  final PersonalisationController ctrl;
+
+  const _WebFolioDropdown({required this.ctrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {},
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        height: 48,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xFFD8E1F0)),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.description_outlined,
+              size: 20,
+              color: Color(0xFF344054),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                ctrl.selectedFolio.value.isEmpty
+                    ? 'Select Folio'
+                    : ctrl.selectedFolio.value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: UTextStyles.bodyMedium.copyWith(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF344054),
+                ),
+              ),
+            ),
+            const Icon(
+              Icons.keyboard_arrow_down_rounded,
+              size: 24,
+              color: Color(0xFF667085),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _WebDurationSection extends StatelessWidget {
+  final PersonalisationController ctrl;
+
+  const _WebDurationSection({required this.ctrl});
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _WebStepTitle(number: '3.', title: 'Select Duration'),
+
+        const SizedBox(height: 12),
+
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final bool compact = constraints.maxWidth < 860;
+
+            return Obx(() {
+              final int selectedIndex = ctrl.selectedDuration.value;
+
+              return GridView.builder(
+                itemCount: 4,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: compact ? 2 : 4,
+                  crossAxisSpacing: 14,
+                  mainAxisSpacing: 14,
+                  mainAxisExtent: 96,
+                ),
+                itemBuilder: (context, index) {
+                  return _WebDurationTile(
+                    index: index,
+                    active: selectedIndex == index,
+                    onTap: () => ctrl.selectDuration(index),
+                  );
+                },
+              );
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       _WebStepTitle(number: '3.', title: 'Select Duration'),
+  //       const SizedBox(height: 12),
+  //       Obx(() {
+  //         return LayoutBuilder(
+  //           builder: (context, constraints) {
+  //             final bool compact = constraints.maxWidth < 860;
+
+  //             return GridView.builder(
+  //               itemCount: 4,
+  //               shrinkWrap: true,
+  //               physics: const NeverScrollableScrollPhysics(),
+  //               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+  //                 crossAxisCount: compact ? 2 : 4,
+  //                 crossAxisSpacing: 14,
+  //                 mainAxisSpacing: 14,
+  //                 mainAxisExtent: 96,
+  //               ),
+  //               itemBuilder: (context, index) {
+  //                 return _WebDurationTile(
+  //                   index: index,
+  //                   active: ctrl.selectedDuration.value == index,
+  //                   onTap: () => ctrl.selectDuration(index),
+  //                 );
+  //               },
+  //             );
+  //           },
+  //         );
+  //       }),
+  //     ],
+  //   );
+  // }
+}
+
+class _WebDurationTile extends StatelessWidget {
+  final int index;
+  final bool active;
+  final VoidCallback onTap;
+
+  const _WebDurationTile({
+    required this.index,
+    required this.active,
+    required this.onTap,
+  });
+
+  String get title {
+    switch (index) {
+      case 0:
+        return 'Current FY';
+      case 1:
+        return 'Previous FY';
+      case 2:
+        return 'Full Statement';
+      case 3:
+        return 'Custom Range';
+      default:
+        return '';
+    }
+  }
+
+  String get subtitle {
+    switch (index) {
+      case 0:
+        return '2024 - 2025';
+      case 1:
+        return '2023 - 2024';
+      case 2:
+        return 'All Transactions';
+      case 3:
+        return 'Choose dates';
+      default:
+        return '';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10 
+        ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          gradient: active
+              ? const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF143FE2), Color(0xFF003CCB)],
+                )
+              : null,
+          color: active ? null : const Color(0xFFFBFCFF),
+          border: Border.all(
+            color: active ? const Color(0xFF003CCB) : const Color(0xFFDCE3EF),
+          ),
+          boxShadow: active
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF003CCB).withOpacity(0.18),
+                    blurRadius: 14,
+                    offset: const Offset(0, 6),
+                  ),
+                ]
+              : null,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.calendar_month_outlined,
+              size: 22,
+              color: active ? Colors.white : const Color(0xFF243B6B),
+            ),
+            const SizedBox(height: 9),
+            Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: UTextStyles.bodyMedium.copyWith(
+                fontSize: 13,
+                fontWeight: FontWeight.w900,
+                color: active ? Colors.white : const Color(0xFF111827),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: UTextStyles.bodyMedium.copyWith(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: active
+                    ? Colors.white.withOpacity(0.86)
+                    : const Color(0xFF667085),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _WebDateRangeBar extends StatelessWidget {
+  final PersonalisationController ctrl;
+
+  const _WebDateRangeBar({required this.ctrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final bool isCustom = ctrl.selectedDuration.value == 3;
+
+      return InkWell(
+        onTap: isCustom ? () => ctrl.pickDate(context, true) : null,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: isCustom ? Colors.white : const Color(0xFFFBFCFF),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isCustom
+                  ? const Color(0xFFD8E1F0)
+                  : const Color(0xFFE3E8F1),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.calendar_today_outlined,
+                size: 17,
+                color: isCustom
+                    ? const Color(0xFF667085)
+                    : const Color(0xFFC3CAD8),
+              ),
+              const SizedBox(width: 14),
+              Text(
+                isCustom
+                    ? ctrl.formatDate(ctrl.startDate.value)
+                    : 'Select start date',
+                style: UTextStyles.bodyMedium.copyWith(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: isCustom
+                      ? const Color(0xFF475467)
+                      : const Color(0xFFC3CAD8),
+                ),
+              ),
+              const SizedBox(width: 26),
+              Icon(
+                Icons.arrow_forward_rounded,
+                size: 18,
+                color: isCustom
+                    ? const Color(0xFF667085)
+                    : const Color(0xFFC3CAD8),
+              ),
+              const SizedBox(width: 26),
+              InkWell(
+                onTap: isCustom ? () => ctrl.pickDate(context, false) : null,
+                borderRadius: BorderRadius.circular(6),
+                child: Text(
+                  isCustom
+                      ? ctrl.formatDate(ctrl.endDate.value)
+                      : 'Select end date',
+                  style: UTextStyles.bodyMedium.copyWith(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: isCustom
+                        ? const Color(0xFF475467)
+                        : const Color(0xFFC3CAD8),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+}
+
+class _WebTaxReadyInfo extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 52,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF2F6FF),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFDCE8FF)),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.info_outline_rounded,
+            size: 22,
+            color: Color(0xFF174CEA),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              'Need a tax-ready statement? Use Full Statement or Custom Range.',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: UTextStyles.bodyMedium.copyWith(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF174CEA),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-class _DesktopPanelTitle extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
+class _WebStatementPreviewCard extends StatelessWidget {
+  final PersonalisationController ctrl;
 
-  const _DesktopPanelTitle({
+  const _WebStatementPreviewCard({required this.ctrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 274,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE6ECF5)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.035),
+            blurRadius: 24,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 18, 20, 14),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Statement Preview',
+                        style: UTextStyles.sectionHeading.copyWith(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: const Color(0xFF111827),
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        'Preview your transactions for the selected duration.',
+                        style: UTextStyles.bodyMedium.copyWith(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF667085),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                _PreviewIconButton(
+                  icon: Icons.mail_outline_rounded,
+                  color: const Color(0xFF174CEA),
+                  onTap: ctrl.onEmail,
+                ),
+                const SizedBox(width: 12),
+                _PreviewIconButton(
+                  icon: Icons.picture_as_pdf_rounded,
+                  color: const Color(0xFFE52929),
+                  onTap: ctrl.onDownload,
+                ),
+                const SizedBox(width: 12),
+                _PreviewIconButton(
+                  icon: Icons.table_chart_rounded,
+                  color: const Color(0xFF16A34A),
+                  onTap: ctrl.onDownload,
+                ),
+                const SizedBox(width: 12),
+                _PreviewIconButton(
+                  icon: Icons.print_rounded,
+                  color: const Color(0xFF174CEA),
+                  onTap: ctrl.onDownload,
+                ),
+              ],
+            ),
+          ),
+
+          Container(
+            height: 42,
+            decoration: const BoxDecoration(
+              border: Border(
+                top: BorderSide(color: Color(0xFFE6ECF5)),
+                bottom: BorderSide(color: Color(0xFFE6ECF5)),
+              ),
+            ),
+            child: Row(
+              children: const [
+                _PreviewHeaderCell('Fund Name', flex: 3),
+                _PreviewHeaderCell('Inv. Since', flex: 2),
+                _PreviewHeaderCell('Total Inv.', flex: 2),
+                _PreviewHeaderCell('Current Amount', flex: 2),
+                _PreviewHeaderCell('Units', flex: 2),
+                _PreviewHeaderCell('Realized Gain', flex: 2),
+                _PreviewHeaderCell('Unrealized Gain', flex: 2),
+              ],
+            ),
+          ),
+
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF4FF),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: const Icon(
+                      Icons.manage_search_rounded,
+                      size: 40,
+                      color: Color(0xFF174CEA),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'No transactions found for the selected duration.',
+                    style: UTextStyles.bodyMedium.copyWith(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF475467),
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    'Try changing the date range or source to preview your statement.',
+                    style: UTextStyles.bodyMedium.copyWith(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF667085),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PreviewIconButton extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _PreviewIconButton({
     required this.icon,
-    required this.title,
-    required this.subtitle,
+    required this.color,
+    required this.onTap,
   });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(9),
+      child: Container(
+        width: 56,
+        height: 42,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(9),
+          border: Border.all(color: const Color(0xFFDCE3EF)),
+        ),
+        child: Icon(icon, size: 22, color: color),
+      ),
+    );
+  }
+}
+
+class _PreviewHeaderCell extends StatelessWidget {
+  final String title;
+  final int flex;
+
+  const _PreviewHeaderCell(this.title, {required this.flex});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 26),
+        child: Text(
+          title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: UTextStyles.bodyMedium.copyWith(
+            fontSize: 12,
+            fontWeight: FontWeight.w900,
+            color: const Color(0xFF344054),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _WebStepTitle extends StatelessWidget {
+  final String number;
+  final String title;
+
+  const _WebStepTitle({required this.number, required this.title});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Container(
-          height: 46,
-          width: 46,
-          decoration: BoxDecoration(
-            color: Ucolors.primaryContainer.withOpacity(0.10),
-            borderRadius: BorderRadius.circular(14),
+        Text(
+          number,
+          style: UTextStyles.bodyMedium.copyWith(
+            fontSize: 13,
+            fontWeight: FontWeight.w900,
+            color: const Color(0xFF111827),
           ),
-          child: Icon(icon, color: Ucolors.primaryContainer, size: 22),
         ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: UTextStyles.sectionHeading.copyWith(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: Ucolors.onSurface,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: UTextStyles.bodyMedium.copyWith(
-                  fontSize: 13,
-                  color: Ucolors.onSurfaceVariant,
-                  height: 1.35,
-                ),
-              ),
-            ],
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: UTextStyles.bodyMedium.copyWith(
+            fontSize: 13,
+            fontWeight: FontWeight.w900,
+            color: const Color(0xFF111827),
           ),
         ),
       ],
     );
   }
 }
+// class _DesktopDownloadStatementsLayout extends StatelessWidget {
+//   final PersonalisationController ctrl;
+//   const _DesktopDownloadStatementsLayout({required this.ctrl});
 
-class _DesktopSummaryPanel extends StatelessWidget {
-  final PersonalisationController ctrl;
-  const _DesktopSummaryPanel({required this.ctrl});
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: const Color(0xFFF6F8FC),
+//       body: SafeArea(
+//         child: SingleChildScrollView(
+//           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
+//           child: Center(
+//             child: ConstrainedBox(
+//               constraints: const BoxConstraints(maxWidth: 1180),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   _DesktopHeader(ctrl: ctrl),
+//                   const SizedBox(height: 28),
 
-  String _durationText() {
-    final selectedIndex = ctrl.selectedDuration.value;
+//                   Row(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       Expanded(flex: 7, child: _DesktopFormPanel(ctrl: ctrl)),
+//                       const SizedBox(width: 24),
+//                       SizedBox(
+//                         width: 370,
+//                         child: _DesktopSummaryPanel(ctrl: ctrl),
+//                       ),
+//                     ],
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
-    if (selectedIndex == 3) {
-      return '${ctrl.formatDate(ctrl.startDate.value)} - ${ctrl.formatDate(ctrl.endDate.value)}';
-    }
+// class _DesktopHeader extends StatelessWidget {
+//   final PersonalisationController ctrl;
+//   const _DesktopHeader({required this.ctrl});
 
-    if (selectedIndex >= 0 && selectedIndex < ctrl.durations.length) {
-      return ctrl.durations[selectedIndex];
-    }
+//   @override
+//   Widget build(BuildContext context) {
+//     return Obx(() {
+//       final title = ctrl.isCapitalGain.value
+//           ? 'Capital Gain'
+//           : 'Download Statements';
 
-    return '-';
-  }
+//       return Row(
+//         children: [
+//           InkWell(
+//             onTap: () => Navigator.pop(context),
+//             borderRadius: BorderRadius.circular(14),
+//             child: Container(
+//               height: 46,
+//               width: 46,
+//               decoration: BoxDecoration(
+//                 color: Colors.white,
+//                 borderRadius: BorderRadius.circular(14),
+//                 border: Border.all(color: Ucolors.surfaceVariant),
+//                 boxShadow: [
+//                   BoxShadow(
+//                     color: Colors.black.withOpacity(0.04),
+//                     blurRadius: 18,
+//                     offset: const Offset(0, 6),
+//                   ),
+//                 ],
+//               ),
+//               child: const Icon(
+//                 Icons.arrow_back_ios_new_rounded,
+//                 size: 18,
+//                 color: Ucolors.onSurface,
+//               ),
+//             ),
+//           ),
+//           const SizedBox(width: 16),
+//           Expanded(
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Text(
+//                   title,
+//                   style: UTextStyles.sectionHeading.copyWith(
+//                     fontSize: 28,
+//                     fontWeight: FontWeight.w800,
+//                     color: Ucolors.onSurface,
+//                   ),
+//                 ),
+//                 const SizedBox(height: 6),
+//                 Text(
+//                   'Generate, download or email your investment statement securely.',
+//                   style: UTextStyles.bodyMedium.copyWith(
+//                     fontSize: 14,
+//                     color: Ucolors.onSurfaceVariant,
+//                     height: 1.4,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//           Container(
+//             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+//             decoration: BoxDecoration(
+//               color: Ucolors.infoBanner,
+//               borderRadius: BorderRadius.circular(999),
+//               border: Border.all(color: Ucolors.infoBannerBorder),
+//             ),
+//             child: Row(
+//               children: [
+//                 const Icon(
+//                   Icons.verified_user_outlined,
+//                   size: 18,
+//                   color: Ucolors.primaryContainer,
+//                 ),
+//                 const SizedBox(width: 8),
+//                 Text(
+//                   'Secure statement centre',
+//                   style: UTextStyles.caption.copyWith(
+//                     color: Ucolors.primaryContainer,
+//                     fontWeight: FontWeight.w700,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ],
+//       );
+//     });
+//   }
+// }
 
-  @override
-  Widget build(BuildContext context) {
-    return Obx(() {
-      final isLoading =
-          ctrl.isRequestingStatement.value ||
-          ctrl.isRequestingAccountStatement.value;
+// class _DesktopFormPanel extends StatelessWidget {
+//   final PersonalisationController ctrl;
+//   const _DesktopFormPanel({required this.ctrl});
 
-      final statementVia = ctrl.isCapitalGain.value
-          ? 'Capital Gain'
-          : ctrl.statementTypeIndex.value == 0
-          ? 'PAN Number'
-          : 'Folio Number';
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       padding: const EdgeInsets.all(26),
+//       decoration: BoxDecoration(
+//         color: Colors.white.withOpacity(0.86),
+//         borderRadius: BorderRadius.circular(28),
+//         border: Border.all(color: Ucolors.surfaceVariant),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withOpacity(0.045),
+//             blurRadius: 28,
+//             offset: const Offset(0, 12),
+//           ),
+//         ],
+//       ),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           _DesktopPanelTitle(
+//             icon: Icons.description_outlined,
+//             title: 'Statement details',
+//             subtitle:
+//                 'Choose the statement source and duration before generating the file.',
+//           ),
+//           const SizedBox(height: 22),
 
-      final identifier = ctrl.statementTypeIndex.value == 0
-          ? ctrl.panController.text
-          : ctrl.selectedFolio.value;
+//           Obx(() {
+//             if (ctrl.isCapitalGain.value) {
+//               return const SizedBox.shrink();
+//             }
 
-      return Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: Ucolors.surfaceVariant),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 30,
-              offset: const Offset(0, 14),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 54,
-              width: 54,
-              decoration: BoxDecoration(
-                color: Ucolors.primaryContainer,
-                borderRadius: BorderRadius.circular(18),
-                boxShadow: [
-                  BoxShadow(
-                    color: Ucolors.primaryContainer.withOpacity(0.22),
-                    blurRadius: 18,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: const Icon(
-                Icons.file_download_done_rounded,
-                color: Colors.white,
-                size: 28,
-              ),
-            ),
-            const SizedBox(height: 18),
-            Text(
-              'Ready to generate',
-              style: UTextStyles.sectionHeading.copyWith(
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
-                color: Ucolors.onSurface,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Review the selected options, then download the statement or send it to the registered email.',
-              style: UTextStyles.bodyMedium.copyWith(
-                fontSize: 13,
-                color: Ucolors.onSurfaceVariant,
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 22),
+//             return Column(
+//               children: [
+//                 _StatementTypeCard(ctrl: ctrl),
+//                 const SizedBox(height: 16),
+//               ],
+//             );
+//           }),
 
-            _SummaryRow(
-              icon: Icons.fact_check_outlined,
-              label: 'Statement via',
-              value: statementVia,
-            ),
-            const SizedBox(height: 14),
-            _SummaryRow(
-              icon: Icons.badge_outlined,
-              label: ctrl.statementTypeIndex.value == 0 ? 'PAN' : 'Folio',
-              value: identifier.isEmpty ? '-' : identifier,
-            ),
-            const SizedBox(height: 14),
-            _SummaryRow(
-              icon: Icons.date_range_outlined,
-              label: 'Duration',
-              value: _durationText(),
-            ),
-            const SizedBox(height: 14),
-            _SummaryRow(
-              icon: Icons.mail_outline,
-              label: 'Email',
-              value: ctrl.emailController.text.isEmpty
-                  ? '-'
-                  : ctrl.emailController.text,
-            ),
+//           Obx(
+//             () => ctrl.statementTypeIndex.value == 0
+//                 ? _PanInputCard(ctrl: ctrl)
+//                 : _FolioInputCard(ctrl: ctrl),
+//           ),
+//           const SizedBox(height: 16),
 
-            const SizedBox(height: 24),
-            Divider(color: Ucolors.surfaceVariant),
-            const SizedBox(height: 20),
+//           _DurationCard(ctrl: ctrl),
+//           const SizedBox(height: 12),
 
-            if (isLoading)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 18),
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            else
-              Column(
-                children: [
-                  _WebActionButton(
-                    icon: Icons.download_outlined,
-                    label: 'Download Statement',
-                    filled: true,
-                    onTap: ctrl.onDownload,
-                  ),
-                  const SizedBox(height: 12),
-                  _WebActionButton(
-                    icon: Icons.mail_outline,
-                    label: 'Email Statement',
-                    filled: false,
-                    onTap: ctrl.onEmail,
-                  ),
-                ],
-              ),
-          ],
-        ),
-      );
-    });
-  }
-}
+//           Obx(() {
+//             if (ctrl.selectedDuration.value == 3) {
+//               return Padding(
+//                 padding: const EdgeInsets.only(bottom: 12.0),
+//                 child: _CustomDateSelector(ctrl: ctrl),
+//               );
+//             }
+//             return const SizedBox.shrink();
+//           }),
 
-class _SummaryRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
+//           _InfoBanner(email: ctrl.emailController.text),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
-  const _SummaryRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
+// class _DesktopPanelTitle extends StatelessWidget {
+//   final IconData icon;
+//   final String title;
+//   final String subtitle;
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Ucolors.surfaceVariant),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 20, color: Ucolors.primaryContainer),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: UTextStyles.caption.copyWith(
-                    fontSize: 12,
-                    color: Ucolors.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: UTextStyles.bodyMedium.copyWith(
-                    fontSize: 14,
-                    color: Ucolors.onSurface,
-                    fontWeight: FontWeight.w700,
-                    height: 1.35,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+//   const _DesktopPanelTitle({
+//     required this.icon,
+//     required this.title,
+//     required this.subtitle,
+//   });
 
-class _WebActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool filled;
-  final VoidCallback onTap;
+//   @override
+//   Widget build(BuildContext context) {
+//     return Row(
+//       children: [
+//         Container(
+//           height: 46,
+//           width: 46,
+//           decoration: BoxDecoration(
+//             color: Ucolors.primaryContainer.withOpacity(0.10),
+//             borderRadius: BorderRadius.circular(14),
+//           ),
+//           child: Icon(icon, color: Ucolors.primaryContainer, size: 22),
+//         ),
+//         const SizedBox(width: 14),
+//         Expanded(
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Text(
+//                 title,
+//                 style: UTextStyles.sectionHeading.copyWith(
+//                   fontSize: 20,
+//                   fontWeight: FontWeight.w800,
+//                   color: Ucolors.onSurface,
+//                 ),
+//               ),
+//               const SizedBox(height: 4),
+//               Text(
+//                 subtitle,
+//                 style: UTextStyles.bodyMedium.copyWith(
+//                   fontSize: 13,
+//                   color: Ucolors.onSurfaceVariant,
+//                   height: 1.35,
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }
 
-  const _WebActionButton({
-    required this.icon,
-    required this.label,
-    required this.filled,
-    required this.onTap,
-  });
+// class _DesktopSummaryPanel extends StatelessWidget {
+//   final PersonalisationController ctrl;
+//   const _DesktopSummaryPanel({required this.ctrl});
 
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 160),
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
-          decoration: BoxDecoration(
-            color: filled ? Ucolors.primary : Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: filled ? null : Border.all(color: Ucolors.outlineVariant),
-            boxShadow: filled
-                ? [
-                    BoxShadow(
-                      color: Ucolors.primaryContainer.withOpacity(0.22),
-                      blurRadius: 18,
-                      offset: const Offset(0, 8),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 20,
-                color: filled ? Ucolors.white : Ucolors.onSecondaryContainer,
-              ),
-              const SizedBox(width: 10),
-              Text(
-                label,
-                style: UTextStyles.bodyMedium.copyWith(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: filled ? Ucolors.white : Ucolors.onSecondaryContainer,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+//   String _durationText() {
+//     final selectedIndex = ctrl.selectedDuration.value;
+
+//     if (selectedIndex == 3) {
+//       return '${ctrl.formatDate(ctrl.startDate.value)} - ${ctrl.formatDate(ctrl.endDate.value)}';
+//     }
+
+//     if (selectedIndex >= 0 && selectedIndex < ctrl.durations.length) {
+//       return ctrl.durations[selectedIndex];
+//     }
+
+//     return '-';
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Obx(() {
+//       final isLoading =
+//           ctrl.isRequestingStatement.value ||
+//           ctrl.isRequestingAccountStatement.value;
+
+//       final statementVia = ctrl.isCapitalGain.value
+//           ? 'Capital Gain'
+//           : ctrl.statementTypeIndex.value == 0
+//           ? 'PAN Number'
+//           : 'Folio Number';
+
+//       final identifier = ctrl.statementTypeIndex.value == 0
+//           ? ctrl.panController.text
+//           : ctrl.selectedFolio.value;
+
+//       return Container(
+//         padding: const EdgeInsets.all(24),
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           borderRadius: BorderRadius.circular(28),
+//           border: Border.all(color: Ucolors.surfaceVariant),
+//           boxShadow: [
+//             BoxShadow(
+//               color: Colors.black.withOpacity(0.05),
+//               blurRadius: 30,
+//               offset: const Offset(0, 14),
+//             ),
+//           ],
+//         ),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Container(
+//               height: 54,
+//               width: 54,
+//               decoration: BoxDecoration(
+//                 color: Ucolors.primaryContainer,
+//                 borderRadius: BorderRadius.circular(18),
+//                 boxShadow: [
+//                   BoxShadow(
+//                     color: Ucolors.primaryContainer.withOpacity(0.22),
+//                     blurRadius: 18,
+//                     offset: const Offset(0, 8),
+//                   ),
+//                 ],
+//               ),
+//               child: const Icon(
+//                 Icons.file_download_done_rounded,
+//                 color: Colors.white,
+//                 size: 28,
+//               ),
+//             ),
+//             const SizedBox(height: 18),
+//             Text(
+//               'Ready to generate',
+//               style: UTextStyles.sectionHeading.copyWith(
+//                 fontSize: 22,
+//                 fontWeight: FontWeight.w800,
+//                 color: Ucolors.onSurface,
+//               ),
+//             ),
+//             const SizedBox(height: 8),
+//             Text(
+//               'Review the selected options, then download the statement or send it to the registered email.',
+//               style: UTextStyles.bodyMedium.copyWith(
+//                 fontSize: 13,
+//                 color: Ucolors.onSurfaceVariant,
+//                 height: 1.5,
+//               ),
+//             ),
+//             const SizedBox(height: 22),
+
+//             _SummaryRow(
+//               icon: Icons.fact_check_outlined,
+//               label: 'Statement via',
+//               value: statementVia,
+//             ),
+//             const SizedBox(height: 14),
+//             _SummaryRow(
+//               icon: Icons.badge_outlined,
+//               label: ctrl.statementTypeIndex.value == 0 ? 'PAN' : 'Folio',
+//               value: identifier.isEmpty ? '-' : identifier,
+//             ),
+//             const SizedBox(height: 14),
+//             _SummaryRow(
+//               icon: Icons.date_range_outlined,
+//               label: 'Duration',
+//               value: _durationText(),
+//             ),
+//             const SizedBox(height: 14),
+//             _SummaryRow(
+//               icon: Icons.mail_outline,
+//               label: 'Email',
+//               value: ctrl.emailController.text.isEmpty
+//                   ? '-'
+//                   : ctrl.emailController.text,
+//             ),
+
+//             const SizedBox(height: 24),
+//             Divider(color: Ucolors.surfaceVariant),
+//             const SizedBox(height: 20),
+
+//             if (isLoading)
+//               const Center(
+//                 child: Padding(
+//                   padding: EdgeInsets.symmetric(vertical: 18),
+//                   child: CircularProgressIndicator(),
+//                 ),
+//               )
+//             else
+//               Column(
+//                 children: [
+//                   _WebActionButton(
+//                     icon: Icons.download_outlined,
+//                     label: 'Download Statement',
+//                     filled: true,
+//                     onTap: ctrl.onDownload,
+//                   ),
+//                   const SizedBox(height: 12),
+//                   _WebActionButton(
+//                     icon: Icons.mail_outline,
+//                     label: 'Email Statement',
+//                     filled: false,
+//                     onTap: ctrl.onEmail,
+//                   ),
+//                 ],
+//               ),
+//           ],
+//         ),
+//       );
+//     });
+//   }
+// }
+
+// class _SummaryRow extends StatelessWidget {
+//   final IconData icon;
+//   final String label;
+//   final String value;
+
+//   const _SummaryRow({
+//     required this.icon,
+//     required this.label,
+//     required this.value,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       padding: const EdgeInsets.all(14),
+//       decoration: BoxDecoration(
+//         color: const Color(0xFFF8FAFC),
+//         borderRadius: BorderRadius.circular(16),
+//         border: Border.all(color: Ucolors.surfaceVariant),
+//       ),
+//       child: Row(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Icon(icon, size: 20, color: Ucolors.primaryContainer),
+//           const SizedBox(width: 12),
+//           Expanded(
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Text(
+//                   label,
+//                   style: UTextStyles.caption.copyWith(
+//                     fontSize: 12,
+//                     color: Ucolors.onSurfaceVariant,
+//                     fontWeight: FontWeight.w500,
+//                   ),
+//                 ),
+//                 const SizedBox(height: 4),
+//                 Text(
+//                   value,
+//                   style: UTextStyles.bodyMedium.copyWith(
+//                     fontSize: 14,
+//                     color: Ucolors.onSurface,
+//                     fontWeight: FontWeight.w700,
+//                     height: 1.35,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+// class _WebActionButton extends StatelessWidget {
+//   final IconData icon;
+//   final String label;
+//   final bool filled;
+//   final VoidCallback onTap;
+
+//   const _WebActionButton({
+//     required this.icon,
+//     required this.label,
+//     required this.filled,
+//     required this.onTap,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Material(
+//       color: Colors.transparent,
+//       child: InkWell(
+//         onTap: onTap,
+//         borderRadius: BorderRadius.circular(16),
+//         child: AnimatedContainer(
+//           duration: const Duration(milliseconds: 160),
+//           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+//           decoration: BoxDecoration(
+//             color: filled ? Ucolors.primary : Colors.white,
+//             borderRadius: BorderRadius.circular(16),
+//             border: filled ? null : Border.all(color: Ucolors.outlineVariant),
+//             boxShadow: filled
+//                 ? [
+//                     BoxShadow(
+//                       color: Ucolors.primaryContainer.withOpacity(0.22),
+//                       blurRadius: 18,
+//                       offset: const Offset(0, 8),
+//                     ),
+//                   ]
+//                 : null,
+//           ),
+//           child: Row(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               Icon(
+//                 icon,
+//                 size: 20,
+//                 color: filled ? Ucolors.white : Ucolors.onSecondaryContainer,
+//               ),
+//               const SizedBox(width: 10),
+//               Text(
+//                 label,
+//                 style: UTextStyles.bodyMedium.copyWith(
+//                   fontSize: 14,
+//                   fontWeight: FontWeight.w700,
+//                   color: filled ? Ucolors.white : Ucolors.onSecondaryContainer,
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 // ─────────────────────────────────────────────
 //  CARD 1 – STATEMENT TYPE

@@ -36,53 +36,53 @@ class WebPortfolioScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // const _PageHeader(
-                    //   title: 'Manage Portfolio',
-                    //   subtitle:
-                    //       'Track every fund, current value, investment amount and returns from a single web page.',
-                    //   icon: Iconsax.wallet_3,
-                    // ),
-                    InkWell(
-                      onTap: () => controller.isBalanceVisible.toggle(),
-                      borderRadius: BorderRadius.circular(14),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: const Color(0xFFE8EDF5)),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              isVisible
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
-                              size: 18,
-                              color: Ucolors.primary,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              isVisible ? 'Hide Amounts' : 'Show Amounts',
-                              style: const TextStyle(
-                                fontFamily: FontFamily.medium,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: Ucolors.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     // const _PageHeader(
+                //     //   title: 'Manage Portfolio',
+                //     //   subtitle:
+                //     //       'Track every fund, current value, investment amount and returns from a single web page.',
+                //     //   icon: Iconsax.wallet_3,
+                //     // ),
+                //     InkWell(
+                //       onTap: () => controller.isBalanceVisible.toggle(),
+                //       borderRadius: BorderRadius.circular(14),
+                //       child: Container(
+                //         padding: const EdgeInsets.symmetric(
+                //           horizontal: 16,
+                //           vertical: 12,
+                //         ),
+                //         decoration: BoxDecoration(
+                //           color: Colors.white,
+                //           borderRadius: BorderRadius.circular(14),
+                //           border: Border.all(color: const Color(0xFFE8EDF5)),
+                //         ),
+                //         child: Row(
+                //           children: [
+                //             Icon(
+                //               isVisible
+                //                   ? Icons.visibility_off_outlined
+                //                   : Icons.visibility_outlined,
+                //               size: 18,
+                //               color: Ucolors.primary,
+                //             ),
+                //             const SizedBox(width: 8),
+                //             Text(
+                //               isVisible ? 'Hide Amounts' : 'Show Amounts',
+                //               style: const TextStyle(
+                //                 fontFamily: FontFamily.medium,
+                //                 fontSize: 13,
+                //                 fontWeight: FontWeight.w700,
+                //                 color: Ucolors.primary,
+                //               ),
+                //             ),
+                //           ],
+                //         ),
+                //       ),
+                //     ),
+                //   ],
+                // ),
                 const SizedBox(height: 24),
 
                 Container(
@@ -110,6 +110,8 @@ class WebPortfolioScreen extends StatelessWidget {
                           value: currentValue,
                           isVisible: isVisible,
                           large: true,
+                          showEyeIcon: true,
+                          onEyeTap: () => controller.isBalanceVisible.toggle(),
                         ),
                       ),
                       const SizedBox(width: 18),
@@ -312,6 +314,8 @@ class _HeroMetric extends StatelessWidget {
   final bool isVisible;
   final bool? isProfit;
   final bool large;
+  final bool showEyeIcon;
+  final VoidCallback? onEyeTap;
 
   const _HeroMetric({
     required this.title,
@@ -319,6 +323,8 @@ class _HeroMetric extends StatelessWidget {
     required this.isVisible,
     this.isProfit,
     this.large = false,
+    this.showEyeIcon = false,
+    this.onEyeTap,
   });
 
   @override
@@ -338,26 +344,58 @@ class _HeroMetric extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontFamily: FontFamily.medium,
-              color: Colors.white.withValues(alpha: 0.72),
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    color: Colors.white.withValues(alpha: 0.72),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+
+              if (showEyeIcon)
+                InkWell(
+                  onTap: onEyeTap,
+                  borderRadius: BorderRadius.circular(20),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: Icon(
+                      isVisible
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      size: 18,
+                      color: Colors.white.withValues(alpha: 0.85),
+                    ),
+                  ),
+                ),
+            ],
           ),
+
           const SizedBox(height: 8),
-          Text(
-            isVisible
-                ? '${special && !isProfit! ? '-' : ''}₹${value.abs().toStringAsFixed(2)}'
-                : '₹ ••••••',
-            style: TextStyle(
-              fontFamily: FontFamily.medium,
-              color: isVisible ? valueColor : Colors.white70,
-              fontSize: large ? 28 : 20,
-              fontWeight: FontWeight.w900,
-              letterSpacing: isVisible ? -0.4 : 1.4,
+
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              isVisible
+                  ? '${special && !isProfit! ? '-' : ''}₹${value.abs().toStringAsFixed(2)}'
+                  : '₹ ••••••',
+              maxLines: 1,
+              softWrap: false,
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                color: isVisible ? valueColor : Colors.white70,
+                fontSize: large ? 28 : 20,
+                fontWeight: FontWeight.w900,
+                letterSpacing: isVisible ? -0.4 : 1.4,
+              ),
             ),
           ),
         ],
@@ -365,6 +403,66 @@ class _HeroMetric extends StatelessWidget {
     );
   }
 }
+
+// class _HeroMetric extends StatelessWidget {
+//   final String title;
+//   final double value;
+//   final bool isVisible;
+//   final bool? isProfit;
+//   final bool large;
+
+//   const _HeroMetric({
+//     required this.title,
+//     required this.value,
+//     required this.isVisible,
+//     this.isProfit,
+//     this.large = false,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final bool special = isProfit != null;
+//     final Color valueColor = special
+//         ? (isProfit! ? Colors.greenAccent : Colors.redAccent)
+//         : Colors.white;
+
+//     return Container(
+//       padding: const EdgeInsets.all(18),
+//       decoration: BoxDecoration(
+//         color: Colors.white.withValues(alpha: 0.08),
+//         borderRadius: BorderRadius.circular(18),
+//         border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+//       ),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text(
+//             title,
+//             style: TextStyle(
+//               fontFamily: FontFamily.medium,
+//               color: Colors.white.withValues(alpha: 0.72),
+//               fontSize: 13,
+//               fontWeight: FontWeight.w600,
+//             ),
+//           ),
+//           const SizedBox(height: 8),
+//           Text(
+//             isVisible
+//                 ? '${special && !isProfit! ? '-' : ''}₹${value.abs().toStringAsFixed(2)}'
+//                 : '₹ ••••••',
+//             style: TextStyle(
+//               fontFamily: FontFamily.medium,
+//               color: isVisible ? valueColor : Colors.white70,
+//               fontSize: large ? 28 : 20,
+//               fontWeight: FontWeight.w900,
+//               letterSpacing: isVisible ? -0.4 : 1.4,
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 class _HeroCountMetric extends StatelessWidget {
   final String title;
