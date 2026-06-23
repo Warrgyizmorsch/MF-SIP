@@ -25,13 +25,9 @@ import '../../domain/entity/goal_entity.dart';
 /// Main Entry Page Router
 /// ----------------------------------------------------------------------
 class GoalDetailsPage extends GetView<GoalSipController> {
-  // Removed 'const' from the constructor to accommodate the GlobalKey initialization
-  GoalDetailsPage({super.key});
+  const GoalDetailsPage({super.key});
 
   static Map<String, dynamic>? tempData;
-
-  // Added Scaffold key to control the drawer state
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -52,10 +48,6 @@ class GoalDetailsPage extends GetView<GoalSipController> {
     final int currentGoalId = goal?.id ?? 0;
 
     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
-    final double screenWidth = MediaQuery.of(context).size.width;
-
-    // Dynamically calculate the drawer width (same as GoalScreen)
-    final double responsiveDrawerWidth = (screenWidth * 0.45).clamp(450.0, 700.0);
 
     void onEdit() => _showEditGoalDialog(context, currentGoalId, goal, isDesktop);
     void onDelete() => _showDeleteGoalDialog(context, currentGoalId);
@@ -68,14 +60,14 @@ class GoalDetailsPage extends GetView<GoalSipController> {
           "goal": goal,
         };
 
-        // Open drawer on Desktop, navigate on Mobile
         if (isDesktop) {
           WebMasterGoalsPage.tempArgs = {
             'isAddFund': true,
             "goalId": currentGoalId,
             "goal": goal,
           };
-          _scaffoldKey.currentState?.openEndDrawer();
+          // Navigates directly via clean nested platform shell container layout routing
+          Get.toNamed(AppRoutes.webMasterGoalsPage, id: 1);
         } else {
           Get.toNamed(
             AppRoutes.masterGoalsPage,
@@ -89,72 +81,7 @@ class GoalDetailsPage extends GetView<GoalSipController> {
 
     if (isDesktop) {
       return Scaffold(
-        key: _scaffoldKey,
-        backgroundColor: const Color(0xFFF5F7FA),
-        endDrawer: Theme(
-          data: Theme.of(context).copyWith(canvasColor: Colors.transparent),
-          child: Drawer(
-            width: responsiveDrawerWidth,
-            elevation: 0,
-            backgroundColor: Colors.transparent,
-            child: SafeArea(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(28),
-                    bottomLeft: Radius.circular(28),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: .06),
-                      blurRadius: 40,
-                      offset: const Offset(-10, 0),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Web Drawer Header & Close Mechanism
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 20, 20, 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Manage Goals',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontFamily: FontFamily.medium,
-                              fontWeight: FontWeight.w700,
-                              color: Ucolors.dark,
-                            ),
-                          ),
-                          IconButton(
-                            hoverColor: Colors.grey.shade100,
-                            splashRadius: 24,
-                            icon: const Icon(Icons.close_rounded, size: 24),
-                            color: Colors.grey.shade700,
-                            onPressed: () {
-                              _scaffoldKey.currentState?.closeEndDrawer();
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    Divider(height: 1, color: Colors.grey.shade200),
-
-                    // Main Content
-                    const Expanded(
-                      child: WebMasterGoalsPage(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
+        backgroundColor: const Color(0xFFF8FAFC),
         body: GoalDetailsWebView(
           title: title,
           goal: goal,
@@ -169,7 +96,6 @@ class GoalDetailsPage extends GetView<GoalSipController> {
       );
     }
 
-    // Mobile specific view
     return GoalDetailsMobileView(
       title: title,
       goal: goal,
@@ -259,16 +185,14 @@ class GoalDetailsPage extends GetView<GoalSipController> {
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-
                 MasterGoalsPage.tempArgs = {
                   "goalId": currentGoalId,
                   "goal": goal,
                   "isEdit": true
                 };
 
-                // Trigger drawer on Desktop or routing on Mobile
                 if (isDesktop) {
-                  _scaffoldKey.currentState?.openEndDrawer();
+                  Get.toNamed(AppRoutes.webMasterGoalsPage, id: 1);
                 } else {
                   Get.toNamed(
                     AppRoutes.masterGoalsPage,
@@ -292,10 +216,136 @@ class GoalDetailsPage extends GetView<GoalSipController> {
 }
 
 /// ----------------------------------------------------------------------
-/// Web View Layout (Side-by-Side Panels, No TabBar)
+/// Web Custom Reusable App Bar Component
 /// ----------------------------------------------------------------------
+class WebCustomAppBarNormal extends StatelessWidget implements PreferredSizeWidget {
+  final String title;
+  final String emoji;
+  final VoidCallback onAddFunds;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  const WebCustomAppBarNormal({
+    super.key,
+    required this.title,
+    required this.emoji,
+    required this.onAddFunds,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 14, color: Color(0xFF64748B)),
+                style: IconButton.styleFrom(
+                  backgroundColor: const Color(0xFFF8FAFC),
+                  side: const BorderSide(color: Color(0xFFE2E8F0)),
+                  padding: const EdgeInsets.all(10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+              const Gap(16),
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: const Color(0xFFFEF3C7),
+                child: Text(emoji, style: const TextStyle(fontSize: 20)),
+              ),
+              const Gap(12),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
+              const Gap(12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDCFCE7),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Text(
+                  "On Track",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF15803D),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: onAddFunds,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0066FF),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  elevation: 0,
+                ),
+                child: const Text(
+                  "Add Funds",
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+              ),
+              const Gap(12),
+              PopupMenuButton<String>(
+                color: Colors.white,
+                icon: const Icon(Icons.more_vert, color: Color(0xFF64748B)),
+                onSelected: (value) {
+                  if (value == 'edit') onEdit();
+                  if (value == 'delete') onDelete();
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit_outlined, size: 18),
+                        SizedBox(width: 8),
+                        Text('Edit'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                        SizedBox(width: 8),
+                        Text('Delete', style: TextStyle(color: Colors.red)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(115);
+}
+
 /// ----------------------------------------------------------------------
-/// Web View Layout (Side-by-Side Panels, No TabBar)
+/// Web View Layout Core Configuration
 /// ----------------------------------------------------------------------
 class GoalDetailsWebView extends StatelessWidget {
   final String title;
@@ -324,115 +374,579 @@ class GoalDetailsWebView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffF3F4F6),
-      appBar: CustomAppBarNormal(
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: WebCustomAppBarNormal(
         title: title,
-        action: [
-          SizedBox(
-            width: 140,
-            height: 40,
-            child: UElevatedBUtton(
-              onPressed: onAddFunds,
-              child: const Center(
-                child: Text('Add Funds', style: TextStyle(color: Colors.white, fontSize: 13)),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          PopupMenuButton<String>(
-            color: Ucolors.light,
-            icon: const Icon(Icons.more_vert),
-            onSelected: (value) {
-              if (value == 'edit') onEdit();
-              if (value == 'delete') onDelete();
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'edit',
-                child: Row(
-                  children: [
-                    Icon(Icons.edit, size: 18),
-                    SizedBox(width: 8),
-                    Text('Edit'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'delete',
-                child: Row(
-                  children: [
-                    Icon(Icons.delete, size: 18, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text('Delete', style: TextStyle(fontFamily: FontFamily.medium, color: Colors.red)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 8),
-        ],
+        emoji: emoji,
+        onAddFunds: onAddFunds,
+        onEdit: onEdit,
+        onDelete: onDelete,
       ),
-      body: Center(
-        child: Container(
-          // FIX: Use BoxConstraints instead of maxWidth directly
-          constraints: const BoxConstraints(maxWidth: 1200),
-          padding: const EdgeInsets.all(24.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Left Column: Main Goal Analytics & Info
-              Expanded(
-                flex: 6,
-                child: SingleChildScrollView(
-                  child: GoalDetailSection(
-                    goal: goal,
-                    target: target,
-                    invested: invested,
-                    emoji: emoji,
-                    logo: logo,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 24),
-              // Right Column: Independent Transaction Records Pane
-              Expanded(
-                flex: 5,
-                child: Container(
-                  height: MediaQuery.of(context).size.height * 0.78,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.black12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.all(20.0),
-                        child: SmallHeading(smallheading: 'Records & Transactions'),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 32.0),
+        child: Center(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 1300),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Left Main Column Workspace Grid Pane
+                    Expanded(
+                      flex: 7,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          GoalOverviewCard(
+                            goal: goal,
+                            target: target,
+                            invested: invested,
+                            emoji: emoji,
+                            logo: logo,
+                          ),
+                          const Gap(24),
+                          LinkedFundsCard(goal: goal),
+                        ],
                       ),
-                      const Divider(height: 1, color: Colors.black12),
-                      Expanded(
-                        child: ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          itemCount: 10,
-                          // Make sure TransactionCard() is imported correctly in your actual file
-                          itemBuilder: (context, index) => const TransactionCard(),
-                        ),
+                    ),
+                    const Gap(24),
+
+                    // Right Summary Analytics Column Panel
+                    Expanded(
+                      flex: 4,
+                      child: Column(
+                        children: [
+                          const RecentContributionsCard(),
+                          const Gap(24),
+                          NextMilestoneCard(invested: invested, target: target),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+                    )
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 }
+
 /// ----------------------------------------------------------------------
-/// Mobile View Layout (Tabbed Switching Container)
+/// Redesigned Goal Overview UI Block Widget
+/// ----------------------------------------------------------------------
+class GoalOverviewCard extends StatelessWidget {
+  final UserGoalEntity? goal;
+  final double target;
+  final double invested;
+  final String emoji;
+  final String logo;
+
+  const GoalOverviewCard({
+    super.key,
+    required this.goal,
+    required this.target,
+    required this.invested,
+    required this.emoji,
+    required this.logo,
+  });
+
+  String _fmt(double amount) {
+    return '₹ ${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double remaining = (target - invested).clamp(0.0, double.infinity);
+    final double monthly = goal?.monthlyInvestment ?? 0.0;
+    final double weekly = (monthly * 12) / 52;
+    final double daily = (monthly * 12) / 365;
+
+    final currentYear = DateTime.now().year;
+    final deadlineYear = currentYear + (goal?.goalTenure ?? 0) / 12;
+
+    final double safeTarget = target > 0 ? target : 1;
+    final double percentage = (invested / safeTarget).clamp(0.0, 1.0);
+    final String percentStr = "${(percentage * 100).toStringAsFixed(0)}%";
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Goal Overview",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+          ),
+          const Gap(24),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                flex: 4,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        SizedBox(
+                          width: 150,
+                          height: 150,
+                          child: CircularProgressIndicator(
+                            value: percentage,
+                            strokeWidth: 12,
+                            backgroundColor: const Color(0xFFF1F5F9),
+                            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFF97316)),
+                          ),
+                        ),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(emoji, style: const TextStyle(fontSize: 32)),
+                            const Gap(4),
+                            Text(
+                              percentStr,
+                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                            ),
+                            Text(
+                              "of goal achieved",
+                              style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 7,
+                child: Wrap(
+                  spacing: 20,
+                  runSpacing: 20,
+                  children: [
+                    _buildMetricTile(Iconsax.empty_wallet, "Saved", _fmt(invested)),
+                    _buildMetricTile(Iconsax.refresh_2, "Remaining", _fmt(remaining)),
+                    _buildMetricTile(Iconsax.radar, "Target", _fmt(target)),
+                    _buildMetricTile(Iconsax.calendar_1, "Deadline", "Est. Year ${deadlineYear.floor()}"),
+                    _buildMetricTile(Iconsax.coin, "Daily Savings", _fmt(daily)),
+                    _buildMetricTile(Iconsax.wallet_3, "Weekly Savings", _fmt(weekly)),
+                    _buildMetricTile(Iconsax.card_send, "Monthly Savings", _fmt(monthly)),
+                  ],
+                ),
+              )
+            ],
+          ),
+          const Gap(32),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                const Icon(Iconsax.trend_up, color: Color(0xFF0066FF), size: 20),
+                const Gap(12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RichText(
+                        text: TextSpan(
+                          style: const TextStyle(fontSize: 13, color: Color(0xFF475569)),
+                          children: [
+                            const TextSpan(text: "You are "),
+                            const TextSpan(text: "on track ", style: TextStyle(color: Color(0xFF0066FF), fontWeight: FontWeight.bold)),
+                            TextSpan(text: "to reach your goal by ${deadlineYear.floor()}"),
+                          ],
+                        ),
+                      ),
+                      const Gap(8),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: percentage,
+                          minHeight: 6,
+                          backgroundColor: const Color(0xFFE2E8F0),
+                          valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFF97316)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Gap(16),
+                Text(
+                  percentStr,
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFF97316), fontSize: 14),
+                )
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMetricTile(IconData icon, String label, String value) {
+    return SizedBox(
+      width: 160,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 18, color: const Color(0xFF0066FF)),
+          const Gap(10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+                const Gap(2),
+                Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+/// ----------------------------------------------------------------------
+/// Redesigned Linked Mutual Funds Grid Widget Blocks
+/// ----------------------------------------------------------------------
+class LinkedFundsCard extends StatelessWidget {
+  final UserGoalEntity? goal;
+  const LinkedFundsCard({super.key, this.goal});
+
+  @override
+  Widget build(BuildContext context) {
+    final goalSipController = Get.find<GoalSipController>();
+    final currentGoalId = goal?.id ?? 0;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Linked Mutual Funds",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+              ),
+              TextButton(
+                onPressed: () {},
+                child: const Text("View All", style: TextStyle(color: Color(0xFF0066FF), fontWeight: FontWeight.bold)),
+              )
+            ],
+          ),
+          const Gap(16),
+          Obx(() {
+            final freshGoal = goalSipController.goalResponse.value?.data?.firstWhereOrNull(
+                  (g) => g.id == currentGoalId,
+            ) ?? goal;
+
+            final linkedFunds = freshGoal?.goalFunds ?? [];
+
+            if (linkedFunds.isEmpty) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24.0),
+                  child: Text('No mutual funds linked yet.', style: TextStyle(color: Colors.grey)),
+                ),
+              );
+            }
+
+            return GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: linkedFunds.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 2.1,
+              ),
+              itemBuilder: (context, index) {
+                final fund = linkedFunds[index];
+                final String imgUrl = "${Appurl.baseUrl}${fund.mutualFund?.amc?.amcLogo ?? ''}";
+                final String displayAmount = freshGoal?.txnType.toLowerCase() == 'sip'
+                    ? '₹ ${fund.sipAmount.toStringAsFixed(0)} / month'
+                    : '₹ ${fund.lumpsumAmount.toStringAsFixed(0)}';
+
+                return Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 16,
+                            backgroundColor: Colors.white,
+                            backgroundImage: NetworkImage(imgUrl),
+                            onBackgroundImageError: (_, __) => const Icon(Icons.broken_image, size: 14),
+                          ),
+                          const Gap(10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  fund.mutualFund?.schemeName ?? 'Unknown Fund',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
+                                ),
+                                Text(
+                                  "Equity · Large Cap",
+                                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(displayAmount, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF334155))),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(color: const Color(0xFFE0F2FE), borderRadius: BorderRadius.circular(4)),
+                            child: const Text("SIP", style: TextStyle(fontSize: 10, color: Color(0xFF0369A1), fontWeight: FontWeight.bold)),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                );
+              },
+            );
+          }),
+          const Gap(20),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border.all(color: const Color(0xFFCBD5E1), style: BorderStyle.solid),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.add_circle_outline, color: Color(0xFF64748B), size: 20),
+                    Gap(12),
+                    Text(
+                      "Add more mutual funds to diversify your goal",
+                      style: TextStyle(color: Color(0xFF475569), fontSize: 13, fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+                OutlinedButton(
+                  onPressed: () {},
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFF0066FF)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                  ),
+                  child: const Text("Link Fund", style: TextStyle(color: Color(0xFF0066FF), fontWeight: FontWeight.bold)),
+                )
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+/// ----------------------------------------------------------------------
+/// Vertical Contributions Ledger Interface Stream Panel
+/// ----------------------------------------------------------------------
+class RecentContributionsCard extends StatelessWidget {
+  const RecentContributionsCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Recent Contributions",
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+              ),
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: () {},
+                    child: const Text("View All", style: TextStyle(color: Color(0xFF0066FF), fontSize: 13, fontWeight: FontWeight.bold)),
+                  ),
+                  const Icon(Iconsax.filter, size: 16, color: Color(0xFF64748B)),
+                ],
+              )
+            ],
+          ),
+          const Gap(10),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: 4,
+            separatorBuilder: (_, __) => const Gap(12),
+            itemBuilder: (context, index) {
+              return Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Iconsax.calendar_2, color: Color(0xFF0066FF), size: 20),
+                        const Gap(12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text("Jan 10, 2024", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B))),
+                            Text("Funding from salary", style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
+                          ],
+                        )
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        const Text("+ ₹1,000", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF16A34A))),
+                        Container(
+                          margin: const EdgeInsets.only(top: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(color: const Color(0xFFDCFCE7), borderRadius: BorderRadius.circular(4)),
+                          child: const Text("Success", style: TextStyle(fontSize: 9, color: Color(0xFF15803D), fontWeight: FontWeight.bold)),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              );
+            },
+          )
+        ],
+      ),
+    );
+  }
+}
+
+/// ----------------------------------------------------------------------
+/// Next Milestone Completion Target Container Card
+/// ----------------------------------------------------------------------
+class NextMilestoneCard extends StatelessWidget {
+  final double invested;
+  final double target;
+
+  const NextMilestoneCard({super.key, required this.invested, required this.target});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Next Milestone",
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+          ),
+          const Gap(16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: const BoxDecoration(color: Color(0xFFFFEDD5), shape: BoxShape.circle),
+                    child: const Icon(Iconsax.flag, color: Color(0xFFEA580C), size: 20),
+                  ),
+                  const Gap(14),
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "₹ 93,080 more to reach 60%",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
+                      ),
+                      Gap(2),
+                      Text("Keep it up! You're doing great.", style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                    ],
+                  )
+                ],
+              ),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  const SizedBox(
+                    width: 44,
+                    height: 44,
+                    child: CircularProgressIndicator(
+                      value: 0.60,
+                      strokeWidth: 4,
+                      backgroundColor: Color(0xFFF1F5F9),
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFEA580C)),
+                    ),
+                  ),
+                  Text("60%", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey.shade800))
+                ],
+              )
+            ],
+          )
+        ],
+      ),
+    );
+  }
+}
+
+/// ----------------------------------------------------------------------
+/// Mobile View Layout (Tabbed Switching Container Remains Unchanged)
 /// ----------------------------------------------------------------------
 class GoalDetailsMobileView extends StatelessWidget {
   final String title;
@@ -563,7 +1077,7 @@ class GoalDetailsMobileView extends StatelessWidget {
 }
 
 /// ----------------------------------------------------------------------
-/// Core Reusable UI Sections & Custom Metric Tiles
+/// Core Reusable UI Sections & Custom Metric Tiles (Fallback for Mobile)
 /// ----------------------------------------------------------------------
 class GoalDetailSection extends StatelessWidget {
   final UserGoalEntity? goal;
@@ -764,1131 +1278,3 @@ class ValueTitleGoal extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
-// // ignore_for_file: unnecessary_to_list_in_spreads, invalid_null_aware_operator, unnecessary_null_comparison, unused_local_variable
-//
-// import 'package:flutter/material.dart';
-// import 'package:gap/gap.dart';
-// import 'package:get/get.dart';
-// import 'package:iconsax/iconsax.dart';
-// import 'package:my_sip/common/style/padding.dart';
-// import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
-// import 'package:my_sip/common/widget/appbar/widget/compact_icon.dart';
-// import 'package:my_sip/common/widget/button/elevated_button.dart';
-// import 'package:my_sip/common/widget/text/small_heading.dart';
-// import 'package:my_sip/config/routes/app_routes.dart';
-// import 'package:my_sip/core/utils/constant/appUrl.dart';
-// import 'package:my_sip/core/utils/constant/colors.dart';
-// import 'package:my_sip/core/utils/constant/text_style.dart';
-// import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
-// import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
-// import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
-// import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
-// import 'package:my_sip/features/explore/presentation/pages/explore.dart';
-// import 'package:my_sip/features/goal/presentation/controller/goal_sip_controller.dart';
-// import 'package:my_sip/features/goal/presentation/pages/master_goals_page.dart';
-// import 'package:my_sip/features/goal/presentation/widget/GoalDetailsIndicator.dart';
-// import 'package:responsive_framework/responsive_framework.dart';
-//
-// import '../../domain/entity/goal_entity.dart';
-//
-// class GoalDetailsPage extends GetView<GoalSipController> {
-//   const GoalDetailsPage({super.key});
-//
-//   static Map<String, dynamic>? tempData;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     // final args = Get.arguments as Map<String, dynamic>? ?? {};
-//     final args = (Get.arguments as Map<String, dynamic>?) ?? tempData;
-//     tempData = null;
-//     if (args == null) {
-//       return Scaffold(body: Center(child: Text("Error: No data found")));
-//     }
-//     final UserGoalEntity? goal = args['goal'];
-//     final String emoji = args['emoji'] ?? '🎯';
-//     final double target = args['target'] ?? 0.0;
-//     final double invested = args['invested'] ?? 0.0;
-//     final String logo = args['logo'] ?? "";
-//
-//     final String title = goal?.goalName ?? 'Goal Details';
-//     final int currentGoalId = goal?.id ?? 0;
-//
-//     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
-//
-//     return Scaffold(
-//       backgroundColor: Color(0xffF3F4F6),
-//
-//       appBar: CustomAppBarNormal(
-//         title: title,
-//         action: [
-//           PopupMenuButton<String>(
-//             color: Ucolors.light,
-//
-//             icon: const Icon(Icons.more_vert),
-//
-//             onSelected: (value) {
-//               if (value == 'edit') {
-//                 showEditGoalDialog(
-//                   context: context,
-//                   currentGoalId: currentGoalId,
-//                   goal: goal,
-//                 );
-//                 // edit
-//               } else if (value == 'delete') {
-//                 showDeleteGoalDialog(
-//                   context: context,
-//                   currentGoalId: currentGoalId,
-//                 );
-//               }
-//             },
-//
-//             itemBuilder: (context) => [
-//               PopupMenuItem(
-//                 value: 'edit',
-//
-//                 child: const Row(
-//                   children: [
-//                     Icon(Icons.edit, size: 18),
-//                     SizedBox(width: 8),
-//                     Text('Edit'),
-//                   ],
-//                 ),
-//               ),
-//
-//               PopupMenuItem(
-//                 value: 'delete',
-//
-//                 child: const Row(
-//                   children: [
-//                     Icon(Icons.delete, size: 18, color: Colors.red),
-//                     SizedBox(width: 8),
-//                     Text(
-//                       'Delete',
-//                       style: TextStyle(
-//                         fontFamily: FontFamily.medium,
-//                         color: Colors.red,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ],
-//       ),
-//       body: Padding(
-//         padding: UPadding.screenPadding,
-//         child: DefaultTabController(
-//           length: 2,
-//           child: Column(
-//             children: [
-//               Container(
-//                 decoration: BoxDecoration(
-//                   borderRadius: BorderRadius.circular(15),
-//                   color: Colors.white,
-//                   border: Border.all(color: Colors.black12),
-//                 ),
-//
-//                 child: Tab(
-//                   child: TabBar(
-//                     indicatorSize: TabBarIndicatorSize.tab,
-//
-//                     unselectedLabelColor: Colors.grey.shade700,
-//                     dividerColor: Colors.transparent,
-//                     labelColor: Ucolors.light,
-//                     indicatorColor: Colors.transparent,
-//                     labelPadding: EdgeInsets.symmetric(vertical: 10),
-//
-//                     indicator: BoxDecoration(
-//                       borderRadius: BorderRadius.circular(15),
-//
-//                       color: Ucolors.primary,
-//                     ),
-//
-//                     tabs: [Text('Goal'), Text('Record')],
-//                   ),
-//                 ),
-//               ),
-//               Expanded(
-//                 child: TabBarView(
-//                   children: [
-//                     GoalDetailSection(
-//                       goal: goal,
-//                       target: target,
-//                       invested: invested,
-//                       emoji: emoji,
-//                       logo: logo,
-//                     ),
-//                     SingleChildScrollView(
-//                       child: Column(
-//                         children: [
-//                           ...List.generate(10, (index) => TransactionCard()),
-//                         ],
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//       bottomNavigationBar: UElevatedBUtton(
-//         onPressed: () {
-//           if (currentGoalId != 0) {
-//             MasterGoalsPage.tempArgs = {
-//               'isAddFund': true,
-//               "goalId": currentGoalId,
-//               "goal": goal,
-//             };
-//             Get.toNamed(
-//               AppRoutes.masterGoalsPage,
-//               // arguments: {
-//               //   'isAddFund': true,
-//               //   "goalId": currentGoalId,
-//               //   "goal": goal,
-//               // },
-//               arguments: MasterGoalsPage.tempArgs,
-//               id: isDesktop ? 1 : null,
-//             );
-//           } else {
-//             Get.snackbar("Error", "Goal ID is missing.");
-//           }
-//         },
-//         child: Center(
-//           child: Text(
-//             'Add Funds',
-//             style: UTextStyles.buttonText.copyWith(
-//               color: Colors.white,
-//               fontSize: 14,
-//             ),
-//           ),
-//         ),
-//       ),
-//       // bottomNavigationBar: BottomBarButtonGoalDetails(
-//       //   firstButtonP: () {},
-//       //   firstButton: 'Add To Cart',
-//       //   secondButton: 'Add Funds',
-//       //   secondButtonP: () {
-//       //     // _showExploreMoreBottomSheet(context);
-//       //     if (currentGoalId != 0) {
-//       //       Get.toNamed(
-//       //         AppRoutes.masterGoalsPage,
-//       //         arguments: {'goalType': 'car','isAddFund':true,"goalId":currentGoalId, "goal":goal,},
-//       //       );
-//       //       // _showExploreMoreBottomSheet(context, currentGoalId);
-//       //     } else {
-//       //       Get.snackbar("Error", "Goal ID is missing.");
-//       //     }
-//       //   },
-//       // ),
-//     );
-//   }
-//
-//   void showDeleteGoalDialog({
-//     required BuildContext context,
-//     required currentGoalId,
-//   }) {
-//     showDialog(
-//       context: context,
-//       builder: (context) {
-//         return AlertDialog(
-//           shape: RoundedRectangleBorder(
-//             borderRadius: BorderRadius.circular(20),
-//           ),
-//           title: const Row(
-//             children: [
-//               Icon(Icons.delete_outline, color: Colors.red),
-//               SizedBox(width: 10),
-//               Text("Delete Goal"),
-//             ],
-//           ),
-//
-//           content: const Text(
-//             "Are you sure you want to delete this goal?",
-//             style: TextStyle(fontFamily: FontFamily.medium, fontSize: 15),
-//           ),
-//
-//           actionsPadding: const EdgeInsets.only(
-//             left: 16,
-//             right: 16,
-//             bottom: 16,
-//           ),
-//
-//           actions: [
-//             OutlinedButton(
-//               onPressed: () {
-//                 Navigator.pop(context);
-//               },
-//
-//               style: OutlinedButton.styleFrom(
-//                 shape: RoundedRectangleBorder(
-//                   borderRadius: BorderRadius.circular(12),
-//                 ),
-//                 padding: const EdgeInsets.symmetric(
-//                   horizontal: 20,
-//                   vertical: 12,
-//                 ),
-//               ),
-//
-//               child: const Text("Cancel"),
-//             ),
-//
-//             ElevatedButton(
-//               onPressed: () async {
-//                 Get.back();
-//                 await controller.deleteGoal(currentGoalId);
-//               },
-//
-//               style: ElevatedButton.styleFrom(
-//                 backgroundColor: Colors.red,
-//                 foregroundColor: Colors.white,
-//
-//                 shape: RoundedRectangleBorder(
-//                   borderRadius: BorderRadius.circular(12),
-//                 ),
-//
-//                 padding: const EdgeInsets.symmetric(
-//                   horizontal: 20,
-//                   vertical: 12,
-//                 ),
-//               ),
-//
-//               child: const Text("Delete"),
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-//
-//   void showEditGoalDialog({
-//     required BuildContext context,
-//     required int currentGoalId,
-//     required UserGoalEntity? goal,
-//   }) {
-//     showDialog(
-//       context: context,
-//       builder: (context) {
-//         return AlertDialog(
-//           shape: RoundedRectangleBorder(
-//             borderRadius: BorderRadius.circular(20),
-//           ),
-//
-//           title: const Row(
-//             children: [
-//               Icon(Icons.edit_outlined, color: Colors.blue),
-//               SizedBox(width: 10),
-//               Text("Edit Goal"),
-//             ],
-//           ),
-//
-//           content: const Text(
-//             "Are you sure you want to edit this goal?",
-//             style: TextStyle(fontFamily: FontFamily.medium, fontSize: 15),
-//           ),
-//
-//           actionsPadding: const EdgeInsets.only(
-//             left: 16,
-//             right: 16,
-//             bottom: 16,
-//           ),
-//
-//           actions: [
-//             OutlinedButton(
-//               onPressed: () {
-//                 Navigator.pop(context);
-//               },
-//
-//               style: OutlinedButton.styleFrom(
-//                 shape: RoundedRectangleBorder(
-//                   borderRadius: BorderRadius.circular(12),
-//                 ),
-//
-//                 padding: const EdgeInsets.symmetric(
-//                   horizontal: 20,
-//                   vertical: 12,
-//                 ),
-//               ),
-//
-//               child: const Text("Cancel"),
-//             ),
-//
-//             ElevatedButton(
-//               onPressed: () {
-//                 Navigator.pop(context);
-//
-//                 // OPEN EDIT SCREEN
-//                 Get.toNamed(
-//                   AppRoutes.masterGoalsPage,
-//                   arguments: {
-//                     "goalId": currentGoalId,
-//                     "goal": goal,
-//                     "isEdit": true,
-//                   },
-//                 );
-//               },
-//
-//               style: ElevatedButton.styleFrom(
-//                 backgroundColor: Colors.blue,
-//                 foregroundColor: Colors.white,
-//
-//                 shape: RoundedRectangleBorder(
-//                   borderRadius: BorderRadius.circular(12),
-//                 ),
-//
-//                 padding: const EdgeInsets.symmetric(
-//                   horizontal: 20,
-//                   vertical: 12,
-//                 ),
-//               ),
-//
-//               child: const Text("Edit"),
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-//
-//   void _showExploreMoreBottomSheet(BuildContext context, int goal) {
-//     final mutualController = Get.find<MutualFundController>();
-//     final goalSipController = Get.find<GoalSipController>();
-//     final cartController = Get.find<CartController>();
-//     final FocusNode searchFocus = FocusNode();
-//     goalSipController.selectedPopularFund.clear();
-//
-//     // final freshGoal = goalSipController.goalResponse.value?.data
-//     //     ?.firstWhereOrNull((g) => g.id == goal);
-//     // if (freshGoal != null) {
-//     //   for (var fund in freshGoal.goalFunds) {
-//     //     final name = fund.mutualFund?.schemeName;
-//     //     if (name != null) {
-//     //       goalSipController.selectedPopularFund.add(name);
-//     //     }
-//     //   }
-//     // }
-//
-//     showModalBottomSheet(
-//       context: context,
-//       isScrollControlled: true,
-//       backgroundColor: Colors.white,
-//       useSafeArea: true,
-//       shape: const RoundedRectangleBorder(
-//         borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
-//       ),
-//       builder: (BuildContext context) {
-//         return DraggableScrollableSheet(
-//           initialChildSize: 0.9,
-//           minChildSize: 0.5,
-//           maxChildSize: 0.96,
-//           expand: false,
-//           builder: (context, scrollController) {
-//             return Column(
-//               children: [
-//                 // --- DRAG HANDLE ---
-//                 Center(
-//                   child: Container(
-//                     margin: const EdgeInsets.only(top: 12, bottom: 16),
-//                     height: 5,
-//                     width: 48,
-//                     decoration: BoxDecoration(
-//                       color: Colors.grey.shade300,
-//                       borderRadius: BorderRadius.circular(10),
-//                     ),
-//                   ),
-//                 ),
-//
-//                 // --- HEADER & CLOSE BUTTON ---
-//                 Padding(
-//                   padding: const EdgeInsets.symmetric(horizontal: 20),
-//                   child: Row(
-//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                     children: [
-//                       Column(
-//                         crossAxisAlignment: CrossAxisAlignment.start,
-//                         children: [
-//                           Text(
-//                             "Explore Funds",
-//                             style: AppTextStyles.h2(color: Ucolors.dark),
-//                           ),
-//                           const SizedBox(height: 4),
-//                           Text(
-//                             "Search and select funds for your goal.",
-//                             style: TextStyle(
-//                               fontFamily: FontFamily.medium,
-//                               fontSize: 13,
-//                               color: Colors.grey.shade500,
-//                               fontWeight: FontWeight.w500,
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                       IconButton(
-//                         icon: const Icon(Icons.close, color: Colors.grey),
-//                         onPressed: () {
-//                           FocusScope.of(context).unfocus();
-//                           Navigator.of(context).pop();
-//                         },
-//                         style: IconButton.styleFrom(
-//                           backgroundColor: Colors.grey.shade100,
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//                 const SizedBox(height: 10),
-//
-//                 // --- SEARCH BAR & FILTERS (Unchanged) ---
-//                 Padding(
-//                   padding: const EdgeInsets.symmetric(
-//                     horizontal: 16,
-//                     vertical: 8,
-//                   ),
-//                   child: Row(
-//                     children: [
-//                       Obx(() {
-//                         final fundController = Get.find<FundhouseController>();
-//                         final int filterCount =
-//                             fundController.activeFilterCount;
-//
-//                         return Badge(
-//                           isLabelVisible: filterCount > 0,
-//                           backgroundColor: Ucolors.primary,
-//                           label: Text(
-//                             '$filterCount',
-//                             style: const TextStyle(
-//                               fontFamily: FontFamily.medium,
-//                               color: Colors.white,
-//                               fontSize: 10,
-//                               fontWeight: FontWeight.bold,
-//                             ),
-//                           ),
-//                           padding: const EdgeInsets.symmetric(horizontal: 4),
-//                           alignment: const Alignment(0.7, -0.7),
-//                           child: Container(
-//                             padding: const EdgeInsets.all(8),
-//                             decoration: BoxDecoration(
-//                               border: Border.all(color: Colors.grey.shade300),
-//                               shape: BoxShape.circle,
-//                             ),
-//                             child: CompactIcon(
-//                               icon: Icons.tune,
-//                               onPressed: () async {
-//                                 final result = await Get.toNamed(
-//                                   AppRoutes.filterpage,
-//                                 );
-//                                 if (result != null &&
-//                                     result is Map<String, dynamic>) {
-//                                   mutualController.applyFilters(result);
-//                                 }
-//                               },
-//                             ),
-//                           ),
-//                         );
-//                       }),
-//                       Container(
-//                         margin: const EdgeInsets.symmetric(horizontal: 12),
-//                         height: 30,
-//                         width: 1,
-//                         color: Colors.grey.shade300,
-//                       ),
-//                       Expanded(
-//                         child: SizedBox(
-//                           height: 44,
-//                           child: Obx(() {
-//                             final bool isSearching =
-//                                 mutualController.hasSearchFocus.value;
-//                             return Row(
-//                               children: [
-//                                 Expanded(
-//                                   child: SearchBar(
-//                                     onTap: () =>
-//                                         mutualController.setSearchFocus(true),
-//                                     onTapOutside: (event) {
-//                                       searchFocus.unfocus();
-//                                       mutualController.setSearchFocus(false);
-//                                     },
-//                                     focusNode: searchFocus,
-//                                     backgroundColor: WidgetStateProperty.all(
-//                                       Colors.grey.shade50,
-//                                     ),
-//                                     leading: Icon(
-//                                       Icons.search,
-//                                       color: Colors.grey.shade600,
-//                                     ),
-//                                     hintText: 'Search mutual funds...',
-//                                     hintStyle: WidgetStateProperty.all(
-//                                       TextStyle(
-//                                         fontFamily: FontFamily.medium,
-//                                         color: Colors.grey.shade500,
-//                                         fontSize: 14,
-//                                       ),
-//                                     ),
-//                                     onChanged: (value) => mutualController
-//                                         .onSearchQueryChanged(value),
-//                                     elevation: WidgetStateProperty.all(0),
-//                                     side: WidgetStateProperty.all(
-//                                       BorderSide(color: Colors.grey.shade200),
-//                                     ),
-//                                   ),
-//                                 ),
-//                               ],
-//                             );
-//                           }),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//                 Divider(color: Colors.grey.shade200, height: 20),
-//
-//                 // --- 🚀 THE UPDATED FUNDS LISTVIEW ---
-//                 Expanded(
-//                   child: Obx(() {
-//                     if (mutualController.isLoading.value) {
-//                       return const Align(
-//                         alignment: Alignment.topCenter,
-//                         child: CircularProgressIndicator(
-//                           color: Ucolors.primary,
-//                         ),
-//                       );
-//                     }
-//
-//                     if (mutualController.searchFund.isEmpty) {
-//                       return Center(
-//                         child: Text(
-//                           "No mutual funds found",
-//                           style: TextStyle(
-//                             fontFamily: FontFamily.medium,
-//                             color: Colors.grey.shade600,
-//                           ),
-//                         ),
-//                       );
-//                     }
-//
-//                     return NotificationListener<ScrollNotification>(
-//                       onNotification: (ScrollNotification scrollInfo) {
-//                         // Check if we scrolled near the bottom (within 200 pixels)
-//                         if (scrollInfo.metrics.pixels >=
-//                             scrollInfo.metrics.maxScrollExtent - 200) {
-//                           // Prevent spamming the API if it's already loading or has no more data
-//                           if (!mutualController.isMoreLoading.value &&
-//                               mutualController.canLoadMore) {
-//                             mutualController
-//                                 .loadNextPage(); // Triggers your pagination API!
-//                           }
-//                         }
-//                         return false; // Return false so the sheet can still drag up/down normally
-//                       },
-//                       child: ListView.builder(
-//                         controller: scrollController,
-//                         padding: const EdgeInsets.only(bottom: 20),
-//                         itemCount:
-//                             mutualController.searchFund.length +
-//                             (mutualController.isMoreLoading.value ? 1 : 0),
-//                         itemBuilder: (context, index) {
-//                           if (index == mutualController.searchFund.length) {
-//                             return const Padding(
-//                               padding: EdgeInsets.symmetric(vertical: 24),
-//                               child: Center(
-//                                 child: SizedBox(
-//                                   height: 24,
-//                                   width: 24,
-//                                   child: CircularProgressIndicator(
-//                                     strokeWidth: 2.5,
-//                                     color: Ucolors.primary,
-//                                   ),
-//                                 ),
-//                               ),
-//                             );
-//                           }
-//
-//                           final fund = mutualController.searchFund[index];
-//                           final name = fund.baseSchemeName ?? 'Unknown Name';
-//                           final schemeCodeStr = fund.schemeCode.toString();
-//
-//                           return Obx(() {
-//                             // ✅ 1. Use GoalSipController to check selection status
-//                             final isSelected = goalSipController.isSelectedFund(
-//                               name,
-//                             );
-//
-//                             return Stack(
-//                               children: [
-//                                 Container(
-//                                   //  2. Removed horizontal margins so it sits flush
-//                                   margin: const EdgeInsets.symmetric(
-//                                     horizontal: 0,
-//                                     vertical: 6,
-//                                   ),
-//                                   child: MutualFundCard(
-//                                     entity: fund,
-//                                     showTrainlings:
-//                                         false, //  3. Hides trailing returns
-//                                     // 4. Replaced generic toggle with Cart + Goal logic
-//                                     onTapOverride: () {
-//                                       FocusScope.of(context).unfocus();
-//                                       // final int? currentGoalId =
-//                                       //     goalSipController.savedDatabaseId.value;
-//
-//                                       if (!isSelected) {
-//                                         goalSipController.saveFundToGoal(
-//                                           goalId: goal,
-//                                           schemeCode: schemeCodeStr,
-//                                           fundName: name,
-//                                         );
-//                                       } else {
-//                                         goalSipController.deleteGoalFund(
-//                                           id: goal,
-//                                           isEdit: true,
-//                                           schemeName:
-//                                               fund.schemeCode?.toString() ?? '',
-//                                         );
-//                                         goalSipController.toggleFund(name);
-//                                       }
-//                                     },
-//                                   ),
-//                                 ),
-//
-//                                 if (isSelected)
-//                                   Positioned.fill(
-//                                     child: IgnorePointer(
-//                                       child: Container(
-//                                         margin: const EdgeInsets.symmetric(
-//                                           horizontal: 16,
-//                                           vertical: 10,
-//                                         ),
-//                                         decoration: BoxDecoration(
-//                                           color: Ucolors.primary.withValues(
-//                                             alpha: 0.05,
-//                                           ),
-//                                           borderRadius: BorderRadius.circular(
-//                                             16,
-//                                           ),
-//                                           border: Border.all(
-//                                             color: Ucolors.primary,
-//                                             width: 2,
-//                                           ),
-//                                         ),
-//                                       ),
-//                                     ),
-//                                   ),
-//                               ],
-//                             );
-//                           });
-//                         },
-//                       ),
-//                     );
-//                   }),
-//                 ),
-//
-//                 // --- FLOATING "DONE" BUTTON ---
-//                 Container(
-//                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-//                   decoration: BoxDecoration(
-//                     color: Colors.white,
-//                     boxShadow: [
-//                       BoxShadow(
-//                         color: Colors.black.withValues(alpha: 0.05),
-//                         blurRadius: 10,
-//                         offset: const Offset(0, -5),
-//                       ),
-//                     ],
-//                   ),
-//                   child: Obx(() {
-//                     // ✅ Updated to count from the GoalSipController!
-//                     final selectedCount =
-//                         goalSipController.selectedPopularFund.length;
-//
-//                     return UElevatedBUtton(
-//                       onPressed: () => Get.back(), // Closes the bottom sheet
-//                       child: Center(
-//                         child: Text(
-//                           selectedCount > 0
-//                               ? 'Add $selectedCount Funds'
-//                               : 'Done',
-//                           style: AppTextStyles.bodyMedium(color: Colors.white),
-//                         ),
-//                       ),
-//                     );
-//                   }),
-//                 ),
-//               ],
-//             );
-//           },
-//         );
-//       },
-//     ).whenComplete(() {
-//       Future.delayed(const Duration(milliseconds: 300), () {
-//         mutualController.setSearchFocus(false);
-//         Get.find<FundhouseController>().clearAllFilters();
-//         mutualController.silentReset();
-//         goalSipController.selectedPopularFund.clear();
-//       });
-//     });
-//   }
-// }
-//
-// class GoalDetailSection extends StatelessWidget {
-//   final UserGoalEntity? goal;
-//   final double target;
-//   final double invested;
-//   final String emoji;
-//   final String logo;
-//   const GoalDetailSection({
-//     super.key,
-//     required this.goal,
-//     required this.target,
-//     required this.invested,
-//     required this.emoji,
-//     required this.logo,
-//   });
-//
-//   String _fmt(double amount) {
-//     return '₹ ${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}';
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final double remaining = (target - invested).clamp(0.0, double.infinity);
-//     final double monthly = goal?.monthlyInvestment ?? 0.0;
-//     final double weekly = (monthly * 12) / 52;
-//     final double daily = (monthly * 12) / 365;
-//
-//     // Calculate deadline year
-//     final currentYear = DateTime.now().year;
-//     final deadlineYear = currentYear + (goal?.goalTenure ?? 0) / 12;
-//
-//     return SingleChildScrollView(
-//       child: Column(
-//         children: [
-//           Gap(15),
-//
-//           CircularGoalIndicatorDetails(
-//             percentage: true, // Uses the large layout
-//             goalName: goal?.goalName ?? '',
-//             goalType: goal?.goalType?.typeName ?? '',
-//             targetAmount: target,
-//             investedAmount: invested,
-//             emoji: emoji,
-//             imageUrl: logo != null && logo.isNotEmpty
-//                 ? (logo.startsWith('http') ? logo : "${Appurl.baseUrl}/$logo")
-//                 : "",
-//             // If they uploaded a cover image, pass the URL here!
-//             // imageUrl: goal?.goalCover != null && goal!.goalCover.isNotEmpty
-//             //     ? "${Appurl.baseUrl}${goal!.goalCover}"
-//             //     : null,
-//           ),
-//           // SizedBox(
-//           //   height: 200, // Give it constraints
-//           //   child: CircularUploadIndicator(
-//
-//           //     goalName: goal?.goalName ?? '',
-//           //     targetAmount: target,
-//           //     investedAmount: invested,
-//           //     iconEmoji: emoji,
-//           //   ),
-//           // ),
-//           Container(
-//             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-//             decoration: BoxDecoration(
-//               color: Colors.white,
-//               borderRadius: BorderRadius.circular(10),
-//             ),
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 SmallHeading(smallheading: 'Saving'),
-//                 Gap(10),
-//                 Row(
-//                   children: [
-//                     ValueTitleGoal(value: _fmt(invested), title: 'Saved'),
-//                     ValueTitleGoal(value: _fmt(remaining), title: 'Remaining'),
-//                     ValueTitleGoal(value: _fmt(target), title: 'Goal'),
-//                   ],
-//                 ),
-//                 Gap(20),
-//                 SmallHeading(
-//                   smallheading: 'Deadline (Est. Year ${deadlineYear.floor()})',
-//                 ),
-//                 Gap(12),
-//                 Row(
-//                   children: [
-//                     ValueTitleGoal(value: _fmt(daily), title: 'Daily Savings'),
-//                     ValueTitleGoal(
-//                       value: _fmt(weekly),
-//                       title: 'Weekly Savings',
-//                     ),
-//                     ValueTitleGoal(
-//                       value: _fmt(monthly),
-//                       title: 'Monthly Savings',
-//                     ),
-//                   ],
-//                 ),
-//               ],
-//             ),
-//           ),
-//           const Gap(15),
-//           const Row(
-//             children: [SmallHeading(smallheading: 'Linked Mutual Funds')],
-//           ),
-//           const Gap(10),
-//           // Container(
-//           //   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-//           //   decoration: BoxDecoration(
-//           //     color: Colors.white,
-//           //     borderRadius: BorderRadius.circular(10),
-//           //   ),
-//           //   child: Column(
-//           //     children: [
-//           //       if (goal?.goalFunds.isEmpty ?? true)
-//           //         const Text(
-//           //           'No mutual funds linked yet.',
-//           //           style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey),
-//           //         ),
-//           //       // ...List.generate(
-//           //       //   5,
-//           //       //   (index) => ListTile(
-//           //       //     contentPadding: EdgeInsets.symmetric(vertical: 5),
-//           //       //     dense: true,
-//
-//           //       //     leading: CircleAvatar(
-//           //       //       backgroundImage: AssetImage(UImages.sbi),
-//           //       //     ),
-//           //       //     title: Text(
-//           //       //       'Parag Parikh Flexi Cap Fund',
-//           //       //       style: UTextStyles.medium.copyWith(
-//           //       //         color: Ucolors.dark,
-//           //       //         fontWeight: FontWeight.w500,
-//           //       //       ),
-//           //       //     ),
-//           //       //     trailing: Text(
-//           //       //       '1,500',
-//           //       //       style: UTextStyles.medium.copyWith(
-//           //       //         color: Ucolors.dark,
-//           //       //         fontWeight: FontWeight.w500,
-//           //       //       ),
-//           //       //     ),
-//           //       //   ),
-//           //       // ),
-//           //       ...?goal?.goalFunds.map((fund) {
-//           //         final String imgUrl =
-//           //             "${Appurl.baseUrl}${fund.mutualFund?.amc?.amcLogo ?? ''}";
-//
-//           //         return ListTile(
-//           //           contentPadding: const EdgeInsets.symmetric(vertical: 5),
-//           //           dense: true,
-//           //           leading: CircleAvatar(
-//           //             backgroundColor: Colors.transparent,
-//           //             // Ensure you have a CachedNetworkImage here in reality for remote images
-//           //             backgroundImage: NetworkImage(imgUrl),
-//           //             onBackgroundImageError: (_, __) =>
-//           //                 const Icon(Icons.broken_image),
-//           //           ),
-//           //           title: Text(
-//           //             fund.mutualFund?.schemeName ?? 'Unknown Fund',
-//           //             style: UTextStyles.medium.copyWith(
-//           //               color: Ucolors.dark,
-//           //               fontWeight: FontWeight.w500,
-//           //             ),
-//           //           ),
-//           //           trailing: Text(
-//           //             _fmt(fund.sipAmount),
-//           //             style: UTextStyles.medium.copyWith(
-//           //               color: Ucolors.dark,
-//           //               fontWeight: FontWeight.w500,
-//           //             ),
-//           //           ),
-//           //         );
-//           //       }),
-//           //     ],
-//           //   ),
-//           // ),
-//           Obx(() {
-//             final goalSipController = Get.find<GoalSipController>();
-//
-//             final currentGoalId = goal?.id ?? 0;
-//             final freshGoal =
-//                 goalSipController.goalResponse.value?.data?.firstWhereOrNull(
-//                   (g) => g.id == currentGoalId,
-//                 ) ??
-//                 goal;
-//
-//             final linkedFunds = freshGoal?.goalFunds ?? [];
-//             final amount = freshGoal?.monthlyInvestment;
-//
-//             return Container(
-//               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-//               decoration: BoxDecoration(
-//                 color: Colors.white,
-//                 borderRadius: BorderRadius.circular(10),
-//               ),
-//               child: Column(
-//                 children: [
-//                   if (linkedFunds.isEmpty)
-//                     const Text(
-//                       'No mutual funds linked yet.',
-//                       style: TextStyle(
-//                         fontFamily: FontFamily.medium,
-//                         color: Colors.grey,
-//                       ),
-//                     ),
-//
-//                   ...linkedFunds.map((fund) {
-//                     // ... inside your linkedFunds.map((fund) { ...
-//
-//                     return Obx(() {
-//                       final bool deleting =
-//                           goalSipController.isDeleting[fund.id] ?? false;
-//                       final String imgUrl =
-//                           "${Appurl.baseUrl}${fund.mutualFund?.amc?.amcLogo ?? ''}";
-//
-//                       return ListTile(
-//                         contentPadding: const EdgeInsets.symmetric(vertical: 5),
-//                         dense: true,
-//                         leading: CircleAvatar(
-//                           backgroundColor: Colors.transparent,
-//                           backgroundImage: NetworkImage(imgUrl),
-//                           onBackgroundImageError: (_, __) =>
-//                               const Icon(Icons.broken_image),
-//                         ),
-//                         title: Text(
-//                           fund.mutualFund?.schemeName ?? 'Unknown Fund',
-//                           style: UTextStyles.medium.copyWith(
-//                             color: Ucolors.dark,
-//                             fontWeight: FontWeight.w500,
-//                           ),
-//                         ),
-//                         trailing: Row(
-//                           mainAxisSize: MainAxisSize.min,
-//                           children: [
-//                             Text(
-//                               freshGoal?.txnType.toLowerCase() == 'sip'
-//                                   ? _fmt(fund.sipAmount)
-//                                   : _fmt(fund.lumpsumAmount),
-//                               style: UTextStyles.medium.copyWith(
-//                                 color: Ucolors.dark,
-//                                 fontWeight: FontWeight.w500,
-//                               ),
-//                             ),
-//                             const SizedBox(width: 8),
-//                             // ✅ Delete Trigger
-//                             deleting
-//                                 ? const SizedBox(
-//                                     width: 20,
-//                                     height: 20,
-//                                     child: CircularProgressIndicator(
-//                                       strokeWidth: 2,
-//                                     ),
-//                                   )
-//                                 : IconButton(
-//                                     icon: const Icon(
-//                                       Iconsax.trash,
-//                                       color: Colors.red,
-//                                       size: 20,
-//                                     ),
-//                                     onPressed: () {
-//                                       // Show confirmation dialog or delete directly
-//                                       Get.defaultDialog(
-//                                         title: "Remove Fund",
-//                                         middleText:
-//                                             "Are you sure you want to remove this fund from your goal?",
-//                                         textConfirm: "Remove",
-//                                         textCancel: "Cancel",
-//                                         confirmTextColor: Colors.white,
-//                                         onConfirm: () {
-//                                           Get.back();
-//                                           goalSipController.deleteGoalFund(
-//                                             id: fund.id,
-//                                             isEdit: true,
-//                                             schemeName:
-//                                                 fund.mutualFund?.schemeCode
-//                                                     .toString() ??
-//                                                 '',
-//                                           ); // Passing GoalFundEntity.id
-//                                         },
-//                                       );
-//                                     },
-//                                   ),
-//                           ],
-//                         ),
-//                       );
-//                     });
-//
-//                     // final String imgUrl =
-//                     //     "${Appurl.baseUrl}${fund.mutualFund?.amc?.amcLogo ?? ''}";
-//
-//                     // return ListTile(
-//                     //   contentPadding: const EdgeInsets.symmetric(vertical: 5),
-//                     //   dense: true,
-//                     //   leading: CircleAvatar(
-//                     //     backgroundColor: Colors.transparent,
-//                     //     backgroundImage: NetworkImage(imgUrl),
-//                     //     onBackgroundImageError: (_, __) =>
-//                     //         const Icon(Icons.broken_image),
-//                     //   ),
-//                     //   title: Text(
-//                     //     fund.mutualFund?.schemeName ?? 'Unknown Fund',
-//                     //     style: UTextStyles.medium.copyWith(
-//                     //       color: Ucolors.dark,
-//                     //       fontWeight: FontWeight.w500,
-//                     //     ),
-//                     //   ),
-//                     //   trailing: Text(
-//                     //     // _fmt(fund.sipAmount ?? 0), // Made safe with ?? 0
-//                     //     _fmt(
-//                     //       fund.mutualFund?.minSipAmount ?? 0,
-//                     //     ), // Made safe with ?? 0
-//                     //     style: UTextStyles.medium.copyWith(
-//                     //       color: Ucolors.dark,
-//                     //       fontWeight: FontWeight.w500,
-//                     //     ),
-//                     //   ),
-//                     // );
-//                   }).toList(), // Add .toList() when spreading maps in columns
-//                 ],
-//               ),
-//             );
-//           }),
-//           const Gap(22),
-//         ],
-//       ),
-//     );
-//   }
-// }
-//
-// class ValueTitleGoal extends StatelessWidget {
-//   const ValueTitleGoal({super.key, required this.value, required this.title});
-//   final String value;
-//   final String title;
-//   @override
-//   Widget build(BuildContext context) {
-//     return Expanded(
-//       child: Column(
-//         children: [
-//           Text(
-//             value,
-//             style: UTextStyles.large.copyWith(
-//               color: Colors.black,
-//               // fontSize: 16,
-//               fontWeight: FontWeight.w600,
-//             ),
-//           ),
-//           Text(
-//             textAlign: TextAlign.center,
-//             title,
-//             style: UTextStyles.small.copyWith(color: Ucolors.darkgrey),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }

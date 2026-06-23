@@ -1,6 +1,7 @@
 // ignore_for_file: unused_local_variable
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
@@ -2095,148 +2096,318 @@ class _MobileNavItem extends StatelessWidget {
     });
   }
 }
-
 class WebProfileDashboardScreen extends StatelessWidget {
   const WebProfileDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final navController = Get.find<NavigationBarController>();
+    final user = SessionManager.instance.userObs.value;
+    final String readySinceYear = user?.customerDetailsModel?.dob?.split('-')[0] ?? '1985';
+    final String taxStatusName = ProfileUtils.getWealthSourceName(
+      int.tryParse(user?.customerDetailsModel?.wealthSource ?? ''),
+    ) ?? 'Salary';
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+        child: Obx(() {
+          final rawTab = navController.profileDashboardTabIndex.value;
+          final selectedTab = rawTab < 0 ? 0 : rawTab > 4 ? 4 : rawTab;
 
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      color: const Color(0xFFF5F7FA),
-      padding: const EdgeInsets.all(28),
-      child: Obx(() {
-        // final selectedTab = navController.profileDashboardTabIndex.value;
-        final rawTab = navController.profileDashboardTabIndex.value;
-        final selectedTab = rawTab < 0
-            ? 0
-            : rawTab > 4
-            ? 4
-            : rawTab;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+              /// Hero Verification Banner (Updated Layered Layout)
+              _buildHeroBanner(),
+              const SizedBox(height: 24),
+
+              /// Navigation Custom Underlined Tab Layout
+              Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: Colors.grey.shade200, width: 1.5),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    _buildProfileTabButton('KYC Details', Icons.assignment_ind_outlined, 0, selectedTab, navController),
+                    const SizedBox(width: 8),
+                    _buildProfileTabButton('Personal Details', Icons.person_outline_rounded, 1, selectedTab, navController),
+                    const SizedBox(width: 8),
+                    _buildProfileTabButton('Bank Account', Icons.account_balance_outlined, 2, selectedTab, navController),
+                    const SizedBox(width: 8),
+                    _buildProfileTabButton('Nominee', Icons.people_outline_rounded, 3, selectedTab, navController),
+                    const SizedBox(width: 8),
+                    _buildProfileTabButton('Documents', Icons.folder_open_outlined, 4, selectedTab, navController),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              /// Tab Content Workspace View Card
+              Expanded(
+                child: IndexedStack(
+                  index: selectedTab,
+                  children: const [
+                    KycDetailsScreen(),
+                    _PersonalDetailsTabWrapper(),
+                    BankDetailsScreen(),
+                    NomineeListScreen(),
+                    DocumentScreen(),
+                  ],
+                ),
+              ),
+            ],
+          );
+        }),
+      ),
+    );
+  }
+
+  /// Builds the premium split layered background banner with overlapping profile card
+  Widget _buildHeroBanner() {
+    // Wrap in Obx to ensure that when userObs updates, the UI dynamically changes
+    return Obx(() {
+      final user = SessionManager.instance.userObs.value;
+      debugPrint("==========================================");
+      debugPrint(jsonEncode(user?.toJson()));
+      debugPrint("==========================================");
+
+      // Dynamic data extraction (safely fallback to defaults)
+      final String readySinceYear = user?.customerDetailsModel?.dob?.split('-').firstOrNull ?? '1985';
+      final bool isKycApproved = user?.panCard?.toLowerCase() == 'approved';
+
+      return SizedBox(
+        width: double.infinity,
+        height: 220, // Explicit bounded height to protect layout constraints
+        child: Stack(
+          clipBehavior: Clip.none,
           children: [
-            /// Header
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //   children: [
-            //     const Column(
-            //       crossAxisAlignment: CrossAxisAlignment.start,
-            //       children: [
-            //         Text(
-            //           'Profile Dashboard',
-            //           style: TextStyle(
-            //             fontFamily: FontFamily.medium,
-            //             fontSize: 28,
-            //             fontWeight: FontWeight.w800,
-            //             color: Ucolors.dark,
-            //           ),
-            //         ),
-            //         SizedBox(height: 6),
-            //         Text(
-            //           'Manage all your profile details from one place.',
-            //           style: TextStyle(
-            //             fontFamily: FontFamily.medium,
-            //             fontSize: 14,
-            //             color: Colors.grey,
-            //           ),
-            //         ),
-            //       ],
-            //     ),
-            //   ],
-            // ),
-            // const SizedBox(height: 24),
-
-            /// Tabs
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: Colors.grey.shade200),
-              ),
-              child: Row(
-                children: [
-                  // _ProfileTabButton(
-                  //   title: 'Overview',
-                  //   index: 0,
-                  //   selectedIndex: selectedTab,
-                  //   onTap: () =>
-                  //       navController.profileDashboardTabIndex.value = 0,
-                  // ),
-                  _ProfileTabButton(
-                    title: 'KYC Details',
-                    index: 0,
-                    selectedIndex: selectedTab,
-                    onTap: () =>
-                        navController.profileDashboardTabIndex.value = 0,
-                  ),
-                  _ProfileTabButton(
-                    title: 'Personal Details',
-                    index: 1,
-                    selectedIndex: selectedTab,
-                    onTap: () =>
-                        navController.profileDashboardTabIndex.value = 1,
-                  ),
-                  _ProfileTabButton(
-                    title: 'Bank Account',
-                    index: 2,
-                    selectedIndex: selectedTab,
-                    onTap: () =>
-                        navController.profileDashboardTabIndex.value = 2,
-                  ),
-                  _ProfileTabButton(
-                    title: 'Nominee',
-                    index: 3,
-                    selectedIndex: selectedTab,
-                    onTap: () =>
-                        navController.profileDashboardTabIndex.value = 3,
-                  ),
-                  _ProfileTabButton(
-                    title: 'Documents',
-                    index: 4,
-                    selectedIndex: selectedTab,
-                    onTap: () =>
-                        navController.profileDashboardTabIndex.value = 4,
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            /// Important: bounded height
-            Expanded(
+            /// 1. The Split Base Canvas Container (Top Blue Gradient / Bottom Solid White)
+            Positioned.fill(
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(16),
                 child: Container(
-                  width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
                     border: Border.all(color: Colors.grey.shade200),
                   ),
-                  child: IndexedStack(
-                    index: selectedTab,
-                    children: const [
-                      // ProfileScreen(),
-                      KycDetailsScreen(),
-                      _PersonalDetailsTabWrapper(),
-                      BankDetailsScreen(),
-                      NomineeListScreen(),
-                      DocumentScreen(),
+                  child: Column(
+                    children: [
+                      /// Top Illustrated Gradient Section
+                      Expanded(
+                        flex: 13, // 60% Space distribution
+                        child: Container(
+                          width: double.infinity,
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Color(0xFFEBF2FC), Color(0xFFE3EEFA)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          alignment: Alignment.centerRight,
+                          child: Opacity(
+                            opacity: 0.12, // Ghost watermark tint style
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Icon(Icons.trending_up_rounded, size: 65, color: Color(0xFF0066FF)),
+                                SizedBox(width: 32),
+                                Icon(Icons.shield_outlined, size: 55, color: Color(0xFF0066FF)),
+                                SizedBox(width: 32),
+                                Icon(Icons.savings_outlined, size: 60, color: Color(0xFF0066FF)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      /// Bottom Solid White Section
+                      Expanded(
+                        flex: 9, // 40% Space distribution
+                        child: Container(
+                          color: Colors.white,
+                          // Left padding clears room for the floating profile summary card
+                          padding: const EdgeInsets.only(left: 280, right: 24),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: const [
+                                    Text(
+                                      'Your account is verified and ready for investing.',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF1A1D20),
+                                      ),
+                                    ),
+                                    SizedBox(height: 2),
+                                    Text(
+                                      'Manage your details, nominees and documents all in one place.',
+                                      style: TextStyle(
+                                        fontSize: 12.5,
+                                        color: Color(0xFF70767F),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              OutlinedButton.icon(
+                                onPressed: () {
+                                  // TODO: Navigation/Action for Edit Profile
+                                },
+                                icon: const Icon(Icons.edit_outlined, size: 14, color: Color(0xFF2D3136)),
+                                label: const Text(
+                                  'Edit Profile',
+                                  style: TextStyle(
+                                    color: Color(0xFF2D3136),
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  side: BorderSide(color: Colors.grey.shade300),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
+
+            /// 2. Overlapping Floating White Profile Summary Card
+            Positioned(
+              left: 24,
+              top: 20,
+              bottom: 16, // Anchors height seamlessly to avoid any layout overflow
+              child: Container(
+                width: 232,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.06),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                  border: Border.all(color: Colors.grey.shade100),
+                ),
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 24,
+                      backgroundColor: Colors.grey.shade500,
+                      child: const Icon(Icons.person, size: 28, color: Colors.white),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            user?.name ?? 'Guest User',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              color: Color(0xFF1A1D20),
+                            ),
+                          ),
+                        ),
+                        if (isKycApproved) ...[
+                          const SizedBox(width: 4),
+                          const Icon(
+                            Icons.verified,
+                            color: Color(0xFF0066FF),
+                            size: 14,
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: isKycApproved ? const Color(0xFFE6F7ED) : const Color(0xFFFCE8E6),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        isKycApproved ? 'KYC Verified' : 'KYC Pending',
+                        style: TextStyle(
+                          color: isKycApproved ? const Color(0xFF1F9254) : const Color(0xFFC53929),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.calendar_today_outlined, size: 11, color: Colors.grey.shade400),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Ready to invest since $readySinceYear', // FIXED: No longer hardcoded
+                          style: TextStyle(
+                            color: Colors.grey.shade500,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
-        );
-      }),
+        ),
+      );
+    });
+  }
+
+  Widget _buildProfileTabButton(String title, IconData icon, int index, int selectedIndex, NavigationBarController controller) {
+    final isSelected = index == selectedIndex;
+    final activeColor = const Color(0xFF0066FF);
+    final baseColor = const Color(0xFF5F6670);
+
+    return InkWell(
+      onTap: () => controller.profileDashboardTabIndex.value = index,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(border: Border(bottom: BorderSide(color: isSelected ? activeColor : Colors.transparent, width: 2))),
+        child: Row(
+          children: [
+            Icon(icon, color: isSelected ? activeColor : baseColor, size: 18),
+            const SizedBox(width: 8),
+            Text(title, style: TextStyle(color: isSelected ? activeColor : baseColor, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500, fontSize: 13)),
+          ],
+        ),
+      ),
     );
   }
 }
