@@ -672,7 +672,7 @@ class ProfileHeader extends StatelessWidget {
     super.key,
     required this.img,
     this.name,
-    required this.subtitle,
+     this.subtitle,
     required this.icon,
     required this.onTap,
     this.iconColor = Colors.black,
@@ -680,7 +680,7 @@ class ProfileHeader extends StatelessWidget {
 
   final String img;
   final String? name;
-  final String subtitle;
+  final String? subtitle;
   final IconData icon;
   final VoidCallback onTap;
   final Color iconColor;
@@ -724,14 +724,16 @@ class ProfileHeader extends StatelessWidget {
             ),
           ),
         ],
+    if (subtitle != null && subtitle!.isNotEmpty) ...[
         Text(
-          subtitle,
+          subtitle!,
           style: TextStyle(
             fontFamily: FontFamily.medium,
             color: Colors.grey.shade700,
             fontSize: 14,
           ),
         ),
+    ]
       ],
     );
   }

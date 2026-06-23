@@ -30,19 +30,12 @@ class FundComparisonChartWidget extends StatelessWidget {
 
     return Container(
       // Responsive Height: Taller on desktop for better visibility
-      height: isDesktop ? 400 : 300,
-      padding: EdgeInsets.all(isDesktop ? 24 : 16),
+      height: isDesktop ? 350 : 300,
+      padding: EdgeInsets.all(isDesktop ? 8 : 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Ucolors.darkgrey),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha:0.05), // Softer shadow for web
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
+
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,7 +45,7 @@ class FundComparisonChartWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Fund Comparison",
+                "Portfolio Performance",
                 style: TextStyle(fontFamily: FontFamily.medium,
                   fontSize: isDesktop ? 18 : 16,
                   fontWeight: FontWeight.w600,

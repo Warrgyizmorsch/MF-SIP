@@ -142,7 +142,7 @@ class DashboardScreen extends GetView<DashboardController> {
     return Scaffold(
       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Ucolors.light,
       body: isDesktop
-          ? _WebDashboardLayout(cartController: cartController)
+          ? WebDashboardLayout(cartController: cartController)
           : _MobileDashboardLayout(
               cartController: cartController,
               dashboardController: controller,
@@ -151,423 +151,799 @@ class DashboardScreen extends GetView<DashboardController> {
   }
 }
 
-// ==========================================
-// 💻 WEB DASHBOARD LAYOUT (New)
-// ==========================================
-class _WebDashboardLayout extends StatelessWidget {
+// =========================================================================
+// 💻 WEB DASHBOARD LAYOUT (Matches image_0d5c7f.png Exactly)
+// =========================================================================
+class WebDashboardLayout extends StatelessWidget {
   final CartController cartController;
-  const _WebDashboardLayout({required this.cartController});
+  const WebDashboardLayout({super.key, required this.cartController});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // 1. Web Header
-        // _buildWebHeader(),
+    return Container(
+      color: const Color(0xFFF8FAFC), // Ultra-light premium dashboard background
+      child: Column(
+        children: [
 
-        // 2. Scrollable Dashboard
+          // 2. SCROLLABLE CONTENT BODY
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // --- ROW 1: TOP SUMMARY STAT CARDS ---
+                  const Row(
+                    children: [
+                      Expanded(
+                        child: ExactWebStatCard(
+                          title: "Current Value",
+                          value: "₹32,580",
+                          trendText: "1.24% vs last month",
+                          trendIcon: Icons.arrow_upward_rounded,
+                          valueColor: const Color(0xFF0F172A),
+                          trendColor: const Color(0xFF22C55E),
+                          icon: Iconsax.wallet_3,
+                          iconBgColor: Color(0xFFEFF6FF),
+                          iconColor: Color(0xFF1D4ED8),
+                          sparklineData: [20, 15, 25, 18, 30, 22, 35, 45], // Blue line path
+                        ),
+                      ),
+                      Gap(16),
+                      Expanded(
+                        child: ExactWebStatCard(
+                          title: "Total Investment",
+                          value: "₹30,000",
+                          trendText: "0.00% vs last month",
+                          trendIcon: Icons.remove,
+                          valueColor: const Color(0xFF0F172A),
+                          trendColor: const Color(0xFF64748B),
+                          icon: Iconsax.coin,
+                          iconBgColor: Color(0xFFFFF7ED),
+                          iconColor: Color(0xFFEA580C),
+                          sparklineData: [15, 25, 12, 20, 15, 22, 18, 20], // Orange line path
+                        ),
+                      ),
+                      Gap(16),
+                      Expanded(
+                        child: ExactWebStatCard(
+                          title: "Profit / Loss",
+                          value: "+₹2,580",
+                          trendText: "1.24% vs last month",
+                          trendIcon: Icons.arrow_upward_rounded,
+                          valueColor: const Color(0xFF22C55E), // Vibrant Green Matching text color
+                          trendColor: const Color(0xFF22C55E),
+                          icon: Iconsax.trend_up,
+                          iconBgColor: Color(0xFFF0FDF4),
+                          iconColor: Color(0xFF16A34A),
+                          sparklineData: [10, 12, 22, 15, 20, 28, 35, 48], // Green line path
+                        ),
+                      ),
+                      Gap(16),
+                      Expanded(
+                        child: ExactWebStatCard(
+                          title: "Portfolio XIRR",
+                          value: "+15.06%",
+                          trendText: "15.06% all time",
+                          trendIcon: Icons.arrow_upward_rounded,
+                          valueColor: const Color(0xFF9333EA), // Vibrant Purple Matching text color
+                          trendColor: const Color(0xFF22C55E),
+                          icon: Iconsax.percentage_square,
+                          iconBgColor: Color(0xFFFAF5FF),
+                          iconColor: Color(0xFF9333EA),
+                          sparklineData: [12, 20, 14, 18, 15, 25, 22, 30], // Purple line path
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const Gap(24),
+
+                  // --- ROW 2: SPLIT VIEW (MAIN CHART + SIDEBAR) ---
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // LEFT SIDE OVERVIEW (65% width)
+                      Expanded(
+                        flex: 65,
+                        child: Column(
+                          children: [
+                            _buildPerformanceChartCard(),
+                            const Gap(24),
+                            _buildYourHoldingsTableCard(),
+                            const Gap(24),
+                            _buildBottomSummaryRow()
+                          ],
+                        ),
+                      ),
+
+                      const Gap(24),
+
+                      // RIGHT SIDEBAR PANELS (35% width)
+                      Expanded(
+                        flex: 35,
+                        child: Column(
+                          children: [
+                            _buildQuickActionsCard(),
+                            const Gap(24),
+                            _buildUpcomingSIPsCard(),
+                            const Gap(24),
+                            _buildPortfolioAllocationCard(),
+                            const Gap(24),
+                            _buildRecentActivityCard()
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildBottomSummaryRow() {
+    return const Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
         Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 30),
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          child: TopPerformingFundCard(),
+        ),
+        Gap(24),
+        Expanded(
+          child: GoalProgressCard(),
+        ),
+      ],
+    );
+  }
+  // =========================================================================
+  // 📈 PERFORMANCE & CHART COMPONENT
+  // =========================================================================
+  Widget _buildPerformanceChartCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: const FundComparisonChartWidget(),
+    );
+  }
+
+  Widget _buildLegendItem(String label, Color color) {
+    return Row(
+      children: [
+        Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        const Gap(6),
+        Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w500)),
+      ],
+    );
+  }
+
+  // =========================================================================
+  // 📊 HOLDINGS DATA TABLE COMPONENT
+  // =========================================================================
+  // =========================================================================
+// 📊 HOLDINGS DATA TABLE COMPONENT (Matches image_182bd6.jpg Exactly)
+// =========================================================================
+  Widget _buildYourHoldingsTableCard() {
+    return Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Your Holdings",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: const Text(
+                    "View All",
+                    style: TextStyle(fontSize: 14, color: Color(0xFF007AFF), fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
+            const Gap(20),
+            Table(
+              columnWidths: const {
+                0: FlexColumnWidth(3.8), // Fund Name + Category
+                1: FlexColumnWidth(1.6), // Type Chip
+                2: FlexColumnWidth(1.4), // Invested Amount
+                3: FlexColumnWidth(1.4), // Current Value
+                4: FlexColumnWidth(1.4), // Gain / Loss (₹)
+                5: FlexColumnWidth(1.4), // Gain / Loss (%)
+                6: FlexColumnWidth(1.5), // Monthly Contribution
+              },
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              children: [
+                // --- HEADER ROW ---
+                TableRow(
+                  decoration: const BoxDecoration(
+                    border: Border(bottom: BorderSide(color: Color(0xFFF1F5F9), width: 1.5)),
+                  ),
                   children: [
-                    // --- TITLE ---
-                    const Text(
-                      "Portfolio Overview",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                    _buildHeaderCell('Fund Name\nCategory'),
+                    _buildHeaderCell('Type'),
+                    _buildHeaderCell('Invested\nAmount'),
+                    _buildHeaderCell('Current\nValue'),
+                    _buildHeaderCell('Gain / Loss\n(₹)'),
+                    _buildHeaderCell('Gain / Loss\n(%)'),
+                    _buildHeaderCell('Monthly\nContribution'),
+                  ],
+                ),
+
+                // --- DYNAMIC/STATIC DATA ROWS ---
+                _buildTableRowItem(
+                  logoWidget: const Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 18),
+                  logoBgColor: const Color(0xFF007AFF),
+                  name: "Nippon India Large Cap Fund",
+                  category: "Equity • Large Cap",
+                  type: "SIP",
+                  invested: "₹10,000",
+                  current: "₹5,43,000",
+                  gainAmt: "+₹43,000",
+                  gainPct: "+8.60%",
+                  monthlyContribution: "₹5,000",
+                  isProfit: true,
+                ),
+                _buildTableRowItem(
+                  logoWidget: const Center(child: Text("i", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16))),
+                  logoBgColor: const Color(0xFFE11D48),
+                  name: "ICICI Prudential Technology Fund",
+                  category: "Equity • Sectoral / Tech",
+                  type: "Lumpsum",
+                  invested: "₹10,000",
+                  current: "₹4,82,000",
+                  gainAmt: "+₹82,000",
+                  gainPct: "+20.50%",
+                  monthlyContribution: "—\n(One-time)",
+                  isProfit: true,
+                  isMonthlyContributionSubtitled: true,
+                ),
+                _buildTableRowItem(
+                  logoWidget: const Icon(Icons.show_chart_rounded, color: Colors.white, size: 18),
+                  logoBgColor: const Color(0xFF0B3C5D),
+                  name: "SBI Bluechip Fund",
+                  category: "Equity • Large Cap",
+                  type: "SIP",
+                  invested: "₹15,000",
+                  current: "₹4,21,000",
+                  gainAmt: "+₹71,000",
+                  gainPct: "+20.29%",
+                  monthlyContribution: "₹2,000",
+                  isProfit: true,
+                ),
+                _buildTableRowItem(
+                  logoWidget: const Icon(Icons.pie_chart_outline_rounded, color: Colors.white, size: 18),                  logoBgColor: const Color(0xFF0369A1),
+                  name: "Franklin India Flexi Cap Fund",
+                  category: "Equity • Flexi Cap",
+                  type: "SIP + Lumpsum",
+                  invested: "₹5,000",
+                  current: "₹6,98,000",
+                  gainAmt: "+₹48,000",
+                  gainPct: "+7.38%",
+                  monthlyContribution: "₹3,000",
+                  isProfit: true,
+                ),
+                _buildTableRowItem(
+                  logoWidget: const Icon(Icons.shield_rounded, color: Colors.white, size: 18),
+                  logoBgColor: const Color(0xFF10B981),
+                  name: "HDFC Corporate Bond Fund",
+                  category: "Debt • Corporate Bond",
+                  type: "SIP",
+                  invested: "₹10,000",
+                  current: "₹7,16,000",
+                  gainAmt: "+₹2,16,000",
+                  gainPct: "+43.36%",
+                  monthlyContribution: "₹4,000",
+                  isProfit: true,
+                ),
+              ],
+            ),
+          ],
+        ));
+    }
+
+  Widget _buildHeaderCell(String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontSize: 12,
+          color: Color(0xFF64748B),
+          fontWeight: FontWeight.w600,
+          height: 1.3,
+        ),
+      ),
+    );
+  }
+}
+
+// =========================================================================
+// 🏷 TABLE ROW ITEM METHOD
+// =========================================================================
+TableRow _buildTableRowItem({
+  required Widget logoWidget,
+  required Color logoBgColor,
+  required String name,
+  required String category,
+  required String type,
+  required String invested,
+  required String current,
+  required String gainAmt,
+  required String gainPct,
+  required String monthlyContribution,
+  required bool isProfit,
+  bool isMonthlyContributionSubtitled = false,
+}) {
+  final trendColor = isProfit ? const Color(0xFF22C55E) : const Color(0xFFEF4444);
+
+  // Dynamic Type Chip Color configuration matching image layout rules
+  Color typeBgColor = const Color(0xFFEFF6FF); // Default SIP Blue
+  Color typeTextColor = const Color(0xFF1D4ED8);
+  if (type == "Lumpsum") {
+    typeBgColor = const Color(0xFFF3E8FF); // Purple
+    typeTextColor = const Color(0xFF7E22CE);
+  } else if (type == "SIP + Lumpsum") {
+    typeBgColor = const Color(0xFFECFDF5); // Mint Teal
+    typeTextColor = const Color(0xFF047857);
+  }
+
+  return TableRow(
+    decoration: const BoxDecoration(
+      border: Border(bottom: BorderSide(color: Color(0xFFF8FAFC), width: 1)),
+    ),
+    children: [
+      // 1. Fund Icon + Name and Category Group
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: logoBgColor,
+                borderRadius: BorderRadius.circular(8), // Round-square configuration
+              ),
+              child: Center(child: logoWidget),
+            ),
+            const Gap(12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                  ),
+                  const Gap(4),
+                  Text(
+                    category,
+                    style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+
+      // 2. Type Badge
+      UnconstrainedBox(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
+            decoration: BoxDecoration(
+              color: typeBgColor,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              type,
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: typeTextColor),
+            ),
+          ),
+        ),
+      ),
+
+      // 3. Invested Amount
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Text(invested, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+      ),
+
+      // 4. Current Value
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Text(current, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+      ),
+
+      // 5. Gain / Loss Value (₹)
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Text(gainAmt, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: trendColor)),
+      ),
+
+      // 6. Gain / Loss (%)
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Text(gainPct, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: trendColor)),
+      ),
+
+      // 7. Monthly Contribution
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Text(
+          monthlyContribution,
+          style: TextStyle(
+            fontSize: isMonthlyContributionSubtitled ? 12 : 14,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF0F172A),
+            height: 1.2,
+          ),
+        ),
+      ),
+    ],
+  );
+}
+  // =========================================================================
+  // ⚡ SIDEBAR WIDGETS
+  // =========================================================================
+  Widget _buildQuickActionsCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text("Quick Actions", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+          const Gap(16),
+          Row(
+            children: [
+              Expanded(child: _buildActionGridItem("Top Up", "Add money\nInstantly", Icons.add, const Color(0xFF3B82F6))),
+              const Gap(12),
+              Expanded(child: _buildActionGridItem("Withdraw", "Redeem to\nbank", Icons.remove_circle, const Color(0xFFF97316))),
+              const Gap(12),
+              Expanded(child: _buildActionGridItem("SIP", "Manage\nmonthly SIP", Iconsax.calendar, const Color(0xFFA855F7))),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionGridItem(String label, String sub, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+            child: Icon(icon, size: 16, color: color),
+          ),
+          const Gap(12),
+          Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF1E293B))),
+          const Gap(4),
+          Text(sub, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), height: 1.2, fontWeight: FontWeight.w400)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUpcomingSIPsCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("Upcoming SIPs", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+              TextButton(onPressed: () {}, child: const Text("View All", style: TextStyle(fontSize: 12, color: Color(0xFF3B82F6)))),
+            ],
+          ),
+          const Gap(12),
+          _buildSipRowItem("10 Jun", "Kotak Bluechip Fund", "₹5,000"),
+          const Divider(height: 20, color: Color(0xFFF1F5F9)),
+          _buildSipRowItem("15 Jun", "ICICI Prudential Tech", "₹3,000"),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSipRowItem(String date, String title, String value) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(color: const Color(0xFFE0F2FE), borderRadius: BorderRadius.circular(6)),
+          child: Text(date, style: const TextStyle(color: Color(0xFF0284C7), fontWeight: FontWeight.w700, fontSize: 12)),
+        ),
+        const Gap(12),
+        Expanded(
+          child: Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)), overflow: TextOverflow.ellipsis),
+        ),
+        Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+      ],
+    );
+  }
+
+  // =========================================================================
+// 🍩 1. PORTFOLIO ALLOCATION CARD (Matches image_17bb38.png Exactly)
+// =========================================================================
+  Widget _buildPortfolioAllocationCard() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Portfolio Allocation",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+          ),
+          const Gap(24),
+          Row(
+            children: [
+              // --- CUSTOM MULTI-SEGMENT DONUT DESIGN ---
+              SizedBox(
+                height: 110,
+                width: 110,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CustomPaint(
+                      size: const Size(110, 110),
+                      painter: MultiSegmentDonutPainter(
+                        segments: [
+                          DonutSegment(value: 60, color: const Color(0xFF007AFF)), // Equity Blue
+                          DonutSegment(value: 22, color: const Color(0xFF34C759)), // Debt Green
+                          DonutSegment(value: 10, color: const Color(0xFFFF9500)), // Hybrid Orange
+                          DonutSegment(value: 8, color: const Color(0xFFFFCC00)),  // Cache/Other Yellow
+                        ],
+                        strokeWidth: 16,
                       ),
                     ),
-                    const Gap(24),
-
-                    // --- TOP STAT CARDS (Full Width Row) ---
-                    Row(
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Expanded(
-                          child: _WebStatCard(
-                            title: "Current Value",
-                            value: "₹32,580",
-                            trend: "+15.06%",
-                            icon: Iconsax.wallet_money,
-                            color: Ucolors.primary,
-                            isPrimary: true, // Highlights this card
-                          ),
+                        const Text(
+                          "₹32,580",
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
                         ),
-                        const Gap(24),
-                        Expanded(
-                          child: _WebStatCard(
-                            title: "Total Investment",
-                            value: "₹30,000",
-                            icon: Iconsax.money_send,
-                            color: Colors.orange,
-                          ),
-                        ),
-                        const Gap(24),
-                        Expanded(
-                          child: _WebStatCard(
-                            title: "Profit / Loss",
-                            value: "+ ₹2,580",
-                            trend: "Healthy",
-                            icon: Iconsax.chart_2,
-                            color: Colors.green,
-                            isProfit: true,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const Gap(30),
-
-                    // --- MAIN CONTENT SPLIT ---
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // LEFT COLUMN (Chart + Portfolio List) - 65% width
-                        Expanded(
-                          flex: 2,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Chart Section
-                              Container(
-                                height: 500,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.05,
-                                      ),
-                                      blurRadius: 10,
-                                    ),
-                                  ],
-                                ),
-                                // Reuse your existing chart widget
-                                child: const FundComparisonChartWidget(),
-                              ),
-                              const Gap(30),
-
-                              // Portfolio List Header
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text(
-                                    "Your Assets",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {},
-                                    child: const Text("View All"),
-                                  ),
-                                ],
-                              ),
-                              const Gap(10),
-
-                              // Portfolio List (Reusing Mobile Card in Grid/List)
-                              ListView.separated(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: 4,
-                                separatorBuilder: (_, __) => const Gap(10),
-                                itemBuilder: (ctx, index) => _WebPortfolioRow(),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const Gap(30),
-
-                        // RIGHT COLUMN (Transactions + Actions) - 35% width
-                        Expanded(
-                          flex: 1,
-                          child: Column(
-                            children: [
-                              // Quick Actions
-                              Container(
-                                padding: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.05,
-                                      ),
-                                      blurRadius: 10,
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      "Quick Actions",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    const Gap(20),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        _WebActionButton(
-                                          label: "Top Up",
-                                          icon: Iconsax.add_circle,
-                                          color: Ucolors.primary,
-                                        ),
-                                        _WebActionButton(
-                                          label: "Withdraw",
-                                          icon: Iconsax.minus_cirlce,
-                                          color: Colors.orange,
-                                        ),
-                                        _WebActionButton(
-                                          label: "SIP",
-                                          icon: Iconsax.timer_1,
-                                          color: Colors.purple,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const Gap(24),
-
-                              // Recent Transactions
-                              Container(
-                                padding: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(
-                                    color: Colors.grey.shade200,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.04,
-                                      ),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    /// HEADER
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const Text(
-                                          "Upcoming SIPs",
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-
-                                        InkWell(
-                                          onTap: () {},
-                                          child: const Text(
-                                            "View All",
-                                            style: TextStyle(
-                                              color: Colors.blue,
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-
-                                    const SizedBox(height: 18),
-
-                                    /// SIP LIST
-                                    ListView.separated(
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      itemCount: 3,
-                                      separatorBuilder: (_, __) =>
-                                          const SizedBox(height: 18),
-                                      itemBuilder: (context, index) {
-                                        final data = [
-                                          {
-                                            "date": "10",
-                                            "month": "Dec",
-                                            "fund": "Kotak Bluechip Fund",
-                                            "type": "Monthly",
-                                            "amount": "₹5000",
-                                          },
-                                          {
-                                            "date": "15",
-                                            "month": "Dec",
-                                            "fund": "ICICI Prudential Tech",
-                                            "type": "Monthly",
-                                            "amount": "₹3000",
-                                          },
-                                          {
-                                            "date": "20",
-                                            "month": "Dec",
-                                            "fund": "SBI Small Cap Fund",
-                                            "type": "Monthly",
-                                            "amount": "₹2000",
-                                          },
-                                        ];
-
-                                        final item = data[index];
-
-                                        return Row(
-                                          children: [
-                                            /// DATE BOX
-                                            Container(
-                                              width: 42,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    vertical: 8,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: Colors.blue.withValues(
-                                                  alpha: 0.08,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              child: Column(
-                                                children: [
-                                                  Text(
-                                                    item["date"]!,
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      color: Colors.blue,
-                                                    ),
-                                                  ),
-
-                                                  Text(
-                                                    item["month"]!,
-                                                    style: TextStyle(
-                                                      fontSize: 11,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      color:
-                                                          Colors.blue.shade700,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-
-                                            const SizedBox(width: 14),
-
-                                            /// FUND INFO
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    item["fund"]!,
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-
-                                                  const SizedBox(height: 4),
-
-                                                  Text(
-                                                    item["type"]!,
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color:
-                                                          Colors.grey.shade500,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-
-                                            /// AMOUNT
-                                            Text(
-                                              item["amount"]!,
-                                              style: const TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              // Container(
-                              //   padding: const EdgeInsets.all(20),
-                              //   decoration: BoxDecoration(
-                              //     color: Colors.white,
-                              //     borderRadius: BorderRadius.circular(20),
-                              //     boxShadow: [
-                              //       BoxShadow(
-                              //         color: Colors.black.withValues(alpha:0.05),
-                              //         blurRadius: 10,
-                              //       ),
-                              //     ],
-                              //   ),
-                              //   child: Column(
-                              //     crossAxisAlignment:
-                              //         CrossAxisAlignment.start,
-                              //     children: [
-                              //       const Text(
-                              //         "Recent Transactions",
-                              //         style: TextStyle(
-                              //           fontWeight: FontWeight.bold,
-                              //           fontSize: 16,
-                              //         ),
-                              //       ),
-                              //       const Gap(15),
-                              //       ListView.separated(
-                              //         shrinkWrap: true,
-                              //         physics:
-                              //             const NeverScrollableScrollPhysics(),
-                              //         itemCount: 5,
-                              //         separatorBuilder: (_, __) =>
-                              //             const Divider(height: 20),
-                              //         itemBuilder: (ctx, index) =>
-                              //             const TransactionCard(
-                              //               isWebCompact: true,
-                              //             ),
-                              //       ),
-                              //     ],
-                              //   ),
-                              // ),
-                            ],
-                          ),
+                        const Gap(2),
+                        Text(
+                          "Current Value",
+                          style: TextStyle(fontSize: 10, color: Colors.grey.shade500, fontWeight: FontWeight.w500),
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
+              const Gap(32),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ...List.generate(3, (index) {
+                      final data = [
+                        {"label": "Equity", "pct": "60.0%", "amount": "₹22,144", "color": const Color(0xFF007AFF)},
+                        {"label": "Debt", "pct": "22.0%", "amount": "₹7,163", "color": const Color(0xFF34C759)},
+                        {"label": "Hybrid", "pct": "10.0%", "amount": "₹3,268", "color": const Color(0xFFFF9500)},
+                      ];
+
+                      final item = data[index];
+
+                      return Padding(
+                        padding: EdgeInsets.only(bottom: index == data.length - 1 ? 0 : 14),
+                        child: _buildAllocationRowItem(
+                          item["label"] as String,
+                          item["pct"] as String,
+                          item["amount"] as String,
+                          item["color"] as Color,
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              )
+            ],
+          ),
+          const Gap(20),
+
+          // --- VIEW FULL ALLOCATION REDIRECT BUTTON ---
+          InkWell(
+            onTap: () {},
+            borderRadius: BorderRadius.circular(4),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "View Full Allocation",
+                    style: TextStyle(fontSize: 13, color: Color(0xFF007AFF), fontWeight: FontWeight.w700),
+                  ),
+                  Gap(6),
+                  Icon(Icons.arrow_forward_ios, size: 11, color: Color(0xFF007AFF)),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAllocationRowItem(String label, String pct, String amount, Color color) {
+    return Row(
+      children: [
+        Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        const Gap(10),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF334155)),
+        ),
+        const Spacer(),
+        Text(
+          pct,
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+        ),
+        const Gap(24),
+        Text(
+          amount,
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+        ),
+      ],
+    );
+  }
+
+// =========================================================================
+// 🕒 2. RECENT ACTIVITY CARD (Matches image_17bb38.png Exactly)
+// =========================================================================
+  Widget _buildRecentActivityCard() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Recent Activity",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF6366F1)), // Matching deep purple-blue
+              ),
+              TextButton(
+                onPressed: () {},
+                child: const Text(
+                  "View All",
+                  style: TextStyle(fontSize: 13, color: Color(0xFF6366F1), fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
+          ),
+          const Gap(12),
+
+          // --- ACTIVITY LIST ROWS ---
+          _buildActivityRowItem(
+            icon: Iconsax.document_text5, // Or Icons.receipt_long
+            title: "SIP Invested",
+            subtitle: "Kotak Bluechip Fund",
+            amount: "₹5,000",
+            timeAgo: "Today",
+          ),
+          const Divider(height: 24, thickness: 0.8, color: Color(0xFFF1F5F9)),
+          _buildActivityRowItem(
+            icon: Iconsax.calendar_tick,
+            title: "SIP Invested",
+            subtitle: "ICICI Prudential Tech",
+            amount: "₹3,000",
+            timeAgo: "2 days ago",
+          ),
+          const Divider(height: 24, thickness: 0.8, color: Color(0xFFF1F5F9)),
+          _buildActivityRowItem(
+            icon: Iconsax.clock,
+            title: "Redemption",
+            subtitle: "SBI Small Cap Fund",
+            amount: "₹2,000",
+            timeAgo: "5 days ago",
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActivityRowItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required String amount,
+    required String timeAgo,
+  }) {
+    return Row(
+      children: [
+        // Icon Box Color Treatment
+        Icon(icon, size: 24, color: const Color(0xFF475569)),
+        const Gap(16),
+
+        // Title Block
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+              ),
+              const Gap(4),
+              Text(
+                subtitle,
+                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+        ),
+
+        // Amount Value Block
+        Text(
+          amount,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+        ),
+        const Gap(40), // Balanced side alignment padding matching the image row layout
+
+        // Timing Stamp Block
+        SizedBox(
+          width: 75,
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              timeAgo,
+              style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8), fontWeight: FontWeight.w500),
             ),
           ),
         ),
@@ -575,66 +951,599 @@ class _WebDashboardLayout extends StatelessWidget {
     );
   }
 
+
+
+
   Widget _buildWebHeader() {
     return Container(
-      height: 80,
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Center(
-        child: MaxWidthBox(
-          maxWidth: 1200,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+      height: 64,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)), //  Fixed
+      ),
+      child: const Row(
+        children: [
+          Text("Dashboard", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+        ],
+      ),
+    );
+  }
+
+class TopPerformingFundCard extends StatelessWidget {
+  const TopPerformingFundCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      height: 200,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header Row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "My SIP Dashboard",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Ucolors.primary,
-                ),
+              const Text(
+                "Top Performing Fund",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF22C55E)), // Green text
               ),
-              const Spacer(),
-              // Icons
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Iconsax.notification),
-              ),
-              const Gap(10),
-              Obx(
-                () => Stack(
+              Icon(Icons.trending_up_rounded, color: const Color(0xFF22C55E), size: 20),
+            ],
+          ),
+          Gap(14),
+
+          // Fund Details and Mini Graph Split Row
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // Left: Logo & Returns Text
+              Expanded(
+                flex: 5,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    IconButton(
-                      icon: const Icon(Iconsax.shopping_cart),
-                      onPressed: () => Get.toNamed(AppRoutes.cart),
-                    ),
-                    if (cartController.itemsCount > 0)
-                      Positioned(
-                        right: 5,
-                        top: 5,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: Ucolors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            cartController.itemsCount.toString(),
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
+                    // Brand Logo (Placeholder matching your asset configuration)
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFFF1F2),
+                        shape: BoxShape.circle,
                       ),
+                      child: const Center(
+                        child: Text("i", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.red)),
+                      ),
+                    ),
+                    const Gap(12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            "ICICI Prudential Technology Fund",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                          ),
+                          const Gap(6),
+                          Text(
+                            "Return (YTD)",
+                            style: TextStyle(fontSize: 11, color: Colors.grey.shade400, fontWeight: FontWeight.w600),
+                          ),
+                          const Gap(4),
+                          const Text(
+                            "+24.58%",
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF22C55E)),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
-              const Gap(10),
-              const CircleAvatar(backgroundImage: AssetImage(UImages.avatar)),
+
+              // Right: Smooth Sparkline Mini Wave Graph
+              Expanded(
+                flex: 4,
+                child: SizedBox(
+                  height: 50,
+                  child: CustomPaint(
+                    painter: SmoothSparkPainter(
+                      data: [10, 12, 11, 15, 14, 22, 20, 26, 24, 32, 36],
+                      lineColor: const Color(0xFF22C55E),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
-        ),
+          const Spacer(),
+
+          // Footer Navigation Bar
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              InkWell(
+                onTap: () {},
+                child: const Text(
+                  "View Fund Details",
+                  style: TextStyle(fontSize: 13, color: Color(0xFF007AFF), fontWeight: FontWeight.w700),
+                ),
+              ),
+              const Icon(Icons.arrow_forward_rounded, size: 16, color: Color(0xFF007AFF)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =========================================================================
+// 🎯 2. GOAL PROGRESS CARD
+// =========================================================================
+class GoalProgressCard extends StatelessWidget {
+  const GoalProgressCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      height: 200,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header Text
+          const Text(
+            "Goal Progress",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF007AFF)), // Blue text
+          ),
+          Gap(14),
+          // Target Info Block Split Row
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFEFF6FF),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Iconsax.radar_2, color: Color(0xFF007AFF), size: 22),
+              ),
+              const Gap(12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Retirement Fund",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                  ),
+                  const Gap(4),
+                  Text(
+                    "Target: ₹25,00,000",
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500, fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              const Text(
+                "62%",
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Color(0xFF007AFF)),
+              ),
+            ],
+          ),
+          const Gap(16),
+
+          // Progress Ratio Text Values
+          RichText(
+            text: const TextSpan(
+              children: [
+                TextSpan(
+                  text: "₹15,50,000 ",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                ),
+                TextSpan(
+                  text: "of ₹25,00,000",
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                ),
+              ],
+            ),
+          ),
+          const Gap(10),
+
+          // Linear Flat Progress Bar Segment
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: const LinearProgressIndicator(
+              value: 0.62,
+              minHeight: 8,
+              backgroundColor: Color(0xFFF1F5F9),
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF007AFF)),
+            ),
+          ),
+          const Spacer(),
+
+          // Footer Navigation Bar
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              InkWell(
+                onTap: () {},
+                child: const Text(
+                  "View All Goals",
+                  style: TextStyle(fontSize: 13, color: Color(0xFF007AFF), fontWeight: FontWeight.w700),
+                ),
+              ),
+              const Icon(Icons.arrow_forward_rounded, size: 16, color: Color(0xFF007AFF)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =========================================================================
+// 🖌 CUSTOM SMOOTH LINE SPARKLINE PAINTER (WITH AREA FILL GRADIENT)
+// =========================================================================
+class SmoothSparkPainter extends CustomPainter {
+  final List<double> data;
+  final Color lineColor;
+
+  SmoothSparkPainter({required this.data, required this.lineColor});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (data.isEmpty) return;
+
+    final double maxX = (data.length - 1).toDouble();
+    final double minY = data.reduce((a, b) => a < b ? a : b);
+    final double maxY = data.reduce((a, b) => a > b ? a : b);
+    final double rangeY = maxY - minY == 0 ? 1.0 : maxY - minY;
+
+    final path = Path();
+    final fillPath = Path();
+
+    for (int i = 0; i < data.length; i++) {
+      final double x = (i / maxX) * size.width;
+      final double y = size.height - ((data[i] - minY) / rangeY) * (size.height - 8) - 4;
+
+      if (i == 0) {
+        path.moveTo(x, y);
+        fillPath.moveTo(x, size.height);
+        fillPath.lineTo(x, y);
+      } else {
+        path.lineTo(x, y);
+        fillPath.lineTo(x, y);
+      }
+
+      if (i == data.length - 1) {
+        fillPath.lineTo(x, size.height);
+        fillPath.close();
+      }
+    }
+
+    // Draw area fill color matching gradient style properties
+    final fillPaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [lineColor.withOpacity(0.12), lineColor.withOpacity(0.00)],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
+      ..style = PaintingStyle.fill;
+
+    canvas.drawPath(fillPath, fillPaint);
+
+    // Draw upper stroke line path
+    final strokePaint = Paint()
+      ..color = lineColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.2
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawPath(path, strokePaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant SmoothSparkPainter oldDelegate) => true;
+}
+// =========================================================================
+// 🖌 MATHEMATICAL RE-DRAW PAINTER FOR SEGMENTED PIE/DONUT CHART
+// =========================================================================
+class DonutSegment {
+  final double value;
+  final Color color;
+  DonutSegment({required this.value, required this.color});
+}
+
+class MultiSegmentDonutPainter extends CustomPainter {
+  final List<DonutSegment> segments;
+  final double strokeWidth;
+
+  MultiSegmentDonutPainter({required this.segments, required this.strokeWidth});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double total = segments.map((s) => s.value).reduce((a, b) => a + b);
+    if (total == 0) return;
+
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.butt; // Clean layout edge styling
+
+    final rect = Rect.fromLTWH(
+      strokeWidth / 2,
+      strokeWidth / 2,
+      size.width - strokeWidth,
+      size.height - strokeWidth,
+    );
+
+    // Dynamic continuous rotation path matching chart positioning starting at top-left/blue quadrant
+    double startAngle = -1.2;
+
+    for (var segment in segments) {
+      final sweepAngle = (segment.value / total) * 2 * 3.141592653589793;
+      paint.color = segment.color;
+
+      canvas.drawArc(rect, startAngle, sweepAngle, false, paint);
+      startAngle += sweepAngle;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant MultiSegmentDonutPainter oldDelegate) => true;
+}
+// =========================================================================
+// 💎 PIXEL-PERFECT STAT CARD WITH MINI SPARKLINE
+// =========================================================================
+class ExactWebStatCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final String trendText;
+  final IconData trendIcon;
+  final Color trendColor;
+  final IconData icon;
+  final Color iconBgColor;
+  final Color iconColor;
+  final Color valueColor; // Added to match the image colors dynamically
+  final List<double> sparklineData;
+
+  const ExactWebStatCard({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.trendText,
+    required this.trendIcon,
+    required this.trendColor,
+    required this.icon,
+    required this.iconBgColor,
+    required this.iconColor,
+    required this.valueColor, // Pass color based on card context
+    required this.sparklineData,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 140,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.01),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // 1. MAIN CARD CONTENT
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Circle Avatar Icon
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: iconBgColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: iconColor, size: 22),
+                ),
+                const Gap(16),
+
+                // Labels Column
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF1E293B), // Navy/Slate title label text
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const Gap(6),
+                      Text(
+                        value,
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w800,
+                          color: valueColor, // Replaces static color with custom image-matching profile
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const Gap(6),
+                      Row(
+                        children: [
+                          Icon(trendIcon, size: 14, color: trendColor),
+                          const Gap(4),
+                          Text(
+                            trendText,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: trendColor, // Matches the text color directly with the trend green/purple/grey arrow icon
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 2. BOTTOM MINI SPARKLINE CHART
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: SizedBox(
+              height: 32,
+              width: double.infinity,
+              child: CustomPaint(
+                painter: MiniSparklinePainter(
+                  data: sparklineData,
+                  lineColor: iconColor,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =========================================================================
+// 🖌 CUSTOM PAINTER FOR THE SPARKLINE WAVE EFFECT
+// =========================================================================
+class MiniSparklinePainter extends CustomPainter {
+  final List<double> data;
+  final Color lineColor;
+
+  MiniSparklinePainter({required this.data, required this.lineColor});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (data.isEmpty) return;
+
+    final paint = Paint()
+      ..color = lineColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0
+      ..strokeCap = StrokeCap.round;
+
+    final path = Path();
+
+    double minX = 0;
+    double maxX = (data.length - 1).toDouble();
+
+    double minY = data.reduce((a, b) => a < b ? a : b);
+    double maxY = data.reduce((a, b) => a > b ? a : b);
+
+    // Prevent divide by zero if data is flat
+    if (minY == maxY) {
+      minY -= 1;
+      maxY += 1;
+    }
+
+    for (int i = 0; i < data.length; i++) {
+      // Scale coordinates to fit inside the bottom clip area cleanly
+      double x = (i / maxX) * size.width;
+      double y = size.height - ((data[i] - minY) / (maxY - minY)) * (size.height - 8) - 4;
+
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant MiniSparklinePainter oldDelegate) {
+    return oldDelegate.lineColor != lineColor || oldDelegate.data != data;
+  }
+}
+// ==========================================
+// 📈 PREMIUM TOP METRIC STAT CARD FOR WEB
+// ==========================================
+class _WebTopStatCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final String change;
+  final Color trendColor;
+  final IconData icon;
+  final Color iconColor;
+  final Color chartColor;
+  final bool isProfit;
+
+  const _WebTopStatCard({
+    required this.title,
+    required this.value,
+    required this.change,
+    required this.trendColor,
+    required this.icon,
+    required this.iconColor,
+    required this.chartColor,
+    this.isProfit = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: iconColor.withOpacity(0.1),
+                child: Icon(icon, size: 18, color: iconColor),
+              ),
+              Text(title, style: TextStyle(fontSize: 12, color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
+            ],
+          ),
+          const Gap(16),
+          Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF111827))),
+          const Gap(8),
+          Text(change, style: TextStyle(fontSize: 11, color: trendColor, fontWeight: FontWeight.w500)),
+        ],
       ),
     );
   }

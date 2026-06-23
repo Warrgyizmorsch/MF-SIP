@@ -42,17 +42,16 @@ class KycDetailsScreen extends StatelessWidget {
   // =========================================
   Widget _buildWebDashboardLayout() {
     final user = SessionManager.instance.userObs.value;
-    final String readySinceYear = user?.customerDetailsModel?.dob?.split('-').firstOrNull ?? '1985';
+    final String readySinceYear = user?.customerDetailsModel?.dob?.split('-').firstOrNull ?? '---';
     final String taxStatusName = ProfileUtils.getWealthSourceName(
       int.tryParse(user?.customerDetailsModel?.wealthSource ?? ''),
     ) ?? 'Salary';
-
+    final bool hasRiskProfile = user?.riskProfileModel?.profileName != null;
     final bool isKycApproved = user?.kycStatus?.toLowerCase() == 'approved';
-
     final bool isPanVerified = user?.panCard != null && user!.panCard!.isNotEmpty;
-
     final bool isRiskProfileUpdated = user?.riskProfileModel != null;
-
+    final String aadhaarDisplay = user?.customerDetailsModel?.adhar ?? '---';
+    final bool hasAadhaar = aadhaarDisplay.isNotEmpty && aadhaarDisplay != '---';
     return Column(
       children: [
         Row(
@@ -139,12 +138,12 @@ class KycDetailsScreen extends StatelessWidget {
                   /// Info Row Block 1
                   Row(
                     children: [
-                      Expanded(child: _buildWebInfoGridCard('Full Name', user?.name ?? 'Guest User')),
+                      Expanded(child: _buildWebInfoGridCard('Full Name', user?.name ?? '---')),
                       const SizedBox(width: 16),
                       Expanded(
                         child: _buildWebInfoGridCard(
                           'PAN Number',
-                          user?.panCard ?? 'Not Available',
+                          user?.panCard ?? '---',
                           badgeText: user?.panCard != null ? 'PAN Verified' : null,
                         ),
                       ),
@@ -152,8 +151,9 @@ class KycDetailsScreen extends StatelessWidget {
                       Expanded(
                         child: _buildWebInfoGridCard(
                           'Aadhaar (Last 4)',
-                          user?.customerDetailsModel?.adhar ?? 'XXXX',
-                          badgeText: 'Verified',
+                          aadhaarDisplay,
+                          badgeText: hasAadhaar ? 'Verified' : 'Pending',
+                          isErrorBadge: !hasAadhaar,
                         ),
                       ),
                     ],
@@ -169,8 +169,8 @@ class KycDetailsScreen extends StatelessWidget {
                         child: _buildWebInfoGridCard(
                           'Risk Profile',
                           user?.riskProfileModel?.profileName ?? 'Balanced',
-                          badgeText: 'Updated',
-                          isAccentBadge: true,
+                          badgeText: hasRiskProfile ? 'Updated' : 'Pending',
+                          isErrorBadge: !hasRiskProfile,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -339,7 +339,13 @@ class KycDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildWebInfoGridCard(String label, String value, {String? badgeText, IconData? trailingIcon, bool isAccentBadge = false}) {
+  Widget _buildWebInfoGridCard(
+      String label,
+      String value, {
+        String? badgeText,
+        IconData? trailingIcon,
+        bool isErrorBadge = false, // Renamed to accurately reflect status flags
+      }) {
     return Container(
       height: 76,
       decoration: BoxDecoration(
@@ -356,7 +362,10 @@ class KycDetailsScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF70767F))),
+                Text(
+                  label,
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF70767F)),
+                ),
                 const SizedBox(height: 4),
                 Text(
                   value,
@@ -372,13 +381,15 @@ class KycDetailsScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: isAccentBadge ? const Color(0xFFEBFEDF) : const Color(0xFFE6F7ED),
+                // ✅ FIXED: Background color now changes dynamically to match status semantics
+                color: isErrorBadge ? const Color(0xFFFCE8E6) : const Color(0xFFE6F7ED),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
                 badgeText,
                 style: TextStyle(
-                  color: isAccentBadge ? const Color(0xFF3B8216) : const Color(0xFF1F9254),
+                  // ✅ FIXED: Typo reference color mapping resolved
+                  color: isErrorBadge ? Ucolors.red : Ucolors.success,
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                 ),
@@ -392,8 +403,7 @@ class KycDetailsScreen extends StatelessWidget {
         ],
       ),
     );
-  }
-}
+  }}
 
 // Mobile Compatible Fallback Implementation Card
 class InfoCard extends StatelessWidget {

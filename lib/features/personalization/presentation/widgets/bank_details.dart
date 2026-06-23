@@ -30,13 +30,13 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
           : const CustomAppBarNormal(title: 'Bank Details'),
       body: SingleChildScrollView(
         padding: isDesktop
-            ? const EdgeInsets.all(40)
+            ? const EdgeInsets.all(0)
             : UPadding.screenPadding.copyWith(
                 bottom: kBottomNavigationBarHeight,
               ),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1000),
+            constraints: const BoxConstraints(maxWidth: 1200),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -94,7 +94,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                       ),
                     ],
                   ),
-                  const Gap(30),
+                  const Gap(10),
                 ] else ...[
                   const Gap(10),
                 ],
@@ -114,48 +114,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
 
                   // 2. EMPTY STATE (No Bank Accounts)
                   if (bankCount == 0) {
-                    return Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(40.0),
-                        child: Column(
-                          children: [
-                            const Icon(
-                              Icons.account_balance_wallet,
-                              size: 60,
-                              color: Colors.grey,
-                            ),
-                            const Gap(16),
-                            const Text(
-                              "No bank accounts linked yet.\nPlease add an account.",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: FontFamily.medium,
-                                color: Colors.grey,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const Gap(20),
-                            if (!isDesktop) // Show "Add Bank Account" button here
-                              UElevatedBUtton(
-                                onPressed: () {
-                                  controller.clearBankFields();
-                                  Get.toNamed(AppRoutes.addanotherbank);
-                                },
-                                color: Ucolors.primary,
-                                child: const Center(
-                                  child: Text(
-                                    'Add Bank Account',
-                                    style: TextStyle(
-                                      fontFamily: FontFamily.medium,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    );
+                    return _buildEmptyState(isDesktop,context);
                   }
 
                   // 3. DATA STATE (1, 2, or 3 Banks Exist)
@@ -299,7 +258,83 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
       ),
     );
   }
+  Widget _buildEmptyState(bool isDesktop, BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 300,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFFE5E7EB),
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 90,
+            height: 90,
+            decoration: const BoxDecoration(
+              color: Color(0xFFF3F4F6),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.groups_2_outlined,
+              size: 50,
+              color: Colors.grey.shade400,
+            ),
+          ),
 
+          const SizedBox(height: 24),
+
+          const Text(
+            "No Nominees Added Yet",
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF111827),
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          Text(
+            "Please assign up to 100% allocation across your structural nominees.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade600,
+            ),
+          ),
+
+          const SizedBox(height: 28),
+
+          ElevatedButton(
+            onPressed: () =>
+                Get.toNamed(AppRoutes.nomineeDetail, id: 1),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Ucolors.blue,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 16,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              "Add Your First Nominee",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
   void _confirmDelete(BuildContext context, int bankid, String bankName) {
     DialogHelper.showPrerequisiteDialog(
       title: 'Delete Bank',

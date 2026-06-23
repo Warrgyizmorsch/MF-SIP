@@ -42,6 +42,8 @@ import 'package:my_sip/features/personalization/presentation/widgets/kyc_details
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/nominee_list.dart';
 
+import 'common/widget/images/image_picker.dart';
+
 class NavigationBarController extends GetxController {
   static NavigationBarController get instance => Get.find();
   final PersonalisationController personalisationController = Get.find();
@@ -2096,17 +2098,15 @@ class _MobileNavItem extends StatelessWidget {
     });
   }
 }
+
+
 class WebProfileDashboardScreen extends StatelessWidget {
   const WebProfileDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final navController = Get.find<NavigationBarController>();
-    final user = SessionManager.instance.userObs.value;
-    final String readySinceYear = user?.customerDetailsModel?.dob?.split('-')[0] ?? '1985';
-    final String taxStatusName = ProfileUtils.getWealthSourceName(
-      int.tryParse(user?.customerDetailsModel?.wealthSource ?? ''),
-    ) ?? 'Salary';
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       body: Container(
@@ -2120,10 +2120,9 @@ class WebProfileDashboardScreen extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
-              /// Hero Verification Banner (Updated Layered Layout)
-              _buildHeroBanner(),
-              const SizedBox(height: 24),
+              /// Hero Verification Banner (Dynamically Reactive)
+              _buildHeroBanner(context),
+              const SizedBox(height: 12),
 
               /// Navigation Custom Underlined Tab Layout
               Container(
@@ -2133,20 +2132,17 @@ class WebProfileDashboardScreen extends StatelessWidget {
                   ),
                 ),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _buildProfileTabButton('KYC Details', Icons.assignment_ind_outlined, 0, selectedTab, navController),
-                    const SizedBox(width: 8),
                     _buildProfileTabButton('Personal Details', Icons.person_outline_rounded, 1, selectedTab, navController),
-                    const SizedBox(width: 8),
                     _buildProfileTabButton('Bank Account', Icons.account_balance_outlined, 2, selectedTab, navController),
-                    const SizedBox(width: 8),
                     _buildProfileTabButton('Nominee', Icons.people_outline_rounded, 3, selectedTab, navController),
-                    const SizedBox(width: 8),
                     _buildProfileTabButton('Documents', Icons.folder_open_outlined, 4, selectedTab, navController),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
 
               /// Tab Content Workspace View Card
               Expanded(
@@ -2154,7 +2150,7 @@ class WebProfileDashboardScreen extends StatelessWidget {
                   index: selectedTab,
                   children: const [
                     KycDetailsScreen(),
-                    _PersonalDetailsTabWrapper(),
+                    _PersonalDetailsTabWrapper(), // Or PersonalDetailsScreen() based on your setup
                     BankDetailsScreen(),
                     NomineeListScreen(),
                     DocumentScreen(),
@@ -2168,22 +2164,29 @@ class WebProfileDashboardScreen extends StatelessWidget {
     );
   }
 
-  /// Builds the premium split layered background banner with overlapping profile card
-  Widget _buildHeroBanner() {
-    // Wrap in Obx to ensure that when userObs updates, the UI dynamically changes
+  Widget _buildHeroBanner(BuildContext context) {
     return Obx(() {
       final user = SessionManager.instance.userObs.value;
-      debugPrint("==========================================");
-      debugPrint(jsonEncode(user?.toJson()));
-      debugPrint("==========================================");
+      final PersonalisationController personalisationController =
+      Get.find<PersonalisationController>();
 
-      // Dynamic data extraction (safely fallback to defaults)
+      // ✅ FIXED: Using the correct property getter syntax without parentheses
       final String readySinceYear = user?.customerDetailsModel?.dob?.split('-').firstOrNull ?? '1985';
-      final bool isKycApproved = user?.panCard?.toLowerCase() == 'approved';
+
+      // Track the true KYC lifecycle status field instead of panCard string values
+      final bool isKycApproved = user?.kycStatus?.toLowerCase() == 'approved';
+      String displayImage = personalisationController.imagePath.isNotEmpty
+          ? personalisationController.imagePath.value
+          : (user?.img ?? UImages.avatar);
+
+      // Fallback Initials calculation for pristine avatar presentation layers
+      final String userInitials = (user?.name != null && user!.name!.isNotEmpty)
+          ? user.name!.trim().split(' ').map((l) => l[0]).take(2).join().toUpperCase()
+          : 'GU';
 
       return SizedBox(
         width: double.infinity,
-        height: 220, // Explicit bounded height to protect layout constraints
+        height: 250,
         child: Stack(
           clipBehavior: Clip.none,
           children: [
@@ -2213,7 +2216,7 @@ class WebProfileDashboardScreen extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 24),
                           alignment: Alignment.centerRight,
                           child: Opacity(
-                            opacity: 0.12, // Ghost watermark tint style
+                            opacity: 0.12,
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: const [
@@ -2233,7 +2236,6 @@ class WebProfileDashboardScreen extends StatelessWidget {
                         flex: 9, // 40% Space distribution
                         child: Container(
                           color: Colors.white,
-                          // Left padding clears room for the floating profile summary card
                           padding: const EdgeInsets.only(left: 280, right: 24),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -2242,17 +2244,19 @@ class WebProfileDashboardScreen extends StatelessWidget {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: const [
+                                  children: [
                                     Text(
-                                      'Your account is verified and ready for investing.',
-                                      style: TextStyle(
+                                      isKycApproved
+                                          ? 'Your account is verified and ready for investing.'
+                                          : 'Complete your KYC setup to start investing.',
+                                      style: const TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w700,
                                         color: Color(0xFF1A1D20),
                                       ),
                                     ),
-                                    SizedBox(height: 2),
-                                    Text(
+                                    const SizedBox(height: 2),
+                                    const Text(
                                       'Manage your details, nominees and documents all in one place.',
                                       style: TextStyle(
                                         fontSize: 12.5,
@@ -2264,7 +2268,8 @@ class WebProfileDashboardScreen extends StatelessWidget {
                               ),
                               OutlinedButton.icon(
                                 onPressed: () {
-                                  // TODO: Navigation/Action for Edit Profile
+                                  // Programmatically jump directly to the Personal Details Tab
+                                  Get.find<NavigationBarController>().profileDashboardTabIndex.value = 1;
                                 },
                                 icon: const Icon(Icons.edit_outlined, size: 14, color: Color(0xFF2D3136)),
                                 label: const Text(
@@ -2298,9 +2303,9 @@ class WebProfileDashboardScreen extends StatelessWidget {
             Positioned(
               left: 24,
               top: 20,
-              bottom: 16, // Anchors height seamlessly to avoid any layout overflow
+              bottom: 16,
               child: Container(
-                width: 232,
+                width: 236,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -2313,16 +2318,13 @@ class WebProfileDashboardScreen extends StatelessWidget {
                   ],
                   border: Border.all(color: Colors.grey.shade100),
                 ),
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(6),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircleAvatar(
-                      radius: 24,
-                      backgroundColor: Colors.grey.shade500,
-                      child: const Icon(Icons.person, size: 28, color: Colors.white),
-                    ),
-                    const SizedBox(height: 8),
+                    // Dynamic Profile Image Render matching your PersonalDetails Upload Layout
+                   _buildProfileImagePicker(context ,personalisationController),
+                    const SizedBox(height: 4),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -2339,7 +2341,7 @@ class WebProfileDashboardScreen extends StatelessWidget {
                           ),
                         ),
                         if (isKycApproved) ...[
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 3),
                           const Icon(
                             Icons.verified,
                             color: Color(0xFF0066FF),
@@ -2348,7 +2350,7 @@ class WebProfileDashboardScreen extends StatelessWidget {
                         ],
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
@@ -2371,7 +2373,7 @@ class WebProfileDashboardScreen extends StatelessWidget {
                         Icon(Icons.calendar_today_outlined, size: 11, color: Colors.grey.shade400),
                         const SizedBox(width: 4),
                         Text(
-                          'Ready to invest since $readySinceYear', // FIXED: No longer hardcoded
+                          'Ready to invest since $readySinceYear',
                           style: TextStyle(
                             color: Colors.grey.shade500,
                             fontSize: 10,
@@ -2390,6 +2392,24 @@ class WebProfileDashboardScreen extends StatelessWidget {
     });
   }
 
+  Widget _buildProfileImagePicker(BuildContext context,PersonalisationController personalisationController) {
+    return Obx(() {
+      final reactiveUser = SessionManager.instance.userObs.value;
+      String displayImage = personalisationController.imagePath.isNotEmpty
+          ? personalisationController.imagePath.value
+          : (reactiveUser?.img ?? UImages.avatar);
+
+      return ProfileHeader(
+        onTap: () => UImagePicker.showImageSourceOptions(
+          context: context,
+          onImageSelected: (source) =>
+              personalisationController.pickImage(source),
+        ),
+        img: displayImage,
+        icon: Iconsax.export,
+      );
+    });
+  }
   Widget _buildProfileTabButton(String title, IconData icon, int index, int selectedIndex, NavigationBarController controller) {
     final isSelected = index == selectedIndex;
     final activeColor = const Color(0xFF0066FF);
@@ -2398,13 +2418,28 @@ class WebProfileDashboardScreen extends StatelessWidget {
     return InkWell(
       onTap: () => controller.profileDashboardTabIndex.value = index,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(border: Border(bottom: BorderSide(color: isSelected ? activeColor : Colors.transparent, width: 2))),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: isSelected ? activeColor : Colors.transparent,
+              width: 2,
+            ),
+          ),
+        ),
         child: Row(
           children: [
             Icon(icon, color: isSelected ? activeColor : baseColor, size: 18),
             const SizedBox(width: 8),
-            Text(title, style: TextStyle(color: isSelected ? activeColor : baseColor, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500, fontSize: 13)),
+            Text(
+              title,
+              style: TextStyle(
+                color: isSelected ? activeColor : baseColor,
+                fontFamily: FontFamily.regular,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                fontSize: 15,
+              ),
+            ),
           ],
         ),
       ),
