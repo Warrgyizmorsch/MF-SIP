@@ -85,6 +85,7 @@ class _WebHoverRowState extends State<WebHoverRow> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
             color: _isHovered
                 ? Ucolors.primary.withValues(alpha: 0.04)
                 : Colors.white,
@@ -1230,66 +1231,72 @@ class WebFundListCard extends StatelessWidget {
         final double investWidth = isLaptop ? 96 : 122;
         final double investHeight = isLaptop ? 32 : 38;
 
-        return WebHoverRow(
-          onTap: () => _openFundDetails(entity),
-          builder: (isHovered) {
-            return Container(
-              height: cardHeight,
-              margin: const EdgeInsets.only(bottom: 8),
-              padding: EdgeInsets.symmetric(
-                horizontal: isLaptop ? 14 : 18,
-                vertical: isLaptop ? 10 : 12,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE5EAF0)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.025),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _fundLogo(size: logoSize),
-
-                  SizedBox(width: isLaptop ? 12 : 16),
-
-                  Expanded(
-                    flex: isVerySmall ? 34 : 30,
-                    child: _fundInfo(isHovered: isHovered, isLaptop: isLaptop),
-                  ),
-
-                  SizedBox(width: isLaptop ? 8 : 14),
-
-                  Expanded(
-                    flex: isVerySmall ? 36 : 42,
-                    child: _returnsRow(
-                      show5Y: show5Y,
-                      show10Y: show10Y,
-                      isLaptop: isLaptop,
+        return Padding(
+          padding: const EdgeInsets.only(top: 4.0, bottom: 4),
+          child: WebHoverRow(
+            onTap: () => _openFundDetails(entity),
+            builder: (isHovered) {
+              return Container(
+                height: cardHeight,
+                // margin: const EdgeInsets.only(bottom: 8, top: 8),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isLaptop ? 14 : 18,
+                  vertical: isLaptop ? 10 : 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE5EAF0)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.025),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
                     ),
-                  ),
+                  ],
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _fundLogo(size: logoSize),
 
-                  SizedBox(width: isLaptop ? 8 : 14),
+                    SizedBox(width: isLaptop ? 12 : 16),
 
-                  _actions(
-                    entity,
-                    isPressed,
-                    actionSize: actionSize,
-                    investWidth: investWidth,
-                    investHeight: investHeight,
-                    isLaptop: isLaptop,
-                    isSmallLaptop: isSmallLaptop,
-                  ),
-                ],
-              ),
-            );
-          },
+                    Expanded(
+                      flex: isVerySmall ? 34 : 30,
+                      child: _fundInfo(
+                        isHovered: isHovered,
+                        isLaptop: isLaptop,
+                      ),
+                    ),
+
+                    SizedBox(width: isLaptop ? 8 : 14),
+
+                    Expanded(
+                      flex: isVerySmall ? 36 : 42,
+                      child: _returnsRow(
+                        show5Y: show5Y,
+                        show10Y: show10Y,
+                        isLaptop: isLaptop,
+                      ),
+                    ),
+
+                    SizedBox(width: isLaptop ? 8 : 14),
+
+                    _actions(
+                      entity,
+                      isPressed,
+                      actionSize: actionSize,
+                      investWidth: investWidth,
+                      investHeight: investHeight,
+                      isLaptop: isLaptop,
+                      isSmallLaptop: isSmallLaptop,
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         );
       },
     );
