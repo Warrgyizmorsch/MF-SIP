@@ -320,83 +320,11 @@ class _WebExploreLayoutState extends State<WebExploreLayout> {
                                 ),
                               ],
                             ),
-
-                            // AnimatedSize(
-                            //   duration: const Duration(milliseconds: 250),
-                            //   curve: Curves.easeInOut,
-                            //   child: showViewButtons
-                            //       ? Row(
-                            //           children: [
-                            //             _viewButton(
-                            //               icon: Icons.grid_view_rounded,
-                            //               isSelected:
-                            //                   selectedView ==
-                            //                   WebFundViewType.grid,
-                            //               onTap: () {
-                            //                 setState(
-                            //                   () => selectedView =
-                            //                       WebFundViewType.grid,
-                            //                 );
-                            //               },
-                            //             ),
-                            //             const Gap(8),
-                            //             _viewButton(
-                            //               icon: Icons.view_list_rounded,
-                            //               isSelected:
-                            //                   selectedView ==
-                            //                   WebFundViewType.list,
-                            //               onTap: () {
-                            //                 setState(
-                            //                   () => selectedView =
-                            //                       WebFundViewType.list,
-                            //                 );
-                            //               },
-                            //             ),
-                            //           ],
-                            //         )
-                            //       : const SizedBox.shrink(),
-                            // ),
                           ],
                         ),
 
                         const Gap(18),
 
-                        // AnimatedSize(
-                        //   duration: const Duration(milliseconds: 250),
-                        //   curve: Curves.easeInOut,
-                        //   child: showViewButtons
-                        //       ? Row(
-                        //           mainAxisAlignment: MainAxisAlignment.end,
-                        //           children: [
-                        //             _viewButton(
-                        //               icon: Icons.grid_view_rounded,
-                        //               isSelected:
-                        //                   selectedView == WebFundViewType.grid,
-                        //               onTap: () {
-                        //                 setState(
-                        //                   () => selectedView =
-                        //                       WebFundViewType.grid,
-                        //                 );
-                        //               },
-                        //             ),
-                        //             const Gap(8),
-                        //             _viewButton(
-                        //               icon: Icons.view_list_rounded,
-                        //               isSelected:
-                        //                   selectedView == WebFundViewType.list,
-                        //               onTap: () {
-                        //                 setState(
-                        //                   () => selectedView =
-                        //                       WebFundViewType.list,
-                        //                 );
-                        //               },
-                        //             ),
-                        //           ],
-                        //         )
-                        //       : const SizedBox.shrink(),
-                        // ),
-
-                        // if (showViewButtons) const Gap(14),
                         Expanded(
                           child: Obx(() {
                             if (controller.isLoading.value) {
@@ -407,50 +335,6 @@ class _WebExploreLayoutState extends State<WebExploreLayout> {
                               return _buildEmptyState();
                             }
 
-                            // if (selectedView == WebFundViewType.list) {
-                            //   return Column(
-                            //     children: [
-                            //       _listHeader(),
-                            //       const Gap(8),
-                            //       Expanded(
-                            //         child: ListView.builder(
-                            //           controller: widget.scrollController,
-                            //           padding: const EdgeInsets.only(
-                            //             bottom: 20,
-                            //           ),
-                            //           itemCount: controller.searchFund.length,
-                            //           itemBuilder: (context, index) {
-                            //             final fund =
-                            //                 controller.searchFund[index];
-                            //             return WebFundListCard(
-                            //               entity: fund,
-                            //               key: ValueKey(
-                            //                 '${fund.schemeCode}_${fund.baseSchemeName}',
-                            //               ),
-                            //             );
-                            //           },
-                            //         ),
-                            //       ),
-                            //     ],
-                            //   );
-                            // }
-                            // if (selectedView == WebFundViewType.list) {
-                            //   return ListView.builder(
-                            //     controller: widget.scrollController,
-                            //     padding: const EdgeInsets.only(bottom: 20),
-                            //     itemCount: controller.searchFund.length,
-                            //     itemBuilder: (context, index) {
-                            //       final fund = controller.searchFund[index];
-
-                            //       return WebFundListCard(
-                            //         entity: fund,
-                            //         key: ValueKey(
-                            //           '${fund.schemeCode}_${fund.baseSchemeName}',
-                            //         ),
-                            //       );
-                            //     },
-                            //   );
-                            // }
                             if (selectedView == WebFundViewType.list) {
                               return ListView.builder(
                                 controller: widget.scrollController,
@@ -1328,194 +1212,147 @@ class WebFundListCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final RxBool isPressed = false.obs;
 
-    return WebHoverRow(
-      onTap: () => _openFundDetails(entity),
-      builder: (isHovered) {
-        return Container(
-          height: 118,
-          margin: const EdgeInsets.only(bottom: 0),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            border: Border(
-              bottom: BorderSide(color: Colors.grey.shade200, width: 1),
-            ),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              /// LOGO
-              Container(
-                width: 58,
-                height: 58,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.grey.shade50,
-                ),
-                child: ClipOval(
-                  child: CustomCachedImage(
-                    imageUrl:
-                        '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+
+        final bool isLaptop = width < 1200;
+        final bool isSmallLaptop = width < 980;
+        final bool isVerySmall = width < 860;
+
+        final bool show10Y = width >= 1050;
+        final bool show5Y = width >= 900;
+
+        final double cardHeight = isLaptop ? 94 : 104;
+        final double logoSize = isLaptop ? 42 : 48;
+
+        final double actionSize = isLaptop ? 34 : 40;
+        final double investWidth = isLaptop ? 96 : 122;
+        final double investHeight = isLaptop ? 32 : 38;
+
+        return WebHoverRow(
+          onTap: () => _openFundDetails(entity),
+          builder: (isHovered) {
+            return Container(
+              height: cardHeight,
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: EdgeInsets.symmetric(
+                horizontal: isLaptop ? 14 : 18,
+                vertical: isLaptop ? 10 : 12,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE5EAF0)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.025),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
                   ),
-                ),
+                ],
               ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _fundLogo(size: logoSize),
 
-              const SizedBox(width: 22),
+                  SizedBox(width: isLaptop ? 12 : 16),
 
-              /// FUND NAME + RISK
-              SizedBox(
-                width: 360,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      entity.baseSchemeName ?? 'Unknown Fund',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontFamily: FontFamily.medium,
-                        fontSize: 17,
-                        height: 1.28,
-                        fontWeight: FontWeight.w800,
-                        color: isHovered
-                            ? Ucolors.primary
-                            : const Color(0xFF111827),
-                      ),
+                  Expanded(
+                    flex: isVerySmall ? 34 : 30,
+                    child: _fundInfo(isHovered: isHovered, isLaptop: isLaptop),
+                  ),
+
+                  SizedBox(width: isLaptop ? 8 : 14),
+
+                  Expanded(
+                    flex: isVerySmall ? 36 : 42,
+                    child: _returnsRow(
+                      show5Y: show5Y,
+                      show10Y: show10Y,
+                      isLaptop: isLaptop,
                     ),
-                    const SizedBox(height: 8),
-                    _riskPill(entity.riskLevel),
-                  ],
-                ),
+                  ),
+
+                  SizedBox(width: isLaptop ? 8 : 14),
+
+                  _actions(
+                    entity,
+                    isPressed,
+                    actionSize: actionSize,
+                    investWidth: investWidth,
+                    investHeight: investHeight,
+                    isLaptop: isLaptop,
+                    isSmallLaptop: isSmallLaptop,
+                  ),
+                ],
               ),
-
-              const SizedBox(width: 26),
-
-              /// RETURNS
-              Expanded(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _returnColumn('1Y', entity.returnsEntity?.oneYear),
-                    ),
-                    _divider(),
-                    Expanded(
-                      child: _returnColumn(
-                        '3Y',
-                        entity.returnsEntity?.threeYear,
-                      ),
-                    ),
-                    _divider(),
-                    Expanded(
-                      child: _returnColumn(
-                        '5Y',
-                        entity.returnsEntity?.fiveYear,
-                      ),
-                    ),
-                    _divider(),
-                    Expanded(
-                      child: _returnColumn(
-                        '10Y',
-                        entity.returnsEntity?.tenYear,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(width: 34),
-
-              /// ACTIONS
-              SizedBox(
-                width: 330,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Obx(() {
-                      final wishlistController = Get.find<WishlistController>();
-                      final String code = entity.schemeCode ?? '';
-                      final String name = entity.baseSchemeName ?? '';
-                      final bool isFav = wishlistController.isFavorite(code);
-
-                      return _squareActionButton(
-                        child: PremiumHeartButton(
-                          isFav: isFav,
-                          onTap: () {
-                            wishlistController.toggleWishlist(code, name);
-                          },
-                        ),
-                      );
-                    }),
-
-                    const SizedBox(width: 18),
-
-                    _cartButton(entity, isPressed),
-
-                    const SizedBox(width: 24),
-
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        _investNowButton(entity),
-                        const SizedBox(height: 12),
-                        InkWell(
-                          onTap: () => _openFundDetails(entity),
-                          borderRadius: BorderRadius.circular(8),
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 4,
-                              vertical: 2,
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'View Details',
-                                  style: TextStyle(
-                                    fontFamily: FontFamily.medium,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: Ucolors.primary,
-                                  ),
-                                ),
-                                SizedBox(width: 10),
-                                Icon(
-                                  Icons.arrow_forward_ios_rounded,
-                                  size: 13,
-                                  color: Ucolors.primary,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
   }
 
-  Widget _riskPill(String? riskLevel) {
+  Widget _fundLogo({required double size}) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.grey.shade50,
+      ),
+      child: ClipOval(
+        child: CustomCachedImage(
+          imageUrl: '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
+        ),
+      ),
+    );
+  }
+
+  Widget _fundInfo({required bool isHovered, required bool isLaptop}) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          entity.baseSchemeName ?? 'Unknown Fund',
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: isLaptop ? 12.5 : 14,
+            height: 1.20,
+            fontWeight: FontWeight.w800,
+            color: isHovered ? Ucolors.primary : const Color(0xFF111827),
+          ),
+        ),
+        const SizedBox(height: 5),
+        _riskPill(entity.riskLevel, isLaptop: isLaptop),
+      ],
+    );
+  }
+
+  Widget _riskPill(String? riskLevel, {required bool isLaptop}) {
     final risk = getRiskMeter(riskLevel);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      padding: EdgeInsets.symmetric(
+        horizontal: isLaptop ? 8 : 10,
+        vertical: isLaptop ? 3 : 4,
+      ),
       decoration: BoxDecoration(
         color: risk.color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(5),
       ),
       child: Text(
         riskLevel ?? 'N/A',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(
           fontFamily: FontFamily.medium,
-          fontSize: 12,
+          fontSize: isLaptop ? 10 : 11,
           fontWeight: FontWeight.w700,
           color: Ucolors.darkBlue,
         ),
@@ -1523,7 +1360,59 @@ class WebFundListCard extends StatelessWidget {
     );
   }
 
-  Widget _returnColumn(String label, dynamic value) {
+  Widget _returnsRow({
+    required bool show5Y,
+    required bool show10Y,
+    required bool isLaptop,
+  }) {
+    final items = <Widget>[
+      Expanded(
+        child: _returnColumn(
+          '1Y',
+          entity.returnsEntity?.oneYear,
+          isLaptop: isLaptop,
+        ),
+      ),
+      _divider(isLaptop),
+      Expanded(
+        child: _returnColumn(
+          '3Y',
+          entity.returnsEntity?.threeYear,
+          isLaptop: isLaptop,
+        ),
+      ),
+    ];
+
+    if (show5Y) {
+      items.add(_divider(isLaptop));
+      items.add(
+        Expanded(
+          child: _returnColumn(
+            '5Y',
+            entity.returnsEntity?.fiveYear,
+            isLaptop: isLaptop,
+          ),
+        ),
+      );
+    }
+
+    if (show10Y) {
+      items.add(_divider(isLaptop));
+      items.add(
+        Expanded(
+          child: _returnColumn(
+            '10Y',
+            entity.returnsEntity?.tenYear,
+            isLaptop: isLaptop,
+          ),
+        ),
+      );
+    }
+
+    return Row(children: items);
+  }
+
+  Widget _returnColumn(String label, dynamic value, {required bool isLaptop}) {
     final double val =
         double.tryParse(value?.toString().replaceAll('%', '') ?? '0') ?? 0;
 
@@ -1532,46 +1421,165 @@ class WebFundListCard extends StatelessWidget {
       children: [
         Text(
           label,
+          maxLines: 1,
+          softWrap: false,
           style: TextStyle(
             fontFamily: FontFamily.medium,
-            fontSize: 14,
+            fontSize: isLaptop ? 10.5 : 12,
             fontWeight: FontWeight.w600,
             color: Colors.blueGrey.shade600,
           ),
         ),
-        const SizedBox(height: 9),
-        Text(
-          '${val > 0 ? '+' : ''}${val.toStringAsFixed(2)}%',
-          style: TextStyle(
-            fontFamily: FontFamily.medium,
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
-            color: val < 0 ? Colors.redAccent : const Color(0xFF00B85C),
+        const SizedBox(height: 5),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            '${val > 0 ? '+' : ''}${val.toStringAsFixed(2)}%',
+            maxLines: 1,
+            softWrap: false,
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: isLaptop ? 12.5 : 14.5,
+              fontWeight: FontWeight.w800,
+              color: val < 0 ? Colors.redAccent : const Color(0xFF00B85C),
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _divider() {
-    return Container(width: 1, height: 54, color: Colors.grey.shade200);
+  Widget _divider(bool isLaptop) {
+    return Container(
+      width: 1,
+      height: isLaptop ? 42 : 48,
+      margin: EdgeInsets.symmetric(horizontal: isLaptop ? 3 : 6),
+      color: Colors.grey.shade200,
+    );
   }
 
-  Widget _squareActionButton({required Widget child}) {
+  Widget _actions(
+    MutualFundListEntity entity,
+    RxBool isPressed, {
+    required double actionSize,
+    required double investWidth,
+    required double investHeight,
+    required bool isLaptop,
+    required bool isSmallLaptop,
+  }) {
+    return SizedBox(
+      width: isLaptop ? 225 : 270,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          _wishlistButton(size: actionSize),
+
+          SizedBox(width: isLaptop ? 8 : 12),
+
+          _cartButton(entity, isPressed, size: actionSize),
+
+          SizedBox(width: isLaptop ? 10 : 16),
+
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              _investNowButton(
+                entity,
+                width: isLaptop ? 96 : investWidth,
+                height: investHeight,
+                isLaptop: isLaptop,
+              ),
+
+              const SizedBox(height: 5),
+
+              _viewDetailsButton(isLaptop: isLaptop),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget _actions(
+  //   MutualFundListEntity entity,
+  //   RxBool isPressed, {
+  //   required double actionSize,
+  //   required double investWidth,
+  //   required double investHeight,
+  //   required bool isLaptop,
+  //   required bool isSmallLaptop,
+  // }) {
+  //   return SizedBox(
+  //     width: isLaptop ? 230 : 270,
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.end,
+  //       children: [
+  //         _wishlistButton(size: actionSize),
+
+  //         SizedBox(width: isLaptop ? 8 : 12),
+
+  //         _cartButton(entity, isPressed, size: actionSize),
+
+  //         SizedBox(width: isLaptop ? 10 : 16),
+
+  //         Column(
+  //           mainAxisAlignment: MainAxisAlignment.center,
+  //           crossAxisAlignment: CrossAxisAlignment.end,
+  //           children: [
+  //             _investNowButton(
+  //               entity,
+  //               width: investWidth,
+  //               height: investHeight,
+  //               isLaptop: isLaptop,
+  //             ),
+  //             const SizedBox(height: 5),
+  //             if (!isSmallLaptop) _viewDetailsButton(isLaptop: isLaptop),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  Widget _wishlistButton({required double size}) {
+    return Obx(() {
+      final wishlistController = Get.find<WishlistController>();
+      final String code = entity.schemeCode ?? '';
+      final String name = entity.baseSchemeName ?? '';
+      final bool isFav = wishlistController.isFavorite(code);
+
+      return _squareActionButton(
+        size: size,
+        child: PremiumHeartButton(
+          isFav: isFav,
+          onTap: () {
+            wishlistController.toggleWishlist(code, name);
+          },
+        ),
+      );
+    });
+  }
+
+  Widget _squareActionButton({required Widget child, required double size}) {
     return Container(
-      width: 48,
-      height: 48,
+      width: size,
+      height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(9),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: const Color(0xFFD8DEE8), width: 1),
       ),
       child: child,
     );
   }
 
-  Widget _cartButton(MutualFundListEntity entity, RxBool isPressed) {
+  Widget _cartButton(
+    MutualFundListEntity entity,
+    RxBool isPressed, {
+    required double size,
+  }) {
     return Obx(() {
       final cartController = Get.find<CartController>();
       final String code = entity.schemeCode ?? '';
@@ -1612,30 +1620,35 @@ class WebFundListCard extends StatelessWidget {
             isPressed.value = false;
           }
         },
-        borderRadius: BorderRadius.circular(9),
+        borderRadius: BorderRadius.circular(8),
         child: Container(
-          width: 48,
-          height: 48,
+          width: size,
+          height: size,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(9),
+            borderRadius: BorderRadius.circular(8),
             border: Border.all(color: const Color(0xFFD8DEE8), width: 1),
           ),
           child: Icon(
             isInCart ? Iconsax.shopping_cart5 : Iconsax.shopping_cart,
-            size: 25,
-            color: isInCart ? Ucolors.primary : Ucolors.primary,
+            size: size <= 36 ? 18 : 21,
+            color: Ucolors.primary,
           ),
         ),
       );
     });
   }
 
-  Widget _investNowButton(MutualFundListEntity entity) {
+  Widget _investNowButton(
+    MutualFundListEntity entity, {
+    required double width,
+    required double height,
+    required bool isLaptop,
+  }) {
     return SizedBox(
-      width: 145,
-      height: 45,
+      width: width,
+      height: height,
       child: ElevatedButton(
         onPressed: () {
           GatekeeperHelper.runWithPrerequisites(
@@ -1669,11 +1682,13 @@ class WebFundListCard extends StatelessWidget {
           padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
         ),
-        child: const Text(
+        child: Text(
           'Invest Now',
+          maxLines: 1,
+          softWrap: false,
           style: TextStyle(
             fontFamily: FontFamily.medium,
-            fontSize: 15,
+            fontSize: isLaptop ? 11.5 : 13,
             fontWeight: FontWeight.w800,
             color: Colors.white,
           ),
@@ -1682,8 +1697,42 @@ class WebFundListCard extends StatelessWidget {
     );
   }
 
+  Widget _viewDetailsButton({required bool isLaptop}) {
+    return InkWell(
+      onTap: () => _openFundDetails(entity),
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'View Details',
+              maxLines: 1,
+              softWrap: false,
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: isLaptop ? 11 : 12.5,
+                fontWeight: FontWeight.w700,
+                color: Ucolors.primary,
+              ),
+            ),
+            const SizedBox(width: 6),
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 10,
+              color: Ucolors.primary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _openFundDetails(MutualFundListEntity entity) {
-    Get.delete<FundDetailsController>();
+    if (Get.isRegistered<FundDetailsController>()) {
+      Get.delete<FundDetailsController>();
+    }
 
     FundDetailsScreen.navData = {
       'scheme': entity.baseSchemeName,
@@ -1694,6 +1743,1318 @@ class WebFundListCard extends StatelessWidget {
     Get.toNamed(AppRoutes.funddetails, id: 1);
   }
 }
+
+// class WebFundListCard extends StatelessWidget {
+//   final MutualFundListEntity entity;
+
+//   const WebFundListCard({super.key, required this.entity});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final RxBool isPressed = false.obs;
+
+//     return LayoutBuilder(
+//       builder: (context, constraints) {
+//         final double availableWidth = constraints.maxWidth;
+
+//         /// Keeps the same single-line design.
+//         /// If screen is very small, it will not break vertically.
+//         final double rowWidth = availableWidth < 980 ? 980 : availableWidth;
+
+//         final bool isLaptop = rowWidth < 1200;
+//         final bool isLargeDesktop = rowWidth > 1500;
+
+//         final double cardHeight = isLaptop ? 108 : 118;
+//         final double logoSize = isLaptop ? 42 : 50;
+//         final double titleFont = isLaptop ? 13 : 15;
+//         final double returnFont = isLaptop ? 13 : 16;
+//         final double actionBox = isLaptop ? 38 : 44;
+//         final double investWidth = isLaptop ? 104 : 126;
+//         final double investHeight = isLaptop ? 36 : 40;
+
+//         return WebHoverRow(
+//           onTap: () => _openFundDetails(entity),
+//           builder: (isHovered) {
+//             return SingleChildScrollView(
+//               scrollDirection: Axis.horizontal,
+//               physics: availableWidth < 980
+//                   ? const BouncingScrollPhysics()
+//                   : const NeverScrollableScrollPhysics(),
+//               child: Container(
+//                 width: rowWidth,
+//                 height: cardHeight,
+//                 margin: const EdgeInsets.only(bottom: 8),
+//                 padding: EdgeInsets.symmetric(
+//                   horizontal: isLaptop ? 16 : 22,
+//                   vertical: isLaptop ? 12 : 14,
+//                 ),
+//                 decoration: BoxDecoration(
+//                   color: Colors.white,
+//                   borderRadius: BorderRadius.circular(14),
+//                   border: Border.all(color: const Color(0xFFE5EAF0)),
+//                   boxShadow: [
+//                     BoxShadow(
+//                       color: Colors.black.withValues(alpha: 0.025),
+//                       blurRadius: 8,
+//                       offset: const Offset(0, 3),
+//                     ),
+//                   ],
+//                 ),
+//                 child: Row(
+//                   crossAxisAlignment: CrossAxisAlignment.center,
+//                   children: [
+//                     /// LOGO
+//                     Container(
+//                       width: logoSize,
+//                       height: logoSize,
+//                       decoration: BoxDecoration(
+//                         shape: BoxShape.circle,
+//                         color: Colors.grey.shade50,
+//                       ),
+//                       child: ClipOval(
+//                         child: CustomCachedImage(
+//                           imageUrl:
+//                               '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
+//                         ),
+//                       ),
+//                     ),
+
+//                     SizedBox(width: isLaptop ? 14 : 18),
+
+//                     /// FUND NAME + RISK
+//                     SizedBox(
+//                       width: isLargeDesktop
+//                           ? 380
+//                           : isLaptop
+//                           ? 285
+//                           : 330,
+//                       child: Column(
+//                         mainAxisAlignment: MainAxisAlignment.center,
+//                         crossAxisAlignment: CrossAxisAlignment.start,
+//                         children: [
+//                           Text(
+//                             entity.baseSchemeName ?? 'Unknown Fund',
+//                             maxLines: 2,
+//                             overflow: TextOverflow.ellipsis,
+//                             style: TextStyle(
+//                               fontFamily: FontFamily.medium,
+//                               fontSize: titleFont,
+//                               height: 1.22,
+//                               fontWeight: FontWeight.w800,
+//                               color: isHovered
+//                                   ? Ucolors.primary
+//                                   : const Color(0xFF111827),
+//                             ),
+//                           ),
+//                           const SizedBox(height: 7),
+//                           _riskPill(entity.riskLevel, isLaptop: isLaptop),
+//                         ],
+//                       ),
+//                     ),
+
+//                     SizedBox(width: isLaptop ? 14 : 24),
+
+//                     /// RETURNS AREA
+//                     Expanded(
+//                       child: Row(
+//                         children: [
+//                           Expanded(
+//                             child: _returnColumn(
+//                               '1Y',
+//                               entity.returnsEntity?.oneYear,
+//                               fontSize: returnFont,
+//                             ),
+//                           ),
+//                           _divider(),
+//                           Expanded(
+//                             child: _returnColumn(
+//                               '3Y',
+//                               entity.returnsEntity?.threeYear,
+//                               fontSize: returnFont,
+//                             ),
+//                           ),
+//                           _divider(),
+//                           Expanded(
+//                             child: _returnColumn(
+//                               '5Y',
+//                               entity.returnsEntity?.fiveYear,
+//                               fontSize: returnFont,
+//                             ),
+//                           ),
+//                           _divider(),
+//                           Expanded(
+//                             child: _returnColumn(
+//                               '10Y',
+//                               entity.returnsEntity?.tenYear,
+//                               fontSize: returnFont,
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+
+//                     SizedBox(width: isLaptop ? 16 : 26),
+
+//                     /// ACTIONS
+//                     SizedBox(
+//                       width: isLaptop ? 255 : 310,
+//                       child: Row(
+//                         mainAxisAlignment: MainAxisAlignment.end,
+//                         children: [
+//                           Obx(() {
+//                             final wishlistController =
+//                                 Get.find<WishlistController>();
+//                             final String code = entity.schemeCode ?? '';
+//                             final String name = entity.baseSchemeName ?? '';
+//                             final bool isFav = wishlistController.isFavorite(
+//                               code,
+//                             );
+
+//                             return _squareActionButton(
+//                               size: actionBox,
+//                               child: PremiumHeartButton(
+//                                 isFav: isFav,
+//                                 onTap: () {
+//                                   wishlistController.toggleWishlist(code, name);
+//                                 },
+//                               ),
+//                             );
+//                           }),
+
+//                           SizedBox(width: isLaptop ? 10 : 14),
+
+//                           _cartButton(entity, isPressed, size: actionBox),
+
+//                           SizedBox(width: isLaptop ? 14 : 20),
+
+//                           Column(
+//                             mainAxisAlignment: MainAxisAlignment.center,
+//                             crossAxisAlignment: CrossAxisAlignment.end,
+//                             children: [
+//                               _investNowButton(
+//                                 entity,
+//                                 width: investWidth,
+//                                 height: investHeight,
+//                                 isLaptop: isLaptop,
+//                               ),
+//                               const SizedBox(height: 8),
+//                               _viewDetailsButton(isLaptop: isLaptop),
+//                             ],
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             );
+//           },
+//         );
+//       },
+//     );
+//   }
+
+//   Widget _riskPill(String? riskLevel, {required bool isLaptop}) {
+//     final risk = getRiskMeter(riskLevel);
+
+//     return Container(
+//       padding: EdgeInsets.symmetric(
+//         horizontal: isLaptop ? 9 : 11,
+//         vertical: isLaptop ? 4 : 5,
+//       ),
+//       decoration: BoxDecoration(
+//         color: risk.color.withValues(alpha: 0.15),
+//         borderRadius: BorderRadius.circular(6),
+//       ),
+//       child: Text(
+//         riskLevel ?? 'N/A',
+//         maxLines: 1,
+//         overflow: TextOverflow.ellipsis,
+//         style: TextStyle(
+//           fontFamily: FontFamily.medium,
+//           fontSize: isLaptop ? 10.5 : 11.5,
+//           fontWeight: FontWeight.w700,
+//           color: Ucolors.darkBlue,
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _returnColumn(
+//     String label,
+//     dynamic value, {
+//     required double fontSize,
+//   }) {
+//     final double val =
+//         double.tryParse(value?.toString().replaceAll('%', '') ?? '0') ?? 0;
+
+//     return Column(
+//       mainAxisAlignment: MainAxisAlignment.center,
+//       children: [
+//         Text(
+//           label,
+//           maxLines: 1,
+//           softWrap: false,
+//           style: TextStyle(
+//             fontFamily: FontFamily.medium,
+//             fontSize: fontSize - 2,
+//             fontWeight: FontWeight.w600,
+//             color: Colors.blueGrey.shade600,
+//           ),
+//         ),
+//         const SizedBox(height: 7),
+//         FittedBox(
+//           fit: BoxFit.scaleDown,
+//           child: Text(
+//             '${val > 0 ? '+' : ''}${val.toStringAsFixed(2)}%',
+//             maxLines: 1,
+//             softWrap: false,
+//             style: TextStyle(
+//               fontFamily: FontFamily.medium,
+//               fontSize: fontSize,
+//               fontWeight: FontWeight.w800,
+//               color: val < 0 ? Colors.redAccent : const Color(0xFF00B85C),
+//             ),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+
+//   Widget _divider() {
+//     return Container(
+//       width: 1,
+//       height: 48,
+//       margin: const EdgeInsets.symmetric(horizontal: 6),
+//       color: Colors.grey.shade200,
+//     );
+//   }
+
+//   Widget _squareActionButton({required Widget child, required double size}) {
+//     return Container(
+//       width: size,
+//       height: size,
+//       alignment: Alignment.center,
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(9),
+//         border: Border.all(color: const Color(0xFFD8DEE8), width: 1),
+//       ),
+//       child: child,
+//     );
+//   }
+
+//   Widget _cartButton(
+//     MutualFundListEntity entity,
+//     RxBool isPressed, {
+//     required double size,
+//   }) {
+//     return Obx(() {
+//       final cartController = Get.find<CartController>();
+//       final String code = entity.schemeCode ?? '';
+
+//       final matchingItems = cartController.displayedItems
+//           .where((item) => item.schemeCode.toString() == code)
+//           .toList();
+
+//       final cartItem = matchingItems.isNotEmpty ? matchingItems.first : null;
+//       final bool isInCart = cartItem != null;
+
+//       return InkWell(
+//         onTap: () async {
+//           if (isPressed.value) return;
+
+//           isPressed.value = true;
+
+//           try {
+//             if (isInCart) {
+//               final itemId = cartItem?.id;
+
+//               if (itemId != null) {
+//                 await cartController.deleteCartItem(
+//                   itemId,
+//                   entity.schemeCode ?? '',
+//                 );
+//               }
+//             } else {
+//               await cartController.addToCart(
+//                 code,
+//                 entity.baseSchemeName ?? '',
+//                 entity.minSipAmount ?? 5000,
+//                 transType: 'sip',
+//                 null,
+//               );
+//             }
+//           } finally {
+//             isPressed.value = false;
+//           }
+//         },
+//         borderRadius: BorderRadius.circular(9),
+//         child: Container(
+//           width: size,
+//           height: size,
+//           alignment: Alignment.center,
+//           decoration: BoxDecoration(
+//             color: Colors.white,
+//             borderRadius: BorderRadius.circular(9),
+//             border: Border.all(color: const Color(0xFFD8DEE8), width: 1),
+//           ),
+//           child: Icon(
+//             isInCart ? Iconsax.shopping_cart5 : Iconsax.shopping_cart,
+//             size: size <= 38 ? 19 : 22,
+//             color: Ucolors.primary,
+//           ),
+//         ),
+//       );
+//     });
+//   }
+
+//   Widget _investNowButton(
+//     MutualFundListEntity entity, {
+//     required double width,
+//     required double height,
+//     required bool isLaptop,
+//   }) {
+//     return SizedBox(
+//       width: width,
+//       height: height,
+//       child: ElevatedButton(
+//         onPressed: () {
+//           GatekeeperHelper.runWithPrerequisites(
+//             onSuccess: () {
+//               final purchaseArgs = SipPurchaseArgs(
+//                 schemeCode: entity.schemeCode ?? '',
+//                 fundName: entity.baseSchemeName ?? '',
+//                 category: 'Unknown',
+//                 riskLabel: entity.riskLevel ?? '',
+//                 minSip: entity.minSipAmount ?? 1000,
+//                 minLumpsum: entity.minLumpsum ?? 1000,
+//                 minTopup: entity.minTopUp ?? 5000,
+//                 folio: null,
+//                 imgUrl: '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
+//               );
+
+//               SIPPurchasePage.tempData = purchaseArgs;
+
+//               Get.toNamed(
+//                 AppRoutes.investNowPage,
+//                 id: kIsWeb ? 1 : null,
+//                 arguments: purchaseArgs,
+//               );
+//             },
+//           );
+//         },
+//         style: ElevatedButton.styleFrom(
+//           backgroundColor: Ucolors.primary,
+//           foregroundColor: Colors.white,
+//           elevation: 0,
+//           padding: EdgeInsets.zero,
+//           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+//         ),
+//         child: Text(
+//           'Invest Now',
+//           maxLines: 1,
+//           softWrap: false,
+//           style: TextStyle(
+//             fontFamily: FontFamily.medium,
+//             fontSize: isLaptop ? 12 : 14,
+//             fontWeight: FontWeight.w800,
+//             color: Colors.white,
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _viewDetailsButton({required bool isLaptop}) {
+//     return InkWell(
+//       onTap: () => _openFundDetails(entity),
+//       borderRadius: BorderRadius.circular(8),
+//       child: Padding(
+//         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+//         child: Row(
+//           mainAxisSize: MainAxisSize.min,
+//           children: [
+//             Text(
+//               'View Details',
+//               maxLines: 1,
+//               softWrap: false,
+//               style: TextStyle(
+//                 fontFamily: FontFamily.medium,
+//                 fontSize: isLaptop ? 12 : 13,
+//                 fontWeight: FontWeight.w700,
+//                 color: Ucolors.primary,
+//               ),
+//             ),
+//             const SizedBox(width: 7),
+//             const Icon(
+//               Icons.arrow_forward_ios_rounded,
+//               size: 11,
+//               color: Ucolors.primary,
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+
+//   void _openFundDetails(MutualFundListEntity entity) {
+//     if (Get.isRegistered<FundDetailsController>()) {
+//       Get.delete<FundDetailsController>();
+//     }
+
+//     FundDetailsScreen.navData = {
+//       'scheme': entity.baseSchemeName,
+//       'imgUrl': '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
+//       'scheme_code': entity.schemeCode.toString(),
+//     };
+
+//     Get.toNamed(AppRoutes.funddetails, id: 1);
+//   }
+// }
+
+// class WebFundListCard extends StatelessWidget {
+//   final MutualFundListEntity entity;
+
+//   const WebFundListCard({super.key, required this.entity});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final RxBool isPressed = false.obs;
+
+//     return LayoutBuilder(
+//       builder: (context, constraints) {
+//         final width = constraints.maxWidth;
+
+//         final bool isCompact = width < 1050;
+//         final bool isSmallLaptop = width < 1250;
+
+//         return WebHoverRow(
+//           onTap: () => _openFundDetails(entity),
+//           builder: (isHovered) {
+//             return Container(
+//               margin: const EdgeInsets.only(bottom: 10),
+//               padding: EdgeInsets.symmetric(
+//                 horizontal: isCompact ? 16 : 22,
+//                 vertical: isCompact ? 16 : 18,
+//               ),
+//               decoration: BoxDecoration(
+//                 color: Colors.white,
+//                 borderRadius: BorderRadius.circular(14),
+//                 border: Border.all(color: Colors.grey.shade200),
+//                 boxShadow: [
+//                   BoxShadow(
+//                     color: Colors.black.withValues(alpha: 0.035),
+//                     blurRadius: 10,
+//                     offset: const Offset(0, 4),
+//                   ),
+//                 ],
+//               ),
+//               child: isCompact
+//                   ? _compactLayout(isHovered, isPressed)
+//                   : _wideLayout(isHovered, isPressed, isSmallLaptop),
+//             );
+//           },
+//         );
+//       },
+//     );
+//   }
+
+//   Widget _wideLayout(bool isHovered, RxBool isPressed, bool isSmallLaptop) {
+//     return Row(
+//       crossAxisAlignment: CrossAxisAlignment.center,
+//       children: [
+//         _fundLogo(size: isSmallLaptop ? 52 : 58),
+
+//         SizedBox(width: isSmallLaptop ? 16 : 22),
+
+//         Expanded(flex: isSmallLaptop ? 3 : 4, child: _fundInfo(isHovered)),
+
+//         SizedBox(width: isSmallLaptop ? 14 : 24),
+
+//         Expanded(flex: isSmallLaptop ? 5 : 6, child: _returnsRow()),
+
+//         SizedBox(width: isSmallLaptop ? 16 : 28),
+
+//         _actionButtons(isPressed, compact: isSmallLaptop),
+//       ],
+//     );
+//   }
+
+//   Widget _compactLayout(bool isHovered, RxBool isPressed) {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Row(
+//           children: [
+//             _fundLogo(size: 52),
+//             const SizedBox(width: 14),
+//             Expanded(child: _fundInfo(isHovered)),
+//             const SizedBox(width: 12),
+//             _miniActions(isPressed),
+//           ],
+//         ),
+
+//         const SizedBox(height: 16),
+
+//         Container(
+//           padding: const EdgeInsets.symmetric(vertical: 12),
+//           decoration: BoxDecoration(
+//             color: const Color(0xFFF8FAFC),
+//             borderRadius: BorderRadius.circular(12),
+//             border: Border.all(color: Colors.grey.shade200),
+//           ),
+//           child: _returnsRow(),
+//         ),
+
+//         const SizedBox(height: 14),
+
+//         Row(
+//           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//           children: [
+//             _viewDetailsButton(),
+//             _investNowButton(entity, width: 132, height: 40),
+//           ],
+//         ),
+//       ],
+//     );
+//   }
+
+//   Widget _fundLogo({required double size}) {
+//     return Container(
+//       width: size,
+//       height: size,
+//       decoration: BoxDecoration(
+//         shape: BoxShape.circle,
+//         color: Colors.grey.shade50,
+//       ),
+//       child: ClipOval(
+//         child: CustomCachedImage(
+//           imageUrl: '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _fundInfo(bool isHovered) {
+//     return Column(
+//       mainAxisAlignment: MainAxisAlignment.center,
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text(
+//           entity.baseSchemeName ?? 'Unknown Fund',
+//           maxLines: 2,
+//           overflow: TextOverflow.ellipsis,
+//           style: TextStyle(
+//             fontFamily: FontFamily.medium,
+//             fontSize: 16,
+//             height: 1.25,
+//             fontWeight: FontWeight.w800,
+//             color: isHovered ? Ucolors.primary : const Color(0xFF111827),
+//           ),
+//         ),
+//         const SizedBox(height: 8),
+//         _riskPill(entity.riskLevel),
+//       ],
+//     );
+//   }
+
+//   Widget _returnsRow() {
+//     return Row(
+//       children: [
+//         Expanded(child: _returnColumn('1Y', entity.returnsEntity?.oneYear)),
+//         _divider(),
+//         Expanded(child: _returnColumn('3Y', entity.returnsEntity?.threeYear)),
+//         _divider(),
+//         Expanded(child: _returnColumn('5Y', entity.returnsEntity?.fiveYear)),
+//         _divider(),
+//         Expanded(child: _returnColumn('10Y', entity.returnsEntity?.tenYear)),
+//       ],
+//     );
+//   }
+
+//   Widget _actionButtons(RxBool isPressed, {required bool compact}) {
+//     return SizedBox(
+//       width: compact ? 265 : 310,
+//       child: Row(
+//         mainAxisAlignment: MainAxisAlignment.end,
+//         children: [
+//           _wishlistButton(),
+//           SizedBox(width: compact ? 12 : 16),
+//           _cartButton(entity, isPressed),
+//           SizedBox(width: compact ? 16 : 22),
+//           Column(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             crossAxisAlignment: CrossAxisAlignment.end,
+//             children: [
+//               _investNowButton(
+//                 entity,
+//                 width: compact ? 120 : 145,
+//                 height: compact ? 40 : 45,
+//               ),
+//               const SizedBox(height: 10),
+//               _viewDetailsButton(),
+//             ],
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _miniActions(RxBool isPressed) {
+//     return Row(
+//       mainAxisSize: MainAxisSize.min,
+//       children: [
+//         _wishlistButton(size: 42),
+//         const SizedBox(width: 10),
+//         _cartButton(entity, isPressed, size: 42),
+//       ],
+//     );
+//   }
+
+//   Widget _wishlistButton({double size = 48}) {
+//     return Obx(() {
+//       final wishlistController = Get.find<WishlistController>();
+//       final String code = entity.schemeCode ?? '';
+//       final String name = entity.baseSchemeName ?? '';
+//       final bool isFav = wishlistController.isFavorite(code);
+
+//       return _squareActionButton(
+//         size: size,
+//         child: PremiumHeartButton(
+//           isFav: isFav,
+//           onTap: () {
+//             wishlistController.toggleWishlist(code, name);
+//           },
+//         ),
+//       );
+//     });
+//   }
+
+//   Widget _riskPill(String? riskLevel) {
+//     final risk = getRiskMeter(riskLevel);
+
+//     return Container(
+//       padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
+//       decoration: BoxDecoration(
+//         color: risk.color.withValues(alpha: 0.15),
+//         borderRadius: BorderRadius.circular(6),
+//       ),
+//       child: Text(
+//         riskLevel ?? 'N/A',
+//         maxLines: 1,
+//         overflow: TextOverflow.ellipsis,
+//         style: const TextStyle(
+//           fontFamily: FontFamily.medium,
+//           fontSize: 12,
+//           fontWeight: FontWeight.w700,
+//           color: Ucolors.darkBlue,
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _returnColumn(String label, dynamic value) {
+//     final double val =
+//         double.tryParse(value?.toString().replaceAll('%', '') ?? '0') ?? 0;
+
+//     return Column(
+//       mainAxisAlignment: MainAxisAlignment.center,
+//       children: [
+//         Text(
+//           label,
+//           maxLines: 1,
+//           softWrap: false,
+//           style: TextStyle(
+//             fontFamily: FontFamily.medium,
+//             fontSize: 13,
+//             fontWeight: FontWeight.w600,
+//             color: Colors.blueGrey.shade600,
+//           ),
+//         ),
+//         const SizedBox(height: 8),
+//         FittedBox(
+//           fit: BoxFit.scaleDown,
+//           child: Text(
+//             '${val > 0 ? '+' : ''}${val.toStringAsFixed(2)}%',
+//             maxLines: 1,
+//             softWrap: false,
+//             style: TextStyle(
+//               fontFamily: FontFamily.medium,
+//               fontSize: 17,
+//               fontWeight: FontWeight.w800,
+//               color: val < 0 ? Colors.redAccent : const Color(0xFF00B85C),
+//             ),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+
+//   Widget _divider() {
+//     return Container(
+//       width: 1,
+//       height: 48,
+//       margin: const EdgeInsets.symmetric(horizontal: 4),
+//       color: Colors.grey.shade200,
+//     );
+//   }
+
+//   Widget _squareActionButton({required Widget child, double size = 48}) {
+//     return Container(
+//       width: size,
+//       height: size,
+//       alignment: Alignment.center,
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(9),
+//         border: Border.all(color: const Color(0xFFD8DEE8), width: 1),
+//       ),
+//       child: child,
+//     );
+//   }
+
+//   Widget _cartButton(
+//     MutualFundListEntity entity,
+//     RxBool isPressed, {
+//     double size = 48,
+//   }) {
+//     return Obx(() {
+//       final cartController = Get.find<CartController>();
+//       final String code = entity.schemeCode ?? '';
+
+//       final matchingItems = cartController.displayedItems
+//           .where((item) => item.schemeCode.toString() == code)
+//           .toList();
+
+//       final cartItem = matchingItems.isNotEmpty ? matchingItems.first : null;
+//       final bool isInCart = cartItem != null;
+
+//       return InkWell(
+//         onTap: () async {
+//           if (isPressed.value) return;
+
+//           isPressed.value = true;
+
+//           try {
+//             if (isInCart) {
+//               final itemId = cartItem?.id;
+
+//               if (itemId != null) {
+//                 await cartController.deleteCartItem(
+//                   itemId,
+//                   entity.schemeCode ?? '',
+//                 );
+//               }
+//             } else {
+//               await cartController.addToCart(
+//                 code,
+//                 entity.baseSchemeName ?? '',
+//                 entity.minSipAmount ?? 5000,
+//                 transType: 'sip',
+//                 null,
+//               );
+//             }
+//           } finally {
+//             isPressed.value = false;
+//           }
+//         },
+//         borderRadius: BorderRadius.circular(9),
+//         child: Container(
+//           width: size,
+//           height: size,
+//           alignment: Alignment.center,
+//           decoration: BoxDecoration(
+//             color: Colors.white,
+//             borderRadius: BorderRadius.circular(9),
+//             border: Border.all(color: const Color(0xFFD8DEE8), width: 1),
+//           ),
+//           child: Icon(
+//             isInCart ? Iconsax.shopping_cart5 : Iconsax.shopping_cart,
+//             size: size <= 42 ? 21 : 24,
+//             color: Ucolors.primary,
+//           ),
+//         ),
+//       );
+//     });
+//   }
+
+//   Widget _investNowButton(
+//     MutualFundListEntity entity, {
+//     required double width,
+//     required double height,
+//   }) {
+//     return SizedBox(
+//       width: width,
+//       height: height,
+//       child: ElevatedButton(
+//         onPressed: () {
+//           GatekeeperHelper.runWithPrerequisites(
+//             onSuccess: () {
+//               final purchaseArgs = SipPurchaseArgs(
+//                 schemeCode: entity.schemeCode ?? '',
+//                 fundName: entity.baseSchemeName ?? '',
+//                 category: 'Unknown',
+//                 riskLabel: entity.riskLevel ?? '',
+//                 minSip: entity.minSipAmount ?? 1000,
+//                 minLumpsum: entity.minLumpsum ?? 1000,
+//                 minTopup: entity.minTopUp ?? 5000,
+//                 folio: null,
+//                 imgUrl: '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
+//               );
+
+//               SIPPurchasePage.tempData = purchaseArgs;
+
+//               Get.toNamed(
+//                 AppRoutes.investNowPage,
+//                 id: kIsWeb ? 1 : null,
+//                 arguments: purchaseArgs,
+//               );
+//             },
+//           );
+//         },
+//         style: ElevatedButton.styleFrom(
+//           backgroundColor: Ucolors.primary,
+//           foregroundColor: Colors.white,
+//           elevation: 0,
+//           padding: EdgeInsets.zero,
+//           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+//         ),
+//         child: Text(
+//           'Invest Now',
+//           maxLines: 1,
+//           softWrap: false,
+//           style: TextStyle(
+//             fontFamily: FontFamily.medium,
+//             fontSize: height < 42 ? 13 : 15,
+//             fontWeight: FontWeight.w800,
+//             color: Colors.white,
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _viewDetailsButton() {
+//     return InkWell(
+//       onTap: () => _openFundDetails(entity),
+//       borderRadius: BorderRadius.circular(8),
+//       child: const Padding(
+//         padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+//         child: Row(
+//           mainAxisSize: MainAxisSize.min,
+//           children: [
+//             Text(
+//               'View Details',
+//               maxLines: 1,
+//               softWrap: false,
+//               style: TextStyle(
+//                 fontFamily: FontFamily.medium,
+//                 fontSize: 14,
+//                 fontWeight: FontWeight.w700,
+//                 color: Ucolors.primary,
+//               ),
+//             ),
+//             SizedBox(width: 8),
+//             Icon(
+//               Icons.arrow_forward_ios_rounded,
+//               size: 12,
+//               color: Ucolors.primary,
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+
+//   void _openFundDetails(MutualFundListEntity entity) {
+//     Get.delete<FundDetailsController>();
+
+//     FundDetailsScreen.navData = {
+//       'scheme': entity.baseSchemeName,
+//       'imgUrl': '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
+//       'scheme_code': entity.schemeCode.toString(),
+//     };
+
+//     Get.toNamed(AppRoutes.funddetails, id: 1);
+//   }
+// }
+
+// class WebFundListCard extends StatelessWidget {
+//   final MutualFundListEntity entity;
+
+//   const WebFundListCard({super.key, required this.entity});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final RxBool isPressed = false.obs;
+
+//     return WebHoverRow(
+//       onTap: () => _openFundDetails(entity),
+//       builder: (isHovered) {
+//         return Container(
+//           height: 118,
+//           margin: const EdgeInsets.only(bottom: 0),
+//           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+//           decoration: BoxDecoration(
+//             color: Colors.white,
+//             borderRadius: BorderRadius.circular(10),
+//             border: Border(
+//               bottom: BorderSide(color: Colors.grey.shade200, width: 1),
+//             ),
+//           ),
+//           child: Row(
+//             crossAxisAlignment: CrossAxisAlignment.center,
+//             children: [
+//               /// LOGO
+//               Container(
+//                 width: 58,
+//                 height: 58,
+//                 decoration: BoxDecoration(
+//                   shape: BoxShape.circle,
+//                   color: Colors.grey.shade50,
+//                 ),
+//                 child: ClipOval(
+//                   child: CustomCachedImage(
+//                     imageUrl:
+//                         '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
+//                   ),
+//                 ),
+//               ),
+
+//               const SizedBox(width: 22),
+
+//               /// FUND NAME + RISK
+//               SizedBox(
+//                 width: 360,
+//                 child: Column(
+//                   mainAxisAlignment: MainAxisAlignment.center,
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Text(
+//                       entity.baseSchemeName ?? 'Unknown Fund',
+//                       maxLines: 2,
+//                       overflow: TextOverflow.ellipsis,
+//                       style: TextStyle(
+//                         fontFamily: FontFamily.medium,
+//                         fontSize: 17,
+//                         height: 1.28,
+//                         fontWeight: FontWeight.w800,
+//                         color: isHovered
+//                             ? Ucolors.primary
+//                             : const Color(0xFF111827),
+//                       ),
+//                     ),
+//                     const SizedBox(height: 8),
+//                     _riskPill(entity.riskLevel),
+//                   ],
+//                 ),
+//               ),
+
+//               const SizedBox(width: 26),
+
+//               /// RETURNS
+//               Expanded(
+//                 child: Row(
+//                   children: [
+//                     Expanded(
+//                       child: _returnColumn('1Y', entity.returnsEntity?.oneYear),
+//                     ),
+//                     _divider(),
+//                     Expanded(
+//                       child: _returnColumn(
+//                         '3Y',
+//                         entity.returnsEntity?.threeYear,
+//                       ),
+//                     ),
+//                     _divider(),
+//                     Expanded(
+//                       child: _returnColumn(
+//                         '5Y',
+//                         entity.returnsEntity?.fiveYear,
+//                       ),
+//                     ),
+//                     _divider(),
+//                     Expanded(
+//                       child: _returnColumn(
+//                         '10Y',
+//                         entity.returnsEntity?.tenYear,
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+
+//               const SizedBox(width: 34),
+
+//               /// ACTIONS
+//               SizedBox(
+//                 width: 330,
+//                 child: Row(
+//                   mainAxisAlignment: MainAxisAlignment.end,
+//                   children: [
+//                     Obx(() {
+//                       final wishlistController = Get.find<WishlistController>();
+//                       final String code = entity.schemeCode ?? '';
+//                       final String name = entity.baseSchemeName ?? '';
+//                       final bool isFav = wishlistController.isFavorite(code);
+
+//                       return _squareActionButton(
+//                         child: PremiumHeartButton(
+//                           isFav: isFav,
+//                           onTap: () {
+//                             wishlistController.toggleWishlist(code, name);
+//                           },
+//                         ),
+//                       );
+//                     }),
+
+//                     const SizedBox(width: 18),
+
+//                     _cartButton(entity, isPressed),
+
+//                     const SizedBox(width: 24),
+
+//                     Column(
+//                       mainAxisAlignment: MainAxisAlignment.center,
+//                       crossAxisAlignment: CrossAxisAlignment.end,
+//                       children: [
+//                         _investNowButton(entity),
+//                         const SizedBox(height: 12),
+//                         InkWell(
+//                           onTap: () => _openFundDetails(entity),
+//                           borderRadius: BorderRadius.circular(8),
+//                           child: const Padding(
+//                             padding: EdgeInsets.symmetric(
+//                               horizontal: 4,
+//                               vertical: 2,
+//                             ),
+//                             child: Row(
+//                               mainAxisSize: MainAxisSize.min,
+//                               children: [
+//                                 Text(
+//                                   'View Details',
+//                                   style: TextStyle(
+//                                     fontFamily: FontFamily.medium,
+//                                     fontSize: 14,
+//                                     fontWeight: FontWeight.w700,
+//                                     color: Ucolors.primary,
+//                                   ),
+//                                 ),
+//                                 SizedBox(width: 10),
+//                                 Icon(
+//                                   Icons.arrow_forward_ios_rounded,
+//                                   size: 13,
+//                                   color: Ucolors.primary,
+//                                 ),
+//                               ],
+//                             ),
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ],
+//           ),
+//         );
+//       },
+//     );
+//   }
+
+//   Widget _riskPill(String? riskLevel) {
+//     final risk = getRiskMeter(riskLevel);
+
+//     return Container(
+//       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+//       decoration: BoxDecoration(
+//         color: risk.color.withValues(alpha: 0.15),
+//         borderRadius: BorderRadius.circular(6),
+//       ),
+//       child: Text(
+//         riskLevel ?? 'N/A',
+//         style: TextStyle(
+//           fontFamily: FontFamily.medium,
+//           fontSize: 12,
+//           fontWeight: FontWeight.w700,
+//           color: Ucolors.darkBlue,
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _returnColumn(String label, dynamic value) {
+//     final double val =
+//         double.tryParse(value?.toString().replaceAll('%', '') ?? '0') ?? 0;
+
+//     return Column(
+//       mainAxisAlignment: MainAxisAlignment.center,
+//       children: [
+//         Text(
+//           label,
+//           style: TextStyle(
+//             fontFamily: FontFamily.medium,
+//             fontSize: 14,
+//             fontWeight: FontWeight.w600,
+//             color: Colors.blueGrey.shade600,
+//           ),
+//         ),
+//         const SizedBox(height: 9),
+//         Text(
+//           '${val > 0 ? '+' : ''}${val.toStringAsFixed(2)}%',
+//           style: TextStyle(
+//             fontFamily: FontFamily.medium,
+//             fontSize: 18,
+//             fontWeight: FontWeight.w800,
+//             color: val < 0 ? Colors.redAccent : const Color(0xFF00B85C),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+
+//   Widget _divider() {
+//     return Container(width: 1, height: 54, color: Colors.grey.shade200);
+//   }
+
+//   Widget _squareActionButton({required Widget child}) {
+//     return Container(
+//       width: 48,
+//       height: 48,
+//       alignment: Alignment.center,
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(9),
+//         border: Border.all(color: const Color(0xFFD8DEE8), width: 1),
+//       ),
+//       child: child,
+//     );
+//   }
+
+//   Widget _cartButton(MutualFundListEntity entity, RxBool isPressed) {
+//     return Obx(() {
+//       final cartController = Get.find<CartController>();
+//       final String code = entity.schemeCode ?? '';
+
+//       final matchingItems = cartController.displayedItems
+//           .where((item) => item.schemeCode.toString() == code)
+//           .toList();
+
+//       final cartItem = matchingItems.isNotEmpty ? matchingItems.first : null;
+//       final bool isInCart = cartItem != null;
+
+//       return InkWell(
+//         onTap: () async {
+//           if (isPressed.value) return;
+
+//           isPressed.value = true;
+
+//           try {
+//             if (isInCart) {
+//               final itemId = cartItem?.id;
+
+//               if (itemId != null) {
+//                 await cartController.deleteCartItem(
+//                   itemId,
+//                   entity.schemeCode ?? '',
+//                 );
+//               }
+//             } else {
+//               await cartController.addToCart(
+//                 code,
+//                 entity.baseSchemeName ?? '',
+//                 entity.minSipAmount ?? 5000,
+//                 transType: 'sip',
+//                 null,
+//               );
+//             }
+//           } finally {
+//             isPressed.value = false;
+//           }
+//         },
+//         borderRadius: BorderRadius.circular(9),
+//         child: Container(
+//           width: 48,
+//           height: 48,
+//           alignment: Alignment.center,
+//           decoration: BoxDecoration(
+//             color: Colors.white,
+//             borderRadius: BorderRadius.circular(9),
+//             border: Border.all(color: const Color(0xFFD8DEE8), width: 1),
+//           ),
+//           child: Icon(
+//             isInCart ? Iconsax.shopping_cart5 : Iconsax.shopping_cart,
+//             size: 25,
+//             color: isInCart ? Ucolors.primary : Ucolors.primary,
+//           ),
+//         ),
+//       );
+//     });
+//   }
+
+//   Widget _investNowButton(MutualFundListEntity entity) {
+//     return SizedBox(
+//       width: 145,
+//       height: 45,
+//       child: ElevatedButton(
+//         onPressed: () {
+//           GatekeeperHelper.runWithPrerequisites(
+//             onSuccess: () {
+//               final purchaseArgs = SipPurchaseArgs(
+//                 schemeCode: entity.schemeCode ?? '',
+//                 fundName: entity.baseSchemeName ?? '',
+//                 category: 'Unknown',
+//                 riskLabel: entity.riskLevel ?? '',
+//                 minSip: entity.minSipAmount ?? 1000,
+//                 minLumpsum: entity.minLumpsum ?? 1000,
+//                 minTopup: entity.minTopUp ?? 5000,
+//                 folio: null,
+//                 imgUrl: '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
+//               );
+
+//               SIPPurchasePage.tempData = purchaseArgs;
+
+//               Get.toNamed(
+//                 AppRoutes.investNowPage,
+//                 id: kIsWeb ? 1 : null,
+//                 arguments: purchaseArgs,
+//               );
+//             },
+//           );
+//         },
+//         style: ElevatedButton.styleFrom(
+//           backgroundColor: Ucolors.primary,
+//           foregroundColor: Colors.white,
+//           elevation: 0,
+//           padding: EdgeInsets.zero,
+//           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+//         ),
+//         child: const Text(
+//           'Invest Now',
+//           style: TextStyle(
+//             fontFamily: FontFamily.medium,
+//             fontSize: 15,
+//             fontWeight: FontWeight.w800,
+//             color: Colors.white,
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   void _openFundDetails(MutualFundListEntity entity) {
+//     Get.delete<FundDetailsController>();
+
+//     FundDetailsScreen.navData = {
+//       'scheme': entity.baseSchemeName,
+//       'imgUrl': '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
+//       'scheme_code': entity.schemeCode.toString(),
+//     };
+
+//     Get.toNamed(AppRoutes.funddetails, id: 1);
+//   }
+// }
 
 // class WebFundListCard extends StatelessWidget {
 //   final MutualFundListEntity entity;
