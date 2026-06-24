@@ -88,6 +88,7 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                             .riskStatisticsList
                             .isNotEmpty
                         ? FundBottomBarButton(
+                          
                             firstButton: 'Lumpsum',
                             secondButton: 'Invest now',
                             firstButtonP: () async {

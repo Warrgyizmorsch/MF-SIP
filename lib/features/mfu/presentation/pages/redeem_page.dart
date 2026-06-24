@@ -693,7 +693,8 @@ class _RedeemPageState extends State<RedeemPage> {
             width: double.infinity,
             height: 54,
             decoration: BoxDecoration(
-              gradient: loading ? null : Ucolors.backgroundGradient,
+              // gradient: loading ? null : Ucolors.backgroundGradient,
+              color: loading ? null : Ucolors.primary,
               borderRadius: BorderRadius.circular(14),
             ),
             child: Center(
@@ -745,7 +746,7 @@ class _WhiteCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),

@@ -199,7 +199,7 @@ class FundBottomBarButton extends StatelessWidget {
               outlined: true,
               width: double.infinity,
               // height: 50, // Standardize height for both
-              child: Icon(Icons.shopping_cart),
+              child: Icon(Icons.shopping_cart_outlined),
               // child: Text(
               //   firstButton,
               //   style: const TextStyle(fontFamily: FontFamily.medium,
@@ -216,6 +216,7 @@ class FundBottomBarButton extends StatelessWidget {
           Expanded(
             flex: 8,
             child: UElevatedButton2(
+              color: Ucolors.primary,
               onPressed: isLoading ? null : secondButtonP,
               // height: 50,
               child: AnimatedSwitcher(
@@ -262,7 +263,7 @@ class BottomBarButton extends StatelessWidget {
   final String secondButton;
   final VoidCallback? firstButtonP;
   final VoidCallback? secondButtonP;
-  final bool isLoading; // <--- Add this for 
+  final bool isLoading; // <--- Add this for
 
   @override
   Widget build(BuildContext context) {

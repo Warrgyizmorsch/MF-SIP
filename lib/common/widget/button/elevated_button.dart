@@ -28,7 +28,7 @@ class UElevatedButton2 extends StatelessWidget {
       child: Container(
         // Use width if provided, otherwise it wraps content or expands
         width: width,
-        height: height ?? 30,
+        height: height ?? 50,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(borderRadiusValue),
           border: outlined
@@ -126,6 +126,7 @@ class UElevatedBUtton extends StatelessWidget {
     );
   }
 }
+
 class UElevatedButtonWeb extends StatelessWidget {
   const UElevatedButtonWeb({
     super.key,
@@ -167,15 +168,18 @@ class UElevatedButtonWeb extends StatelessWidget {
         child: Ink(
           decoration: outlined
               ? BoxDecoration(
-            color: Ucolors.light, // Make sure Ucolors is imported
-            border: Border.all(color: const Color(0xffE7E7E7), width: 1.5),
-            borderRadius: BorderRadius.circular(circular),
-          )
+                  color: Ucolors.light, // Make sure Ucolors is imported
+                  border: Border.all(
+                    color: const Color(0xffE7E7E7),
+                    width: 1.5,
+                  ),
+                  borderRadius: BorderRadius.circular(circular),
+                )
               : BoxDecoration(
-            borderRadius: BorderRadius.circular(circular),
-            color: color,
-            gradient: color != null ? null : Ucolors.backgroundGradient,
-          ),
+                  borderRadius: BorderRadius.circular(circular),
+                  color: color,
+                  gradient: color != null ? null : Ucolors.backgroundGradient,
+                ),
           child: Container(
             alignment: Alignment.center, // Perfectly centers the text/child
             child: child,

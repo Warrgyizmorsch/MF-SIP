@@ -1,4 +1,3 @@
-
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -590,8 +589,6 @@ class SIPPurchasePage extends StatefulWidget {
 
   static SipPurchaseArgs? tempData;
 
-  
-
   @override
   State<SIPPurchasePage> createState() => _SIPPurchasePageState();
 }
@@ -622,7 +619,8 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
 
     _c = Get.find<MfuController>();
 
-    final SipPurchaseArgs? passedArgs = SIPPurchasePage.tempData ?? Get.arguments as SipPurchaseArgs?;
+    final SipPurchaseArgs? passedArgs =
+        SIPPurchasePage.tempData ?? Get.arguments as SipPurchaseArgs?;
 
     SIPPurchasePage.tempData = null;
 
@@ -633,7 +631,8 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
     //       schemeCode: 'LQAG',
     //       fundName: 'ITI Flexi Cap Fund Regular - Growth',
     //     );
-    final args = passedArgs ??
+    final args =
+        passedArgs ??
         const SipPurchaseArgs(
           schemeCode: 'LQAG',
           fundName: 'ITI Flexi Cap Fund Regular - Growth',
@@ -835,7 +834,9 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
         body: Stack(
           children: [
             Positioned.fill(
-              child: isDesktop ? _buildDesktopScaffold() : _buildMobileScaffold(),
+              child: isDesktop
+                  ? _buildDesktopScaffold()
+                  : _buildMobileScaffold(),
             ),
 
             // Mobile-only sticky CTA. Desktop gets CTA in the right summary panel.
@@ -873,10 +874,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
           Expanded(
             child: SlideTransition(
               position: _slide,
-              child: FadeTransition(
-                opacity: _fade,
-                child: _buildBody(),
-              ),
+              child: FadeTransition(opacity: _fade, child: _buildBody()),
             ),
           ),
         ],
@@ -1197,9 +1195,11 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
             _summaryRow('Amount', '₹${_formatAmount(amount)}'),
             if (type != InvType.lumpsum)
               _summaryRow('Frequency', _c.sipFreq.value.label),
-            if (type != InvType.lumpsum && _c.sipFreq.value == SipFrequency.monthly)
+            if (type != InvType.lumpsum &&
+                _c.sipFreq.value == SipFrequency.monthly)
               _summaryRow('Date', '${_c.sipDay.value}th of every month'),
-            if (type != InvType.lumpsum && _c.sipFreq.value == SipFrequency.weekly)
+            if (type != InvType.lumpsum &&
+                _c.sipFreq.value == SipFrequency.weekly)
               _summaryRow('Day', _weekDays[_c.sipWeekDay.value - 1]),
             if (type == InvType.stepup)
               _summaryRow(
@@ -2115,11 +2115,12 @@ class _BottomCta extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.symmetric(vertical: 15),
               decoration: BoxDecoration(
-                gradient: canTap
-                    ? Ucolors.backgroundGradient
-                    : LinearGradient(
-                        colors: [Colors.grey.shade300, Colors.grey.shade400],
-                      ),
+                // gradient: canTap
+                //     ? Ucolors.backgroundGradient
+                //     : LinearGradient(
+                //         colors: [Colors.grey.shade300, Colors.grey.shade400],
+                //       ),
+                color: canTap ? Ucolors.primary : Ucolors.darkgrey,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: canTap
                     ? [
