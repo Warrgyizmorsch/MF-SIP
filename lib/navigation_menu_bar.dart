@@ -2170,10 +2170,8 @@ class WebProfileDashboardScreen extends StatelessWidget {
       final PersonalisationController personalisationController =
       Get.find<PersonalisationController>();
 
-      // ✅ FIXED: Using the correct property getter syntax without parentheses
       final String readySinceYear = user?.customerDetailsModel?.dob?.split('-').firstOrNull ?? '1985';
 
-      // Track the true KYC lifecycle status field instead of panCard string values
       final bool isKycApproved = user?.kycStatus?.toLowerCase() == 'approved';
       String displayImage = personalisationController.imagePath.isNotEmpty
           ? personalisationController.imagePath.value

@@ -29,7 +29,7 @@ class KycDetailsScreen extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 1200),
             // Wrap the layouts with Obx to establish structural reactivity
             child: Obx(() => isDesktop
-                ? _buildWebDashboardLayout()
+                ? _buildWebDashboardLayout(context)
                 : _buildMobileLayout()),
           ),
         ),
@@ -40,7 +40,7 @@ class KycDetailsScreen extends StatelessWidget {
   // =========================================
   // 💻 WEB / DESKTOP LAYOUT (Side-by-Side Dashboard)
   // =========================================
-  Widget _buildWebDashboardLayout() {
+  Widget _buildWebDashboardLayout(BuildContext context) {
     final user = SessionManager.instance.userObs.value;
     final String readySinceYear = user?.customerDetailsModel?.dob?.split('-').firstOrNull ?? '---';
     final String taxStatusName = ProfileUtils.getWealthSourceName(
@@ -52,6 +52,7 @@ class KycDetailsScreen extends StatelessWidget {
     final bool isRiskProfileUpdated = user?.riskProfileModel != null;
     final String aadhaarDisplay = user?.customerDetailsModel?.adhar ?? '---';
     final bool hasAadhaar = aadhaarDisplay.isNotEmpty && aadhaarDisplay != '---';
+    final bool isVerificationComplete = isKycApproved && isPanVerified;
     return Column(
       children: [
         Row(
@@ -89,7 +90,7 @@ class KycDetailsScreen extends StatelessWidget {
                   ),
                   _buildWebCheckmarkItem(
                     'PAN Verified',
-                    isValid: isPanVerified,
+                    isValid: isVerificationComplete,
                   ),
                   _buildWebCheckmarkItem(
                     'Risk Profile Updated',
@@ -207,13 +208,19 @@ class KycDetailsScreen extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                   decoration: BoxDecoration(color: const Color(0xFFE6F7ED), borderRadius: BorderRadius.circular(4)),
-                                  child: const Text('Verified', style: TextStyle(color: Color(0xFF1F9254), fontSize: 10, fontWeight: FontWeight.w600)),
+                                  child:  Text(isVerificationComplete ? 'Verified' : 'Pending Verification',
+                                    style: TextStyle(
+                                      color: isVerificationComplete ? const Color(0xFF1F9254) : const Color(0xFFC53929),
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,)),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Your KYC is complete and verified. You can continue investing without any interruptions.',
+                              isVerificationComplete
+                                  ? 'Your KYC is complete and verified. You can continue investing without any interruptions.'
+                                  : 'Your PAN verification or KYC profile is pending. Complete both details to authorize full investment access.',
                               style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                             ),
                           ],
@@ -259,25 +266,127 @@ class KycDetailsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF0066FF),
-                  elevation: 0,
-                  side: const BorderSide(color: Color(0xFFDBEAFE)),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              if (!isVerificationComplete)
+                ElevatedButton(
+                  // ✅ Open the centered web dashboard helper dialog layout frame on interaction
+                  onPressed: () => _openKycUpdateDialog(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF0066FF),
+                    elevation: 0,
+                    side: const BorderSide(color: Color(0xFFDBEAFE)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  ),
+                  child: const Text('Update KYC', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                 ),
-                child: const Text('Update KYC', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-              ),
             ],
           ),
         ),
       ],
     );
   }
+// Reusable helper logic to open a centered web dialog frame when clicked
+  void _openKycUpdateDialog(BuildContext context) {
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        backgroundColor: Colors.white,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480), // Perfect width for web popups
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Aesthetic Icon Focal Header Ring
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFEFF6FF), // Light matching blue ring highlight
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.assignment_ind_outlined,
+                    size: 32,
+                    color: Color(0xFF0066FF),
+                  ),
+                ),
+                const SizedBox(height: 24),
 
+                // Dialog Headings
+                const Text(
+                  "Update KYC Profile",
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1A1D20),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  "To update your central KYC registration record or modify your validated identity documents, please complete the procedure via our integrated secure system mobile application workflow.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 13,
+                    color: Color(0xFF70767F),
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                // Action Button Matrix
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Get.back(), // Safely close the dialog window
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: const Text(
+                        "Close",
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          color: Color(0xFF5F6670),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton(
+                      onPressed: () => Get.back(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0066FF),
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: const Text(
+                        "Understood",
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      barrierDismissible: true, // Let users tap outside the popup window to drop it
+    );
+  }
   // =========================================
   // 📱 MOBILE LAYOUT (Preserved Setup Style)
   // =========================================
