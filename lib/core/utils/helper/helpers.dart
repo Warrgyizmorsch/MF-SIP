@@ -557,7 +557,7 @@ class ProfileUtils {
   // 🔄 BACKEND TO UI (ID -> String)
   // ==========================================
   static String getWealthSourceName(int? id) {
-    if (id == null || id <= 0 || id > wealthSources.length) return '';
+    if (id == null || id <= 0 || id > wealthSources.length) return '---';
     return wealthSources[id - 1]; 
   }
 

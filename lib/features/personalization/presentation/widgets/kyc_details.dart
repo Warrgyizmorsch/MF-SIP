@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart'; // Ensure GetX is imported for Obx support
+import 'package:intl/intl.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
@@ -53,6 +54,15 @@ class KycDetailsScreen extends StatelessWidget {
     final String aadhaarDisplay = user?.customerDetailsModel?.adhar ?? '---';
     final bool hasAadhaar = aadhaarDisplay.isNotEmpty && aadhaarDisplay != '---';
     final bool isVerificationComplete = isKycApproved && isPanVerified;
+    String _formatLastUpdated(String? rawDateString) {
+      if (rawDateString == null || rawDateString.isEmpty) return '---';
+
+      final parsedDate = DateTime.tryParse(rawDateString);
+      if (parsedDate == null) return '---';
+
+      // Formats into something premium and clean like: 29 Apr 2026
+      return DateFormat('dd MMM yyyy').format(parsedDate.toLocal());
+    }
     return Column(
       children: [
         Row(
@@ -145,7 +155,8 @@ class KycDetailsScreen extends StatelessWidget {
                         child: _buildWebInfoGridCard(
                           'PAN Number',
                           user?.panCard ?? '---',
-                          badgeText: user?.panCard != null ? 'PAN Verified' : null,
+                          badgeText: isVerificationComplete ? 'PAN Verified' : 'Pending',
+                          isErrorBadge: !isVerificationComplete,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -227,10 +238,10 @@ class KycDetailsScreen extends StatelessWidget {
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
-                          children: const [
+                          children:  [
                             Text('Last Updated', style: TextStyle(fontSize: 11, color: Color(0xFF70767F))),
                             SizedBox(height: 4),
-                            Text('10 May 2024', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF1A1D20))),
+                            Text(_formatLastUpdated(user?.updatedAt), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF1A1D20))),
                           ],
                         ),
                       ],
