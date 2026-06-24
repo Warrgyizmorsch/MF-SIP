@@ -901,7 +901,6 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
                               );
                             },
 
-                            
                             secondButtonP: () async {
                               GatekeeperHelper.runWithPrerequisites(
                                 onSuccess: () {
@@ -5712,253 +5711,252 @@ class OverviewScreen extends GetView<FundDetailsController> {
           ),
 
           // --- Fund Comparison Section ---
+          // const Gap(8),
+          // SizedBox(
+          //   height: MediaQuery.of(context).size.height < 700 ? 182 : 260,
+
+          //   child: ListView.builder(
+          //     // itemCount: 10,
+          //     itemCount: fund!.schemePeerComparisonList.length - 1,
+          //     scrollDirection: Axis.horizontal,
+
+          //     itemBuilder: (context, index) => SizedBox(
+          //       width: MediaQuery.of(context).size.width * 0.97,
+          //       child: GestureDetector(
+          //         onTap: () {
+          //           log('${fund.schemeName}--------------------');
+          //           log('${controller.imgUrl}--------------------');
+          //           log('tap fund compare');
+          //           Get.toNamed(
+          //             AppRoutes.comparefund,
+
+          //             // arguments: {
+          //             //   'name': fund.schemeName,
+          //             //   'name2':
+          //             //       fund.schemePeerComparisonList[index + 1].schemeName,
+          //             // },
+          //             arguments: {
+          //               'name': controller.schemeName,
+          //               'imgUrl': controller.imgUrl,
+          //               'name2':
+          //                   fund.schemePeerComparisonList[index + 1].schemeName,
+          //             },
+          //           );
+          //         },
+          //         child: CustomContainer(
+          //           bottomPadding: 0,
+          //           topPadding: 15,
+          //           child: Column(
+          //             mainAxisSize: MainAxisSize.min,
+          //             children: [
+          //               const Padding(
+          //                 padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+          //                 child: USectionHeading(
+          //                   title: 'Fund Comparison',
+          //                   showActionButton: false,
+          //                 ),
+          //               ),
+          //               FundComparisonItem(
+          //                 imgUrl: controller.imgUrl,
+          //                 fund1: fund.schemeName,
+          //                 year: fund.schemePerformanceList[0].threeYearReturn
+          //                     .toString(),
+          //               ),
+          //               SizedBox(height: 3),
+          //               Row(
+          //                 children: [
+          //                   // Left dashed line
+          //                   Expanded(
+          //                     child: DashedLine(color: Colors.grey.shade300),
+          //                   ),
+
+          //                   Container(
+          //                     margin: const EdgeInsets.symmetric(horizontal: 6),
+          //                     padding: const EdgeInsets.all(5),
+          //                     decoration: BoxDecoration(
+          //                       shape: BoxShape.circle,
+          //                       border: Border.all(
+          //                         color: Colors.blue,
+          //                         width: 1.2,
+          //                       ),
+          //                     ),
+          //                     child: const Text(
+          //                       'VS',
+          //                       style: TextStyle(
+          //                         fontFamily: FontFamily.medium,
+          //                         color: Colors.grey,
+          //                         fontSize: 10,
+          //                         fontWeight: FontWeight.w600,
+          //                       ),
+          //                     ),
+          //                   ),
+
+          //                   // Right dashed line
+          //                   Expanded(
+          //                     child: DashedLine(color: Colors.grey.shade300),
+          //                   ),
+          //                 ],
+          //               ),
+          //               SizedBox(height: 5),
+
+          //               FundComparisonItem(
+          //                 year: fund
+          //                     .schemePeerComparisonList[index + 1]
+          //                     .threeYearReturn
+          //                     .toString(),
+          //                 fund1: fund
+          //                     .schemePeerComparisonList[index + 1]
+          //                     .schemeName
+          //                     .toString(),
+          //               ),
+
+          //               Padding(
+          //                 padding: const EdgeInsets.symmetric(
+          //                   // horizontal: 60.0,
+          //                   vertical: 8,
+          //                 ),
+          //                 child: OutlinedButton(
+          //                   style: OutlinedButton.styleFrom(
+          //                     side: BorderSide(
+          //                       color: Ucolors.primary.withValues(alpha: 0.5),
+          //                     ),
+          //                   ),
+          //                   // onPressed: () => Get.toNamed(AppRoutes.comparefund ),
+          //                   onPressed: null,
+          //                   child: Row(
+          //                     mainAxisAlignment: MainAxisAlignment.center,
+          //                     children: [
+          //                       Text(
+          //                         'Compare Funds',
+          //                         style: UTextStyles.buttonText.copyWith(
+          //                           // color: Ucolors.primary.withValues(alpha:0.5),
+          //                           color: Ucolors.primary,
+          //                         ),
+          //                       ),
+          //                       SizedBox(width: 10),
+          //                       Icon(
+          //                         Icons.arrow_forward,
+          //                         color: Ucolors.primary.withValues(alpha: 0.5),
+          //                       ),
+          //                     ],
+          //                   ),
+          //                 ),
+          //               ),
+          //             ],
+          //           ),
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          // const Gap(8),
+
+          // CustomContainer(
+          //   topPadding: 15,
+          //   bottomPadding: 15,
+          //   child: Column(
+          //     children: [
+          //       Padding(
+          //         padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+          //         child: const USectionHeading(
+          //           title: 'Related Funds',
+          //           showActionButton: false,
+          //         ),
+          //       ),
+
+          //       /// 📜 The Horizontal List inside the card
+          //       SizedBox(
+          //         height: 100, // Adjusted height
+          //         child: ListView.separated(
+          //           scrollDirection: Axis.horizontal,
+          //           // padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          //           itemCount: fund.schemePeerComparisonList.length - 1,
+          //           separatorBuilder: (context, index) =>
+          //               const SizedBox(width: 16),
+          //           itemBuilder: (context, index) {
+          //             final item = fund.schemePeerComparisonList[index + 1];
+
+          //             return GestureDetector(
+          //               onTap: () {
+          //                 final controller = Get.find<FundDetailsController>();
+          //                 controller.loadNewFund(
+          //                   item.schemeName,
+          //                   fund.schemeAmfiCode,
+          //                 );
+          //                 debugPrint("Opening ${item.schemeName}");
+          //               },
+          //               child: Container(
+          //                 width: MediaQuery.of(context).size.width * 0.75,
+          //                 padding: const EdgeInsets.all(12),
+          //                 decoration: BoxDecoration(
+          //                   color: Colors
+          //                       .grey
+          //                       .shade50, // Subtle contrast from parent
+          //                   borderRadius: BorderRadius.circular(12),
+          //                   border: Border.all(color: Colors.grey.shade200),
+          //                 ),
+          //                 child: Column(
+          //                   children: [
+          //                     /// Top Row (Icon + Title)
+          //                     Row(
+          //                       children: [
+          //                         Container(
+          //                           height: 32,
+          //                           width: 32,
+          //                           decoration: const BoxDecoration(
+          //                             shape: BoxShape.circle,
+          //                           ),
+          //                           child: ClipOval(
+          //                             child: Image.asset(UImages.imp),
+          //                           ),
+          //                         ),
+          //                         const SizedBox(width: 10),
+          //                         Expanded(
+          //                           child: Text(
+          //                             item.schemeName,
+          //                             maxLines: 2,
+          //                             overflow: TextOverflow.ellipsis,
+          //                             style: const TextStyle(
+          //                               fontFamily: FontFamily.medium,
+          //                               fontSize: 13,
+          //                               fontWeight: FontWeight.w600,
+          //                             ),
+          //                           ),
+          //                         ),
+          //                       ],
+          //                     ),
+          //                     const Spacer(),
+
+          //                     /// Stats Row
+          //                     Row(
+          //                       mainAxisAlignment:
+          //                           MainAxisAlignment.spaceBetween,
+          //                       children: [
+          //                         _buildMiniStat(
+          //                           '1Y',
+          //                           '${item.oneYearReturn}%',
+          //                         ),
+          //                         _buildMiniStat(
+          //                           '3Y',
+          //                           '${item.threeYearReturn}%',
+          //                         ),
+          //                         _buildMiniStat(
+          //                           '5Y',
+          //                           '${item.fiveYearReturn}%',
+          //                         ),
+          //                       ],
+          //                     ),
+          //                   ],
+          //                 ),
+          //               ),
+          //             );
+          //           },
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
           const Gap(8),
-          SizedBox(
-            height: MediaQuery.of(context).size.height < 700 ? 182 : 260,
-
-            child: ListView.builder(
-              // itemCount: 10,
-              itemCount: fund!.schemePeerComparisonList.length - 1,
-              scrollDirection: Axis.horizontal,
-
-              itemBuilder: (context, index) => SizedBox(
-                width: MediaQuery.of(context).size.width * 0.97,
-                child: GestureDetector(
-                  onTap: () {
-                    log('${fund.schemeName}--------------------');
-                    log('${controller.imgUrl}--------------------');
-                    log('tap fund compare');
-                    Get.toNamed(
-                      AppRoutes.comparefund,
-
-                      // arguments: {
-                      //   'name': fund.schemeName,
-                      //   'name2':
-                      //       fund.schemePeerComparisonList[index + 1].schemeName,
-                      // },
-                      arguments: {
-                        'name': controller.schemeName,
-                        'imgUrl': controller.imgUrl,
-                        'name2':
-                            fund.schemePeerComparisonList[index + 1].schemeName,
-                      },
-                    );
-                  },
-                  child: CustomContainer(
-                    bottomPadding: 0,
-                    topPadding: 15,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                          child: USectionHeading(
-                            title: 'Fund Comparison',
-                            showActionButton: false,
-                          ),
-                        ),
-                        FundComparisonItem(
-                          imgUrl: controller.imgUrl,
-                          fund1: fund.schemeName,
-                          year: fund.schemePerformanceList[0].threeYearReturn
-                              .toString(),
-                        ),
-                        SizedBox(height: 3),
-                        Row(
-                          children: [
-                            // Left dashed line
-                            Expanded(
-                              child: DashedLine(color: Colors.grey.shade300),
-                            ),
-
-                            Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 6),
-                              padding: const EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.blue,
-                                  width: 1.2,
-                                ),
-                              ),
-                              child: const Text(
-                                'VS',
-                                style: TextStyle(
-                                  fontFamily: FontFamily.medium,
-                                  color: Colors.grey,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-
-                            // Right dashed line
-                            Expanded(
-                              child: DashedLine(color: Colors.grey.shade300),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 5),
-
-                        FundComparisonItem(
-                          year: fund
-                              .schemePeerComparisonList[index + 1]
-                              .threeYearReturn
-                              .toString(),
-                          fund1: fund
-                              .schemePeerComparisonList[index + 1]
-                              .schemeName
-                              .toString(),
-                        ),
-
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            // horizontal: 60.0,
-                            vertical: 8,
-                          ),
-                          child: OutlinedButton(
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(
-                                color: Ucolors.primary.withValues(alpha: 0.5),
-                              ),
-                            ),
-                            // onPressed: () => Get.toNamed(AppRoutes.comparefund ),
-                            onPressed: null,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Compare Funds',
-                                  style: UTextStyles.buttonText.copyWith(
-                                    // color: Ucolors.primary.withValues(alpha:0.5),
-                                    color: Ucolors.primary,
-                                  ),
-                                ),
-                                SizedBox(width: 10),
-                                Icon(
-                                  Icons.arrow_forward,
-                                  color: Ucolors.primary.withValues(alpha: 0.5),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const Gap(8),
-
-          CustomContainer(
-            topPadding: 15,
-            bottomPadding: 15,
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-                  child: const USectionHeading(
-                    title: 'Related Funds',
-                    showActionButton: false,
-                  ),
-                ),
-
-                /// 📜 The Horizontal List inside the card
-                SizedBox(
-                  height: 100, // Adjusted height
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    // padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    itemCount: fund.schemePeerComparisonList.length - 1,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(width: 16),
-                    itemBuilder: (context, index) {
-                      final item = fund.schemePeerComparisonList[index + 1];
-
-                      return GestureDetector(
-                        onTap: () {
-                          final controller = Get.find<FundDetailsController>();
-                          controller.loadNewFund(
-                            item.schemeName,
-                            fund.schemeAmfiCode,
-                          );
-                          debugPrint("Opening ${item.schemeName}");
-                        },
-                        child: Container(
-                          width: MediaQuery.of(context).size.width * 0.75,
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors
-                                .grey
-                                .shade50, // Subtle contrast from parent
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey.shade200),
-                          ),
-                          child: Column(
-                            children: [
-                              /// Top Row (Icon + Title)
-                              Row(
-                                children: [
-                                  Container(
-                                    height: 32,
-                                    width: 32,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: ClipOval(
-                                      child: Image.asset(UImages.imp),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      item.schemeName,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontFamily: FontFamily.medium,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const Spacer(),
-
-                              /// Stats Row
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  _buildMiniStat(
-                                    '1Y',
-                                    '${item.oneYearReturn}%',
-                                  ),
-                                  _buildMiniStat(
-                                    '3Y',
-                                    '${item.threeYearReturn}%',
-                                  ),
-                                  _buildMiniStat(
-                                    '5Y',
-                                    '${item.fiveYearReturn}%',
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Gap(8),
-
           CustomContainer(
             topPadding: 15,
             bottomPadding: 4,
@@ -5975,7 +5973,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                 ),
                 ReadMoreText(
                   style: UTextStyles.medium,
-                  fund.schemeObjective.toString() ?? '',
+                  fund?.schemeObjective.toString() ?? '',
                   trimMode: TrimMode.Line,
                   trimLines: 2,
                   trimCollapsedText: 'Show More',
@@ -6071,25 +6069,25 @@ class OverviewScreen extends GetView<FundDetailsController> {
                       children: [
                         _buildDetailRow(
                           'Fund Size',
-                          '₹${fund.schemeAssets} Cr.',
+                          '₹${fund?.schemeAssets} Cr.',
                           Icons.bar_chart_outlined,
                         ),
                         _buildDashedDivider(),
                         _buildDetailRow(
                           'Min. Inv',
-                          '₹${fund.minimumInvestment}',
+                          '₹${fund?.minimumInvestment}',
                           Icons.circle_outlined,
                         ),
                         _buildDashedDivider(),
                         _buildDetailRow(
                           'Min. Sip Inv',
-                          '₹${fund.sipMinimumAmount}',
+                          '₹${fund?.sipMinimumAmount}',
                           Icons.change_circle_outlined,
                         ),
                         _buildDashedDivider(),
                         _buildDetailRow(
                           'Expense Ratio',
-                          '${fund.expenseRatioPercentage}%',
+                          '${fund?.expenseRatioPercentage}%',
                           Icons.pie_chart_outline,
                         ),
                       ],
@@ -6149,7 +6147,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                         investmentDetailSection(
                           'Category',
                           // fund?.schemeCategory.split(':')[0].toString() ?? '',
-                          fund.schemeCategory ?? '',
+                          fund?.schemeCategory ?? '',
                           Icons.category,
                         ),
 
@@ -6159,8 +6157,8 @@ class OverviewScreen extends GetView<FundDetailsController> {
                         investmentDetailSection(
                           'Inv. Plan',
                           // fund?.schemeName.split('-')[1].toString() ?? '',
-                          fund.schemeName.contains('-') == true
-                              ? fund.schemeName.split('-')[1].trim()
+                          fund?.schemeName.contains('-') == true
+                              ? fund!.schemeName.split('-')[1].trim()
                               : 'Nil',
 
                           // fund.schemeName,
@@ -6169,21 +6167,21 @@ class OverviewScreen extends GetView<FundDetailsController> {
                         DashedLine(dashSpace: 0, color: Colors.grey.shade300),
                         investmentDetailSection(
                           'Launched IN',
-                          fund.schemeInceptionDate.toString() ?? '',
+                          fund?.schemeInceptionDate.toString() ?? '',
                           Icons.calendar_month_sharp,
                         ),
                         DashedLine(dashSpace: 0, color: Colors.grey.shade300),
                         investmentDetailSection(
                           'Bench Mark',
 
-                          fund.schemeBenchmark.toString() ?? '',
+                          fund?.schemeBenchmark.toString() ?? '',
                           Icons.track_changes,
                         ),
                         DashedLine(dashSpace: 0, color: Colors.grey.shade300),
                         investmentDetailSection(
                           'Fund Type',
 
-                          fund.schemeStatus.split(' ')[0].toString() ?? '',
+                          fund?.schemeStatus.split(' ')[0].toString() ?? '',
                           Icons.library_books,
                         ),
                       ],
@@ -6239,7 +6237,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                   children: [
                     investmentDetailSection(
                       'AMC',
-                      fund.schemeCompany.toString() ?? '',
+                      fund?.schemeCompany.toString() ?? '',
                       Icons.bar_chart_rounded,
                     ),
                     DashedLine(dashSpace: 0, color: Colors.grey.shade300),

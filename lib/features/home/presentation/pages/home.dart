@@ -630,7 +630,7 @@ class _WebDashboardLayout extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: FontFamily.medium,
                     fontSize: compact ? 11.5 : 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                     color: Colors.blueGrey.shade600,
                   ),
                 ),
@@ -647,7 +647,7 @@ class _WebDashboardLayout extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: FontFamily.medium,
                       fontSize: compact ? 16 : 17,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w700,
                       color: const Color(0xFF111827),
                     ),
                   ),
