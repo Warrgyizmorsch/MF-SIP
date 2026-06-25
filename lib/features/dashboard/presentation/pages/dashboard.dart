@@ -154,6 +154,9 @@ class DashboardScreen extends GetView<DashboardController> {
 // =========================================================================
 // 💻 WEB DASHBOARD LAYOUT (Matches image_0d5c7f.png Exactly)
 // =========================================================================
+// =========================================================================
+// 💻 WEB DASHBOARD LAYOUT (Fully Responsive with Advanced Stepping)
+// =========================================================================
 class WebDashboardLayout extends StatelessWidget {
   final CartController cartController;
   const WebDashboardLayout({super.key, required this.cartController});
@@ -162,145 +165,176 @@ class WebDashboardLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: const Color(0xFFF8FAFC), // Ultra-light premium dashboard background
-      child: Column(
-        children: [
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final double width = constraints.maxWidth;
+          final double textScale = MediaQuery.textScalerOf(context).scale(1.0);
 
-          // 2. SCROLLABLE CONTENT BODY
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // --- ROW 1: TOP SUMMARY STAT CARDS ---
-                  const Row(
-                    children: [
-                      Expanded(
-                        child: ExactWebStatCard(
-                          title: "Current Value",
-                          value: "₹32,580",
-                          trendText: "1.24% vs last month",
-                          trendIcon: Icons.arrow_upward_rounded,
-                          valueColor: const Color(0xFF0F172A),
-                          trendColor: const Color(0xFF22C55E),
-                          icon:Icons.wallet,
-                          iconBgColor: Color(0xFFEFF6FF),
-                          iconColor: Color(0xFF1D4ED8),
-                          sparklineData: [20, 15, 25, 18, 30, 22, 35, 45], // Blue line path
-                        ),
-                      ),
-                      Gap(16),
-                      Expanded(
-                        child: ExactWebStatCard(
-                          title: "Total Investment",
-                          value: "₹30,000",
-                          trendText: "0.00% vs last month",
-                          trendIcon: Icons.remove,
-                          valueColor: const Color(0xFF0F172A),
-                          trendColor: const Color(0xFF64748B),
-                          icon: Icons.paid,
-                          iconBgColor: Color(0xFFFFF7ED),
-                          iconColor: Color(0xFFEA580C),
-                          sparklineData: [15, 25, 12, 20, 15, 22, 18, 20], // Orange line path
-                        ),
-                      ),
-                      Gap(16),
-                      Expanded(
-                        child: ExactWebStatCard(
-                          title: "Profit / Loss",
-                          value: "+₹2,580",
-                          trendText: "1.24% vs last month",
-                          trendIcon: Icons.arrow_upward_rounded,
-                          valueColor: const Color(0xFF22C55E), // Vibrant Green Matching text color
-                          trendColor: const Color(0xFF22C55E),
-                          icon: Icons.trending_up_rounded, // Clean Solid Upward Trend (No Outline)
-                          iconBgColor: Color(0xFFF0FDF4),
-                          iconColor: Color(0xFF16A34A),
-                          sparklineData: [10, 12, 22, 15, 20, 28, 35, 48], // Green line path
-                        ),
-                      ),
-                      Gap(16),
-                      Expanded(
-                        child: ExactWebStatCard(
-                          title: "Portfolio XIRR",
-                          value: "+15.06%",
-                          trendText: "15.06% all time",
-                          trendIcon: Icons.arrow_upward_rounded,
-                          valueColor: const Color(0xFF9333EA), // Vibrant Purple Matching text color
-                          trendColor: const Color(0xFF22C55E),
-                          icon: Icons.percent_rounded,
-                          iconBgColor: Color(0xFFFAF5FF),
-                          iconColor: Color(0xFF9333EA),
-                          sparklineData: [12, 20, 14, 18, 15, 25, 22, 30], // Purple line path
-                        ),
-                      ),
-                    ],
-                  ),
+          // 1. Structural Breakpoints
+          final bool useVerticalSplit = width < (980 * textScale);
+          final int statCrossAxisCount;
+          final double statAspectRatio;
 
-                  const Gap(24),
+          if (width >= (1100 * textScale)) {
+            statCrossAxisCount = 4;
+            statAspectRatio = 2.2;
+          } else if (width >= (700 * textScale)) {
+            statCrossAxisCount = 2;
+            statAspectRatio = 2.5;
+          } else {
+            statCrossAxisCount = 2;
+            statAspectRatio = 2.6;
+          }
 
-                  // --- ROW 2: SPLIT VIEW (MAIN CHART + SIDEBAR) ---
-                  Row(
+          // Shared Widget Content Blocks
+          final Widget mainContentBlock = Column(
+            children: [
+              _buildPerformanceChartCard(),
+              const Gap(24),
+              _buildYourHoldingsTableCard(width), // Dynamic compression support inside table
+              const Gap(24),
+              _buildBottomSummaryRow(useVerticalSplit),
+            ],
+          );
+
+          final Widget sidebarContentBlock = Column(
+            children: [
+              _buildQuickActionsCard(),
+              const Gap(24),
+              _buildUpcomingSIPsCard(),
+              const Gap(24),
+              _buildRecentActivityCard(),
+            ],
+          );
+
+          return Column(
+            children: [
+              // 2. SCROLLABLE CONTENT BODY
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // LEFT SIDE OVERVIEW (65% width)
-                      Expanded(
-                        flex: 65,
-                        child: Column(
-                          children: [
-                            _buildPerformanceChartCard(),
-                            const Gap(24),
-                            _buildYourHoldingsTableCard(),
-                            const Gap(24),
-                            _buildBottomSummaryRow()
-                          ],
+
+                      // --- ROW 1: DYNAMIC SUMMARY GRID ---
+                      GridView(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: statCrossAxisCount,
+                          childAspectRatio: statAspectRatio,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
                         ),
+                        children: const [
+                          ExactWebStatCard(
+                            title: "Current Value",
+                            value: "₹32,580",
+                            trendText: "1.24% vs last month",
+                            trendIcon: Icons.arrow_upward_rounded,
+                            valueColor: Color(0xFF0F172A),
+                            trendColor: Color(0xFF22C55E),
+                            icon: Icons.wallet,
+                            iconBgColor: Color(0xFFEFF6FF),
+                            iconColor: Color(0xFF1D4ED8),
+                            sparklineData: [20, 15, 25, 18, 30, 22, 35, 45],
+                          ),
+                          ExactWebStatCard(
+                            title: "Total Investment",
+                            value: "₹30,000",
+                            trendText: "0.00% vs last month",
+                            trendIcon: Icons.remove,
+                            valueColor: Color(0xFF0F172A),
+                            trendColor: Color(0xFF64748B),
+                            icon: Icons.paid,
+                            iconBgColor: Color(0xFFFFF7ED),
+                            iconColor: Color(0xFFEA580C),
+                            sparklineData: [15, 25, 12, 20, 15, 22, 18, 20],
+                          ),
+                          ExactWebStatCard(
+                            title: "Profit / Loss",
+                            value: "+₹2,580",
+                            trendText: "1.24% vs last month",
+                            trendIcon: Icons.arrow_upward_rounded,
+                            valueColor: Color(0xFF22C55E),
+                            trendColor: Color(0xFF22C55E),
+                            icon: Icons.trending_up_rounded,
+                            iconBgColor: Color(0xFFF0FDF4),
+                            iconColor: Color(0xFF16A34A),
+                            sparklineData: [10, 12, 22, 15, 20, 28, 35, 48],
+                          ),
+                          ExactWebStatCard(
+                            title: "Portfolio XIRR",
+                            value: "+15.06%",
+                            trendText: "15.06% all time",
+                            trendIcon: Icons.arrow_upward_rounded,
+                            valueColor: Color(0xFF9333EA),
+                            trendColor: Color(0xFF22C55E),
+                            icon: Icons.percent_rounded,
+                            iconBgColor: Color(0xFFFAF5FF),
+                            iconColor: Color(0xFF9333EA),
+                            sparklineData: [12, 20, 14, 18, 15, 25, 22, 30],
+                          ),
+                        ],
                       ),
 
                       const Gap(24),
 
-                      // RIGHT SIDEBAR PANELS (35% width)
-                      Expanded(
-                        flex: 35,
-                        child: Column(
+                      // --- ROW 2: ADAPTIVE SPLIT VIEW (MAIN CHART + SIDEBAR) ---
+                      if (useVerticalSplit) ...[
+                        mainContentBlock,
+                        const Gap(24),
+                        sidebarContentBlock,
+                      ] else ...[
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildQuickActionsCard(),
+                            // LEFT SIDE OVERVIEW (65% width)
+                            Expanded(
+                              flex: 65,
+                              child: mainContentBlock,
+                            ),
                             const Gap(24),
-                            _buildUpcomingSIPsCard(),
-                            // const Gap(24),
-                            // _buildPortfolioAllocationCard(),
-                            const Gap(24),
-                            _buildRecentActivityCard()
+                            // RIGHT SIDEBAR PANELS (35% width)
+                            Expanded(
+                              flex: 35,
+                              child: sidebarContentBlock,
+                            ),
                           ],
                         ),
-                      ),
+                      ],
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
-  Widget _buildBottomSummaryRow() {
+
+  Widget _buildBottomSummaryRow(bool useVerticalLayout) {
+    if (useVerticalLayout) {
+      return const Column(
+        children: [
+          TopPerformingFundCard(),
+          Gap(24),
+          GoalProgressCard(),
+        ],
+      );
+    }
     return const Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: TopPerformingFundCard(),
-        ),
+        Expanded(child: TopPerformingFundCard()),
         Gap(24),
-        Expanded(
-          child: GoalProgressCard(),
-        ),
+        Expanded(child: GoalProgressCard()),
       ],
     );
   }
-  // =========================================================================
-  // 📈 PERFORMANCE & CHART COMPONENT
-  // =========================================================================
+
   Widget _buildPerformanceChartCard() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -313,149 +347,130 @@ class WebDashboardLayout extends StatelessWidget {
     );
   }
 
-  Widget _buildLegendItem(String label, Color color) {
-    return Row(
+  // Modified Holdings layout to switch to SingleChildScrollView scrolling on compressed slots
+  Widget _buildYourHoldingsTableCard(double totalWidth) {
+    final bool isCompactTable = totalWidth < 750;
+
+    final tableWidget = Table(
+      columnWidths: isCompactTable
+          ? const {
+        0: FixedColumnWidth(220), // Lock sizing to prevent clipping text strings
+        1: FixedColumnWidth(90),
+        2: FixedColumnWidth(100),
+        3: FixedColumnWidth(100),
+        4: FixedColumnWidth(100),
+        5: FixedColumnWidth(90),
+        6: FixedColumnWidth(110),
+      }
+          : const {
+        0: FlexColumnWidth(3.8),
+        1: FlexColumnWidth(1.6),
+        2: FlexColumnWidth(1.4),
+        3: FlexColumnWidth(1.4),
+        4: FlexColumnWidth(1.4),
+        5: FlexColumnWidth(1.4),
+        6: FlexColumnWidth(1.5),
+      },
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: [
-        Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
-        const Gap(6),
-        Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w500)),
+        TableRow(
+          decoration: const BoxDecoration(
+            border: Border(bottom: BorderSide(color: Color(0xFFF1F5F9), width: 1.5)),
+          ),
+          children: [
+            _buildHeaderCell('Fund Name\nCategory'),
+            _buildHeaderCell('Type'),
+            _buildHeaderCell('Invested\nAmount'),
+            _buildHeaderCell('Current\nValue'),
+            _buildHeaderCell('Gain / Loss\n(₹)'),
+            _buildHeaderCell('Gain / Loss\n(%)'),
+            _buildHeaderCell('Monthly\nContribution'),
+          ],
+        ),
+        _buildTableRowItem(
+          logoWidget: const Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 18),
+          logoBgColor: const Color(0xFF007AFF),
+          name: "Nippon India Large Cap Fund",
+          category: "Equity • Large Cap",
+          type: "SIP",
+          invested: "₹10,000",
+          current: "₹5,43,000",
+          gainAmt: "+₹43,000",
+          gainPct: "+8.60%",
+          monthlyContribution: "₹5,000",
+          isProfit: true,
+        ),
+        _buildTableRowItem(
+          logoWidget: const Center(child: Text("i", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16))),
+          logoBgColor: const Color(0xFFE11D48),
+          name: "ICICI Prudential Technology Fund",
+          category: "Equity • Sectoral / Tech",
+          type: "Lumpsum",
+          invested: "₹10,000",
+          current: "₹4,82,000",
+          gainAmt: "+₹82,000",
+          gainPct: "+20.50%",
+          monthlyContribution: "—\n(One-time)",
+          isProfit: true,
+          isMonthlyContributionSubtitled: true,
+        ),
+        _buildTableRowItem(
+          logoWidget: const Icon(Icons.show_chart_rounded, color: Colors.white, size: 18),
+          logoBgColor: const Color(0xFF0B3C5D),
+          name: "SBI Bluechip Fund",
+          category: "Equity • Large Cap",
+          type: "SIP",
+          invested: "₹15,000",
+          current: "₹4,21,000",
+          gainAmt: "+₹71,000",
+          gainPct: "+20.29%",
+          monthlyContribution: "₹2,000",
+          isProfit: true,
+        ),
       ],
     );
-  }
 
-  // =========================================================================
-  // 📊 HOLDINGS DATA TABLE COMPONENT
-  // =========================================================================
-  // =========================================================================
-// 📊 HOLDINGS DATA TABLE COMPONENT (Matches image_182bd6.jpg Exactly)
-// =========================================================================
-  Widget _buildYourHoldingsTableCard() {
     return Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Your Holdings",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Your Holdings",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+              ),
+              TextButton(
+                onPressed: () {},
+                child: const Text(
+                  "View All",
+                  style: TextStyle(fontSize: 14, color: Color(0xFF007AFF), fontWeight: FontWeight.w700),
                 ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text(
-                    "View All",
-                    style: TextStyle(fontSize: 14, color: Color(0xFF007AFF), fontWeight: FontWeight.w700),
-                  ),
-                ),
-              ],
+              ),
+            ],
+          ),
+          const Gap(20),
+          isCompactTable
+              ? Scrollbar(
+            thumbVisibility: true,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.only(bottom: 12),
+              child: tableWidget,
             ),
-            const Gap(20),
-            Table(
-              columnWidths: const {
-                0: FlexColumnWidth(3.8), // Fund Name + Category
-                1: FlexColumnWidth(1.6), // Type Chip
-                2: FlexColumnWidth(1.4), // Invested Amount
-                3: FlexColumnWidth(1.4), // Current Value
-                4: FlexColumnWidth(1.4), // Gain / Loss (₹)
-                5: FlexColumnWidth(1.4), // Gain / Loss (%)
-                6: FlexColumnWidth(1.5), // Monthly Contribution
-              },
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              children: [
-                // --- HEADER ROW ---
-                TableRow(
-                  decoration: const BoxDecoration(
-                    border: Border(bottom: BorderSide(color: Color(0xFFF1F5F9), width: 1.5)),
-                  ),
-                  children: [
-                    _buildHeaderCell('Fund Name\nCategory'),
-                    _buildHeaderCell('Type'),
-                    _buildHeaderCell('Invested\nAmount'),
-                    _buildHeaderCell('Current\nValue'),
-                    _buildHeaderCell('Gain / Loss\n(₹)'),
-                    _buildHeaderCell('Gain / Loss\n(%)'),
-                    _buildHeaderCell('Monthly\nContribution'),
-                  ],
-                ),
-
-                // --- DYNAMIC/STATIC DATA ROWS ---
-                _buildTableRowItem(
-                  logoWidget: const Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 18),
-                  logoBgColor: const Color(0xFF007AFF),
-                  name: "Nippon India Large Cap Fund",
-                  category: "Equity • Large Cap",
-                  type: "SIP",
-                  invested: "₹10,000",
-                  current: "₹5,43,000",
-                  gainAmt: "+₹43,000",
-                  gainPct: "+8.60%",
-                  monthlyContribution: "₹5,000",
-                  isProfit: true,
-                ),
-                _buildTableRowItem(
-                  logoWidget: const Center(child: Text("i", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16))),
-                  logoBgColor: const Color(0xFFE11D48),
-                  name: "ICICI Prudential Technology Fund",
-                  category: "Equity • Sectoral / Tech",
-                  type: "Lumpsum",
-                  invested: "₹10,000",
-                  current: "₹4,82,000",
-                  gainAmt: "+₹82,000",
-                  gainPct: "+20.50%",
-                  monthlyContribution: "—\n(One-time)",
-                  isProfit: true,
-                  isMonthlyContributionSubtitled: true,
-                ),
-                _buildTableRowItem(
-                  logoWidget: const Icon(Icons.show_chart_rounded, color: Colors.white, size: 18),
-                  logoBgColor: const Color(0xFF0B3C5D),
-                  name: "SBI Bluechip Fund",
-                  category: "Equity • Large Cap",
-                  type: "SIP",
-                  invested: "₹15,000",
-                  current: "₹4,21,000",
-                  gainAmt: "+₹71,000",
-                  gainPct: "+20.29%",
-                  monthlyContribution: "₹2,000",
-                  isProfit: true,
-                ),
-                _buildTableRowItem(
-                  logoWidget: const Icon(Icons.pie_chart_outline_rounded, color: Colors.white, size: 18),                  logoBgColor: const Color(0xFF0369A1),
-                  name: "Franklin India Flexi Cap Fund",
-                  category: "Equity • Flexi Cap",
-                  type: "SIP + Lumpsum",
-                  invested: "₹5,000",
-                  current: "₹6,98,000",
-                  gainAmt: "+₹48,000",
-                  gainPct: "+7.38%",
-                  monthlyContribution: "₹3,000",
-                  isProfit: true,
-                ),
-                _buildTableRowItem(
-                  logoWidget: const Icon(Icons.shield_rounded, color: Colors.white, size: 18),
-                  logoBgColor: const Color(0xFF10B981),
-                  name: "HDFC Corporate Bond Fund",
-                  category: "Debt • Corporate Bond",
-                  type: "SIP",
-                  invested: "₹10,000",
-                  current: "₹7,16,000",
-                  gainAmt: "+₹2,16,000",
-                  gainPct: "+43.36%",
-                  monthlyContribution: "₹4,000",
-                  isProfit: true,
-                ),
-              ],
-            ),
-          ],
-        ));
-    }
+          )
+              : tableWidget,
+        ],
+      ),
+    );
+  }
 
   Widget _buildHeaderCell(String text) {
     return Padding(
@@ -469,6 +484,204 @@ class WebDashboardLayout extends StatelessWidget {
           height: 1.3,
         ),
       ),
+    );
+  }
+
+  Widget _buildQuickActionsCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text("Quick Actions", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+          const Gap(16),
+          Row(
+            children: [
+              Expanded(child: _buildActionGridItem("Top Up", "Add money\nInstantly", Icons.add, const Color(0xFF3B82F6))),
+              const Gap(12),
+              Expanded(child: _buildActionGridItem("Withdraw", "Redeem to\nbank", Icons.remove, const Color(0xFFF97316))),
+              const Gap(12),
+              Expanded(child: _buildActionGridItem("SIP", "Manage\nmonthly SIP", Iconsax.calendar, const Color(0xFFA855F7))),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionGridItem(String label, String sub, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+            child: Icon(icon, size: 16, color: color),
+          ),
+          const Gap(12),
+          Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF1E293B))),
+          const Gap(4),
+          Text(sub, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), height: 1.2, fontWeight: FontWeight.w400)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUpcomingSIPsCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("Upcoming SIPs", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+              TextButton(onPressed: () {}, child: const Text("View All", style: TextStyle(fontSize: 12, color: Color(0xFF3B82F6)))),
+            ],
+          ),
+          const Gap(12),
+          _buildSipRowItem("10 Jun", "Kotak Bluechip Fund", "₹5,000"),
+          const Divider(height: 20, color: Color(0xFFF1F5F9)),
+          _buildSipRowItem("15 Jun", "ICICI Prudential Tech", "₹3,000"),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSipRowItem(String date, String title, String value) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(color: const Color(0xFFE0F2FE), borderRadius: BorderRadius.circular(6)),
+          child: Text(date, style: const TextStyle(color: Color(0xFF0284C7), fontWeight: FontWeight.w700, fontSize: 12)),
+        ),
+        const Gap(12),
+        Expanded(
+          child: Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)), overflow: TextOverflow.ellipsis),
+        ),
+        Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+      ],
+    );
+  }
+
+  Widget _buildRecentActivityCard() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Recent Activity",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF6366F1)),
+              ),
+              TextButton(
+                onPressed: () {},
+                child: const Text(
+                  "View All",
+                  style: TextStyle(fontSize: 13, color: Color(0xFF6366F1), fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
+          ),
+          const Gap(12),
+          _buildActivityRowItem(
+            icon: Iconsax.document_text5,
+            title: "SIP Invested",
+            subtitle: "Kotak Bluechip Fund",
+            amount: "₹5,000",
+            timeAgo: "Today",
+          ),
+          const Divider(height: 24, thickness: 0.8, color: Color(0xFFF1F5F9)),
+          _buildActivityRowItem(
+            icon: Iconsax.calendar_tick,
+            title: "SIP Invested",
+            subtitle: "ICICI Prudential Tech",
+            amount: "₹3,000",
+            timeAgo: "2 days ago",
+          ),
+          const Divider(height: 24, thickness: 0.8, color: Color(0xFFF1F5F9)),
+          _buildActivityRowItem(
+            icon: Iconsax.clock,
+            title: "Redemption",
+            subtitle: "SBI Small Cap Fund",
+            amount: "₹2,000",
+            timeAgo: "5 days ago",
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActivityRowItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required String amount,
+    required String timeAgo,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 24, color: const Color(0xFF475569)),
+        const Gap(16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+              ),
+              const Gap(4),
+              Text(
+                subtitle,
+                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+        ),
+        Text(
+          amount,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+        ),
+        const Gap(24),
+        SizedBox(
+          width: 75,
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              timeAgo,
+              style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8), fontWeight: FontWeight.w500),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -1337,6 +1550,7 @@ class MultiSegmentDonutPainter extends CustomPainter {
 // =========================================================================
 // 💎 PIXEL-PERFECT STAT CARD WITH MINI SPARKLINE
 // =========================================================================
+
 class ExactWebStatCard extends StatelessWidget {
   final String title;
   final String value;
@@ -1346,7 +1560,7 @@ class ExactWebStatCard extends StatelessWidget {
   final IconData icon;
   final Color iconBgColor;
   final Color iconColor;
-  final Color valueColor; // Added to match the image colors dynamically
+  final Color valueColor;
   final List<double> sparklineData;
 
   const ExactWebStatCard({
@@ -1359,108 +1573,198 @@ class ExactWebStatCard extends StatelessWidget {
     required this.icon,
     required this.iconBgColor,
     required this.iconColor,
-    required this.valueColor, // Pass color based on card context
+    required this.valueColor,
     required this.sparklineData,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 140,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.01),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          // 1. MAIN CARD CONTENT
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Circle Avatar Icon
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: iconBgColor,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, color: iconColor, size: 22),
-                ),
-                const Gap(16),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double width = constraints.maxWidth;
+        final double textScale = MediaQuery.textScalerOf(context).scale(1.0);
 
-                // Labels Column
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF1E293B), // Navy/Slate title label text
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const Gap(6),
-                      Text(
-                        value,
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.w800,
-                          color: valueColor, // Replaces static color with custom image-matching profile
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      const Gap(6),
-                      Row(
-                        children: [
-                          Icon(trendIcon, size: 14, color: trendColor),
-                          const Gap(4),
-                          Text(
-                            trendText,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: trendColor, // Matches the text color directly with the trend green/purple/grey arrow icon
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+        // 1. Calculate granular, un-overflowable font stepping tiers
+        final double titleFontSize;
+        final double valueFontSize;
+        final double trendFontSize;
+        final double iconSize;
+        final double paddingValue;
+        final double sparklineHeight;
+
+        if (width >= (450 * textScale)) {
+          titleFontSize = 14;
+          valueFontSize = 30;
+          trendFontSize = 13;
+          iconSize = 24;
+          paddingValue = 20;
+          sparklineHeight = 36;
+        } else if (width >= (320 * textScale)) {
+          titleFontSize = 13;
+          valueFontSize = 26;
+          trendFontSize = 12;
+          iconSize = 22;
+          paddingValue = 16;
+          sparklineHeight = 32;
+        } else if (width >= (260 * textScale)) {
+          titleFontSize = 12;
+          valueFontSize = 22;
+          trendFontSize = 11;
+          iconSize = 18;
+          paddingValue = 12;
+          sparklineHeight = 28;
+        } else if (width >= (220 * textScale)) {
+          titleFontSize = 11;
+          valueFontSize = 18;
+          trendFontSize = 10;
+          iconSize = 16;
+          paddingValue = 10;
+          sparklineHeight = 24;
+        } else {
+          // Ultra Compact view dimensions
+          titleFontSize = 10;
+          valueFontSize = 15;
+          trendFontSize = 9;
+          iconSize = 14;
+          paddingValue = 8;
+          sparklineHeight = 20;
+        }
+
+        // Structural toggles to switch stack strategies based on space
+        final bool useVerticalLayout = width < (180 * textScale);
+
+        // --- Core Modules ---
+        final Widget iconModule = Container(
+          padding: EdgeInsets.all(paddingValue < 12 ? 8 : 12),
+          decoration: BoxDecoration(
+            color: iconBgColor,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: iconColor, size: iconSize),
+        );
+
+        final Widget textModule = Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: titleFontSize,
+                color: const Color(0xFF1E293B),
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: valueFontSize,
+                fontWeight: FontWeight.w800,
+                color: valueColor,
+                letterSpacing: -0.5,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(trendIcon, size: trendFontSize + 2, color: trendColor),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    trendText,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: trendFontSize,
+                      color: trendColor,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],
             ),
-          ),
+          ],
+        );
 
-          // 2. BOTTOM MINI SPARKLINE CHART
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: SizedBox(
-              height: 32,
-              width: double.infinity,
-              child: CustomPaint(
-                painter: MiniSparklinePainter(
-                  data: sparklineData,
-                  lineColor: iconColor,
+        return Container(
+          // REMOVED rigid hardcoded height: 140 to allow dynamic stretching
+          constraints: BoxConstraints(
+            minHeight: 135 * textScale,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.01),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              // 1. MAIN CARD CONTENT
+              Padding(
+                padding: EdgeInsets.only(
+                  left: paddingValue,
+                  top: paddingValue,
+                  right: paddingValue,
+                  bottom: paddingValue + sparklineHeight, // Ensures content never overlaps with the chart
+                ),
+                child: useVerticalLayout
+                    ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    iconModule,
+                    const SizedBox(height: 12),
+                    textModule,
+                  ],
+                )
+                    : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    iconModule,
+                    SizedBox(width: paddingValue),
+                    Expanded(child: textModule),
+                  ],
                 ),
               ),
-            ),
+
+              // 2. BOTTOM MINI SPARKLINE CHART
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: SizedBox(
+                  height: sparklineHeight,
+                  width: double.infinity,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
+                    ),
+                    child: CustomPaint(
+                      painter: MiniSparklinePainter(
+                        data: sparklineData,
+                        lineColor: iconColor,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

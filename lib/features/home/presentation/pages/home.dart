@@ -173,7 +173,7 @@ class _WebDashboardLayout extends StatelessWidget {
       body: LayoutBuilder(
         builder: (context, constraints) {
           final double width = constraints.maxWidth;
-          final bool compact = width < 900;
+          final bool compact = width < 1000;
 
           return SingleChildScrollView(
             padding: EdgeInsets.fromLTRB(
@@ -184,13 +184,7 @@ class _WebDashboardLayout extends StatelessWidget {
             ),
             child: Center(
               child: compact
-                  ? Column(
-                      children: [
-                        _buildMainColumn(context, personalController),
-                        const SizedBox(height: 24),
-                        _buildRightColumn(context),
-                      ],
-                    )
+                  ? _buildColumn(context,personalController)
                   : Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -211,7 +205,33 @@ class _WebDashboardLayout extends StatelessWidget {
       ),
     );
   }
-
+  Widget _buildColumn(
+      BuildContext context,
+      PersonalisationController personalController,
+      ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildWelcomeHero(),
+        const SizedBox(height: 24),
+        _buildInvestNowPanel(context),
+        const SizedBox(height: 24),
+        _buildSmartActionRow(),
+        const SizedBox(height: 24),
+        _buildRecentlyViewedPanel(),
+        const SizedBox(height: 24),
+        _buildExploreCategories(),
+        const SizedBox(height: 24),
+        _buildGoalsPanel(),
+        const SizedBox(height: 24),
+        _buildFinancialToolsPanel(),
+        const SizedBox(height: 24),
+        _buildPopularFunds(),
+        const SizedBox(height: 24),
+        _buildLearnGrow(),
+      ],
+    );
+  }
   Widget _buildMainColumn(
     BuildContext context,
     PersonalisationController personalController,
@@ -963,13 +983,14 @@ class _WebDashboardLayout extends StatelessWidget {
               color: hover ? color.withOpacity(0.3) : const Color(0xFFF1F5F9),
             ),
             boxShadow: [
+
               BoxShadow(
                 color: hover
                     ? color.withOpacity(0.15)
-                    : Colors.black.withOpacity(0.03),
-                blurRadius: hover ? 24 : 16,
-                offset: hover ? const Offset(0, 10) : const Offset(0, 4),
-                spreadRadius: hover ? 2 : 0,
+                    : Colors.black.withOpacity(0.08),
+                blurRadius: hover ? 24 : 18,
+                offset: hover ? const Offset(0, 10) : const Offset(0, 7),
+                spreadRadius: hover ? 2 : 1,
               ),
             ],
           ),
@@ -1207,14 +1228,15 @@ class _WebDashboardLayout extends StatelessWidget {
       width: double.infinity,
       padding: padding,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Ucolors.white,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: const Color(0xFFE7ECF4)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.025),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 18,
             offset: const Offset(0, 7),
+            spreadRadius: 1
           ),
         ],
       ),
@@ -1372,10 +1394,10 @@ class _WebDashboardLayout extends StatelessWidget {
                 BoxShadow(
                   color: hover
                       ? Color(0xFFF2F7FF).withOpacity(0.15)
-                      : Colors.black.withOpacity(0.2),
+                      : Colors.black.withOpacity(0.1),
                   blurRadius: hover ? 24 : 16,
                   offset: hover ? const Offset(0, 10) : const Offset(0, 4),
-                  spreadRadius: hover ? 2 : 0,
+                  spreadRadius: hover ? 1 : 0,
                 ),
                   ]
 
@@ -1434,15 +1456,24 @@ class _WebDashboardLayout extends StatelessWidget {
                 builder: (context, constraints) {
                   // final bool compact = constraints.maxWidth < 700;
                   // final int crossAxisCount = compact ? 1 : 3;
-                  final bool compact = constraints.maxWidth < 700;
-                  final bool laptopTight = constraints.maxWidth < 960;
+                  final double width = constraints.maxWidth;
+
+                  final bool compact = width < 700;
+                  final bool laptopTight = width < 960;
+                  final bool mediumTight = width < 920;
 
                   final int crossAxisCount = compact
                       ? 2
                       : laptopTight
                       ? 3
                       : 4;
-
+                  final double aspectRatio =
+                  width < 700 ? 2.1 :
+                  width < 850 ? 1.6 :
+                  width < 960 ? 1.9 :
+                  2.0;
+                  debugPrint("Available Width: $width");
+                  debugPrint("Available aspectRatio: $aspectRatio");
                   return GridView.builder(
                     itemCount: funds.length > 8 ? 8 : funds.length,
                     shrinkWrap: true,
@@ -1450,9 +1481,9 @@ class _WebDashboardLayout extends StatelessWidget {
 
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: crossAxisCount,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                        childAspectRatio: compact ? 2.2 : laptopTight ? 1.9 : 2.1,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: aspectRatio,
                       ),
 
                     itemBuilder: (context, index) {
@@ -1567,9 +1598,8 @@ class _WebDashboardLayout extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 16), // Space between top and bottom sections
+              const SizedBox(height: 8), // Space between top and bottom sections
 
-              // --- BOTTOM SECTION: Returns info + Invest Button ---
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -2060,7 +2090,7 @@ class _WebDashboardLayout extends StatelessWidget {
                   style: const TextStyle(
                     fontFamily: FontFamily.medium,
                     fontSize: 12,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: Color(0xFF111827),
                   ),
                 ),
@@ -2071,7 +2101,7 @@ class _WebDashboardLayout extends StatelessWidget {
                 style: const TextStyle(
                   fontFamily: FontFamily.medium,
                   fontSize: 12,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                   color: Color(0xFF00A85A),
                 ),
               ),
@@ -2109,15 +2139,17 @@ class _WebDashboardLayout extends StatelessWidget {
       }),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final bool tightWidth = constraints.maxWidth < 390;
+          final double width = constraints.maxWidth;
 
+          final bool tightWidth = constraints.maxWidth < 390;
+          final bool maxWidth = constraints.maxWidth < 700;
           return GridView.builder(
             itemCount: goals.length,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: tightWidth ? 2.4 : 3.0,
+              crossAxisCount: maxWidth?2:4,
+              childAspectRatio: tightWidth ? 1.9 : 3,
               crossAxisSpacing: 10,
               mainAxisSpacing: 10,
             ),
@@ -2231,7 +2263,7 @@ class _WebDashboardLayout extends StatelessWidget {
                       style: const TextStyle(
                         fontFamily: FontFamily.medium,
                         fontSize: 12,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w600,
                         color: Color(0xFF111827),
                       ),
                     ),
@@ -2241,7 +2273,7 @@ class _WebDashboardLayout extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: FontFamily.medium,
                         fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         color: Color(0xFF00A85A),
                       ),
                     ),
@@ -2259,7 +2291,6 @@ class _WebDashboardLayout extends StatelessWidget {
       },
     );
   }
-
   Widget _buildFinancialToolsPanel() {
     final tools = [
       {
@@ -2286,27 +2317,30 @@ class _WebDashboardLayout extends StatelessWidget {
 
     return _panel(
       title: 'Financial Tools',
-      child: GridView.builder(
-        itemCount: tools.length,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          // crossAxisCount: 2,
-          // mainAxisExtent: 66,
-          // crossAxisSpacing: 12,
-          // mainAxisSpacing: 12,
-          crossAxisCount: 2,
-          childAspectRatio: 3.25,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-        ),
-        itemBuilder: (context, index) {
-          final item = tools[index];
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final double width = constraints.maxWidth;
+          final bool maxWidth = width < 700;
+          final bool tightWidth = width < 390;
+          return GridView.builder(
+            itemCount: tools.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: maxWidth?2:4,
+              childAspectRatio: tightWidth ? 1.9 : 3,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+            ),
+            itemBuilder: (context, index) {
+              final item = tools[index];
 
-          return _toolTile(
-            title: item['title'] as String,
-            img: item['img'] as String,
-            onTap: item['tap'] as VoidCallback,
+              return _toolTile(
+                title: item['title'] as String,
+                img: item['img'] as String,
+                onTap: item['tap'] as VoidCallback,
+              );
+            },
           );
         },
       ),
@@ -2346,7 +2380,7 @@ class _WebDashboardLayout extends StatelessWidget {
                     fontFamily: FontFamily.medium,
                     fontSize: 12,
                     height: 1.15,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     color: hover ? Ucolors.primary : const Color(0xFF111827),
                   ),
                 ),
