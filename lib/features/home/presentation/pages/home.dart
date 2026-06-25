@@ -173,7 +173,7 @@ class _WebDashboardLayout extends StatelessWidget {
       body: LayoutBuilder(
         builder: (context, constraints) {
           final double width = constraints.maxWidth;
-          final bool compact = width < 1180;
+          final bool compact = width < 900;
 
           return SingleChildScrollView(
             padding: EdgeInsets.fromLTRB(
@@ -183,31 +183,28 @@ class _WebDashboardLayout extends StatelessWidget {
               32,
             ),
             child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1500),
-                child: compact
-                    ? Column(
-                        children: [
-                          _buildMainColumn(context, personalController),
-                          const SizedBox(height: 24),
-                          _buildRightColumn(context),
-                        ],
-                      )
-                    : Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            flex: 66,
-                            child: _buildMainColumn(
-                              context,
-                              personalController,
-                            ),
+              child: compact
+                  ? Column(
+                      children: [
+                        _buildMainColumn(context, personalController),
+                        const SizedBox(height: 24),
+                        _buildRightColumn(context),
+                      ],
+                    )
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 66,
+                          child: _buildMainColumn(
+                            context,
+                            personalController,
                           ),
-                          const SizedBox(width: 24),
-                          Expanded(flex: 34, child: _buildRightColumn(context)),
-                        ],
-                      ),
-              ),
+                        ),
+                        const SizedBox(width: 24),
+                        Expanded(flex: 34, child: _buildRightColumn(context)),
+                      ],
+                    ),
             ),
           );
         },
@@ -401,72 +398,111 @@ class _WebDashboardLayout extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Elegant squircle background mapping for icons matching target spec
-          Container(
-            width: 44,
-            height: 44,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final double textScaleFactor = MediaQuery.textScalerOf(context).scale(1.0);
+
+          final bool useVerticalLayout = constraints.maxWidth < (170 * textScaleFactor);
+
+          final Widget contentColumn = Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 11.5,
+                  color: Color(0xFF64748B),
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textScaler: TextScaler.noScaling, // Keeps labels clean or let it scale by removing this line
+              ),
+              const SizedBox(height: 3),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0F172A),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis, // Safe guard for large font sizes or long values
+              ),
+              const SizedBox(height: 4),
+              // Replaced Wrap with Row + Flexible to handle responsive row items under font changes cleanly
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 4,
+                runSpacing: 2,
+                children: [
+                  if (isReturns)
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 1.0),
+                      child: Icon(Icons.arrow_upward_rounded, color: Color(0xFF22C55E), size: 12),
+                    ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: subtitle.contains('+') || isReturns
+                          ? const Color(0xFF22C55E)
+                          : const Color(0xFF64748B),
+                    ),
+                  ),
+                  if (trailing.isNotEmpty)
+                    Text(
+                      trailing,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Color(0xFF94A3B8),
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                ],
+              ),
+            ],
+          );
+
+          // --- Icon Block ---
+          // Width scaled slightly with text configuration to balance layout proportions
+          final double iconBoxSize = 44 * (textScaleFactor > 1.2 ? 1.15 : 1.0);
+          final Widget iconWidget = Container(
+            width: iconBoxSize,
+            height: iconBoxSize,
             decoration: BoxDecoration(
               color: iconBgColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: Colors.white, size: 22),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+          );
+
+          // --- Layout Strategy ---
+          if (useVerticalLayout) {
+            return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 11.5,
-                    color: Color(0xFF64748B),
-                    fontWeight: FontWeight.w500,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF0F172A),
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Row(
-                  children: [
-                    if (isReturns) ...[
-                      const Icon(Icons.arrow_upward_rounded, color: Color(0xFF22C55E), size: 12),
-                      const SizedBox(width: 2),
-                    ],
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: subtitle.contains('+') ? const Color(0xFF22C55E) : const Color(0xFF64748B),
-                      ),
-                    ),
-                    if (trailing.isNotEmpty) ...[
-                      const SizedBox(width: 6),
-                      Text(
-                        trailing,
-                        style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontWeight: FontWeight.w500),
-                      ),
-                    ],
-                  ],
-                ),
+                iconWidget,
+                const SizedBox(height: 12),
+                contentColumn,
               ],
-            ),
-          ),
-        ],
+            );
+          }
+
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              iconWidget,
+              const SizedBox(width: 12),
+              Expanded(child: contentColumn),
+            ],
+          );
+        },
       ),
     );
   }
@@ -777,16 +813,21 @@ class _WebDashboardLayout extends StatelessWidget {
       builder: (context, constraints) {
         final double width = constraints.maxWidth;
 
-        final bool compact = width < 760;
-        final bool laptopTight = width >= 760 && width < 980;
 
-        final int crossAxisCount = compact ? 1 : 3;
+        final bool compact = width < 760;
+        final bool laptopTight = width >= 760 && width < 1000;
+        final bool desktopTop = width >= 1000 && width < 1500;
+        final bool largerDesktopTop = width >= 1500;
+
+        final int crossAxisCount = 3;
 
         final double aspectRatio = compact
-            ? 3.65
+            ? 1.9
             : laptopTight
-            ? 2.15
-            : 2.25;
+            ? 2.2
+            : desktopTop
+            ? 2.4 :largerDesktopTop? 3
+            : 2.8;
 
         return GridView.builder(
           itemCount: items.length,
@@ -794,8 +835,8 @@ class _WebDashboardLayout extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 18,
-            mainAxisSpacing: 18,
+            crossAxisSpacing: compact?12:18,
+            mainAxisSpacing: compact?12: 18,
             childAspectRatio: aspectRatio,
           ),
           itemBuilder: (context, index) {
@@ -914,7 +955,7 @@ class _WebDashboardLayout extends StatelessWidget {
       builder: (hover) {
         return AnimatedContainer(
           duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -922,51 +963,136 @@ class _WebDashboardLayout extends StatelessWidget {
               color: hover ? color.withOpacity(0.3) : const Color(0xFFF1F5F9),
             ),
             boxShadow: [
-                BoxShadow(
-                  color: hover
-                      ? color.withOpacity(0.15)
-                      : Colors.black.withOpacity(0.3),
-                  blurRadius: hover ? 24 : 16,
-                  offset: hover ? const Offset(0, 10) : const Offset(0, 4),
-                  spreadRadius: hover ? 2 : 0,
-                ),
+              BoxShadow(
+                color: hover
+                    ? color.withOpacity(0.15)
+                    : Colors.black.withOpacity(0.03),
+                blurRadius: hover ? 24 : 16,
+                offset: hover ? const Offset(0, 10) : const Offset(0, 4),
+                spreadRadius: hover ? 2 : 0,
+              ),
             ],
           ),
-          child: Row(
+       child: LayoutBuilder(
+            builder: (context, constraints) {
+          final double width = constraints.maxWidth;
+          final double textScale = MediaQuery.textScalerOf(context).scale(1.0);
+          final double titleFontSize;
+          final double subtitleFontSize;
+          if (width >= (450 * textScale)) {
+            titleFontSize = 24;
+            subtitleFontSize = 20;
+          } else if (width >= (320 * textScale)) {
+            titleFontSize = 20;
+            subtitleFontSize = 13;
+          } else if (width >= (260 * textScale)) {
+            titleFontSize = 18;
+            subtitleFontSize = 12;
+          } else if (width >= (220 * textScale)) {
+            titleFontSize = 16;
+            subtitleFontSize = 11;
+          } else if (width >= (180 * textScale)) {
+            titleFontSize = 14;
+            subtitleFontSize = 11;
+          }else if (width >= (160 * textScale)) {
+            titleFontSize = 12;
+            subtitleFontSize = 10;
+          }  else {
+            titleFontSize = 11;
+            subtitleFontSize = 9;
+          }
+
+          final bool useVerticalLayout = width < (160 * textScale);
+          final bool isWideContainer = width >= (320 * textScale);
+          final bool isUltraCompact = width < (140 * textScale);
+
+          final double iconSize = isWideContainer ? 24 : (isUltraCompact ? 12 : 16);
+          final double chevronSize = isWideContainer ? 24 : (isUltraCompact ? 12 : 16);
+          final double innerSpacing = isWideContainer ? 12 : (isUltraCompact ? 6 : 8);
+
+
+          final Widget iconModule = Container(
+            padding: EdgeInsets.all(isWideContainer ? 10 : 8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: iconSize),
+          );
+
+          final Widget textModule = Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+              Text(
+                title,
+                maxLines: useVerticalLayout ? 3 : 2, // Safeguard overflow limits
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: titleFontSize,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: FontFamily.regular,
+                  color: const Color(0xFF1E293B),
                 ),
-                child: Icon(icon, color: color, size: 24),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                maxLines: useVerticalLayout ? 2 : 1, // Safeguard overflow limits
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: subtitleFontSize,
+                  fontFamily: FontFamily.regular,
+                  color: const Color(0xFF64748B),
+                ),
+              ),
+            ],
+          );
+
+          if (useVerticalLayout) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                    iconModule,
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: color.withOpacity(0.7),
+                      size: chevronSize,
                     ),
                   ],
                 ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const NeverScrollableScrollPhysics(),
+                    child: textModule,
+                  ),
+                ),
+              ],
+            );
+          }
+
+          return Row(
+
+            children: [
+              iconModule,
+              SizedBox(width: innerSpacing),
+              Expanded(
+                child: textModule,
               ),
-              Icon(Icons.chevron_right_rounded, color: color.withOpacity(0.7), size: 20),
+              SizedBox(width: innerSpacing / 2),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: color.withOpacity(0.7),
+                size: chevronSize,
+              ),
             ],
-          ),
+          );
+        },
+        ),
         );
       },
     );
@@ -1193,18 +1319,19 @@ class _WebDashboardLayout extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final bool compact = constraints.maxWidth < 700;
+          final double width = constraints.maxWidth;
+          final bool compact =width < 500;
+          final bool laptopTight = width >= 500 && width < 700;
           final int count = compact ? 3 : 6;
-
           return GridView.builder(
             itemCount: items.length,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: count,
-              crossAxisSpacing: 18,
-              mainAxisSpacing: 18,
-              mainAxisExtent: 88,
+              crossAxisSpacing: laptopTight?8:18,
+              mainAxisSpacing: laptopTight?8:18,
+              mainAxisExtent: 92,
             ),
             itemBuilder: (context, index) {
               final item = items[index];
@@ -1263,9 +1390,9 @@ class _WebDashboardLayout extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontFamily: FontFamily.medium,
+                  fontFamily: FontFamily.regular,
                   fontSize: 12,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w500,
                   color: hover ? Ucolors.primary : const Color(0xFF111827),
                 ),
               ),
@@ -1311,25 +1438,23 @@ class _WebDashboardLayout extends StatelessWidget {
                   final bool laptopTight = constraints.maxWidth < 960;
 
                   final int crossAxisCount = compact
-                      ? 1
-                      : laptopTight
                       ? 2
-                      : 3;
+                      : laptopTight
+                      ? 3
+                      : 4;
 
                   return GridView.builder(
                     itemCount: funds.length > 8 ? 8 : funds.length,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      // crossAxisCount: crossAxisCount,
-                      // crossAxisSpacing: 14,
-                      // mainAxisSpacing: 14,
-                      // mainAxisExtent: 86,
-                      crossAxisCount: crossAxisCount,
-                      crossAxisSpacing: 14,
-                      mainAxisSpacing: 14,
-                      childAspectRatio: compact ? 4.4 : 3.05,
-                    ),
+
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        childAspectRatio: compact ? 2.2 : laptopTight ? 1.9 : 2.1,
+                      ),
+
                     itemBuilder: (context, index) {
                       final fund = funds[index];
                       final rawLogo = fund.amc?.amcLogoUrl ?? '';
@@ -1340,6 +1465,7 @@ class _WebDashboardLayout extends StatelessWidget {
                       return _popularFundTile(
                         logo: img,
                         name: fund.baseSchemeName ?? 'Unknown Fund',
+                          subtitle:fund.schemecategory??"",
                         threeYear:
                             fund.returnsEntity?.threeYear?.toString() ?? '--',
                         onTap: () {
@@ -1364,6 +1490,7 @@ class _WebDashboardLayout extends StatelessWidget {
   Widget _popularFundTile({
     required String logo,
     required String name,
+    required String subtitle,
     required String threeYear,
     required VoidCallback onTap,
   }) {
@@ -1372,121 +1499,140 @@ class _WebDashboardLayout extends StatelessWidget {
       builder: (hover) {
         return AnimatedContainer(
           duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(16), // Extra padding to match the image's breathing room
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16), // Rounded edges matching image_138c0e.png
             border: Border.all(
               color: hover
-                  ? Ucolors.primary.withValues(alpha: 0.22)
-                  : const Color(0xFFE2E8F0),
+                  ? Ucolors.primary.withValues(alpha: 0.25)
+                  : const Color(0xFFF1F5F9), // Soft border
             ),
             boxShadow: [
               BoxShadow(
                 color: hover
-                    ? Ucolors.primary.withValues(alpha: 0.10)
-                    : Colors.black.withValues(alpha: 0.015),
-                blurRadius: hover ? 14 : 8,
-                offset: Offset(0, hover ? 7 : 4),
+                    ? Ucolors.primary.withValues(alpha: 0.08)
+                    : Colors.black.withValues(alpha: 0.02),
+                blurRadius: hover ? 16 : 10,
+                offset: Offset(0, hover ? 6 : 3),
               ),
             ],
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ClipOval(
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  color: const Color(0xFFF8FAFC),
-                  child: CustomCachedImage(imageUrl: logo, size: 44),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontFamily: FontFamily.medium,
-                        fontSize: 12,
-                        height: 1.2,
-                        fontWeight: FontWeight.w900,
-                        color: hover
-                            ? Ucolors.primary
-                            : const Color(0xFF111827),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Regular Plan',
-                      style: TextStyle(
-                        fontFamily: FontFamily.medium,
-                        fontSize: 10,
-                        color: Colors.blueGrey.shade500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.end,
+              // --- TOP SECTION: Logo + Title Column ---
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '3Y Return',
-                    style: TextStyle(
-                      fontFamily: FontFamily.medium,
-                      fontSize: 10,
-                      color: Colors.blueGrey.shade500,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      width: 42,
+                      height: 42,
+                      color: const Color(0xFFF8FAFC),
+                      child: CustomCachedImage(imageUrl: logo, size: 42),
                     ),
                   ),
-                  const SizedBox(height: 5),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.arrow_upward_rounded,
-                        color: Color(0xFF00A85A),
-                        size: 13,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '$threeYear%',
-                        style: const TextStyle(
-                          fontFamily: FontFamily.medium,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFF00A85A),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 13,
+                            height: 1.3,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF1E293B),
+                          ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 4),
+                        Text(
+                          subtitle,
+                          style: const TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 11,
+                            color: Color(0xFF94A3B8),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(width: 10),
-              Container(
-                height: 30,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF2F7FF),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFD8E8FF)),
-                ),
-                alignment: Alignment.center,
-                child: const Text(
-                  'Invest',
-                  style: TextStyle(
-                    fontFamily: FontFamily.medium,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFF005DFF),
+
+              const SizedBox(height: 16), // Space between top and bottom sections
+
+              // --- BOTTOM SECTION: Returns info + Invest Button ---
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Return Metrics Inline
+                  Row(
+                    children: [
+                      const Text(
+                        '3Y Return',
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 11,
+                          color: Color(0xFF94A3B8),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.arrow_upward_rounded,
+                            color: Color(0xFF22C55E),
+                            size: 14,
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            '$threeYear%',
+                            style: const TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF22C55E),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ),
+
+                  // Invest Button
+                  // Optimized Invest Button using Material OutlinedButton
+                  OutlinedButton(
+                    onPressed: onTap, // Hooks the action up directly to the tile's tap behavior
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF1D4ED8), // Text color
+                      backgroundColor: const Color(0xFFEFF6FF), // Soft blue fill background
+                      side: const BorderSide(color: const Color(0xFFDBEAFE), width: 1), // Blue accent outline
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      minimumSize: const Size(0, 32), // Forces height to 32 pixels exactly
+                      fixedSize: const Size(72, 32),  // Keep width standard across all cards
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Tight wrapper matching custom container padding
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8), // Perfectly matches image_138c0e.png
+                      ),
+                    ),
+                    child: const Text(
+                      'Invest',
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  )
+                ],
               ),
             ],
           ),
@@ -1503,7 +1649,7 @@ class _WebDashboardLayout extends StatelessWidget {
       title: 'Invest Now',
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final bool compact = constraints.maxWidth < 360;
+          final bool compact = constraints.maxWidth < 200;
 
           if (compact) {
             return Column(
@@ -1556,7 +1702,7 @@ class _WebDashboardLayout extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(width: 18),
+              const SizedBox(width: 12),
               Expanded(
                 child: _investModeCard(
                   icon: UImages.glyph,
@@ -1971,7 +2117,7 @@ class _WebDashboardLayout extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: tightWidth ? 2.85 : 3.0,
+              childAspectRatio: tightWidth ? 2.4 : 3.0,
               crossAxisSpacing: 10,
               mainAxisSpacing: 10,
             ),
@@ -2089,7 +2235,7 @@ class _WebDashboardLayout extends StatelessWidget {
                         color: Color(0xFF111827),
                       ),
                     ),
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 2),
                     const Text(
                       'On Track',
                       style: TextStyle(
