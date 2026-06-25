@@ -989,19 +989,17 @@ class _DesktopDownloadStatementsLayout extends StatelessWidget {
                 isLaptop ? 24 : 32,
                 32,
               ),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1280),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _WebStatementHeader(ctrl: ctrl),
-                      const SizedBox(height: 26),
-                      _WebStatementFormCard(ctrl: ctrl),
-                      const SizedBox(height: 18),
-                      _WebStatementPreviewCard(ctrl: ctrl),
-                    ],
-                  ),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1280),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _WebStatementHeader(ctrl: ctrl),
+                    const SizedBox(height: 26),
+                    _WebStatementFormCard(ctrl: ctrl),
+                    const SizedBox(height: 18),
+                    _WebStatementPreviewCard(ctrl: ctrl),
+                  ],
                 ),
               ),
             );
@@ -1604,8 +1602,7 @@ class _WebDurationTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(10),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10 
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           gradient: active
