@@ -184,16 +184,13 @@ class _WebDashboardLayout extends StatelessWidget {
             ),
             child: Center(
               child: compact
-                  ? _buildColumn(context,personalController)
+                  ? _buildColumn(context, personalController)
                   : Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           flex: 66,
-                          child: _buildMainColumn(
-                            context,
-                            personalController,
-                          ),
+                          child: _buildMainColumn(context, personalController),
                         ),
                         const SizedBox(width: 24),
                         Expanded(flex: 34, child: _buildRightColumn(context)),
@@ -205,10 +202,11 @@ class _WebDashboardLayout extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildColumn(
-      BuildContext context,
-      PersonalisationController personalController,
-      ) {
+    BuildContext context,
+    PersonalisationController personalController,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -232,6 +230,7 @@ class _WebDashboardLayout extends StatelessWidget {
       ],
     );
   }
+
   Widget _buildMainColumn(
     BuildContext context,
     PersonalisationController personalController,
@@ -279,11 +278,7 @@ class _WebDashboardLayout extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFE3F5FF),
-            Color(0xFFF2F9FF),
-            Color(0xFFFFFFFF),
-          ],
+          colors: [Color(0xFFE3F5FF), Color(0xFFF2F9FF), Color(0xFFFFFFFF)],
         ),
         boxShadow: [
           BoxShadow(
@@ -293,7 +288,8 @@ class _WebDashboardLayout extends StatelessWidget {
           ),
         ],
       ),
-      clipBehavior: Clip.antiAlias, // Background image corners ko clean round clip karne ke liye
+      clipBehavior: Clip
+          .antiAlias, // Background image corners ko clean round clip karne ke liye
       child: Stack(
         children: [
           // // 1. PERFECT FIX: Full layout stretch background without any line breaks or cuts
@@ -396,6 +392,7 @@ class _WebDashboardLayout extends StatelessWidget {
       ),
     );
   }
+
   Widget _heroMetric({
     required IconData icon,
     required Color iconBgColor,
@@ -420,9 +417,12 @@ class _WebDashboardLayout extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final double textScaleFactor = MediaQuery.textScalerOf(context).scale(1.0);
+          final double textScaleFactor = MediaQuery.textScalerOf(
+            context,
+          ).scale(1.0);
 
-          final bool useVerticalLayout = constraints.maxWidth < (170 * textScaleFactor);
+          final bool useVerticalLayout =
+              constraints.maxWidth < (170 * textScaleFactor);
 
           final Widget contentColumn = Column(
             mainAxisSize: MainAxisSize.min,
@@ -437,7 +437,8 @@ class _WebDashboardLayout extends StatelessWidget {
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                textScaler: TextScaler.noScaling, // Keeps labels clean or let it scale by removing this line
+                textScaler: TextScaler
+                    .noScaling, // Keeps labels clean or let it scale by removing this line
               ),
               const SizedBox(height: 3),
               Text(
@@ -448,7 +449,8 @@ class _WebDashboardLayout extends StatelessWidget {
                   color: Color(0xFF0F172A),
                 ),
                 maxLines: 1,
-                overflow: TextOverflow.ellipsis, // Safe guard for large font sizes or long values
+                overflow: TextOverflow
+                    .ellipsis, // Safe guard for large font sizes or long values
               ),
               const SizedBox(height: 4),
               // Replaced Wrap with Row + Flexible to handle responsive row items under font changes cleanly
@@ -460,7 +462,11 @@ class _WebDashboardLayout extends StatelessWidget {
                   if (isReturns)
                     const Padding(
                       padding: EdgeInsets.only(bottom: 1.0),
-                      child: Icon(Icons.arrow_upward_rounded, color: Color(0xFF22C55E), size: 12),
+                      child: Icon(
+                        Icons.arrow_upward_rounded,
+                        color: Color(0xFF22C55E),
+                        size: 12,
+                      ),
                     ),
                   Text(
                     subtitle,
@@ -506,11 +512,7 @@ class _WebDashboardLayout extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
-              children: [
-                iconWidget,
-                const SizedBox(height: 12),
-                contentColumn,
-              ],
+              children: [iconWidget, const SizedBox(height: 12), contentColumn],
             );
           }
 
@@ -687,7 +689,6 @@ class _WebDashboardLayout extends StatelessWidget {
   //   );
   // }
 
-
   // Widget _heroMetric({
   //   required IconData icon,
   //   required Color iconColor,
@@ -833,7 +834,6 @@ class _WebDashboardLayout extends StatelessWidget {
       builder: (context, constraints) {
         final double width = constraints.maxWidth;
 
-
         final bool compact = width < 760;
         final bool laptopTight = width >= 760 && width < 1000;
         final bool desktopTop = width >= 1000 && width < 1500;
@@ -846,7 +846,9 @@ class _WebDashboardLayout extends StatelessWidget {
             : laptopTight
             ? 2.2
             : desktopTop
-            ? 2.4 :largerDesktopTop? 3
+            ? 2.4
+            : largerDesktopTop
+            ? 3
             : 2.8;
 
         return GridView.builder(
@@ -855,8 +857,8 @@ class _WebDashboardLayout extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            crossAxisSpacing: compact?12:18,
-            mainAxisSpacing: compact?12: 18,
+            crossAxisSpacing: compact ? 12 : 18,
+            mainAxisSpacing: compact ? 12 : 18,
             childAspectRatio: aspectRatio,
           ),
           itemBuilder: (context, index) {
@@ -983,7 +985,6 @@ class _WebDashboardLayout extends StatelessWidget {
               color: hover ? color.withOpacity(0.3) : const Color(0xFFF1F5F9),
             ),
             boxShadow: [
-
               BoxShadow(
                 color: hover
                     ? color.withOpacity(0.15)
@@ -994,126 +995,134 @@ class _WebDashboardLayout extends StatelessWidget {
               ),
             ],
           ),
-       child: LayoutBuilder(
+          child: LayoutBuilder(
             builder: (context, constraints) {
-          final double width = constraints.maxWidth;
-          final double textScale = MediaQuery.textScalerOf(context).scale(1.0);
-          final double titleFontSize;
-          final double subtitleFontSize;
-          if (width >= (450 * textScale)) {
-            titleFontSize = 24;
-            subtitleFontSize = 20;
-          } else if (width >= (320 * textScale)) {
-            titleFontSize = 20;
-            subtitleFontSize = 13;
-          } else if (width >= (260 * textScale)) {
-            titleFontSize = 18;
-            subtitleFontSize = 12;
-          } else if (width >= (220 * textScale)) {
-            titleFontSize = 16;
-            subtitleFontSize = 11;
-          } else if (width >= (180 * textScale)) {
-            titleFontSize = 14;
-            subtitleFontSize = 11;
-          }else if (width >= (160 * textScale)) {
-            titleFontSize = 12;
-            subtitleFontSize = 10;
-          }  else {
-            titleFontSize = 11;
-            subtitleFontSize = 9;
-          }
+              final double width = constraints.maxWidth;
+              final double textScale = MediaQuery.textScalerOf(
+                context,
+              ).scale(1.0);
+              final double titleFontSize;
+              final double subtitleFontSize;
+              if (width >= (450 * textScale)) {
+                titleFontSize = 24;
+                subtitleFontSize = 20;
+              } else if (width >= (320 * textScale)) {
+                titleFontSize = 20;
+                subtitleFontSize = 13;
+              } else if (width >= (260 * textScale)) {
+                titleFontSize = 18;
+                subtitleFontSize = 12;
+              } else if (width >= (220 * textScale)) {
+                titleFontSize = 16;
+                subtitleFontSize = 11;
+              } else if (width >= (180 * textScale)) {
+                titleFontSize = 14;
+                subtitleFontSize = 11;
+              } else if (width >= (160 * textScale)) {
+                titleFontSize = 12;
+                subtitleFontSize = 10;
+              } else {
+                titleFontSize = 11;
+                subtitleFontSize = 9;
+              }
 
-          final bool useVerticalLayout = width < (160 * textScale);
-          final bool isWideContainer = width >= (320 * textScale);
-          final bool isUltraCompact = width < (140 * textScale);
+              final bool useVerticalLayout = width < (160 * textScale);
+              final bool isWideContainer = width >= (320 * textScale);
+              final bool isUltraCompact = width < (140 * textScale);
 
-          final double iconSize = isWideContainer ? 24 : (isUltraCompact ? 12 : 16);
-          final double chevronSize = isWideContainer ? 24 : (isUltraCompact ? 12 : 16);
-          final double innerSpacing = isWideContainer ? 12 : (isUltraCompact ? 6 : 8);
+              final double iconSize = isWideContainer
+                  ? 24
+                  : (isUltraCompact ? 12 : 16);
+              final double chevronSize = isWideContainer
+                  ? 24
+                  : (isUltraCompact ? 12 : 16);
+              final double innerSpacing = isWideContainer
+                  ? 12
+                  : (isUltraCompact ? 6 : 8);
 
-
-          final Widget iconModule = Container(
-            padding: EdgeInsets.all(isWideContainer ? 10 : 8),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: color, size: iconSize),
-          );
-
-          final Widget textModule = Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                maxLines: useVerticalLayout ? 3 : 2, // Safeguard overflow limits
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: titleFontSize,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: FontFamily.regular,
-                  color: const Color(0xFF1E293B),
+              final Widget iconModule = Container(
+                padding: EdgeInsets.all(isWideContainer ? 10 : 8),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                maxLines: useVerticalLayout ? 2 : 1, // Safeguard overflow limits
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: subtitleFontSize,
-                  fontFamily: FontFamily.regular,
-                  color: const Color(0xFF64748B),
-                ),
-              ),
-            ],
-          );
+                child: Icon(icon, color: color, size: iconSize),
+              );
 
-          if (useVerticalLayout) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+              final Widget textModule = Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: useVerticalLayout
+                        ? 3
+                        : 2, // Safeguard overflow limits
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: titleFontSize,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: FontFamily.regular,
+                      color: const Color(0xFF1E293B),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    maxLines: useVerticalLayout
+                        ? 2
+                        : 1, // Safeguard overflow limits
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: subtitleFontSize,
+                      fontFamily: FontFamily.regular,
+                      color: const Color(0xFF64748B),
+                    ),
+                  ),
+                ],
+              );
+
+              if (useVerticalLayout) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    iconModule,
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      color: color.withOpacity(0.7),
-                      size: chevronSize,
+                    Row(
+                      children: [
+                        iconModule,
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          color: color.withOpacity(0.7),
+                          size: chevronSize,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        physics: const NeverScrollableScrollPhysics(),
+                        child: textModule,
+                      ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 8),
-                Expanded(
-                  child: SingleChildScrollView(
-                    physics: const NeverScrollableScrollPhysics(),
-                    child: textModule,
+                );
+              }
+
+              return Row(
+                children: [
+                  iconModule,
+                  SizedBox(width: innerSpacing),
+                  Expanded(child: textModule),
+                  SizedBox(width: innerSpacing / 2),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: color.withOpacity(0.7),
+                    size: chevronSize,
                   ),
-                ),
-              ],
-            );
-          }
-
-          return Row(
-
-            children: [
-              iconModule,
-              SizedBox(width: innerSpacing),
-              Expanded(
-                child: textModule,
-              ),
-              SizedBox(width: innerSpacing / 2),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: color.withOpacity(0.7),
-                size: chevronSize,
-              ),
-            ],
-          );
-        },
-        ),
+                ],
+              );
+            },
+          ),
         );
       },
     );
@@ -1236,7 +1245,7 @@ class _WebDashboardLayout extends StatelessWidget {
             color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 18,
             offset: const Offset(0, 7),
-            spreadRadius: 1
+            spreadRadius: 1,
           ),
         ],
       ),
@@ -1342,7 +1351,7 @@ class _WebDashboardLayout extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final double width = constraints.maxWidth;
-          final bool compact =width < 500;
+          final bool compact = width < 500;
           final bool laptopTight = width >= 500 && width < 700;
           final int count = compact ? 3 : 6;
           return GridView.builder(
@@ -1351,8 +1360,8 @@ class _WebDashboardLayout extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: count,
-              crossAxisSpacing: laptopTight?8:18,
-              mainAxisSpacing: laptopTight?8:18,
+              crossAxisSpacing: laptopTight ? 8 : 18,
+              mainAxisSpacing: laptopTight ? 8 : 18,
               mainAxisExtent: 92,
             ),
             itemBuilder: (context, index) {
@@ -1389,18 +1398,16 @@ class _WebDashboardLayout extends StatelessWidget {
                   ? Ucolors.primary.withValues(alpha: 0.22)
                   : const Color(0xFFE2E8F0),
             ),
-            boxShadow:
-              [
-                BoxShadow(
-                  color: hover
-                      ? Color(0xFFF2F7FF).withOpacity(0.15)
-                      : Colors.black.withOpacity(0.1),
-                  blurRadius: hover ? 24 : 16,
-                  offset: hover ? const Offset(0, 10) : const Offset(0, 4),
-                  spreadRadius: hover ? 1 : 0,
-                ),
-                  ]
-
+            boxShadow: [
+              BoxShadow(
+                color: hover
+                    ? Color(0xFFF2F7FF).withOpacity(0.15)
+                    : Colors.black.withOpacity(0.1),
+                blurRadius: hover ? 24 : 16,
+                offset: hover ? const Offset(0, 10) : const Offset(0, 4),
+                spreadRadius: hover ? 1 : 0,
+              ),
+            ],
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -1467,11 +1474,15 @@ class _WebDashboardLayout extends StatelessWidget {
                       : laptopTight
                       ? 3
                       : 4;
-                  final double aspectRatio =
-                  width < 700 ? 2.1 :
-                  width < 850 ? 1.6 :
-                  width < 960 ? 1.9 :
-                  2.0;
+                  final double aspectRatio = width < 700
+                      ? 2.1
+                      : width < 850
+                      ? 1.6
+                      : width < 960
+                      ? 1.9
+                      : width < 1200
+                      ? 1.6
+                      : 2.2;
                   debugPrint("Available Width: $width");
                   debugPrint("Available aspectRatio: $aspectRatio");
                   return GridView.builder(
@@ -1479,12 +1490,12 @@ class _WebDashboardLayout extends StatelessWidget {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
 
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                        childAspectRatio: aspectRatio,
-                      ),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: aspectRatio,
+                    ),
 
                     itemBuilder: (context, index) {
                       final fund = funds[index];
@@ -1496,7 +1507,7 @@ class _WebDashboardLayout extends StatelessWidget {
                       return _popularFundTile(
                         logo: img,
                         name: fund.baseSchemeName ?? 'Unknown Fund',
-                          subtitle:fund.schemecategory??"",
+                        subtitle: fund.schemecategory ?? "",
                         threeYear:
                             fund.returnsEntity?.threeYear?.toString() ?? '--',
                         onTap: () {
@@ -1530,10 +1541,14 @@ class _WebDashboardLayout extends StatelessWidget {
       builder: (hover) {
         return AnimatedContainer(
           duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.all(16), // Extra padding to match the image's breathing room
+          padding: const EdgeInsets.all(
+            16,
+          ), // Extra padding to match the image's breathing room
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16), // Rounded edges matching image_138c0e.png
+            borderRadius: BorderRadius.circular(
+              16,
+            ), // Rounded edges matching image_138c0e.png
             border: Border.all(
               color: hover
                   ? Ucolors.primary.withValues(alpha: 0.25)
@@ -1598,7 +1613,9 @@ class _WebDashboardLayout extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 8), // Space between top and bottom sections
+              const SizedBox(
+                height: 8,
+              ), // Space between top and bottom sections
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1640,17 +1657,32 @@ class _WebDashboardLayout extends StatelessWidget {
                   // Invest Button
                   // Optimized Invest Button using Material OutlinedButton
                   OutlinedButton(
-                    onPressed: onTap, // Hooks the action up directly to the tile's tap behavior
+                    onPressed:
+                        onTap, // Hooks the action up directly to the tile's tap behavior
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFF1D4ED8), // Text color
-                      backgroundColor: const Color(0xFFEFF6FF), // Soft blue fill background
-                      side: const BorderSide(color: const Color(0xFFDBEAFE), width: 1), // Blue accent outline
+                      backgroundColor: const Color(
+                        0xFFEFF6FF,
+                      ), // Soft blue fill background
+                      side: const BorderSide(
+                        color: const Color(0xFFDBEAFE),
+                        width: 1,
+                      ), // Blue accent outline
                       padding: const EdgeInsets.symmetric(horizontal: 14),
-                      minimumSize: const Size(0, 32), // Forces height to 32 pixels exactly
-                      fixedSize: const Size(72, 32),  // Keep width standard across all cards
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Tight wrapper matching custom container padding
+                      minimumSize: const Size(
+                        0,
+                        32,
+                      ), // Forces height to 32 pixels exactly
+                      fixedSize: const Size(
+                        72,
+                        32,
+                      ), // Keep width standard across all cards
+                      tapTargetSize: MaterialTapTargetSize
+                          .shrinkWrap, // Tight wrapper matching custom container padding
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8), // Perfectly matches image_138c0e.png
+                        borderRadius: BorderRadius.circular(
+                          8,
+                        ), // Perfectly matches image_138c0e.png
                       ),
                     ),
                     child: const Text(
@@ -1661,7 +1693,7 @@ class _WebDashboardLayout extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ],
@@ -2148,7 +2180,7 @@ class _WebDashboardLayout extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: maxWidth?2:4,
+              crossAxisCount: maxWidth ? 2 : 4,
               childAspectRatio: tightWidth ? 1.9 : 3,
               crossAxisSpacing: 10,
               mainAxisSpacing: 10,
@@ -2291,6 +2323,7 @@ class _WebDashboardLayout extends StatelessWidget {
       },
     );
   }
+
   Widget _buildFinancialToolsPanel() {
     final tools = [
       {
@@ -2327,7 +2360,7 @@ class _WebDashboardLayout extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: maxWidth?2:4,
+              crossAxisCount: maxWidth ? 2 : 4,
               childAspectRatio: tightWidth ? 1.9 : 3,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
