@@ -24,7 +24,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
     return Scaffold(
-      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
+      backgroundColor:  Colors.white,
       appBar: isDesktop
           ? null
           : const CustomAppBarNormal(title: 'Bank Details'),
@@ -34,226 +34,221 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
             : UPadding.screenPadding.copyWith(
                 bottom: kBottomNavigationBarHeight,
               ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (isDesktop) ...[
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (isDesktop) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Linked Accounts",
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "Linked Accounts",
-                        style: TextStyle(
-                          fontFamily: FontFamily.medium,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                      OutlinedButton(
+                        onPressed: () =>
+                            Get.toNamed(AppRoutes.addanotherbank, id: 1),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 16,
+                          ),
+                          side: const BorderSide(color: Ucolors.blue),
+                        ),
+                        child: const Text(
+                          'Add Another Account',
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            color: Ucolors.blue,
+                          ),
                         ),
                       ),
-                      Row(
-                        children: [
-                          OutlinedButton(
-                            onPressed: () =>
-                                Get.toNamed(AppRoutes.addanotherbank, id: 1),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 16,
-                              ),
-                              side: const BorderSide(color: Ucolors.blue),
-                            ),
-                            child: const Text(
-                              'Add Another Account',
-                              style: TextStyle(
-                                fontFamily: FontFamily.medium,
-                                color: Ucolors.blue,
-                              ),
-                            ),
+                      const Gap(16),
+                      ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Ucolors.blue,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 16,
                           ),
-                          const Gap(16),
-                          ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Ucolors.blue,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 16,
-                              ),
-                            ),
-                            child: const Text(
-                              'Set Up Auto Pay',
-                              style: TextStyle(
-                                fontFamily: FontFamily.medium,
-                                color: Colors.white,
-                              ),
-                            ),
+                        ),
+                        child: const Text(
+                          'Set Up Auto Pay',
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            color: Colors.white,
                           ),
-                        ],
+                        ),
                       ),
                     ],
                   ),
-                  const Gap(10),
-                ] else ...[
-                  const Gap(10),
                 ],
-                // 💳 SHOW LINKED BANK ACCOUNTS
-                Obx(() {
-                  final bankCount = controller.linkedBankAccounts.length;
+              ),
+              const Gap(10),
+            ] else ...[
+              const Gap(10),
+            ],
+            // 💳 SHOW LINKED BANK ACCOUNTS
+            Obx(() {
+              final bankCount = controller.linkedBankAccounts.length;
 
-                  // 1. Loading State
-                  // if (controller.isLinkedBankLoading.value) {
-                  //   return const Center(
-                  //     child: Padding(
-                  //       padding: EdgeInsets.all(40.0),
-                  //       child: CircularProgressIndicator(),
-                  //     ),
-                  //   );
-                  // }
+              // 1. Loading State
+              // if (controller.isLinkedBankLoading.value) {
+              //   return const Center(
+              //     child: Padding(
+              //       padding: EdgeInsets.all(40.0),
+              //       child: CircularProgressIndicator(),
+              //     ),
+              //   );
+              // }
 
-                  // 2. EMPTY STATE (No Bank Accounts)
-                  if (bankCount == 0) {
-                    return _buildEmptyState(isDesktop,context);
-                  }
+              // 2. EMPTY STATE (No Bank Accounts)
+              if (bankCount == 0) {
+                return _buildEmptyState(isDesktop,context);
+              }
 
-                  // 3. DATA STATE (1, 2, or 3 Banks Exist)
-                  return Column(
-                    children: [
-                      // Render all current bank cards
-                      ...controller.linkedBankAccounts
-                          .where((bank) => bank != null)
-                          .map(
-                            (bank) => Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: BankCard(
-                                onDelete: () {
-                                  if (bank.id != null) {
-                                    _confirmDelete(
-                                      context,
-                                      bank.id!,
-                                      bank.bankName ?? 'Unknown',
-                                    );
-                                  } else {
-                                    Get.snackbar("Error", "Bank ID not found");
-                                  }
-                                },
-                                bankName: bank.bankName ?? 'Unknown',
-                                cardNumber:
-                                    bank.accountNumberEncrypted ?? '****',
-                                ifsccode: bank.ifscCode ?? '',
-                                isVerified: bank.verified == 1,
-                                bankLogo: UImages.sbi,
-                                color: Ucolors.deepOceanGradient,
-                              ),
-                            ),
-                          )
-                          .toList(),
+              // 3. DATA STATE (1, 2, or 3 Banks Exist)
+              return Column(
+                children: [
+                  // Render all current bank cards
+                  ...controller.linkedBankAccounts
+                      .where((bank) => bank != null)
+                      .map(
+                        (bank) => Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: BankCard(
+                            onDelete: () {
+                              if (bank.id != null) {
+                                _confirmDelete(
+                                  context,
+                                  bank.id!,
+                                  bank.bankName ?? 'Unknown',
+                                );
+                              } else {
+                                Get.snackbar("Error", "Bank ID not found");
+                              }
+                            },
+                            bankName: bank.bankName ?? 'Unknown',
+                            cardNumber:
+                                bank.accountNumberEncrypted ?? '****',
+                            ifsccode: bank.ifscCode ?? '',
+                            isVerified: bank.verified == 1,
+                            bankLogo: UImages.sbi,
+                            color: Ucolors.deepOceanGradient,
+                          ),
+                        ),
+                      )
+                      .toList(),
 
-                      const Gap(16),
+                  const Gap(16),
 
-                      // Show "Add Another" or "Manage" button
-                      if (!isDesktop)
-                        UElevatedBUtton(
-                          color: Ucolors.primary,
-                          onPressed: () {
-                            if (bankCount < 3) {
-                              // Allow adding another
-                              controller.clearBankFields();
-                              Get.toNamed(AppRoutes.addanotherbank);
-                            } else {
-                              // Limit Reached Warning
-                              ULoaders.warning(
-                                title: 'Limit Reached',
-                                message:
-                                    "You can only link a maximum of 3 bank accounts. Please delete an existing account to add a new one.",
-                              );
-                            }
-                          },
-                          child: Center(
-                            child: Text(
-                              bankCount < 3
-                                  ? 'Add Another Account'
-                                  : 'Manage Bank Accounts',
-                              style: const TextStyle(
-                                fontFamily: FontFamily.medium,
-                                color: Colors.white,
-                              ),
+                  // Show "Add Another" or "Manage" button
+                  if (!isDesktop)
+                    UElevatedBUtton(
+                      color: Ucolors.primary,
+                      onPressed: () {
+                        if (bankCount < 3) {
+                          // Allow adding another
+                          controller.clearBankFields();
+                          Get.toNamed(AppRoutes.addanotherbank);
+                        } else {
+                          // Limit Reached Warning
+                          ULoaders.warning(
+                            title: 'Limit Reached',
+                            message:
+                                "You can only link a maximum of 3 bank accounts. Please delete an existing account to add a new one.",
+                          );
+                        }
+                      },
+                      child: Center(
+                        child: Text(
+                          bankCount < 3
+                              ? 'Add Another Account'
+                              : 'Manage Bank Accounts',
+                          style: const TextStyle(
+                            fontFamily: FontFamily.medium,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            }),
+
+            // ⚙️ AUTO PAY SECTION (Only visible on Mobile AND when a Bank exists)
+            if (!isDesktop) ...[
+              Obx(() {
+                // HIDE EVERYTHING BELOW IF NO BANK ACCOUNTS
+                if (controller.linkedBankAccounts.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+
+                return Column(
+                  children: [
+                    const Gap(10),
+                    if (controller.hasApprovedMandate)
+                      UElevatedBUtton(
+                        outlined: true,
+                        child: const Center(
+                          child: Text(
+                            '✅ Auto Pay Active',
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              color: Color(0xFF10B981),
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
-                    ],
-                  );
-                }),
-
-                // ⚙️ AUTO PAY SECTION (Only visible on Mobile AND when a Bank exists)
-                if (!isDesktop) ...[
-                  Obx(() {
-                    // HIDE EVERYTHING BELOW IF NO BANK ACCOUNTS
-                    if (controller.linkedBankAccounts.isEmpty) {
-                      return const SizedBox.shrink();
-                    }
-
-                    return Column(
-                      children: [
-                        const Gap(10),
-                        if (controller.hasApprovedMandate)
-                          UElevatedBUtton(
-                            outlined: true,
-                            child: const Center(
-                              child: Text(
-                                '✅ Auto Pay Active',
-                                style: TextStyle(
-                                  fontFamily: FontFamily.medium,
-                                  color: Color(0xFF10B981),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          )
-                        else if (controller.hasPendingMandate)
-                          UElevatedBUtton(
-                            child: const Center(
-                              child: Text(
-                                '⏳ Auto Pay Pending Approval',
-                                style: TextStyle(
-                                  fontFamily: FontFamily.medium,
-                                  color: Color(0xFFE5941A),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          )
-                        else
-                          UElevatedBUtton(
-                            outlined: true,
-                            onPressed: () {
-                              Get.toNamed(
-                                AppRoutes.paymentScreen,
-                                arguments: {
-                                  'isMandate': true,
-                                  'amount': '100000',
-                                },
-                              );
-                            },
-                            child: const Center(
-                              child: Text(
-                                'Set Up Auto Pay',
-                                style: TextStyle(
-                                  fontFamily: FontFamily.medium,
-                                  color: Ucolors.blue,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                      )
+                    else if (controller.hasPendingMandate)
+                      UElevatedBUtton(
+                        child: const Center(
+                          child: Text(
+                            '⏳ Auto Pay Pending Approval',
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              color: Color(0xFFE5941A),
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
-                      ],
-                    );
-                  }),
-                ],
-              ],
-            ),
-          ),
+                        ),
+                      )
+                    else
+                      UElevatedBUtton(
+                        outlined: true,
+                        onPressed: () {
+                          Get.toNamed(
+                            AppRoutes.paymentScreen,
+                            arguments: {
+                              'isMandate': true,
+                              'amount': '100000',
+                            },
+                          );
+                        },
+                        child: const Center(
+                          child: Text(
+                            'Set Up Auto Pay',
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              color: Ucolors.blue,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              }),
+            ],
+          ],
         ),
       ),
     );

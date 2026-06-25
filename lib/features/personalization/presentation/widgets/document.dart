@@ -94,25 +94,17 @@ class DocumentScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = SessionManager.instance.userObs.value;
 
-    // 🚀 Check if Desktop/Web or Mobile
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
     return Scaffold(
-      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
+      backgroundColor:Colors.white,
       appBar: isDesktop ? null : const CustomAppBarNormal(title: 'Documents'),
 
       body: SingleChildScrollView(
         padding: isDesktop ? const EdgeInsets.symmetric(horizontal: 0, vertical: 0) : UPadding.screenPadding,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 1200,
-            ), // Max web width limit
-            child: isDesktop
-                ? _buildWebDashboardLayout() // 💻 Desktop Layout
-                : _buildMobileLayout(), // 📱 Mobile Layout
-          ),
-        ),
+        child: isDesktop
+            ? _buildWebDashboardLayout() // 💻 Desktop Layout
+            : _buildMobileLayout(),
       ),
     );
   }

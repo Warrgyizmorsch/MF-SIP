@@ -2100,6 +2100,7 @@ class _MobileNavItem extends StatelessWidget {
 }
 
 
+
 class WebProfileDashboardScreen extends StatelessWidget {
   const WebProfileDashboardScreen({super.key});
 
@@ -2108,7 +2109,7 @@ class WebProfileDashboardScreen extends StatelessWidget {
     final navController = Get.find<NavigationBarController>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: Ucolors.white,
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -2120,29 +2121,29 @@ class WebProfileDashboardScreen extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              /// Hero Verification Banner (Dynamically Reactive)
+              /// Hero Verification Banner (Dynamically Reactive with Image Background)
               _buildHeroBanner(context),
-              const SizedBox(height: 12),
+              const SizedBox(height: 24),
 
               /// Navigation Custom Underlined Tab Layout
               Container(
+                width: double.infinity,
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(color: Colors.grey.shade200, width: 1.5),
                   ),
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildProfileTabButton('KYC Details', Icons.assignment_ind_outlined, 0, selectedTab, navController),
-                    _buildProfileTabButton('Personal Details', Icons.person_outline_rounded, 1, selectedTab, navController),
-                    _buildProfileTabButton('Bank Account', Icons.account_balance_outlined, 2, selectedTab, navController),
-                    _buildProfileTabButton('Nominee', Icons.people_outline_rounded, 3, selectedTab, navController),
-                    _buildProfileTabButton('Documents', Icons.folder_open_outlined, 4, selectedTab, navController),
+                    Expanded(child: _buildProfileTabButton('KYC Details', Icons.assignment_ind_outlined, 0, selectedTab, navController)),
+                    Expanded(child: _buildProfileTabButton('Personal Details', Icons.person_outline_rounded, 1, selectedTab, navController)),
+                    Expanded(child: _buildProfileTabButton('Bank Account', Icons.account_balance_outlined, 2, selectedTab, navController)),
+                    Expanded(child: _buildProfileTabButton('Nominee', Icons.people_outline_rounded, 3, selectedTab, navController)),
+                    Expanded(child: _buildProfileTabButton('Documents', Icons.folder_open_outlined, 4, selectedTab, navController)),
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 20),
 
               /// Tab Content Workspace View Card
               Expanded(
@@ -2150,7 +2151,7 @@ class WebProfileDashboardScreen extends StatelessWidget {
                   index: selectedTab,
                   children: const [
                     KycDetailsScreen(),
-                    _PersonalDetailsTabWrapper(), // Or PersonalDetailsScreen() based on your setup
+                    _PersonalDetailsTabWrapper(),
                     BankDetailsScreen(),
                     NomineeListScreen(),
                     DocumentScreen(),
@@ -2167,20 +2168,10 @@ class WebProfileDashboardScreen extends StatelessWidget {
   Widget _buildHeroBanner(BuildContext context) {
     return Obx(() {
       final user = SessionManager.instance.userObs.value;
-      final PersonalisationController personalisationController =
-      Get.find<PersonalisationController>();
+      final PersonalisationController personalisationController = Get.find<PersonalisationController>();
 
       final String readySinceYear = user?.customerDetailsModel?.dob?.split('-').firstOrNull ?? '1985';
-
       final bool isKycApproved = user?.kycStatus?.toLowerCase() == 'approved';
-      String displayImage = personalisationController.imagePath.isNotEmpty
-          ? personalisationController.imagePath.value
-          : (user?.img ?? UImages.avatar);
-
-      // Fallback Initials calculation for pristine avatar presentation layers
-      final String userInitials = (user?.name != null && user!.name!.isNotEmpty)
-          ? user.name!.trim().split(' ').map((l) => l[0]).take(2).join().toUpperCase()
-          : 'GU';
 
       return SizedBox(
         width: double.infinity,
@@ -2188,7 +2179,6 @@ class WebProfileDashboardScreen extends StatelessWidget {
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            /// 1. The Split Base Canvas Container (Top Blue Gradient / Bottom Solid White)
             Positioned.fill(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
@@ -2199,42 +2189,22 @@ class WebProfileDashboardScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      /// Top Illustrated Gradient Section
+                      /// Top Half Section with Image Asset Background Instead of Linear Gradient & Icons
                       Expanded(
-                        flex: 13, // 60% Space distribution
+                        flex: 13,
                         child: Container(
                           width: double.infinity,
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Color(0xFFEBF2FC), Color(0xFFE3EEFA)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                          alignment: Alignment.centerRight,
-                          child: Opacity(
-                            opacity: 0.12,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: const [
-                                Icon(Icons.trending_up_rounded, size: 65, color: Color(0xFF0066FF)),
-                                SizedBox(width: 32),
-                                Icon(Icons.shield_outlined, size: 55, color: Color(0xFF0066FF)),
-                                SizedBox(width: 32),
-                                Icon(Icons.savings_outlined, size: 60, color: Color(0xFF0066FF)),
-                              ],
-                            ),
+                         child: Image.asset(UImages.profileBackground,fit:  BoxFit.fitWidth,),
                           ),
                         ),
-                      ),
+
 
                       /// Bottom Solid White Section
                       Expanded(
-                        flex: 9, // 40% Space distribution
+                        flex: 9,
                         child: Container(
                           color: Colors.white,
-                          padding: const EdgeInsets.only(left: 280, right: 24),
+                          padding: const EdgeInsets.only(left: 380, right: 24),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -2266,7 +2236,6 @@ class WebProfileDashboardScreen extends StatelessWidget {
                               ),
                               OutlinedButton.icon(
                                 onPressed: () {
-                                  // Programmatically jump directly to the Personal Details Tab
                                   Get.find<NavigationBarController>().profileDashboardTabIndex.value = 1;
                                 },
                                 icon: const Icon(Icons.edit_outlined, size: 14, color: Color(0xFF2D3136)),
@@ -2299,7 +2268,7 @@ class WebProfileDashboardScreen extends StatelessWidget {
 
             /// 2. Overlapping Floating White Profile Summary Card
             Positioned(
-              left: 24,
+              left: 120,
               top: 20,
               bottom: 16,
               child: Container(
@@ -2320,8 +2289,7 @@ class WebProfileDashboardScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Dynamic Profile Image Render matching your PersonalDetails Upload Layout
-                   _buildProfileImagePicker(context ,personalisationController),
+                    _buildProfileImagePicker(context, personalisationController),
                     const SizedBox(height: 4),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -2390,7 +2358,7 @@ class WebProfileDashboardScreen extends StatelessWidget {
     });
   }
 
-  Widget _buildProfileImagePicker(BuildContext context,PersonalisationController personalisationController) {
+  Widget _buildProfileImagePicker(BuildContext context, PersonalisationController personalisationController) {
     return Obx(() {
       final reactiveUser = SessionManager.instance.userObs.value;
       String displayImage = personalisationController.imagePath.isNotEmpty
@@ -2400,14 +2368,14 @@ class WebProfileDashboardScreen extends StatelessWidget {
       return ProfileHeader(
         onTap: () => UImagePicker.showImageSourceOptions(
           context: context,
-          onImageSelected: (source) =>
-              personalisationController.pickImage(source),
+          onImageSelected: (source) => personalisationController.pickImage(source),
         ),
         img: displayImage,
-        icon: Iconsax.export,
+        icon: Icons.upload_rounded, // Pure solid native Icon configuration
       );
     });
   }
+
   Widget _buildProfileTabButton(String title, IconData icon, int index, int selectedIndex, NavigationBarController controller) {
     final isSelected = index == selectedIndex;
     final activeColor = const Color(0xFF0066FF);
@@ -2415,30 +2383,36 @@ class WebProfileDashboardScreen extends StatelessWidget {
 
     return InkWell(
       onTap: () => controller.profileDashboardTabIndex.value = index,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: isSelected ? activeColor : Colors.transparent,
-              width: 2,
-            ),
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: isSelected ? activeColor : baseColor, size: 18),
-            const SizedBox(width: 8),
-            Text(
-              title,
-              style: TextStyle(
-                color: isSelected ? activeColor : baseColor,
-                fontFamily: FontFamily.regular,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                fontSize: 15,
+      child: Center(
+        child: IntrinsicWidth(
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 68),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: isSelected ? activeColor : Colors.transparent,
+                  width: 2.5, // Line thickness
+                ),
               ),
             ),
-          ],
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: isSelected ? activeColor : baseColor, size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: isSelected ? activeColor : baseColor,
+                    fontFamily: FontFamily.regular,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

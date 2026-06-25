@@ -132,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
         !isMobileDevice && ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Scaffold(
-      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
+      backgroundColor: Colors.white,
       body:
           isDesktop1 // change to isDesktop
           ? _WebDashboardLayout(
@@ -169,7 +169,7 @@ class _WebDashboardLayout extends StatelessWidget {
     final personalController = Get.find<PersonalisationController>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8FC),
+      backgroundColor: Ucolors.white,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final double width = constraints.maxWidth;
@@ -255,151 +255,219 @@ class _WebDashboardLayout extends StatelessWidget {
   Widget _buildWelcomeHero() {
     final name = authController.user.value?.name ?? 'Investor';
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final double width = constraints.maxWidth;
-
-        final bool small = width < 900;
-        final bool verySmall = width < 560;
-
-        final double horizontalPadding = verySmall
-            ? 18
-            : small
-            ? 22
-            : 30;
-
-        final double titleSize = verySmall
-            ? 22
-            : small
-            ? 24
-            : 27;
-
-        final int metricCount = verySmall
-            ? 1
-            : small
-            ? 2
-            : 4;
-
-        return Container(
-          width: double.infinity,
-          padding: EdgeInsets.fromLTRB(
-            horizontalPadding,
-            small ? 22 : 26,
-            horizontalPadding,
-            small ? 22 : 24,
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFE3F5FF),
+            Color(0xFFF2F9FF),
+            Color(0xFFFFFFFF),
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            gradient: const LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [Color(0xFFE9F9FF), Color(0xFFDFF4FF), Color(0xFFEAF7FF)],
-            ),
-            border: Border.all(color: const Color(0xFFE6EEF8)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.025),
-                blurRadius: 22,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              RichText(
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                text: TextSpan(
-                  style: TextStyle(
-                    fontFamily: FontFamily.medium,
-                    fontSize: titleSize,
-                    height: 1.2,
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFF111827),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias, // Background image corners ko clean round clip karne ke liye
+      child: Stack(
+        children: [
+          // // 1. PERFECT FIX: Full layout stretch background without any line breaks or cuts
+          // Positioned.fill(
+          //   child: Image.asset(
+          //     UImages.homeBackground,
+          //     fit: BoxFit.contain, // Graphic aspect ratio ko original rakhega bina damage kiye
+          //     alignment: Alignment.centerRight, // 3D image block ko right border par chipka kar rakhega
+          //     errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+          //   ),
+          // ),
+
+          // 2. Foreground Data Content UI Layer
+          Padding(
+            padding: const EdgeInsets.all(28.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    style: const TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1E293B),
+                      letterSpacing: -0.5,
+                    ),
+                    children: [
+                      const TextSpan(text: 'Welcome back, '),
+                      TextSpan(
+                        text: '$name!',
+                        style: const TextStyle(color: Color(0xFF0066FF)),
+                      ),
+                    ],
                   ),
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Stay consistent with your SIPs and reach your financial goals faster.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF475569),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Metrics horizontal mapping block row
+                Row(
                   children: [
-                    const TextSpan(text: 'Welcome back, '),
-                    TextSpan(
-                      text: '$name!',
-                      style: const TextStyle(color: Color(0xFF005DFF)),
+                    Expanded(
+                      child: _heroMetric(
+                        icon: Icons.account_balance_wallet_rounded,
+                        iconBgColor: const Color(0xFF3B82F6),
+                        title: 'Portfolio Value',
+                        value: '₹2,75,430',
+                        subtitle: '+12.45%',
+                        trailing: 'All Time',
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: _heroMetric(
+                        icon: Icons.calendar_today_rounded,
+                        iconBgColor: const Color(0xFF0EA5E9),
+                        title: 'SIP Due This Month',
+                        value: '₹12,000',
+                        subtitle: 'Due on 05 Jun 2025',
+                        trailing: '',
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: _heroMetric(
+                        icon: Icons.track_changes_rounded,
+                        iconBgColor: const Color(0xFF6366F1),
+                        title: 'Active Goals',
+                        value: '4 Goals',
+                        subtitle: 'On Track',
+                        trailing: '',
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: _heroMetric(
+                        icon: Icons.trending_up_rounded,
+                        iconBgColor: const Color(0xFF22C55E),
+                        title: 'Overall Returns',
+                        value: '+₹35,430',
+                        subtitle: '+14.75%',
+                        trailing: '',
+                        isReturns: true,
+                      ),
                     ),
                   ],
                 ),
-              ),
-
-              const SizedBox(height: 10),
-
-              Text(
-                'Stay consistent with your SIPs and reach your financial goals faster.',
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontFamily: FontFamily.medium,
-                  fontSize: small ? 14 : 15,
-                  height: 1.4,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.blueGrey.shade700,
-                ),
-              ),
-
-              SizedBox(height: small ? 22 : 26),
-
-              GridView.count(
-                crossAxisCount: metricCount,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisSpacing: 14,
-                mainAxisSpacing: 14,
-                childAspectRatio: verySmall
-                    ? 3.8
-                    : small
-                    ? 3.25
-                    : 2.25,
-                children: [
-                  _heroMetric(
-                    icon: Icons.wallet_outlined,
-                    iconColor: const Color(0xFF246BDB),
-                    title: 'Portfolio Value',
-                    value: '₹2,75,430',
-                    subtitle: '+12.45%',
-                    trailing: 'All Time',
-                    compact: small,
-                  ),
-                  _heroMetric(
-                    icon: Icons.calendar_month_outlined,
-                    iconColor: const Color(0xFF0097A7),
-                    title: 'SIP Due This Month',
-                    value: '₹12,000',
-                    subtitle: 'Due on 05 Jun 2025',
-                    trailing: '',
-                    compact: small,
-                  ),
-                  _heroMetric(
-                    icon: Icons.track_changes_rounded,
-                    iconColor: const Color(0xFF6D35D9),
-                    title: 'Active Goals',
-                    value: '4 Goals',
-                    subtitle: 'On Track',
-                    trailing: '',
-                    compact: small,
-                  ),
-                  _heroMetric(
-                    icon: Icons.trending_up_rounded,
-                    iconColor: const Color(0xFF43A047),
-                    title: 'Overall Returns',
-                    value: '+₹35,430',
-                    subtitle: '+14.75%',
-                    trailing: '',
-                    compact: small,
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
-        );
-      },
+        ],
+      ),
+    );
+  }
+  Widget _heroMetric({
+    required IconData icon,
+    required Color iconBgColor,
+    required String title,
+    required String value,
+    required String subtitle,
+    required String trailing,
+    bool isReturns = false,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Elegant squircle background mapping for icons matching target spec
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: iconBgColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: Colors.white, size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 11.5,
+                    color: Color(0xFF64748B),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0F172A),
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Row(
+                  children: [
+                    if (isReturns) ...[
+                      const Icon(Icons.arrow_upward_rounded, color: Color(0xFF22C55E), size: 12),
+                      const SizedBox(width: 2),
+                    ],
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: subtitle.contains('+') ? const Color(0xFF22C55E) : const Color(0xFF64748B),
+                      ),
+                    ),
+                    if (trailing.isNotEmpty) ...[
+                      const SizedBox(width: 6),
+                      Text(
+                        trailing,
+                        style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -563,140 +631,7 @@ class _WebDashboardLayout extends StatelessWidget {
   //   );
   // }
 
-  Widget _heroMetric({
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String value,
-    required String subtitle,
-    required String trailing,
-    bool compact = false,
-  }) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: compact ? 14 : 16,
-        vertical: compact ? 9 : 10,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.92),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.035),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: compact ? 38 : 42,
-            height: compact ? 38 : 42,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  iconColor.withValues(alpha: 0.95),
-                  iconColor.withValues(alpha: 0.75),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: iconColor.withValues(alpha: 0.22),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Icon(icon, color: Colors.white, size: compact ? 20 : 22),
-          ),
 
-          const SizedBox(width: 12),
-
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: FontFamily.medium,
-                    fontSize: compact ? 11.5 : 12,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.blueGrey.shade600,
-                  ),
-                ),
-
-                const SizedBox(height: 3),
-
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    value,
-                    maxLines: 1,
-                    softWrap: false,
-                    style: TextStyle(
-                      fontFamily: FontFamily.medium,
-                      fontSize: compact ? 16 : 17,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF111827),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 1),
-
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        subtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontFamily: FontFamily.medium,
-                          fontSize: compact ? 10.5 : 11,
-                          fontWeight: FontWeight.w700,
-                          color: subtitle.contains('+')
-                              ? const Color(0xFF00A85A)
-                              : Colors.blueGrey.shade600,
-                        ),
-                      ),
-                    ),
-
-                    if (trailing.isNotEmpty) ...[
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          trailing,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontFamily: FontFamily.medium,
-                            fontSize: compact ? 10.5 : 11,
-                            color: Colors.blueGrey.shade500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
   // Widget _heroMetric({
   //   required IconData icon,
   //   required Color iconColor,
@@ -979,35 +914,33 @@ class _WebDashboardLayout extends StatelessWidget {
       builder: (hover) {
         return AnimatedContainer(
           duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.all(15),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: hover
-                  ? color.withValues(alpha: 0.25)
-                  : const Color(0xFFE7ECF4),
+              color: hover ? color.withOpacity(0.3) : const Color(0xFFF1F5F9),
             ),
             boxShadow: [
-              BoxShadow(
-                color: hover
-                    ? color.withValues(alpha: 0.12)
-                    : Colors.black.withValues(alpha: 0.025),
-                blurRadius: hover ? 18 : 12,
-                offset: Offset(0, hover ? 8 : 5),
-              ),
+                BoxShadow(
+                  color: hover
+                      ? color.withOpacity(0.15)
+                      : Colors.black.withOpacity(0.3),
+                  blurRadius: hover ? 24 : 16,
+                  offset: hover ? const Offset(0, 10) : const Offset(0, 4),
+                  spreadRadius: hover ? 2 : 0,
+                ),
             ],
           ),
           child: Row(
             children: [
               Container(
-                width: 50,
-                height: 50,
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(18),
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: color, size: 28),
+                child: Icon(icon, color: color, size: 24),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -1017,44 +950,21 @@ class _WebDashboardLayout extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontFamily: FontFamily.medium,
-                        fontSize: 14,
-                        height: 1.25,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF111827),
-                      ),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontFamily: FontFamily.medium,
-                        fontSize: 12,
-                        height: 1.25,
-                        color: Colors.blueGrey.shade600,
-                      ),
+                      style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                     ),
                   ],
                 ),
               ),
-              Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.arrow_forward_rounded,
-                  size: 17,
-                  color: color,
-                ),
-              ),
+              Icon(Icons.chevron_right_rounded, color: color.withOpacity(0.7), size: 20),
             ],
           ),
         );
@@ -1330,15 +1240,18 @@ class _WebDashboardLayout extends StatelessWidget {
                   ? Ucolors.primary.withValues(alpha: 0.22)
                   : const Color(0xFFE2E8F0),
             ),
-            boxShadow: hover
-                ? [
-                    BoxShadow(
-                      color: Ucolors.primary.withValues(alpha: 0.10),
-                      blurRadius: 14,
-                      offset: const Offset(0, 7),
-                    ),
+            boxShadow:
+              [
+                BoxShadow(
+                  color: hover
+                      ? Color(0xFFF2F7FF).withOpacity(0.15)
+                      : Colors.black.withOpacity(0.2),
+                  blurRadius: hover ? 24 : 16,
+                  offset: hover ? const Offset(0, 10) : const Offset(0, 4),
+                  spreadRadius: hover ? 2 : 0,
+                ),
                   ]
-                : null,
+
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

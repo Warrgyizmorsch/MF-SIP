@@ -20,19 +20,15 @@ class KycDetailsScreen extends StatelessWidget {
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
     return Scaffold(
-      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
+      backgroundColor:  Ucolors.white,
       appBar: isDesktop ? null : CustomAppBarNormal(title: 'KYC Details'),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: isDesktop ? const EdgeInsets.all(24) : UPadding.screenPadding,
+        padding: isDesktop ? const EdgeInsets.only(top: 0) : UPadding.screenPadding,
         child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            // Wrap the layouts with Obx to establish structural reactivity
-            child: Obx(() => isDesktop
-                ? _buildWebDashboardLayout(context)
-                : _buildMobileLayout()),
-          ),
+          child: Obx(() => isDesktop
+              ? _buildWebDashboardLayout(context)
+              : _buildMobileLayout()),
         ),
       ),
     );

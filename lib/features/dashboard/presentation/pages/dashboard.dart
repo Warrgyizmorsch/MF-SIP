@@ -183,7 +183,7 @@ class WebDashboardLayout extends StatelessWidget {
                           trendIcon: Icons.arrow_upward_rounded,
                           valueColor: const Color(0xFF0F172A),
                           trendColor: const Color(0xFF22C55E),
-                          icon: Iconsax.wallet_3,
+                          icon:Icons.wallet,
                           iconBgColor: Color(0xFFEFF6FF),
                           iconColor: Color(0xFF1D4ED8),
                           sparklineData: [20, 15, 25, 18, 30, 22, 35, 45], // Blue line path
@@ -198,7 +198,7 @@ class WebDashboardLayout extends StatelessWidget {
                           trendIcon: Icons.remove,
                           valueColor: const Color(0xFF0F172A),
                           trendColor: const Color(0xFF64748B),
-                          icon: Iconsax.coin,
+                          icon: Icons.paid,
                           iconBgColor: Color(0xFFFFF7ED),
                           iconColor: Color(0xFFEA580C),
                           sparklineData: [15, 25, 12, 20, 15, 22, 18, 20], // Orange line path
@@ -213,7 +213,7 @@ class WebDashboardLayout extends StatelessWidget {
                           trendIcon: Icons.arrow_upward_rounded,
                           valueColor: const Color(0xFF22C55E), // Vibrant Green Matching text color
                           trendColor: const Color(0xFF22C55E),
-                          icon: Iconsax.trend_up,
+                          icon: Icons.trending_up_rounded, // Clean Solid Upward Trend (No Outline)
                           iconBgColor: Color(0xFFF0FDF4),
                           iconColor: Color(0xFF16A34A),
                           sparklineData: [10, 12, 22, 15, 20, 28, 35, 48], // Green line path
@@ -228,7 +228,7 @@ class WebDashboardLayout extends StatelessWidget {
                           trendIcon: Icons.arrow_upward_rounded,
                           valueColor: const Color(0xFF9333EA), // Vibrant Purple Matching text color
                           trendColor: const Color(0xFF22C55E),
-                          icon: Iconsax.percentage_square,
+                          icon: Icons.percent_rounded,
                           iconBgColor: Color(0xFFFAF5FF),
                           iconColor: Color(0xFF9333EA),
                           sparklineData: [12, 20, 14, 18, 15, 25, 22, 30], // Purple line path
@@ -267,8 +267,8 @@ class WebDashboardLayout extends StatelessWidget {
                             _buildQuickActionsCard(),
                             const Gap(24),
                             _buildUpcomingSIPsCard(),
-                            const Gap(24),
-                            _buildPortfolioAllocationCard(),
+                            // const Gap(24),
+                            // _buildPortfolioAllocationCard(),
                             const Gap(24),
                             _buildRecentActivityCard()
                           ],
@@ -622,7 +622,7 @@ TableRow _buildTableRowItem({
             children: [
               Expanded(child: _buildActionGridItem("Top Up", "Add money\nInstantly", Icons.add, const Color(0xFF3B82F6))),
               const Gap(12),
-              Expanded(child: _buildActionGridItem("Withdraw", "Redeem to\nbank", Icons.remove_circle, const Color(0xFFF97316))),
+              Expanded(child: _buildActionGridItem("Withdraw", "Redeem to\nbank", Icons.remove, const Color(0xFFF97316))),
               const Gap(12),
               Expanded(child: _buildActionGridItem("SIP", "Manage\nmonthly SIP", Iconsax.calendar, const Color(0xFFA855F7))),
             ],
@@ -881,6 +881,32 @@ TableRow _buildTableRowItem({
           _buildActivityRowItem(
             icon: Iconsax.calendar_tick,
             title: "SIP Invested",
+            subtitle: "ICICI Prudential Tech",
+            amount: "₹3,000",
+            timeAgo: "2 days ago",
+          ),
+          const Divider(height: 24, thickness: 0.8, color: Color(0xFFF1F5F9)),
+          _buildActivityRowItem(
+            icon: Iconsax.clock,
+            title: "Redemption",
+            subtitle: "SBI Small Cap Fund",
+            amount: "₹2,000",
+            timeAgo: "5 days ago",
+          ),
+          const Divider(height: 24, thickness: 0.8, color: Color(0xFFF1F5F9)),
+
+          // --- ACTIVITY LIST ROWS ---
+          _buildActivityRowItem(
+            icon: Iconsax.document_text5, // Or Icons.receipt_long
+            title: "Lumpsum Invested",
+            subtitle: "Kotak Bluechip Fund",
+            amount: "₹5,000",
+            timeAgo: "Today",
+          ),
+          const Divider(height: 24, thickness: 0.8, color: Color(0xFFF1F5F9)),
+          _buildActivityRowItem(
+            icon: Iconsax.calendar_tick,
+            title: "Lumpsum Invested",
             subtitle: "ICICI Prudential Tech",
             amount: "₹3,000",
             timeAgo: "2 days ago",

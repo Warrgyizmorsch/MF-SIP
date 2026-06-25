@@ -22,120 +22,88 @@ class NomineeListScreen extends GetView<PersonalisationController> {
     });
 
     return Scaffold(
-      backgroundColor: isDesktop ? const Color(0xFFF8FAFC) : Colors.white, // Softer slate background for web
+      backgroundColor:  Colors.white, // Softer slate background for web
       appBar: isDesktop ? null : const CustomAppBarNormal(title: 'Nominee List'),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Padding(
-            padding: isDesktop ? const EdgeInsets.symmetric(horizontal: 0, vertical: 0) : UPadding.screenPadding,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 💻 WEB Header Section
-                if (isDesktop) ...[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Padding(
+        padding: isDesktop ? const EdgeInsets.symmetric(horizontal: 0, vertical: 0) : UPadding.screenPadding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 💻 WEB Header Section
+            if (isDesktop) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "Your Nominees",
-                            style: TextStyle(
-                              fontFamily: FontFamily.medium,
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF0F172A),
-                            ),
-                          ),
-                          const Gap(4),
-                          Text(
-                            "Manage and allocate shares for your account dynamic updates.",
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        ],
+                      const Text(
+                        "Your Nominees",
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF0F172A),
+                        ),
                       ),
-                      Obx(() {
-                        if (controller.remainingAllocation <= 0) return const SizedBox.shrink();
-                        return ElevatedButton.icon(
-                          onPressed: () => Get.toNamed(AppRoutes.nomineeDetail, id: 1),
-                          icon: const Icon(Icons.add, color: Colors.white, size: 18),
-                          label: const Text(
-                            'Add Nominee',
-                            style: TextStyle(fontFamily: FontFamily.medium, color: Colors.white),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Ucolors.blue,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                          ),
-                        );
-                      }),
+                      const Gap(4),
+                      Text(
+                        "Manage and allocate shares for your account dynamic updates.",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
                     ],
                   ),
-                  const Gap(18),
+                  Obx(() {
+                    if (controller.remainingAllocation <= 0) return const SizedBox.shrink();
+                    return ElevatedButton.icon(
+                      onPressed: () => Get.toNamed(AppRoutes.nomineeDetail, id: 1),
+                      icon: const Icon(Icons.add, color: Colors.white, size: 18),
+                      label: const Text(
+                        'Add Nominee',
+                        style: TextStyle(fontFamily: FontFamily.medium, color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Ucolors.blue,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                      ),
+                    );
+                  }),
                 ],
+              ),
+              const Gap(18),
+            ],
 
-                // 2. Main Content (List / Grid Container)
-                Expanded(
-                  child: Obx(() {
-                    if (controller.isNomineeLoading.value) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+            // 2. Main Content (List / Grid Container)
+            Expanded(
+              child: Obx(() {
+                if (controller.isNomineeLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-                    final response = controller.nomineeList.value;
-                    final nominees = response?.nominees;
+                final response = controller.nomineeList.value;
+                final nominees = response?.nominees;
 
-                    if (nominees == null || nominees.isEmpty) {
-                      return _buildEmptyState(isDesktop, context);
-                    }
+                if (nominees == null || nominees.isEmpty) {
+                  return _buildEmptyState(isDesktop, context);
+                }
 
-                    if (isDesktop) {
-                      // 💻 WEB Layout: Clean Grid with Intrinsic heights via SingleChildScrollView & Wrap
-                      // Or dynamically calculated crossAxis structures
-                      return SingleChildScrollView(
-                        physics: const BouncingScrollPhysics(),
-                        child: Wrap(
-                          spacing: 24,
-                          runSpacing: 24,
-                          children: nominees.map((nominee) {
-                            return SizedBox(
-                              width: 536, // Fits flawlessly (2 cards per row) on 1200px max-width limits
-                              child: Obx(() {
-                                final isDeleting = controller.isDeleteLoading[nominee.id] ?? false;
-                                return NomineeDetailsCard(
-                                  name: nominee.name,
-                                  relation: nominee.relation,
-                                  percentage: "${nominee.allocationPercent.toStringAsFixed(0)}%",
-                                  onTap: () {},
-                                  onDelete: () => _showDeleteConfirmDialog(context, nominee),
-                                  isDeleting: isDeleting,
-                                  phoneNumber: nominee.phoneNumber,
-                                  email: nominee.email,
-                                  address: nominee.address,
-                                  documentNumber: nominee.documentNumber,
-                                  documentType: nominee.documentType,
-                                  guardianName: nominee.guardianName,
-                                  dob: nominee.dob,
-                                );
-                              }),
-                            );
-                          }).toList(),
-                        ),
-                      );
-                    } else {
-                      // 📱 MOBILE Layout
-                      return ListView.separated(
-                        itemCount: nominees.length,
-                        separatorBuilder: (context, index) => const Gap(16),
-                        itemBuilder: (context, index) {
-                          final nominee = nominees[index];
-                          return Obx(() {
+                if (isDesktop) {
+                  // 💻 WEB Layout: Clean Grid with Intrinsic heights via SingleChildScrollView & Wrap
+                  // Or dynamically calculated crossAxis structures
+                  return SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Wrap(
+                      spacing: 24,
+                      runSpacing: 24,
+                      children: nominees.map((nominee) {
+                        return SizedBox(
+                          width: 536, // Fits flawlessly (2 cards per row) on 1200px max-width limits
+                          child: Obx(() {
                             final isDeleting = controller.isDeleteLoading[nominee.id] ?? false;
                             return NomineeDetailsCard(
                               name: nominee.name,
@@ -152,34 +120,61 @@ class NomineeListScreen extends GetView<PersonalisationController> {
                               guardianName: nominee.guardianName,
                               dob: nominee.dob,
                             );
-                          });
-                        },
-                      );
-                    }
-                  }),
-                ),
-
-                // 4. Mobile Bottom Sticky Navigation Button
-                if (!isDesktop) ...[
-                  const Gap(12),
-                  Obx(() {
-                    if (controller.remainingAllocation <= 0) return const SizedBox.shrink();
-                    return UElevatedBUtton(
-                      outlined: true,
-                      onPressed: () => Get.toNamed(AppRoutes.nomineeDetail),
-                      child: const Center(
-                        child: Text(
-                          'Add Another Nominee',
-                          style: TextStyle(fontFamily: FontFamily.medium, color: Ucolors.blue),
-                        ),
-                      ),
-                    );
-                  }),
-                  const Gap(12),
-                ],
-              ],
+                          }),
+                        );
+                      }).toList(),
+                    ),
+                  );
+                } else {
+                  // 📱 MOBILE Layout
+                  return ListView.separated(
+                    itemCount: nominees.length,
+                    separatorBuilder: (context, index) => const Gap(16),
+                    itemBuilder: (context, index) {
+                      final nominee = nominees[index];
+                      return Obx(() {
+                        final isDeleting = controller.isDeleteLoading[nominee.id] ?? false;
+                        return NomineeDetailsCard(
+                          name: nominee.name,
+                          relation: nominee.relation,
+                          percentage: "${nominee.allocationPercent.toStringAsFixed(0)}%",
+                          onTap: () {},
+                          onDelete: () => _showDeleteConfirmDialog(context, nominee),
+                          isDeleting: isDeleting,
+                          phoneNumber: nominee.phoneNumber,
+                          email: nominee.email,
+                          address: nominee.address,
+                          documentNumber: nominee.documentNumber,
+                          documentType: nominee.documentType,
+                          guardianName: nominee.guardianName,
+                          dob: nominee.dob,
+                        );
+                      });
+                    },
+                  );
+                }
+              }),
             ),
-          ),
+
+            // 4. Mobile Bottom Sticky Navigation Button
+            if (!isDesktop) ...[
+              const Gap(12),
+              Obx(() {
+                if (controller.remainingAllocation <= 0) return const SizedBox.shrink();
+                return UElevatedBUtton(
+                  outlined: true,
+                  onPressed: () => Get.toNamed(AppRoutes.nomineeDetail),
+                  child: const Center(
+                    child: Text(
+                      'Add Another Nominee',
+                      style: TextStyle(fontFamily: FontFamily.medium, color: Ucolors.blue),
+                    ),
+                  ),
+                );
+              }),
+              const Gap(12),
+            ],
+          ],
         ),
       ),
     );

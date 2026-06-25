@@ -1,5 +1,7 @@
 // ignore_for_file: unnecessary_to_list_in_spreads, invalid_null_aware_operator, unnecessary_null_comparison, unused_local_variable
 
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -42,37 +44,38 @@ class GoalDetailsPage extends GetView<GoalSipController> {
     final String emoji = args['emoji'] ?? '🎯';
     final double target = args['target'] ?? 0.0;
     final double invested = args['invested'] ?? 0.0;
-    final String logo = args['logo'] ?? "";
+    final String logo = goal?.goalType?.logo ?? "";
+    debugPrint("logo$logo");
 
     final String title = goal?.goalName ?? 'Goal Details';
     final int currentGoalId = goal?.id ?? 0;
 
     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
-    void onEdit() => _showEditGoalDialog(context, currentGoalId, goal, isDesktop);
+    void onEdit() =>
+        _showEditGoalDialog(context, currentGoalId, goal, isDesktop);
     void onDelete() => _showDeleteGoalDialog(context, currentGoalId);
 
     void onAddFunds() {
       if (currentGoalId != 0) {
-        MasterGoalsPage.tempArgs = {
+        final payload = {
           'isAddFund': true,
-          "goalId": currentGoalId,
-          "goal": goal,
+          'goalId': currentGoalId,
+          'goal': goal,
+          'goalType': goal?.goalType ?? 'custom',
         };
 
+        MasterGoalsPage.tempArgs = payload;
+
         if (isDesktop) {
-          WebMasterGoalsPage.tempArgs = {
-            'isAddFund': true,
-            "goalId": currentGoalId,
-            "goal": goal,
-          };
-          // Navigates directly via clean nested platform shell container layout routing
-          Get.toNamed(AppRoutes.webMasterGoalsPage, id: 1);
+          WebMasterGoalsPage.tempArgs = payload;
+          controller.isAddFund.value = true;
+          controller.loadGoalForAddFund(goal);
+          Get.toNamed(AppRoutes.webMasterGoalsPage, id: 1, arguments: payload);
         } else {
-          Get.toNamed(
-            AppRoutes.masterGoalsPage,
-            arguments: MasterGoalsPage.tempArgs,
-          );
+          controller.isAddFund.value = true;
+          controller.loadGoalForAddFund(goal);
+          Get.toNamed(AppRoutes.masterGoalsPage, arguments: payload);
         }
       } else {
         Get.snackbar("Error", "Goal ID is missing.");
@@ -81,17 +84,18 @@ class GoalDetailsPage extends GetView<GoalSipController> {
 
     if (isDesktop) {
       return Scaffold(
-        backgroundColor: const Color(0xFFF8FAFC),
+        backgroundColor: Ucolors.white,
         body: GoalDetailsWebView(
           title: title,
           goal: goal,
-          emoji: emoji,
+          emoji: logo,
           target: target,
           invested: invested,
           logo: logo,
           onEdit: onEdit,
           onDelete: onDelete,
           onAddFunds: onAddFunds,
+          controller: controller,
         ),
       );
     }
@@ -99,7 +103,7 @@ class GoalDetailsPage extends GetView<GoalSipController> {
     return GoalDetailsMobileView(
       title: title,
       goal: goal,
-      emoji: emoji,
+      emoji: logo,
       target: target,
       invested: invested,
       logo: logo,
@@ -114,7 +118,9 @@ class GoalDetailsPage extends GetView<GoalSipController> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: const Row(
             children: [
               Icon(Icons.delete_outline, color: Colors.red),
@@ -126,13 +132,22 @@ class GoalDetailsPage extends GetView<GoalSipController> {
             "Are you sure you want to delete this goal?",
             style: TextStyle(fontFamily: FontFamily.medium, fontSize: 15),
           ),
-          actionsPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+          actionsPadding: const EdgeInsets.only(
+            left: 16,
+            right: 16,
+            bottom: 16,
+          ),
           actions: [
             OutlinedButton(
               onPressed: () => Navigator.pop(context),
               style: OutlinedButton.styleFrom(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
               ),
               child: const Text("Cancel"),
             ),
@@ -144,8 +159,13 @@ class GoalDetailsPage extends GetView<GoalSipController> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
               ),
               child: const Text("Delete"),
             ),
@@ -155,12 +175,19 @@ class GoalDetailsPage extends GetView<GoalSipController> {
     );
   }
 
-  void _showEditGoalDialog(BuildContext context, int currentGoalId, UserGoalEntity? goal, bool isDesktop) {
+  void _showEditGoalDialog(
+    BuildContext context,
+    int currentGoalId,
+    UserGoalEntity? goal,
+    bool isDesktop,
+  ) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: const Row(
             children: [
               Icon(Icons.edit_outlined, color: Colors.blue),
@@ -172,13 +199,22 @@ class GoalDetailsPage extends GetView<GoalSipController> {
             "Are you sure you want to edit this goal?",
             style: TextStyle(fontFamily: FontFamily.medium, fontSize: 15),
           ),
-          actionsPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+          actionsPadding: const EdgeInsets.only(
+            left: 16,
+            right: 16,
+            bottom: 16,
+          ),
           actions: [
             OutlinedButton(
               onPressed: () => Navigator.pop(context),
               style: OutlinedButton.styleFrom(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
               ),
               child: const Text("Cancel"),
             ),
@@ -188,7 +224,7 @@ class GoalDetailsPage extends GetView<GoalSipController> {
                 MasterGoalsPage.tempArgs = {
                   "goalId": currentGoalId,
                   "goal": goal,
-                  "isEdit": true
+                  "isEdit": true,
                 };
 
                 if (isDesktop) {
@@ -203,8 +239,13 @@ class GoalDetailsPage extends GetView<GoalSipController> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
               ),
               child: const Text("Edit"),
             ),
@@ -218,7 +259,8 @@ class GoalDetailsPage extends GetView<GoalSipController> {
 /// ----------------------------------------------------------------------
 /// Web Custom Reusable App Bar Component
 /// ----------------------------------------------------------------------
-class WebCustomAppBarNormal extends StatelessWidget implements PreferredSizeWidget {
+class WebCustomAppBarNormal extends StatelessWidget
+    implements PreferredSizeWidget {
   final String title;
   final String emoji;
   final VoidCallback onAddFunds;
@@ -246,20 +288,21 @@ class WebCustomAppBarNormal extends StatelessWidget implements PreferredSizeWidg
             children: [
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 14, color: Color(0xFF64748B)),
+                icon: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  size: 14,
+                  color: Color(0xFF64748B),
+                ),
                 style: IconButton.styleFrom(
                   backgroundColor: const Color(0xFFF8FAFC),
                   side: const BorderSide(color: Color(0xFFE2E8F0)),
                   padding: const EdgeInsets.all(10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
-              const Gap(16),
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: const Color(0xFFFEF3C7),
-                child: Text(emoji, style: const TextStyle(fontSize: 20)),
-              ),
+
               const Gap(12),
               Text(
                 title,
@@ -271,7 +314,10 @@ class WebCustomAppBarNormal extends StatelessWidget implements PreferredSizeWidg
               ),
               const Gap(12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFDCFCE7),
                   borderRadius: BorderRadius.circular(6),
@@ -292,14 +338,23 @@ class WebCustomAppBarNormal extends StatelessWidget implements PreferredSizeWidg
               ElevatedButton(
                 onPressed: onAddFunds,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0066FF),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  backgroundColor: Ucolors.primary,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 18,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   elevation: 0,
                 ),
                 child: const Text(
                   "Add Funds",
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
                 ),
               ),
               const Gap(12),
@@ -357,6 +412,7 @@ class GoalDetailsWebView extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback onAddFunds;
+  final GoalSipController controller;
 
   const GoalDetailsWebView({
     super.key,
@@ -369,12 +425,13 @@ class GoalDetailsWebView extends StatelessWidget {
     required this.onEdit,
     required this.onDelete,
     required this.onAddFunds,
+    required this.controller,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: Ucolors.white,
       appBar: WebCustomAppBarNormal(
         title: title,
         emoji: emoji,
@@ -383,10 +440,9 @@ class GoalDetailsWebView extends StatelessWidget {
         onDelete: onDelete,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 32.0),
         child: Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 1300),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -405,6 +461,7 @@ class GoalDetailsWebView extends StatelessWidget {
                             invested: invested,
                             emoji: emoji,
                             logo: logo,
+                            controller: controller,
                           ),
                           const Gap(24),
                           LinkedFundsCard(goal: goal),
@@ -423,9 +480,9 @@ class GoalDetailsWebView extends StatelessWidget {
                           NextMilestoneCard(invested: invested, target: target),
                         ],
                       ),
-                    )
+                    ),
                   ],
-                )
+                ),
               ],
             ),
           ),
@@ -436,7 +493,7 @@ class GoalDetailsWebView extends StatelessWidget {
 }
 
 /// ----------------------------------------------------------------------
-/// Redesigned Goal Overview UI Block Widget
+/// Redesigned Goal Overview UI Block Widget (Grid Approach to Prevent Overflow)
 /// ----------------------------------------------------------------------
 class GoalOverviewCard extends StatelessWidget {
   final UserGoalEntity? goal;
@@ -444,6 +501,7 @@ class GoalOverviewCard extends StatelessWidget {
   final double invested;
   final String emoji;
   final String logo;
+  final GoalSipController controller;
 
   const GoalOverviewCard({
     super.key,
@@ -452,6 +510,7 @@ class GoalOverviewCard extends StatelessWidget {
     required this.invested,
     required this.emoji,
     required this.logo,
+    required this.controller,
   });
 
   String _fmt(double amount) {
@@ -471,150 +530,364 @@ class GoalOverviewCard extends StatelessWidget {
     final double safeTarget = target > 0 ? target : 1;
     final double percentage = (invested / safeTarget).clamp(0.0, 1.0);
     final String percentStr = "${(percentage * 100).toStringAsFixed(0)}%";
+    final Color progressColor = controller.getGoalColor(
+      goal?.goalType?.typeName ?? '',
+    );
 
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
       ),
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 1. Header Title
           const Text(
             "Goal Overview",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1E293B),
+            ),
           ),
-          const Gap(24),
+          const SizedBox(height: 24),
+
+          // 2. Main Dashboard Panel Split
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              // --- LEFT: Progress Arc Layout matching Original Specs ---
+              // --- LEFT: Progress Arc Layout matching Original Specs ---
+              // --- LEFT: Progress Arc Layout with Smooth Drawing Animation ---
               Expanded(
-                flex: 4,
+                flex: 3,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Stack(
+                      clipBehavior: Clip.none,
                       alignment: Alignment.center,
                       children: [
-                        SizedBox(
-                          width: 150,
-                          height: 150,
-                          child: CircularProgressIndicator(
-                            value: percentage,
-                            strokeWidth: 12,
-                            backgroundColor: const Color(0xFFF1F5F9),
-                            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFF97316)),
+                        TweenAnimationBuilder<double>(
+                          tween: Tween<double>(begin: 0.0, end: percentage),
+                          duration: const Duration(milliseconds: 1200),
+                          curve: Curves.fastOutSlowIn,
+                          builder: (context, animatedPercentage, child) {
+                            return Transform.rotate(
+                              angle: -math.pi * 0.75,
+                              child: SizedBox(
+                                width: 120,
+                                height: 120,
+                                child: CircularProgressIndicator(
+                                  value: animatedPercentage,
+                                  strokeWidth: 8,
+                                  backgroundColor: const Color(0xFFEAEAEA),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    progressColor,
+                                  ),
+                                  strokeCap: StrokeCap.round,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+
+                        Positioned(
+                          top: 35,
+                          child: Container(
+                            width: 55,
+                            height: 55,
+                            padding: const EdgeInsets.all(6),
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(blurRadius: 8, color: Colors.black12),
+                              ],
+                            ),
+                            child: logo.isNotEmpty
+                                ? Image.network(
+                                    logo.startsWith('http')
+                                        ? logo
+                                        : '${Appurl.baseUrl}/$logo',
+                                    width: 40,
+                                    height: 40,
+                                    color: progressColor,
+                                    colorBlendMode: BlendMode.srcIn,
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (_, __, ___) => Icon(
+                                      Icons.flag,
+                                      color: progressColor,
+                                      size: 26,
+                                    ),
+                                  )
+                                : Icon(
+                                    Icons.flag,
+                                    color: progressColor,
+                                    size: 26,
+                                  ),
                           ),
                         ),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(emoji, style: const TextStyle(fontSize: 32)),
-                            const Gap(4),
-                            Text(
-                              percentStr,
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
-                            ),
-                            Text(
-                              "of goal achieved",
-                              style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
-                            )
-                          ],
-                        )
                       ],
+                    ),
+
+                    // 3. Bottom Label Text System
+                    Transform.translate(
+                      offset: const Offset(0, -18),
+                      child: Container(
+                        color: Ucolors.white,
+                        padding: const EdgeInsets.all(4),
+                        child: Column(
+                          children: [
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: '${(percentage * 100).round()}',
+                                    style: TextStyle(
+                                      color: progressColor,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: '%',
+                                    style: TextStyle(
+                                      color: progressColor,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            const Text(
+                              'of goal achieved',
+                              style: TextStyle(
+                                color: Color(0xFF666666),
+                                fontSize: 8,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
+              const SizedBox(width: 24),
+
+              // --- RIGHT: Grid Layout Box Panel (Zero Overflow Matrix) ---
               Expanded(
                 flex: 7,
-                child: Wrap(
-                  spacing: 20,
-                  runSpacing: 20,
-                  children: [
-                    _buildMetricTile(Iconsax.empty_wallet, "Saved", _fmt(invested)),
-                    _buildMetricTile(Iconsax.refresh_2, "Remaining", _fmt(remaining)),
-                    _buildMetricTile(Iconsax.radar, "Target", _fmt(target)),
-                    _buildMetricTile(Iconsax.calendar_1, "Deadline", "Est. Year ${deadlineYear.floor()}"),
-                    _buildMetricTile(Iconsax.coin, "Daily Savings", _fmt(daily)),
-                    _buildMetricTile(Iconsax.wallet_3, "Weekly Savings", _fmt(weekly)),
-                    _buildMetricTile(Iconsax.card_send, "Monthly Savings", _fmt(monthly)),
-                  ],
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFF1F5F9)),
+                  ),
+                  child: GridView.count(
+                    crossAxisCount: 3,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    childAspectRatio: 1.6,
+                    children: [
+                      _buildGridTile(
+                        Iconsax.empty_wallet,
+                        "Saved",
+                        _fmt(invested),
+                        hasRightBorder: true,
+                        hasBottomBorder: true,
+                      ),
+                      _buildGridTile(
+                        Iconsax.refresh_2,
+                        "Remaining",
+                        _fmt(remaining),
+                        hasRightBorder: true,
+                        hasBottomBorder: true,
+                      ),
+                      _buildGridTile(
+                        Iconsax.radar,
+                        "Target",
+                        _fmt(target),
+                        hasBottomBorder: true,
+                      ),
+                      _buildGridTile(
+                        Iconsax.calendar_1,
+                        "Deadline",
+                        "Est. Year ${deadlineYear.floor()}",
+                        hasRightBorder: true,
+                        hasBottomBorder: true,
+                      ),
+                      _buildGridTile(
+                        Iconsax.coin,
+                        "Daily Savings",
+                        _fmt(daily),
+                        hasRightBorder: true,
+                        hasBottomBorder: true,
+                      ),
+                      _buildGridTile(
+                        Iconsax.wallet_3,
+                        "Weekly Savings",
+                        _fmt(weekly),
+                        hasBottomBorder: true,
+                      ),
+                      const SizedBox.shrink(),
+                      _buildGridTile(
+                        Iconsax.card_send,
+                        "Monthly Savings",
+                        _fmt(monthly),
+                        hasLeftBorder: true,
+                        hasRightBorder: true,
+                      ),
+                      const SizedBox.shrink(),
+                    ],
+                  ),
                 ),
-              )
+              ),
             ],
           ),
-          const Gap(32),
+          const SizedBox(height: 24),
+
+          // 3. Bottom Status Analytics Banner Track
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(8),
+              color: const Color(0xFFF4F7FC),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               children: [
-                const Icon(Iconsax.trend_up, color: Color(0xFF0066FF), size: 20),
-                const Gap(12),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Iconsax.trend_up,
+                    color: Color(0xFF0066FF),
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       RichText(
                         text: TextSpan(
-                          style: const TextStyle(fontSize: 13, color: Color(0xFF475569)),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF1E293B),
+                          ),
                           children: [
                             const TextSpan(text: "You are "),
-                            const TextSpan(text: "on track ", style: TextStyle(color: Color(0xFF0066FF), fontWeight: FontWeight.bold)),
-                            TextSpan(text: "to reach your goal by ${deadlineYear.floor()}"),
+                            const TextSpan(
+                              text: "on track ",
+                              style: TextStyle(
+                                color: Color(0xFF0066FF),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text:
+                                  "to reach your goal by ${deadlineYear.floor()}",
+                            ),
                           ],
                         ),
                       ),
-                      const Gap(8),
+                      const SizedBox(height: 8),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(4),
                         child: LinearProgressIndicator(
                           value: percentage,
-                          minHeight: 6,
-                          backgroundColor: const Color(0xFFE2E8F0),
-                          valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFF97316)),
+                          minHeight: 8,
+                          backgroundColor: Ucolors.white,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            progressColor,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Gap(16),
+                const SizedBox(width: 16),
                 Text(
                   percentStr,
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFF97316), fontSize: 14),
-                )
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: progressColor,
+                    fontSize: 16,
+                  ),
+                ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildMetricTile(IconData icon, String label, String value) {
-    return SizedBox(
-      width: 160,
-      child: Row(
+  Widget _buildGridTile(
+    IconData icon,
+    String label,
+    String value, {
+    bool hasLeftBorder = false,
+    bool hasRightBorder = false,
+    bool hasBottomBorder = false,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          left: hasLeftBorder
+              ? const BorderSide(color: Color(0xFFF1F5F9))
+              : BorderSide.none,
+          right: hasRightBorder
+              ? const BorderSide(color: Color(0xFFF1F5F9))
+              : BorderSide.none,
+          bottom: hasBottomBorder
+              ? const BorderSide(color: Color(0xFFF1F5F9))
+              : BorderSide.none,
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 18, color: const Color(0xFF0066FF)),
-          const Gap(10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
-                const Gap(2),
-                Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
-              ],
+          Row(
+            children: [
+              Icon(icon, size: 20, color: const Color(0xFF0066FF)),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF64748B),
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1E293B),
             ),
-          )
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );
@@ -636,39 +909,59 @@ class LinkedFundsCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
       ),
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header Row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 "Linked Mutual Funds",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1E293B),
+                ),
               ),
               TextButton(
                 onPressed: () {},
-                child: const Text("View All", style: TextStyle(color: Color(0xFF0066FF), fontWeight: FontWeight.bold)),
-              )
+                style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                child: const Text(
+                  "View All",
+                  style: TextStyle(
+                    color: Color(0xFF0066FF),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
             ],
           ),
-          const Gap(16),
+          const SizedBox(height: 20),
+
+          // Grid View Block
           Obx(() {
-            final freshGoal = goalSipController.goalResponse.value?.data?.firstWhereOrNull(
+            final freshGoal =
+                goalSipController.goalResponse.value?.data?.firstWhereOrNull(
                   (g) => g.id == currentGoalId,
-            ) ?? goal;
+                ) ??
+                goal;
 
             final linkedFunds = freshGoal?.goalFunds ?? [];
 
             if (linkedFunds.isEmpty) {
               return const Center(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24.0),
-                  child: Text('No mutual funds linked yet.', style: TextStyle(color: Colors.grey)),
+                  padding: EdgeInsets.symmetric(vertical: 32.0),
+                  child: Text(
+                    'No mutual funds linked yet.',
+                    style: TextStyle(color: Color(0xFF94A3B8)),
+                  ),
                 ),
               );
             }
@@ -681,102 +974,227 @@ class LinkedFundsCard extends StatelessWidget {
                 crossAxisCount: 3,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
-                childAspectRatio: 2.1,
+                childAspectRatio:
+                    1.60, // Adjusted to match vertical spacing distribution safely
               ),
               itemBuilder: (context, index) {
                 final fund = linkedFunds[index];
-                final String imgUrl = "${Appurl.baseUrl}${fund.mutualFund?.amc?.amcLogo ?? ''}";
-                final String displayAmount = freshGoal?.txnType.toLowerCase() == 'sip'
+                final String imgUrl =
+                    "${Appurl.baseUrl}${fund.mutualFund?.amc?.amcLogo ?? ''}";
+                final String displayAmount =
+                    freshGoal?.txnType.toLowerCase() == 'sip'
                     ? '₹ ${fund.sipAmount.toStringAsFixed(0)} / month'
                     : '₹ ${fund.lumpsumAmount.toStringAsFixed(0)}';
 
+                // Percentage dummy mock distribution matching image specs (40%, 33%, 27%)
+                final mockPercentages = ["40%", "33%", "27%"];
+                final String currentWeight = index < mockPercentages.length
+                    ? mockPercentages[index]
+                    : "0%";
+
                 return Container(
-                  padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFF1F5F9)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 16,
-                            backgroundColor: Colors.white,
-                            backgroundImage: NetworkImage(imgUrl),
-                            onBackgroundImageError: (_, __) => const Icon(Icons.broken_image, size: 14),
-                          ),
-                          const Gap(10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  fund.mutualFund?.schemeName ?? 'Unknown Fund',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
+                      // Top Half Content Area
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: const Color(0xFFF1F5F9),
                                 ),
-                                Text(
-                                  "Equity · Large Cap",
-                                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
-                                )
-                              ],
+                                color: Colors.white,
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: Image.network(
+                                imgUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => const Icon(
+                                  Icons.broken_image,
+                                  size: 16,
+                                  color: Colors.grey,
+                                ),
+                              ),
                             ),
-                          )
-                        ],
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    fund.mutualFund?.schemeName ??
+                                        'Unknown Fund',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                      color: Color(0xFF1E293B),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    fund.mutualFund?.schemeCategory ?? "",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Color(0xFF64748B),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  // Soft blue background badge capsule
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFE8F0FE),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      goal?.txnType ?? "",
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Color(0xFF1A73E8),
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(displayAmount, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF334155))),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(color: const Color(0xFFE0F2FE), borderRadius: BorderRadius.circular(4)),
-                            child: const Text("SIP", style: TextStyle(fontSize: 10, color: Color(0xFF0369A1), fontWeight: FontWeight.bold)),
-                          )
-                        ],
-                      )
+                      const Spacer(),
+
+                      // Bottom Split Strip Area (Matches image_8a4862.png design structure)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(16),
+                            bottomRight: Radius.circular(16),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              goal?.txnType.toLowerCase() == 'sip'
+                                  ? '₹${fund.sipAmount} / month'
+                                  : '₹${fund.lumpsumAmount ?? 0.0}',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF334155),
+                              ),
+                            ),
+                            Text(
+                              "30%",
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF1E293B),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 );
               },
             );
           }),
-          const Gap(20),
+          const SizedBox(height: 24),
+
+          // Bottom Dotted/Dashed Link Fund Panel Container Block
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             decoration: BoxDecoration(
-              border: Border.all(color: const Color(0xFFCBD5E1), style: BorderStyle.solid),
-              borderRadius: BorderRadius.circular(8),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              // Simulating realistic smooth dashed tracking footprint
+              border: Border.all(color: const Color(0xFFCBD5E1), width: 1),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
+                Row(
                   children: [
-                    Icon(Icons.add_circle_outline, color: Color(0xFF64748B), size: 20),
-                    Gap(12),
-                    Text(
+                    // Plus Circle Icon Setup matches reference blueprint
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: const Color(0xFF0066FF),
+                          style: BorderStyle.solid,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.add,
+                        color: Color(0xFF0066FF),
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    const Text(
                       "Add more mutual funds to diversify your goal",
-                      style: TextStyle(color: Color(0xFF475569), fontSize: 13, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        color: Color(0xFF475569),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),
                 OutlinedButton(
                   onPressed: () {},
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFF0066FF)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                    side: const BorderSide(
+                      color: Color(0xFF0066FF),
+                      width: 1.5,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 14,
+                    ),
                   ),
-                  child: const Text("Link Fund", style: TextStyle(color: Color(0xFF0066FF), fontWeight: FontWeight.bold)),
-                )
+                  child: const Text(
+                    "Link Fund",
+                    style: TextStyle(
+                      color: Color(0xFF0066FF),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
@@ -794,77 +1212,178 @@ class RecentContributionsCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
       ),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header Row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 "Recent Contributions",
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1E293B),
+                ),
               ),
               Row(
                 children: [
                   TextButton(
                     onPressed: () {},
-                    child: const Text("View All", style: TextStyle(color: Color(0xFF0066FF), fontSize: 13, fontWeight: FontWeight.bold)),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                    ),
+                    child: const Text(
+                      "View All",
+                      style: TextStyle(
+                        color: Color(0xFF0066FF),
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                  const Icon(Iconsax.filter, size: 16, color: Color(0xFF64748B)),
+                  const SizedBox(width: 4),
+                  const Icon(
+                    Iconsax.filter,
+                    size: 18,
+                    color: Color(0xFF64748B),
+                  ),
                 ],
-              )
+              ),
             ],
           ),
-          const Gap(10),
+          const SizedBox(height: 16),
+
+          // Ledger List
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: 4,
-            separatorBuilder: (_, __) => const Gap(12),
+            itemCount: 6, // Matches the 6 items visible in the image
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
+              // Creating dynamic date variations just to mimic the image mockup perfectly
+              final dates = [
+                "Jan 10, 2024",
+                "Jan 03, 2024",
+                "Dec 27, 2023",
+                "Dec 20, 2023",
+                "Dec 13, 2023",
+                "Dec 06, 2023",
+              ];
+
               return Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFF1F5F9)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    // Left Side: Circular Calendar Icon + Text Info
                     Row(
                       children: [
-                        const Icon(Iconsax.calendar_2, color: Color(0xFF0066FF), size: 20),
-                        const Gap(12),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: const BoxDecoration(
+                            color: Color(
+                              0xFFF0F5FF,
+                            ), // Soft blue background circle matching your UI
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Iconsax.calendar_2,
+                            color: Color(0xFF0066FF),
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text("Jan 10, 2024", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B))),
-                            Text("Funding from salary", style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
+                            Text(
+                              dates[index],
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                color: Color(0xFF1E293B),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            const Text(
+                              "Funding from salary",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF64748B),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ],
-                        )
+                        ),
                       ],
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+
+                    // Right Side: Amount, Payment Source + Success Badge
+                    Row(
                       children: [
-                        const Text("+ ₹1,000", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF16A34A))),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            const Text(
+                              "+ ₹1,000",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                color: Color(0xFF16A34A),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            const Text(
+                              "Local Bank 1",
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Color(0xFF94A3B8),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 14),
                         Container(
-                          margin: const EdgeInsets.only(top: 4),
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(color: const Color(0xFFDCFCE7), borderRadius: BorderRadius.circular(4)),
-                          child: const Text("Success", style: TextStyle(fontSize: 9, color: Color(0xFF15803D), fontWeight: FontWeight.bold)),
-                        )
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(
+                              0xFFE8F5E9,
+                            ), // Soft green background capsule match
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            "Success",
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Color(0xFF2E7D32),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ],
-                    )
+                    ),
                   ],
                 ),
               );
             },
-          )
+          ),
         ],
       ),
     );
@@ -878,7 +1397,11 @@ class NextMilestoneCard extends StatelessWidget {
   final double invested;
   final double target;
 
-  const NextMilestoneCard({super.key, required this.invested, required this.target});
+  const NextMilestoneCard({
+    super.key,
+    required this.invested,
+    required this.target,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -894,7 +1417,11 @@ class NextMilestoneCard extends StatelessWidget {
         children: [
           const Text(
             "Next Milestone",
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1E293B),
+            ),
           ),
           const Gap(16),
           Row(
@@ -904,8 +1431,15 @@ class NextMilestoneCard extends StatelessWidget {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: const BoxDecoration(color: Color(0xFFFFEDD5), shape: BoxShape.circle),
-                    child: const Icon(Iconsax.flag, color: Color(0xFFEA580C), size: 20),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFFEDD5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Iconsax.flag,
+                      color: Color(0xFFEA580C),
+                      size: 20,
+                    ),
                   ),
                   const Gap(14),
                   const Column(
@@ -913,12 +1447,22 @@ class NextMilestoneCard extends StatelessWidget {
                     children: [
                       Text(
                         "₹ 93,080 more to reach 60%",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: Color(0xFF1E293B),
+                        ),
                       ),
                       Gap(2),
-                      Text("Keep it up! You're doing great.", style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                      Text(
+                        "Keep it up! You're doing great.",
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
                     ],
-                  )
+                  ),
                 ],
               ),
               Stack(
@@ -931,14 +1475,23 @@ class NextMilestoneCard extends StatelessWidget {
                       value: 0.60,
                       strokeWidth: 4,
                       backgroundColor: Color(0xFFF1F5F9),
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFEA580C)),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Color(0xFFEA580C),
+                      ),
                     ),
                   ),
-                  Text("60%", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey.shade800))
+                  Text(
+                    "60%",
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey.shade800,
+                    ),
+                  ),
                 ],
-              )
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -1003,7 +1556,13 @@ class GoalDetailsMobileView extends StatelessWidget {
                   children: [
                     Icon(Icons.delete, size: 18, color: Colors.red),
                     SizedBox(width: 8),
-                    Text('Delete', style: TextStyle(fontFamily: FontFamily.medium, color: Colors.red)),
+                    Text(
+                      'Delete',
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        color: Colors.red,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -1053,7 +1612,10 @@ class GoalDetailsMobileView extends StatelessWidget {
                     ),
                     SingleChildScrollView(
                       child: Column(
-                        children: List.generate(10, (index) => const TransactionCard()),
+                        children: List.generate(
+                          10,
+                          (index) => const TransactionCard(),
+                        ),
                       ),
                     ),
                   ],
@@ -1068,7 +1630,10 @@ class GoalDetailsMobileView extends StatelessWidget {
         child: Center(
           child: Text(
             'Add Funds',
-            style: UTextStyles.buttonText.copyWith(color: Colors.white, fontSize: 14),
+            style: UTextStyles.buttonText.copyWith(
+              color: Colors.white,
+              fontSize: 14,
+            ),
           ),
         ),
       ),
@@ -1147,13 +1712,18 @@ class GoalDetailSection extends StatelessWidget {
                 ],
               ),
               const Gap(20),
-              SmallHeading(smallheading: 'Deadline (Est. Year ${deadlineYear.floor()})'),
+              SmallHeading(
+                smallheading: 'Deadline (Est. Year ${deadlineYear.floor()})',
+              ),
               const Gap(12),
               Row(
                 children: [
                   ValueTitleGoal(value: _fmt(daily), title: 'Daily Savings'),
                   ValueTitleGoal(value: _fmt(weekly), title: 'Weekly Savings'),
-                  ValueTitleGoal(value: _fmt(monthly), title: 'Monthly Savings'),
+                  ValueTitleGoal(
+                    value: _fmt(monthly),
+                    title: 'Monthly Savings',
+                  ),
                 ],
               ),
             ],
@@ -1165,9 +1735,11 @@ class GoalDetailSection extends StatelessWidget {
         Obx(() {
           final goalSipController = Get.find<GoalSipController>();
           final currentGoalId = goal?.id ?? 0;
-          final freshGoal = goalSipController.goalResponse.value?.data?.firstWhereOrNull(
+          final freshGoal =
+              goalSipController.goalResponse.value?.data?.firstWhereOrNull(
                 (g) => g.id == currentGoalId,
-          ) ?? goal;
+              ) ??
+              goal;
 
           final linkedFunds = freshGoal?.goalFunds ?? [];
 
@@ -1185,13 +1757,18 @@ class GoalDetailSection extends StatelessWidget {
                     padding: EdgeInsets.symmetric(vertical: 8.0),
                     child: Text(
                       'No mutual funds linked yet.',
-                      style: TextStyle(fontFamily: FontFamily.medium, color: Colors.grey),
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        color: Colors.grey,
+                      ),
                     ),
                   ),
                 ...linkedFunds.map((fund) {
                   return Obx(() {
-                    final bool deleting = goalSipController.isDeleting[fund.id] ?? false;
-                    final String imgUrl = "${Appurl.baseUrl}${fund.mutualFund?.amc?.amcLogo ?? ''}";
+                    final bool deleting =
+                        goalSipController.isDeleting[fund.id] ?? false;
+                    final String imgUrl =
+                        "${Appurl.baseUrl}${fund.mutualFund?.amc?.amcLogo ?? ''}";
 
                     return ListTile(
                       contentPadding: const EdgeInsets.symmetric(vertical: 5),
@@ -1199,46 +1776,65 @@ class GoalDetailSection extends StatelessWidget {
                       leading: CircleAvatar(
                         backgroundColor: Colors.transparent,
                         backgroundImage: NetworkImage(imgUrl),
-                        onBackgroundImageError: (_, __) => const Icon(Icons.broken_image),
+                        onBackgroundImageError: (_, __) =>
+                            const Icon(Icons.broken_image),
                       ),
                       title: Text(
                         fund.mutualFund?.schemeName ?? 'Unknown Fund',
-                        style: UTextStyles.medium.copyWith(color: Ucolors.dark, fontWeight: FontWeight.w500),
+                        style: UTextStyles.medium.copyWith(
+                          color: Ucolors.dark,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            freshGoal?.txnType.toLowerCase() == 'sip' ? _fmt(fund.sipAmount) : _fmt(fund.lumpsumAmount),
-                            style: UTextStyles.medium.copyWith(color: Ucolors.dark, fontWeight: FontWeight.w500),
+                            freshGoal?.txnType.toLowerCase() == 'sip'
+                                ? _fmt(fund.sipAmount)
+                                : _fmt(fund.lumpsumAmount),
+                            style: UTextStyles.medium.copyWith(
+                              color: Ucolors.dark,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           const SizedBox(width: 8),
                           deleting
                               ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
                               : IconButton(
-                            icon: const Icon(Iconsax.trash, color: Colors.red, size: 20),
-                            onPressed: () {
-                              Get.defaultDialog(
-                                title: "Remove Fund",
-                                middleText: "Are you sure you want to remove this fund from your goal?",
-                                textConfirm: "Remove",
-                                textCancel: "Cancel",
-                                confirmTextColor: Colors.white,
-                                onConfirm: () {
-                                  Get.back();
-                                  goalSipController.deleteGoalFund(
-                                    id: fund.id,
-                                    isEdit: true,
-                                    schemeName: fund.mutualFund?.schemeCode.toString() ?? '',
-                                  );
-                                },
-                              );
-                            },
-                          ),
+                                  icon: const Icon(
+                                    Iconsax.trash,
+                                    color: Colors.red,
+                                    size: 20,
+                                  ),
+                                  onPressed: () {
+                                    Get.defaultDialog(
+                                      title: "Remove Fund",
+                                      middleText:
+                                          "Are you sure you want to remove this fund from your goal?",
+                                      textConfirm: "Remove",
+                                      textCancel: "Cancel",
+                                      confirmTextColor: Colors.white,
+                                      onConfirm: () {
+                                        Get.back();
+                                        goalSipController.deleteGoalFund(
+                                          id: fund.id,
+                                          isEdit: true,
+                                          schemeName:
+                                              fund.mutualFund?.schemeCode
+                                                  .toString() ??
+                                              '',
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
                         ],
                       ),
                     );
@@ -1266,7 +1862,10 @@ class ValueTitleGoal extends StatelessWidget {
         children: [
           Text(
             value,
-            style: UTextStyles.large.copyWith(color: Colors.black, fontWeight: FontWeight.w600),
+            style: UTextStyles.large.copyWith(
+              color: Colors.black,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           Text(
             title,

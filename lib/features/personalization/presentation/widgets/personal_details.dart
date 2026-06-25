@@ -47,7 +47,7 @@ class PersonalDetailsScreen extends GetView<AuthController> {
     final bool isDesktop = MediaQuery.of(context).size.width > 850;
 
     return Scaffold(
-      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
+      backgroundColor:  Colors.white,
       appBar: isDesktop ? null : CustomAppBarNormal(title: 'Personal Info'),
 
       // 🚀 FIX: Removed bottomNavigationBar for Web. It feels unnatural on desktop.
@@ -69,14 +69,9 @@ class PersonalDetailsScreen extends GetView<AuthController> {
 
       body: SingleChildScrollView(
         padding: isDesktop ? const EdgeInsets.all(8) : UPadding.screenPadding,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: isDesktop
-                ? _buildWebLayout(context)
-                : _buildMobileLayout(context),
-          ),
-        ),
+        child: isDesktop
+            ? _buildWebLayout(context)
+            : _buildMobileLayout(context),
       ),
     );
   }

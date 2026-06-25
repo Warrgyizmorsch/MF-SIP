@@ -213,9 +213,32 @@ class GoalSipController extends GetxController {
       rate: targetConfig['rate'],
     );
   }
+
+  Future<void> initializeDashboardData() async {
+    try {
+      isMasterGoalLoading.value = true;
+      update();
+
+      await getAllGoals();
+      await getMasterGoals();
+
+      if (isHome.value && masterGoals.isNotEmpty) {
+        final initialType = selectedGoalType.value;
+        final masterGoal = masterGoals.firstWhereOrNull((e) => e.goalType == initialType);
+        if (masterGoal != null) {
+          handleHomeGoal(masterGoal);
+        }
+      }
+    } catch (e) {
+      debugPrint("Initialization failure context: $e");
+    } finally {
+      isMasterGoalLoading.value = false;
+      update();
+    }
+  }
   ///
-  void loadGoalForAddFund(UserGoalEntity goal) {
-    goalNameTextEditingController.text = goal.goalName;
+  void loadGoalForAddFund(UserGoalEntity? goal) {
+    goalNameTextEditingController.text = goal!.goalName;
     savedDatabaseId.value = goal.id;
     isGoalSaved.value = true;
     savedInvestmentType.value = goal.txnType ;
@@ -234,47 +257,20 @@ class GoalSipController extends GetxController {
       years.value = goal.goalTenure.toDouble() ;
       annualRate.value = goal.expectedReturnRate.toDouble();
     }
-
-    /// =========================
-    /// OLD VALUES
-    /// =========================
-
     initialTargetAmount = (goal.investedAmount).toDouble();
-
     initialYears = (goal.goalTenure).toDouble();
-
     initialRate = (goal.expectedReturnRate).toDouble();
-
-    /// =========================
-    /// EXISTING SIP
-    /// =========================
-
     existingSipAmount.value = (goal.monthlyInvestment).toDouble();
-
-    /// =========================
-    /// INIT
-    /// =========================
-
     initFromGoal(
       amount: initialTargetAmount,
       years: initialYears,
       rate: initialRate,
     );
-
-    /// =========================
-    /// RESET CHANGE VALUES
-    /// =========================
-
     hasChanges.value = false;
-
-    additionalSipAmount.value = 0;
-
-    weeklySipAmount.value = 0;
-
-    dailySipAmount.value = 0;
-
+    // additionalSipAmount.value = 0;
+    // weeklySipAmount.value = 0;
+    // dailySipAmount.value = 0;
     isGoalSaved.value = true;
-
     _recalculate();
     recalculateLumpsum();
 

@@ -40,6 +40,7 @@ class GoalScreen extends GetView<GoalSipController> {
 
 
 
+
 class GoalScreenMobile extends GetView<GoalSipController> {
   const GoalScreenMobile({super.key});
 
@@ -371,7 +372,7 @@ class GoalScreenWeb extends GetView<GoalSipController> {
     final double safeHeight = size.height - kToolbarHeight;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: Ucolors.white,
       body: Center(
         child: SizedBox(
           width: size.width > 1500 ? 1500 : size.width,
@@ -412,7 +413,7 @@ class GoalScreenWeb extends GetView<GoalSipController> {
                         controller.update();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0066FF),
+                        backgroundColor:Ucolors.primary,
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -710,6 +711,7 @@ class _WebGoalCardState extends State<WebGoalCard> {
                               'invested': widget.investedAmount,
                               'logo': widget.iconUrl,
                             };
+                            controller.isAddFund.value= false;
                             Get.toNamed(AppRoutes.goaldetails, id: 1);
                           },
                           style: OutlinedButton.styleFrom(
