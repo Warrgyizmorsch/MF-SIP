@@ -248,7 +248,7 @@ class _WebExploreLayoutState extends State<WebExploreLayout> {
 
         Expanded(
           child: Scaffold(
-            backgroundColor: const Color(0xFFF5F7FA),
+            // backgroundColor: const Color(0xFFF5F7FA),
             body: Center(
               child: LayoutBuilder(
                 builder: (context, constraints) {
@@ -1249,9 +1249,9 @@ class WebFundListCard extends StatelessWidget {
                   border: Border.all(color: const Color(0xFFE5EAF0)),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.025),
+                      color: Colors.black.withValues(alpha: 0.10),
                       blurRadius: 8,
-                      offset: const Offset(0, 3),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -1478,6 +1478,7 @@ class WebFundListCard extends StatelessWidget {
       width: isLaptop ? 225 : 270,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _wishlistButton(size: actionSize),
 
@@ -1488,7 +1489,7 @@ class WebFundListCard extends StatelessWidget {
           SizedBox(width: isLaptop ? 10 : 16),
 
           Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               _investNowButton(
@@ -3579,14 +3580,15 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
 
                       color: isHover
                           ? Ucolors.primary.withValues(alpha: .10)
-                          : Colors.black.withValues(alpha: .03),
+                          : Colors.black.withValues(alpha: .15),
                     ),
                   ],
                 ),
 
-                child: widget.isMobile
-                    ? _buildMobileLayout(controller)
-                    : _buildDesktopLayout(controller, mutualFundController),
+                // child: widget.isMobile
+                //     ? _buildMobileLayout(controller)
+                //     : _buildDesktopLayout(controller, mutualFundController),
+                child: _buildDesktopLayout(controller, mutualFundController),
               ),
             ),
           );
@@ -3607,22 +3609,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
 
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 10, 18, 10),
-      // decoration: BoxDecoration(
-      //   color: Colors.white,
-      //   borderRadius: BorderRadius.circular(14),
-      //   border: Border.all(
-      //     color: isHover
-      //         ? Ucolors.primary.withValues(alpha: 0.30)
-      //         : const Color(0xFFE5E7EB),
-      //   ),
-      //   boxShadow: [
-      //     BoxShadow(
-      //       color: Colors.black.withValues(alpha: isHover ? 0.08 : 0.04),
-      //       blurRadius: isHover ? 18 : 10,
-      //       offset: Offset(0, isHover ? 8 : 4),
-      //     ),
-      //   ],
-      // ),
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

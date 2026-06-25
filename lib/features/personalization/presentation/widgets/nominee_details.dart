@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -72,12 +74,20 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
           children: [
             const Text(
               'Add Nominee',
-              style: TextStyle(fontFamily: FontFamily.medium,fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               'Add a nominee to secure your investments for your loved ones.',
-              style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600, fontSize: 14),
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                color: Colors.grey.shade600,
+                fontSize: 14,
+              ),
             ),
             const SizedBox(height: 32),
 
@@ -144,7 +154,7 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: () => Navigator.maybePop(context),
+                  onPressed: () => Navigator.pop(context),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 24,
@@ -153,7 +163,10 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                   ),
                   child: const Text(
                     "Cancel",
-                    style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey),
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      color: Colors.grey,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -162,6 +175,7 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                     onPressed: controller.addNomineeLoading.value
                         ? null
                         : () => controller.addNominee(),
+
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Ucolors.primary,
                       padding: const EdgeInsets.symmetric(
@@ -183,7 +197,10 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                           )
                         : const Text(
                             "Save Details",
-                            style: TextStyle(fontFamily: FontFamily.medium,color: Colors.white),
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              color: Colors.white,
+                            ),
                           ),
                   ),
                 ),
@@ -323,7 +340,8 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
             Obx(
               () => Text(
                 "Available: ${controller.remainingAllocation.toStringAsFixed(0)}%",
-                style: TextStyle(fontFamily: FontFamily.medium,
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
                   fontSize: 12,
                   color: controller.remainingAllocation == 0
                       ? Colors.red
@@ -614,7 +632,10 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                 onPressed: () => Get.back(),
                 child: const Text(
                   "Cancel",
-                  style: TextStyle(fontFamily: FontFamily.medium,color: Colors.black),
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    color: Colors.black,
+                  ),
                 ),
               ),
             ),
@@ -690,6 +711,7 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
           'yyyy-MM-dd',
         ).format(picked);
         controller.updateMinorStatus(picked);
+        Get.back();
       }
     } else {
       // 📱 MOBILE: Cupertino Bottom Sheet
@@ -710,7 +732,11 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                 const SizedBox(height: 16),
                 const Text(
                   'Select Date Of Birth',
-                  style: TextStyle(fontFamily: FontFamily.medium,fontSize: 18, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 Expanded(
                   child: CupertinoDatePicker(
@@ -762,7 +788,8 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
           controller.nomineeDocumentNumberTextEditingController.clear();
         }
       }
-      Navigator.pop(context);
+      // Navigator.pop(context);
+      Get.back();
     }
 
     if (isDesktop) {
@@ -786,7 +813,8 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(fontFamily: FontFamily.medium,
+                        style: const TextStyle(
+                          fontFamily: FontFamily.medium,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -847,7 +875,8 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
                     const SizedBox(height: 20),
                     Text(
                       title,
-                      style: const TextStyle(fontFamily: FontFamily.medium,
+                      style: const TextStyle(
+                        fontFamily: FontFamily.medium,
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                       ),

@@ -2189,7 +2189,7 @@ class CartPage extends GetView<CartController> {
     return GetBuilder<CartController>(
       builder: (controller) {
         return Scaffold(
-          backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
+          // backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
           appBar: isDesktop ? null : const CustomAppBarNormal(title: 'Cart'),
 
           persistentFooterDecoration: isDesktop ? null : const BoxDecoration(),
@@ -2459,144 +2459,142 @@ class CartPage extends GetView<CartController> {
     BuildContext context,
     List<CartItemEntity> items,
   ) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1240),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 7,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 46,
-                            height: 46,
-                            decoration: BoxDecoration(
-                              gradient: Ucolors.backgroundGradient,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Ucolors.primary.withOpacity(0.25),
-                                  blurRadius: 18,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.shopping_bag_rounded,
-                              color: Colors.white,
-                            ),
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 1240),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 7,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 46,
+                          height: 46,
+                          decoration: BoxDecoration(
+                            gradient: Ucolors.backgroundGradient,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Ucolors.primary.withOpacity(0.25),
+                                blurRadius: 18,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
                           ),
-                          const Gap(14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Investment Checkout',
-                                  style: TextStyle(
-                                    fontFamily: FontFamily.medium,
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.w800,
-                                    color: Ucolors.dark,
-                                    letterSpacing: -0.8,
-                                  ),
+                          child: const Icon(
+                            Icons.shopping_bag_rounded,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const Gap(14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Investment Checkout',
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w800,
+                                  color: Ucolors.dark,
+                                  letterSpacing: -0.8,
                                 ),
-                                const Gap(4),
-                                Text(
-                                  '${items.length} fund${items.length == 1 ? '' : 's'} selected. Review details and complete payment on this page.',
-                                  style: TextStyle(
-                                    fontFamily: FontFamily.medium,
-                                    fontSize: 13,
-                                    color: Colors.grey.shade600,
-                                  ),
+                              ),
+                              const Gap(4),
+                              Text(
+                                '${items.length} fund${items.length == 1 ? '' : 's'} selected. Review details and complete payment on this page.',
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontSize: 13,
+                                  color: Colors.grey.shade600,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Gap(22),
+                    _buildDesktopAmountCards(items),
+                    const Gap(18),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: Colors.grey.shade200),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 24,
+                            offset: const Offset(0, 10),
                           ),
                         ],
                       ),
-                      const Gap(22),
-                      _buildDesktopAmountCards(items),
-                      const Gap(18),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(color: Colors.grey.shade200),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
-                              blurRadius: 24,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Text(
-                                  'Cart Items',
-                                  style: TextStyle(
-                                    fontFamily: FontFamily.medium,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w800,
-                                    color: Ucolors.dark,
-                                  ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Text(
+                                'Cart Items',
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  color: Ucolors.dark,
                                 ),
-                                const Spacer(),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Ucolors.primary.withOpacity(0.08),
-                                    borderRadius: BorderRadius.circular(999),
-                                  ),
-                                  child: Text(
-                                    '${items.length} Items',
-                                    style: const TextStyle(
-                                      fontFamily: FontFamily.medium,
-                                      color: Ucolors.primary,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Gap(8),
-                            ...List.generate(
-                              items.length,
-                              (index) => CartItemCard(
-                                index: index,
-                                itemEntity: items[index],
                               ),
+                              const Spacer(),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Ucolors.primary.withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  '${items.length} Items',
+                                  style: const TextStyle(
+                                    fontFamily: FontFamily.medium,
+                                    color: Ucolors.primary,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Gap(8),
+                          ...List.generate(
+                            items.length,
+                            (index) => CartItemCard(
+                              index: index,
+                              itemEntity: items[index],
                             ),
-                            DistributionRemainderCard(),
-                          ],
-                        ),
+                          ),
+                          DistributionRemainderCard(),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                const Gap(24),
-                SizedBox(width: 410, child: _buildWebCheckoutSummary(items)),
-              ],
-            ),
+              ),
+              const Gap(24),
+              SizedBox(width: 410, child: _buildWebCheckoutSummary(items)),
+            ],
           ),
         ),
       ),
@@ -3494,6 +3492,7 @@ class CartBottomBar extends StatelessWidget {
     );
   }
 }
+
 class CartBottomBarWeb extends StatelessWidget {
   const CartBottomBarWeb({
     super.key,
@@ -3555,7 +3554,7 @@ class CartBottomBarWeb extends StatelessWidget {
                       fontFamily: FontFamily.medium,
                       fontSize: 28, // Scaled up for desktop
                       fontWeight: FontWeight.bold,
-                      color:  Ucolors.success,
+                      color: Ucolors.success,
                     ),
                   ),
                 ],
@@ -3585,6 +3584,7 @@ class CartBottomBarWeb extends StatelessWidget {
     );
   }
 }
+
 class CartItemCard extends StatelessWidget {
   const CartItemCard({
     super.key,

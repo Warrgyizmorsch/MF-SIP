@@ -793,9 +793,9 @@ class WatchlistPage extends StatelessWidget {
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
     return Scaffold(
-      backgroundColor: isDesktop
-          ? const Color(0xFFF5F7FB)
-          : Colors.grey.shade50,
+      // backgroundColor: isDesktop
+      //     ? const Color(0xFFF5F7FB)
+      //     : Colors.grey.shade50,
       appBar: isDesktop
           ? null
           : CustomAppBarNormal(
@@ -863,61 +863,59 @@ class WatchlistPage extends StatelessWidget {
           controllerr.wishlistResponseEntity.value?.data ?? [];
       final recentFunds = Get.find<MutualFundController>().recentlyViewedFunds;
 
-      return Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1220),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 28),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildWebHeader(wishlistItems.length),
-                const SizedBox(height: 24),
-                Expanded(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        flex: 7,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(26),
-                            border: Border.all(color: const Color(0xFFE8ECF3)),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.04),
-                                blurRadius: 24,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: wishlistItems.isEmpty
-                              ? _buildWebEmptyState()
-                              : _buildWebWishlistList(wishlistItems),
-                        ),
-                      ),
-                      const SizedBox(width: 24),
-                      SizedBox(
-                        width: 350,
-                        child: Column(
-                          children: [
-                            _buildWebStatsCard(wishlistItems.length),
-                            const SizedBox(height: 18),
-                            if (recentFunds.isNotEmpty)
-                              Expanded(
-                                child: _buildWebRecentlyViewed(recentFunds),
-                              )
-                            else
-                              _buildWebHintCard(),
+      return ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1220),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 28),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildWebHeader(wishlistItems.length),
+              const SizedBox(height: 24),
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 7,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(26),
+                          border: Border.all(color: const Color(0xFFE8ECF3)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 24,
+                              offset: const Offset(0, 10),
+                            ),
                           ],
                         ),
+                        child: wishlistItems.isEmpty
+                            ? _buildWebEmptyState()
+                            : _buildWebWishlistList(wishlistItems),
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 24),
+                    SizedBox(
+                      width: 350,
+                      child: Column(
+                        children: [
+                          _buildWebStatsCard(wishlistItems.length),
+                          const SizedBox(height: 18),
+                          if (recentFunds.isNotEmpty)
+                            Expanded(
+                              child: _buildWebRecentlyViewed(recentFunds),
+                            )
+                          else
+                            _buildWebHintCard(),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       );

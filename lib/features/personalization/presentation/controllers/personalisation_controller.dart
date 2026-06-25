@@ -1215,14 +1215,20 @@ class PersonalisationController extends GetxController {
 
   Future<void> addNominee() async {
     if (nomineeFormKey.currentState?.validate() != true) {
-      Get.snackbar("Required", "Please fill all the fields");
+      CustomSnackbar.warning(
+        title: "Required",
+        message: "Please fill all the fields",
+      );
       return;
     }
 
     // Additional validation for Guardian
     if (isNomineeMinor.value &&
         nomineeMinorsGuardianTextEditingController.text.isEmpty) {
-      Get.snackbar("Required", "Guardian Name is required for minors");
+      CustomSnackbar.warning(
+        title: "Required",
+        message: "Guardian Name is required for minors",
+      );
       return;
     }
 
@@ -1256,15 +1262,20 @@ class PersonalisationController extends GetxController {
       final result = await _useCases.addNomineeUseCase.call(requestData);
       fetchUserDetails();
 
+      Get.back();
+
       result.fold(
         (success) {
           getNominee();
           _clearNomineeFields();
 
-          Get.back();
-          Get.snackbar("Success", "Nominee added successfully");
+          // Get.snackbar("Success", "Nominee added successfully");
+          CustomSnackbar.success(
+            title: 'Success',
+            message: 'Nominee added successfully',
+          );
 
-          // Get.back();
+          Get.back();
         },
         (failure) {
           Get.snackbar("Error Adding Nominee", failure.message);
@@ -1294,7 +1305,11 @@ class PersonalisationController extends GetxController {
         (success) {
           // 2. Refresh list on success
           getNominee();
-          Get.snackbar("Success", "Nominee deleted successfully");
+          // Get.snackbar("Success", "Nominee deleted successfully");
+          CustomSnackbar.error(
+            title: 'Success',
+            message: 'Nominee deleted successfully',
+          );
         },
         (failure) {
           Get.snackbar("Error Deleting Nominee", failure.message);

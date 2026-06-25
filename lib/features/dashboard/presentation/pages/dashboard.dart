@@ -140,7 +140,7 @@ class DashboardScreen extends GetView<DashboardController> {
     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Scaffold(
-      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Ucolors.light,
+      // backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Ucolors.light,
       body: isDesktop
           ? WebDashboardLayout(cartController: cartController)
           : _MobileDashboardLayout(
@@ -161,10 +161,11 @@ class WebDashboardLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFFF8FAFC), // Ultra-light premium dashboard background
+      // color: const Color(
+      //   0xFFF8FAFC,
+      // ), // Ultra-light premium dashboard background
       child: Column(
         children: [
-
           // 2. SCROLLABLE CONTENT BODY
           Expanded(
             child: SingleChildScrollView(
@@ -183,10 +184,19 @@ class WebDashboardLayout extends StatelessWidget {
                           trendIcon: Icons.arrow_upward_rounded,
                           valueColor: const Color(0xFF0F172A),
                           trendColor: const Color(0xFF22C55E),
-                          icon:Icons.wallet,
+                          icon: Icons.wallet,
                           iconBgColor: Color(0xFFEFF6FF),
                           iconColor: Color(0xFF1D4ED8),
-                          sparklineData: [20, 15, 25, 18, 30, 22, 35, 45], // Blue line path
+                          sparklineData: [
+                            20,
+                            15,
+                            25,
+                            18,
+                            30,
+                            22,
+                            35,
+                            45,
+                          ], // Blue line path
                         ),
                       ),
                       Gap(16),
@@ -201,7 +211,16 @@ class WebDashboardLayout extends StatelessWidget {
                           icon: Icons.paid,
                           iconBgColor: Color(0xFFFFF7ED),
                           iconColor: Color(0xFFEA580C),
-                          sparklineData: [15, 25, 12, 20, 15, 22, 18, 20], // Orange line path
+                          sparklineData: [
+                            15,
+                            25,
+                            12,
+                            20,
+                            15,
+                            22,
+                            18,
+                            20,
+                          ], // Orange line path
                         ),
                       ),
                       Gap(16),
@@ -211,12 +230,24 @@ class WebDashboardLayout extends StatelessWidget {
                           value: "+₹2,580",
                           trendText: "1.24% vs last month",
                           trendIcon: Icons.arrow_upward_rounded,
-                          valueColor: const Color(0xFF22C55E), // Vibrant Green Matching text color
+                          valueColor: const Color(
+                            0xFF22C55E,
+                          ), // Vibrant Green Matching text color
                           trendColor: const Color(0xFF22C55E),
-                          icon: Icons.trending_up_rounded, // Clean Solid Upward Trend (No Outline)
+                          icon: Icons
+                              .trending_up_rounded, // Clean Solid Upward Trend (No Outline)
                           iconBgColor: Color(0xFFF0FDF4),
                           iconColor: Color(0xFF16A34A),
-                          sparklineData: [10, 12, 22, 15, 20, 28, 35, 48], // Green line path
+                          sparklineData: [
+                            10,
+                            12,
+                            22,
+                            15,
+                            20,
+                            28,
+                            35,
+                            48,
+                          ], // Green line path
                         ),
                       ),
                       Gap(16),
@@ -226,12 +257,23 @@ class WebDashboardLayout extends StatelessWidget {
                           value: "+15.06%",
                           trendText: "15.06% all time",
                           trendIcon: Icons.arrow_upward_rounded,
-                          valueColor: const Color(0xFF9333EA), // Vibrant Purple Matching text color
+                          valueColor: const Color(
+                            0xFF9333EA,
+                          ), // Vibrant Purple Matching text color
                           trendColor: const Color(0xFF22C55E),
                           icon: Icons.percent_rounded,
                           iconBgColor: Color(0xFFFAF5FF),
                           iconColor: Color(0xFF9333EA),
-                          sparklineData: [12, 20, 14, 18, 15, 25, 22, 30], // Purple line path
+                          sparklineData: [
+                            12,
+                            20,
+                            14,
+                            18,
+                            15,
+                            25,
+                            22,
+                            30,
+                          ], // Purple line path
                         ),
                       ),
                     ],
@@ -252,7 +294,7 @@ class WebDashboardLayout extends StatelessWidget {
                             const Gap(24),
                             _buildYourHoldingsTableCard(),
                             const Gap(24),
-                            _buildBottomSummaryRow()
+                            _buildBottomSummaryRow(),
                           ],
                         ),
                       ),
@@ -270,7 +312,7 @@ class WebDashboardLayout extends StatelessWidget {
                             // const Gap(24),
                             // _buildPortfolioAllocationCard(),
                             const Gap(24),
-                            _buildRecentActivityCard()
+                            _buildRecentActivityCard(),
                           ],
                         ),
                       ),
@@ -284,20 +326,18 @@ class WebDashboardLayout extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildBottomSummaryRow() {
     return const Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: TopPerformingFundCard(),
-        ),
+        Expanded(child: TopPerformingFundCard()),
         Gap(24),
-        Expanded(
-          child: GoalProgressCard(),
-        ),
+        Expanded(child: GoalProgressCard()),
       ],
     );
   }
+
   // =========================================================================
   // 📈 PERFORMANCE & CHART COMPONENT
   // =========================================================================
@@ -316,9 +356,20 @@ class WebDashboardLayout extends StatelessWidget {
   Widget _buildLegendItem(String label, Color color) {
     return Row(
       children: [
-        Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
         const Gap(6),
-        Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w500)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Color(0xFF64748B),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ],
     );
   }
@@ -327,135 +378,172 @@ class WebDashboardLayout extends StatelessWidget {
   // 📊 HOLDINGS DATA TABLE COMPONENT
   // =========================================================================
   // =========================================================================
-// 📊 HOLDINGS DATA TABLE COMPONENT (Matches image_182bd6.jpg Exactly)
-// =========================================================================
+  // 📊 HOLDINGS DATA TABLE COMPONENT (Matches image_182bd6.jpg Exactly)
+  // =========================================================================
   Widget _buildYourHoldingsTableCard() {
     return Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Your Holdings",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Your Holdings",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF0F172A),
                 ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text(
-                    "View All",
-                    style: TextStyle(fontSize: 14, color: Color(0xFF007AFF), fontWeight: FontWeight.w700),
+              ),
+              TextButton(
+                onPressed: () {},
+                child: const Text(
+                  "View All",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF007AFF),
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-              ],
-            ),
-            const Gap(20),
-            Table(
-              columnWidths: const {
-                0: FlexColumnWidth(3.8), // Fund Name + Category
-                1: FlexColumnWidth(1.6), // Type Chip
-                2: FlexColumnWidth(1.4), // Invested Amount
-                3: FlexColumnWidth(1.4), // Current Value
-                4: FlexColumnWidth(1.4), // Gain / Loss (₹)
-                5: FlexColumnWidth(1.4), // Gain / Loss (%)
-                6: FlexColumnWidth(1.5), // Monthly Contribution
-              },
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              children: [
-                // --- HEADER ROW ---
-                TableRow(
-                  decoration: const BoxDecoration(
-                    border: Border(bottom: BorderSide(color: Color(0xFFF1F5F9), width: 1.5)),
+              ),
+            ],
+          ),
+          const Gap(20),
+          Table(
+            columnWidths: const {
+              0: FlexColumnWidth(3.8), // Fund Name + Category
+              1: FlexColumnWidth(1.6), // Type Chip
+              2: FlexColumnWidth(1.4), // Invested Amount
+              3: FlexColumnWidth(1.4), // Current Value
+              4: FlexColumnWidth(1.4), // Gain / Loss (₹)
+              5: FlexColumnWidth(1.4), // Gain / Loss (%)
+              6: FlexColumnWidth(1.5), // Monthly Contribution
+            },
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+            children: [
+              // --- HEADER ROW ---
+              TableRow(
+                decoration: const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: Color(0xFFF1F5F9), width: 1.5),
                   ),
-                  children: [
-                    _buildHeaderCell('Fund Name\nCategory'),
-                    _buildHeaderCell('Type'),
-                    _buildHeaderCell('Invested\nAmount'),
-                    _buildHeaderCell('Current\nValue'),
-                    _buildHeaderCell('Gain / Loss\n(₹)'),
-                    _buildHeaderCell('Gain / Loss\n(%)'),
-                    _buildHeaderCell('Monthly\nContribution'),
-                  ],
                 ),
+                children: [
+                  _buildHeaderCell('Fund Name\nCategory'),
+                  _buildHeaderCell('Type'),
+                  _buildHeaderCell('Invested\nAmount'),
+                  _buildHeaderCell('Current\nValue'),
+                  _buildHeaderCell('Gain / Loss\n(₹)'),
+                  _buildHeaderCell('Gain / Loss\n(%)'),
+                  _buildHeaderCell('Monthly\nContribution'),
+                ],
+              ),
 
-                // --- DYNAMIC/STATIC DATA ROWS ---
-                _buildTableRowItem(
-                  logoWidget: const Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 18),
-                  logoBgColor: const Color(0xFF007AFF),
-                  name: "Nippon India Large Cap Fund",
-                  category: "Equity • Large Cap",
-                  type: "SIP",
-                  invested: "₹10,000",
-                  current: "₹5,43,000",
-                  gainAmt: "+₹43,000",
-                  gainPct: "+8.60%",
-                  monthlyContribution: "₹5,000",
-                  isProfit: true,
+              // --- DYNAMIC/STATIC DATA ROWS ---
+              _buildTableRowItem(
+                logoWidget: const Icon(
+                  Icons.account_balance_wallet_rounded,
+                  color: Colors.white,
+                  size: 18,
                 ),
-                _buildTableRowItem(
-                  logoWidget: const Center(child: Text("i", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16))),
-                  logoBgColor: const Color(0xFFE11D48),
-                  name: "ICICI Prudential Technology Fund",
-                  category: "Equity • Sectoral / Tech",
-                  type: "Lumpsum",
-                  invested: "₹10,000",
-                  current: "₹4,82,000",
-                  gainAmt: "+₹82,000",
-                  gainPct: "+20.50%",
-                  monthlyContribution: "—\n(One-time)",
-                  isProfit: true,
-                  isMonthlyContributionSubtitled: true,
+                logoBgColor: const Color(0xFF007AFF),
+                name: "Nippon India Large Cap Fund",
+                category: "Equity • Large Cap",
+                type: "SIP",
+                invested: "₹10,000",
+                current: "₹5,43,000",
+                gainAmt: "+₹43,000",
+                gainPct: "+8.60%",
+                monthlyContribution: "₹5,000",
+                isProfit: true,
+              ),
+              _buildTableRowItem(
+                logoWidget: const Center(
+                  child: Text(
+                    "i",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
                 ),
-                _buildTableRowItem(
-                  logoWidget: const Icon(Icons.show_chart_rounded, color: Colors.white, size: 18),
-                  logoBgColor: const Color(0xFF0B3C5D),
-                  name: "SBI Bluechip Fund",
-                  category: "Equity • Large Cap",
-                  type: "SIP",
-                  invested: "₹15,000",
-                  current: "₹4,21,000",
-                  gainAmt: "+₹71,000",
-                  gainPct: "+20.29%",
-                  monthlyContribution: "₹2,000",
-                  isProfit: true,
+                logoBgColor: const Color(0xFFE11D48),
+                name: "ICICI Prudential Technology Fund",
+                category: "Equity • Sectoral / Tech",
+                type: "Lumpsum",
+                invested: "₹10,000",
+                current: "₹4,82,000",
+                gainAmt: "+₹82,000",
+                gainPct: "+20.50%",
+                monthlyContribution: "—\n(One-time)",
+                isProfit: true,
+                isMonthlyContributionSubtitled: true,
+              ),
+              _buildTableRowItem(
+                logoWidget: const Icon(
+                  Icons.show_chart_rounded,
+                  color: Colors.white,
+                  size: 18,
                 ),
-                _buildTableRowItem(
-                  logoWidget: const Icon(Icons.pie_chart_outline_rounded, color: Colors.white, size: 18),                  logoBgColor: const Color(0xFF0369A1),
-                  name: "Franklin India Flexi Cap Fund",
-                  category: "Equity • Flexi Cap",
-                  type: "SIP + Lumpsum",
-                  invested: "₹5,000",
-                  current: "₹6,98,000",
-                  gainAmt: "+₹48,000",
-                  gainPct: "+7.38%",
-                  monthlyContribution: "₹3,000",
-                  isProfit: true,
+                logoBgColor: const Color(0xFF0B3C5D),
+                name: "SBI Bluechip Fund",
+                category: "Equity • Large Cap",
+                type: "SIP",
+                invested: "₹15,000",
+                current: "₹4,21,000",
+                gainAmt: "+₹71,000",
+                gainPct: "+20.29%",
+                monthlyContribution: "₹2,000",
+                isProfit: true,
+              ),
+              _buildTableRowItem(
+                logoWidget: const Icon(
+                  Icons.pie_chart_outline_rounded,
+                  color: Colors.white,
+                  size: 18,
                 ),
-                _buildTableRowItem(
-                  logoWidget: const Icon(Icons.shield_rounded, color: Colors.white, size: 18),
-                  logoBgColor: const Color(0xFF10B981),
-                  name: "HDFC Corporate Bond Fund",
-                  category: "Debt • Corporate Bond",
-                  type: "SIP",
-                  invested: "₹10,000",
-                  current: "₹7,16,000",
-                  gainAmt: "+₹2,16,000",
-                  gainPct: "+43.36%",
-                  monthlyContribution: "₹4,000",
-                  isProfit: true,
+                logoBgColor: const Color(0xFF0369A1),
+                name: "Franklin India Flexi Cap Fund",
+                category: "Equity • Flexi Cap",
+                type: "SIP + Lumpsum",
+                invested: "₹5,000",
+                current: "₹6,98,000",
+                gainAmt: "+₹48,000",
+                gainPct: "+7.38%",
+                monthlyContribution: "₹3,000",
+                isProfit: true,
+              ),
+              _buildTableRowItem(
+                logoWidget: const Icon(
+                  Icons.shield_rounded,
+                  color: Colors.white,
+                  size: 18,
                 ),
-              ],
-            ),
-          ],
-        ));
-    }
+                logoBgColor: const Color(0xFF10B981),
+                name: "HDFC Corporate Bond Fund",
+                category: "Debt • Corporate Bond",
+                type: "SIP",
+                invested: "₹10,000",
+                current: "₹7,16,000",
+                gainAmt: "+₹2,16,000",
+                gainPct: "+43.36%",
+                monthlyContribution: "₹4,000",
+                isProfit: true,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildHeaderCell(String text) {
     return Padding(
@@ -490,7 +578,9 @@ TableRow _buildTableRowItem({
   required bool isProfit,
   bool isMonthlyContributionSubtitled = false,
 }) {
-  final trendColor = isProfit ? const Color(0xFF22C55E) : const Color(0xFFEF4444);
+  final trendColor = isProfit
+      ? const Color(0xFF22C55E)
+      : const Color(0xFFEF4444);
 
   // Dynamic Type Chip Color configuration matching image layout rules
   Color typeBgColor = const Color(0xFFEFF6FF); // Default SIP Blue
@@ -518,7 +608,9 @@ TableRow _buildTableRowItem({
               height: 36,
               decoration: BoxDecoration(
                 color: logoBgColor,
-                borderRadius: BorderRadius.circular(8), // Round-square configuration
+                borderRadius: BorderRadius.circular(
+                  8,
+                ), // Round-square configuration
               ),
               child: Center(child: logoWidget),
             ),
@@ -529,12 +621,20 @@ TableRow _buildTableRowItem({
                 children: [
                   Text(
                     name,
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0F172A),
+                    ),
                   ),
                   const Gap(4),
                   Text(
                     category,
-                    style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF64748B),
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ),
@@ -556,7 +656,11 @@ TableRow _buildTableRowItem({
             ),
             child: Text(
               type,
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: typeTextColor),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: typeTextColor,
+              ),
             ),
           ),
         ),
@@ -565,25 +669,53 @@ TableRow _buildTableRowItem({
       // 3. Invested Amount
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Text(invested, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+        child: Text(
+          invested,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF0F172A),
+          ),
+        ),
       ),
 
       // 4. Current Value
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Text(current, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+        child: Text(
+          current,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF0F172A),
+          ),
+        ),
       ),
 
       // 5. Gain / Loss Value (₹)
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Text(gainAmt, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: trendColor)),
+        child: Text(
+          gainAmt,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: trendColor,
+          ),
+        ),
       ),
 
       // 6. Gain / Loss (%)
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Text(gainPct, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: trendColor)),
+        child: Text(
+          gainPct,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: trendColor,
+          ),
+        ),
       ),
 
       // 7. Monthly Contribution
@@ -602,400 +734,589 @@ TableRow _buildTableRowItem({
     ],
   );
 }
-  // =========================================================================
-  // ⚡ SIDEBAR WIDGETS
-  // =========================================================================
-  Widget _buildQuickActionsCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text("Quick Actions", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
-          const Gap(16),
-          Row(
-            children: [
-              Expanded(child: _buildActionGridItem("Top Up", "Add money\nInstantly", Icons.add, const Color(0xFF3B82F6))),
-              const Gap(12),
-              Expanded(child: _buildActionGridItem("Withdraw", "Redeem to\nbank", Icons.remove, const Color(0xFFF97316))),
-              const Gap(12),
-              Expanded(child: _buildActionGridItem("SIP", "Manage\nmonthly SIP", Iconsax.calendar, const Color(0xFFA855F7))),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildActionGridItem(String label, String sub, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
-            child: Icon(icon, size: 16, color: color),
+// =========================================================================
+// ⚡ SIDEBAR WIDGETS
+// =========================================================================
+Widget _buildQuickActionsCard() {
+  return Container(
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: const Color(0xFFE2E8F0)),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Quick Actions",
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF0F172A),
           ),
-          const Gap(12),
-          Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF1E293B))),
-          const Gap(4),
-          Text(sub, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), height: 1.2, fontWeight: FontWeight.w400)),
-        ],
-      ),
-    );
-  }
+        ),
+        const Gap(16),
+        Row(
+          children: [
+            Expanded(
+              child: _buildActionGridItem(
+                "Top Up",
+                "Add money\nInstantly",
+                Icons.add,
+                const Color(0xFF3B82F6),
+              ),
+            ),
+            const Gap(12),
+            Expanded(
+              child: _buildActionGridItem(
+                "Withdraw",
+                "Redeem to\nbank",
+                Icons.remove,
+                const Color(0xFFF97316),
+              ),
+            ),
+            const Gap(12),
+            Expanded(
+              child: _buildActionGridItem(
+                "SIP",
+                "Manage\nmonthly SIP",
+                Iconsax.calendar,
+                const Color(0xFFA855F7),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
 
-  Widget _buildUpcomingSIPsCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text("Upcoming SIPs", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
-              TextButton(onPressed: () {}, child: const Text("View All", style: TextStyle(fontSize: 12, color: Color(0xFF3B82F6)))),
-            ],
-          ),
-          const Gap(12),
-          _buildSipRowItem("10 Jun", "Kotak Bluechip Fund", "₹5,000"),
-          const Divider(height: 20, color: Color(0xFFF1F5F9)),
-          _buildSipRowItem("15 Jun", "ICICI Prudential Tech", "₹3,000"),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSipRowItem(String date, String title, String value) {
-    return Row(
+Widget _buildActionGridItem(
+  String label,
+  String sub,
+  IconData icon,
+  Color color,
+) {
+  return Container(
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: const Color(0xFFF8FAFC),
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: const Color(0xFFF1F5F9)),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(color: const Color(0xFFE0F2FE), borderRadius: BorderRadius.circular(6)),
-          child: Text(date, style: const TextStyle(color: Color(0xFF0284C7), fontWeight: FontWeight.w700, fontSize: 12)),
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, size: 16, color: color),
         ),
         const Gap(12),
-        Expanded(
-          child: Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)), overflow: TextOverflow.ellipsis),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF1E293B),
+          ),
         ),
-        Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+        const Gap(4),
+        Text(
+          sub,
+          style: const TextStyle(
+            fontSize: 11,
+            color: Color(0xFF64748B),
+            height: 1.2,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
       ],
-    );
-  }
+    ),
+  );
+}
 
-  // =========================================================================
+Widget _buildUpcomingSIPsCard() {
+  return Container(
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: const Color(0xFFE2E8F0)),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              "Upcoming SIPs",
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0F172A),
+              ),
+            ),
+            TextButton(
+              onPressed: () {},
+              child: const Text(
+                "View All",
+                style: TextStyle(fontSize: 12, color: Color(0xFF3B82F6)),
+              ),
+            ),
+          ],
+        ),
+        const Gap(12),
+        _buildSipRowItem("10 Jun", "Kotak Bluechip Fund", "₹5,000"),
+        const Divider(height: 20, color: Color(0xFFF1F5F9)),
+        _buildSipRowItem("15 Jun", "ICICI Prudential Tech", "₹3,000"),
+      ],
+    ),
+  );
+}
+
+Widget _buildSipRowItem(String date, String title, String value) {
+  return Row(
+    children: [
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE0F2FE),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Text(
+          date,
+          style: const TextStyle(
+            color: Color(0xFF0284C7),
+            fontWeight: FontWeight.w700,
+            fontSize: 12,
+          ),
+        ),
+      ),
+      const Gap(12),
+      Expanded(
+        child: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1E293B),
+          ),
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+      Text(
+        value,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFF0F172A),
+        ),
+      ),
+    ],
+  );
+}
+
+// =========================================================================
 // 🍩 1. PORTFOLIO ALLOCATION CARD (Matches image_17bb38.png Exactly)
 // =========================================================================
-  Widget _buildPortfolioAllocationCard() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Portfolio Allocation",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+Widget _buildPortfolioAllocationCard() {
+  return Container(
+    padding: const EdgeInsets.all(24),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: const Color(0xFFE2E8F0)),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Portfolio Allocation",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF0F172A),
           ),
-          const Gap(24),
-          Row(
-            children: [
-              // --- CUSTOM MULTI-SEGMENT DONUT DESIGN ---
-              SizedBox(
-                height: 110,
-                width: 110,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    CustomPaint(
-                      size: const Size(110, 110),
-                      painter: MultiSegmentDonutPainter(
-                        segments: [
-                          DonutSegment(value: 60, color: const Color(0xFF007AFF)), // Equity Blue
-                          DonutSegment(value: 22, color: const Color(0xFF34C759)), // Debt Green
-                          DonutSegment(value: 10, color: const Color(0xFFFF9500)), // Hybrid Orange
-                          DonutSegment(value: 8, color: const Color(0xFFFFCC00)),  // Cache/Other Yellow
-                        ],
-                        strokeWidth: 16,
-                      ),
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "₹32,580",
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
-                        ),
-                        const Gap(2),
-                        Text(
-                          "Current Value",
-                          style: TextStyle(fontSize: 10, color: Colors.grey.shade500, fontWeight: FontWeight.w500),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const Gap(32),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ...List.generate(3, (index) {
-                      final data = [
-                        {"label": "Equity", "pct": "60.0%", "amount": "₹22,144", "color": const Color(0xFF007AFF)},
-                        {"label": "Debt", "pct": "22.0%", "amount": "₹7,163", "color": const Color(0xFF34C759)},
-                        {"label": "Hybrid", "pct": "10.0%", "amount": "₹3,268", "color": const Color(0xFFFF9500)},
-                      ];
-
-                      final item = data[index];
-
-                      return Padding(
-                        padding: EdgeInsets.only(bottom: index == data.length - 1 ? 0 : 14),
-                        child: _buildAllocationRowItem(
-                          item["label"] as String,
-                          item["pct"] as String,
-                          item["amount"] as String,
-                          item["color"] as Color,
-                        ),
-                      );
-                    }),
-                  ],
-                ),
-              )
-            ],
-          ),
-          const Gap(20),
-
-          // --- VIEW FULL ALLOCATION REDIRECT BUTTON ---
-          InkWell(
-            onTap: () {},
-            borderRadius: BorderRadius.circular(4),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+        ),
+        const Gap(24),
+        Row(
+          children: [
+            // --- CUSTOM MULTI-SEGMENT DONUT DESIGN ---
+            SizedBox(
+              height: 110,
+              width: 110,
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
-                  Text(
-                    "View Full Allocation",
-                    style: TextStyle(fontSize: 13, color: Color(0xFF007AFF), fontWeight: FontWeight.w700),
+                  CustomPaint(
+                    size: const Size(110, 110),
+                    painter: MultiSegmentDonutPainter(
+                      segments: [
+                        DonutSegment(
+                          value: 60,
+                          color: const Color(0xFF007AFF),
+                        ), // Equity Blue
+                        DonutSegment(
+                          value: 22,
+                          color: const Color(0xFF34C759),
+                        ), // Debt Green
+                        DonutSegment(
+                          value: 10,
+                          color: const Color(0xFFFF9500),
+                        ), // Hybrid Orange
+                        DonutSegment(
+                          value: 8,
+                          color: const Color(0xFFFFCC00),
+                        ), // Cache/Other Yellow
+                      ],
+                      strokeWidth: 16,
+                    ),
                   ),
-                  Gap(6),
-                  Icon(Icons.arrow_forward_ios, size: 11, color: Color(0xFF007AFF)),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "₹32,580",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF0F172A),
+                        ),
+                      ),
+                      const Gap(2),
+                      Text(
+                        "Current Value",
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+            const Gap(32),
 
-  Widget _buildAllocationRowItem(String label, String pct, String amount, Color color) {
-    return Row(
-      children: [
-        Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
-        const Gap(10),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF334155)),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ...List.generate(3, (index) {
+                    final data = [
+                      {
+                        "label": "Equity",
+                        "pct": "60.0%",
+                        "amount": "₹22,144",
+                        "color": const Color(0xFF007AFF),
+                      },
+                      {
+                        "label": "Debt",
+                        "pct": "22.0%",
+                        "amount": "₹7,163",
+                        "color": const Color(0xFF34C759),
+                      },
+                      {
+                        "label": "Hybrid",
+                        "pct": "10.0%",
+                        "amount": "₹3,268",
+                        "color": const Color(0xFFFF9500),
+                      },
+                    ];
+
+                    final item = data[index];
+
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        bottom: index == data.length - 1 ? 0 : 14,
+                      ),
+                      child: _buildAllocationRowItem(
+                        item["label"] as String,
+                        item["pct"] as String,
+                        item["amount"] as String,
+                        item["color"] as Color,
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+          ],
         ),
-        const Spacer(),
-        Text(
-          pct,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
-        ),
-        const Gap(24),
-        Text(
-          amount,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+        const Gap(20),
+
+        // --- VIEW FULL ALLOCATION REDIRECT BUTTON ---
+        InkWell(
+          onTap: () {},
+          borderRadius: BorderRadius.circular(4),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "View Full Allocation",
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF007AFF),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                Gap(6),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  size: 11,
+                  color: Color(0xFF007AFF),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
-    );
-  }
+    ),
+  );
+}
+
+Widget _buildAllocationRowItem(
+  String label,
+  String pct,
+  String amount,
+  Color color,
+) {
+  return Row(
+    children: [
+      Container(
+        width: 8,
+        height: 8,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      ),
+      const Gap(10),
+      Text(
+        label,
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF334155),
+        ),
+      ),
+      const Spacer(),
+      Text(
+        pct,
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+          color: Color(0xFF64748B),
+        ),
+      ),
+      const Gap(24),
+      Text(
+        amount,
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF1E293B),
+        ),
+      ),
+    ],
+  );
+}
 
 // =========================================================================
 // 🕒 2. RECENT ACTIVITY CARD (Matches image_17bb38.png Exactly)
 // =========================================================================
-  Widget _buildRecentActivityCard() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Recent Activity",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF6366F1)), // Matching deep purple-blue
-              ),
-              TextButton(
-                onPressed: () {},
-                child: const Text(
-                  "View All",
-                  style: TextStyle(fontSize: 13, color: Color(0xFF6366F1), fontWeight: FontWeight.w700),
+Widget _buildRecentActivityCard() {
+  return Container(
+    padding: const EdgeInsets.all(24),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: const Color(0xFFE2E8F0)),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              "Recent Activity",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF6366F1),
+              ), // Matching deep purple-blue
+            ),
+            TextButton(
+              onPressed: () {},
+              child: const Text(
+                "View All",
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Color(0xFF6366F1),
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-            ],
-          ),
-          const Gap(12),
+            ),
+          ],
+        ),
+        const Gap(12),
 
-          // --- ACTIVITY LIST ROWS ---
-          _buildActivityRowItem(
-            icon: Iconsax.document_text5, // Or Icons.receipt_long
-            title: "SIP Invested",
-            subtitle: "Kotak Bluechip Fund",
-            amount: "₹5,000",
-            timeAgo: "Today",
-          ),
-          const Divider(height: 24, thickness: 0.8, color: Color(0xFFF1F5F9)),
-          _buildActivityRowItem(
-            icon: Iconsax.calendar_tick,
-            title: "SIP Invested",
-            subtitle: "ICICI Prudential Tech",
-            amount: "₹3,000",
-            timeAgo: "2 days ago",
-          ),
-          const Divider(height: 24, thickness: 0.8, color: Color(0xFFF1F5F9)),
-          _buildActivityRowItem(
-            icon: Iconsax.clock,
-            title: "Redemption",
-            subtitle: "SBI Small Cap Fund",
-            amount: "₹2,000",
-            timeAgo: "5 days ago",
-          ),
-          const Divider(height: 24, thickness: 0.8, color: Color(0xFFF1F5F9)),
+        // --- ACTIVITY LIST ROWS ---
+        _buildActivityRowItem(
+          icon: Iconsax.document_text5, // Or Icons.receipt_long
+          title: "SIP Invested",
+          subtitle: "Kotak Bluechip Fund",
+          amount: "₹5,000",
+          timeAgo: "Today",
+        ),
+        const Divider(height: 24, thickness: 0.8, color: Color(0xFFF1F5F9)),
+        _buildActivityRowItem(
+          icon: Iconsax.calendar_tick,
+          title: "SIP Invested",
+          subtitle: "ICICI Prudential Tech",
+          amount: "₹3,000",
+          timeAgo: "2 days ago",
+        ),
+        const Divider(height: 24, thickness: 0.8, color: Color(0xFFF1F5F9)),
+        _buildActivityRowItem(
+          icon: Iconsax.clock,
+          title: "Redemption",
+          subtitle: "SBI Small Cap Fund",
+          amount: "₹2,000",
+          timeAgo: "5 days ago",
+        ),
+        const Divider(height: 24, thickness: 0.8, color: Color(0xFFF1F5F9)),
 
-          // --- ACTIVITY LIST ROWS ---
-          _buildActivityRowItem(
-            icon: Iconsax.document_text5, // Or Icons.receipt_long
-            title: "Lumpsum Invested",
-            subtitle: "Kotak Bluechip Fund",
-            amount: "₹5,000",
-            timeAgo: "Today",
-          ),
-          const Divider(height: 24, thickness: 0.8, color: Color(0xFFF1F5F9)),
-          _buildActivityRowItem(
-            icon: Iconsax.calendar_tick,
-            title: "Lumpsum Invested",
-            subtitle: "ICICI Prudential Tech",
-            amount: "₹3,000",
-            timeAgo: "2 days ago",
-          ),
-          const Divider(height: 24, thickness: 0.8, color: Color(0xFFF1F5F9)),
-          _buildActivityRowItem(
-            icon: Iconsax.clock,
-            title: "Redemption",
-            subtitle: "SBI Small Cap Fund",
-            amount: "₹2,000",
-            timeAgo: "5 days ago",
-          ),
-        ],
+        // --- ACTIVITY LIST ROWS ---
+        _buildActivityRowItem(
+          icon: Iconsax.document_text5, // Or Icons.receipt_long
+          title: "Lumpsum Invested",
+          subtitle: "Kotak Bluechip Fund",
+          amount: "₹5,000",
+          timeAgo: "Today",
+        ),
+        const Divider(height: 24, thickness: 0.8, color: Color(0xFFF1F5F9)),
+        _buildActivityRowItem(
+          icon: Iconsax.calendar_tick,
+          title: "Lumpsum Invested",
+          subtitle: "ICICI Prudential Tech",
+          amount: "₹3,000",
+          timeAgo: "2 days ago",
+        ),
+        const Divider(height: 24, thickness: 0.8, color: Color(0xFFF1F5F9)),
+        _buildActivityRowItem(
+          icon: Iconsax.clock,
+          title: "Redemption",
+          subtitle: "SBI Small Cap Fund",
+          amount: "₹2,000",
+          timeAgo: "5 days ago",
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildActivityRowItem({
+  required IconData icon,
+  required String title,
+  required String subtitle,
+  required String amount,
+  required String timeAgo,
+}) {
+  return Row(
+    children: [
+      // Icon Box Color Treatment
+      Icon(icon, size: 24, color: const Color(0xFF475569)),
+      const Gap(16),
+
+      // Title Block
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0F172A),
+              ),
+            ),
+            const Gap(4),
+            Text(
+              subtitle,
+              style: const TextStyle(
+                fontSize: 11,
+                color: Color(0xFF64748B),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
-    );
-  }
 
-  Widget _buildActivityRowItem({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required String amount,
-    required String timeAgo,
-  }) {
-    return Row(
-      children: [
-        // Icon Box Color Treatment
-        Icon(icon, size: 24, color: const Color(0xFF475569)),
-        const Gap(16),
-
-        // Title Block
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
-              ),
-              const Gap(4),
-              Text(
-                subtitle,
-                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
-              ),
-            ],
-          ),
+      // Amount Value Block
+      Text(
+        amount,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFF0F172A),
         ),
-
-        // Amount Value Block
-        Text(
-          amount,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
-        ),
-        const Gap(40), // Balanced side alignment padding matching the image row layout
-
-        // Timing Stamp Block
-        SizedBox(
-          width: 75,
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              timeAgo,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8), fontWeight: FontWeight.w500),
+      ),
+      const Gap(
+        40,
+      ), // Balanced side alignment padding matching the image row layout
+      // Timing Stamp Block
+      SizedBox(
+        width: 75,
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: Text(
+            timeAgo,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Color(0xFF94A3B8),
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),
+      ),
+    ],
+  );
+}
+
+Widget _buildWebHeader() {
+  return Container(
+    height: 64,
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: const Color(0xFFE2E8F0)), //  Fixed
+    ),
+    child: const Row(
+      children: [
+        Text(
+          "Dashboard",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF0F172A),
+          ),
+        ),
       ],
-    );
-  }
-
-
-
-
-  Widget _buildWebHeader() {
-    return Container(
-      height: 64,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)), //  Fixed
-      ),
-      child: const Row(
-        children: [
-          Text("Dashboard", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
-        ],
-      ),
-    );
-  }
+    ),
+  );
+}
 
 class TopPerformingFundCard extends StatelessWidget {
   const TopPerformingFundCard({super.key});
@@ -1019,9 +1340,17 @@ class TopPerformingFundCard extends StatelessWidget {
             children: [
               const Text(
                 "Top Performing Fund",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF22C55E)), // Green text
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF22C55E),
+                ), // Green text
               ),
-              Icon(Icons.trending_up_rounded, color: const Color(0xFF22C55E), size: 20),
+              Icon(
+                Icons.trending_up_rounded,
+                color: const Color(0xFF22C55E),
+                size: 20,
+              ),
             ],
           ),
           Gap(14),
@@ -1045,7 +1374,14 @@ class TopPerformingFundCard extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: const Center(
-                        child: Text("i", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.red)),
+                        child: Text(
+                          "i",
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
+                        ),
                       ),
                     ),
                     const Gap(12),
@@ -1058,17 +1394,29 @@ class TopPerformingFundCard extends StatelessWidget {
                             "ICICI Prudential Technology Fund",
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF0F172A),
+                            ),
                           ),
                           const Gap(6),
                           Text(
                             "Return (YTD)",
-                            style: TextStyle(fontSize: 11, color: Colors.grey.shade400, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey.shade400,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           const Gap(4),
                           const Text(
                             "+24.58%",
-                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF22C55E)),
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF22C55E),
+                            ),
                           ),
                         ],
                       ),
@@ -1102,10 +1450,18 @@ class TopPerformingFundCard extends StatelessWidget {
                 onTap: () {},
                 child: const Text(
                   "View Fund Details",
-                  style: TextStyle(fontSize: 13, color: Color(0xFF007AFF), fontWeight: FontWeight.w700),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF007AFF),
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
-              const Icon(Icons.arrow_forward_rounded, size: 16, color: Color(0xFF007AFF)),
+              const Icon(
+                Icons.arrow_forward_rounded,
+                size: 16,
+                color: Color(0xFF007AFF),
+              ),
             ],
           ),
         ],
@@ -1136,7 +1492,11 @@ class GoalProgressCard extends StatelessWidget {
           // Header Text
           const Text(
             "Goal Progress",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF007AFF)), // Blue text
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF007AFF),
+            ), // Blue text
           ),
           Gap(14),
           // Target Info Block Split Row
@@ -1148,7 +1508,11 @@ class GoalProgressCard extends StatelessWidget {
                   color: Color(0xFFEFF6FF),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Iconsax.radar_2, color: Color(0xFF007AFF), size: 22),
+                child: const Icon(
+                  Iconsax.radar_2,
+                  color: Color(0xFF007AFF),
+                  size: 22,
+                ),
               ),
               const Gap(12),
               Column(
@@ -1156,19 +1520,31 @@ class GoalProgressCard extends StatelessWidget {
                 children: [
                   const Text(
                     "Retirement Fund",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0F172A),
+                    ),
                   ),
                   const Gap(4),
                   Text(
                     "Target: ₹25,00,000",
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500, fontWeight: FontWeight.w500),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade500,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ),
               const Spacer(),
               const Text(
                 "62%",
-                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Color(0xFF007AFF)),
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF007AFF),
+                ),
               ),
             ],
           ),
@@ -1180,11 +1556,19 @@ class GoalProgressCard extends StatelessWidget {
               children: [
                 TextSpan(
                   text: "₹15,50,000 ",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF0F172A),
+                  ),
                 ),
                 TextSpan(
                   text: "of ₹25,00,000",
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF64748B),
+                  ),
                 ),
               ],
             ),
@@ -1211,10 +1595,18 @@ class GoalProgressCard extends StatelessWidget {
                 onTap: () {},
                 child: const Text(
                   "View All Goals",
-                  style: TextStyle(fontSize: 13, color: Color(0xFF007AFF), fontWeight: FontWeight.w700),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF007AFF),
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
-              const Icon(Icons.arrow_forward_rounded, size: 16, color: Color(0xFF007AFF)),
+              const Icon(
+                Icons.arrow_forward_rounded,
+                size: 16,
+                color: Color(0xFF007AFF),
+              ),
             ],
           ),
         ],
@@ -1246,7 +1638,8 @@ class SmoothSparkPainter extends CustomPainter {
 
     for (int i = 0; i < data.length; i++) {
       final double x = (i / maxX) * size.width;
-      final double y = size.height - ((data[i] - minY) / rangeY) * (size.height - 8) - 4;
+      final double y =
+          size.height - ((data[i] - minY) / rangeY) * (size.height - 8) - 4;
 
       if (i == 0) {
         path.moveTo(x, y);
@@ -1287,6 +1680,7 @@ class SmoothSparkPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant SmoothSparkPainter oldDelegate) => true;
 }
+
 // =========================================================================
 // 🖌 MATHEMATICAL RE-DRAW PAINTER FOR SEGMENTED PIE/DONUT CHART
 // =========================================================================
@@ -1334,6 +1728,7 @@ class MultiSegmentDonutPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant MultiSegmentDonutPainter oldDelegate) => true;
 }
+
 // =========================================================================
 // 💎 PIXEL-PERFECT STAT CARD WITH MINI SPARKLINE
 // =========================================================================
@@ -1407,7 +1802,9 @@ class ExactWebStatCard extends StatelessWidget {
                         title,
                         style: const TextStyle(
                           fontSize: 13,
-                          color: Color(0xFF1E293B), // Navy/Slate title label text
+                          color: Color(
+                            0xFF1E293B,
+                          ), // Navy/Slate title label text
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -1417,7 +1814,8 @@ class ExactWebStatCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.w800,
-                          color: valueColor, // Replaces static color with custom image-matching profile
+                          color:
+                              valueColor, // Replaces static color with custom image-matching profile
                           letterSpacing: -0.5,
                         ),
                       ),
@@ -1430,7 +1828,8 @@ class ExactWebStatCard extends StatelessWidget {
                             trendText,
                             style: TextStyle(
                               fontSize: 12,
-                              color: trendColor, // Matches the text color directly with the trend green/purple/grey arrow icon
+                              color:
+                                  trendColor, // Matches the text color directly with the trend green/purple/grey arrow icon
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -1501,7 +1900,10 @@ class MiniSparklinePainter extends CustomPainter {
     for (int i = 0; i < data.length; i++) {
       // Scale coordinates to fit inside the bottom clip area cleanly
       double x = (i / maxX) * size.width;
-      double y = size.height - ((data[i] - minY) / (maxY - minY)) * (size.height - 8) - 4;
+      double y =
+          size.height -
+          ((data[i] - minY) / (maxY - minY)) * (size.height - 8) -
+          4;
 
       if (i == 0) {
         path.moveTo(x, y);
@@ -1518,6 +1920,7 @@ class MiniSparklinePainter extends CustomPainter {
     return oldDelegate.lineColor != lineColor || oldDelegate.data != data;
   }
 }
+
 // ==========================================
 // 📈 PREMIUM TOP METRIC STAT CARD FOR WEB
 // ==========================================
@@ -1562,13 +1965,34 @@ class _WebTopStatCard extends StatelessWidget {
                 backgroundColor: iconColor.withOpacity(0.1),
                 child: Icon(icon, size: 18, color: iconColor),
               ),
-              Text(title, style: TextStyle(fontSize: 12, color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade500,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
           ),
           const Gap(16),
-          Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF111827))),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF111827),
+            ),
+          ),
           const Gap(8),
-          Text(change, style: TextStyle(fontSize: 11, color: trendColor, fontWeight: FontWeight.w500)),
+          Text(
+            change,
+            style: TextStyle(
+              fontSize: 11,
+              color: trendColor,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
@@ -2552,7 +2976,6 @@ class _MobileDashboardLayout extends StatelessWidget {
           final controller = Get.find<DashboardController>();
           final isVisible = controller.isBalanceVisible.value;
 
-         
           if (controller.selectedIndex.value == 0) {
             /// 🟦 MY PORTFOLIO TAB
 
@@ -3175,7 +3598,6 @@ class PortfolioCard extends StatelessWidget {
     );
   }
 }
-
 
 class StatItem1 extends StatelessWidget {
   final String title;
