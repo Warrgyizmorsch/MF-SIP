@@ -87,59 +87,62 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
     }
 
     return GetBuilder<GoalSipController>(
-      initState: (_) {
+    initState: (_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         controller.isHome.value = false;
         controller.selectedPopularFund.clear();
 
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          _scrollController.addListener(() {
-            if (!_scrollController.hasClients) return;
-            showLeftArrow.value = _scrollController.offset > 10;
-            showRightArrow.value = _scrollController.offset < (_scrollController.position.maxScrollExtent - 10);
-          });
-
-          await controller.initializeDashboardData();
-
-          final args = (Get.arguments as Map<String, dynamic>?) ?? tempArgs;
-          tempArgs = null;
-
-          if (args == null) return;
-
-          final String initialType = args['goalType'] ?? 'custom';
-          controller.isEdit.value = args['isEdit'] ?? false;
-          controller.isHome.value = args['isHome'] ?? false;
-
-
-          final UserGoalEntity? goal = args['goal'];
-
-          if (!controller.isEdit.value) {
-            controller.resetStateForNewGoal();
-          }
-
-          controller.updateGoalType(initialType);
-
-          // EDIT GOAL
-          if (controller.isEdit.value && goal != null) {
-            controller.loadGoalForEdit(goal);
-          }
-          if (controller.isAddFund.value && goal != null) {
-            controller.loadGoalForAddFund(goal);
-          }
-
-          // HOME GOAL
-          if (controller.isHome.value) {
-            final masterGoal = controller.masterGoals.firstWhereOrNull(
-                  (e) => e.goalType == initialType,
-            );
-            if (masterGoal != null) {
-              controller.handleHomeGoal(masterGoal);
-            }
-          }
-
-          controller.update();
+        _scrollController.addListener(() {
+          if (!_scrollController.hasClients) return;
+          showLeftArrow.value = _scrollController.offset > 10;
+          showRightArrow.value = _scrollController.offset < (_scrollController.position.maxScrollExtent - 10);
         });
-      },
-      builder: (controller) {
+
+        await controller.initializeDashboardData();
+
+        final args = (Get.arguments as Map<String, dynamic>?) ?? tempArgs;
+        tempArgs = null;
+
+        if (args == null) {
+          controller.update(); // Trigger safe rebuild if no arguments
+          return;
+        }
+
+        final String initialType = args['goalType'] ?? 'custom';
+        controller.isEdit.value = args['isEdit'] ?? false;
+        controller.isHome.value = args['isHome'] ?? false;
+
+        final UserGoalEntity? goal = args['goal'];
+
+        if (!controller.isEdit.value) {
+          controller.resetStateForNewGoal();
+        }
+
+        controller.updateGoalType(initialType);
+
+        // EDIT GOAL
+        if (controller.isEdit.value && goal != null) {
+          controller.loadGoalForEdit(goal);
+        }
+        if (controller.isAddFund.value && goal != null) {
+          controller.loadGoalForAddFund(goal);
+        }
+
+        // HOME GOAL
+        if (controller.isHome.value) {
+          final masterGoal = controller.masterGoals.firstWhereOrNull(
+                (e) => e.goalType == initialType,
+          );
+          if (masterGoal != null) {
+            controller.handleHomeGoal(masterGoal);
+          }
+        }
+
+        // Safe to request layout refresh now that current frame is rendered
+        controller.update();
+      });
+    },
+    builder: (controller) {
         return StatefulBuilder(
           builder: (context, setState) {
             bool canPopScope = false;
@@ -173,14 +176,14 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                           onPressed: () => Get.back(result: false),
                           child: const Text(
                             "Stay",
-                            style: TextStyle(color: Ucolors.primary),
+                            style: TextStyle( fontFamily:FontFamily.regular,color: Ucolors.primary),
                           ),
                         ),
                         ElevatedButton(
                           onPressed: () => Get.back(result: true),
                           child: const Text(
                             "Leave",
-                            style: TextStyle(color: Ucolors.primary),
+                            style: TextStyle( fontFamily:FontFamily.regular,color: Ucolors.primary),
                           ),
                         ),
                       ],
@@ -336,7 +339,7 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                                       style: const TextStyle(
                                                         fontFamily: FontFamily.medium,
                                                         fontSize: 16,
-                                                        fontWeight: FontWeight.w700,
+                                                        fontWeight: FontWeight.w600,
                                                         color: Colors.black87,
                                                       ),
                                                     ),
@@ -377,7 +380,7 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                                           style: const TextStyle(
                                                             fontFamily: FontFamily.medium,
                                                             fontSize: 20,
-                                                            fontWeight: FontWeight.w800,
+                                                            fontWeight: FontWeight.w600,
                                                             color: Colors.black,
                                                           ),
                                                         ),
@@ -593,7 +596,7 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                       const Gap(8),
                                       Text(
                                         "Projections and fund selections will appear here.",
-                                        style: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                                        style: TextStyle(color: Colors.grey.shade400, fontSize: 14, fontFamily:FontFamily.regular,),
                                       ),
                                     ],
                                   ),
@@ -1039,7 +1042,7 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                         child: Icon(Icons.calendar_month_rounded, color: Ucolors.primary, size: 20),
                       ),
                       const SizedBox(width: 12),
-                      const Text("Select SIP Date", style: TextStyle(fontFamily: FontFamily.medium, fontSize: 18, fontWeight: FontWeight.w700, color: Colors.black87)),
+                      const Text("Select SIP Date", style: TextStyle(fontFamily: FontFamily.medium, fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black87)),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -1164,7 +1167,7 @@ class PopularFundCardMobSelected extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(name, maxLines: 2, overflow: TextOverflow.ellipsis, style: UTextStyles.medium.copyWith(color: Colors.black, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500, fontSize: 11, height: 1.1)),
+                    child: Text(name, maxLines: 2, overflow: TextOverflow.ellipsis, style: UTextStyles.medium.copyWith(color: Colors.black, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500, fontSize: 11, height: 1.1)),
                   ),
                   if (isSelected)
                     AnimatedScale(
@@ -1223,7 +1226,7 @@ class PopularFundCardMobSelected extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.arrow_drop_up_rounded, color: Ucolors.success, size: 20),
-            Text('${value ?? 0}%', style: UTextStyles.bodySmallW500.copyWith(color: Ucolors.success, fontWeight: FontWeight.bold)),
+            Text('${value ?? 0}%', style: UTextStyles.bodySmallW500.copyWith(color: Ucolors.success, fontWeight: FontWeight.w600)),
           ],
         ),
       ],
@@ -1253,7 +1256,7 @@ class PopularAndSelectedFund extends StatelessWidget {
               children: [
                 Icon(Icons.account_balance_wallet, size: 42, color: Ucolors.primary),
                 const SizedBox(height: 12),
-                Text("No Funds Available", style: TextStyle(fontFamily: FontFamily.medium, fontWeight: FontWeight.w700, fontSize: 16, color: Ucolors.dark)),
+                Text("No Funds Available", style: TextStyle(fontFamily: FontFamily.medium, fontWeight: FontWeight.w600, fontSize: 16, color: Ucolors.dark)),
                 const SizedBox(height: 6),
                 Text("Please add funds", style: TextStyle(fontFamily: FontFamily.medium, color: Colors.grey.shade600)),
               ],
@@ -1389,7 +1392,7 @@ class PopularAndSelectedFund extends StatelessWidget {
                         child: Icon(Icons.calendar_month_rounded, color: Ucolors.primary, size: 20),
                       ),
                       const SizedBox(width: 12),
-                      const Text("Select SIP Date", style: TextStyle(fontFamily: FontFamily.medium, fontSize: 18, fontWeight: FontWeight.w700, color: Colors.black87)),
+                      const Text("Select SIP Date", style: TextStyle(fontFamily: FontFamily.medium, fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black87)),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -1471,7 +1474,7 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Projection', style: UTextStyles.medium.copyWith(fontWeight: FontWeight.w700)),
+              Text('Projection', style: UTextStyles.medium.copyWith(fontWeight: FontWeight.w600)),
               Container(
                 decoration: BoxDecoration(color: const Color(0xffF3F4F6), borderRadius: BorderRadius.circular(10)),
                 child: Row(
@@ -1631,7 +1634,7 @@ class _TabButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             boxShadow: isSelected ? [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 8, offset: const Offset(0, 2))] : [],
           ),
-          child: Center(child: Text(label, style: TextStyle(fontFamily: FontFamily.medium, fontSize: 14, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500, color: isSelected ? Ucolors.primary : Colors.grey.shade500))),
+          child: Center(child: Text(label, style: TextStyle(fontFamily: FontFamily.medium, fontSize: 14, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500, color: isSelected ? Ucolors.primary : Colors.grey.shade500))),
         ),
       ),
     );
@@ -1782,7 +1785,7 @@ class SavedGoalDetailsCard extends GetView<GoalSipController> {
               Expanded(
                 child: Text(
                   controller.goalNameTextEditingController.text.isNotEmpty ? controller.goalNameTextEditingController.text : "Saved Goal",
-                  style: const TextStyle(fontFamily: FontFamily.medium, fontSize: 20, fontWeight: FontWeight.w800, color: Colors.black87),
+                  style: const TextStyle(fontFamily: FontFamily.medium, fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black87),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -1793,7 +1796,7 @@ class SavedGoalDetailsCard extends GetView<GoalSipController> {
                   decoration: BoxDecoration(color: Ucolors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
                   child: Text(
                     controller.investmentMode.value == 'sip' ? "SIP" : "Lumpsum",
-                    style: const TextStyle(fontFamily: FontFamily.medium, color: Ucolors.primary, fontWeight: FontWeight.w700, fontSize: 12),
+                    style: const TextStyle(fontFamily: FontFamily.medium, color: Ucolors.primary, fontWeight: FontWeight.w600, fontSize: 12),
                   ),
                 ),
               ),
@@ -1871,7 +1874,7 @@ class _ValueCard extends StatelessWidget {
         children: [
           Text(title, style: TextStyle(fontFamily: FontFamily.medium, color: accent ? Ucolors.primary : Colors.grey.shade600, fontSize: 12, fontWeight: accent ? FontWeight.w600 : FontWeight.w400)),
           const SizedBox(height: 8),
-          Text(value, style: TextStyle(fontFamily: FontFamily.medium, fontSize: 16, fontWeight: FontWeight.w700, color: accent ? Ucolors.primary : Colors.black)),
+          Text(value, style: TextStyle(fontFamily: FontFamily.medium, fontSize: 16, fontWeight: FontWeight.w600, color: accent ? Ucolors.primary : Colors.black)),
           Text("Approx", style: TextStyle(fontFamily: FontFamily.medium, fontSize: 8, fontWeight: FontWeight.w400, color: accent ? Ucolors.primary.withValues(alpha: 0.65) : Colors.grey.shade500)),
         ],
       ),

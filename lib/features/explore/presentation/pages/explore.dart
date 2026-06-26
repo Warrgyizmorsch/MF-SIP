@@ -278,7 +278,7 @@ class _WebExploreLayoutState extends State<WebExploreLayout> {
                                     style: TextStyle(
                                       fontFamily: FontFamily.medium,
                                       fontSize: 22,
-                                      fontWeight: FontWeight.w800,
+                                      fontWeight: FontWeight.w600,
                                       color: Ucolors.dark,
                                       letterSpacing: -0.4,
                                     ),
@@ -1330,8 +1330,7 @@ class WebFundListCard extends StatelessWidget {
           style: TextStyle(
             fontFamily: FontFamily.medium,
             fontSize: isLaptop ? 12.5 : 14,
-            height: 1.20,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: isHovered ? Ucolors.primary : const Color(0xFF111827),
           ),
         ),
@@ -1360,7 +1359,7 @@ class WebFundListCard extends StatelessWidget {
         style: TextStyle(
           fontFamily: FontFamily.medium,
           fontSize: isLaptop ? 10 : 11,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w500,
           color: Ucolors.darkBlue,
         ),
       ),
@@ -1447,7 +1446,7 @@ class WebFundListCard extends StatelessWidget {
             style: TextStyle(
               fontFamily: FontFamily.medium,
               fontSize: isLaptop ? 12.5 : 14.5,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               color: val < 0 ? Colors.redAccent : const Color(0xFF00B85C),
             ),
           ),
@@ -1697,7 +1696,7 @@ class WebFundListCard extends StatelessWidget {
           style: TextStyle(
             fontFamily: FontFamily.medium,
             fontSize: isLaptop ? 11.5 : 13,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: Colors.white,
           ),
         ),
@@ -1721,7 +1720,7 @@ class WebFundListCard extends StatelessWidget {
               style: TextStyle(
                 fontFamily: FontFamily.medium,
                 fontSize: isLaptop ? 11 : 12.5,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
                 color: Ucolors.primary,
               ),
             ),
@@ -3645,9 +3644,9 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                       style: const TextStyle(
                         fontFamily: FontFamily.medium,
                         fontSize: 15,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
                         color: Color(0xFF111827),
-                        height: 1.25,
+
                       ),
                     ),
 
@@ -4031,7 +4030,7 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
         style: TextStyle(
           fontFamily: FontFamily.medium,
           fontSize: 11,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w500,
           color: Colors.black,
         ),
       ),

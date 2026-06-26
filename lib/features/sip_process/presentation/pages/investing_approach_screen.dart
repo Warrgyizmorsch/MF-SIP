@@ -37,44 +37,46 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
 
     return Center(
       // Padding ensures it doesn't touch the edges on smaller web screens
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Container(
-          // 1. Give it a strict height boundary to prevent Spacer() from crashing
-          height: 650,
-          // 2. Control the maximum width
-          constraints: const BoxConstraints(
-            maxWidth: 1000,
-          ),
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 30,
-                offset: const Offset(0, 15),
+      child:LayoutBuilder(
+          builder: (context, constraints) {
+            final double isWideScreen = constraints.maxWidth*0.9;
+
+            final double availableHeight = constraints.maxHeight*0.9;
+
+            return ConstrainedBox(
+              constraints:  BoxConstraints(maxWidth: isWideScreen,maxHeight: availableHeight),
+            child: Container(
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    blurRadius: 30,
+                    offset: const Offset(0, 15),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Row(
-            // 3. Stretch forces both the Left and Right panels to be exactly 650px tall
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Left Blue Panel (Your Profile)
-              Expanded(
-                flex: 4,
-                child: _buildLeftProfilePanel(session),
+              child: Row(
+                // 3. Stretch forces both the Left and Right panels to be exactly 650px tall
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Left Blue Panel (Your Profile)
+                  Expanded(
+                    flex: 4,
+                    child: _buildLeftProfilePanel(session),
+                  ),
+                  // Right White Panel (Strategy Selection)
+                  Expanded(
+                    flex: 6,
+                    child: _buildRightSelectionPanel(context),
+                  ),
+                ],
               ),
-              // Right White Panel (Strategy Selection)
-              Expanded(
-                flex: 6,
-                child: _buildRightSelectionPanel(context),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        }
       ),
     );
   }
@@ -219,7 +221,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
               color: Colors.grey.shade600,
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 20),
 
           // CRITICAL FIX 2: Added 'Expanded' and 'stretch' to this Row
           Expanded(
@@ -315,7 +317,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isSelected ? const Color(0xFFF3F8FB) : Colors.white,
           border: Border.all(
@@ -349,7 +351,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 6),
 
             Text(
               title,
@@ -359,7 +361,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                 color: Color(0xFF142438),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 6),
 
             Text(
               description,

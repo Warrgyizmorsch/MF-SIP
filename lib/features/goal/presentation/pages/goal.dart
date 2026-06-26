@@ -392,14 +392,15 @@ class GoalScreenWeb extends GetView<GoalSipController> {
                           "Active Goals",
                           style: TextStyle(
                             fontSize: 28,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                             color: Color(0xff111827),
+                            fontFamily:FontFamily.regular,
                           ),
                         ),
                         const Gap(6),
                         Text(
                           "Track and manage your financial milestones",
-                          style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+                          style: TextStyle(fontSize: 14, color: Colors.grey.shade500, fontFamily:FontFamily.regular,),
                         ),
                       ],
                     ),
@@ -426,6 +427,7 @@ class GoalScreenWeb extends GetView<GoalSipController> {
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
+                          fontFamily:FontFamily.regular,
                         ),
                       ),
                     ),
@@ -459,10 +461,20 @@ class WebGoalGridContent extends GetView<GoalSipController> {
         if (availableWidth > 1200) {
           crossAxisCount = 4;
           aspectRatio = 1.38;
+        } else if (availableWidth > 1100) {
+          crossAxisCount = 4;
+          aspectRatio = 1.18;
+        }else if (availableWidth > 1000) {
+          crossAxisCount = 3;
+          aspectRatio = 1.38;
         } else if (availableWidth > 900) {
           crossAxisCount = 3;
-          aspectRatio = 1.30;
-        } else {
+          aspectRatio = 1.45;
+        } else if (availableWidth > 850) {
+          crossAxisCount = 3;
+          aspectRatio = 1.20;
+        }
+        else {
           crossAxisCount = 2;
           aspectRatio = 1.25;
         }
@@ -475,7 +487,7 @@ class WebGoalGridContent extends GetView<GoalSipController> {
           final goals = controller.goalResponse.value?.data ?? [];
 
           if (goals.isEmpty) {
-            return const Center(child: Text("No dynamic milestones saved yet."));
+            return const Center(child: Text("No dynamic milestones saved yet.", style: TextStyle(color: Colors.grey, fontFamily:FontFamily.regular,)));
           }
 
           return GridView.builder(
@@ -626,9 +638,10 @@ class _WebGoalCardState extends State<WebGoalCard> {
                               Text(
                                 widget.goalName,
                                 style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
                                   color: Color(0xFF1E293B),
+                                  fontFamily:FontFamily.regular,
                                 ),
                               ),
                               const Gap(4),
@@ -646,6 +659,7 @@ class _WebGoalCardState extends State<WebGoalCard> {
                                         fontSize: 10,
                                         fontWeight: FontWeight.w600,
                                         color: statusTextColor,
+                                        fontFamily:FontFamily.regular,
                                       ),
                                     ),
                                   ),
@@ -658,6 +672,7 @@ class _WebGoalCardState extends State<WebGoalCard> {
                                   fontSize: 12,
                                   color: Colors.grey.shade600,
                                   fontWeight: FontWeight.w500,
+                                  fontFamily:FontFamily.regular,
                                 ),
                               ),
                             ],
@@ -700,6 +715,7 @@ class _WebGoalCardState extends State<WebGoalCard> {
                               color: Color(0xFF2563EB),
                               fontWeight: FontWeight.w600,
                               fontSize: 13,
+                              fontFamily:FontFamily.regular,
                             ),
                           ),
                         ),
@@ -725,6 +741,7 @@ class _WebGoalCardState extends State<WebGoalCard> {
                               color: Ucolors.primary,
                               fontWeight: FontWeight.w600,
                               fontSize: 13,
+                              fontFamily:FontFamily.regular,
                             ),
                           ),
                         )
@@ -763,13 +780,13 @@ class _WebGoalCardState extends State<WebGoalCard> {
             const Gap(8),
             Text(
               label,
-              style: const TextStyle(color: Color(0xFF64748B), fontSize: 13, fontWeight: FontWeight.w500),
+              style: const TextStyle(color: Color(0xFF64748B), fontSize: 13, fontWeight: FontWeight.w500,fontFamily:FontFamily.regular,),
             ),
           ],
         ),
         Text(
           value,
-          style: const TextStyle(color: Color(0xFF1E293B), fontSize: 13, fontWeight: FontWeight.w600),
+          style: const TextStyle(color: Color(0xFF1E293B), fontSize: 13, fontWeight: FontWeight.w600,fontFamily:FontFamily.regular,),
         )
       ],
     );

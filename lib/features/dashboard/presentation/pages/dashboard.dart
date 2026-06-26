@@ -445,13 +445,13 @@ class WebDashboardLayout extends StatelessWidget {
             children: [
               const Text(
                 "Your Holdings",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF0F172A),fontFamily:FontFamily.regular,),
               ),
               TextButton(
                 onPressed: () {},
                 child: const Text(
                   "View All",
-                  style: TextStyle(fontSize: 14, color: Color(0xFF007AFF), fontWeight: FontWeight.w700),
+                  style: TextStyle(fontSize: 14, color: Color(0xFF007AFF), fontWeight: FontWeight.w600,fontFamily:FontFamily.regular,),
                 ),
               ),
             ],
@@ -482,6 +482,7 @@ class WebDashboardLayout extends StatelessWidget {
           color: Color(0xFF64748B),
           fontWeight: FontWeight.w600,
           height: 1.3,
+          fontFamily:FontFamily.regular,
         ),
       ),
     );
@@ -498,7 +499,7 @@ class WebDashboardLayout extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Quick Actions", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+          const Text("Quick Actions", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF0F172A),fontFamily:FontFamily.regular,)),
           const Gap(16),
           Row(
             children: [
@@ -531,9 +532,9 @@ class WebDashboardLayout extends StatelessWidget {
             child: Icon(icon, size: 16, color: color),
           ),
           const Gap(12),
-          Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF1E293B))),
+          Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B),fontFamily:FontFamily.regular,)),
           const Gap(4),
-          Text(sub, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), height: 1.2, fontWeight: FontWeight.w400)),
+          Text(sub, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), height: 1.2, fontWeight: FontWeight.w400,fontFamily:FontFamily.regular,)),
         ],
       ),
     );
@@ -553,7 +554,7 @@ class WebDashboardLayout extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Upcoming SIPs", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+              const Text("Upcoming SIPs", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF0F172A))),
               TextButton(onPressed: () {}, child: const Text("View All", style: TextStyle(fontSize: 12, color: Color(0xFF3B82F6)))),
             ],
           ),
@@ -572,13 +573,13 @@ class WebDashboardLayout extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(color: const Color(0xFFE0F2FE), borderRadius: BorderRadius.circular(6)),
-          child: Text(date, style: const TextStyle(color: Color(0xFF0284C7), fontWeight: FontWeight.w700, fontSize: 12)),
+          child: Text(date, style: const TextStyle(color: Color(0xFF0284C7), fontWeight: FontWeight.w600, fontSize: 12,fontFamily:FontFamily.regular,)),
         ),
         const Gap(12),
         Expanded(
-          child: Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)), overflow: TextOverflow.ellipsis),
+          child: Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B),fontFamily:FontFamily.regular,), overflow: TextOverflow.ellipsis),
         ),
-        Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+        Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF0F172A),fontFamily:FontFamily.regular,)),
       ],
     );
   }
@@ -599,13 +600,13 @@ class WebDashboardLayout extends StatelessWidget {
             children: [
               const Text(
                 "Recent Activity",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF6366F1)),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF6366F1),fontFamily:FontFamily.regular,),
               ),
               TextButton(
                 onPressed: () {},
                 child: const Text(
                   "View All",
-                  style: TextStyle(fontSize: 13, color: Color(0xFF6366F1), fontWeight: FontWeight.w700),
+                  style: TextStyle(fontSize: 13, color: Color(0xFF6366F1), fontWeight: FontWeight.w600,fontFamily:FontFamily.regular,),
                 ),
               ),
             ],
@@ -656,19 +657,19 @@ class WebDashboardLayout extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0F172A),fontFamily:FontFamily.regular,),
               ),
               const Gap(4),
               Text(
                 subtitle,
-                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w500,fontFamily:FontFamily.regular,),
               ),
             ],
           ),
         ),
         Text(
           amount,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF0F172A),fontFamily:FontFamily.regular,),
         ),
         const Gap(24),
         SizedBox(
@@ -677,7 +678,7 @@ class WebDashboardLayout extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: Text(
               timeAgo,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8), fontWeight: FontWeight.w500),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8), fontWeight: FontWeight.w500,fontFamily:FontFamily.regular,),
             ),
           ),
         ),
@@ -742,12 +743,12 @@ TableRow _buildTableRowItem({
                 children: [
                   Text(
                     name,
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0F172A),fontFamily:FontFamily.regular,),
                   ),
                   const Gap(4),
                   Text(
                     category,
-                    style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+                    style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w500,fontFamily:FontFamily.regular,),
                   ),
                 ],
               ),
@@ -769,7 +770,7 @@ TableRow _buildTableRowItem({
             ),
             child: Text(
               type,
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: typeTextColor),
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: typeTextColor,fontFamily:FontFamily.regular,),
             ),
           ),
         ),
@@ -778,25 +779,25 @@ TableRow _buildTableRowItem({
       // 3. Invested Amount
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Text(invested, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+        child: Text(invested, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF0F172A),fontFamily:FontFamily.regular,)),
       ),
 
       // 4. Current Value
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Text(current, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+        child: Text(current, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF0F172A),fontFamily:FontFamily.regular,)),
       ),
 
       // 5. Gain / Loss Value (₹)
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Text(gainAmt, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: trendColor)),
+        child: Text(gainAmt, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: trendColor,fontFamily:FontFamily.regular,)),
       ),
 
       // 6. Gain / Loss (%)
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Text(gainPct, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: trendColor)),
+        child: Text(gainPct, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: trendColor,fontFamily:FontFamily.regular,)),
       ),
 
       // 7. Monthly Contribution
@@ -806,9 +807,10 @@ TableRow _buildTableRowItem({
           monthlyContribution,
           style: TextStyle(
             fontSize: isMonthlyContributionSubtitled ? 12 : 14,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
             color: const Color(0xFF0F172A),
             height: 1.2,
+            fontFamily:FontFamily.regular,
           ),
         ),
       ),
@@ -829,7 +831,7 @@ TableRow _buildTableRowItem({
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Quick Actions", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+          const Text("Quick Actions", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF0F172A),fontFamily:FontFamily.regular,)),
           const Gap(16),
           Row(
             children: [
@@ -862,9 +864,9 @@ TableRow _buildTableRowItem({
             child: Icon(icon, size: 16, color: color),
           ),
           const Gap(12),
-          Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF1E293B))),
+          Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B),fontFamily:FontFamily.regular,)),
           const Gap(4),
-          Text(sub, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), height: 1.2, fontWeight: FontWeight.w400)),
+          Text(sub, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), height: 1.2, fontWeight: FontWeight.w400,fontFamily:FontFamily.regular,)),
         ],
       ),
     );
@@ -884,8 +886,8 @@ TableRow _buildTableRowItem({
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Upcoming SIPs", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
-              TextButton(onPressed: () {}, child: const Text("View All", style: TextStyle(fontSize: 12, color: Color(0xFF3B82F6)))),
+              const Text("Upcoming SIPs", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF0F172A),fontFamily:FontFamily.regular,)),
+              TextButton(onPressed: () {}, child: const Text("View All", style: TextStyle(fontSize: 12, color: Color(0xFF3B82F6),fontFamily:FontFamily.regular,))),
             ],
           ),
           const Gap(12),
@@ -903,13 +905,13 @@ TableRow _buildTableRowItem({
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(color: const Color(0xFFE0F2FE), borderRadius: BorderRadius.circular(6)),
-          child: Text(date, style: const TextStyle(color: Color(0xFF0284C7), fontWeight: FontWeight.w700, fontSize: 12)),
+          child: Text(date, style: const TextStyle(color: Color(0xFF0284C7), fontWeight: FontWeight.w600, fontSize: 12,fontFamily:FontFamily.regular,)),
         ),
         const Gap(12),
         Expanded(
-          child: Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)), overflow: TextOverflow.ellipsis),
+          child: Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B),fontFamily:FontFamily.regular,), overflow: TextOverflow.ellipsis),
         ),
-        Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
+        Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF0F172A),fontFamily:FontFamily.regular,)),
       ],
     );
   }
@@ -930,7 +932,7 @@ TableRow _buildTableRowItem({
         children: [
           const Text(
             "Portfolio Allocation",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF0F172A),fontFamily:FontFamily.regular,),
           ),
           const Gap(24),
           Row(
@@ -959,12 +961,12 @@ TableRow _buildTableRowItem({
                       children: [
                         const Text(
                           "₹32,580",
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                          style: TextStyle(fontFamily:FontFamily.regular,fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF0F172A)),
                         ),
                         const Gap(2),
                         Text(
                           "Current Value",
-                          style: TextStyle(fontSize: 10, color: Colors.grey.shade500, fontWeight: FontWeight.w500),
+                          style: TextStyle(fontSize: 10, color: Colors.grey.shade500, fontWeight: FontWeight.w500,fontFamily:FontFamily.regular,),
                         ),
                       ],
                     ),
@@ -1014,7 +1016,7 @@ TableRow _buildTableRowItem({
                 children: [
                   Text(
                     "View Full Allocation",
-                    style: TextStyle(fontSize: 13, color: Color(0xFF007AFF), fontWeight: FontWeight.w700),
+                    style: TextStyle(fontSize: 13, color: Color(0xFF007AFF), fontWeight: FontWeight.w600),
                   ),
                   Gap(6),
                   Icon(Icons.arrow_forward_ios, size: 11, color: Color(0xFF007AFF)),
@@ -1034,17 +1036,17 @@ TableRow _buildTableRowItem({
         const Gap(10),
         Text(
           label,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF334155)),
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF334155),fontFamily:FontFamily.regular,),
         ),
         const Spacer(),
         Text(
           pct,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF64748B),fontFamily:FontFamily.regular,),
         ),
         const Gap(24),
         Text(
           amount,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B),fontFamily:FontFamily.regular,),
         ),
       ],
     );
@@ -1069,13 +1071,13 @@ TableRow _buildTableRowItem({
             children: [
               const Text(
                 "Recent Activity",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF6366F1)), // Matching deep purple-blue
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF6366F1),fontFamily:FontFamily.regular,), // Matching deep purple-blue
               ),
               TextButton(
                 onPressed: () {},
                 child: const Text(
                   "View All",
-                  style: TextStyle(fontSize: 13, color: Color(0xFF6366F1), fontWeight: FontWeight.w700),
+                  style: TextStyle(fontSize: 13, color: Color(0xFF6366F1), fontWeight: FontWeight.w600,fontFamily:FontFamily.regular,),
                 ),
               ),
             ],
@@ -1157,12 +1159,12 @@ TableRow _buildTableRowItem({
             children: [
               Text(
                 title,
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0F172A),fontFamily:FontFamily.regular,),
               ),
               const Gap(4),
               Text(
                 subtitle,
-                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w500,fontFamily:FontFamily.regular,),
               ),
             ],
           ),
@@ -1171,7 +1173,7 @@ TableRow _buildTableRowItem({
         // Amount Value Block
         Text(
           amount,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF0F172A),fontFamily:FontFamily.regular,),
         ),
         const Gap(40), // Balanced side alignment padding matching the image row layout
 
@@ -1182,7 +1184,7 @@ TableRow _buildTableRowItem({
             alignment: Alignment.centerRight,
             child: Text(
               timeAgo,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8), fontWeight: FontWeight.w500),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8), fontWeight: FontWeight.w500,fontFamily:FontFamily.regular,),
             ),
           ),
         ),
@@ -1192,23 +1194,6 @@ TableRow _buildTableRowItem({
 
 
 
-
-  Widget _buildWebHeader() {
-    return Container(
-      height: 64,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)), //  Fixed
-      ),
-      child: const Row(
-        children: [
-          Text("Dashboard", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
-        ],
-      ),
-    );
-  }
 
 class TopPerformingFundCard extends StatelessWidget {
   const TopPerformingFundCard({super.key});
@@ -1232,7 +1217,7 @@ class TopPerformingFundCard extends StatelessWidget {
             children: [
               const Text(
                 "Top Performing Fund",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF22C55E)), // Green text
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF22C55E),fontFamily:FontFamily.regular,), // Green text
               ),
               Icon(Icons.trending_up_rounded, color: const Color(0xFF22C55E), size: 20),
             ],
@@ -1258,7 +1243,7 @@ class TopPerformingFundCard extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: const Center(
-                        child: Text("i", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.red)),
+                        child: Text("i", style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: Colors.red,fontFamily:FontFamily.regular,)),
                       ),
                     ),
                     const Gap(12),
@@ -1271,17 +1256,17 @@ class TopPerformingFundCard extends StatelessWidget {
                             "ICICI Prudential Technology Fund",
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF0F172A),fontFamily:FontFamily.regular,),
                           ),
                           const Gap(6),
                           Text(
                             "Return (YTD)",
-                            style: TextStyle(fontSize: 11, color: Colors.grey.shade400, fontWeight: FontWeight.w600),
+                            style: TextStyle(fontSize: 11, color: Colors.grey.shade400, fontWeight: FontWeight.w600,fontFamily:FontFamily.regular,),
                           ),
                           const Gap(4),
                           const Text(
                             "+24.58%",
-                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF22C55E)),
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFF22C55E),fontFamily:FontFamily.regular,),
                           ),
                         ],
                       ),
@@ -1315,7 +1300,7 @@ class TopPerformingFundCard extends StatelessWidget {
                 onTap: () {},
                 child: const Text(
                   "View Fund Details",
-                  style: TextStyle(fontSize: 13, color: Color(0xFF007AFF), fontWeight: FontWeight.w700),
+                  style: TextStyle(fontSize: 13, color: Color(0xFF007AFF), fontWeight: FontWeight.w600,fontFamily:FontFamily.regular,),
                 ),
               ),
               const Icon(Icons.arrow_forward_rounded, size: 16, color: Color(0xFF007AFF)),
@@ -1349,7 +1334,7 @@ class GoalProgressCard extends StatelessWidget {
           // Header Text
           const Text(
             "Goal Progress",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF007AFF)), // Blue text
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF007AFF),  fontFamily:FontFamily.regular,), // Blue text
           ),
           Gap(14),
           // Target Info Block Split Row
@@ -1369,19 +1354,19 @@ class GoalProgressCard extends StatelessWidget {
                 children: [
                   const Text(
                     "Retirement Fund",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF0F172A),  fontFamily:FontFamily.regular,),
                   ),
                   const Gap(4),
                   Text(
                     "Target: ₹25,00,000",
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500, fontWeight: FontWeight.w500),
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500, fontWeight: FontWeight.w500,  fontFamily:FontFamily.regular,),
                   ),
                 ],
               ),
               const Spacer(),
               const Text(
                 "62%",
-                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Color(0xFF007AFF)),
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600, color: Color(0xFF007AFF),  fontFamily:FontFamily.regular,),
               ),
             ],
           ),
@@ -1393,11 +1378,11 @@ class GoalProgressCard extends StatelessWidget {
               children: [
                 TextSpan(
                   text: "₹15,50,000 ",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF0F172A),  fontFamily:FontFamily.regular,),
                 ),
                 TextSpan(
                   text: "of ₹25,00,000",
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF64748B)),
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF64748B),  fontFamily:FontFamily.regular,),
                 ),
               ],
             ),
@@ -1424,10 +1409,10 @@ class GoalProgressCard extends StatelessWidget {
                 onTap: () {},
                 child: const Text(
                   "View All Goals",
-                  style: TextStyle(fontSize: 13, color: Color(0xFF007AFF), fontWeight: FontWeight.w700),
+                  style: TextStyle(fontSize: 13, color: Color(0xFF007AFF), fontWeight: FontWeight.w600,  fontFamily:FontFamily.regular,),
                 ),
               ),
-              const Icon(Icons.arrow_forward_rounded, size: 16, color: Color(0xFF007AFF)),
+              const Icon(Icons.arrow_forward_rounded, size: 16, color: Color(0xFF007AFF),),
             ],
           ),
         ],
@@ -1654,7 +1639,8 @@ class ExactWebStatCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: titleFontSize,
                 color: const Color(0xFF1E293B),
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
+                fontFamily:FontFamily.regular,
               ),
             ),
             const SizedBox(height: 4),
@@ -1664,9 +1650,10 @@ class ExactWebStatCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: valueFontSize,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: valueColor,
                 letterSpacing: -0.5,
+                fontFamily:FontFamily.regular,
               ),
             ),
             const SizedBox(height: 4),
@@ -1683,7 +1670,8 @@ class ExactWebStatCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: trendFontSize,
                       color: trendColor,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
+                      fontFamily:FontFamily.regular,
                     ),
                   ),
                 ),
@@ -2373,7 +2361,7 @@ class _WebStatCardState extends State<_WebStatCard> {
                               widget.trend!,
                               style: TextStyle(
                                 fontSize: 12,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w600,
                                 color: widget.isProfit
                                     ? Colors.green
                                     : Colors.red,
@@ -2933,7 +2921,7 @@ class _MobileDashboardLayout extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                   child: SectionHeading(
                     sectionTitle: 'Transactions',
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     fontSize: 14,
                     textcolor: const Color(0xff787878),
                   ),

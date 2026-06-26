@@ -118,6 +118,7 @@ flutter:
   # example:
 
   fonts:
+    # Roboto
     - family: Roboto
       fonts:
         - asset: assets/fonts/Roboto/static/Roboto-Thin.ttf
@@ -131,6 +132,20 @@ flutter:
         - asset: assets/fonts/Roboto/static/Roboto-Bold.ttf
           weight: 700
         - asset: assets/fonts/Roboto/static/Roboto-Black.ttf
+          weight: 900
+
+    # Inter
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter/static/Inter_18pt-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Inter/static/Inter_18pt-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter/static/Inter_18pt-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter/static/Inter_18pt-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Inter/static/Inter_18pt-Black.ttf
           weight: 900
   # fonts:
   #   - family: Geist

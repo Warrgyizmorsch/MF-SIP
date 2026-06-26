@@ -100,7 +100,7 @@ class PersonalDetailsScreen extends GetView<AuthController> {
                   style: TextStyle(
                     fontFamily: FontFamily.medium,
                     fontSize: 22,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 Obx(

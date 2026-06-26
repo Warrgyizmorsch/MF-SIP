@@ -308,8 +308,9 @@ class WebCustomAppBarNormal extends StatelessWidget
                 title,
                 style: const TextStyle(
                   fontSize: 22,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                   color: Color(0xFF1E293B),
+                  fontFamily: FontFamily.regular,
                 ),
               ),
               const Gap(12),
@@ -328,6 +329,7 @@ class WebCustomAppBarNormal extends StatelessWidget
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: Color(0xFF15803D),
+                    fontFamily: FontFamily.regular,
                   ),
                 ),
               ),
@@ -352,8 +354,9 @@ class WebCustomAppBarNormal extends StatelessWidget
                   "Add Funds",
                   style: TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                     fontSize: 13,
+                    fontFamily: FontFamily.regular,
                   ),
                 ),
               ),
@@ -372,7 +375,10 @@ class WebCustomAppBarNormal extends StatelessWidget
                       children: [
                         Icon(Icons.edit_outlined, size: 18),
                         SizedBox(width: 8),
-                        Text('Edit'),
+                        Text(
+                          'Edit',
+                          style: TextStyle(fontFamily: FontFamily.regular),
+                        ),
                       ],
                     ),
                   ),
@@ -382,7 +388,13 @@ class WebCustomAppBarNormal extends StatelessWidget
                       children: [
                         Icon(Icons.delete_outline, size: 18, color: Colors.red),
                         SizedBox(width: 8),
-                        Text('Delete', style: TextStyle(color: Colors.red)),
+                        Text(
+                          'Delete',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontFamily: FontFamily.regular,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -549,8 +561,9 @@ class GoalOverviewCard extends StatelessWidget {
             "Goal Overview",
             style: TextStyle(
               fontSize: 18,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
               color: Color(0xFF1E293B),
+              fontFamily: FontFamily.regular,
             ),
           ),
           const SizedBox(height: 24),
@@ -559,9 +572,6 @@ class GoalOverviewCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // --- LEFT: Progress Arc Layout matching Original Specs ---
-              // --- LEFT: Progress Arc Layout matching Original Specs ---
-              // --- LEFT: Progress Arc Layout with Smooth Drawing Animation ---
               Expanded(
                 flex: 3,
                 child: Column(
@@ -650,7 +660,8 @@ class GoalOverviewCard extends StatelessWidget {
                                     style: TextStyle(
                                       color: progressColor,
                                       fontSize: 20,
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: FontFamily.regular,
                                     ),
                                   ),
                                   TextSpan(
@@ -658,7 +669,8 @@ class GoalOverviewCard extends StatelessWidget {
                                     style: TextStyle(
                                       color: progressColor,
                                       fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: FontFamily.regular,
                                     ),
                                   ),
                                 ],
@@ -671,6 +683,7 @@ class GoalOverviewCard extends StatelessWidget {
                                 color: Color(0xFF666666),
                                 fontSize: 8,
                                 fontWeight: FontWeight.w500,
+                                fontFamily: FontFamily.regular,
                               ),
                             ),
                           ],
@@ -785,14 +798,19 @@ class GoalOverviewCard extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 14,
                             color: Color(0xFF1E293B),
+                            fontFamily: FontFamily.regular,
                           ),
                           children: [
-                            const TextSpan(text: "You are "),
+                            const TextSpan(
+                              text: "You are ",
+                              style: TextStyle(fontFamily: FontFamily.regular),
+                            ),
                             const TextSpan(
                               text: "on track ",
                               style: TextStyle(
                                 color: Color(0xFF0066FF),
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: FontFamily.regular,
                               ),
                             ),
                             TextSpan(
@@ -821,7 +839,8 @@ class GoalOverviewCard extends StatelessWidget {
                 Text(
                   percentStr,
                   style: TextStyle(
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: FontFamily.regular,
                     color: progressColor,
                     fontSize: 16,
                   ),
@@ -872,6 +891,7 @@ class GoalOverviewCard extends StatelessWidget {
                     fontSize: 12,
                     color: Color(0xFF64748B),
                     fontWeight: FontWeight.w500,
+                    fontFamily: FontFamily.regular,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -883,7 +903,8 @@ class GoalOverviewCard extends StatelessWidget {
             value,
             style: const TextStyle(
               fontSize: 15,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
+              fontFamily: FontFamily.regular,
               color: Color(0xFF1E293B),
             ),
             overflow: TextOverflow.ellipsis,
@@ -924,7 +945,8 @@ class LinkedFundsCard extends StatelessWidget {
                 "Linked Mutual Funds",
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: FontFamily.regular,
                   color: Color(0xFF1E293B),
                 ),
               ),
@@ -935,7 +957,8 @@ class LinkedFundsCard extends StatelessWidget {
                   "View All",
                   style: TextStyle(
                     color: Color(0xFF0066FF),
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: FontFamily.regular,
                     fontSize: 14,
                   ),
                 ),
@@ -960,7 +983,11 @@ class LinkedFundsCard extends StatelessWidget {
                   padding: EdgeInsets.symmetric(vertical: 32.0),
                   child: Text(
                     'No mutual funds linked yet.',
-                    style: TextStyle(color: Color(0xFF94A3B8)),
+                    style: TextStyle(
+                      color: Color(0xFF94A3B8),
+                      fontWeight: FontWeight.w600,
+                      fontFamily: FontFamily.regular,
+                    ),
                   ),
                 ),
               );
@@ -1039,7 +1066,8 @@ class LinkedFundsCard extends StatelessWidget {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: FontFamily.regular,
                                       fontSize: 14,
                                       color: Color(0xFF1E293B),
                                     ),
@@ -1051,6 +1079,7 @@ class LinkedFundsCard extends StatelessWidget {
                                       fontSize: 12,
                                       color: Color(0xFF64748B),
                                       fontWeight: FontWeight.w500,
+                                      fontFamily: FontFamily.regular,
                                     ),
                                   ),
                                   const SizedBox(height: 8),
@@ -1069,7 +1098,8 @@ class LinkedFundsCard extends StatelessWidget {
                                       style: TextStyle(
                                         fontSize: 11,
                                         color: Color(0xFF1A73E8),
-                                        fontWeight: FontWeight.bold,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: FontFamily.regular,
                                       ),
                                     ),
                                   ),
@@ -1103,15 +1133,17 @@ class LinkedFundsCard extends StatelessWidget {
                                   : '₹${fund.lumpsumAmount ?? 0.0}',
                               style: const TextStyle(
                                 fontSize: 13,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                                 color: Color(0xFF334155),
+                                fontFamily: FontFamily.regular,
                               ),
                             ),
                             Text(
                               "30%",
                               style: const TextStyle(
                                 fontSize: 13,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: FontFamily.regular,
                                 color: Color(0xFF1E293B),
                               ),
                             ),
@@ -1164,6 +1196,7 @@ class LinkedFundsCard extends StatelessWidget {
                         color: Color(0xFF475569),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
+                        fontFamily: FontFamily.regular,
                       ),
                     ),
                   ],
@@ -1187,7 +1220,8 @@ class LinkedFundsCard extends StatelessWidget {
                     "Link Fund",
                     style: TextStyle(
                       color: Color(0xFF0066FF),
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: FontFamily.regular,
                       fontSize: 14,
                     ),
                   ),
@@ -1227,7 +1261,8 @@ class RecentContributionsCard extends StatelessWidget {
                 "Recent Contributions",
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: FontFamily.regular,
                   color: Color(0xFF1E293B),
                 ),
               ),
@@ -1246,7 +1281,8 @@ class RecentContributionsCard extends StatelessWidget {
                       style: TextStyle(
                         color: Color(0xFF0066FF),
                         fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: FontFamily.regular,
                       ),
                     ),
                   ),
@@ -1313,7 +1349,8 @@ class RecentContributionsCard extends StatelessWidget {
                             Text(
                               dates[index],
                               style: const TextStyle(
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: FontFamily.regular,
                                 fontSize: 14,
                                 color: Color(0xFF1E293B),
                               ),
@@ -1325,6 +1362,7 @@ class RecentContributionsCard extends StatelessWidget {
                                 fontSize: 12,
                                 color: Color(0xFF64748B),
                                 fontWeight: FontWeight.w500,
+                                fontFamily: FontFamily.regular,
                               ),
                             ),
                           ],
@@ -1341,7 +1379,8 @@ class RecentContributionsCard extends StatelessWidget {
                             const Text(
                               "+ ₹1,000",
                               style: TextStyle(
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: FontFamily.regular,
                                 fontSize: 14,
                                 color: Color(0xFF16A34A),
                               ),
@@ -1352,6 +1391,8 @@ class RecentContributionsCard extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 11,
                                 color: Color(0xFF94A3B8),
+                                fontWeight: FontWeight.w600,
+                                fontFamily: FontFamily.regular,
                               ),
                             ),
                           ],
@@ -1373,7 +1414,8 @@ class RecentContributionsCard extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 11,
                               color: Color(0xFF2E7D32),
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: FontFamily.regular,
                             ),
                           ),
                         ),
@@ -1448,7 +1490,8 @@ class NextMilestoneCard extends StatelessWidget {
                       Text(
                         "₹ 93,080 more to reach 60%",
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: FontFamily.regular,
                           fontSize: 13,
                           color: Color(0xFF1E293B),
                         ),
@@ -1458,6 +1501,7 @@ class NextMilestoneCard extends StatelessWidget {
                         "Keep it up! You're doing great.",
                         style: TextStyle(
                           fontSize: 11,
+                          fontFamily: FontFamily.regular,
                           color: Color(0xFF64748B),
                         ),
                       ),
@@ -1484,7 +1528,8 @@ class NextMilestoneCard extends StatelessWidget {
                     "60%",
                     style: TextStyle(
                       fontSize: 11,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: FontFamily.regular,
                       color: Colors.grey.shade800,
                     ),
                   ),

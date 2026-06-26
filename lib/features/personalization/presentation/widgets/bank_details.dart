@@ -46,7 +46,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                     style: TextStyle(
                       fontFamily: FontFamily.medium,
                       fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   Row(
@@ -287,7 +287,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
             "No Nominees Added Yet",
             style: TextStyle(
               fontSize: 22,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
               color: Color(0xFF111827),
             ),
           ),
@@ -414,7 +414,7 @@ class BankCard extends StatelessWidget {
                       fontFamily: FontFamily.medium,
                       color: Colors.white,
                       fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -542,9 +542,9 @@ void _showMaxBankLimitDialog(BuildContext context) {
           children: [
             const Icon(Iconsax.danger, color: Colors.orange, size: 50),
             const Gap(16),
-            const Text(
+            Text(
               "Limit Reached",
-              style: TextStyle(fontFamily: FontFamily.bold, fontSize: 20),
+              style: TextStyle(fontFamily: FontFamily.regular, fontSize: 20),
             ),
             const Gap(12),
             const Text(

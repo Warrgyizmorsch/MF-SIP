@@ -82,12 +82,12 @@ class KycDetailsScreen extends StatelessWidget {
                       SizedBox(width: 8),
                       Text(
                         'KYC Overview',
-                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Color(0xFF1A1D20)),
+                        style:TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF1A1D20)),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
-                  Text('Your KYC is verified and up to date.', style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                  Text('Your KYC is verified and up to date.', style:TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600, fontSize: 12)),
                   const SizedBox(height: 20),
 
                   _buildWebCheckmarkItem(
@@ -121,11 +121,11 @@ class KycDetailsScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: const [
-                              Text('Secure & Compliant', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 11, color: Color(0xFF0066FF))),
+                              Text('Secure & Compliant', style:TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600, fontSize: 11, color: Color(0xFF0066FF))),
                               SizedBox(height: 4),
                               Text(
                                 'We use industry-leading security to protect your information.',
-                                style: TextStyle(fontSize: 10, color: Color(0xFF4A5568), height: 1.4),
+                                style:TextStyle(fontFamily: FontFamily.medium,fontSize: 10, color: Color(0xFF4A5568), height: 1.4),
                               ),
                             ],
                           ),
@@ -210,13 +210,13 @@ class KycDetailsScreen extends StatelessWidget {
                           children: [
                             Row(
                               children: [
-                                const Text('KYC Status', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF70767F))),
+                                const Text('KYC Status', style:TextStyle(fontFamily: FontFamily.medium,fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF70767F))),
                                 const SizedBox(width: 8),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                   decoration: BoxDecoration(color: const Color(0xFFE6F7ED), borderRadius: BorderRadius.circular(4)),
                                   child:  Text(isVerificationComplete ? 'Verified' : 'Pending Verification',
-                                    style: TextStyle(
+                                    style:TextStyle(fontFamily: FontFamily.medium,
                                       color: isVerificationComplete ? const Color(0xFF1F9254) : const Color(0xFFC53929),
                                       fontSize: 10,
                                       fontWeight: FontWeight.w600,)),
@@ -228,16 +228,16 @@ class KycDetailsScreen extends StatelessWidget {
                               isVerificationComplete
                                   ? 'Your KYC is complete and verified. You can continue investing without any interruptions.'
                                   : 'Your PAN verification or KYC profile is pending. Complete both details to authorize full investment access.',
-                              style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                              style:TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600, fontSize: 12),
                             ),
                           ],
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children:  [
-                            Text('Last Updated', style: TextStyle(fontSize: 11, color: Color(0xFF70767F))),
+                            Text('Last Updated', style:TextStyle(fontFamily: FontFamily.medium,fontSize: 11, color: Color(0xFF70767F))),
                             SizedBox(height: 4),
-                            Text(_formatLastUpdated(user?.updatedAt), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF1A1D20))),
+                            Text(_formatLastUpdated(user?.updatedAt), style:TextStyle(fontFamily: FontFamily.medium,fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1A1D20))),
                           ],
                         ),
                       ],
@@ -267,9 +267,9 @@ class KycDetailsScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
-                    Text('Need to update your KYC?', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Color(0xFF1A1D20))),
+                    Text('Need to update your KYC?', style:TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF1A1D20))),
                     SizedBox(height: 4),
-                    Text('If your details have changed, please update your information to keep your account up to date.', style: TextStyle(color: Color(0xFF4A5568), fontSize: 12)),
+                    Text('If your details have changed, please update your information to keep your account up to date.', style:TextStyle(fontFamily: FontFamily.medium,color: Color(0xFF4A5568), fontSize: 12)),
                   ],
                 ),
               ),
@@ -285,7 +285,7 @@ class KycDetailsScreen extends StatelessWidget {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   ),
-                  child: const Text('Update KYC', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                  child: const Text('Update KYC', style:TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600, fontSize: 13)),
                 ),
             ],
           ),
@@ -327,10 +327,10 @@ class KycDetailsScreen extends StatelessWidget {
                 // Dialog Headings
                 const Text(
                   "Update KYC Profile",
-                  style: TextStyle(
-                    fontFamily: FontFamily.medium,
+                  style:TextStyle(fontFamily: FontFamily.medium,
+
                     fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                     color: Color(0xFF1A1D20),
                   ),
                 ),
@@ -338,8 +338,8 @@ class KycDetailsScreen extends StatelessWidget {
                 const Text(
                   "To update your central KYC registration record or modify your validated identity documents, please complete the procedure via our integrated secure system mobile application workflow.",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: FontFamily.medium,
+                  style:TextStyle(fontFamily: FontFamily.medium,
+
                     fontSize: 13,
                     color: Color(0xFF70767F),
                     height: 1.5,
@@ -359,8 +359,8 @@ class KycDetailsScreen extends StatelessWidget {
                       ),
                       child: const Text(
                         "Close",
-                        style: TextStyle(
-                          fontFamily: FontFamily.medium,
+                        style:TextStyle(fontFamily: FontFamily.medium,
+
                           color: Color(0xFF5F6670),
                           fontWeight: FontWeight.w500,
                         ),
@@ -377,8 +377,8 @@ class KycDetailsScreen extends StatelessWidget {
                       ),
                       child: const Text(
                         "Understood",
-                        style: TextStyle(
-                          fontFamily: FontFamily.medium,
+                        style:TextStyle(fontFamily: FontFamily.medium,
+
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                         ),
@@ -443,7 +443,7 @@ class KycDetailsScreen extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             label,
-            style: TextStyle(
+            style:TextStyle(fontFamily: FontFamily.medium,
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: isValid ? const Color(0xFF2D3136) : Colors.grey.shade500,
@@ -480,14 +480,14 @@ class KycDetailsScreen extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF70767F)),
+                  style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF70767F)),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF1A1D20)),
+                  style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF1A1D20)),
                 ),
               ],
             ),
@@ -503,7 +503,7 @@ class KycDetailsScreen extends StatelessWidget {
               ),
               child: Text(
                 badgeText,
-                style: TextStyle(
+                style:TextStyle(fontFamily: FontFamily.medium,
                   // ✅ FIXED: Typo reference color mapping resolved
                   color: isErrorBadge ? Ucolors.red : Ucolors.success,
                   fontSize: 10,
@@ -653,7 +653,7 @@ class InfoCard extends StatelessWidget {
 //                   const Text(
 //                     "Your account is fully verified and ready for investments.",
 //                     textAlign: TextAlign.center,
-//                     style: TextStyle(
+//                     style:TextStyle(fontFamily: FontFamily.medium,
 //                       fontFamily: FontFamily.medium,
 //                       color: Colors.grey,
 //                       fontSize: 13,
@@ -674,7 +674,7 @@ class InfoCard extends StatelessWidget {
 //             children: [
 //               // const Text(
 //               //   "KYC Information",
-//               //   style: TextStyle(fontFamily: FontFamily.medium,fontSize: 22, fontWeight: FontWeight.bold),
+//               //   style:TextStyle(fontFamily: FontFamily.medium,fontFamily: FontFamily.medium,fontSize: 22, fontWeight: FontWeight.w600),
 //               // ),
 //               // const SizedBox(height: 20),
 //               // Grid for displaying cards side by side on Web

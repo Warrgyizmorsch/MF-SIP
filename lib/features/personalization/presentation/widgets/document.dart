@@ -123,7 +123,7 @@ class DocumentScreen extends StatelessWidget {
           style: TextStyle(
             fontFamily: FontFamily.medium,
             fontSize: 24,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 8),
@@ -263,7 +263,7 @@ class DocumentScreen extends StatelessWidget {
                     fontFamily: FontFamily.medium,
                     color: Color(0xFF16A34A), // Deep professional green
                     fontSize: 10,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -463,7 +463,7 @@ class DocumentScreen extends StatelessWidget {
 //             children: [
 //               const Text(
 //                 "Uploaded Documents",
-//                 style: TextStyle(fontFamily: FontFamily.medium,fontSize: 22, fontWeight: FontWeight.bold),
+//                 style: TextStyle(fontFamily: FontFamily.medium,fontSize: 22, fontWeight: FontWeight.w600),
 //               ),
 //               const SizedBox(height: 24),
 

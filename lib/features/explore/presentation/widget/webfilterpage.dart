@@ -133,8 +133,8 @@ class _WebFilterContentState extends State<WebFilterContent> {
                       'Filters by',
                       style: TextStyle(
                         fontFamily: FontFamily.medium,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -159,7 +159,7 @@ class _WebFilterContentState extends State<WebFilterContent> {
                         style: const TextStyle(
                           fontFamily: FontFamily.medium,
                           fontSize: 11,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                           color: Colors.white,
                         ),
                       ),
@@ -210,24 +210,30 @@ class _WebFilterContentState extends State<WebFilterContent> {
             padding: EdgeInsets.zero,
             children: [
               ExpansionTile(
+                shape: const Border(),
+                collapsedShape: const Border(),
                 initiallyExpanded: true,
                 title: const Text(
                   'Categories',
                   style: TextStyle(
-                    fontFamily: FontFamily.medium,
+                    fontFamily: FontFamily.regular,
                     fontWeight: FontWeight.w600,
+                    fontSize: 13
                   ),
                 ),
-                children: [SizedBox(height: 300, child: CategoriesPanel())],
+                children: [SizedBox(height: 320, child: CategoriesPanel())],
               ),
 
               ExpansionTile(
+                shape: const Border(),
+                collapsedShape: const Border(),
                 initiallyExpanded: false,
                 title: const Text(
                   'Risk Profile',
                   style: TextStyle(
-                    fontFamily: FontFamily.medium,
+                    fontFamily: FontFamily.regular,
                     fontWeight: FontWeight.w600,
+                      fontSize: 13
                   ),
                 ),
                 children: [SizedBox(height: 250, child: RiskPanel())],
@@ -235,6 +241,8 @@ class _WebFilterContentState extends State<WebFilterContent> {
 
               ExpansionTile(
                 initiallyExpanded: false,
+                shape: const Border(),
+                collapsedShape: const Border(),
                 title: const Text(
                   'Fund House (AMC)',
                   style: TextStyle(
@@ -246,12 +254,15 @@ class _WebFilterContentState extends State<WebFilterContent> {
               ),
 
               ExpansionTile(
+                shape: const Border(),
+                collapsedShape: const Border(),
                 initiallyExpanded: false,
                 title: const Text(
                   'Returns Range',
                   style: TextStyle(
-                    fontFamily: FontFamily.medium,
+                    fontFamily: FontFamily.regular,
                     fontWeight: FontWeight.w600,
+                      fontSize: 13
                   ),
                 ),
                 children: [SizedBox(height: 400, child: ReturnRangePanel())],
@@ -293,7 +304,7 @@ class _WebFilterContentState extends State<WebFilterContent> {
                   child: const Text(
                     'Reset All',
                     style: TextStyle(
-                      fontFamily: FontFamily.medium,
+                      fontFamily: FontFamily.regular,
                       color: Ucolors.primary,
                     ),
                   ),

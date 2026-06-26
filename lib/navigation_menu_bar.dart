@@ -855,7 +855,7 @@ class _GlobalTopHeaderState extends State<GlobalTopHeader> {
               style: const TextStyle(
                 fontSize: 22,
                 fontFamily: FontFamily.medium,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w600,
                 color: Ucolors.dark,
                 letterSpacing: -0.5,
               ),
@@ -1030,7 +1030,7 @@ class _GlobalTopHeaderState extends State<GlobalTopHeader> {
                             controller.generalItemsCount.toString(),
                             style: const TextStyle(
                               fontSize: 10,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
                               color: Colors.white,
                               fontFamily: FontFamily.medium,
                             ),
@@ -1628,7 +1628,7 @@ class _DesktopSideNav extends StatelessWidget {
             fontSize: 14,
             fontFamily: FontFamily.medium,
             fontWeight: FontWeight.w400,
-            color: Colors.grey.shade700,
+            color: Colors.grey.shade600,
             // height: 1.35,
           ),
         ),
@@ -1678,7 +1678,7 @@ class _DesktopSideNav extends StatelessWidget {
           style: TextStyle(
             fontSize: 12,
             fontFamily: FontFamily.medium,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: Colors.grey.shade500,
             letterSpacing: 0.6,
           ),
@@ -2192,7 +2192,7 @@ class WebProfileDashboardScreen extends StatelessWidget {
                       /// Top Half Section with Image Asset Background Instead of Linear Gradient & Icons
                       Expanded(
                         flex: 13,
-                        child: Container(
+                        child: SizedBox(
                           width: double.infinity,
                          child: Image.asset(UImages.profileBackground,fit:  BoxFit.fitWidth,),
                           ),
@@ -2219,8 +2219,9 @@ class WebProfileDashboardScreen extends StatelessWidget {
                                           : 'Complete your KYC setup to start investing.',
                                       style: const TextStyle(
                                         fontSize: 15,
-                                        fontWeight: FontWeight.w700,
+                                        fontWeight: FontWeight.w600,
                                         color: Color(0xFF1A1D20),
+                                        fontFamily:FontFamily.regular,
                                       ),
                                     ),
                                     const SizedBox(height: 2),
@@ -2229,6 +2230,7 @@ class WebProfileDashboardScreen extends StatelessWidget {
                                       style: TextStyle(
                                         fontSize: 12.5,
                                         color: Color(0xFF70767F),
+                                        fontFamily:FontFamily.regular,
                                       ),
                                     ),
                                   ],
@@ -2245,6 +2247,7 @@ class WebProfileDashboardScreen extends StatelessWidget {
                                     color: Color(0xFF2D3136),
                                     fontWeight: FontWeight.w600,
                                     fontSize: 12,
+                                    fontFamily:FontFamily.regular,
                                   ),
                                 ),
                                 style: OutlinedButton.styleFrom(
@@ -2300,9 +2303,10 @@ class WebProfileDashboardScreen extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
                               fontSize: 14,
                               color: Color(0xFF1A1D20),
+                              fontFamily:FontFamily.regular,
                             ),
                           ),
                         ),
@@ -2329,6 +2333,7 @@ class WebProfileDashboardScreen extends StatelessWidget {
                           color: isKycApproved ? const Color(0xFF1F9254) : const Color(0xFFC53929),
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
+                          fontFamily:FontFamily.regular,
                         ),
                       ),
                     ),
@@ -2344,6 +2349,7 @@ class WebProfileDashboardScreen extends StatelessWidget {
                             color: Colors.grey.shade500,
                             fontSize: 10,
                             fontWeight: FontWeight.w500,
+                            fontFamily:FontFamily.regular,
                           ),
                         ),
                       ],
@@ -2386,7 +2392,10 @@ class WebProfileDashboardScreen extends StatelessWidget {
       child: Center(
         child: IntrinsicWidth(
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 68),
+            padding: EdgeInsets.symmetric(
+              vertical: 12,
+              horizontal: (Get.width * 0.04).clamp(12.0, 24.0),
+            ),
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(

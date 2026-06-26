@@ -7,14 +7,28 @@ import 'colors.dart';
 class FontFamily {
   FontFamily._();
 
-  // Roboto Font Family
-  static const String black = 'Roboto-Black';
-  static const String bold = 'Roboto-Bold';
-  static const String medium = 'Roboto-Medium';
-  static const String regular = 'Roboto-Regular';
-  static const String light = 'Roboto-Light';
-  static const String thin = 'Roboto-Thin';
+  // Inter Font Family Individual Weights
+  static const String thin = 'Inter-Thin';
+  static const String extraLight = 'Inter-ExtraLight';
+  static const String light = 'Inter-Light';
+  static const String regular = 'Inter';
+  static const String medium = 'Inter';
+  static const String semiBold = 'Inter-SemiBold';
+  static const String bold = 'Inter-Bold';
+  static const String extraBold = 'Inter-ExtraBold';
+  static const String black = 'Inter-Black';
 }
+// class FontFamily {
+//   FontFamily._();
+//
+//   // Roboto Font Family
+//   static const String black = 'Roboto-Black';
+//   static const String bold = 'Roboto-Bold';
+//   static const String medium = 'Roboto';
+//   static const String regular = 'Roboto';
+//   static const String light = 'Roboto-Light';
+//   static const String thin = 'Roboto-Thin';
+// }
 class UTextStyles {
   UTextStyles._(); // private constructor
   static const double _h1 = 28;
@@ -22,14 +36,16 @@ class UTextStyles {
   static const double _body2 = 12;
   static const double _caption = 14;
   static const double _small = 10;
-  static const String font = 'Roboto'; // ✅ single source of truth
+  // static const String font = 'Roboto';
+  static const String font = 'Inter';
+  // ─────────────────────────────────────────
   // ─────────────────────────────────────────
   // HEADINGS
   // ─────────────────────────────────────────
   static TextStyle heading1 = TextStyle(
-    fontFamily: FontFamily.medium,
+    fontFamily: FontFamily.regular,
     fontSize: _h1,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w600,
     height: 1.5,
     letterSpacing: 0,
     color: Ucolors.dark,
@@ -38,7 +54,7 @@ class UTextStyles {
   static TextStyle heading2 = TextStyle(
   fontFamily: FontFamily.medium,
     fontSize: _h2,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w600,
     height: 1.5,
     letterSpacing: 0,
     color: Ucolors.dark,
@@ -75,7 +91,7 @@ class UTextStyles {
   static TextStyle bodyLargeBold = TextStyle(
   fontFamily: FontFamily.medium,
     fontSize: 16.sp.clamp(14, 18),
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w600,
     color: Ucolors.dark,
   );
 
@@ -106,7 +122,7 @@ class UTextStyles {
   static TextStyle bodyMediumBold = TextStyle(
   fontFamily: FontFamily.medium,
     fontSize: _body2,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w600,
     color: Ucolors.dark,
   );
 
@@ -137,7 +153,7 @@ class UTextStyles {
   static TextStyle bodySmallBold = TextStyle(
   fontFamily: FontFamily.medium,
     fontSize: _small,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w600,
     color: Ucolors.dark,
   );
 
@@ -164,7 +180,7 @@ class UTextStyles {
   static TextStyle button = TextStyle(
   fontFamily: FontFamily.medium,
     fontSize: _body2,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w600,
     color: Ucolors.light,
   );
 
@@ -209,7 +225,7 @@ class AppTextStyles {
   static TextStyle h1({
     Color color = Colors.black,
     double size = 24.0,
-    FontWeight weight = FontWeight.w700,
+    FontWeight weight = FontWeight.w600,
     TextDecoration? decoration,
   }) => TextStyle(
   fontFamily: FontFamily.medium,
@@ -292,7 +308,7 @@ class AppTextStyles {
   }) => TextStyle(
   fontFamily: FontFamily.medium,
     fontSize: _s(size),
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w600,
     color: color,
     decoration: decoration,
   );
@@ -344,7 +360,7 @@ class AppTextStyles {
   }) => TextStyle(
   fontFamily: FontFamily.medium,
     fontSize: _s(size),
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w600,
     color: color,
     decoration: decoration,
   );
@@ -396,7 +412,7 @@ class AppTextStyles {
   }) => TextStyle(
   fontFamily: FontFamily.medium,
     fontSize: _s(size),
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w600,
     color: color,
     decoration: decoration,
   );
@@ -423,7 +439,7 @@ class AppTextStyles {
   static TextStyle button({
     Color color = Colors.blue,
     double size = 14.0,
-    FontWeight weight = FontWeight.w700,
+    FontWeight weight = FontWeight.w600,
     TextDecoration? decoration,
   }) => TextStyle(
   fontFamily: FontFamily.medium,

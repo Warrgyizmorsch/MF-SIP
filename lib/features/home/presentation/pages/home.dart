@@ -290,105 +290,96 @@ class _WebDashboardLayout extends StatelessWidget {
       ),
       clipBehavior: Clip
           .antiAlias, // Background image corners ko clean round clip karne ke liye
-      child: Stack(
-        children: [
-          // // 1. PERFECT FIX: Full layout stretch background without any line breaks or cuts
-          // Positioned.fill(
-          //   child: Image.asset(
-          //     UImages.homeBackground,
-          //     fit: BoxFit.contain, // Graphic aspect ratio ko original rakhega bina damage kiye
-          //     alignment: Alignment.centerRight, // 3D image block ko right border par chipka kar rakhega
-          //     errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-          //   ),
-          // ),
-
-          // 2. Foreground Data Content UI Layer
-          Padding(
-            padding: const EdgeInsets.all(28.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RichText(
-                  text: TextSpan(
+      child: Padding(
+        padding: const EdgeInsets.all(28.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            RichText(
+              text: TextSpan(
+                style: const TextStyle(
+                  fontSize: 26,
+                  fontFamily: FontFamily.regular,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1E293B),
+                  letterSpacing: -0.5,
+                ),
+                children: [
+                  const TextSpan(text: 'Welcome back, '),
+                  TextSpan(
+                    text: '$name!',
                     style: const TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E293B),
-                      letterSpacing: -0.5,
+                      color: Color(0xFF0066FF),
+                      fontFamily: FontFamily.regular,
+                      fontWeight: FontWeight.w600,
                     ),
-                    children: [
-                      const TextSpan(text: 'Welcome back, '),
-                      TextSpan(
-                        text: '$name!',
-                        style: const TextStyle(color: Color(0xFF0066FF)),
-                      ),
-                    ],
                   ),
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Stay consistent with your SIPs and reach your financial goals faster.',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF475569),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 24),
+                ],
+              ),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'Stay consistent with your SIPs and reach your financial goals faster.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Color(0xFF475569),
+                fontWeight: FontWeight.w500,
+                fontFamily: FontFamily.regular,
+              ),
+            ),
+            const SizedBox(height: 24),
 
-                // Metrics horizontal mapping block row
-                Row(
-                  children: [
-                    Expanded(
-                      child: _heroMetric(
-                        icon: Icons.account_balance_wallet_rounded,
-                        iconBgColor: const Color(0xFF3B82F6),
-                        title: 'Portfolio Value',
-                        value: '₹2,75,430',
-                        subtitle: '+12.45%',
-                        trailing: 'All Time',
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: _heroMetric(
-                        icon: Icons.calendar_today_rounded,
-                        iconBgColor: const Color(0xFF0EA5E9),
-                        title: 'SIP Due This Month',
-                        value: '₹12,000',
-                        subtitle: 'Due on 05 Jun 2025',
-                        trailing: '',
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: _heroMetric(
-                        icon: Icons.track_changes_rounded,
-                        iconBgColor: const Color(0xFF6366F1),
-                        title: 'Active Goals',
-                        value: '4 Goals',
-                        subtitle: 'On Track',
-                        trailing: '',
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: _heroMetric(
-                        icon: Icons.trending_up_rounded,
-                        iconBgColor: const Color(0xFF22C55E),
-                        title: 'Overall Returns',
-                        value: '+₹35,430',
-                        subtitle: '+14.75%',
-                        trailing: '',
-                        isReturns: true,
-                      ),
-                    ),
-                  ],
+            // Metrics horizontal mapping block row
+            Row(
+              children: [
+                Expanded(
+                  child: _heroMetric(
+                    icon: Icons.account_balance_wallet_rounded,
+                    iconBgColor: const Color(0xFF3B82F6),
+                    title: 'Portfolio Value',
+                    value: '₹2,75,430',
+                    subtitle: '+12.45%',
+                    trailing: 'All Time',
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: _heroMetric(
+                    icon: Icons.calendar_today_rounded,
+                    iconBgColor: const Color(0xFF0EA5E9),
+                    title: 'SIP Due This Month',
+                    value: '₹12,000',
+                    subtitle: 'Due on 05 Jun 2025',
+                    trailing: '',
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: _heroMetric(
+                    icon: Icons.track_changes_rounded,
+                    iconBgColor: const Color(0xFF6366F1),
+                    title: 'Active Goals',
+                    value: '4 Goals',
+                    subtitle: 'On Track',
+                    trailing: '',
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: _heroMetric(
+                    icon: Icons.trending_up_rounded,
+                    iconBgColor: const Color(0xFF22C55E),
+                    title: 'Overall Returns',
+                    value: '+₹35,430',
+                    subtitle: '+14.75%',
+                    trailing: '',
+                    isReturns: true,
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -434,6 +425,7 @@ class _WebDashboardLayout extends StatelessWidget {
                   fontSize: 11.5,
                   color: Color(0xFF64748B),
                   fontWeight: FontWeight.w500,
+                  fontFamily: FontFamily.regular,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -445,7 +437,8 @@ class _WebDashboardLayout extends StatelessWidget {
                 value,
                 style: const TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: FontFamily.regular,
                   color: Color(0xFF0F172A),
                 ),
                 maxLines: 1,
@@ -472,7 +465,9 @@ class _WebDashboardLayout extends StatelessWidget {
                     subtitle,
                     style: TextStyle(
                       fontSize: 11,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: FontFamily.regular,
+
                       color: subtitle.contains('+') || isReturns
                           ? const Color(0xFF22C55E)
                           : const Color(0xFF64748B),
@@ -485,6 +480,7 @@ class _WebDashboardLayout extends StatelessWidget {
                         fontSize: 11,
                         color: Color(0xFF94A3B8),
                         fontWeight: FontWeight.w500,
+                        fontFamily: FontFamily.regular,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -529,285 +525,6 @@ class _WebDashboardLayout extends StatelessWidget {
     );
   }
 
-  // Widget _buildWelcomeHero() {
-  //   final name = authController.user.value?.name ?? 'Investor';
-
-  //   return Container(
-  //     width: double.infinity,
-  //     height: 220,
-  //     padding: const EdgeInsets.fromLTRB(30, 26, 30, 24),
-  //     decoration: BoxDecoration(
-  //       borderRadius: BorderRadius.circular(18),
-  //       gradient: const LinearGradient(
-  //         begin: Alignment.centerLeft,
-  //         end: Alignment.centerRight,
-  //         colors: [Color(0xFFE9F9FF), Color(0xFFDFF4FF), Color(0xFFEAF7FF)],
-  //       ),
-  //       border: Border.all(color: const Color(0xFFE6EEF8)),
-  //       boxShadow: [
-  //         BoxShadow(
-  //           color: Colors.black.withValues(alpha: 0.025),
-  //           blurRadius: 22,
-  //           offset: const Offset(0, 10),
-  //         ),
-  //       ],
-  //     ),
-  //     child: Column(
-  //       children: [
-  //         Expanded(
-  //           child: Row(
-  //             children: [
-  //               Expanded(
-  //                 child: Padding(
-  //                   padding: const EdgeInsets.only(top: 4),
-  //                   child: Column(
-  //                     crossAxisAlignment: CrossAxisAlignment.start,
-  //                     children: [
-  //                       RichText(
-  //                         text: TextSpan(
-  //                           style: const TextStyle(
-  //                             fontFamily: FontFamily.medium,
-  //                             fontSize: 27,
-  //                             height: 1.2,
-  //                             fontWeight: FontWeight.w900,
-  //                             color: Color(0xFF111827),
-  //                           ),
-  //                           children: [
-  //                             const TextSpan(text: 'Welcome back, '),
-  //                             TextSpan(
-  //                               text: '$name!',
-  //                               style: const TextStyle(
-  //                                 color: Color(0xFF005DFF),
-  //                               ),
-  //                             ),
-  //                           ],
-  //                         ),
-  //                       ),
-  //                       const SizedBox(height: 10),
-  //                       Text(
-  //                         'Stay consistent with your SIPs and reach your financial goals faster.',
-  //                         style: TextStyle(
-  //                           fontFamily: FontFamily.medium,
-  //                           fontSize: 15,
-  //                           height: 1.4,
-  //                           fontWeight: FontWeight.w500,
-  //                           color: Colors.blueGrey.shade700,
-  //                         ),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //               ),
-
-  //               const SizedBox(width: 20),
-
-  //               // Container(
-  //               //   width: 190,
-  //               //   height: 115,
-  //               //   alignment: Alignment.center,
-  //               //   child: Stack(
-  //               //     alignment: Alignment.center,
-  //               //     children: [
-  //               //       Container(
-  //               //         width: 170,
-  //               //         height: 88,
-  //               //         decoration: BoxDecoration(
-  //               //           color: Colors.white.withValues(alpha: 0.50),
-  //               //           borderRadius: BorderRadius.circular(50),
-  //               //         ),
-  //               //       ),
-  //               //       const Icon(
-  //               //         Icons.show_chart_rounded,
-  //               //         size: 96,
-  //               //         color: Color(0xFF188BD8),
-  //               //       ),
-  //               //       Positioned(
-  //               //         right: 24,
-  //               //         bottom: 14,
-  //               //         child: Icon(
-  //               //           Icons.monetization_on_rounded,
-  //               //           color: Colors.orange.shade400,
-  //               //           size: 32,
-  //               //         ),
-  //               //       ),
-  //               //     ],
-  //               //   ),
-  //               // ),
-  //             ],
-  //           ),
-  //         ),
-
-  //         Row(
-  //           children: [
-  //             Expanded(
-  //               child: _heroMetric(
-  //                 icon: Icons.wallet_outlined,
-  //                 iconColor: const Color(0xFF246BDB),
-  //                 title: 'Portfolio Value',
-  //                 value: '₹2,75,430',
-  //                 subtitle: '+12.45%',
-  //                 trailing: 'All Time',
-  //               ),
-  //             ),
-  //             const SizedBox(width: 14),
-  //             Expanded(
-  //               child: _heroMetric(
-  //                 icon: Icons.calendar_month_outlined,
-  //                 iconColor: const Color(0xFF0097A7),
-  //                 title: 'SIP Due This Month',
-  //                 value: '₹12,000',
-  //                 subtitle: 'Due on 05 Jun 2025',
-  //                 trailing: '',
-  //               ),
-  //             ),
-  //             const SizedBox(width: 14),
-  //             Expanded(
-  //               child: _heroMetric(
-  //                 icon: Icons.track_changes_rounded,
-  //                 iconColor: const Color(0xFF6D35D9),
-  //                 title: 'Active Goals',
-  //                 value: '4 Goals',
-  //                 subtitle: 'On Track',
-  //                 trailing: '',
-  //               ),
-  //             ),
-  //             const SizedBox(width: 14),
-  //             Expanded(
-  //               child: _heroMetric(
-  //                 icon: Icons.trending_up_rounded,
-  //                 iconColor: const Color(0xFF43A047),
-  //                 title: 'Overall Returns',
-  //                 value: '+₹35,430',
-  //                 subtitle: '+14.75%',
-  //                 trailing: '',
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Widget _heroMetric({
-  //   required IconData icon,
-  //   required Color iconColor,
-  //   required String title,
-  //   required String value,
-  //   required String subtitle,
-  //   required String trailing,
-  // }) {
-  //   return Container(
-  //     height: 85,
-  //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-  //     decoration: BoxDecoration(
-  //       color: Colors.white.withValues(alpha: 0.92),
-  //       borderRadius: BorderRadius.circular(14),
-  //       border: Border.all(color: Colors.white),
-  //       boxShadow: [
-  //         BoxShadow(
-  //           color: Colors.black.withValues(alpha: 0.035),
-  //           blurRadius: 18,
-  //           offset: const Offset(0, 8),
-  //         ),
-  //       ],
-  //     ),
-  //     child: Row(
-  //       children: [
-  //         Container(
-  //           width: 42,
-  //           height: 42,
-  //           decoration: BoxDecoration(
-  //             gradient: LinearGradient(
-  //               begin: Alignment.topLeft,
-  //               end: Alignment.bottomRight,
-  //               colors: [
-  //                 iconColor.withValues(alpha: 0.95),
-  //                 iconColor.withValues(alpha: 0.75),
-  //               ],
-  //             ),
-  //             borderRadius: BorderRadius.circular(12),
-  //             boxShadow: [
-  //               BoxShadow(
-  //                 color: iconColor.withValues(alpha: 0.22),
-  //                 blurRadius: 10,
-  //                 offset: const Offset(0, 5),
-  //               ),
-  //             ],
-  //           ),
-  //           child: Icon(icon, color: Colors.white, size: 22),
-  //         ),
-  //         const SizedBox(width: 14),
-  //         Expanded(
-  //           child: Column(
-  //             mainAxisAlignment: MainAxisAlignment.center,
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               Text(
-  //                 title,
-  //                 maxLines: 1,
-  //                 overflow: TextOverflow.ellipsis,
-  //                 style: TextStyle(
-  //                   fontFamily: FontFamily.medium,
-  //                   fontSize: 12,
-  //                   fontWeight: FontWeight.w600,
-  //                   color: Colors.blueGrey.shade600,
-  //                 ),
-  //               ),
-  //               const SizedBox(height: 4),
-  //               Text(
-  //                 value,
-  //                 maxLines: 1,
-  //                 overflow: TextOverflow.ellipsis,
-  //                 style: const TextStyle(
-  //                   fontFamily: FontFamily.medium,
-  //                   fontSize: 17,
-  //                   fontWeight: FontWeight.w900,
-  //                   color: Color(0xFF111827),
-  //                 ),
-  //               ),
-  //               const SizedBox(height: 2),
-  //               Row(
-  //                 children: [
-  //                   Flexible(
-  //                     child: Text(
-  //                       subtitle,
-  //                       maxLines: 1,
-  //                       overflow: TextOverflow.ellipsis,
-  //                       style: TextStyle(
-  //                         fontFamily: FontFamily.medium,
-  //                         fontSize: 11,
-  //                         fontWeight: FontWeight.w700,
-  //                         color: subtitle.contains('+')
-  //                             ? const Color(0xFF00A85A)
-  //                             : Colors.blueGrey.shade600,
-  //                       ),
-  //                     ),
-  //                   ),
-  //                   if (trailing.isNotEmpty) ...[
-  //                     const SizedBox(width: 8),
-  //                     Text(
-  //                       trailing,
-  //                       style: TextStyle(
-  //                         fontFamily: FontFamily.medium,
-  //                         fontSize: 11,
-  //                         color: Colors.blueGrey.shade500,
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ],
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // =========================================================
-  // SMART ACTION ROW
-  // =========================================================
   Widget _buildSmartActionRow() {
     final items = [
       {
@@ -875,97 +592,7 @@ class _WebDashboardLayout extends StatelessWidget {
       },
     );
   }
-  // Widget _buildSmartActionRow() {
-  //   final items = [
-  //     {
-  //       'icon': Icons.track_changes_rounded,
-  //       'title': 'Plan your goals',
-  //       'sub': 'Set clear financial targets',
-  //       'color': const Color(0xFF1677FF),
-  //     },
-  //     {
-  //       'icon': Icons.person_add_alt_1_rounded,
-  //       'title': 'Know your investment personality',
-  //       'sub': 'Discover your risk profile',
-  //       'color': const Color(0xFF8E46E8),
-  //     },
-  //     {
-  //       'icon': Icons.shopping_basket_outlined,
-  //       'title': 'Explore your investment basket',
-  //       'sub': 'Diversify across funds',
-  //       'color': const Color(0xFF3AAE59),
-  //     },
-  //   ];
 
-  //   return LayoutBuilder(
-  //     builder: (context, constraints) {
-  //       final bool compact = constraints.maxWidth < 760;
-
-  //       return GridView.builder(
-  //         itemCount: items.length,
-  //         shrinkWrap: true,
-  //         physics: const NeverScrollableScrollPhysics(),
-  //         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-  //           crossAxisCount: compact ? 1 : 3,
-  //           crossAxisSpacing: 18,
-  //           mainAxisSpacing: 18,
-  //           childAspectRatio: compact ? 4.2 : 2.55,
-  //         ),
-  //         itemBuilder: (context, index) {
-  //           final item = items[index];
-
-  //           return _smartActionCard(
-  //             icon: item['icon'] as IconData,
-  //             title: item['title'] as String,
-  //             subtitle: item['sub'] as String,
-  //             color: item['color'] as Color,
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
-
-  // Widget _buildSmartActionRow() {
-  //   final items = [
-  //     {
-  //       'icon': Icons.track_changes_rounded,
-  //       'title': 'Plan your goals',
-  //       'sub': 'Set clear financial\ntargets',
-  //       'color': const Color(0xFF1677FF),
-  //     },
-  //     {
-  //       'icon': Icons.person_add_alt_1_rounded,
-  //       'title': 'Know your investment\npersonality',
-  //       'sub': 'Discover your risk profile',
-  //       'color': const Color(0xFF8E46E8),
-  //     },
-  //     {
-  //       'icon': Icons.shopping_basket_outlined,
-  //       'title': 'Explore your\ninvestment basket',
-  //       'sub': 'Diversify across funds',
-  //       'color': const Color(0xFF3AAE59),
-  //     },
-  //   ];
-
-  //   return Row(
-  //     children: List.generate(items.length, (index) {
-  //       final item = items[index];
-
-  //       return Expanded(
-  //         child: Padding(
-  //           padding: EdgeInsets.only(right: index == items.length - 1 ? 0 : 18),
-  //           child: _smartActionCard(
-  //             icon: item['icon'] as IconData,
-  //             title: item['title'] as String,
-  //             subtitle: item['sub'] as String,
-  //             color: item['color'] as Color,
-  //           ),
-  //         ),
-  //       );
-  //     }),
-  //   );
-  // }
   Widget _smartActionCard({
     required IconData icon,
     required String title,
@@ -1258,7 +885,7 @@ class _WebDashboardLayout extends StatelessWidget {
                 style: const TextStyle(
                   fontFamily: FontFamily.medium,
                   fontSize: 16,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                   color: Color(0xFF111827),
                 ),
               ),
@@ -1284,7 +911,7 @@ class _WebDashboardLayout extends StatelessWidget {
           style: TextStyle(
             fontFamily: FontFamily.medium,
             fontSize: 12,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: Color(0xFF005DFF),
           ),
         ),
@@ -1483,8 +1110,6 @@ class _WebDashboardLayout extends StatelessWidget {
                       : width < 1200
                       ? 1.6
                       : 2.2;
-                  debugPrint("Available Width: $width");
-                  debugPrint("Available aspectRatio: $aspectRatio");
                   return GridView.builder(
                     itemCount: funds.length > 8 ? 8 : funds.length,
                     shrinkWrap: true,
@@ -1631,7 +1256,7 @@ class _WebDashboardLayout extends StatelessWidget {
                           color: Color(0xFF94A3B8),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 10),
                       Row(
                         children: [
                           const Icon(
@@ -1787,46 +1412,6 @@ class _WebDashboardLayout extends StatelessWidget {
     );
   }
 
-  // Widget _buildInvestNowPanel(BuildContext context) {
-  //   return _panel(
-  //     title: 'Invest Now',
-  //     child: Row(
-  //       children: [
-  //         Expanded(
-  //           child: _investModeCard(
-  //             icon: UImages.startsip,
-  //             title: 'Start SIP',
-  //             subtitle: 'Invest regularly',
-  //             onTap: () {
-  //               SipProcessController.navIsLumpsum = false;
-  //               Get.toNamed(
-  //                 AppRoutes.startSipScreen,
-  //                 id: 1,
-  //                 arguments: {'isLumpsum': false},
-  //               );
-  //             },
-  //           ),
-  //         ),
-  //         const SizedBox(width: 18),
-  //         Expanded(
-  //           child: _investModeCard(
-  //             icon: UImages.glyph,
-  //             title: 'Invest Lumpsum',
-  //             subtitle: 'Invest once',
-  //             onTap: () {
-  //               SipProcessController.navIsLumpsum = true;
-  //               Get.toNamed(
-  //                 AppRoutes.startSipScreen,
-  //                 id: 1,
-  //                 arguments: {'isLumpsum': true},
-  //               );
-  //             },
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
   Widget _investModeCard({
     required String icon,
     required String title,
@@ -1897,7 +1482,7 @@ class _WebDashboardLayout extends StatelessWidget {
                 style: const TextStyle(
                   fontFamily: FontFamily.medium,
                   fontSize: 15,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w500,
                   color: Color(0xFF111827),
                 ),
               ),
@@ -2519,8 +2104,7 @@ class _WebDashboardLayout extends StatelessWidget {
                     style: const TextStyle(
                       fontFamily: FontFamily.medium,
                       fontSize: 13,
-                      height: 1.25,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w600,
                       color: Color(0xFF111827),
                     ),
                   ),
@@ -2562,7 +2146,7 @@ class _WebDashboardLayout extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: FontFamily.medium,
                           fontSize: 11,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w600,
                           color: Colors.white,
                         ),
                       ),

@@ -49,7 +49,7 @@ class FundComparisonChartWidget extends StatelessWidget {
                 style: TextStyle(fontFamily: FontFamily.medium,
                   fontSize: isDesktop ? 18 : 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: Colors.black87
                 ),
               ),
               if (showLegend) _buildLegend(isDesktop),

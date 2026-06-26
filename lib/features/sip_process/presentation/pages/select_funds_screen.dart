@@ -58,40 +58,47 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
 
   Widget _buildWebLayout(BuildContext context) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Container(
-          height: 720, // Strict height to give the layout internal structure
-          constraints: const BoxConstraints(maxWidth: 1000),
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 30,
-                offset: const Offset(0, 15),
-              ),
-            ],
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Left Blue Panel (Your Profile Summary)
-              Expanded(
-                flex: 4,
-                child: _buildLeftProfilePanel(),
-              ),
+      child: LayoutBuilder(
+          builder: (context, constraints) {
+            final double isWideScreen = constraints.maxWidth*0.9;
 
-              // Right White Panel (Fund Selection)
-              Expanded(
-                flex: 6,
-                child: _buildRightWhitePanel(context),
+            final double availableHeight = constraints.maxHeight*0.9;
+
+            return ConstrainedBox(
+              constraints:  BoxConstraints(maxWidth: isWideScreen,maxHeight: availableHeight),
+            child: Container(
+
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    blurRadius: 30,
+                    offset: const Offset(0, 15),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Left Blue Panel (Your Profile Summary)
+                  Expanded(
+                    flex: 4,
+                    child: _buildLeftProfilePanel(),
+                  ),
+
+                  // Right White Panel (Fund Selection)
+                  Expanded(
+                    flex: 6,
+                    child: _buildRightWhitePanel(context),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
       ),
     );
   }
