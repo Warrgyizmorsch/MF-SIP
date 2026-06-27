@@ -307,7 +307,7 @@
 //                               "Recently Viewed",
 //                               style: TextStyle(
 //                                 fontSize: 18,
-//                                 fontWeight: FontWeight.w700,
+//                                 fontWeight: FontWeight.w500,
 //                                 letterSpacing: -0.5,
 //                               ),
 //                             ),
@@ -863,60 +863,57 @@ class WatchlistPage extends StatelessWidget {
           controllerr.wishlistResponseEntity.value?.data ?? [];
       final recentFunds = Get.find<MutualFundController>().recentlyViewedFunds;
 
-      return ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1220),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 28),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildWebHeader(wishlistItems.length),
-              const SizedBox(height: 24),
-              Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 7,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(26),
-                          border: Border.all(color: const Color(0xFFE8ECF3)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.04),
-                              blurRadius: 24,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: wishlistItems.isEmpty
-                            ? _buildWebEmptyState()
-                            : _buildWebWishlistList(wishlistItems),
-                      ),
-                    ),
-                    const SizedBox(width: 24),
-                    SizedBox(
-                      width: 350,
-                      child: Column(
-                        children: [
-                          _buildWebStatsCard(wishlistItems.length),
-                          const SizedBox(height: 18),
-                          if (recentFunds.isNotEmpty)
-                            Expanded(
-                              child: _buildWebRecentlyViewed(recentFunds),
-                            )
-                          else
-                            _buildWebHintCard(),
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 28),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildWebHeader(wishlistItems.length),
+            const SizedBox(height: 24),
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 6,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(26),
+                        border: Border.all(color: const Color(0xFFE8ECF3)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 24,
+                            offset: const Offset(0, 10),
+                          ),
                         ],
                       ),
+                      child: wishlistItems.isEmpty
+                          ? _buildWebEmptyState()
+                          : _buildWebWishlistList(wishlistItems),
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 24),
+                  Expanded(
+                 flex: 4,
+                    child: Column(
+                      children: [
+                        _buildWebStatsCard(wishlistItems.length),
+                        const SizedBox(height: 18),
+                        if (recentFunds.isNotEmpty)
+                          Expanded(
+                            child: _buildWebRecentlyViewed(recentFunds),
+                          )
+                        else
+                          _buildWebHintCard(),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     });
@@ -950,7 +947,7 @@ class WatchlistPage extends StatelessWidget {
                 'My Watchlist',
                 style: AppTextStyles.h2(color: Ucolors.dark).copyWith(
                   fontSize: 28,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   letterSpacing: -0.6,
                 ),
               ),
@@ -1060,7 +1057,7 @@ class WatchlistPage extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: FontFamily.medium,
                   fontSize: 24,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: Ucolors.dark,
                   letterSpacing: -0.4,
                 ),
@@ -1087,7 +1084,7 @@ class WatchlistPage extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: FontFamily.medium,
                       color: Colors.white,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -1152,7 +1149,7 @@ class WatchlistPage extends StatelessWidget {
                     fontFamily: FontFamily.medium,
                     color: Colors.white,
                     fontSize: 11,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -1165,7 +1162,7 @@ class WatchlistPage extends StatelessWidget {
               fontFamily: FontFamily.medium,
               color: Colors.white,
               fontSize: 42,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
               height: 1,
             ),
           ),
@@ -1197,7 +1194,7 @@ class WatchlistPage extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: FontFamily.medium,
                   color: Ucolors.primary,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -1243,7 +1240,7 @@ class WatchlistPage extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: FontFamily.medium,
                       fontSize: 16,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -1286,7 +1283,7 @@ class WatchlistPage extends StatelessWidget {
                               style: const TextStyle(
                                 fontFamily: FontFamily.medium,
                                 fontSize: 12,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w500,
                                 color: Ucolors.dark,
                               ),
                             ),
@@ -1297,7 +1294,7 @@ class WatchlistPage extends StatelessWidget {
                                 fontFamily: FontFamily.medium,
                                 fontSize: 11,
                                 color: Colors.green.shade700,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
@@ -1351,7 +1348,7 @@ class WatchlistPage extends StatelessWidget {
             style: TextStyle(
               fontFamily: FontFamily.medium,
               fontSize: 15,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               color: Ucolors.dark,
             ),
           ),
@@ -1564,7 +1561,7 @@ class WatchlistPage extends StatelessWidget {
                               'Recently Viewed',
                               style: TextStyle(
                                 fontSize: 18,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w500,
                                 letterSpacing: -0.5,
                               ),
                             ),
@@ -1712,7 +1709,7 @@ class _WebHeaderButton extends StatelessWidget {
               style: const TextStyle(
                 fontFamily: FontFamily.medium,
                 color: Ucolors.dark,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w500,
                 fontSize: 13,
               ),
             ),
@@ -1757,7 +1754,7 @@ class _WebCartButton extends StatelessWidget {
               style: TextStyle(
                 fontFamily: FontFamily.medium,
                 color: Colors.white,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
             ),
@@ -1774,7 +1771,7 @@ class _WebCartButton extends StatelessWidget {
                   style: const TextStyle(
                     fontFamily: FontFamily.medium,
                     color: Ucolors.primary,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                     fontSize: 11,
                   ),
                 ),
@@ -1803,7 +1800,7 @@ TextStyle _webHeaderStyle() {
     fontFamily: FontFamily.medium,
     color: Colors.grey.shade500,
     fontSize: 11,
-    fontWeight: FontWeight.w800,
+    fontWeight: FontWeight.w600,
     letterSpacing: 0.8,
   );
 }
@@ -1852,7 +1849,7 @@ class _WebWishlistRow extends StatelessWidget {
                           style: const TextStyle(
                             fontFamily: FontFamily.medium,
                             fontSize: 14,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             color: Ucolors.dark,
                             height: 1.25,
                           ),
@@ -2057,7 +2054,7 @@ class _WebRiskPill extends StatelessWidget {
           fontFamily: FontFamily.medium,
           color: color,
           fontSize: 11,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -2084,7 +2081,7 @@ class _WebReturnMini extends StatelessWidget {
             fontFamily: FontFamily.medium,
             color: Colors.grey.shade500,
             fontSize: 10,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w500,
           ),
         ),
         const SizedBox(height: 3),
@@ -2094,7 +2091,7 @@ class _WebReturnMini extends StatelessWidget {
             fontFamily: FontFamily.medium,
             color: color,
             fontSize: 12,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],

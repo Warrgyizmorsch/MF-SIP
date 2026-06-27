@@ -285,7 +285,7 @@ class MutualFundModel {
   final double? nav;
   final String? navDate;
   final AmcModel? amc;
-
+  final MfPerformanceSchemeModel? mfPerformanceScheme;
   MutualFundModel({
     this.id,
     this.schemeCode,
@@ -303,6 +303,7 @@ class MutualFundModel {
     this.nav,
     this.navDate,
     this.amc,
+    this.mfPerformanceScheme,
   });
 
   factory MutualFundModel.fromJson(Map<String, dynamic> json) {
@@ -325,6 +326,10 @@ class MutualFundModel {
       amc: json.parseNested<AmcModel>(
         'amc',
             (data) => AmcModel.fromJson(data),
+      ),
+      mfPerformanceScheme: json.parseNested<MfPerformanceSchemeModel>(
+        'mfperformancescheme',
+            (data) => MfPerformanceSchemeModel.fromJson(data),
       ),
     );
   }
@@ -352,6 +357,64 @@ class AmcModel {
       amcCode: json.parse<String>('amc_code'),
       amcLogo: json.parse<String>('amc_logo'),
       amcLogoUrl: json.parse<String>('amc_logo_url'),
+    );
+  }
+}
+class MfPerformanceSchemeModel {
+  final int? id;
+  final int? schemeCode;
+  final String? performanceType;
+  final String? label;
+  final String? oneWeek;
+  final String? oneMonth;
+  final String? threeMonth;
+  final String? sixMonth;
+  final String? oneYear;
+  final String? twoYear;
+  final String? threeYear;
+  final String? fiveYear;
+  final String? tenYear;
+  final String? inceptionReturn;
+  final String? ytdReturn;
+  final String? aum;
+
+  MfPerformanceSchemeModel({
+    this.id,
+    this.schemeCode,
+    this.performanceType,
+    this.label,
+    this.oneWeek,
+    this.oneMonth,
+    this.threeMonth,
+    this.sixMonth,
+    this.oneYear,
+    this.twoYear,
+    this.threeYear,
+    this.fiveYear,
+    this.tenYear,
+    this.inceptionReturn,
+    this.ytdReturn,
+    this.aum,
+  });
+
+  factory MfPerformanceSchemeModel.fromJson(Map<String, dynamic> json) {
+    return MfPerformanceSchemeModel(
+      id: json.parse<int>('id'),
+      schemeCode: json.parse<int>('scheme_code'),
+      performanceType: json.parse<String>('performance_type'),
+      label: json.parse<String>('label'),
+      oneWeek: json.parse<String>('one_week'),
+      oneMonth: json.parse<String>('one_month'),
+      threeMonth: json.parse<String>('three_month'),
+      sixMonth: json.parse<String>('six_month'),
+      oneYear: json.parse<String>('one_year'),
+      twoYear: json.parse<String>('two_year'),
+      threeYear: json.parse<String>('three_year'),
+      fiveYear: json.parse<String>('five_year'),
+      tenYear: json.parse<String>('ten_year'),
+      inceptionReturn: json.parse<String>('inception_return'),
+      ytdReturn: json.parse<String>('ytd_return'),
+      aum: json.parse<String>('aum'),
     );
   }
 }

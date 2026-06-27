@@ -39,6 +39,8 @@ class MfuTransactionEntity extends Equatable {
   final String txtType;
   final double amount;
   final String status;
+  final String fundName;
+  final String invSince;
 
   const MfuTransactionEntity({
     required this.txnDate,
@@ -47,6 +49,8 @@ class MfuTransactionEntity extends Equatable {
     required this.txtType,
     required this.amount,
     required this.status,
+    required this.fundName,
+    required this.invSince,
   });
 
   bool get isPending => status.toLowerCase() == 'pending';
@@ -66,6 +70,8 @@ class MfuTransactionEntity extends Equatable {
     txtType,
     amount,
     status,
+    fundName,
+    invSince,
   ];
 }
 
@@ -87,6 +93,8 @@ extension MfuTransactionMapper on MfuTransactionModel {
       txtType: txtType ?? '',
       amount: amount ?? 0.0,
       status: status ?? '',
+      fundName: fundName ?? '',
+      invSince: invSince ?? '',
     );
   }
 }

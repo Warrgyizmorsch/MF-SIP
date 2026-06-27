@@ -1063,7 +1063,7 @@ class LinkedFundsCard extends StatelessWidget {
                                   Text(
                                     fund.mutualFund?.schemeName ??
                                         'Unknown Fund',
-                                    maxLines: 1,
+                                    maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w600,
@@ -1139,7 +1139,10 @@ class LinkedFundsCard extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              "30%",
+                              "${
+                                fund.mutualFund?.mfPerformanceScheme
+                                    ?.oneMonth ?? ""
+                              }%",
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,

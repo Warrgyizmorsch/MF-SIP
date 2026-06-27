@@ -25,6 +25,8 @@ class MfuTransactionModel {
   final String? txtType;
   final double? amount;
   final String? status;
+  final String? fundName;
+  final String? invSince;
 
   MfuTransactionModel({
     this.txnDate,
@@ -33,6 +35,8 @@ class MfuTransactionModel {
     this.txtType,
     this.amount,
     this.status,
+    this.fundName,
+    this.invSince,
   });
 
   factory MfuTransactionModel.fromJson(Map<String, dynamic> json) {
@@ -43,6 +47,8 @@ class MfuTransactionModel {
       txtType: json.parse<String>('txt_type'),
       amount: json.parse<double>('amount'),
       status: json.parse<String>('status'),
+      fundName: json.parse<String>('fund_name'),
+      invSince: json.parse<String>('launch_date'),
     );
   }
 }

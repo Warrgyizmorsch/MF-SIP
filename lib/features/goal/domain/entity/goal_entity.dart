@@ -221,7 +221,7 @@ class MutualFundEntity extends Equatable {
   final double nav;
   final String navDate;
   final AmcEntity? amc;
-
+  final MfPerformanceSchemeEntity? mfPerformanceScheme;
   const MutualFundEntity({
     required this.id,
     required this.schemeCode,
@@ -239,12 +239,13 @@ class MutualFundEntity extends Equatable {
     required this.nav,
     required this.navDate,
     this.amc,
+    this.mfPerformanceScheme,
   });
 
   @override
   List<Object?> get props => [
     id, schemeCode, schemeName, baseSchemeName, schemeType, schemeCategory,
-    assetClass, riskLevel, isin, amcId, minSipAmount, minLumpsum, minimumTopup, nav, navDate, amc,
+    assetClass, riskLevel, isin, amcId, minSipAmount, minLumpsum, minimumTopup, nav, navDate, amc,mfPerformanceScheme,
   ];
 }
 
@@ -266,7 +267,50 @@ class AmcEntity extends Equatable {
   @override
   List<Object?> get props => [id, amcName, amcCode, amcLogo, amcLogoUrl];
 }
+class MfPerformanceSchemeEntity extends Equatable {
+  final int id;
+  final int schemeCode;
+  final String performanceType;
+  final String label;
+  final String oneWeek;
+  final String oneMonth;
+  final String threeMonth;
+  final String sixMonth;
+  final String oneYear;
+  final String twoYear;
+  final String threeYear;
+  final String fiveYear;
+  final String tenYear;
+  final String inceptionReturn;
+  final String ytdReturn;
+  final String aum;
 
+  const MfPerformanceSchemeEntity({
+    required this.id,
+    required this.schemeCode,
+    required this.performanceType,
+    required this.label,
+    required this.oneWeek,
+    required this.oneMonth,
+    required this.threeMonth,
+    required this.sixMonth,
+    required this.oneYear,
+    required this.twoYear,
+    required this.threeYear,
+    required this.fiveYear,
+    required this.tenYear,
+    required this.inceptionReturn,
+    required this.ytdReturn,
+    required this.aum,
+  });
+
+  @override
+  List<Object?> get props => [
+    id, schemeCode, performanceType, label, oneWeek, oneMonth,
+    threeMonth, sixMonth, oneYear, twoYear, threeYear, fiveYear,
+    tenYear, inceptionReturn, ytdReturn, aum,
+  ];
+}
 // --- Mappers ---
 
 extension GoalResponseMapper on GoalResponseModel {
@@ -386,6 +430,7 @@ extension MutualFundMapper on MutualFundModel {
       nav: nav ?? 0.0,
       navDate: navDate ?? '',
       amc: amc?.toEntity(),
+      mfPerformanceScheme: mfPerformanceScheme?.toEntity(),
     );
   }
 }
@@ -398,6 +443,29 @@ extension AmcMapper on AmcModel {
       amcCode: amcCode ?? '',
       amcLogo: amcLogo ?? '',
       amcLogoUrl: amcLogoUrl ?? '',
+    );
+  }
+}
+
+extension MfPerformanceSchemeMapper on MfPerformanceSchemeModel {
+  MfPerformanceSchemeEntity toEntity() {
+    return MfPerformanceSchemeEntity(
+      id: id ?? 0,
+      schemeCode: schemeCode ?? 0,
+      performanceType: performanceType ?? '',
+      label: label ?? '',
+      oneWeek: oneWeek ?? '',
+      oneMonth: oneMonth ?? '',
+      threeMonth: threeMonth ?? '',
+      sixMonth: sixMonth ?? '',
+      oneYear: oneYear ?? '',
+      twoYear: twoYear ?? '',
+      threeYear: threeYear ?? '',
+      fiveYear: fiveYear ?? '',
+      tenYear: tenYear ?? '',
+      inceptionReturn: inceptionReturn ?? '',
+      ytdReturn: ytdReturn ?? '',
+      aum: aum ?? '',
     );
   }
 }
