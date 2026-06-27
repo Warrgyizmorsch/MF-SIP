@@ -31,210 +31,207 @@ class WebPortfolioScreen extends StatelessWidget {
 
         return SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(28, 28, 28, 36),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1240),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     // const _PageHeader(
-                //     //   title: 'Manage Portfolio',
-                //     //   subtitle:
-                //     //       'Track every fund, current value, investment amount and returns from a single web page.',
-                //     //   icon: Iconsax.wallet_3,
-                //     // ),
-                //     InkWell(
-                //       onTap: () => controller.isBalanceVisible.toggle(),
-                //       borderRadius: BorderRadius.circular(14),
-                //       child: Container(
-                //         padding: const EdgeInsets.symmetric(
-                //           horizontal: 16,
-                //           vertical: 12,
-                //         ),
-                //         decoration: BoxDecoration(
-                //           color: Colors.white,
-                //           borderRadius: BorderRadius.circular(14),
-                //           border: Border.all(color: const Color(0xFFE8EDF5)),
-                //         ),
-                //         child: Row(
-                //           children: [
-                //             Icon(
-                //               isVisible
-                //                   ? Icons.visibility_off_outlined
-                //                   : Icons.visibility_outlined,
-                //               size: 18,
-                //               color: Ucolors.primary,
-                //             ),
-                //             const SizedBox(width: 8),
-                //             Text(
-                //               isVisible ? 'Hide Amounts' : 'Show Amounts',
-                //               style: const TextStyle(
-                //                 fontFamily: FontFamily.medium,
-                //                 fontSize: 13,
-                //                 fontWeight: FontWeight.w700,
-                //                 color: Ucolors.primary,
-                //               ),
-                //             ),
-                //           ],
-                //         ),
-                //       ),
-                //     ),
-                //   ],
-                // ),
-                const SizedBox(height: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //   children: [
+              //     // const _PageHeader(
+              //     //   title: 'Manage Portfolio',
+              //     //   subtitle:
+              //     //       'Track every fund, current value, investment amount and returns from a single web page.',
+              //     //   icon: Iconsax.wallet_3,
+              //     // ),
+              //     InkWell(
+              //       onTap: () => controller.isBalanceVisible.toggle(),
+              //       borderRadius: BorderRadius.circular(14),
+              //       child: Container(
+              //         padding: const EdgeInsets.symmetric(
+              //           horizontal: 16,
+              //           vertical: 12,
+              //         ),
+              //         decoration: BoxDecoration(
+              //           color: Colors.white,
+              //           borderRadius: BorderRadius.circular(14),
+              //           border: Border.all(color: const Color(0xFFE8EDF5)),
+              //         ),
+              //         child: Row(
+              //           children: [
+              //             Icon(
+              //               isVisible
+              //                   ? Icons.visibility_off_outlined
+              //                   : Icons.visibility_outlined,
+              //               size: 18,
+              //               color: Ucolors.primary,
+              //             ),
+              //             const SizedBox(width: 8),
+              //             Text(
+              //               isVisible ? 'Hide Amounts' : 'Show Amounts',
+              //               style: const TextStyle(
+              //                 fontFamily: FontFamily.medium,
+              //                 fontSize: 13,
+              //                 fontWeight: FontWeight.w500,
+              //                 color: Ucolors.primary,
+              //               ),
+              //             ),
+              //           ],
+              //         ),
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              const SizedBox(height: 24),
 
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(26),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xff0B3C5D), Color(0xff072A40)],
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(26),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xff0B3C5D), Color(0xff072A40)],
+                  ),
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xff0B3C5D).withValues(alpha: 0.18),
+                      blurRadius: 26,
+                      offset: const Offset(0, 10),
                     ),
-                    borderRadius: BorderRadius.circular(28),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xff0B3C5D).withValues(alpha: 0.18),
-                        blurRadius: 26,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: _HeroMetric(
-                          title: 'Current Value',
-                          value: currentValue,
-                          isVisible: isVisible,
-                          large: true,
-                          showEyeIcon: true,
-                          onEyeTap: () => controller.isBalanceVisible.toggle(),
-                        ),
-                      ),
-                      const SizedBox(width: 18),
-                      Expanded(
-                        child: _HeroMetric(
-                          title: 'Invested',
-                          value: invested,
-                          isVisible: isVisible,
-                        ),
-                      ),
-                      const SizedBox(width: 18),
-                      Expanded(
-                        child: _HeroMetric(
-                          title: 'Total Returns',
-                          value: gainLoss,
-                          isVisible: isVisible,
-                          isProfit: isProfit,
-                        ),
-                      ),
-                      const SizedBox(width: 18),
-                      Expanded(
-                        child: _HeroCountMetric(
-                          title: 'Funds',
-                          value: funds.length.toString(),
-                        ),
-                      ),
-                    ],
-                  ),
+                  ],
                 ),
-
-                const SizedBox(height: 24),
-
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(22),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: const Color(0xFFE8EDF5)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 22,
-                        offset: const Offset(0, 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: _HeroMetric(
+                        title: 'Current Value',
+                        value: currentValue,
+                        isVisible: isVisible,
+                        large: true,
+                        showEyeIcon: true,
+                        onEyeTap: () => controller.isBalanceVisible.toggle(),
                       ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'All Funds',
-                            style: TextStyle(
+                    ),
+                    const SizedBox(width: 18),
+                    Expanded(
+                      child: _HeroMetric(
+                        title: 'Invested',
+                        value: invested,
+                        isVisible: isVisible,
+                      ),
+                    ),
+                    const SizedBox(width: 18),
+                    Expanded(
+                      child: _HeroMetric(
+                        title: 'Total Returns',
+                        value: gainLoss,
+                        isVisible: isVisible,
+                        isProfit: isProfit,
+                      ),
+                    ),
+                    const SizedBox(width: 18),
+                    Expanded(
+                      child: _HeroCountMetric(
+                        title: 'Funds',
+                        value: funds.length.toString(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(22),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: const Color(0xFFE8EDF5)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 22,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'All Funds',
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: Ucolors.dark,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF0F5FF),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            '${funds.length} funds',
+                            style: const TextStyle(
                               fontFamily: FontFamily.medium,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                              color: Ucolors.dark,
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF0F5FF),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Text(
-                              '${funds.length} funds',
-                              style: const TextStyle(
-                                fontFamily: FontFamily.medium,
-                                fontSize: 12,
-                                color: Ucolors.primary,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-
-                      if (controller.isLoadingPortfolio.value)
-                        const Padding(
-                          padding: EdgeInsets.all(48),
-                          child: Center(
-                            child: CircularProgressIndicator(
+                              fontSize: 12,
                               color: Ucolors.primary,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
-                        )
-                      else if (funds.isEmpty)
-                        const _EmptyState(
-                          icon: Iconsax.wallet_minus,
-                          title: 'No funds in portfolio',
-                          message:
-                              'Your invested mutual funds will appear here after your first purchase.',
-                        )
-                      else ...[
-                        const _PortfolioTableHeader(),
-                        const SizedBox(height: 8),
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: funds.length,
-                          separatorBuilder: (_, __) =>
-                              Divider(height: 1, color: Colors.grey.shade100),
-                          itemBuilder: (context, index) {
-                            return _PortfolioTableRow(
-                              fund: funds[index],
-                              isVisible: isVisible,
-                            );
-                          },
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    if (controller.isLoadingPortfolio.value)
+                      const Padding(
+                        padding: EdgeInsets.all(48),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: Ucolors.primary,
+                          ),
+                        ),
+                      )
+                    else if (funds.isEmpty)
+                      const _EmptyState(
+                        icon: Iconsax.wallet_minus,
+                        title: 'No funds in portfolio',
+                        message:
+                            'Your invested mutual funds will appear here after your first purchase.',
+                      )
+                    else ...[
+                      const _PortfolioTableHeader(),
+                      const SizedBox(height: 8),
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: funds.length,
+                        separatorBuilder: (_, __) =>
+                            Divider(height: 1, color: Colors.grey.shade100),
+                        itemBuilder: (context, index) {
+                          return _PortfolioTableRow(
+                            fund: funds[index],
+                            isVisible: isVisible,
+                          );
+                        },
+                      ),
                     ],
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       }),
@@ -284,7 +281,7 @@ class _PageHeader extends StatelessWidget {
                   style: const TextStyle(
                     fontFamily: FontFamily.medium,
                     fontSize: 28,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                     color: Ucolors.dark,
                     letterSpacing: -0.6,
                   ),
@@ -393,7 +390,7 @@ class _HeroMetric extends StatelessWidget {
                 fontFamily: FontFamily.medium,
                 color: isVisible ? valueColor : Colors.white70,
                 fontSize: large ? 28 : 20,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
                 letterSpacing: isVisible ? -0.4 : 1.4,
               ),
             ),
@@ -454,7 +451,7 @@ class _HeroMetric extends StatelessWidget {
 //               fontFamily: FontFamily.medium,
 //               color: isVisible ? valueColor : Colors.white70,
 //               fontSize: large ? 28 : 20,
-//               fontWeight: FontWeight.w900,
+//               fontWeight: FontWeight.w600,
 //               letterSpacing: isVisible ? -0.4 : 1.4,
 //             ),
 //           ),
@@ -498,7 +495,7 @@ class _HeroCountMetric extends StatelessWidget {
               fontFamily: FontFamily.medium,
               color: Colors.white,
               fontSize: 20,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -549,7 +546,7 @@ class _HeaderText extends StatelessWidget {
         fontFamily: FontFamily.medium,
         color: Colors.grey.shade600,
         fontSize: 12,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w600,
         letterSpacing: 0.2,
       ),
     );
@@ -618,7 +615,7 @@ class _PortfolioTableRow extends StatelessWidget {
                       fontFamily: FontFamily.medium,
                       fontSize: 13,
                       color: Ucolors.dark,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       height: 1.35,
                     ),
                   ),
@@ -674,7 +671,7 @@ class _MoneyText extends StatelessWidget {
         fontFamily: FontFamily.medium,
         color: isVisible ? Ucolors.dark : Colors.grey.shade500,
         fontSize: 13,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w600,
         letterSpacing: isVisible ? 0 : 1.2,
       ),
     );
@@ -713,7 +710,7 @@ class _ChangeText extends StatelessWidget {
             fontFamily: FontFamily.medium,
             color: isVisible ? color : Colors.grey.shade500,
             fontSize: 13,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
             letterSpacing: isVisible ? 0 : 1.2,
           ),
         ),
@@ -726,7 +723,7 @@ class _ChangeText extends StatelessWidget {
               fontFamily: FontFamily.medium,
               color: color,
               fontSize: 11,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -768,7 +765,7 @@ class _EmptyState extends StatelessWidget {
               style: const TextStyle(
                 fontFamily: FontFamily.medium,
                 fontSize: 18,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: Ucolors.dark,
               ),
             ),

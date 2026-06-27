@@ -43,6 +43,7 @@ import 'package:my_sip/features/personalization/presentation/widgets/bank_detail
 import 'package:my_sip/features/personalization/presentation/widgets/nominee_list.dart';
 
 import 'common/widget/images/image_picker.dart';
+import 'features/personalization/presentation/widgets/download_statement.dart';
 
 class NavigationBarController extends GetxController {
   static NavigationBarController get instance => Get.find();
@@ -289,10 +290,12 @@ class NavigationBarController extends GetxController {
           break;
         case 5:
           personalisationController.setStatementMode(isCapital: false);
+          DownloadStatementsScreen.forcedIsCapitalMode = false;
           route = AppRoutes.downloadStatement;
           break;
         case 6:
           personalisationController.setStatementMode(isCapital: true);
+          DownloadStatementsScreen.forcedIsCapitalMode = true;
           route = AppRoutes.downloadStatement;
         case 7:
           route = AppRoutes.myTransactionsweb;
