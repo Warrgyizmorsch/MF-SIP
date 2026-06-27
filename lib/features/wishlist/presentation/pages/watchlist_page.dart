@@ -761,6 +761,8 @@
 //   }
 // }
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -791,6 +793,8 @@ class WatchlistPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
+    log(Get.height.toString());
+    log(Get.width.toString());
 
     return Scaffold(
       // backgroundColor: isDesktop
@@ -847,6 +851,78 @@ class WatchlistPage extends StatelessWidget {
   // =========================================
   // 💻 MODERN WEB / DESKTOP LAYOUT
   // =========================================
+  // Widget _buildWebLayout(BuildContext context) {
+  //   return Obx(() {
+  //     if (controllerr.isLoading.value) {
+  //       return const Center(
+  //         child: CircularProgressIndicator(color: Ucolors.primary),
+  //       );
+  //     }
+
+  //     if (controller.errorMessage.isNotEmpty) {
+  //       return _buildWebErrorState();
+  //     }
+
+  //     final wishlistItems =
+  //         controllerr.wishlistResponseEntity.value?.data ?? [];
+  //     final recentFunds = Get.find<MutualFundController>().recentlyViewedFunds;
+
+  //     return Padding(
+  //       padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 28),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           _buildWebHeader(wishlistItems.length),
+  //           const SizedBox(height: 24),
+  //           Expanded(
+  //             child: Row(
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 Expanded(
+  //                   flex: 6,
+  //                   child: Container(
+  //                     decoration: BoxDecoration(
+  //                       color: Colors.white,
+  //                       borderRadius: BorderRadius.circular(26),
+  //                       border: Border.all(color: const Color(0xFFE8ECF3)),
+  //                       boxShadow: [
+  //                         BoxShadow(
+  //                           color: Colors.black.withValues(alpha: 0.04),
+  //                           blurRadius: 24,
+  //                           offset: const Offset(0, 10),
+  //                         ),
+  //                       ],
+  //                     ),
+  //                     child: wishlistItems.isEmpty
+  //                         ? _buildWebEmptyState()
+  //                         : _buildWebWishlistList(wishlistItems),
+  //                   ),
+  //                 ),
+  //                 const SizedBox(width: 24),
+  //                 Expanded(
+  //                flex: 4,
+  //                   child: Column(
+  //                     children: [
+  //                       _buildWebStatsCard(wishlistItems.length),
+  //                       const SizedBox(height: 18),
+  //                       if (recentFunds.isNotEmpty)
+  //                         Expanded(
+  //                           child: _buildWebRecentlyViewed(recentFunds),
+  //                         )
+  //                       else
+  //                         _buildWebHintCard(),
+  //                     ],
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     );
+  //   });
+  // }
+
   Widget _buildWebLayout(BuildContext context) {
     return Obx(() {
       if (controllerr.isLoading.value) {
@@ -863,131 +939,378 @@ class WatchlistPage extends StatelessWidget {
           controllerr.wishlistResponseEntity.value?.data ?? [];
       final recentFunds = Get.find<MutualFundController>().recentlyViewedFunds;
 
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final screenSize = MediaQuery.sizeOf(context);
+          final pageWidth = constraints.maxWidth;
+
+          final bool largeDesktopLayout =
+              screenSize.width >= 1536 &&
+              screenSize.height >= 729.5999755859375;
+
+          final bool mediumCardsInOneRow =
+              screenSize.width <= 1396.3636474609375 &&
+              screenSize.height <= 663.272705078125 &&
+              recentFunds.isEmpty;
+
+          final bool compactHeaderOneRow =
+              screenSize.width <= 877.7142944335938 &&
+              screenSize.height <= 416.9142761230469;
+
+          final bool stackedLayout = pageWidth < 1160 && !largeDesktopLayout;
+
+          final double horizontalPadding = pageWidth <= 900
+              ? 14
+              : pageWidth <= 1300
+              ? 22
+              : 28;
+
+          Widget wishlistPanel({required bool shrinkWrap}) {
+            return _webPanel(
+              child: wishlistItems.isEmpty
+                  ? _buildWebEmptyState()
+                  : _buildWebWishlistList(
+                      wishlistItems,
+                      shrinkWrap: shrinkWrap,
+                    ),
+            );
+          }
+
+          Widget cardsPanel({required bool fillHeight}) {
+            if (mediumCardsInOneRow) {
+              return IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: _buildWebStatsCard(wishlistItems.length)),
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildWebHintCard()),
+                  ],
+                ),
+              );
+            }
+
+            return Column(
+              mainAxisSize: fillHeight ? MainAxisSize.max : MainAxisSize.min,
+              children: [
+                _buildWebStatsCard(wishlistItems.length),
+                const SizedBox(height: 18),
+                if (recentFunds.isNotEmpty)
+                  fillHeight
+                      ? Expanded(child: _buildWebRecentlyViewed(recentFunds))
+                      : _buildWebRecentlyViewed(recentFunds, shrinkWrap: true)
+                else
+                  _buildWebHintCard(),
+              ],
+            );
+          }
+
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: pageWidth <= 900 ? 14 : 24,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildWebHeader(
+                  wishlistItems.length,
+                  compactOneRow: compactHeaderOneRow,
+                ),
+                SizedBox(height: compactHeaderOneRow ? 14 : 24),
+
+                Expanded(
+                  child: stackedLayout
+                      ? SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: Column(
+                            children: [
+                              wishlistPanel(shrinkWrap: true),
+                              const SizedBox(height: 18),
+                              cardsPanel(fillHeight: false),
+                            ],
+                          ),
+                        )
+                      : Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: largeDesktopLayout ? 6 : 6,
+                              child: wishlistPanel(shrinkWrap: false),
+                            ),
+                            const SizedBox(width: 24),
+                            Expanded(
+                              flex: largeDesktopLayout ? 4 : 4,
+                              child: cardsPanel(fillHeight: true),
+                            ),
+                          ],
+                        ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    });
+  }
+
+  Widget _webPanel({required Widget child}) {
+    return Container(
+      width: double.infinity,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(26),
+        border: Border.all(color: const Color(0xFFE8ECF3)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 24,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
+
+  Widget _buildWebHeader(int count, {bool compactOneRow = false}) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool normalCompact = constraints.maxWidth < 720;
+        final bool forceOneRow = compactOneRow;
+
+        final titleBlock = Row(
           children: [
-            _buildWebHeader(wishlistItems.length),
-            const SizedBox(height: 24),
+            Container(
+              height: forceOneRow ? 40 : 54,
+              width: forceOneRow ? 40 : 54,
+              decoration: BoxDecoration(
+                gradient: Ucolors.backgroundGradient,
+                borderRadius: BorderRadius.circular(forceOneRow ? 14 : 18),
+                boxShadow: [
+                  BoxShadow(
+                    color: Ucolors.primary.withValues(alpha: 0.20),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.favorite_rounded,
+                color: Colors.white,
+                size: forceOneRow ? 18 : 24,
+              ),
+            ),
+            SizedBox(width: forceOneRow ? 10 : 16),
             Expanded(
-              child: Row(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    flex: 6,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(26),
-                        border: Border.all(color: const Color(0xFFE8ECF3)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 24,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: wishlistItems.isEmpty
-                          ? _buildWebEmptyState()
-                          : _buildWebWishlistList(wishlistItems),
+                  Text(
+                    'My Watchlist',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.h2(color: Ucolors.dark).copyWith(
+                      fontSize: forceOneRow
+                          ? 18
+                          : normalCompact
+                          ? 23
+                          : 28,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.6,
                     ),
                   ),
-                  const SizedBox(width: 24),
-                  Expanded(
-                 flex: 4,
-                    child: Column(
-                      children: [
-                        _buildWebStatsCard(wishlistItems.length),
-                        const SizedBox(height: 18),
-                        if (recentFunds.isNotEmpty)
-                          Expanded(
-                            child: _buildWebRecentlyViewed(recentFunds),
-                          )
-                        else
-                          _buildWebHintCard(),
-                      ],
+                  const SizedBox(height: 3),
+                  Text(
+                    count == 0
+                        ? forceOneRow
+                              ? 'Track your favourite funds.'
+                              : 'Track and compare your favourite mutual funds in one place.'
+                        : forceOneRow
+                        ? '$count saved fund${count == 1 ? '' : 's'}.'
+                        : '$count saved fund${count == 1 ? '' : 's'} ready to track, review, or invest.',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      color: Colors.grey.shade600,
+                      fontSize: forceOneRow ? 11 : 14,
+                      height: 1.25,
                     ),
                   ),
                 ],
               ),
             ),
           ],
-        ),
-      );
-    });
-  }
+        );
 
-  Widget _buildWebHeader(int count) {
-    return Row(
-      children: [
-        Container(
-          height: 54,
-          width: 54,
-          decoration: BoxDecoration(
-            gradient: Ucolors.backgroundGradient,
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: Ucolors.primary.withValues(alpha: 0.20),
-                blurRadius: 18,
-                offset: const Offset(0, 8),
+        final actions = Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _WebHeaderButton(
+              icon: Icons.refresh_rounded,
+              label: 'Refresh',
+              compact: forceOneRow,
+              onTap: () => controllerr.fetchWishlist(),
+            ),
+            SizedBox(width: forceOneRow ? 8 : 12),
+            Obx(
+              () => _WebCartButton(
+                count: cartController.generalItemsCount,
+                compact: forceOneRow,
+                onTap: () {
+                  Get.find<CartController>().filterGoalId.value = null;
+                  Get.find<NavigationBarController>().selectedIndex.value = 100;
+                  Get.toNamed(AppRoutes.cart, id: 1);
+                },
               ),
+            ),
+          ],
+        );
+
+        if (forceOneRow) {
+          return Row(
+            children: [
+              Expanded(child: titleBlock),
+              const SizedBox(width: 10),
+              actions,
             ],
-          ),
-          child: const Icon(Icons.favorite_rounded, color: Colors.white),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
+          );
+        }
+
+        if (normalCompact) {
+          return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'My Watchlist',
-                style: AppTextStyles.h2(color: Ucolors.dark).copyWith(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -0.6,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                count == 0
-                    ? 'Track and compare your favourite mutual funds in one place.'
-                    : '$count saved fund${count == 1 ? '' : 's'} ready to track, review, or invest.',
-                style: TextStyle(
-                  fontFamily: FontFamily.medium,
-                  color: Colors.grey.shade600,
-                  fontSize: 14,
-                  height: 1.35,
-                ),
+              titleBlock,
+              const SizedBox(height: 14),
+              Wrap(
+                spacing: 12,
+                runSpacing: 10,
+                children: [
+                  _WebHeaderButton(
+                    icon: Icons.refresh_rounded,
+                    label: 'Refresh',
+                    onTap: () => controllerr.fetchWishlist(),
+                  ),
+                  Obx(
+                    () => _WebCartButton(
+                      count: cartController.generalItemsCount,
+                      onTap: () {
+                        Get.find<CartController>().filterGoalId.value = null;
+                        Get.find<NavigationBarController>()
+                                .selectedIndex
+                                .value =
+                            100;
+                        Get.toNamed(AppRoutes.cart, id: 1);
+                      },
+                    ),
+                  ),
+                ],
               ),
             ],
-          ),
-        ),
-        _WebHeaderButton(
-          icon: Icons.refresh_rounded,
-          label: 'Refresh',
-          onTap: () => controllerr.fetchWishlist(),
-        ),
-        const SizedBox(width: 12),
-        Obx(
-          () => _WebCartButton(
-            count: cartController.generalItemsCount,
-            onTap: () {
-              Get.find<CartController>().filterGoalId.value = null;
-              Get.find<NavigationBarController>().selectedIndex.value = 100;
-              Get.toNamed(AppRoutes.cart, id: 1);
-            },
-          ),
-        ),
-      ],
+          );
+        }
+
+        return Row(
+          children: [
+            Expanded(child: titleBlock),
+            const SizedBox(width: 16),
+            actions,
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildWebWishlistList(List<dynamic> wishlistItems) {
+  // Widget _buildWebHeader(int count) {
+  //   return Row(
+  //     children: [
+  //       Container(
+  //         height: 54,
+  //         width: 54,
+  //         decoration: BoxDecoration(
+  //           gradient: Ucolors.backgroundGradient,
+  //           borderRadius: BorderRadius.circular(18),
+  //           boxShadow: [
+  //             BoxShadow(
+  //               color: Ucolors.primary.withValues(alpha: 0.20),
+  //               blurRadius: 18,
+  //               offset: const Offset(0, 8),
+  //             ),
+  //           ],
+  //         ),
+  //         child: const Icon(Icons.favorite_rounded, color: Colors.white),
+  //       ),
+  //       const SizedBox(width: 16),
+  //       Expanded(
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             Text(
+  //               'My Watchlist',
+  //               style: AppTextStyles.h2(color: Ucolors.dark).copyWith(
+  //                 fontSize: 28,
+  //                 fontWeight: FontWeight.w600,
+  //                 letterSpacing: -0.6,
+  //               ),
+  //             ),
+  //             const SizedBox(height: 4),
+  //             Text(
+  //               count == 0
+  //                   ? 'Track and compare your favourite mutual funds in one place.'
+  //                   : '$count saved fund${count == 1 ? '' : 's'} ready to track, review, or invest.',
+  //               style: TextStyle(
+  //                 fontFamily: FontFamily.medium,
+  //                 color: Colors.grey.shade600,
+  //                 fontSize: 14,
+  //                 height: 1.35,
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //       _WebHeaderButton(
+  //         icon: Icons.refresh_rounded,
+  //         label: 'Refresh',
+  //         onTap: () => controllerr.fetchWishlist(),
+  //       ),
+  //       const SizedBox(width: 12),
+  //       Obx(
+  //         () => _WebCartButton(
+  //           count: cartController.generalItemsCount,
+  //           onTap: () {
+  //             Get.find<CartController>().filterGoalId.value = null;
+  //             Get.find<NavigationBarController>().selectedIndex.value = 100;
+  //             Get.toNamed(AppRoutes.cart, id: 1);
+  //           },
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
+
+  Widget _buildWebWishlistList(
+    List<dynamic> wishlistItems, {
+    bool shrinkWrap = false,
+  }) {
+    final list = ListView.separated(
+      shrinkWrap: shrinkWrap,
+      physics: shrinkWrap
+          ? const NeverScrollableScrollPhysics()
+          : const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      itemCount: wishlistItems.length,
+      separatorBuilder: (_, __) =>
+          const Divider(height: 1, thickness: 1, color: Color(0xFFF0F3F8)),
+      itemBuilder: (context, index) {
+        return _WebWishlistRow(entity: wishlistItems[index]);
+      },
+    );
+
     return Column(
+      mainAxisSize: shrinkWrap ? MainAxisSize.min : MainAxisSize.max,
       children: [
         Container(
           padding: const EdgeInsets.fromLTRB(24, 20, 24, 14),
@@ -1010,23 +1333,52 @@ class WatchlistPage extends StatelessWidget {
             ],
           ),
         ),
-        Expanded(
-          child: ListView.separated(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: wishlistItems.length,
-            separatorBuilder: (_, __) => const Divider(
-              height: 1,
-              thickness: 1,
-              color: Color(0xFFF0F3F8),
-            ),
-            itemBuilder: (context, index) {
-              return _WebWishlistRow(entity: wishlistItems[index]);
-            },
-          ),
-        ),
+        shrinkWrap ? list : Expanded(child: list),
       ],
     );
   }
+
+  // Widget _buildWebWishlistList(List<dynamic> wishlistItems) {
+  //   return Column(
+  //     children: [
+  //       Container(
+  //         padding: const EdgeInsets.fromLTRB(24, 20, 24, 14),
+  //         decoration: const BoxDecoration(
+  //           border: Border(bottom: BorderSide(color: Color(0xFFE8ECF3))),
+  //         ),
+  //         child: Row(
+  //           children: [
+  //             const Expanded(flex: 5, child: _WebTableHeaderText('Fund Name')),
+  //             const Expanded(flex: 2, child: _WebTableHeaderText('Risk')),
+  //             const Expanded(flex: 3, child: _WebTableHeaderText('Returns')),
+  //             SizedBox(
+  //               width: 116,
+  //               child: Text(
+  //                 'Actions',
+  //                 textAlign: TextAlign.right,
+  //                 style: _webHeaderStyle(),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //       Expanded(
+  //         child: ListView.separated(
+  //           padding: const EdgeInsets.symmetric(vertical: 8),
+  //           itemCount: wishlistItems.length,
+  //           separatorBuilder: (_, __) => const Divider(
+  //             height: 1,
+  //             thickness: 1,
+  //             color: Color(0xFFF0F3F8),
+  //           ),
+  //           itemBuilder: (context, index) {
+  //             return _WebWishlistRow(entity: wishlistItems[index]);
+  //           },
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildWebEmptyState() {
     return Center(
@@ -1204,7 +1556,89 @@ class WatchlistPage extends StatelessWidget {
     );
   }
 
-  Widget _buildWebRecentlyViewed(List<dynamic> recentFunds) {
+  Widget _buildWebRecentlyViewed(
+    List<dynamic> recentFunds, {
+    bool shrinkWrap = false,
+  }) {
+    final list = ListView.separated(
+      shrinkWrap: shrinkWrap,
+      physics: shrinkWrap
+          ? const NeverScrollableScrollPhysics()
+          : const BouncingScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+      itemCount: recentFunds.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final fund = recentFunds[index];
+        final img = '${Appurl.baseUrl}${fund.amc?.amcLogoUrl}';
+        final name = fund.baseSchemeName ?? 'Unknown Name';
+        final threeyear = fund.returnsEntity?.threeYear ?? '0.00';
+        final schemeCode = fund.schemeCode.toString();
+
+        return Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFD),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE8ECF3)),
+          ),
+          child: Row(
+            children: [
+              ClipOval(child: CustomCachedImage(imageUrl: img, radius: 16)),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Ucolors.dark,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '3Y Return $threeyear%',
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 11,
+                        color: Colors.green.shade700,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                tooltip: 'Add to Cart',
+                onPressed: () {
+                  Get.find<CartController>().addToCart(
+                    schemeCode,
+                    name,
+                    fund.minSipAmount ?? 1000,
+                    null,
+                  );
+                  Get.find<MutualFundController>().removeFromRecentlyViewed(
+                    schemeCode,
+                  );
+                },
+                icon: const Icon(
+                  Icons.add_shopping_cart_rounded,
+                  color: Ucolors.primary,
+                  size: 20,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -1219,6 +1653,7 @@ class WatchlistPage extends StatelessWidget {
         ],
       ),
       child: Column(
+        mainAxisSize: shrinkWrap ? MainAxisSize.min : MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
@@ -1247,87 +1682,136 @@ class WatchlistPage extends StatelessWidget {
               ],
             ),
           ),
-          Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              itemCount: recentFunds.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final fund = recentFunds[index];
-                final img = '${Appurl.baseUrl}${fund.amc?.amcLogoUrl}';
-                final name = fund.baseSchemeName ?? 'Unknown Name';
-                final threeyear = fund.returnsEntity?.threeYear ?? '0.00';
-                final schemeCode = fund.schemeCode.toString();
-
-                return Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFD),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFE8ECF3)),
-                  ),
-                  child: Row(
-                    children: [
-                      ClipOval(
-                        child: CustomCachedImage(imageUrl: img, radius: 16),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              name,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontFamily: FontFamily.medium,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: Ucolors.dark,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '3Y Return $threeyear%',
-                              style: TextStyle(
-                                fontFamily: FontFamily.medium,
-                                fontSize: 11,
-                                color: Colors.green.shade700,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        tooltip: 'Add to Cart',
-                        onPressed: () {
-                          Get.find<CartController>().addToCart(
-                            schemeCode,
-                            name,
-                            fund.minSipAmount ?? 1000,
-                            null,
-                          );
-                          Get.find<MutualFundController>()
-                              .removeFromRecentlyViewed(schemeCode);
-                        },
-                        icon: const Icon(
-                          Icons.add_shopping_cart_rounded,
-                          color: Ucolors.primary,
-                          size: 20,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
+          shrinkWrap ? list : Expanded(child: list),
         ],
       ),
     );
   }
+
+  // Widget _buildWebRecentlyViewed(List<dynamic> recentFunds) {
+  //   return Container(
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: BorderRadius.circular(24),
+  //       border: Border.all(color: const Color(0xFFE8ECF3)),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Colors.black.withValues(alpha: 0.035),
+  //           blurRadius: 18,
+  //           offset: const Offset(0, 8),
+  //         ),
+  //       ],
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Padding(
+  //           padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+  //           child: Row(
+  //             children: [
+  //               Container(
+  //                 width: 4,
+  //                 height: 20,
+  //                 decoration: BoxDecoration(
+  //                   color: Ucolors.primary,
+  //                   borderRadius: BorderRadius.circular(4),
+  //                 ),
+  //               ),
+  //               const SizedBox(width: 8),
+  //               const Expanded(
+  //                 child: Text(
+  //                   'Recently Viewed',
+  //                   style: TextStyle(
+  //                     fontFamily: FontFamily.medium,
+  //                     fontSize: 16,
+  //                     fontWeight: FontWeight.w600,
+  //                   ),
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //         Expanded(
+  //           child: ListView.separated(
+  //             padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+  //             itemCount: recentFunds.length,
+  //             separatorBuilder: (_, __) => const SizedBox(height: 12),
+  //             itemBuilder: (context, index) {
+  //               final fund = recentFunds[index];
+  //               final img = '${Appurl.baseUrl}${fund.amc?.amcLogoUrl}';
+  //               final name = fund.baseSchemeName ?? 'Unknown Name';
+  //               final threeyear = fund.returnsEntity?.threeYear ?? '0.00';
+  //               final schemeCode = fund.schemeCode.toString();
+
+  //               return Container(
+  //                 padding: const EdgeInsets.all(12),
+  //                 decoration: BoxDecoration(
+  //                   color: const Color(0xFFF8FAFD),
+  //                   borderRadius: BorderRadius.circular(16),
+  //                   border: Border.all(color: const Color(0xFFE8ECF3)),
+  //                 ),
+  //                 child: Row(
+  //                   children: [
+  //                     ClipOval(
+  //                       child: CustomCachedImage(imageUrl: img, radius: 16),
+  //                     ),
+  //                     const SizedBox(width: 10),
+  //                     Expanded(
+  //                       child: Column(
+  //                         crossAxisAlignment: CrossAxisAlignment.start,
+  //                         children: [
+  //                           Text(
+  //                             name,
+  //                             maxLines: 2,
+  //                             overflow: TextOverflow.ellipsis,
+  //                             style: const TextStyle(
+  //                               fontFamily: FontFamily.medium,
+  //                               fontSize: 12,
+  //                               fontWeight: FontWeight.w500,
+  //                               color: Ucolors.dark,
+  //                             ),
+  //                           ),
+  //                           const SizedBox(height: 4),
+  //                           Text(
+  //                             '3Y Return $threeyear%',
+  //                             style: TextStyle(
+  //                               fontFamily: FontFamily.medium,
+  //                               fontSize: 11,
+  //                               color: Colors.green.shade700,
+  //                               fontWeight: FontWeight.w500,
+  //                             ),
+  //                           ),
+  //                         ],
+  //                       ),
+  //                     ),
+  //                     IconButton(
+  //                       tooltip: 'Add to Cart',
+  //                       onPressed: () {
+  //                         Get.find<CartController>().addToCart(
+  //                           schemeCode,
+  //                           name,
+  //                           fund.minSipAmount ?? 1000,
+  //                           null,
+  //                         );
+  //                         Get.find<MutualFundController>()
+  //                             .removeFromRecentlyViewed(schemeCode);
+  //                       },
+  //                       icon: const Icon(
+  //                         Icons.add_shopping_cart_rounded,
+  //                         color: Ucolors.primary,
+  //                         size: 20,
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               );
+  //             },
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildWebHintCard() {
     return Container(
@@ -1681,11 +2165,13 @@ class _WebHeaderButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    this.compact = false,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -1693,38 +2179,88 @@ class _WebHeaderButton extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
       child: Container(
-        height: 46,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        height: compact ? 40 : 46,
+        padding: EdgeInsets.symmetric(horizontal: compact ? 11 : 16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: const Color(0xFFE8ECF3)),
         ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: Ucolors.primary, size: 19),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: const TextStyle(
-                fontFamily: FontFamily.medium,
-                color: Ucolors.dark,
-                fontWeight: FontWeight.w500,
-                fontSize: 13,
+            Icon(icon, color: Ucolors.primary, size: compact ? 18 : 19),
+            if (!compact) ...[
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontFamily: FontFamily.medium,
+                  color: Ucolors.dark,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 13,
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),
     );
   }
 }
+// class _WebHeaderButton extends StatelessWidget {
+//   const _WebHeaderButton({
+//     required this.icon,
+//     required this.label,
+//     required this.onTap,
+//   });
 
+//   final IconData icon;
+//   final String label;
+//   final VoidCallback onTap;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return InkWell(
+//       onTap: onTap,
+//       borderRadius: BorderRadius.circular(14),
+//       child: Container(
+//         height: 46,
+//         padding: const EdgeInsets.symmetric(horizontal: 16),
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           borderRadius: BorderRadius.circular(14),
+//           border: Border.all(color: const Color(0xFFE8ECF3)),
+//         ),
+//         child: Row(
+//           children: [
+//             Icon(icon, color: Ucolors.primary, size: 19),
+//             const SizedBox(width: 8),
+//             Text(
+//               label,
+//               style: const TextStyle(
+//                 fontFamily: FontFamily.medium,
+//                 color: Ucolors.dark,
+//                 fontWeight: FontWeight.w500,
+//                 fontSize: 13,
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 class _WebCartButton extends StatelessWidget {
-  const _WebCartButton({required this.count, required this.onTap});
+  const _WebCartButton({
+    required this.count,
+    required this.onTap,
+    this.compact = false,
+  });
 
   final int count;
   final VoidCallback onTap;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -1732,8 +2268,8 @@ class _WebCartButton extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
       child: Container(
-        height: 46,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        height: compact ? 40 : 46,
+        padding: EdgeInsets.symmetric(horizontal: compact ? 11 : 16),
         decoration: BoxDecoration(
           color: Ucolors.primary,
           borderRadius: BorderRadius.circular(14),
@@ -1746,20 +2282,27 @@ class _WebCartButton extends StatelessWidget {
           ],
         ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Iconsax.shopping_cart, color: Colors.white, size: 19),
-            const SizedBox(width: 8),
-            const Text(
-              'Cart',
-              style: TextStyle(
-                fontFamily: FontFamily.medium,
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-              ),
+            Icon(
+              Iconsax.shopping_cart,
+              color: Colors.white,
+              size: compact ? 18 : 19,
             ),
-            if (count > 0) ...[
+            if (!compact) ...[
               const SizedBox(width: 8),
+              const Text(
+                'Cart',
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+            if (count > 0) ...[
+              SizedBox(width: compact ? 5 : 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                 decoration: BoxDecoration(
@@ -1772,7 +2315,7 @@ class _WebCartButton extends StatelessWidget {
                     fontFamily: FontFamily.medium,
                     color: Ucolors.primary,
                     fontWeight: FontWeight.w600,
-                    fontSize: 11,
+                    fontSize: 10,
                   ),
                 ),
               ),
@@ -1783,6 +2326,70 @@ class _WebCartButton extends StatelessWidget {
     );
   }
 }
+
+// class _WebCartButton extends StatelessWidget {
+//   const _WebCartButton({required this.count, required this.onTap});
+
+//   final int count;
+//   final VoidCallback onTap;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return InkWell(
+//       onTap: onTap,
+//       borderRadius: BorderRadius.circular(14),
+//       child: Container(
+//         height: 46,
+//         padding: const EdgeInsets.symmetric(horizontal: 16),
+//         decoration: BoxDecoration(
+//           color: Ucolors.primary,
+//           borderRadius: BorderRadius.circular(14),
+//           boxShadow: [
+//             BoxShadow(
+//               color: Ucolors.primary.withValues(alpha: 0.22),
+//               blurRadius: 14,
+//               offset: const Offset(0, 6),
+//             ),
+//           ],
+//         ),
+//         child: Row(
+//           children: [
+//             const Icon(Iconsax.shopping_cart, color: Colors.white, size: 19),
+//             const SizedBox(width: 8),
+//             const Text(
+//               'Cart',
+//               style: TextStyle(
+//                 fontFamily: FontFamily.medium,
+//                 color: Colors.white,
+//                 fontWeight: FontWeight.w600,
+//                 fontSize: 13,
+//               ),
+//             ),
+//             if (count > 0) ...[
+//               const SizedBox(width: 8),
+//               Container(
+//                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+//                 decoration: BoxDecoration(
+//                   color: Colors.white,
+//                   borderRadius: BorderRadius.circular(999),
+//                 ),
+//                 child: Text(
+//                   count.toString(),
+//                   style: const TextStyle(
+//                     fontFamily: FontFamily.medium,
+//                     color: Ucolors.primary,
+//                     fontWeight: FontWeight.w600,
+//                     fontSize: 11,
+//                   ),
+//                 ),
+//               ),
+//             ],
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 class _WebTableHeaderText extends StatelessWidget {
   const _WebTableHeaderText(this.text);
@@ -1882,10 +2489,12 @@ class _WebWishlistRow extends StatelessWidget {
               child: Row(
                 children: [
                   _WebReturnMini(label: '1Y', value: data.oneYear),
-                  const SizedBox(width: 14),
+                  const SizedBox(width: 13),
                   _WebReturnMini(label: '3Y', value: data.threeYear),
-                  const SizedBox(width: 14),
-                  _WebReturnMini(label: '5Y', value: data.fiveYear),
+                  if (Get.height >= 486.3999938964844 && Get.width >= 1024)
+                    const SizedBox(width: 13),
+                  if (Get.height >= 486.3999938964844 && Get.width >= 1024)
+                    _WebReturnMini(label: '5Y', value: data.fiveYear),
                 ],
               ),
             ),
