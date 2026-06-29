@@ -1,5 +1,6 @@
 // ignore_for_file: unnecessary_brace_in_string_interps, unused_element_parameter, unused_local_variable
 
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
@@ -270,7 +271,7 @@ class _WebDashboardLayout extends StatelessWidget {
   // =========================================================
   Widget _buildWelcomeHero() {
     final name = authController.user.value?.name ?? 'Investor';
-
+    final user = SessionManager.instance.userObs.value;
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -295,28 +296,7 @@ class _WebDashboardLayout extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            RichText(
-              text: TextSpan(
-                style: const TextStyle(
-                  fontSize: 26,
-                  fontFamily: FontFamily.regular,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1E293B),
-                  letterSpacing: -0.5,
-                ),
-                children: [
-                  const TextSpan(text: 'Welcome back, '),
-                  TextSpan(
-                    text: '$name!',
-                    style: const TextStyle(
-                      color: Color(0xFF0066FF),
-                      fontFamily: FontFamily.regular,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            AnimatedWelcomeText(name: user?.name??"Investor"),
             const SizedBox(height: 6),
             const Text(
               'Stay consistent with your SIPs and reach your financial goals faster.',
@@ -6527,6 +6507,129 @@ class FeatureSection extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+
+
+
+class AnimatedWelcomeText extends StatefulWidget {
+  final String name;
+
+  const AnimatedWelcomeText({super.key, required this.name});
+
+  @override
+  State<AnimatedWelcomeText> createState() => _AnimatedWelcomeTextState();
+}
+
+class _AnimatedWelcomeTextState extends State<AnimatedWelcomeText> {
+  bool _showSecondText = false;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    // 10-second precise loop
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (mounted) {
+        setState(() {
+          _showSecondText = !_showSecondText;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRect(
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 650),
+        switchInCurve: const Cubic(0.05, 0.7, 0.1, 1.0),
+        switchOutCurve: Curves.easeInCubic,
+
+        layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
+          return Stack(
+            alignment: Alignment.centerLeft,
+            children: <Widget>[
+              ...previousChildren,
+              if (currentChild != null) currentChild,
+            ],
+          );
+        },
+
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          final isEntering = child.key == ValueKey(_showSecondText);
+
+
+          final slideOffset = Tween<Offset>(
+            begin: isEntering ? const Offset(0.0, 0.8) : Offset.zero,
+            end: isEntering ? Offset.zero : const Offset(0.0, -0.8),
+          ).animate(animation);
+
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: slideOffset,
+              child: child,
+            ),
+          );
+        },
+
+        child: !_showSecondText
+            ? RichText(
+          key: const ValueKey(false),
+          text: TextSpan(
+            style: const TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1E293B),
+              letterSpacing: -0.5,
+              fontFamily: FontFamily.medium,
+            ),
+            children: [
+              const TextSpan(text: 'Welcome to, '),
+              TextSpan(
+                text: '${widget.name}!',
+                style: const TextStyle(
+                  color: Color(0xFF0066FF),
+                  fontWeight: FontWeight.w700,
+                    fontFamily: FontFamily.medium,
+                ),
+              ),
+            ],
+          ),
+        )
+            : RichText(
+          key: const ValueKey(true),
+          text: const TextSpan(
+            style: TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1E293B),
+              letterSpacing: -0.5,
+              fontFamily: FontFamily.medium,
+            ),
+            children: [
+              TextSpan(text: 'Hello! '),
+              TextSpan(
+                text: "It's a pleasure to have you here",
+                style: TextStyle(
+                  color: Color(0xFF0066FF),
+                  fontWeight: FontWeight.w700,
+                  fontFamily: FontFamily.medium,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

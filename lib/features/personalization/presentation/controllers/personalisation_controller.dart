@@ -1488,7 +1488,10 @@ class PersonalisationController extends GetxController {
   }
 
   void setStatementMode({required bool isCapital}) {
+    debugPrint("isCapital :$isCapital");
+
     isCapitalGain.value = isCapital;
+    debugPrint("isCapitalGain.value :${isCapitalGain.value}");
 
     // Optional: Reset other variables to default when opening the screen
     isCapital ? statementTypeIndex.value = 1 : statementTypeIndex.value = 0;

@@ -295,7 +295,7 @@
 //                   Text(
 //                     label,
 //                     style: UTextStyles.bodyMedium.copyWith(
-//                       fontSize: 12,
+//                       fontSize: 13,
 //                       fontWeight: FontWeight.w500,
 //                       color: Ucolors.onSurfaceVariant,
 //                       letterSpacing: 0.24,
@@ -464,7 +464,7 @@
 //                   TextSpan(
 //                     text: email,
 //                     style: UTextStyles.bodyMedium.copyWith(
-//                       fontWeight: FontWeight.w700,
+//                       fontWeight: FontWeight.w500,
 //                     ),
 //                   ),
 //                   TextSpan(text: '.'),
@@ -573,7 +573,7 @@
 //                 label,
 //                 style: TextStyle(
 //                   fontFamily: 'Inter',
-//                   fontSize: 12,
+//                   fontSize: 13,
 //                   fontWeight: FontWeight.w500,
 //                   letterSpacing: 0.24,
 //                   color: filled
@@ -707,7 +707,7 @@
 //         Text(
 //           'Verified securely via NSDL',
 //           style: UTextStyles.bodyMedium.copyWith(
-//             fontSize: 12,
+//             fontSize: 13,
 //             fontWeight: FontWeight.w500,
 //             color: Ucolors.onSurfaceVariant,
 //             letterSpacing: 0.24,
@@ -796,7 +796,7 @@
 //                     label,
 //                     style: const TextStyle(
 //                       fontFamily: 'Inter',
-//                       fontSize: 12,
+//                       fontSize: 13,
 //                       fontWeight: FontWeight.w500,
 //                       color: Ucolors.onSurfaceVariant,
 //                     ),
@@ -840,9 +840,15 @@ class DownloadStatementsScreen extends GetView<PersonalisationController> {
   const DownloadStatementsScreen({super.key});
 
   static const double _desktopBreakpoint = 900;
-
+  static bool? forcedIsCapitalMode;
   @override
   Widget build(BuildContext context) {
+    if (forcedIsCapitalMode != null) {
+      // Use microtask or postFrameCallback to avoid modifying state during build phase
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.setStatementMode(isCapital: forcedIsCapitalMode!);
+      });
+    }
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -976,7 +982,7 @@ class _DesktopDownloadStatementsLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8FC),
+      backgroundColor: Ucolors.white,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -989,18 +995,15 @@ class _DesktopDownloadStatementsLayout extends StatelessWidget {
                 isLaptop ? 24 : 32,
                 32,
               ),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1280),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _WebStatementHeader(ctrl: ctrl),
-                    const SizedBox(height: 26),
-                    _WebStatementFormCard(ctrl: ctrl),
-                    const SizedBox(height: 18),
-                    _WebStatementPreviewCard(ctrl: ctrl),
-                  ],
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _WebStatementHeader(ctrl: ctrl),
+                  const SizedBox(height: 26),
+                  _WebStatementFormCard(ctrl: ctrl),
+                  const SizedBox(height: 18),
+                  _WebStatementPreviewCard(ctrl: ctrl),
+                ],
               ),
             );
           },
@@ -1024,25 +1027,7 @@ class _WebStatementHeader extends StatelessWidget {
 
       return Row(
         children: [
-          InkWell(
-            onTap: () => Navigator.maybePop(context),
-            borderRadius: BorderRadius.circular(18),
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: const Color(0xFFEFF4FF),
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                size: 17,
-                color: Color(0xFF1545E8),
-              ),
-            ),
-          ),
 
-          const SizedBox(width: 18),
 
           Expanded(
             child: Column(
@@ -1055,7 +1040,7 @@ class _WebStatementHeader extends StatelessWidget {
                   style: UTextStyles.sectionHeading.copyWith(
                     fontSize: 28,
                     height: 1.15,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                     color: const Color(0xFF111827),
                   ),
                 ),
@@ -1065,7 +1050,7 @@ class _WebStatementHeader extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UTextStyles.bodyMedium.copyWith(
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: const Color(0xFF667085),
                   ),
@@ -1094,16 +1079,16 @@ class _WebStatementHeader extends StatelessWidget {
                   child: const Icon(
                     Icons.verified_user_outlined,
                     size: 17,
-                    color: Color(0xFF174CEA),
+                    color: Ucolors.primary,
                   ),
                 ),
                 const SizedBox(width: 10),
                 Text(
                   'Secure statement centre',
                   style: UTextStyles.bodyMedium.copyWith(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF174CEA),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Ucolors.primary,
                   ),
                 ),
               ],
@@ -1140,93 +1125,98 @@ class _WebStatementFormCard extends StatelessWidget {
         builder: (context, constraints) {
           final bool compact = constraints.maxWidth < 950;
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              compact
-                  ? Column(
-                      children: [
-                        _WebStatementSource(ctrl: ctrl),
-                        const SizedBox(height: 18),
-                        _WebPanFolioInput(ctrl: ctrl),
-                      ],
-                    )
-                  : Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(child: _WebStatementSource(ctrl: ctrl)),
-                        const SizedBox(width: 42),
-                        Expanded(child: _WebPanFolioInput(ctrl: ctrl)),
-                      ],
-                    ),
+          return Obx(()=> Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                compact
+                    ? Column(
+                        children: [
+                          ctrl.isCapitalGain.value? const SizedBox.shrink() :
+                          _WebStatementSource(ctrl: ctrl),
+                          ctrl.isCapitalGain.value? const SizedBox.shrink() :
+                          const SizedBox(height: 18),
+                          _WebPanFolioInput(ctrl: ctrl),
+                        ],
+                      )
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ctrl.isCapitalGain.value? const SizedBox.shrink() :
+                          Expanded(child: _WebStatementSource(ctrl: ctrl)),
+                          ctrl.isCapitalGain.value? const SizedBox.shrink() :
+                          const SizedBox(width: 42),
+                          Expanded(child: _WebPanFolioInput(ctrl: ctrl)),
+                        ],
+                      ),
 
-              const SizedBox(height: 28),
+                const SizedBox(height: 28),
 
-              _WebDurationSection(ctrl: ctrl),
+                _WebDurationSection(ctrl: ctrl),
 
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              _WebDateRangeBar(ctrl: ctrl),
+                _WebDateRangeBar(ctrl: ctrl),
 
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              Row(
-                children: [
-                  Expanded(child: _WebTaxReadyInfo()),
-                  const SizedBox(width: 16),
-                  Obx(() {
-                    final loading =
-                        ctrl.isRequestingStatement.value ||
-                        ctrl.isRequestingAccountStatement.value;
+                Row(
+                  children: [
+                    Expanded(child: _WebTaxReadyInfo()),
+                    const SizedBox(width: 16),
+                    Obx(() {
+                      final loading =
+                          ctrl.isRequestingStatement.value ||
+                          ctrl.isRequestingAccountStatement.value;
 
-                    return SizedBox(
-                      height: 54,
-                      width: 250,
-                      child: ElevatedButton(
-                        onPressed: loading ? null : ctrl.onDownload,
-                        style: ElevatedButton.styleFrom(
-                          elevation: 0,
-                          backgroundColor: const Color(0xFF134BE8),
-                          disabledBackgroundColor: const Color(0xFFBFD0FF),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                      return SizedBox(
+                        height: 54,
+                        width: 250,
+                        child: ElevatedButton(
+                          onPressed: loading ? null : ctrl.onDownload,
+                          style: ElevatedButton.styleFrom(
+                            elevation: 0,
+                            backgroundColor: Ucolors.primary,
+                            disabledBackgroundColor: const Color(0xFFBFD0FF),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
-                        ),
-                        child: loading
-                            ? const SizedBox(
-                                width: 22,
-                                height: 22,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.4,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.post_add_rounded,
-                                    size: 24,
+                          child: loading
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.4,
                                     color: Colors.white,
                                   ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    'Generate Statement',
-                                    style: UTextStyles.bodyMedium.copyWith(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w900,
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.post_add_rounded,
+                                      size: 24,
                                       color: Colors.white,
                                     ),
-                                  ),
-                                ],
-                              ),
-                      ),
-                    );
-                  }),
-                ],
-              ),
-            ],
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      'Generate Statement',
+                                      style: UTextStyles.bodyMedium.copyWith(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -1303,16 +1293,14 @@ class _WebSegmentButton extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(22),
             gradient: active
-                ? const LinearGradient(
-                    colors: [Color(0xFF143FE2), Color(0xFF003CCB)],
-                  )
+                ? Ucolors.backgroundGradient
                 : null,
           ),
           child: Text(
             label,
             style: UTextStyles.bodyMedium.copyWith(
               fontSize: 14,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               color: active ? Colors.white : const Color(0xFF475467),
             ),
           ),
@@ -1336,7 +1324,7 @@ class _WebPanFolioInput extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _WebStepTitle(
-            number: '2.',
+            number: ctrl.statementTypeIndex.value == 0 ? '2.' : '1.',
             title: isPan ? 'Enter PAN' : 'Select Folio',
           ),
           const SizedBox(height: 12),
@@ -1360,7 +1348,7 @@ class _WebPanFolioInput extends StatelessWidget {
                     ? 'Verified securely via NSDL'
                     : 'Folio verified securely',
                 style: UTextStyles.bodyMedium.copyWith(
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: const Color(0xFF667085),
                 ),
@@ -1386,7 +1374,7 @@ class _WebReadOnlyPanField extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFF2F69F6), width: 1.2),
+          border: Border.all(color:Ucolors.primary, width: 1.2),
         ),
         child: TextField(
           controller: ctrl.panController,
@@ -1396,7 +1384,7 @@ class _WebReadOnlyPanField extends StatelessWidget {
           ],
           style: UTextStyles.bodyMedium.copyWith(
             fontSize: 15,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w600,
             color: const Color(0xFF344054),
           ),
           decoration: const InputDecoration(
@@ -1454,7 +1442,7 @@ class _WebFolioDropdown extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: UTextStyles.bodyMedium.copyWith(
                   fontSize: 15,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   color: const Color(0xFF344054),
                 ),
               ),
@@ -1480,7 +1468,7 @@ class _WebDurationSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _WebStepTitle(number: '3.', title: 'Select Duration'),
+        _WebStepTitle(number:  ctrl.statementTypeIndex.value == 0 ? '3.' : '2.', title: 'Select Duration'),
 
         const SizedBox(height: 12),
 
@@ -1606,20 +1594,16 @@ class _WebDurationTile extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           gradient: active
-              ? const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF143FE2), Color(0xFF003CCB)],
-                )
+              ? Ucolors.backgroundGradient
               : null,
           color: active ? null : const Color(0xFFFBFCFF),
           border: Border.all(
-            color: active ? const Color(0xFF003CCB) : const Color(0xFFDCE3EF),
+            color: active ? Ucolors.primary : const Color(0xFFDCE3EF),
           ),
           boxShadow: active
               ? [
                   BoxShadow(
-                    color: const Color(0xFF003CCB).withOpacity(0.18),
+                    color: Ucolors.primary.withOpacity(0.18),
                     blurRadius: 14,
                     offset: const Offset(0, 6),
                   ),
@@ -1640,8 +1624,8 @@ class _WebDurationTile extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: UTextStyles.bodyMedium.copyWith(
-                fontSize: 13,
-                fontWeight: FontWeight.w900,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
                 color: active ? Colors.white : const Color(0xFF111827),
               ),
             ),
@@ -1651,7 +1635,7 @@ class _WebDurationTile extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: UTextStyles.bodyMedium.copyWith(
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w500,
                 color: active
                     ? Colors.white.withOpacity(0.86)
@@ -1705,7 +1689,7 @@ class _WebDateRangeBar extends StatelessWidget {
                     ? ctrl.formatDate(ctrl.startDate.value)
                     : 'Select start date',
                 style: UTextStyles.bodyMedium.copyWith(
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: isCustom
                       ? const Color(0xFF475467)
@@ -1729,7 +1713,7 @@ class _WebDateRangeBar extends StatelessWidget {
                       ? ctrl.formatDate(ctrl.endDate.value)
                       : 'Select end date',
                   style: UTextStyles.bodyMedium.copyWith(
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: isCustom
                         ? const Color(0xFF475467)
@@ -1761,7 +1745,7 @@ class _WebTaxReadyInfo extends StatelessWidget {
           const Icon(
             Icons.info_outline_rounded,
             size: 22,
-            color: Color(0xFF174CEA),
+            color: Ucolors.primary,
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -1770,9 +1754,9 @@ class _WebTaxReadyInfo extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: UTextStyles.bodyMedium.copyWith(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF174CEA),
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Ucolors.primary,
               ),
             ),
           ),
@@ -1817,7 +1801,7 @@ class _WebStatementPreviewCard extends StatelessWidget {
                         'Statement Preview',
                         style: UTextStyles.sectionHeading.copyWith(
                           fontSize: 16,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w600,
                           color: const Color(0xFF111827),
                         ),
                       ),
@@ -1825,7 +1809,7 @@ class _WebStatementPreviewCard extends StatelessWidget {
                       Text(
                         'Preview your transactions for the selected duration.',
                         style: UTextStyles.bodyMedium.copyWith(
-                          fontSize: 13,
+                          fontSize: 14,
                           fontWeight: FontWeight.w500,
                           color: const Color(0xFF667085),
                         ),
@@ -1835,13 +1819,13 @@ class _WebStatementPreviewCard extends StatelessWidget {
                 ),
                 _PreviewIconButton(
                   icon: Icons.mail_outline_rounded,
-                  color: const Color(0xFF174CEA),
+                  color: Ucolors.primary,
                   onTap: ctrl.onEmail,
                 ),
                 const SizedBox(width: 12),
                 _PreviewIconButton(
                   icon: Icons.picture_as_pdf_rounded,
-                  color: const Color(0xFFE52929),
+                  color: Ucolors.red,
                   onTap: ctrl.onDownload,
                 ),
                 const SizedBox(width: 12),
@@ -1853,7 +1837,7 @@ class _WebStatementPreviewCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 _PreviewIconButton(
                   icon: Icons.print_rounded,
-                  color: const Color(0xFF174CEA),
+                  color: Ucolors.primary,
                   onTap: ctrl.onDownload,
                 ),
               ],
@@ -1893,18 +1877,18 @@ class _WebStatementPreviewCard extends StatelessWidget {
                       color: const Color(0xFFEFF4FF),
                       borderRadius: BorderRadius.circular(18),
                     ),
-                    child: const Icon(
+                    child:  Icon(
                       Icons.manage_search_rounded,
                       size: 40,
-                      color: Color(0xFF174CEA),
+                      color: Ucolors.primary,
                     ),
                   ),
                   const SizedBox(height: 12),
                   Text(
                     'No transactions found for the selected duration.',
                     style: UTextStyles.bodyMedium.copyWith(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
                       color: const Color(0xFF475467),
                     ),
                   ),
@@ -1912,7 +1896,7 @@ class _WebStatementPreviewCard extends StatelessWidget {
                   Text(
                     'Try changing the date range or source to preview your statement.',
                     style: UTextStyles.bodyMedium.copyWith(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w500,
                       color: const Color(0xFF667085),
                     ),
@@ -1974,8 +1958,8 @@ class _PreviewHeaderCell extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: UTextStyles.bodyMedium.copyWith(
-            fontSize: 12,
-            fontWeight: FontWeight.w900,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
             color: const Color(0xFF344054),
           ),
         ),
@@ -1997,8 +1981,8 @@ class _WebStepTitle extends StatelessWidget {
         Text(
           number,
           style: UTextStyles.bodyMedium.copyWith(
-            fontSize: 13,
-            fontWeight: FontWeight.w900,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
             color: const Color(0xFF111827),
           ),
         ),
@@ -2006,8 +1990,8 @@ class _WebStepTitle extends StatelessWidget {
         Text(
           title,
           style: UTextStyles.bodyMedium.copyWith(
-            fontSize: 13,
-            fontWeight: FontWeight.w900,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
             color: const Color(0xFF111827),
           ),
         ),
@@ -2103,7 +2087,7 @@ class _WebStepTitle extends StatelessWidget {
 //                   title,
 //                   style: UTextStyles.sectionHeading.copyWith(
 //                     fontSize: 28,
-//                     fontWeight: FontWeight.w800,
+//                     fontWeight: FontWeight.w600,
 //                     color: Ucolors.onSurface,
 //                   ),
 //                 ),
@@ -2138,7 +2122,7 @@ class _WebStepTitle extends StatelessWidget {
 //                   'Secure statement centre',
 //                   style: UTextStyles.caption.copyWith(
 //                     color: Ucolors.primaryContainer,
-//                     fontWeight: FontWeight.w700,
+//                     fontWeight: FontWeight.w500,
 //                   ),
 //                 ),
 //               ],
@@ -2254,7 +2238,7 @@ class _WebStepTitle extends StatelessWidget {
 //                 title,
 //                 style: UTextStyles.sectionHeading.copyWith(
 //                   fontSize: 20,
-//                   fontWeight: FontWeight.w800,
+//                   fontWeight: FontWeight.w600,
 //                   color: Ucolors.onSurface,
 //                 ),
 //               ),
@@ -2262,7 +2246,7 @@ class _WebStepTitle extends StatelessWidget {
 //               Text(
 //                 subtitle,
 //                 style: UTextStyles.bodyMedium.copyWith(
-//                   fontSize: 13,
+//                   fontSize: 14,
 //                   color: Ucolors.onSurfaceVariant,
 //                   height: 1.35,
 //                 ),
@@ -2352,7 +2336,7 @@ class _WebStepTitle extends StatelessWidget {
 //               'Ready to generate',
 //               style: UTextStyles.sectionHeading.copyWith(
 //                 fontSize: 22,
-//                 fontWeight: FontWeight.w800,
+//                 fontWeight: FontWeight.w600,
 //                 color: Ucolors.onSurface,
 //               ),
 //             ),
@@ -2360,7 +2344,7 @@ class _WebStepTitle extends StatelessWidget {
 //             Text(
 //               'Review the selected options, then download the statement or send it to the registered email.',
 //               style: UTextStyles.bodyMedium.copyWith(
-//                 fontSize: 13,
+//                 fontSize: 14,
 //                 color: Ucolors.onSurfaceVariant,
 //                 height: 1.5,
 //               ),
@@ -2461,7 +2445,7 @@ class _WebStepTitle extends StatelessWidget {
 //                 Text(
 //                   label,
 //                   style: UTextStyles.caption.copyWith(
-//                     fontSize: 12,
+//                     fontSize: 13,
 //                     color: Ucolors.onSurfaceVariant,
 //                     fontWeight: FontWeight.w500,
 //                   ),
@@ -2472,7 +2456,7 @@ class _WebStepTitle extends StatelessWidget {
 //                   style: UTextStyles.bodyMedium.copyWith(
 //                     fontSize: 14,
 //                     color: Ucolors.onSurface,
-//                     fontWeight: FontWeight.w700,
+//                     fontWeight: FontWeight.w500,
 //                     height: 1.35,
 //                   ),
 //                 ),
@@ -2535,7 +2519,7 @@ class _WebStepTitle extends StatelessWidget {
 //                 label,
 //                 style: UTextStyles.bodyMedium.copyWith(
 //                   fontSize: 14,
-//                   fontWeight: FontWeight.w700,
+//                   fontWeight: FontWeight.w500,
 //                   color: filled ? Ucolors.white : Ucolors.onSecondaryContainer,
 //                 ),
 //               ),
@@ -2728,7 +2712,7 @@ class _DropdownTile extends StatelessWidget {
                   Text(
                     label,
                     style: UTextStyles.bodyMedium.copyWith(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w500,
                       color: Ucolors.onSurfaceVariant,
                       letterSpacing: 0.24,
@@ -2897,7 +2881,7 @@ class _InfoBanner extends StatelessWidget {
                   TextSpan(
                     text: email,
                     style: UTextStyles.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   TextSpan(text: '.'),
@@ -3006,7 +2990,7 @@ class _ActionButton extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: FontWeight.w500,
                   letterSpacing: 0.24,
                   color: filled
@@ -3140,7 +3124,7 @@ class _NsdlInfo extends StatelessWidget {
         Text(
           'Verified securely via NSDL',
           style: UTextStyles.bodyMedium.copyWith(
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: FontWeight.w500,
             color: Ucolors.onSurfaceVariant,
             letterSpacing: 0.24,
@@ -3229,7 +3213,7 @@ class _DateTile extends StatelessWidget {
                     label,
                     style: const TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w500,
                       color: Ucolors.onSurfaceVariant,
                     ),

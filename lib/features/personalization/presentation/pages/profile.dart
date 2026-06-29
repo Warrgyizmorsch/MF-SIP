@@ -512,6 +512,7 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
               Get.find<PersonalisationController>().setStatementMode(
                 isCapital: false,
               );
+              DownloadStatementsScreen.forcedIsCapitalMode = false;
               Get.to(() => DownloadStatementsScreen());
             },
             title: 'Account Statement',
@@ -522,6 +523,7 @@ class ActivityGeneralSectionMobile extends StatelessWidget {
               Get.find<PersonalisationController>().setStatementMode(
                 isCapital: true,
               );
+              DownloadStatementsScreen.forcedIsCapitalMode = true;
               Get.to(() => DownloadStatementsScreen());
             },
             title: 'ElSS Report',
