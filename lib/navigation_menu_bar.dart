@@ -23,6 +23,7 @@ import 'package:my_sip/features/explore/presentation/controller/fundhouse_contro
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
 import 'package:my_sip/features/explore/presentation/widget/webfilterpage.dart';
+import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
 import 'package:my_sip/features/goal/presentation/pages/goal.dart';
 import 'package:my_sip/features/home/presentation/pages/home.dart';
 import 'package:my_sip/features/kyc/data/datasource/kyc_remote_data_source.dart';
@@ -195,20 +196,122 @@ class NavigationBarController extends GetxController {
 
   //   return AppRoutes.home;
   // }
+  // String get initialNestedRoute {
+  //   if (!kIsWeb) return AppRoutes.home;
+
+  //   final path = currentWebPath();
+  //   final cleanPath = path.split('?').first;
+
+  //   if (cleanPath.isEmpty ||
+  //       cleanPath == '/' ||
+  //       cleanPath == AppRoutes.navMenuBar) {
+  //     return AppRoutes.home;
+  //   }
+
+  //   return cleanPath;
+  // }
   String get initialNestedRoute {
     if (!kIsWeb) return AppRoutes.home;
 
     final path = currentWebPath();
-    final cleanPath = path.split('?').first;
 
-    if (cleanPath.isEmpty ||
-        cleanPath == '/' ||
-        cleanPath == AppRoutes.navMenuBar) {
+    if (path.isEmpty || path == '/') {
       return AppRoutes.home;
     }
 
-    return cleanPath;
+    return path; // query ke sath return karega
   }
+
+  String _buildWebUrl(String route, Map<String, String>? queryParameters) {
+    return Uri(
+      path: route,
+      queryParameters: queryParameters == null || queryParameters.isEmpty
+          ? null
+          : queryParameters,
+    ).toString();
+  }
+
+  void openNestedRoute(
+    String route, {
+    Map<String, String>? queryParameters,
+    dynamic arguments,
+    VoidCallback? beforeOpen,
+  }) {
+    beforeOpen?.call();
+
+    final webUrl = _buildWebUrl(route, queryParameters);
+
+    if (kIsWeb) {
+      pushWebPath(webUrl);
+    }
+
+    Get.toNamed(
+      route,
+      id: 1,
+      arguments: arguments ?? queryParameters,
+      preventDuplicates: false,
+    );
+  }
+
+  // String _buildWebUrl(String route, Map<String, String>? queryParameters) {
+  //   final uri = Uri(
+  //     path: route,
+  //     queryParameters: queryParameters == null || queryParameters.isEmpty
+  //         ? null
+  //         : queryParameters,
+  //   );
+
+  //   return uri.toString();
+  // }
+
+  // void openNestedRoute(
+  //   String route, {
+  //   Map<String, String>? queryParameters,
+  //   dynamic arguments,
+  //   VoidCallback? beforeOpen,
+  // }) {
+  //   final webUrl = _buildWebUrl(route, queryParameters);
+
+  //   // 1. First prepare data
+  //   beforeOpen?.call();
+
+  //   // 2. Change browser URL only
+  //   if (kIsWeb) {
+  //     pushWebPath(webUrl);
+  //   }
+
+  //   // 3. Navigate nested Navigator with CLEAN route only
+  //   Get.toNamed(
+  //     route,
+  //     id: 1,
+  //     arguments: arguments ?? queryParameters,
+  //     preventDuplicates: false,
+  //   );
+  // }
+
+  // String _buildWebUrl(String route, Map<String, String>? queryParameters) {
+  //   return Uri(
+  //     path: route,
+  //     queryParameters: queryParameters == null || queryParameters.isEmpty
+  //         ? null
+  //         : queryParameters,
+  //   ).toString();
+  // }
+
+  // void openNestedRoute(
+  //   String route, {
+  //   Map<String, String>? queryParameters,
+  //   dynamic arguments,
+  //   VoidCallback? beforeOpen,
+  // }) {
+  //   beforeOpen?.call();
+
+  //   if (kIsWeb) {
+  //     pushWebPath(_buildWebUrl(route, queryParameters));
+  //   }
+
+  //   Get.toNamed(route, id: 1, arguments: arguments ?? queryParameters);
+  // }
 
   int _indexFromRoute(String route, {String fullPath = ''}) {
     switch (route) {
@@ -275,20 +378,34 @@ class NavigationBarController extends GetxController {
   }
 
   void _handleBrowserBack(String path) {
-    final cleanRoute = path.split('?').first;
+    final uri = Uri.parse(path.isEmpty || path == '/' ? AppRoutes.home : path);
 
-    final route = cleanRoute.isEmpty || cleanRoute == '/'
+    final route = uri.path.isEmpty || uri.path == '/'
         ? AppRoutes.home
-        : cleanRoute;
+        : uri.path;
 
     selectedIndex.value = _indexFromRoute(route, fullPath: path);
 
-    if (selectedIndex.value >= 40 && selectedIndex.value <= 45) {
-      isProfileExpanded.value = true;
-    }
+    _applyUrlData(route, uri.queryParameters);
 
-    Get.toNamed(route, id: 1);
+    Get.toNamed(route, id: 1, arguments: uri.queryParameters);
   }
+
+  // void _handleBrowserBack(String path) {
+  //   final cleanRoute = path.split('?').first;
+
+  //   final route = cleanRoute.isEmpty || cleanRoute == '/'
+  //       ? AppRoutes.home
+  //       : cleanRoute;
+
+  //   selectedIndex.value = _indexFromRoute(route, fullPath: path);
+
+  //   if (selectedIndex.value >= 40 && selectedIndex.value <= 45) {
+  //     isProfileExpanded.value = true;
+  //   }
+
+  //   Get.toNamed(route, id: 1);
+  // }
 
   // void _handleBrowserBack(String path) {
   //   if (!path.startsWith(AppRoutes.navMenuBar)) return;
@@ -308,17 +425,20 @@ class NavigationBarController extends GetxController {
 
   //   Get.toNamed(route, id: 1);
   // }
-
   void _syncTabWithUrl() {
     if (kIsWeb) {
       final path = currentWebPath();
-      final route = initialNestedRoute;
+
+      final uri = Uri.parse(
+        path.isEmpty || path == '/' ? AppRoutes.home : path,
+      );
+      final route = uri.path.isEmpty || uri.path == '/'
+          ? AppRoutes.home
+          : uri.path;
 
       selectedIndex.value = _indexFromRoute(route, fullPath: path);
 
-      if (selectedIndex.value >= 40 && selectedIndex.value <= 45) {
-        isProfileExpanded.value = true;
-      }
+      _applyUrlData(route, uri.queryParameters);
 
       return;
     }
@@ -338,6 +458,63 @@ class NavigationBarController extends GetxController {
       selectedIndex.value = 0;
     }
   }
+
+  void _applyUrlData(String route, Map<String, String> params) {
+    switch (route) {
+      case AppRoutes.startSipScreen:
+        final isLumpsum = params['type'] == 'lumpsum';
+        SipProcessController.navIsLumpsum = isLumpsum;
+        break;
+
+      case AppRoutes.downloadStatement:
+        final isCapital = params['mode'] == 'capital';
+        personalisationController.setStatementMode(isCapital: isCapital);
+        DownloadStatementsScreen.forcedIsCapitalMode = isCapital;
+        break;
+
+      case AppRoutes.funddetails:
+        FundDetailsScreen.navData = {
+          'scheme': params['scheme'] ?? '',
+          'imgUrl': params['imgUrl'] ?? '',
+          'scheme_code': params['scheme_code'] ?? '',
+        };
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  // void _syncTabWithUrl() {
+  //   if (kIsWeb) {
+  //     final path = currentWebPath();
+  //     final route = initialNestedRoute;
+
+  //     selectedIndex.value = _indexFromRoute(route, fullPath: path);
+
+  //     if (selectedIndex.value >= 40 && selectedIndex.value <= 45) {
+  //       isProfileExpanded.value = true;
+  //     }
+
+  //     return;
+  //   }
+
+  //   String currentRoute = Get.currentRoute;
+
+  //   if (currentRoute.contains(AppRoutes.explorePage)) {
+  //     selectedIndex.value = 1;
+  //   } else if (currentRoute.contains(AppRoutes.dashBoardPage)) {
+  //     selectedIndex.value = 2;
+  //   } else if (currentRoute.contains(AppRoutes.goalScreen)) {
+  //     selectedIndex.value = 3;
+  //   } else if (currentRoute.contains(AppRoutes.profilePage)) {
+  //     selectedIndex.value = 40;
+  //     isProfileExpanded.value = true;
+  //   } else {
+  //     selectedIndex.value = 0;
+  //   }
+  // }
+
   // void _syncTabWithUrl() {
   //   String currentRoute = Get.currentRoute;
   //   if (currentRoute.contains(AppRoutes.explorePage)) {
@@ -521,8 +698,13 @@ class NavigationBarController extends GetxController {
       }
 
       String urlRoute = route;
+      Map<String, String>? queryParams;
+
+      // if (index == 6) {
+      //   urlRoute = '${AppRoutes.downloadStatement}?mode=capital';
+      // }
       if (index == 6) {
-        urlRoute = '${AppRoutes.downloadStatement}?mode=capital';
+        queryParams = {'mode': 'capital'};
       }
 
       if (index >= 50 && index <= 54) {
@@ -534,40 +716,102 @@ class NavigationBarController extends GetxController {
         // Get.toNamed(route, id: 1);
       }
 
-      openWebRoute(route, urlRoute: urlRoute);
+      // openWebRoute(route, urlRoute: urlRoute);
+      openNestedRoute(route, queryParameters: queryParams);
 
       // Get.toNamed(route, id: 1); // id: 1 keeps header/sidebar fixed!
     }
   }
 
-  void navigateToExploreWithFilter(VoidCallback? filterLogic) {
+  void navigateToExploreWithFilter(
+    VoidCallback? filterLogic, {
+    String? filter,
+  }) {
     if (kIsWeb) {
-      // Get.toNamed(AppRoutes.explorePage, id: 1);
-      openWebRoute(AppRoutes.explorePage);
+      openNestedRoute(
+        AppRoutes.explorePage,
+        queryParameters: filter == null ? null : {'filter': filter},
+      );
     } else {
       changePage(1, isDesktop: false);
     }
 
-    Future.delayed(Duration(milliseconds: kIsWeb ? 100 : 10), () {
+    Future.delayed(Duration(milliseconds: kIsWeb ? 120 : 10), () {
       isProfileExpanded.value = false;
       isHelpExpanded.value = false;
-
+      isInvestExpanded.value = false;
       selectedIndex.value = 1;
+
       if (Get.isRegistered<MutualFundController>()) {
         Get.find<MutualFundController>().nextPopularGroup();
       }
 
-      // if (filterLogic != null) {
-      //   filterLogic();
-      // }
       if (filterLogic != null) {
-        // 🚀 FIX: Give Web UI breathing room to navigate before filtering
         Future.delayed(const Duration(milliseconds: 150), () {
           filterLogic();
         });
       }
     });
   }
+
+  // void navigateToExploreWithFilter(
+  //   VoidCallback? filterLogic, {
+  //   String? filter,
+  // }) {
+  //   if (kIsWeb) {
+  //     openNestedRoute(
+  //       AppRoutes.explorePage,
+  //       queryParameters: filter == null ? null : {'filter': filter},
+  //     );
+  //   } else {
+  //     changePage(1, isDesktop: false);
+  //   }
+
+  //   Future.delayed(Duration(milliseconds: kIsWeb ? 100 : 10), () {
+  //     isProfileExpanded.value = false;
+  //     isHelpExpanded.value = false;
+  //     selectedIndex.value = 1;
+
+  //     if (Get.isRegistered<MutualFundController>()) {
+  //       Get.find<MutualFundController>().nextPopularGroup();
+  //     }
+
+  //     if (filterLogic != null) {
+  //       Future.delayed(const Duration(milliseconds: 150), () {
+  //         filterLogic();
+  //       });
+  //     }
+  //   });
+  // }
+
+  // void navigateToExploreWithFilter(VoidCallback? filterLogic) {
+  //   if (kIsWeb) {
+  //     // Get.toNamed(AppRoutes.explorePage, id: 1);
+  //     openWebRoute(AppRoutes.explorePage);
+  //   } else {
+  //     changePage(1, isDesktop: false);
+  //   }
+
+  //   Future.delayed(Duration(milliseconds: kIsWeb ? 100 : 10), () {
+  //     isProfileExpanded.value = false;
+  //     isHelpExpanded.value = false;
+
+  //     selectedIndex.value = 1;
+  //     if (Get.isRegistered<MutualFundController>()) {
+  //       Get.find<MutualFundController>().nextPopularGroup();
+  //     }
+
+  //     // if (filterLogic != null) {
+  //     //   filterLogic();
+  //     // }
+  //     if (filterLogic != null) {
+  //       // 🚀 FIX: Give Web UI breathing room to navigate before filtering
+  //       Future.delayed(const Duration(milliseconds: 150), () {
+  //         filterLogic();
+  //       });
+  //     }
+  //   });
+  // }
 
   bool get isProfileActive =>
       selectedIndex.value >= 40 && selectedIndex.value < 50;
@@ -766,18 +1010,30 @@ class NavigationMenuBar extends StatelessWidget {
                                   // initialRoute: AppRoutes.home,
                                   initialRoute: controller.initialNestedRoute,
                                   onGenerateRoute: (settings) {
+                                    final rawName =
+                                        settings.name ?? AppRoutes.home;
+                                    final uri = Uri.parse(rawName);
+
+                                    final routeName =
+                                        uri.path.isEmpty || uri.path == '/'
+                                        ? AppRoutes.home
+                                        : uri.path;
+
                                     if ((isDesktop || isTablet) &&
-                                        settings.name ==
-                                            AppRoutes.profilePage) {
+                                        routeName == AppRoutes.profilePage) {
                                       return GetPageRoute(
-                                        settings: settings,
+                                        settings: RouteSettings(
+                                          name: routeName,
+                                          arguments:
+                                              settings.arguments ??
+                                              uri.queryParameters,
+                                        ),
                                         page: () =>
                                             const WebProfileDashboardScreen(),
                                         transition: Transition.fadeIn,
                                       );
                                     }
-                                    // final List<GetPage> allPages =
-                                    //     AppPages.pages();
+
                                     final List<GetPage> allPages =
                                         AppPages.nestedPages();
 
@@ -785,15 +1041,20 @@ class NavigationMenuBar extends StatelessWidget {
 
                                     try {
                                       page = allPages.firstWhere(
-                                        (p) => p.name == settings.name,
+                                        (p) => p.name == routeName,
                                       );
-                                    } catch (e) {
+                                    } catch (_) {
                                       page = null;
                                     }
 
                                     if (page != null) {
                                       return GetPageRoute(
-                                        settings: settings,
+                                        settings: RouteSettings(
+                                          name: routeName,
+                                          arguments:
+                                              settings.arguments ??
+                                              uri.queryParameters,
+                                        ),
                                         page: page.page,
                                         binding: page.binding,
                                         bindings: page.bindings,
@@ -805,6 +1066,109 @@ class NavigationMenuBar extends StatelessWidget {
                                       page: () => const HomeScreen(),
                                     );
                                   },
+                                  // onGenerateRoute: (settings) {
+                                  //   final rawName =
+                                  //       settings.name ?? AppRoutes.home;
+                                  //   final uri = Uri.parse(rawName);
+
+                                  //   final routeName =
+                                  //       uri.path.isEmpty || uri.path == '/'
+                                  //       ? AppRoutes.home
+                                  //       : uri.path;
+
+                                  //   controller._applyUrlData(
+                                  //     routeName,
+                                  //     uri.queryParameters,
+                                  //   );
+
+                                  //   if ((isDesktop || isTablet) &&
+                                  //       routeName == AppRoutes.profilePage) {
+                                  //     return GetPageRoute(
+                                  //       settings: RouteSettings(
+                                  //         name: routeName,
+                                  //         arguments:
+                                  //             settings.arguments ??
+                                  //             uri.queryParameters,
+                                  //       ),
+                                  //       page: () =>
+                                  //           const WebProfileDashboardScreen(),
+                                  //       transition: Transition.fadeIn,
+                                  //     );
+                                  //   }
+
+                                  //   final List<GetPage> allPages =
+                                  //       AppPages.nestedPages();
+
+                                  //   GetPage? page;
+
+                                  //   try {
+                                  //     page = allPages.firstWhere(
+                                  //       (p) => p.name == routeName,
+                                  //     );
+                                  //   } catch (e) {
+                                  //     page = null;
+                                  //   }
+
+                                  //   if (page != null) {
+                                  //     return GetPageRoute(
+                                  //       settings: RouteSettings(
+                                  //         name: routeName,
+                                  //         arguments:
+                                  //             settings.arguments ??
+                                  //             uri.queryParameters,
+                                  //       ),
+                                  //       page: page.page,
+                                  //       binding: page.binding,
+                                  //       bindings: page.bindings,
+                                  //       transition: Transition.fadeIn,
+                                  //     );
+                                  //   }
+
+                                  //   return GetPageRoute(
+                                  //     page: () => const HomeScreen(),
+                                  //   );
+                                  // },
+
+                                  // onGenerateRoute: (settings) {
+                                  //   if ((isDesktop || isTablet) &&
+                                  //       settings.name ==
+                                  //           AppRoutes.profilePage) {
+                                  //     return GetPageRoute(
+                                  //       settings: settings,
+                                  //       page: () =>
+                                  //           const WebProfileDashboardScreen(),
+                                  //       transition: Transition.fadeIn,
+                                  //     );
+                                  //   }
+                                  //   // final List<GetPage> allPages =
+                                  //   //     AppPages.pages();
+                                  //   final List<GetPage> allPages =
+                                  //       AppPages.nestedPages();
+
+                                  //   GetPage? page;
+
+                                  //   try {
+                                  //     page = allPages.firstWhere(
+                                  //       (p) => p.name == settings.name,
+                                  //     );
+                                  //   } catch (e) {
+                                  //     page = null;
+                                  //   }
+
+                                  //   if (page != null) {
+                                  //     return GetPageRoute(
+                                  //       settings: settings,
+                                  //       page: page.page,
+                                  //       binding: page.binding,
+                                  //       bindings: page.bindings,
+                                  //       transition: Transition.fadeIn,
+                                  //     );
+                                  //   }
+
+                                  //   return GetPageRoute(
+                                  //     page: () => const HomeScreen(),
+                                  //   );
+                                  // },
                                 )
                               : Obx(() {
                                   switch (controller.selectedIndex.value) {
@@ -1601,6 +1965,7 @@ class _DesktopSideNav extends StatelessWidget {
                                             .navigateToExploreWithFilter(
                                               () => fundhouseController
                                                   .applyCustomSearch('index'),
+                                              filter: 'index-fund',
                                             ),
                                       ),
                                       _buildInvestSubItem(
@@ -1610,6 +1975,7 @@ class _DesktopSideNav extends StatelessWidget {
                                             .navigateToExploreWithFilter(
                                               () => fundhouseController
                                                   .applyInternationalFilter(),
+                                              filter: 'international-fund',
                                             ),
                                       ),
                                       _buildInvestSubItem(
@@ -1619,6 +1985,7 @@ class _DesktopSideNav extends StatelessWidget {
                                             .navigateToExploreWithFilter(
                                               () => fundhouseController
                                                   .applyBestSipFilter(1),
+                                              filter: 'best-sip',
                                             ),
                                       ),
                                       _buildInvestSubItem(
@@ -1631,6 +1998,7 @@ class _DesktopSideNav extends StatelessWidget {
                                                 .navigateToExploreWithFilter(
                                                   () => fundhouseController
                                                       .applyGoldFilter(),
+                                                  filter: 'gold-investment',
                                                 ),
                                       ),
                                       _buildInvestSubItem(

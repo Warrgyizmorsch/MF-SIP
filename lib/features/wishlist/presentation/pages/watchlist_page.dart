@@ -793,8 +793,7 @@ class WatchlistPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
-    log(Get.height.toString());
-    log(Get.width.toString());
+    
 
     return Scaffold(
       // backgroundColor: isDesktop

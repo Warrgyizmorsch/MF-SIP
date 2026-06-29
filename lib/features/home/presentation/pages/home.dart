@@ -296,7 +296,7 @@ class _WebDashboardLayout extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AnimatedWelcomeText(name: user?.name??"Investor"),
+            AnimatedWelcomeText(name: user?.name ?? "Investor"),
             const SizedBox(height: 6),
             const Text(
               'Stay consistent with your SIPs and reach your financial goals faster.',
@@ -912,6 +912,7 @@ class _WebDashboardLayout extends StatelessWidget {
         'img': UImages.savingbank,
         'tap': () => navController.navigateToExploreWithFilter(
           () => funds.applyBestSipFilter(1),
+          filter: 'best-sip',
         ),
       },
       {
@@ -919,6 +920,7 @@ class _WebDashboardLayout extends StatelessWidget {
         'img': UImages.highreturn,
         'tap': () => navController.navigateToExploreWithFilter(
           () => funds.applyHighReturnFilter(),
+          filter: 'high-return',
         ),
       },
       {
@@ -926,6 +928,7 @@ class _WebDashboardLayout extends StatelessWidget {
         'img': UImages.interfund,
         'tap': () => navController.navigateToExploreWithFilter(
           () => funds.applyInternationalFilter(),
+          filter: 'international-fund',
         ),
       },
       {
@@ -933,6 +936,7 @@ class _WebDashboardLayout extends StatelessWidget {
         'img': UImages.indexfund,
         'tap': () => navController.navigateToExploreWithFilter(
           () => funds.applyCustomSearch('index'),
+          filter: 'index-fund',
         ),
       },
       {
@@ -940,12 +944,14 @@ class _WebDashboardLayout extends StatelessWidget {
         'img': UImages.moneygold,
         'tap': () => navController.navigateToExploreWithFilter(
           () => funds.applyCommodityFilter(),
+          filter: 'commodities',
         ),
       },
       {
         'title': 'NFO',
         'img': UImages.equity,
-        'tap': () => Get.toNamed(AppRoutes.nfolist, id: 1),
+        'tap': () => navController.openNestedRoute(AppRoutes.nfolist),
+        // 'tap': () => Get.toNamed(AppRoutes.nfolist, id: 1),
       },
     ];
 
@@ -1116,15 +1122,71 @@ class _WebDashboardLayout extends StatelessWidget {
                         threeYear:
                             fund.returnsEntity?.threeYear?.toString() ?? '--',
                         onTap: () {
+                          final schemeName = fund.baseSchemeName?.trim() ?? '';
+                          final schemeCode =
+                              fund.schemeCode?.toString().trim() ?? '';
+
+                          if (schemeName.isEmpty || schemeCode.isEmpty) {
+                            debugPrint(
+                              'Fund details missing: scheme=$schemeName code=$schemeCode',
+                            );
+                            return;
+                          }
+
                           mutualController.addToLocalRecentlyViewed(fund);
-                          Get.delete<FundDetailsController>();
-                          FundDetailsScreen.navData = {
-                            'scheme': fund.baseSchemeName ?? '',
-                            'imgUrl': img,
-                            'scheme_code': fund.schemeCode.toString(),
-                          };
-                          Get.toNamed(AppRoutes.funddetails, id: 1);
+
+                          navController.openNestedRoute(
+                            AppRoutes.funddetails,
+                            queryParameters: {
+                              'scheme': schemeName,
+                              'scheme_code': schemeCode,
+                            },
+                            arguments: {
+                              'scheme': schemeName,
+                              'imgUrl': img,
+                              'scheme_code': schemeCode,
+                            },
+                            beforeOpen: () {
+                              if (Get.isRegistered<FundDetailsController>()) {
+                                Get.delete<FundDetailsController>();
+                              }
+
+                              FundDetailsScreen.navData = {
+                                'scheme': schemeName,
+                                'imgUrl': img,
+                                'scheme_code': schemeCode,
+                              };
+                            },
+                          );
                         },
+
+                        // onTap: () {
+                        //   mutualController.addToLocalRecentlyViewed(fund);
+                        //   // Get.delete<FundDetailsController>();
+                        //   // FundDetailsScreen.navData = {
+                        //   //   'scheme': fund.baseSchemeName ?? '',
+                        //   //   'imgUrl': img,
+                        //   //   'scheme_code': fund.schemeCode.toString(),
+                        //   // };
+                        //   // Get.toNamed(AppRoutes.funddetails, id: 1);
+                        //   navController.openNestedRoute(
+                        //     AppRoutes.funddetails,
+                        //     queryParameters: {
+                        //       'scheme_code': fund.schemeCode.toString(),
+                        //       'scheme': fund.baseSchemeName ?? '',
+                        //       'imgUrl': img,
+                        //     },
+                        //     beforeOpen: () {
+                        //       Get.delete<FundDetailsController>();
+
+                        //       FundDetailsScreen.navData = {
+                        //         'scheme': fund.baseSchemeName ?? '',
+                        //         'imgUrl': img,
+                        //         'scheme_code': fund.schemeCode.toString(),
+                        //       };
+                        //     },
+                        //   );
+                        // },
                       );
                     },
                   );
@@ -1327,10 +1389,18 @@ class _WebDashboardLayout extends StatelessWidget {
                   subtitle: 'Invest regularly',
                   onTap: () {
                     SipProcessController.navIsLumpsum = false;
-                    Get.toNamed(
+                    // Get.toNamed(
+                    //   AppRoutes.startSipScreen,
+                    //   id: 1,
+                    //   arguments: {'isLumpsum': false},
+                    // );
+                    navController.openNestedRoute(
                       AppRoutes.startSipScreen,
-                      id: 1,
+                      queryParameters: {'type': 'sip'},
                       arguments: {'isLumpsum': false},
+                      beforeOpen: () {
+                        SipProcessController.navIsLumpsum = false;
+                      },
                     );
                   },
                 ),
@@ -1341,10 +1411,18 @@ class _WebDashboardLayout extends StatelessWidget {
                   subtitle: 'Invest once',
                   onTap: () {
                     SipProcessController.navIsLumpsum = true;
-                    Get.toNamed(
+                    // Get.toNamed(
+                    //   AppRoutes.startSipScreen,
+                    //   id: 1,
+                    //   arguments: {'isLumpsum': true},
+                    // );
+                    navController.openNestedRoute(
                       AppRoutes.startSipScreen,
-                      id: 1,
+                      queryParameters: {'type': 'lumpsum'},
                       arguments: {'isLumpsum': true},
+                      beforeOpen: () {
+                        SipProcessController.navIsLumpsum = true;
+                      },
                     );
                   },
                 ),
@@ -1361,10 +1439,18 @@ class _WebDashboardLayout extends StatelessWidget {
                   subtitle: 'Invest regularly',
                   onTap: () {
                     SipProcessController.navIsLumpsum = false;
-                    Get.toNamed(
+                    // Get.toNamed(
+                    //   AppRoutes.startSipScreen,
+                    //   id: 1,
+                    //   arguments: {'isLumpsum': false},
+                    // );
+                    navController.openNestedRoute(
                       AppRoutes.startSipScreen,
-                      id: 1,
+                      queryParameters: {'type': 'sip'},
                       arguments: {'isLumpsum': false},
+                      beforeOpen: () {
+                        SipProcessController.navIsLumpsum = false;
+                      },
                     );
                   },
                 ),
@@ -1377,10 +1463,18 @@ class _WebDashboardLayout extends StatelessWidget {
                   subtitle: 'Invest once',
                   onTap: () {
                     SipProcessController.navIsLumpsum = true;
-                    Get.toNamed(
+                    // Get.toNamed(
+                    //   AppRoutes.startSipScreen,
+                    //   id: 1,
+                    //   arguments: {'isLumpsum': true},
+                    // );
+                    navController.openNestedRoute(
                       AppRoutes.startSipScreen,
-                      id: 1,
+                      queryParameters: {'type': 'lumpsum'},
                       arguments: {'isLumpsum': true},
+                      beforeOpen: () {
+                        SipProcessController.navIsLumpsum = true;
+                      },
                     );
                   },
                 ),
@@ -1631,14 +1725,43 @@ class _WebDashboardLayout extends StatelessWidget {
                       value:
                           '${fund.returnsEntity?.threeYear?.toString() ?? '--'}%',
                       onTap: () {
-                        Get.delete<FundDetailsController>();
-                        FundDetailsScreen.navData = {
-                          'scheme': fund.baseSchemeName ?? '',
-                          'imgUrl': img,
-                          'scheme_code': fund.schemeCode.toString(),
-                        };
-                        Get.toNamed(AppRoutes.funddetails, id: 1);
+                        final schemeName = fund.baseSchemeName ?? '';
+                        final schemeCode = fund.schemeCode?.toString() ?? '';
+
+                        navController.openNestedRoute(
+                          AppRoutes.funddetails,
+                          queryParameters: {
+                            'scheme_code': schemeCode,
+                            'scheme': schemeName,
+                          },
+                          arguments: {
+                            'scheme': schemeName,
+                            'imgUrl': img,
+                            'scheme_code': schemeCode,
+                          },
+                          beforeOpen: () {
+                            if (Get.isRegistered<FundDetailsController>()) {
+                              Get.delete<FundDetailsController>();
+                            }
+
+                            FundDetailsScreen.navData = {
+                              'scheme': schemeName,
+                              'imgUrl': img,
+                              'scheme_code': schemeCode,
+                            };
+                          },
+                        );
                       },
+
+                      // onTap: () {
+                      //   Get.delete<FundDetailsController>();
+                      //   FundDetailsScreen.navData = {
+                      //     'scheme': fund.baseSchemeName ?? '',
+                      //     'imgUrl': img,
+                      //     'scheme_code': fund.schemeCode.toString(),
+                      //   };
+                      //   Get.toNamed(AppRoutes.funddetails, id: 1);
+                      // },
                     ),
                   );
                 }).toList(),
@@ -1825,9 +1948,14 @@ class _WebDashboardLayout extends StatelessWidget {
   }) {
     return WebHoverTile(
       onTap: () {
-        Get.toNamed(
+        // Get.toNamed(
+        //   AppRoutes.masterGoalsPage,
+        //   id: 1,
+        //   arguments: {'goalType': type, 'isHome': true},
+        // );
+        navController.openNestedRoute(
           AppRoutes.masterGoalsPage,
-          id: 1,
+          queryParameters: {'goalType': type, 'isHome': 'true'},
           arguments: {'goalType': type, 'isHome': true},
         );
       },
@@ -1894,22 +2022,26 @@ class _WebDashboardLayout extends StatelessWidget {
       {
         'title': 'SIP Calculator',
         'img': UImages.sipcalci,
-        'tap': () => Get.toNamed(AppRoutes.sipCalculator, id: 1),
+        // 'tap': () => Get.toNamed(AppRoutes.sipCalculator, id: 1),
+        'tap': () => navController.openNestedRoute(AppRoutes.sipCalculator),
       },
       {
         'title': 'SWP Calculator',
         'img': UImages.swpcali,
-        'tap': () => Get.toNamed(AppRoutes.swpCalculator, id: 1),
+        'tap': () => navController.openNestedRoute(AppRoutes.swpCalculator),
+        // 'tap': () => Get.toNamed(AppRoutes.swpCalculator, id: 1),
       },
       {
         'title': 'Step-Up Calculator',
         'img': UImages.siptopcalci,
-        'tap': () => Get.toNamed(AppRoutes.stepUpCalculator, id: 1),
+        // 'tap': () => Get.toNamed(AppRoutes.stepUpCalculator, id: 1),
+        'tap': () => navController.openNestedRoute(AppRoutes.stepUpCalculator),
       },
       {
         'title': 'Compare Fund',
         'img': UImages.comparefund,
-        'tap': () => Get.toNamed(AppRoutes.comparefund, id: 1),
+        // 'tap': () => Get.toNamed(AppRoutes.comparefund, id: 1),
+        'tap': () => navController.openNestedRoute(AppRoutes.comparefund),
       },
     ];
 
@@ -6511,9 +6643,6 @@ class FeatureSection extends StatelessWidget {
   }
 }
 
-
-
-
 class AnimatedWelcomeText extends StatefulWidget {
   final String name;
 
@@ -6567,7 +6696,6 @@ class _AnimatedWelcomeTextState extends State<AnimatedWelcomeText> {
         transitionBuilder: (Widget child, Animation<double> animation) {
           final isEntering = child.key == ValueKey(_showSecondText);
 
-
           final slideOffset = Tween<Offset>(
             begin: isEntering ? const Offset(0.0, 0.8) : Offset.zero,
             end: isEntering ? Offset.zero : const Offset(0.0, -0.8),
@@ -6575,60 +6703,57 @@ class _AnimatedWelcomeTextState extends State<AnimatedWelcomeText> {
 
           return FadeTransition(
             opacity: animation,
-            child: SlideTransition(
-              position: slideOffset,
-              child: child,
-            ),
+            child: SlideTransition(position: slideOffset, child: child),
           );
         },
 
         child: !_showSecondText
             ? RichText(
-          key: const ValueKey(false),
-          text: TextSpan(
-            style: const TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF1E293B),
-              letterSpacing: -0.5,
-              fontFamily: FontFamily.medium,
-            ),
-            children: [
-              const TextSpan(text: 'Welcome to, '),
-              TextSpan(
-                text: '${widget.name}!',
-                style: const TextStyle(
-                  color: Color(0xFF0066FF),
-                  fontWeight: FontWeight.w700,
+                key: const ValueKey(false),
+                text: TextSpan(
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1E293B),
+                    letterSpacing: -0.5,
                     fontFamily: FontFamily.medium,
+                  ),
+                  children: [
+                    const TextSpan(text: 'Welcome to, '),
+                    TextSpan(
+                      text: '${widget.name}!',
+                      style: const TextStyle(
+                        color: Color(0xFF0066FF),
+                        fontWeight: FontWeight.w700,
+                        fontFamily: FontFamily.medium,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-        )
+              )
             : RichText(
-          key: const ValueKey(true),
-          text: const TextSpan(
-            style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF1E293B),
-              letterSpacing: -0.5,
-              fontFamily: FontFamily.medium,
-            ),
-            children: [
-              TextSpan(text: 'Hello! '),
-              TextSpan(
-                text: "It's a pleasure to have you here",
-                style: TextStyle(
-                  color: Color(0xFF0066FF),
-                  fontWeight: FontWeight.w700,
-                  fontFamily: FontFamily.medium,
+                key: const ValueKey(true),
+                text: const TextSpan(
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1E293B),
+                    letterSpacing: -0.5,
+                    fontFamily: FontFamily.medium,
+                  ),
+                  children: [
+                    TextSpan(text: 'Hello! '),
+                    TextSpan(
+                      text: "It's a pleasure to have you here",
+                      style: TextStyle(
+                        color: Color(0xFF0066FF),
+                        fontWeight: FontWeight.w700,
+                        fontFamily: FontFamily.medium,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
       ),
     );
   }
