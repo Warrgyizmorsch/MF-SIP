@@ -16,6 +16,7 @@ import 'package:my_sip/common/widget/webview/webview.dart';
 import 'package:my_sip/config/routes/app_pages.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
+import 'package:my_sip/core/utils/web_url/web_ur_sync.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
@@ -60,6 +61,9 @@ class NavigationBarController extends GetxController {
   void onInit() {
     super.onInit();
     _syncTabWithUrl();
+    if (kIsWeb) {
+      listenWebBack(_handleBrowserBack);
+    }
     if (SessionManager.instance.isKycPending.value) {
       _startBackgroundCamsCheck();
     }
@@ -173,8 +177,154 @@ class NavigationBarController extends GetxController {
     }
   }
 
+  // String get initialNestedRoute {
+  //   if (!kIsWeb) return AppRoutes.home;
+
+  //   final path = currentWebPath();
+
+  //   if (path.startsWith(AppRoutes.navMenuBar)) {
+  //     final innerPath = path.replaceFirst(AppRoutes.navMenuBar, '');
+  //     final cleanPath = innerPath.split('?').first;
+
+  //     if (cleanPath.isEmpty || cleanPath == '/') {
+  //       return AppRoutes.home;
+  //     }
+
+  //     return cleanPath;
+  //   }
+
+  //   return AppRoutes.home;
+  // }
+  String get initialNestedRoute {
+    if (!kIsWeb) return AppRoutes.home;
+
+    final path = currentWebPath();
+    final cleanPath = path.split('?').first;
+
+    if (cleanPath.isEmpty ||
+        cleanPath == '/' ||
+        cleanPath == AppRoutes.navMenuBar) {
+      return AppRoutes.home;
+    }
+
+    return cleanPath;
+  }
+
+  int _indexFromRoute(String route, {String fullPath = ''}) {
+    switch (route) {
+      case AppRoutes.home:
+        return 0;
+
+      case AppRoutes.explorePage:
+        return 1;
+
+      case AppRoutes.dashBoardPage:
+        return 2;
+
+      case AppRoutes.goalScreen:
+        return 3;
+
+      case AppRoutes.downloadStatement:
+        return fullPath.contains('mode=capital') ? 6 : 5;
+
+      case AppRoutes.myTransactionsweb:
+        return 7;
+
+      case AppRoutes.managePortfolioweb:
+        return 8;
+
+      case AppRoutes.profilePage:
+        return 40;
+
+      case AppRoutes.kycDeatailScreen:
+        return 41;
+
+      case AppRoutes.personaldetails:
+        return 42;
+
+      case AppRoutes.bankDetails:
+        return 43;
+
+      case AppRoutes.nomineeList:
+        return 44;
+
+      case AppRoutes.documentsScreen:
+        return 45;
+
+      case AppRoutes.cart:
+        return 100;
+
+      case AppRoutes.watchlist:
+        return 101;
+
+      case AppRoutes.notification:
+        return 102;
+
+      default:
+        return 0;
+    }
+  }
+
+  void openWebRoute(String route, {String? urlRoute, dynamic arguments}) {
+    if (kIsWeb) {
+      // pushWebPath(AppRoutes.webShell(urlRoute ?? route));
+      pushWebPath(urlRoute ?? route);
+    }
+
+    Get.toNamed(route, id: 1, arguments: arguments);
+  }
+
+  void _handleBrowserBack(String path) {
+    final cleanRoute = path.split('?').first;
+
+    final route = cleanRoute.isEmpty || cleanRoute == '/'
+        ? AppRoutes.home
+        : cleanRoute;
+
+    selectedIndex.value = _indexFromRoute(route, fullPath: path);
+
+    if (selectedIndex.value >= 40 && selectedIndex.value <= 45) {
+      isProfileExpanded.value = true;
+    }
+
+    Get.toNamed(route, id: 1);
+  }
+
+  // void _handleBrowserBack(String path) {
+  //   if (!path.startsWith(AppRoutes.navMenuBar)) return;
+
+  //   final innerPath = path.replaceFirst(AppRoutes.navMenuBar, '');
+  //   final cleanRoute = innerPath.split('?').first;
+
+  //   final route = cleanRoute.isEmpty || cleanRoute == '/'
+  //       ? AppRoutes.home
+  //       : cleanRoute;
+
+  //   selectedIndex.value = _indexFromRoute(route, fullPath: path);
+
+  //   if (selectedIndex.value >= 40 && selectedIndex.value <= 45) {
+  //     isProfileExpanded.value = true;
+  //   }
+
+  //   Get.toNamed(route, id: 1);
+  // }
+
   void _syncTabWithUrl() {
+    if (kIsWeb) {
+      final path = currentWebPath();
+      final route = initialNestedRoute;
+
+      selectedIndex.value = _indexFromRoute(route, fullPath: path);
+
+      if (selectedIndex.value >= 40 && selectedIndex.value <= 45) {
+        isProfileExpanded.value = true;
+      }
+
+      return;
+    }
+
     String currentRoute = Get.currentRoute;
+
     if (currentRoute.contains(AppRoutes.explorePage)) {
       selectedIndex.value = 1;
     } else if (currentRoute.contains(AppRoutes.dashBoardPage)) {
@@ -188,6 +338,21 @@ class NavigationBarController extends GetxController {
       selectedIndex.value = 0;
     }
   }
+  // void _syncTabWithUrl() {
+  //   String currentRoute = Get.currentRoute;
+  //   if (currentRoute.contains(AppRoutes.explorePage)) {
+  //     selectedIndex.value = 1;
+  //   } else if (currentRoute.contains(AppRoutes.dashBoardPage)) {
+  //     selectedIndex.value = 2;
+  //   } else if (currentRoute.contains(AppRoutes.goalScreen)) {
+  //     selectedIndex.value = 3;
+  //   } else if (currentRoute.contains(AppRoutes.profilePage)) {
+  //     selectedIndex.value = 40;
+  //     isProfileExpanded.value = true;
+  //   } else {
+  //     selectedIndex.value = 0;
+  //   }
+  // }
 
   final RxInt profileDashboardTabIndex = 0.obs;
 
@@ -216,7 +381,8 @@ class NavigationBarController extends GetxController {
     isProfileExpanded.value = false;
 
     if (isDesktop) {
-      Get.toNamed(AppRoutes.profilePage, id: 1);
+      // Get.toNamed(AppRoutes.profilePage, id: 1);
+      openWebRoute(AppRoutes.profilePage);
     }
   }
 
@@ -297,6 +463,7 @@ class NavigationBarController extends GetxController {
           personalisationController.setStatementMode(isCapital: true);
           DownloadStatementsScreen.forcedIsCapitalMode = true;
           route = AppRoutes.downloadStatement;
+          break;
         case 7:
           route = AppRoutes.myTransactionsweb;
           break;
@@ -352,16 +519,22 @@ class NavigationBarController extends GetxController {
           webUrl = 'https://sip.londonstreetstore.com/about-us?mobile=true';
           break;
       }
+
+      String urlRoute = route;
+      if (index == 6) {
+        urlRoute = '${AppRoutes.downloadStatement}?mode=capital';
+      }
+
       if (index >= 50 && index <= 54) {
         HtmlWebViewPage.navData = {
           'title': webTitle ?? '',
           'url': webUrl ?? '',
           'appBar': 'false',
         };
-        Get.toNamed(route, id: 1);
-      } else {
-        Get.toNamed(route, id: 1);
+        // Get.toNamed(route, id: 1);
       }
+
+      openWebRoute(route, urlRoute: urlRoute);
 
       // Get.toNamed(route, id: 1); // id: 1 keeps header/sidebar fixed!
     }
@@ -369,7 +542,8 @@ class NavigationBarController extends GetxController {
 
   void navigateToExploreWithFilter(VoidCallback? filterLogic) {
     if (kIsWeb) {
-      Get.toNamed(AppRoutes.explorePage, id: 1);
+      // Get.toNamed(AppRoutes.explorePage, id: 1);
+      openWebRoute(AppRoutes.explorePage);
     } else {
       changePage(1, isDesktop: false);
     }
@@ -589,7 +763,8 @@ class NavigationMenuBar extends StatelessWidget {
                           child: (isDesktop || isTablet)
                               ? Navigator(
                                   key: Get.nestedKey(1),
-                                  initialRoute: AppRoutes.home,
+                                  // initialRoute: AppRoutes.home,
+                                  initialRoute: controller.initialNestedRoute,
                                   onGenerateRoute: (settings) {
                                     if ((isDesktop || isTablet) &&
                                         settings.name ==
@@ -601,8 +776,10 @@ class NavigationMenuBar extends StatelessWidget {
                                         transition: Transition.fadeIn,
                                       );
                                     }
+                                    // final List<GetPage> allPages =
+                                    //     AppPages.pages();
                                     final List<GetPage> allPages =
-                                        AppPages.pages();
+                                        AppPages.nestedPages();
 
                                     GetPage? page;
 
@@ -987,9 +1164,15 @@ class _GlobalTopHeaderState extends State<GlobalTopHeader> {
               IconButton(
                 onPressed: () {
                   navController.customHeaderTitle.value = '';
+                  // if (isDesktop) {
+                  //   navController.selectedIndex.value = 102;
+                  //   Get.toNamed(AppRoutes.notification, id: 1);
+                  // } else {
+                  //   Get.toNamed(AppRoutes.notification);
+                  // }
                   if (isDesktop) {
                     navController.selectedIndex.value = 102;
-                    Get.toNamed(AppRoutes.notification, id: 1);
+                    navController.openWebRoute(AppRoutes.notification);
                   } else {
                     Get.toNamed(AppRoutes.notification);
                   }
@@ -1011,9 +1194,15 @@ class _GlobalTopHeaderState extends State<GlobalTopHeader> {
                         navController.customHeaderTitle.value = '';
                         controller.filterGoalId.value = null;
                         // Get.toNamed(AppRoutes.cart, id: 1);
+                        // if (isDesktop) {
+                        //   navController.selectedIndex.value = 100;
+                        //   Get.toNamed(AppRoutes.cart, id: 1);
+                        // } else {
+                        //   Get.toNamed(AppRoutes.cart);
+                        // }
                         if (isDesktop) {
                           navController.selectedIndex.value = 100;
-                          Get.toNamed(AppRoutes.cart, id: 1);
+                          navController.openWebRoute(AppRoutes.cart);
                         } else {
                           Get.toNamed(AppRoutes.cart);
                         }
@@ -1048,9 +1237,15 @@ class _GlobalTopHeaderState extends State<GlobalTopHeader> {
               IconButton(
                 onPressed: () {
                   navController.customHeaderTitle.value = '';
+                  // if (isDesktop) {
+                  //   navController.selectedIndex.value = 101;
+                  //   Get.toNamed(AppRoutes.watchlist, id: 1); // Nested Open
+                  // } else {
+                  //   Get.toNamed(AppRoutes.watchlist);
+                  // }
                   if (isDesktop) {
                     navController.selectedIndex.value = 101;
-                    Get.toNamed(AppRoutes.watchlist, id: 1); // Nested Open
+                    navController.openWebRoute(AppRoutes.watchlist);
                   } else {
                     Get.toNamed(AppRoutes.watchlist);
                   }
@@ -1337,6 +1532,21 @@ class _DesktopSideNav extends StatelessWidget {
                                   ),
                                   child: Column(
                                     children: [
+                                      // _buildInvestSubItem(
+                                      //   controller,
+                                      //   "Start SIP",
+                                      //   () {
+                                      //     Get.delete<SipProcessController>();
+                                      //     SipProcessController.navIsLumpsum =
+                                      //         false;
+
+                                      //     Get.toNamed(
+                                      //       AppRoutes.startSipScreen,
+                                      //       id: 1,
+                                      //       arguments: {'isLumpsum': false},
+                                      //     );
+                                      //   },
+                                      // ),
                                       _buildInvestSubItem(
                                         controller,
                                         "Start SIP",
@@ -1345,13 +1555,29 @@ class _DesktopSideNav extends StatelessWidget {
                                           SipProcessController.navIsLumpsum =
                                               false;
 
-                                          Get.toNamed(
+                                          controller.openWebRoute(
                                             AppRoutes.startSipScreen,
-                                            id: 1,
+                                            urlRoute:
+                                                '${AppRoutes.startSipScreen}?type=sip',
                                             arguments: {'isLumpsum': false},
                                           );
                                         },
                                       ),
+                                      // _buildInvestSubItem(
+                                      //   controller,
+                                      //   "Start Lumpsum",
+                                      //   () {
+                                      //     Get.delete<SipProcessController>();
+                                      //     SipProcessController.navIsLumpsum =
+                                      //         true;
+
+                                      //     Get.toNamed(
+                                      //       AppRoutes.startSipScreen,
+                                      //       id: 1,
+                                      //       arguments: {'isLumpsum': true},
+                                      //     );
+                                      //   },
+                                      // ),
                                       _buildInvestSubItem(
                                         controller,
                                         "Start Lumpsum",
@@ -1360,9 +1586,10 @@ class _DesktopSideNav extends StatelessWidget {
                                           SipProcessController.navIsLumpsum =
                                               true;
 
-                                          Get.toNamed(
+                                          controller.openWebRoute(
                                             AppRoutes.startSipScreen,
-                                            id: 1,
+                                            urlRoute:
+                                                '${AppRoutes.startSipScreen}?type=lumpsum',
                                             arguments: {'isLumpsum': true},
                                           );
                                         },
@@ -1409,10 +1636,13 @@ class _DesktopSideNav extends StatelessWidget {
                                       _buildInvestSubItem(
                                         controller,
                                         "New Fund Offer (NFO)",
-                                        () => Get.toNamed(
+                                        () => controller.openWebRoute(
                                           AppRoutes.nfolist,
-                                          id: 1,
                                         ),
+                                        //  Get.toNamed(
+                                        //   AppRoutes.nfolist,
+                                        //   id: 1,
+                                        // ),
                                       ),
                                     ],
                                   ),
@@ -2102,8 +2332,6 @@ class _MobileNavItem extends StatelessWidget {
   }
 }
 
-
-
 class WebProfileDashboardScreen extends StatelessWidget {
   const WebProfileDashboardScreen({super.key});
 
@@ -2119,7 +2347,11 @@ class WebProfileDashboardScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
         child: Obx(() {
           final rawTab = navController.profileDashboardTabIndex.value;
-          final selectedTab = rawTab < 0 ? 0 : rawTab > 4 ? 4 : rawTab;
+          final selectedTab = rawTab < 0
+              ? 0
+              : rawTab > 4
+              ? 4
+              : rawTab;
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -2138,11 +2370,51 @@ class WebProfileDashboardScreen extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Expanded(child: _buildProfileTabButton('KYC Details', Icons.assignment_ind_outlined, 0, selectedTab, navController)),
-                    Expanded(child: _buildProfileTabButton('Personal Details', Icons.person_outline_rounded, 1, selectedTab, navController)),
-                    Expanded(child: _buildProfileTabButton('Bank Account', Icons.account_balance_outlined, 2, selectedTab, navController)),
-                    Expanded(child: _buildProfileTabButton('Nominee', Icons.people_outline_rounded, 3, selectedTab, navController)),
-                    Expanded(child: _buildProfileTabButton('Documents', Icons.folder_open_outlined, 4, selectedTab, navController)),
+                    Expanded(
+                      child: _buildProfileTabButton(
+                        'KYC Details',
+                        Icons.assignment_ind_outlined,
+                        0,
+                        selectedTab,
+                        navController,
+                      ),
+                    ),
+                    Expanded(
+                      child: _buildProfileTabButton(
+                        'Personal Details',
+                        Icons.person_outline_rounded,
+                        1,
+                        selectedTab,
+                        navController,
+                      ),
+                    ),
+                    Expanded(
+                      child: _buildProfileTabButton(
+                        'Bank Account',
+                        Icons.account_balance_outlined,
+                        2,
+                        selectedTab,
+                        navController,
+                      ),
+                    ),
+                    Expanded(
+                      child: _buildProfileTabButton(
+                        'Nominee',
+                        Icons.people_outline_rounded,
+                        3,
+                        selectedTab,
+                        navController,
+                      ),
+                    ),
+                    Expanded(
+                      child: _buildProfileTabButton(
+                        'Documents',
+                        Icons.folder_open_outlined,
+                        4,
+                        selectedTab,
+                        navController,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -2171,9 +2443,11 @@ class WebProfileDashboardScreen extends StatelessWidget {
   Widget _buildHeroBanner(BuildContext context) {
     return Obx(() {
       final user = SessionManager.instance.userObs.value;
-      final PersonalisationController personalisationController = Get.find<PersonalisationController>();
+      final PersonalisationController personalisationController =
+          Get.find<PersonalisationController>();
 
-      final String readySinceYear = user?.customerDetailsModel?.dob?.split('-').firstOrNull ?? '1985';
+      final String readySinceYear =
+          user?.customerDetailsModel?.dob?.split('-').firstOrNull ?? '1985';
       final bool isKycApproved = user?.kycStatus?.toLowerCase() == 'approved';
 
       return SizedBox(
@@ -2197,10 +2471,12 @@ class WebProfileDashboardScreen extends StatelessWidget {
                         flex: 13,
                         child: SizedBox(
                           width: double.infinity,
-                         child: Image.asset(UImages.profileBackground,fit:  BoxFit.fitWidth,),
+                          child: Image.asset(
+                            UImages.profileBackground,
+                            fit: BoxFit.fitWidth,
                           ),
                         ),
-
+                      ),
 
                       /// Bottom Solid White Section
                       Expanded(
@@ -2224,7 +2500,7 @@ class WebProfileDashboardScreen extends StatelessWidget {
                                         fontSize: 15,
                                         fontWeight: FontWeight.w600,
                                         color: Color(0xFF1A1D20),
-                                        fontFamily:FontFamily.regular,
+                                        fontFamily: FontFamily.regular,
                                       ),
                                     ),
                                     const SizedBox(height: 2),
@@ -2233,7 +2509,7 @@ class WebProfileDashboardScreen extends StatelessWidget {
                                       style: TextStyle(
                                         fontSize: 12.5,
                                         color: Color(0xFF70767F),
-                                        fontFamily:FontFamily.regular,
+                                        fontFamily: FontFamily.regular,
                                       ),
                                     ),
                                   ],
@@ -2241,16 +2517,23 @@ class WebProfileDashboardScreen extends StatelessWidget {
                               ),
                               OutlinedButton.icon(
                                 onPressed: () {
-                                  Get.find<NavigationBarController>().profileDashboardTabIndex.value = 1;
+                                  Get.find<NavigationBarController>()
+                                          .profileDashboardTabIndex
+                                          .value =
+                                      1;
                                 },
-                                icon: const Icon(Icons.edit_outlined, size: 14, color: Color(0xFF2D3136)),
+                                icon: const Icon(
+                                  Icons.edit_outlined,
+                                  size: 14,
+                                  color: Color(0xFF2D3136),
+                                ),
                                 label: const Text(
                                   'Edit Profile',
                                   style: TextStyle(
                                     color: Color(0xFF2D3136),
                                     fontWeight: FontWeight.w600,
                                     fontSize: 12,
-                                    fontFamily:FontFamily.regular,
+                                    fontFamily: FontFamily.regular,
                                   ),
                                 ),
                                 style: OutlinedButton.styleFrom(
@@ -2259,7 +2542,10 @@ class WebProfileDashboardScreen extends StatelessWidget {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
                                 ),
                               ),
                             ],
@@ -2295,7 +2581,10 @@ class WebProfileDashboardScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildProfileImagePicker(context, personalisationController),
+                    _buildProfileImagePicker(
+                      context,
+                      personalisationController,
+                    ),
                     const SizedBox(height: 4),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -2309,7 +2598,7 @@ class WebProfileDashboardScreen extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                               fontSize: 14,
                               color: Color(0xFF1A1D20),
-                              fontFamily:FontFamily.regular,
+                              fontFamily: FontFamily.regular,
                             ),
                           ),
                         ),
@@ -2325,18 +2614,25 @@ class WebProfileDashboardScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
-                        color: isKycApproved ? const Color(0xFFE6F7ED) : const Color(0xFFFCE8E6),
+                        color: isKycApproved
+                            ? const Color(0xFFE6F7ED)
+                            : const Color(0xFFFCE8E6),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         isKycApproved ? 'KYC Verified' : 'KYC Pending',
                         style: TextStyle(
-                          color: isKycApproved ? const Color(0xFF1F9254) : const Color(0xFFC53929),
+                          color: isKycApproved
+                              ? const Color(0xFF1F9254)
+                              : const Color(0xFFC53929),
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
-                          fontFamily:FontFamily.regular,
+                          fontFamily: FontFamily.regular,
                         ),
                       ),
                     ),
@@ -2344,7 +2640,11 @@ class WebProfileDashboardScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.calendar_today_outlined, size: 11, color: Colors.grey.shade400),
+                        Icon(
+                          Icons.calendar_today_outlined,
+                          size: 11,
+                          color: Colors.grey.shade400,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           'Ready to invest since $readySinceYear',
@@ -2352,7 +2652,7 @@ class WebProfileDashboardScreen extends StatelessWidget {
                             color: Colors.grey.shade500,
                             fontSize: 10,
                             fontWeight: FontWeight.w500,
-                            fontFamily:FontFamily.regular,
+                            fontFamily: FontFamily.regular,
                           ),
                         ),
                       ],
@@ -2367,7 +2667,10 @@ class WebProfileDashboardScreen extends StatelessWidget {
     });
   }
 
-  Widget _buildProfileImagePicker(BuildContext context, PersonalisationController personalisationController) {
+  Widget _buildProfileImagePicker(
+    BuildContext context,
+    PersonalisationController personalisationController,
+  ) {
     return Obx(() {
       final reactiveUser = SessionManager.instance.userObs.value;
       String displayImage = personalisationController.imagePath.isNotEmpty
@@ -2377,7 +2680,8 @@ class WebProfileDashboardScreen extends StatelessWidget {
       return ProfileHeader(
         onTap: () => UImagePicker.showImageSourceOptions(
           context: context,
-          onImageSelected: (source) => personalisationController.pickImage(source),
+          onImageSelected: (source) =>
+              personalisationController.pickImage(source),
         ),
         img: displayImage,
         icon: Icons.upload_rounded, // Pure solid native Icon configuration
@@ -2385,7 +2689,13 @@ class WebProfileDashboardScreen extends StatelessWidget {
     });
   }
 
-  Widget _buildProfileTabButton(String title, IconData icon, int index, int selectedIndex, NavigationBarController controller) {
+  Widget _buildProfileTabButton(
+    String title,
+    IconData icon,
+    int index,
+    int selectedIndex,
+    NavigationBarController controller,
+  ) {
     final isSelected = index == selectedIndex;
     final activeColor = const Color(0xFF0066FF);
     final baseColor = const Color(0xFF5F6670);
@@ -2411,7 +2721,11 @@ class WebProfileDashboardScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, color: isSelected ? activeColor : baseColor, size: 18),
+                Icon(
+                  icon,
+                  color: isSelected ? activeColor : baseColor,
+                  size: 18,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   title,

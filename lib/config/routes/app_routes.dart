@@ -53,5 +53,8 @@ class AppRoutes {
   static const investNowPage = '/investNowPage';
   static const downloadStatement = '/downloadStatement';
   static const myTransactionsweb = '/my-transactions';
-static const managePortfolioweb = '/manage-portfolio';
+  static const managePortfolioweb = '/manage-portfolio';
+  static String webShell(String innerRoute) {
+    return innerRoute;
+  }
 }

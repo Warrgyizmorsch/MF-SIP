@@ -9,10 +9,14 @@ import 'package:my_sip/services/session_manager.dart';
 
 import 'core/utils/helper/helpers.dart';
 import 'firebase_options.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
+    if (kIsWeb) {
+      usePathUrlStrategy();
+    }
 
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,

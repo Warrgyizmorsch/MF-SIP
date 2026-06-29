@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/webview/webview.dart';
 import 'package:my_sip/core/bindings/bindings.dart';
@@ -66,197 +67,509 @@ import '../../features/sip_process/presentation/pages/investing_approach_screen.
 import '../../features/sip_process/presentation/pages/monthly_sip_screen.dart';
 import '../../features/sip_process/presentation/pages/select_funds_screen.dart';
 import 'app_routes.dart';
-
 class AppPages {
-  static pages() => [
-    GetPage(name: AppRoutes.splash, page: () => const SplashScreen()),
-    GetPage(name: AppRoutes.home, page: () => HomeScreen()),
+  static List<GetPage> pages() => [
+        /// Public / auth routes
+        GetPage(name: AppRoutes.splash, page: () => const SplashScreen()),
 
-    GetPage(
-      bindings: [
+        GetPage(
+          bindings: navMenuBindings(),
+          name: AppRoutes.navMenuBar,
+          page: () => const NavigationMenuBar(),
+        ),
+
+        GetPage(
+          name: AppRoutes.login,
+          page: () => const LoginPage(),
+          binding: AuthBinding(),
+        ),
+        GetPage(
+          name: AppRoutes.registerAccountScreen,
+          page: () => const RegisterAccountScreen(),
+          binding: AuthBinding(),
+        ),
+        GetPage(
+          name: AppRoutes.otpVerificationScreen,
+          page: () => OtpVerificationScreen(),
+          binding: AuthBinding(),
+        ),
+
+        /// Web: root URLs open NavigationMenuBar shell.
+        /// Example: /home, /cart, /watchlist
+        if (kIsWeb)
+          ...nestedPages().map((page) => webShellRootPage(page.name))
+        else
+          ...nestedPages(),
+      ];
+
+  /// These bindings are only for the shell/sidebar/header.
+  static List<Bindings> navMenuBindings() => [
         UBinding(),
         PersonalisationBinding(),
-        // Bankbinding(),
         Fundhousebinding(),
         WishlistBinding(),
-        // SipProcessBinding(),
         GoalBinding(),
         MfuBindings(),
         DashboardBinding(),
-      ],
-      name: AppRoutes.navMenuBar,
+      ];
+
+  /// Web root route wrapper.
+  /// URL remains /home, /cart, /watchlist etc,
+  /// but UI opens inside NavigationMenuBar.
+  static GetPage webShellRootPage(String route) {
+    return GetPage(
+      name: route,
       page: () => const NavigationMenuBar(),
-    ),
-    GetPage(
-      name: AppRoutes.login,
-      page: () => const LoginPage(),
-      binding: AuthBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.registerAccountScreen,
-      page: () => const RegisterAccountScreen(),
-      binding: AuthBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.freedomSipScreen,
-      page: () => const FreedomSipScreen(),
-    ),
-    GetPage(
-      name: AppRoutes.comparefund,
-      page: () => CompareFundsPage(),
-      binding: FundDetailBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.sipTenureScreen,
-      page: () => const SipTenureScreen(),
-    ),
-    GetPage(
-      name: AppRoutes.growthSchemeScreen,
-      page: () => const GrowthSchemeScreen(),
-    ),
+      bindings: navMenuBindings(),
+    );
+  }
 
-    GetPage(
-      name: AppRoutes.funddetails,
-      page: () => FundDetailsScreen(),
-      binding: FundDetailBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.watchlist,
-      page: () => WatchlistPage(),
-      binding: WishlistBinding(),
-    ),
-    GetPage(name: AppRoutes.cart, page: () => CartPage()),
-    GetPage(
-      name: AppRoutes.notification,
-      page: () => NotificationPage(),
-      binding: HomeBindings(),
-    ),
-    GetPage(
-      name: AppRoutes.accumulationanddistributionscreen,
-      page: () => const Accumulationanddistributionscreen(),
-    ),
-    GetPage(
-      name: AppRoutes.startSipScreen,
-      page: () => const MonthlySipScreen(),
-      binding: SipProcessBinding(),
-    ),
+  /// Actual pages loaded inside nested Navigator(id: 1)
+  static List<GetPage> nestedPages() => [
+        GetPage(name: AppRoutes.home, page: () => HomeScreen()),
 
-    GetPage(
-      name: AppRoutes.investingApproachScreen,
-      page: () => const InvestingApproachScreen(),
-    ),
-    GetPage(
-      name: AppRoutes.selectFundsScreen,
-      page: () => const SelectFundsScreen(),
-      binding: SipProcessBinding(),
-    ),
+        GetPage(
+          name: AppRoutes.freedomSipScreen,
+          page: () => const FreedomSipScreen(),
+        ),
+        GetPage(
+          name: AppRoutes.comparefund,
+          page: () => CompareFundsPage(),
+          binding: FundDetailBinding(),
+        ),
+        GetPage(
+          name: AppRoutes.sipTenureScreen,
+          page: () => const SipTenureScreen(),
+        ),
+        GetPage(
+          name: AppRoutes.growthSchemeScreen,
+          page: () => const GrowthSchemeScreen(),
+        ),
+        GetPage(
+          name: AppRoutes.funddetails,
+          page: () => FundDetailsScreen(),
+          binding: FundDetailBinding(),
+        ),
 
-    GetPage(
-      name: AppRoutes.personaldetails,
-      page: () => PersonalDetailsScreen(),
-    ),
-    GetPage(
-      name: AppRoutes.ihavegoal,
-      page: () => IhavegoalPage(),
-      binding: GoalBinding(),
-    ),
+        GetPage(
+          name: AppRoutes.watchlist,
+          page: () => WatchlistPage(),
+          binding: WishlistBinding(),
+        ),
+        GetPage(
+          name: AppRoutes.cart,
+          page: () => CartPage(),
+        ),
+        GetPage(
+          name: AppRoutes.notification,
+          page: () => NotificationPage(),
+          binding: HomeBindings(),
+        ),
 
-    GetPage(
-      name: AppRoutes.masterGoalsPage,
-      page: () => MasterGoalsPage(),
-      binding: GoalBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.webMasterGoalsPage,
-      page: () => UnifiedGoalDashboard(),
-      binding: GoalBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.goalScreen,
-      page: () => GoalScreen(),
-      binding: GoalBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.successfullcreategoal,
-      page: () => GoalsuccessPage(),
-    ),
-    GetPage(name: AppRoutes.goalviewcard, page: () => GoalviewcardPage()),
-    GetPage(name: AppRoutes.goaldetails, page: () => GoalDetailsPage()),
+        GetPage(
+          name: AppRoutes.accumulationanddistributionscreen,
+          page: () => const Accumulationanddistributionscreen(),
+        ),
+        GetPage(
+          name: AppRoutes.startSipScreen,
+          page: () => const MonthlySipScreen(),
+          binding: SipProcessBinding(),
+        ),
+        GetPage(
+          name: AppRoutes.investingApproachScreen,
+          page: () => const InvestingApproachScreen(),
+        ),
+        GetPage(
+          name: AppRoutes.selectFundsScreen,
+          page: () => const SelectFundsScreen(),
+          binding: SipProcessBinding(),
+        ),
 
-    GetPage(
-      name: AppRoutes.addanotherbank,
-      page: () => AddAnotherBankPage(),
-      // binding: Bankbinding(),
-    ),
-    GetPage(
-      name: AppRoutes.riskProfile,
-      page: () => RiskProfile(),
-      binding: PersonalisationBinding(),
-    ),
+        GetPage(
+          name: AppRoutes.personaldetails,
+          page: () => PersonalDetailsScreen(),
+        ),
 
-    GetPage(
-      name: AppRoutes.filterpage,
-      page: () => Filterpage(),
-      // binding: Fundhousebinding(),
-    ),
-    GetPage(
-      name: AppRoutes.otpVerificationScreen,
-      page: () => OtpVerificationScreen(),
-      binding: AuthBinding(),
-    ),
+        GetPage(
+          name: AppRoutes.ihavegoal,
+          page: () => IhavegoalPage(),
+          binding: GoalBinding(),
+        ),
+        GetPage(
+          name: AppRoutes.masterGoalsPage,
+          page: () => MasterGoalsPage(),
+          binding: GoalBinding(),
+        ),
+        GetPage(
+          name: AppRoutes.webMasterGoalsPage,
+          page: () => UnifiedGoalDashboard(),
+          binding: GoalBinding(),
+        ),
+        GetPage(
+          name: AppRoutes.goalScreen,
+          page: () => GoalScreen(),
+          binding: GoalBinding(),
+        ),
+        GetPage(
+          name: AppRoutes.successfullcreategoal,
+          page: () => GoalsuccessPage(),
+        ),
+        GetPage(
+          name: AppRoutes.goalviewcard,
+          page: () => GoalviewcardPage(),
+        ),
+        GetPage(
+          name: AppRoutes.goaldetails,
+          page: () => GoalDetailsPage(),
+        ),
 
-    GetPage(name: AppRoutes.paymentScreen, page: () => PaymentScreen()),
-    GetPage(name: AppRoutes.explorePage, page: () => ExploreScreen()),
-    GetPage(name: AppRoutes.dashBoardPage, page: () => DashboardScreen()),
-    GetPage(name: AppRoutes.profilePage, page: () => ProfileScreen()),
-    GetPage(
-      name: AppRoutes.kycScreen,
-      page: () => KycScreen(),
-      binding: KycBindings(),
-    ),
-    GetPage(name: AppRoutes.webView, page: () => HtmlWebViewPage()),
-    GetPage(
-      name: AppRoutes.nomineeList,
-      page: () => NomineeListScreen(),
-      binding: PersonalisationBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.nomineeDetail,
-      page: () => NomineeDetailsScreen(),
-      binding: PersonalisationBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.nfolist,
-      page: () => NfoListPage(),
-      binding: NfoListBinding(),
-    ),
-    GetPage(name: AppRoutes.nfodetailsPage, page: () => NfoDetailsPage1()),
-    GetPage(name: AppRoutes.kycDeatailScreen, page: () => KycDetailsScreen()),
-    GetPage(name: AppRoutes.documentsScreen, page: () => DocumentScreen()),
+        GetPage(
+          name: AppRoutes.addanotherbank,
+          page: () => AddAnotherBankPage(),
+        ),
+        GetPage(
+          name: AppRoutes.riskProfile,
+          page: () => RiskProfile(),
+          binding: PersonalisationBinding(),
+        ),
 
-    GetPage(name: AppRoutes.sipCalculator, page: () => SipCalculatorPage()),
-    GetPage(name: AppRoutes.swpCalculator, page: () => SwpCalciScreen()),
-    GetPage(
-      name: AppRoutes.stepUpCalculator,
-      page: () => TopUpCalculatorPage(),
-    ),
-    GetPage(name: AppRoutes.comingSoon, page: () => ComingSoon()),
-    GetPage(name: AppRoutes.bankDetails, page: () => BankDetailsScreen()),
-    GetPage(name: AppRoutes.videoList, page: () => VideoListScreen()),
+        GetPage(
+          name: AppRoutes.filterpage,
+          page: () => Filterpage(),
+        ),
 
-    GetPage(name: AppRoutes.additionalInfo, page: () => AdditionalInfoScreen()),
-    GetPage(name: AppRoutes.investNow, page: () => InvestNowPage()),
-    GetPage(name: AppRoutes.investNowPage, page: () => SIPPurchasePage()),
-    GetPage(name: AppRoutes.downloadStatement, page: () => DownloadStatementsScreen()),
+        GetPage(
+          name: AppRoutes.paymentScreen,
+          page: () => PaymentScreen(),
+        ),
+        GetPage(
+          name: AppRoutes.explorePage,
+          page: () => ExploreScreen(),
+        ),
+        GetPage(
+          name: AppRoutes.dashBoardPage,
+          page: () => DashboardScreen(),
+        ),
+        GetPage(
+          name: AppRoutes.profilePage,
+          page: () => ProfileScreen(),
+        ),
 
-    GetPage(
-  name: AppRoutes.myTransactionsweb,
-  page: () => const WebTransactionsScreen(),
-),
+        GetPage(
+          name: AppRoutes.kycScreen,
+          page: () => KycScreen(),
+          binding: KycBindings(),
+        ),
+        GetPage(
+          name: AppRoutes.webView,
+          page: () => HtmlWebViewPage(),
+        ),
 
-GetPage(
-  name: AppRoutes.managePortfolioweb,
-  page: () => const WebPortfolioScreen(),
-),
-  ];
+        GetPage(
+          name: AppRoutes.nomineeList,
+          page: () => NomineeListScreen(),
+          binding: PersonalisationBinding(),
+        ),
+        GetPage(
+          name: AppRoutes.nomineeDetail,
+          page: () => NomineeDetailsScreen(),
+          binding: PersonalisationBinding(),
+        ),
+
+        GetPage(
+          name: AppRoutes.nfolist,
+          page: () => NfoListPage(),
+          binding: NfoListBinding(),
+        ),
+        GetPage(
+          name: AppRoutes.nfodetailsPage,
+          page: () => NfoDetailsPage1(),
+        ),
+
+        GetPage(
+          name: AppRoutes.kycDeatailScreen,
+          page: () => KycDetailsScreen(),
+        ),
+        GetPage(
+          name: AppRoutes.documentsScreen,
+          page: () => DocumentScreen(),
+        ),
+
+        GetPage(
+          name: AppRoutes.sipCalculator,
+          page: () => SipCalculatorPage(),
+        ),
+        GetPage(
+          name: AppRoutes.swpCalculator,
+          page: () => SwpCalciScreen(),
+        ),
+        GetPage(
+          name: AppRoutes.stepUpCalculator,
+          page: () => TopUpCalculatorPage(),
+        ),
+        GetPage(
+          name: AppRoutes.comingSoon,
+          page: () => ComingSoon(),
+        ),
+        GetPage(
+          name: AppRoutes.bankDetails,
+          page: () => BankDetailsScreen(),
+        ),
+        GetPage(
+          name: AppRoutes.videoList,
+          page: () => VideoListScreen(),
+        ),
+
+        GetPage(
+          name: AppRoutes.additionalInfo,
+          page: () => AdditionalInfoScreen(),
+        ),
+        GetPage(
+          name: AppRoutes.investNow,
+          page: () => InvestNowPage(),
+        ),
+        GetPage(
+          name: AppRoutes.investNowPage,
+          page: () => SIPPurchasePage(),
+        ),
+
+        GetPage(
+          name: AppRoutes.downloadStatement,
+          page: () => DownloadStatementsScreen(),
+        ),
+
+        GetPage(
+          name: AppRoutes.myTransactionsweb,
+          page: () => const WebTransactionsScreen(),
+        ),
+        GetPage(
+          name: AppRoutes.managePortfolioweb,
+          page: () => const WebPortfolioScreen(),
+        ),
+      ];
 }
+
+// class AppPages {
+//   static pages() => [
+//     GetPage(name: AppRoutes.splash, page: () => const SplashScreen()),
+//     GetPage(name: AppRoutes.home, page: () => HomeScreen()),
+
+//     // GetPage(
+//     //   bindings: [
+//     //     UBinding(),
+//     //     PersonalisationBinding(),
+//     //     // Bankbinding(),
+//     //     Fundhousebinding(),
+//     //     WishlistBinding(),
+//     //     // SipProcessBinding(),
+//     //     GoalBinding(),
+//     //     MfuBindings(),
+//     //     DashboardBinding(),
+//     //   ],
+//     //   name: AppRoutes.navMenuBar,
+//     //   page: () => const NavigationMenuBar(),
+//     // ),
+//     GetPage(
+//       bindings: navMenuBindings(),
+//       name: AppRoutes.navMenuBar,
+//       page: () => const NavigationMenuBar(),
+//     ),
+//     GetPage(
+//       name: AppRoutes.login,
+//       page: () => const LoginPage(),
+//       binding: AuthBinding(),
+//     ),
+//     GetPage(
+//       name: AppRoutes.registerAccountScreen,
+//       page: () => const RegisterAccountScreen(),
+//       binding: AuthBinding(),
+//     ),
+//     GetPage(
+//       name: AppRoutes.freedomSipScreen,
+//       page: () => const FreedomSipScreen(),
+//     ),
+//     GetPage(
+//       name: AppRoutes.comparefund,
+//       page: () => CompareFundsPage(),
+//       binding: FundDetailBinding(),
+//     ),
+//     GetPage(
+//       name: AppRoutes.sipTenureScreen,
+//       page: () => const SipTenureScreen(),
+//     ),
+//     GetPage(
+//       name: AppRoutes.growthSchemeScreen,
+//       page: () => const GrowthSchemeScreen(),
+//     ),
+
+//     GetPage(
+//       name: AppRoutes.funddetails,
+//       page: () => FundDetailsScreen(),
+//       binding: FundDetailBinding(),
+//     ),
+//     GetPage(
+//       name: AppRoutes.watchlist,
+//       page: () => WatchlistPage(),
+//       binding: WishlistBinding(),
+//     ),
+//     GetPage(name: AppRoutes.cart, page: () => CartPage()),
+//     GetPage(
+//       name: AppRoutes.notification,
+//       page: () => NotificationPage(),
+//       binding: HomeBindings(),
+//     ),
+//     GetPage(
+//       name: AppRoutes.accumulationanddistributionscreen,
+//       page: () => const Accumulationanddistributionscreen(),
+//     ),
+//     GetPage(
+//       name: AppRoutes.startSipScreen,
+//       page: () => const MonthlySipScreen(),
+//       binding: SipProcessBinding(),
+//     ),
+
+//     GetPage(
+//       name: AppRoutes.investingApproachScreen,
+//       page: () => const InvestingApproachScreen(),
+//     ),
+//     GetPage(
+//       name: AppRoutes.selectFundsScreen,
+//       page: () => const SelectFundsScreen(),
+//       binding: SipProcessBinding(),
+//     ),
+
+//     GetPage(
+//       name: AppRoutes.personaldetails,
+//       page: () => PersonalDetailsScreen(),
+//     ),
+//     GetPage(
+//       name: AppRoutes.ihavegoal,
+//       page: () => IhavegoalPage(),
+//       binding: GoalBinding(),
+//     ),
+
+//     GetPage(
+//       name: AppRoutes.masterGoalsPage,
+//       page: () => MasterGoalsPage(),
+//       binding: GoalBinding(),
+//     ),
+//     GetPage(
+//       name: AppRoutes.webMasterGoalsPage,
+//       page: () => UnifiedGoalDashboard(),
+//       binding: GoalBinding(),
+//     ),
+//     GetPage(
+//       name: AppRoutes.goalScreen,
+//       page: () => GoalScreen(),
+//       binding: GoalBinding(),
+//     ),
+//     GetPage(
+//       name: AppRoutes.successfullcreategoal,
+//       page: () => GoalsuccessPage(),
+//     ),
+//     GetPage(name: AppRoutes.goalviewcard, page: () => GoalviewcardPage()),
+//     GetPage(name: AppRoutes.goaldetails, page: () => GoalDetailsPage()),
+
+//     GetPage(
+//       name: AppRoutes.addanotherbank,
+//       page: () => AddAnotherBankPage(),
+//       // binding: Bankbinding(),
+//     ),
+//     GetPage(
+//       name: AppRoutes.riskProfile,
+//       page: () => RiskProfile(),
+//       binding: PersonalisationBinding(),
+//     ),
+
+//     GetPage(
+//       name: AppRoutes.filterpage,
+//       page: () => Filterpage(),
+//       // binding: Fundhousebinding(),
+//     ),
+//     GetPage(
+//       name: AppRoutes.otpVerificationScreen,
+//       page: () => OtpVerificationScreen(),
+//       binding: AuthBinding(),
+//     ),
+
+//     GetPage(name: AppRoutes.paymentScreen, page: () => PaymentScreen()),
+//     GetPage(name: AppRoutes.explorePage, page: () => ExploreScreen()),
+//     GetPage(name: AppRoutes.dashBoardPage, page: () => DashboardScreen()),
+//     GetPage(name: AppRoutes.profilePage, page: () => ProfileScreen()),
+//     GetPage(
+//       name: AppRoutes.kycScreen,
+//       page: () => KycScreen(),
+//       binding: KycBindings(),
+//     ),
+//     GetPage(name: AppRoutes.webView, page: () => HtmlWebViewPage()),
+//     GetPage(
+//       name: AppRoutes.nomineeList,
+//       page: () => NomineeListScreen(),
+//       binding: PersonalisationBinding(),
+//     ),
+//     GetPage(
+//       name: AppRoutes.nomineeDetail,
+//       page: () => NomineeDetailsScreen(),
+//       binding: PersonalisationBinding(),
+//     ),
+//     GetPage(
+//       name: AppRoutes.nfolist,
+//       page: () => NfoListPage(),
+//       binding: NfoListBinding(),
+//     ),
+//     GetPage(name: AppRoutes.nfodetailsPage, page: () => NfoDetailsPage1()),
+//     GetPage(name: AppRoutes.kycDeatailScreen, page: () => KycDetailsScreen()),
+//     GetPage(name: AppRoutes.documentsScreen, page: () => DocumentScreen()),
+
+//     GetPage(name: AppRoutes.sipCalculator, page: () => SipCalculatorPage()),
+//     GetPage(name: AppRoutes.swpCalculator, page: () => SwpCalciScreen()),
+//     GetPage(
+//       name: AppRoutes.stepUpCalculator,
+//       page: () => TopUpCalculatorPage(),
+//     ),
+//     GetPage(name: AppRoutes.comingSoon, page: () => ComingSoon()),
+//     GetPage(name: AppRoutes.bankDetails, page: () => BankDetailsScreen()),
+//     GetPage(name: AppRoutes.videoList, page: () => VideoListScreen()),
+
+//     GetPage(name: AppRoutes.additionalInfo, page: () => AdditionalInfoScreen()),
+//     GetPage(name: AppRoutes.investNow, page: () => InvestNowPage()),
+//     GetPage(name: AppRoutes.investNowPage, page: () => SIPPurchasePage()),
+//     GetPage(
+//       name: AppRoutes.downloadStatement,
+//       page: () => DownloadStatementsScreen(),
+//     ),
+
+//     GetPage(
+//       name: AppRoutes.myTransactionsweb,
+//       page: () => const WebTransactionsScreen(),
+//     ),
+
+//     GetPage(
+//       name: AppRoutes.managePortfolioweb,
+//       page: () => const WebPortfolioScreen(),
+//     ),
+//   ];
+//   static List<Bindings> navMenuBindings() => [
+//     UBinding(),
+//     PersonalisationBinding(),
+//     Fundhousebinding(),
+//     WishlistBinding(),
+//     GoalBinding(),
+//     MfuBindings(),
+//     DashboardBinding(),
+//   ];
+
+//   static GetPage webShellRootPage(String route) {
+//   return GetPage(
+//     name: route,
+//     page: () => const NavigationMenuBar(),
+//     bindings: navMenuBindings(),
+//   );
+
+  
+// }
+
+
+
+  
+// }
