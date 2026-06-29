@@ -103,7 +103,7 @@ class GoalDetailsPage extends GetView<GoalSipController> {
     return GoalDetailsMobileView(
       title: title,
       goal: goal,
-      emoji: logo,
+      emoji: emoji,
       target: target,
       invested: invested,
       logo: logo,

@@ -64,7 +64,7 @@ class _StepUpSection extends StatelessWidget {
             fontFamily: FontFamily.medium,
             color: _C.textMuted,
             fontSize: 11,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w500,
             letterSpacing: 1.1,
           ),
         ),
@@ -239,7 +239,7 @@ class _SegmentToggle extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: FontFamily.medium,
                     fontSize: 11,
-                    fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                    fontWeight: active ? FontWeight.w500 : FontWeight.w500,
                     color: active ? Colors.white : _C.textSec,
                   ),
                 ),
@@ -297,7 +297,7 @@ class _SmallToggle extends StatelessWidget {
           style: TextStyle(
             fontFamily: FontFamily.medium,
             fontSize: 11,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w500,
             color: active ? Colors.white : Colors.black87,
           ),
         ),
@@ -335,7 +335,7 @@ class _NumberField extends StatelessWidget {
           style: const TextStyle(
             fontFamily: FontFamily.medium,
             fontSize: 14,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w500,
             color: _C.textPrimary,
           ),
           decoration: InputDecoration(
@@ -688,7 +688,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                 style: TextStyle(
                   fontFamily: FontFamily.medium,
                   fontSize: 18,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: _C.textPrimary,
                 ),
               ),
@@ -745,7 +745,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                 style: TextStyle(
                   fontFamily: FontFamily.medium,
                   fontSize: 18,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
                   color: _C.textPrimary,
                 ),
               ),
@@ -830,7 +830,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor: isDesktop ? _C.bg : Colors.white,
+        backgroundColor:Ucolors.white,
         body: Stack(
           children: [
             Positioned.fill(
@@ -885,56 +885,53 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
   Widget _buildDesktopScaffold() {
     return SafeArea(
       child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: _desktopMaxWidth),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
-            child: Column(
-              children: [
-                FadeTransition(
-                  opacity: _fade,
-                  child: Obx(() => _TopBar(args: _c.sipArgs.value)),
-                ),
-                const SizedBox(height: 18),
-                Expanded(
-                  child: SlideTransition(
-                    position: _slide,
-                    child: FadeTransition(
-                      opacity: _fade,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            flex: 7,
-                            child: _DesktopPanel(
-                              child: _buildBody(isDesktopLayout: true),
-                            ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
+          child: Column(
+            children: [
+              FadeTransition(
+                opacity: _fade,
+                child: Obx(() => _TopBar(args: _c.sipArgs.value)),
+              ),
+              const SizedBox(height: 18),
+              Expanded(
+                child: SlideTransition(
+                  position: _slide,
+                  child: FadeTransition(
+                    opacity: _fade,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 6,
+                          child: _DesktopPanel(
+                            child: _buildBody(isDesktopLayout: true),
                           ),
-                          const SizedBox(width: 24),
-                          SizedBox(
-                            width: 380,
-                            child: SingleChildScrollView(
-                              padding: const EdgeInsets.only(bottom: 32),
-                              child: Column(
-                                children: [
-                                  _buildDesktopSummaryCard(),
-                                  const SizedBox(height: 18),
-                                  Obx(
-                                    () => _InfoBanner(
-                                      invType: _c.sipInvType.value,
-                                    ),
+                        ),
+                        const SizedBox(width: 24),
+                        Expanded(
+                         flex: 4,
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.only(bottom: 32),
+                            child: Column(
+                              children: [
+                                _buildDesktopSummaryCard(),
+                                const SizedBox(height: 18),
+                                Obx(
+                                  () => _InfoBanner(
+                                    invType: _c.sipInvType.value,
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1171,7 +1168,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                           fontFamily: FontFamily.medium,
                           color: _C.textPrimary,
                           fontSize: 18,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           letterSpacing: -0.4,
                         ),
                       ),
@@ -1250,7 +1247,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                             fontFamily: FontFamily.medium,
                             color: canTap ? Colors.white : Colors.grey.shade600,
                             fontSize: 15,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             letterSpacing: -0.2,
                           ),
                         ),
@@ -1289,7 +1286,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                 fontFamily: FontFamily.medium,
                 color: _C.textPrimary,
                 fontSize: 14,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -1336,7 +1333,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
       fontFamily: FontFamily.medium,
       color: _C.textMuted,
       fontSize: 11,
-      fontWeight: FontWeight.w700,
+      fontWeight: FontWeight.w500,
       letterSpacing: 1.1,
     ),
   );
@@ -1425,7 +1422,7 @@ class _InvTypeSelector extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: FontFamily.medium,
                         fontSize: 12,
-                        fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                        fontWeight: active ? FontWeight.w500 : FontWeight.w500,
                         color: active ? Colors.white : _C.textSec,
                       ),
                     ),
@@ -1575,7 +1572,7 @@ class _AmountCardState extends State<_AmountCard> {
                                   fontFamily: FontFamily.medium,
                                   color: Colors.white,
                                   fontSize: 56,
-                                  fontWeight: FontWeight.w900,
+                                  fontWeight: FontWeight.w600,
                                   letterSpacing: -2,
                                   height: 1,
                                 ),
@@ -1707,7 +1704,7 @@ class _AddBtn extends StatelessWidget {
             fontFamily: FontFamily.medium,
             color: highlight ? _C.primary : Colors.white,
             fontSize: 12,
-            fontWeight: highlight ? FontWeight.w800 : FontWeight.w600,
+            fontWeight: highlight ? FontWeight.w600 : FontWeight.w600,
           ),
         ),
       ),
@@ -1787,7 +1784,7 @@ class _DetailTile extends StatelessWidget {
                           fontFamily: FontFamily.medium,
                           color: _C.textPrimary,
                           fontSize: 15,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
@@ -1824,7 +1821,7 @@ class _Chip extends StatelessWidget {
           fontFamily: FontFamily.medium,
           color: color,
           fontSize: 11,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
@@ -1924,7 +1921,7 @@ class _ModernRiskBadge extends StatelessWidget {
               fontFamily: FontFamily.medium,
               color: c,
               fontSize: 11,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w500,
               letterSpacing: 0.5,
             ),
           ),
@@ -1979,7 +1976,7 @@ class _TopBar extends StatelessWidget {
               fontFamily: FontFamily.medium,
               color: _C.textPrimary,
               fontSize: 20,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
               letterSpacing: -0.5,
             ),
           ),
@@ -2034,7 +2031,7 @@ class _FundCard extends StatelessWidget {
                     fontFamily: FontFamily.medium,
                     color: _C.textPrimary,
                     fontSize: 15,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                     letterSpacing: -0.2,
                   ),
                 ),
@@ -2148,7 +2145,7 @@ class _BottomCta extends StatelessWidget {
                           fontFamily: FontFamily.medium,
                           color: canTap ? Colors.white : Colors.grey.shade600,
                           fontSize: 16,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           letterSpacing: -0.2,
                         ),
                       ),
@@ -2234,7 +2231,7 @@ class _BottomCta extends StatelessWidget {
 //             fontFamily: FontFamily.medium,
 //             color: _C.textMuted,
 //             fontSize: 11,
-//             fontWeight: FontWeight.w700,
+//             fontWeight: FontWeight.w500,
 //             letterSpacing: 1.1,
 //           ),
 //         ),
@@ -2409,7 +2406,7 @@ class _BottomCta extends StatelessWidget {
 //                   style: TextStyle(
 //                     fontFamily: FontFamily.medium,
 //                     fontSize: 11,
-//                     fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+//                     fontWeight: active ? FontWeight.w500 : FontWeight.w500,
 //                     color: active ? Colors.white : _C.textSec,
 //                   ),
 //                 ),
@@ -2467,7 +2464,7 @@ class _BottomCta extends StatelessWidget {
 //           style: TextStyle(
 //             fontFamily: FontFamily.medium,
 //             fontSize: 11,
-//             fontWeight: FontWeight.w700,
+//             fontWeight: FontWeight.w500,
 //             color: active ? Colors.white : Colors.black87,
 //           ),
 //         ),
@@ -2505,7 +2502,7 @@ class _BottomCta extends StatelessWidget {
 //           style: const TextStyle(
 //             fontFamily: FontFamily.medium,
 //             fontSize: 14,
-//             fontWeight: FontWeight.w700,
+//             fontWeight: FontWeight.w500,
 //             color: _C.textPrimary,
 //           ),
 //           decoration: InputDecoration(
@@ -2845,7 +2842,7 @@ class _BottomCta extends StatelessWidget {
 //                 style: TextStyle(
 //                   fontFamily: FontFamily.medium,
 //                   fontSize: 18,
-//                   fontWeight: FontWeight.w800,
+//                   fontWeight: FontWeight.w600,
 //                   color: _C.textPrimary,
 //                 ),
 //               ),
@@ -2902,7 +2899,7 @@ class _BottomCta extends StatelessWidget {
 //                 style: TextStyle(
 //                   fontFamily: FontFamily.medium,
 //                   fontSize: 18,
-//                   fontWeight: FontWeight.w800,
+//                   fontWeight: FontWeight.w600,
 //                   color: _C.textPrimary,
 //                 ),
 //               ),
@@ -3222,7 +3219,7 @@ class _BottomCta extends StatelessWidget {
 //       fontFamily: FontFamily.medium,
 //       color: _C.textMuted,
 //       fontSize: 11,
-//       fontWeight: FontWeight.w700,
+//       fontWeight: FontWeight.w500,
 //       letterSpacing: 1.1,
 //     ),
 //   );
@@ -3286,7 +3283,7 @@ class _BottomCta extends StatelessWidget {
 //                       style: TextStyle(
 //                         fontFamily: FontFamily.medium,
 //                         fontSize: 12,
-//                         fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+//                         fontWeight: active ? FontWeight.w500 : FontWeight.w500,
 //                         color: active ? Colors.white : _C.textSec,
 //                       ),
 //                     ),
@@ -3436,7 +3433,7 @@ class _BottomCta extends StatelessWidget {
 //                                   fontFamily: FontFamily.medium,
 //                                   color: Colors.white,
 //                                   fontSize: 56,
-//                                   fontWeight: FontWeight.w900,
+//                                   fontWeight: FontWeight.w600,
 //                                   letterSpacing: -2,
 //                                   height: 1,
 //                                 ),
@@ -3568,7 +3565,7 @@ class _BottomCta extends StatelessWidget {
 //             fontFamily: FontFamily.medium,
 //             color: highlight ? _C.primary : Colors.white,
 //             fontSize: 12,
-//             fontWeight: highlight ? FontWeight.w800 : FontWeight.w600,
+//             fontWeight: highlight ? FontWeight.w600 : FontWeight.w600,
 //           ),
 //         ),
 //       ),
@@ -3648,7 +3645,7 @@ class _BottomCta extends StatelessWidget {
 //                           fontFamily: FontFamily.medium,
 //                           color: _C.textPrimary,
 //                           fontSize: 15,
-//                           fontWeight: FontWeight.w700,
+//                           fontWeight: FontWeight.w500,
 //                         ),
 //                       ),
 //                     ],
@@ -3685,7 +3682,7 @@ class _BottomCta extends StatelessWidget {
 //           fontFamily: FontFamily.medium,
 //           color: color,
 //           fontSize: 11,
-//           fontWeight: FontWeight.w700,
+//           fontWeight: FontWeight.w500,
 //         ),
 //       ),
 //     );
@@ -3785,7 +3782,7 @@ class _BottomCta extends StatelessWidget {
 //               fontFamily: FontFamily.medium,
 //               color: c,
 //               fontSize: 11,
-//               fontWeight: FontWeight.w700,
+//               fontWeight: FontWeight.w500,
 //               letterSpacing: 0.5,
 //             ),
 //           ),
@@ -3840,7 +3837,7 @@ class _BottomCta extends StatelessWidget {
 //               fontFamily: FontFamily.medium,
 //               color: _C.textPrimary,
 //               fontSize: 20,
-//               fontWeight: FontWeight.w800,
+//               fontWeight: FontWeight.w600,
 //               letterSpacing: -0.5,
 //             ),
 //           ),
@@ -3895,7 +3892,7 @@ class _BottomCta extends StatelessWidget {
 //                     fontFamily: FontFamily.medium,
 //                     color: _C.textPrimary,
 //                     fontSize: 15,
-//                     fontWeight: FontWeight.w700,
+//                     fontWeight: FontWeight.w500,
 //                     letterSpacing: -0.2,
 //                   ),
 //                 ),
@@ -4008,7 +4005,7 @@ class _BottomCta extends StatelessWidget {
 //                           fontFamily: FontFamily.medium,
 //                           color: canTap ? Colors.white : Colors.grey.shade600,
 //                           fontSize: 16,
-//                           fontWeight: FontWeight.w800,
+//                           fontWeight: FontWeight.w600,
 //                           letterSpacing: -0.2,
 //                         ),
 //                       ),

@@ -24,44 +24,45 @@ class MfuBindings extends Bindings {
         Get.find<NetworkServicesApi>(),
         Get.find<SessionManager>(),
       ),
+      fenix: true
     );
 
     // 2. Repository
-    Get.lazyPut(() => MfuRepositoryImpl(Get.find<MfuRemoteDataSource>()));
+    Get.lazyPut(() => MfuRepositoryImpl(Get.find<MfuRemoteDataSource>()) , fenix: true);
 
     // 3. Use Cases
     Get.lazyPut(
-      () => CanRegisterUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+      () => CanRegisterUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
     );
     Get.lazyPut(
-      () => GetCanStatusUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+      () => GetCanStatusUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
     );
     Get.lazyPut(
       () => MfuCanBankValidationUseCase(
         mfuRepository: Get.find<MfuRepositoryImpl>(),
-      ),
+      ), fenix: true
     );
 
     Get.lazyPut(
       () =>
-          MfuMandateCreateUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+          MfuMandateCreateUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
     );
 
     Get.lazyPut(
       () =>
-          MfuMandateStatusUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+          MfuMandateStatusUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
     );
 
     Get.lazyPut(
-      () => MfuNormalTxnUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+      () => MfuNormalTxnUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
     );
 
     Get.lazyPut(
       () =>
-          MfuSystematicTxnUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+          MfuSystematicTxnUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
     );
     Get.lazyPut(
-      () => MfuCallUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+      () => MfuCallUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
     );
     // Get.lazyPut(
     //   () =>
@@ -86,6 +87,6 @@ class MfuBindings extends Bindings {
     );
 
     // 5. Controller
-    Get.lazyPut(() => MfuController(Get.find<MfuUseCases>()));
+    Get.lazyPut(() => MfuController(Get.find<MfuUseCases>()), fenix: true);
   }
 }
