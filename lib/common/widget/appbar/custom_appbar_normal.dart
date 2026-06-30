@@ -13,12 +13,14 @@ class CustomAppBarNormal extends StatelessWidget
     this.backIcon = true,
     this.actionsPadding,
     this.bottom,
+    this.onpressed,
   });
 
   final String title;
   final List<Widget>? action;
   final Color? backgroundColor;
   final bool backIcon;
+  final VoidCallback? onpressed;
   // final
   final double? actionsPadding;
   final PreferredSizeWidget? bottom;
@@ -32,7 +34,9 @@ class CustomAppBarNormal extends StatelessWidget
 
       leading: backIcon
           ? InkWell(
-              onTap: () => Navigator.maybePop(context),
+              // onTap: () => Navigator.maybePop(context),
+              onTap: onpressed ?? () => Navigator.maybePop(context),
+
               child: Container(
                 height: 20,
                 width: 20,
@@ -43,12 +47,14 @@ class CustomAppBarNormal extends StatelessWidget
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
-                  child: CompactIcon(
-                    iconSize: 18,
-                    icon: Icons.arrow_back_ios,
-                    // onPressed: () => Get.back(),
-                    onPressed: () => Navigator.maybePop(context),
-                  ),
+                  child: Icon(Icons.arrow_back_ios),
+                  //  CompactIcon(
+                  //   iconSize: 18,
+                  //   icon: Icons.arrow_back_ios,
+                  //   // onPressed: () => Get.back(),
+                  //   // onPressed: () => Navigator.maybePop(context),
+                  //   onPressed: onpressed ?? () => Navigator.maybePop(context),
+                  // ),
                 ),
               ),
             )
@@ -97,39 +103,36 @@ class WebCustomAppBarNormal extends StatelessWidget
       elevation: 0,
       backgroundColor: backgroundColor ?? Colors.grey.shade50,
 
-      actionsPadding: EdgeInsets.only(
-        right: actionsPadding ?? 0,
-      ),
+      actionsPadding: EdgeInsets.only(right: actionsPadding ?? 0),
 
       automaticallyImplyLeading: false,
 
       leading: backIcon
           ? Padding(
-        padding: const EdgeInsets.only(left: 16),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () => Navigator.maybePop(context),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              height: 42,
-              width: 42,
-              decoration: BoxDecoration(
-                color: const Color(0xffEDEDED),
+              padding: const EdgeInsets.only(left: 16),
+              child: InkWell(
                 borderRadius: BorderRadius.circular(12),
-              ),
-              child: Center(
-                child: CompactIcon(
-                  iconSize: 18,
-                  icon: Icons.arrow_back_ios,
-                  onPressed: () =>
-                      Navigator.maybePop(context),
+                onTap: () => Navigator.maybePop(context),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    height: 42,
+                    width: 42,
+                    decoration: BoxDecoration(
+                      color: const Color(0xffEDEDED),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Center(
+                      child: CompactIcon(
+                        iconSize: 18,
+                        icon: Icons.arrow_back_ios,
+                        onPressed: () => Navigator.maybePop(context),
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-        ),
-      )
+            )
           : null,
 
       leadingWidth: 70,

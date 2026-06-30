@@ -763,6 +763,7 @@
 
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -793,7 +794,6 @@ class WatchlistPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
-    
 
     return Scaffold(
       // backgroundColor: isDesktop
@@ -1532,7 +1532,16 @@ class WatchlistPage extends StatelessWidget {
             width: double.infinity,
             height: 46,
             child: ElevatedButton(
-              onPressed: () => Get.toNamed(AppRoutes.explorePage, id: 1),
+              // onPressed: () => Get.toNamed(AppRoutes.explorePage, id: 1),
+              onPressed: () {
+                if (kIsWeb && Get.isRegistered<NavigationBarController>()) {
+                  Get.find<NavigationBarController>().openNestedRoute(
+                    AppRoutes.explorePage,
+                  );
+                } else {
+                  Get.toNamed(AppRoutes.explorePage);
+                }
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 elevation: 0,

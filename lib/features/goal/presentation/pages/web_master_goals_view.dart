@@ -5,6 +5,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -13,6 +14,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/features/mfu/data/model/normal_txn_req_model.dart';
 import 'package:my_sip/features/mfu/data/model/systematic_txn_req_model.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 import 'package:my_sip/services/session_manager.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import '../../../../common/widget/appbar/custom_appbar_normal.dart';
@@ -87,62 +89,64 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
     }
 
     return GetBuilder<GoalSipController>(
-    initState: (_) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        controller.isHome.value = false;
-        controller.selectedPopularFund.clear();
+      initState: (_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          controller.isHome.value = false;
+          controller.selectedPopularFund.clear();
 
-        _scrollController.addListener(() {
-          if (!_scrollController.hasClients) return;
-          showLeftArrow.value = _scrollController.offset > 10;
-          showRightArrow.value = _scrollController.offset < (_scrollController.position.maxScrollExtent - 10);
-        });
+          _scrollController.addListener(() {
+            if (!_scrollController.hasClients) return;
+            showLeftArrow.value = _scrollController.offset > 10;
+            showRightArrow.value =
+                _scrollController.offset <
+                (_scrollController.position.maxScrollExtent - 10);
+          });
 
-        await controller.initializeDashboardData();
+          await controller.initializeDashboardData();
 
-        final args = (Get.arguments as Map<String, dynamic>?) ?? tempArgs;
-        tempArgs = null;
+          final args = (Get.arguments as Map<String, dynamic>?) ?? tempArgs;
+          tempArgs = null;
 
-        if (args == null) {
-          controller.update(); // Trigger safe rebuild if no arguments
-          return;
-        }
-
-        final String initialType = args['goalType'] ?? 'custom';
-        controller.isEdit.value = args['isEdit'] ?? false;
-        controller.isHome.value = args['isHome'] ?? false;
-
-        final UserGoalEntity? goal = args['goal'];
-
-        if (!controller.isEdit.value) {
-          controller.resetStateForNewGoal();
-        }
-
-        controller.updateGoalType(initialType);
-
-        // EDIT GOAL
-        if (controller.isEdit.value && goal != null) {
-          controller.loadGoalForEdit(goal);
-        }
-        if (controller.isAddFund.value && goal != null) {
-          controller.loadGoalForAddFund(goal);
-        }
-
-        // HOME GOAL
-        if (controller.isHome.value) {
-          final masterGoal = controller.masterGoals.firstWhereOrNull(
-                (e) => e.goalType == initialType,
-          );
-          if (masterGoal != null) {
-            controller.handleHomeGoal(masterGoal);
+          if (args == null) {
+            controller.update(); // Trigger safe rebuild if no arguments
+            return;
           }
-        }
 
-        // Safe to request layout refresh now that current frame is rendered
-        controller.update();
-      });
-    },
-    builder: (controller) {
+          final String initialType = args['goalType'] ?? 'custom';
+          controller.isEdit.value = args['isEdit'] ?? false;
+          controller.isHome.value = args['isHome'] ?? false;
+
+          final UserGoalEntity? goal = args['goal'];
+
+          if (!controller.isEdit.value) {
+            controller.resetStateForNewGoal();
+          }
+
+          controller.updateGoalType(initialType);
+
+          // EDIT GOAL
+          if (controller.isEdit.value && goal != null) {
+            controller.loadGoalForEdit(goal);
+          }
+          if (controller.isAddFund.value && goal != null) {
+            controller.loadGoalForAddFund(goal);
+          }
+
+          // HOME GOAL
+          if (controller.isHome.value) {
+            final masterGoal = controller.masterGoals.firstWhereOrNull(
+              (e) => e.goalType == initialType,
+            );
+            if (masterGoal != null) {
+              controller.handleHomeGoal(masterGoal);
+            }
+          }
+
+          // Safe to request layout refresh now that current frame is rendered
+          controller.update();
+        });
+      },
+      builder: (controller) {
         return StatefulBuilder(
           builder: (context, setState) {
             bool canPopScope = false;
@@ -155,14 +159,14 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                 final currentGoal = controller.goalResponse.value?.data
                     .firstWhereOrNull(
                       (e) => e.goalId == controller.savedDatabaseId.value,
-                );
+                    );
 
                 bool needsWarning =
                     currentGoal?.status == "pending" ||
-                        currentGoal?.status == null ||
-                        !controller.isGoalSaved.value ||
-                        currentGoal?.mfuOrderStatus == "not_ordered" ||
-                        currentGoal?.mfuOrderStatus == null;
+                    currentGoal?.status == null ||
+                    !controller.isGoalSaved.value ||
+                    currentGoal?.mfuOrderStatus == "not_ordered" ||
+                    currentGoal?.mfuOrderStatus == null;
 
                 if (needsWarning) {
                   final shouldLeave = await Get.dialog<bool>(
@@ -176,14 +180,20 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                           onPressed: () => Get.back(result: false),
                           child: const Text(
                             "Stay",
-                            style: TextStyle( fontFamily:FontFamily.regular,color: Ucolors.primary),
+                            style: TextStyle(
+                              fontFamily: FontFamily.regular,
+                              color: Ucolors.primary,
+                            ),
                           ),
                         ),
                         ElevatedButton(
                           onPressed: () => Get.back(result: true),
                           child: const Text(
                             "Leave",
-                            style: TextStyle( fontFamily:FontFamily.regular,color: Ucolors.primary),
+                            style: TextStyle(
+                              fontFamily: FontFamily.regular,
+                              color: Ucolors.primary,
+                            ),
                           ),
                         ),
                       ],
@@ -205,8 +215,17 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                 });
               },
               child: Scaffold(
-                backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Ucolors.light,
+                backgroundColor: isDesktop
+                    ? const Color(0xFFF5F7FA)
+                    : Ucolors.light,
                 appBar: CustomAppBarNormal(
+                  onpressed: () {
+                    if (kIsWeb && Get.isRegistered<NavigationBarController>()) {
+                      Get.find<NavigationBarController>().backNested();
+                    } else {
+                      Get.back();
+                    }
+                  },
                   backgroundColor: Ucolors.light,
                   title: 'Goals',
                   backIcon: true,
@@ -218,16 +237,20 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                 body: Column(
                   children: [
                     Obx(() {
-                      if (controller.isMasterGoalLoading.value  ) {
+                      if (controller.isMasterGoalLoading.value) {
                         return const SizedBox(
                           height: 140,
                           child: Center(
-                            child: CircularProgressIndicator(color: Ucolors.primary),
+                            child: CircularProgressIndicator(
+                              color: Ucolors.primary,
+                            ),
                           ),
                         );
                       }
 
-                      if (controller.masterGoals.isEmpty || controller.isGoalSaved.value || controller.isAddFund.value == true) {
+                      if (controller.masterGoals.isEmpty ||
+                          controller.isGoalSaved.value ||
+                          controller.isAddFund.value == true) {
                         return const SizedBox.shrink();
                       }
 
@@ -241,168 +264,258 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                             child: Listener(
                               onPointerSignal: (pointerSignal) {
                                 if (pointerSignal is PointerScrollEvent) {
-                                  final double newOffset = _scrollController.offset + pointerSignal.scrollDelta.dy;
+                                  final double newOffset =
+                                      _scrollController.offset +
+                                      pointerSignal.scrollDelta.dy;
                                   _scrollController.animateTo(
-                                    newOffset.clamp(0.0, _scrollController.position.maxScrollExtent),
+                                    newOffset.clamp(
+                                      0.0,
+                                      _scrollController
+                                          .position
+                                          .maxScrollExtent,
+                                    ),
                                     duration: const Duration(milliseconds: 100),
                                     curve: Curves.easeOut,
                                   );
                                 }
                               },
                               child: ScrollConfiguration(
-                                behavior: ScrollConfiguration.of(context).copyWith(
-                                  dragDevices: {
-                                    PointerDeviceKind.touch,
-                                    PointerDeviceKind.mouse,
-                                    PointerDeviceKind.trackpad,
-                                  },
-                                ),
+                                behavior: ScrollConfiguration.of(context)
+                                    .copyWith(
+                                      dragDevices: {
+                                        PointerDeviceKind.touch,
+                                        PointerDeviceKind.mouse,
+                                        PointerDeviceKind.trackpad,
+                                      },
+                                    ),
                                 child: ListView.builder(
                                   controller: _scrollController,
-                                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 40,
+                                  ),
                                   scrollDirection: Axis.horizontal,
                                   itemCount: controller.masterGoals.length,
                                   itemBuilder: (context, index) {
                                     final goal = controller.masterGoals[index];
-                                    final isSelected = controller.selectedGoalIndex.value == index;
+                                    final isSelected =
+                                        controller.selectedGoalIndex.value ==
+                                        index;
 
                                     return MouseRegion(
                                       cursor: SystemMouseCursors.click,
                                       child: GestureDetector(
                                         onTap: () async {
-                                          controller.selectedGoalIndex.value = index;
+                                          controller.selectedGoalIndex.value =
+                                              index;
                                           controller.isGoalSaved.value = false;
                                           controller.goalId.value = goal.id;
-                                          controller.selectedGoalType.value = goal.goalType;
+                                          controller.selectedGoalType.value =
+                                              goal.goalType;
 
-                                          final goalType = goal.goalType.toLowerCase() ?? '';
-                                          if (!['custom', 'other'].contains(goalType)) {
-                                            controller.goalNameTextEditingController.text = goal.goalType;
+                                          final goalType =
+                                              goal.goalType.toLowerCase() ?? '';
+                                          if (![
+                                            'custom',
+                                            'other',
+                                          ].contains(goalType)) {
+                                            controller
+                                                .goalNameTextEditingController
+                                                .text = goal
+                                                .goalType;
                                           }
 
-                                          controller.setTarget(goal.targetAmount);
-                                          controller.setYears(goal.goalTenure.toDouble());
-                                          controller.setRate(goal.expectedReturnRate);
+                                          controller.setTarget(
+                                            goal.targetAmount,
+                                          );
+                                          controller.setYears(
+                                            goal.goalTenure.toDouble(),
+                                          );
+                                          controller.setRate(
+                                            goal.expectedReturnRate,
+                                          );
 
-                                          final double r = goal.expectedReturnRate / 100;
+                                          final double r =
+                                              goal.expectedReturnRate / 100;
                                           final int n = goal.goalTenure.toInt();
-                                          final double pv = goal.targetAmount / pow(1 + r, n);
+                                          final double pv =
+                                              goal.targetAmount / pow(1 + r, n);
 
-                                          controller.lumpsumAmount.value = controller.smartRoundOff(pv);
-                                          controller.lumpsumFutureValue.value = goal.targetAmount;
-                                          controller.lumpsumTotalReturn.value = goal.targetAmount - pv;
+                                          controller.lumpsumAmount.value =
+                                              controller.smartRoundOff(pv);
+                                          controller.lumpsumFutureValue.value =
+                                              goal.targetAmount;
+                                          controller.lumpsumTotalReturn.value =
+                                              goal.targetAmount - pv;
 
                                           controller.update();
                                         },
                                         child: AnimatedContainer(
-                                          duration: const Duration(milliseconds: 250),
+                                          duration: const Duration(
+                                            milliseconds: 250,
+                                          ),
                                           width: 200,
-                                          margin: const EdgeInsets.only(right: 16, bottom: 8),
+                                          margin: const EdgeInsets.only(
+                                            right: 16,
+                                            bottom: 8,
+                                          ),
                                           padding: const EdgeInsets.all(16),
                                           decoration: BoxDecoration(
                                             color: isSelected
-                                                ? controller.getGoalColor(goal.goalType).withValues(alpha: 0.05)
+                                                ? controller
+                                                      .getGoalColor(
+                                                        goal.goalType,
+                                                      )
+                                                      .withValues(alpha: 0.05)
                                                 : Colors.white,
-                                            borderRadius: BorderRadius.circular(16),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
                                             border: Border.all(
                                               color: isSelected
-                                                  ? controller.getGoalColor(goal.goalType)
+                                                  ? controller.getGoalColor(
+                                                      goal.goalType,
+                                                    )
                                                   : Colors.grey.shade200,
                                               width: isSelected ? 1.5 : 1.0,
                                             ),
                                             boxShadow: [
                                               if (!isSelected)
                                                 BoxShadow(
-                                                  color: Colors.black.withValues(alpha: 0.02),
+                                                  color: Colors.black
+                                                      .withValues(alpha: 0.02),
                                                   blurRadius: 8,
                                                   offset: const Offset(0, 2),
                                                 ),
                                             ],
                                           ),
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               Row(
                                                 children: [
                                                   Icon(
                                                     getGoalIcon(goal.goalType),
-                                                    color: controller.getGoalColor(goal.goalType),
+                                                    color: controller
+                                                        .getGoalColor(
+                                                          goal.goalType,
+                                                        ),
                                                     size: 24,
                                                   ),
                                                   const SizedBox(width: 8),
                                                   Expanded(
                                                     child: Text(
-                                                      goal.goalType.capitalizeFirst ?? '',
+                                                      goal
+                                                              .goalType
+                                                              .capitalizeFirst ??
+                                                          '',
                                                       maxLines: 1,
-                                                      overflow: TextOverflow.ellipsis,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
                                                       style: const TextStyle(
-                                                        fontFamily: FontFamily.medium,
+                                                        fontFamily:
+                                                            FontFamily.medium,
                                                         fontSize: 16,
-                                                        fontWeight: FontWeight.w600,
+                                                        fontWeight:
+                                                            FontWeight.w600,
                                                         color: Colors.black87,
                                                       ),
                                                     ),
                                                   ),
                                                   Icon(
                                                     isSelected
-                                                        ? Icons.check_circle_rounded
-                                                        : Icons.radio_button_unchecked_rounded,
+                                                        ? Icons
+                                                              .check_circle_rounded
+                                                        : Icons
+                                                              .radio_button_unchecked_rounded,
                                                     color: isSelected
-                                                        ? controller.getGoalColor(goal.goalType)
+                                                        ? controller
+                                                              .getGoalColor(
+                                                                goal.goalType,
+                                                              )
                                                         : Colors.grey.shade300,
                                                     size: 20,
                                                   ),
                                                 ],
                                               ),
                                               Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                crossAxisAlignment: CrossAxisAlignment.end,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.end,
                                                 children: [
                                                   Expanded(
                                                     child: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      mainAxisSize: MainAxisSize.min,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
                                                       children: [
                                                         Text(
                                                           "Target Amount",
                                                           style: TextStyle(
-                                                            fontFamily: FontFamily.medium,
+                                                            fontFamily:
+                                                                FontFamily
+                                                                    .medium,
                                                             fontSize: 11,
-                                                            color: Colors.grey.shade500,
+                                                            color: Colors
+                                                                .grey
+                                                                .shade500,
                                                           ),
                                                         ),
-                                                        const SizedBox(height: 2),
+                                                        const SizedBox(
+                                                          height: 2,
+                                                        ),
                                                         Text(
-                                                          formatCurrency(goal.targetAmount),
-                                                          maxLines: 1,
-                                                          overflow: TextOverflow.ellipsis,
-                                                          style: const TextStyle(
-                                                            fontFamily: FontFamily.medium,
-                                                            fontSize: 20,
-                                                            fontWeight: FontWeight.w600,
-                                                            color: Colors.black,
+                                                          formatCurrency(
+                                                            goal.targetAmount,
                                                           ),
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          style:
+                                                              const TextStyle(
+                                                                fontFamily:
+                                                                    FontFamily
+                                                                        .medium,
+                                                                fontSize: 20,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                color: Colors
+                                                                    .black,
+                                                              ),
                                                         ),
                                                       ],
                                                     ),
                                                   ),
                                                   Row(
-                                                    mainAxisSize: MainAxisSize.min,
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
                                                     children: [
                                                       Icon(
                                                         Icons.schedule_rounded,
                                                         size: 14,
-                                                        color: Colors.grey.shade400,
+                                                        color: Colors
+                                                            .grey
+                                                            .shade400,
                                                       ),
                                                       const SizedBox(width: 4),
                                                       Text(
                                                         "${goal.goalTenure} Yrs",
                                                         style: TextStyle(
-                                                          fontFamily: FontFamily.medium,
+                                                          fontFamily:
+                                                              FontFamily.medium,
                                                           fontSize: 12,
-                                                          fontWeight: FontWeight.w600,
-                                                          color: Colors.grey.shade700,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          color: Colors
+                                                              .grey
+                                                              .shade700,
                                                         ),
                                                       ),
                                                     ],
@@ -431,7 +544,9 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                   color: Colors.white,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.08),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.08,
+                                      ),
                                       blurRadius: 8,
                                       offset: const Offset(0, 2),
                                     ),
@@ -439,7 +554,11 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                 ),
                                 child: IconButton(
                                   padding: EdgeInsets.zero,
-                                  icon: const Icon(Icons.chevron_left_rounded, size: 28, color: Colors.black87),
+                                  icon: const Icon(
+                                    Icons.chevron_left_rounded,
+                                    size: 28,
+                                    color: Colors.black87,
+                                  ),
                                   onPressed: () => scrollWithArrow(false),
                                 ),
                               ),
@@ -456,7 +575,9 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                   color: Colors.white,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.08),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.08,
+                                      ),
                                       blurRadius: 8,
                                       offset: const Offset(0, 2),
                                     ),
@@ -464,7 +585,11 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                 ),
                                 child: IconButton(
                                   padding: EdgeInsets.zero,
-                                  icon: const Icon(Icons.chevron_right_rounded, size: 28, color: Colors.black87),
+                                  icon: const Icon(
+                                    Icons.chevron_right_rounded,
+                                    size: 28,
+                                    color: Colors.black87,
+                                  ),
                                   onPressed: () => scrollWithArrow(true),
                                 ),
                               ),
@@ -479,7 +604,10 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                           Expanded(
                             flex: 4,
                             child: Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -497,7 +625,8 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Obx(() {
-                                      if (controller.isGoalSaved.value || controller.isAddFund.value == true) {
+                                      if (controller.isGoalSaved.value ||
+                                          controller.isAddFund.value == true) {
                                         return const SavedGoalDetailsCard();
                                       } else {
                                         return const SIPSectionGoal();
@@ -505,29 +634,47 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                     }),
                                     const Gap(16),
                                     Obx(() {
-                                      final bool isEdit = controller.isEdit.value;
-                                      final bool hasChanges = controller.hasChanges.value;
-                                      final bool isGoalSaved = controller.isGoalSaved.value;
+                                      final bool isEdit =
+                                          controller.isEdit.value;
+                                      final bool hasChanges =
+                                          controller.hasChanges.value;
+                                      final bool isGoalSaved =
+                                          controller.isGoalSaved.value;
 
-                                      if (!isGoalSaved || (isEdit && hasChanges)) {
+                                      if (!isGoalSaved ||
+                                          (isEdit && hasChanges)) {
                                         return controller.isSavingGoal.value
-                                            ? const Center(child: CircularProgressIndicator(color: Ucolors.primary))
+                                            ? const Center(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                      color: Ucolors.primary,
+                                                    ),
+                                              )
                                             : UElevatedBUtton(
-                                          onPressed: () async {
-                                            if (isEdit) {
-                                              // await controller.updateGoal();
-                                            } else {
-                                              await controller.saveGoalToDb();
-                                              await Get.find<MutualFundController>().fetchData();
-                                            }
-                                          },
-                                          child: Center(
-                                            child: Text(
-                                              isEdit ? "Update Goal" : "Save Goal",
-                                              style: AppTextStyles.bodyMedium(color: Colors.white),
-                                            ),
-                                          ),
-                                        );
+                                                onPressed: () async {
+                                                  if (isEdit) {
+                                                    // await controller.updateGoal();
+                                                  } else {
+                                                    await controller
+                                                        .saveGoalToDb();
+                                                    await Get.find<
+                                                          MutualFundController
+                                                        >()
+                                                        .fetchData();
+                                                  }
+                                                },
+                                                child: Center(
+                                                  child: Text(
+                                                    isEdit
+                                                        ? "Update Goal"
+                                                        : "Save Goal",
+                                                    style:
+                                                        AppTextStyles.bodyMedium(
+                                                          color: Colors.white,
+                                                        ),
+                                                  ),
+                                                ),
+                                              );
                                       }
                                       return const SizedBox.shrink();
                                     }),
@@ -540,7 +687,10 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                           Expanded(
                             flex: 5,
                             child: Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -555,23 +705,33 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                               ),
                               child: Obx(() {
                                 final bool isEdit = controller.isEdit.value;
-                                final bool hasChanges = controller.hasChanges.value;
-                                final bool isGoalSaved = controller.isGoalSaved.value;
+                                final bool hasChanges =
+                                    controller.hasChanges.value;
+                                final bool isGoalSaved =
+                                    controller.isGoalSaved.value;
 
                                 if (isGoalSaved || (isEdit && !hasChanges)) {
                                   return SingleChildScrollView(
                                     child: Column(
                                       children: [
                                         Obx(() {
-                                          final selectedCount = controller.selectedPopularFund.length;
+                                          final selectedCount = controller
+                                              .selectedPopularFund
+                                              .length;
 
                                           return USectionHeading(
                                             key: popularFundsKey,
-                                            title: selectedCount > 0 ? 'Selected Funds ($selectedCount)' : 'Popular Funds',
+                                            title: selectedCount > 0
+                                                ? 'Selected Funds ($selectedCount)'
+                                                : 'Popular Funds',
                                             showActionButton: true,
-                                            buttonTitle: selectedCount > 0 ? 'Add Funds' : 'Explore All',
+                                            buttonTitle: selectedCount > 0
+                                                ? 'Add Funds'
+                                                : 'Explore All',
                                             onPressed: () {
-                                              _showExploreMoreBottomSheet(context);
+                                              _showExploreMoreBottomSheet(
+                                                context,
+                                              );
                                             },
                                           );
                                         }),
@@ -587,16 +747,29 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.analytics_outlined, size: 60, color: Colors.grey.shade300),
+                                      Icon(
+                                        Icons.analytics_outlined,
+                                        size: 60,
+                                        color: Colors.grey.shade300,
+                                      ),
                                       const Gap(16),
                                       Text(
                                         "Save your goal to unlock insights",
-                                        style: TextStyle(fontFamily: FontFamily.medium, fontSize: 18, fontWeight: FontWeight.w600, color: Colors.grey.shade500),
+                                        style: TextStyle(
+                                          fontFamily: FontFamily.medium,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.grey.shade500,
+                                        ),
                                       ),
                                       const Gap(8),
                                       Text(
                                         "Projections and fund selections will appear here.",
-                                        style: TextStyle(color: Colors.grey.shade400, fontSize: 14, fontFamily:FontFamily.regular,),
+                                        style: TextStyle(
+                                          color: Colors.grey.shade400,
+                                          fontSize: 14,
+                                          fontFamily: FontFamily.regular,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -631,37 +804,40 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                               return;
                             }
 
-                            final mutualController = Get.find<MutualFundController>();
-                            final mfuController =
-                            Get.find<MfuController>();
+                            final mutualController =
+                                Get.find<MutualFundController>();
+                            final mfuController = Get.find<MfuController>();
 
                             final selectedFunds = mutualController.searchFund
                                 .where(
-                                  (fund) => controller.selectedPopularFund.contains(
-                                fund.baseSchemeName,
-                              ),
-                            )
+                                  (fund) => controller.selectedPopularFund
+                                      .contains(fund.baseSchemeName),
+                                )
                                 .toList();
 
-                            final String goalIdString = controller.savedDatabaseId.value
+                            final String goalIdString = controller
+                                .savedDatabaseId
+                                .value
                                 .toString();
-                            final int? parsedGoalId = int.tryParse(goalIdString);
+                            final int? parsedGoalId = int.tryParse(
+                              goalIdString,
+                            );
                             final int? finalGoalId =
-                            (parsedGoalId != null && parsedGoalId > 0)
+                                (parsedGoalId != null && parsedGoalId > 0)
                                 ? parsedGoalId
                                 : null;
-
-
 
                             controller.isLoading.value = true;
 
                             try {
                               for (final fund in selectedFunds) {
-                                final schemeCode = fund.schemeCode?.toString() ?? '';
+                                final schemeCode =
+                                    fund.schemeCode?.toString() ?? '';
                                 final amountText = controller
                                     .getAmountController(schemeCode)
                                     .text;
-                                final amount = double.tryParse(amountText) ?? 0.0;
+                                final amount =
+                                    double.tryParse(amountText) ?? 0.0;
                                 if (schemeCode.isNotEmpty &&
                                     amount > 0 &&
                                     finalGoalId != null) {
@@ -669,24 +845,25 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                     goalId: finalGoalId,
                                     schemeCode: schemeCode,
                                     schemeName: fund.baseSchemeName ?? '',
-                                    sipAmount:
-                                    amount,
-                                    sipDay:
-                                    controller.selectedSipDay.value,
+                                    sipAmount: amount,
+                                    sipDay: controller.selectedSipDay.value,
                                   );
                                 }
                               }
 
                               /// Lumpsum Transaction
-                              if (controller.savedInvestmentType.value == 'lumpsum') {
+                              if (controller.savedInvestmentType.value ==
+                                  'lumpsum') {
                                 List<MfuTxnScheme> lumpsumSchemes = [];
 
                                 for (final fund in selectedFunds) {
-                                  final schemeCode = fund.schemeCode?.toString() ?? '';
+                                  final schemeCode =
+                                      fund.schemeCode?.toString() ?? '';
                                   final amountText = controller
                                       .getAmountController(schemeCode)
                                       .text;
-                                  final amount = double.tryParse(amountText) ?? 0.0;
+                                  final amount =
+                                      double.tryParse(amountText) ?? 0.0;
 
                                   // Only add if scheme code exists and amount is valid
                                   if (schemeCode.isNotEmpty && amount > 0) {
@@ -695,8 +872,7 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                         schemeCode: "012", // static
                                         // schemeCode: schemeCode,
                                         amount: amount,
-                                        folio:
-                                        "NEW",
+                                        folio: "NEW",
                                         divOpt: "N",
                                       ),
                                     );
@@ -712,7 +888,8 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                 }
 
                                 final uid =
-                                    SessionManager.instance.getUserData?.id ?? 0;
+                                    SessionManager.instance.getUserData?.id ??
+                                    0;
 
                                 // 🚀 Fire the Multi-Lumpsum API!
                                 mfuController.normalTransaction(
@@ -724,10 +901,12 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                 );
                               }
                               /// SIP Transaction
-                              else if (controller.savedInvestmentType.value == "sip") {
+                              else if (controller.savedInvestmentType.value ==
+                                  "sip") {
                                 List<MfuSysTxnScheme> sipSchemes = [];
                                 for (final fund in selectedFunds) {
-                                  final schemeCode = fund.schemeCode?.toString() ?? '';
+                                  final schemeCode =
+                                      fund.schemeCode?.toString() ?? '';
                                   final amountText = controller
                                       .getAmountController(schemeCode)
                                       .text;
@@ -749,9 +928,15 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
 
                                 // final user = SessionManager.instance.getUserData;
                                 final mandateRefNo =
-                                    mfuController.mandateStatusResponse.value?.mumrn ??
-                                        mfuController.mandateStatusResponse.value?.mmrn ??
-                                        '';
+                                    mfuController
+                                        .mandateStatusResponse
+                                        .value
+                                        ?.mumrn ??
+                                    mfuController
+                                        .mandateStatusResponse
+                                        .value
+                                        ?.mmrn ??
+                                    '';
 
                                 final now = DateTime.now();
                                 // Assuming default 10th of the month for Cart SIPs. Adjust as needed!
@@ -761,7 +946,11 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                   10,
                                 );
                                 if (startDate.difference(now).inDays < 30) {
-                                  startDate = DateTime(now.year, now.month + 2, 10);
+                                  startDate = DateTime(
+                                    now.year,
+                                    now.month + 2,
+                                    10,
+                                  );
                                 }
                                 final endDate = DateTime(
                                   startDate.year + 30,
@@ -776,10 +965,9 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                     can: "14167AZA01",
                                     frequency: "M",
                                     day: "10",
-                                    startMonth: startDate.month.toString().padLeft(
-                                      2,
-                                      '0',
-                                    ),
+                                    startMonth: startDate.month
+                                        .toString()
+                                        .padLeft(2, '0'),
                                     startYear: startDate.year.toString(),
                                     endMonth: "08",
                                     endYear: "2027",
@@ -790,12 +978,15 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                     micr: "400065002",
                                     mandateRefNo: "PRNUAT001",
                                     schemes:
-                                    sipSchemes, // 🚀 Multi-Fund List injected here!
+                                        sipSchemes, // 🚀 Multi-Fund List injected here!
                                   ),
                                 );
                               } else {
                                 // Your SIP cart logic goes here later
-                                Get.snackbar("Info", "Processing SIP Checkout...");
+                                Get.snackbar(
+                                  "Info",
+                                  "Processing SIP Checkout...",
+                                );
                               }
                             } catch (e) {
                               debugPrint("Transaction Error: $e");
@@ -808,8 +999,11 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                               controller.isLoading.value = false;
                             }
                           },
-                          amount: controller.savedInvestmentType.value == 'lumpsum'
-                              ? controller.lumpsumAmount.value.toStringAsFixed(0)
+                          amount:
+                              controller.savedInvestmentType.value == 'lumpsum'
+                              ? controller.lumpsumAmount.value.toStringAsFixed(
+                                  0,
+                                )
                               : controller.monthlySip.value.toStringAsFixed(0),
                           amountColor: Ucolors.blue,
                         ),
@@ -842,7 +1036,9 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
           alignment: isDesktop ? Alignment.center : Alignment.center,
           child: Container(
             width: isDesktop ? 450 : double.infinity,
-            margin: isDesktop ? const EdgeInsets.only(right: 16, bottom: 16) : EdgeInsets.zero,
+            margin: isDesktop
+                ? const EdgeInsets.only(right: 16, bottom: 16)
+                : EdgeInsets.zero,
             child: DraggableScrollableSheet(
               initialChildSize: 0.9,
               minChildSize: 0.5,
@@ -852,8 +1048,18 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                 return Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: isDesktop ? BorderRadius.circular(24) : const BorderRadius.vertical(top: Radius.circular(24)),
-                    boxShadow: isDesktop ? [BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 30, offset: const Offset(0, 10))] : [],
+                    borderRadius: isDesktop
+                        ? BorderRadius.circular(24)
+                        : const BorderRadius.vertical(top: Radius.circular(24)),
+                    boxShadow: isDesktop
+                        ? [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.15),
+                              blurRadius: 30,
+                              offset: const Offset(0, 10),
+                            ),
+                          ]
+                        : [],
                   ),
                   child: Column(
                     children: [
@@ -862,7 +1068,10 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                           margin: const EdgeInsets.only(top: 12, bottom: 16),
                           height: 5,
                           width: 48,
-                          decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(10)),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                       ),
                       Padding(
@@ -873,9 +1082,20 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("Explore Funds", style: AppTextStyles.h2(color: Ucolors.dark)),
+                                Text(
+                                  "Explore Funds",
+                                  style: AppTextStyles.h2(color: Ucolors.dark),
+                                ),
                                 const SizedBox(height: 4),
-                                Text("Search and select funds for your goal.", style: TextStyle(fontFamily: FontFamily.medium, fontSize: 13, color: Colors.grey.shade500, fontWeight: FontWeight.w500)),
+                                Text(
+                                  "Search and select funds for your goal.",
+                                  style: TextStyle(
+                                    fontFamily: FontFamily.medium,
+                                    fontSize: 13,
+                                    color: Colors.grey.shade500,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ],
                             ),
                             IconButton(
@@ -890,28 +1110,62 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                       ),
                       const SizedBox(height: 10),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         child: SizedBox(
                           height: 44,
                           child: SearchBar(
                             focusNode: searchFocus,
                             onTap: () => mutualController.setSearchFocus(true),
-                            onTapOutside: (event) { searchFocus.unfocus(); mutualController.setSearchFocus(false); },
-                            backgroundColor: WidgetStateProperty.all(Colors.grey.shade50),
-                            leading: Icon(Icons.search, color: Colors.grey.shade600),
+                            onTapOutside: (event) {
+                              searchFocus.unfocus();
+                              mutualController.setSearchFocus(false);
+                            },
+                            backgroundColor: WidgetStateProperty.all(
+                              Colors.grey.shade50,
+                            ),
+                            leading: Icon(
+                              Icons.search,
+                              color: Colors.grey.shade600,
+                            ),
                             hintText: "Search mutual funds...",
-                            hintStyle: WidgetStateProperty.all(TextStyle(fontFamily: FontFamily.medium, color: Colors.grey.shade500, fontSize: 14)),
+                            hintStyle: WidgetStateProperty.all(
+                              TextStyle(
+                                fontFamily: FontFamily.medium,
+                                color: Colors.grey.shade500,
+                                fontSize: 14,
+                              ),
+                            ),
                             elevation: WidgetStateProperty.all(0),
-                            side: WidgetStateProperty.all(BorderSide(color: Colors.grey.shade200)),
-                            onChanged: (value) => mutualController.onSearchQueryChanged(value),
+                            side: WidgetStateProperty.all(
+                              BorderSide(color: Colors.grey.shade200),
+                            ),
+                            onChanged: (value) =>
+                                mutualController.onSearchQueryChanged(value),
                           ),
                         ),
                       ),
                       Divider(color: Colors.grey.shade200, height: 20),
                       Expanded(
                         child: Obx(() {
-                          if (mutualController.isLoading.value) return const Center(child: CircularProgressIndicator(color: Ucolors.primary));
-                          if (mutualController.searchFund.isEmpty) return Center(child: Text("No mutual funds found", style: TextStyle(fontFamily: FontFamily.medium, color: Colors.grey.shade600)));
+                          if (mutualController.isLoading.value)
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                color: Ucolors.primary,
+                              ),
+                            );
+                          if (mutualController.searchFund.isEmpty)
+                            return Center(
+                              child: Text(
+                                "No mutual funds found",
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            );
 
                           return ListView.builder(
                             controller: scrollController,
@@ -919,50 +1173,113 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                             itemCount: mutualController.searchFund.length,
                             itemBuilder: (context, index) {
                               final fund = mutualController.searchFund[index];
-                              final name = fund.baseSchemeName ?? "Unknown Name";
+                              final name =
+                                  fund.baseSchemeName ?? "Unknown Name";
 
                               return Obx(() {
-                                final isSelected = goalSipController.isSelectedFund(name);
+                                final isSelected = goalSipController
+                                    .isSelectedFund(name);
 
                                 return Stack(
                                   children: [
                                     Container(
-                                      margin: const EdgeInsets.symmetric(vertical: 6),
+                                      margin: const EdgeInsets.symmetric(
+                                        vertical: 6,
+                                      ),
                                       child: MutualFundCard(
                                         entity: fund,
                                         showTrainlings: false,
                                         onTapOverride: () async {
                                           FocusScope.of(context).unfocus();
-                                          final isSelected = goalSipController.isSelectedFund(name);
+                                          final isSelected = goalSipController
+                                              .isSelectedFund(name);
 
-                                          if (!isSelected && goalSipController.savedInvestmentType.value == "sip" && goalSipController.selectedPopularFund.isEmpty) {
-                                            final confirmed = await _showSipDateDialog(context, goalSipController);
+                                          if (!isSelected &&
+                                              goalSipController
+                                                      .savedInvestmentType
+                                                      .value ==
+                                                  "sip" &&
+                                              goalSipController
+                                                  .selectedPopularFund
+                                                  .isEmpty) {
+                                            final confirmed =
+                                                await _showSipDateDialog(
+                                                  context,
+                                                  goalSipController,
+                                                );
                                             if (confirmed != true) return;
                                           }
 
                                           try {
-                                            if (goalSipController.savedInvestmentType.value == "lumpsum" || goalSipController.savedInvestmentType.value == "sip") {
+                                            if (goalSipController
+                                                        .savedInvestmentType
+                                                        .value ==
+                                                    "lumpsum" ||
+                                                goalSipController
+                                                        .savedInvestmentType
+                                                        .value ==
+                                                    "sip") {
                                               goalSipController.showLoading();
                                             }
 
                                             if (isSelected) {
-                                              final goalFundId = goalSipController.getGoalFundId(fund.schemeCode?.toString() ?? '');
+                                              final goalFundId =
+                                                  goalSipController
+                                                      .getGoalFundId(
+                                                        fund.schemeCode
+                                                                ?.toString() ??
+                                                            '',
+                                                      );
                                               if (goalFundId != null) {
-                                                await goalSipController.deleteGoalFund(id: goalFundId, isEdit: false, schemeName: fund.schemeCode?.toString() ?? '');
-                                                goalSipController.toggleFund(name);
-                                                if (goalSipController.selectedPopularFund.isNotEmpty) {
-                                                  if (goalSipController.savedInvestmentType.value == "lumpsum") await goalSipController.distributeMonthlyAmount();
-                                                  else if (goalSipController.savedInvestmentType.value == "sip") await goalSipController.distributeSipAmount();
+                                                await goalSipController
+                                                    .deleteGoalFund(
+                                                      id: goalFundId,
+                                                      isEdit: false,
+                                                      schemeName:
+                                                          fund.schemeCode
+                                                              ?.toString() ??
+                                                          '',
+                                                    );
+                                                goalSipController.toggleFund(
+                                                  name,
+                                                );
+                                                if (goalSipController
+                                                    .selectedPopularFund
+                                                    .isNotEmpty) {
+                                                  if (goalSipController
+                                                          .savedInvestmentType
+                                                          .value ==
+                                                      "lumpsum")
+                                                    await goalSipController
+                                                        .distributeMonthlyAmount();
+                                                  else if (goalSipController
+                                                          .savedInvestmentType
+                                                          .value ==
+                                                      "sip")
+                                                    await goalSipController
+                                                        .distributeSipAmount();
                                                 }
                                               }
                                               return;
                                             }
 
                                             goalSipController.toggleFund(name);
-                                            if (goalSipController.savedInvestmentType.value == "lumpsum") await goalSipController.distributeMonthlyAmount();
-                                            else if (goalSipController.savedInvestmentType.value == "sip") await goalSipController.distributeSipAmount();
+                                            if (goalSipController
+                                                    .savedInvestmentType
+                                                    .value ==
+                                                "lumpsum")
+                                              await goalSipController
+                                                  .distributeMonthlyAmount();
+                                            else if (goalSipController
+                                                    .savedInvestmentType
+                                                    .value ==
+                                                "sip")
+                                              await goalSipController
+                                                  .distributeSipAmount();
                                           } catch (e, stackTrace) {
-                                            debugPrintStack(stackTrace: stackTrace);
+                                            debugPrintStack(
+                                              stackTrace: stackTrace,
+                                            );
                                           } finally {
                                             goalSipController.hideLoading();
                                           }
@@ -973,8 +1290,21 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                                       Positioned.fill(
                                         child: IgnorePointer(
                                           child: Container(
-                                            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                            decoration: BoxDecoration(color: Ucolors.primary.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(16), border: Border.all(color: Ucolors.primary, width: 2)),
+                                            margin: const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 10,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Ucolors.primary.withValues(
+                                                alpha: 0.05,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                              border: Border.all(
+                                                color: Ucolors.primary,
+                                                width: 2,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -987,12 +1317,36 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                       ),
                       Container(
                         padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: isDesktop ? const BorderRadius.vertical(bottom: Radius.circular(24)) : null, boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -5))]),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: isDesktop
+                              ? const BorderRadius.vertical(
+                                  bottom: Radius.circular(24),
+                                )
+                              : null,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, -5),
+                            ),
+                          ],
+                        ),
                         child: Obx(() {
-                          final selectedCount = goalSipController.selectedPopularFund.length;
+                          final selectedCount =
+                              goalSipController.selectedPopularFund.length;
                           return UElevatedBUtton(
                             onPressed: () => Get.back(),
-                            child: Center(child: Text(selectedCount > 0 ? "Add $selectedCount Funds" : "Done", style: AppTextStyles.bodyMedium(color: Colors.white))),
+                            child: Center(
+                              child: Text(
+                                selectedCount > 0
+                                    ? "Add $selectedCount Funds"
+                                    : "Done",
+                                style: AppTextStyles.bodyMedium(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
                           );
                         }),
                       ),
@@ -1013,7 +1367,10 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
     });
   }
 
-  Future<bool?> _showSipDateDialog(BuildContext context, GoalSipController controller) {
+  Future<bool?> _showSipDateDialog(
+    BuildContext context,
+    GoalSipController controller,
+  ) {
     RxString selectedSipDay = (controller.selectedSipDay.value).toString().obs;
     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
@@ -1024,12 +1381,28 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
       builder: (BuildContext context) {
         return SafeArea(
           child: Align(
-            alignment: isDesktop ? Alignment.bottomRight : Alignment.bottomCenter,
+            alignment: isDesktop
+                ? Alignment.bottomRight
+                : Alignment.bottomCenter,
             child: Container(
               width: isDesktop ? 350 : double.infinity,
-              margin: isDesktop ? const EdgeInsets.only(right: 30, bottom: 30) : EdgeInsets.zero,
+              margin: isDesktop
+                  ? const EdgeInsets.only(right: 30, bottom: 30)
+                  : EdgeInsets.zero,
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: isDesktop ? BorderRadius.circular(20) : const BorderRadius.vertical(top: Radius.circular(24)), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 20, offset: const Offset(0, 5))]),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: isDesktop
+                    ? BorderRadius.circular(20)
+                    : const BorderRadius.vertical(top: Radius.circular(24)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.15),
+                    blurRadius: 20,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1038,26 +1411,65 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(color: Ucolors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
-                        child: Icon(Icons.calendar_month_rounded, color: Ucolors.primary, size: 20),
+                        decoration: BoxDecoration(
+                          color: Ucolors.primary.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.calendar_month_rounded,
+                          color: Ucolors.primary,
+                          size: 20,
+                        ),
                       ),
                       const SizedBox(width: 12),
-                      const Text("Select SIP Date", style: TextStyle(fontFamily: FontFamily.medium, fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black87)),
+                      const Text(
+                        "Select SIP Date",
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
                   Obx(
-                        () => Container(
+                    () => Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300, width: 1.5), borderRadius: BorderRadius.circular(12), color: Colors.white),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey.shade300,
+                          width: 1.5,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.white,
+                      ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: selectedSipDay.value,
                           isExpanded: true,
-                          icon: Icon(Icons.keyboard_arrow_down_rounded, size: 24, color: Colors.grey.shade600),
+                          icon: Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            size: 24,
+                            color: Colors.grey.shade600,
+                          ),
                           dropdownColor: Colors.white,
                           borderRadius: BorderRadius.circular(16),
-                          items: List.generate(28, (i) => DropdownMenuItem(value: '${i + 1}', child: Text('Day ${i + 1} of every month', style: const TextStyle(fontFamily: FontFamily.medium, fontWeight: FontWeight.w600, fontSize: 15)))),
+                          items: List.generate(
+                            28,
+                            (i) => DropdownMenuItem(
+                              value: '${i + 1}',
+                              child: Text(
+                                'Day ${i + 1} of every month',
+                                style: const TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ),
                           onChanged: (val) {
                             if (val != null) {
                               selectedSipDay.value = val;
@@ -1074,16 +1486,43 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
                       Expanded(
                         child: TextButton(
                           onPressed: () => Navigator.pop(context, false),
-                          style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.grey.shade300))),
-                          child: Text("Cancel", style: TextStyle(fontFamily: FontFamily.medium, color: Colors.grey.shade700, fontWeight: FontWeight.w600)),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(color: Colors.grey.shade300),
+                            ),
+                          ),
+                          child: Text(
+                            "Cancel",
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              color: Colors.grey.shade700,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(backgroundColor: Ucolors.primary, elevation: 0, padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Ucolors.primary,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
                           onPressed: () => Navigator.pop(context, true),
-                          child: const Text("Confirm", style: TextStyle(fontFamily: FontFamily.medium, color: Colors.white, fontWeight: FontWeight.w600)),
+                          child: const Text(
+                            "Confirm",
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -1109,9 +1548,18 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
 
     if (!isSelected) {
       goalSipController.toggleFund(name);
-      cartController.addToCart(title: 'Goal', fund.schemeCode ?? '', name, fund.minSipAmount ?? 0, currentGoalId);
+      cartController.addToCart(
+        title: 'Goal',
+        fund.schemeCode ?? '',
+        name,
+        fund.minSipAmount ?? 0,
+        currentGoalId,
+      );
     } else {
-      final cartItem = cartController.cartResponseEntity.value?.items.firstWhereOrNull((item) => item.schemeCode.toString() == schemeCodeStr);
+      final cartItem = cartController.cartResponseEntity.value?.items
+          .firstWhereOrNull(
+            (item) => item.schemeCode.toString() == schemeCodeStr,
+          );
       if (cartItem != null && cartItem.id != null) {
         cartController.deleteCartItem(cartItem.id!, name);
         goalSipController.toggleFund(name);
@@ -1121,7 +1569,22 @@ class UnifiedGoalDashboard extends GetView<GoalSipController> {
 }
 
 class PopularFundCardMobSelected extends StatelessWidget {
-  const PopularFundCardMobSelected({super.key, required this.imgPath, required this.name, this.onTap, this.isNetwork = false, this.borderColor = Ucolors.borderColor, this.threeYear, this.tenYear, this.oneYear, this.fiveYear, this.isSelected = false, this.showAmountField = false, this.amountController, this.onAmountSubmitted});
+  const PopularFundCardMobSelected({
+    super.key,
+    required this.imgPath,
+    required this.name,
+    this.onTap,
+    this.isNetwork = false,
+    this.borderColor = Ucolors.borderColor,
+    this.threeYear,
+    this.tenYear,
+    this.oneYear,
+    this.fiveYear,
+    this.isSelected = false,
+    this.showAmountField = false,
+    this.amountController,
+    this.onAmountSubmitted,
+  });
   final Function(String)? onAmountSubmitted;
   final String imgPath;
   final String name;
@@ -1148,8 +1611,19 @@ class PopularFundCardMobSelected extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: isSelected ? Ucolors.primary : Colors.grey.shade100, width: isSelected ? 2 : 1),
-            boxShadow: [BoxShadow(color: isSelected ? Ucolors.primary.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.04), blurRadius: isSelected ? 12 : 6, offset: const Offset(0, 3))],
+            border: Border.all(
+              color: isSelected ? Ucolors.primary : Colors.grey.shade100,
+              width: isSelected ? 2 : 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: isSelected
+                    ? Ucolors.primary.withValues(alpha: 0.12)
+                    : Colors.black.withValues(alpha: 0.04),
+                blurRadius: isSelected ? 12 : 6,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -1162,18 +1636,52 @@ class PopularFundCardMobSelected extends StatelessWidget {
                     duration: const Duration(milliseconds: 250),
                     height: isSelected ? 34 : 30,
                     width: isSelected ? 34 : 30,
-                    decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.grey.shade50, border: isSelected ? Border.all(color: Ucolors.primary, width: 1.5) : null),
-                    child: ClipOval(child: isNetwork ? CustomCachedImage(imageUrl: imgPath, size: 40) : Image.asset(imgPath, fit: BoxFit.cover)),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey.shade50,
+                      border: isSelected
+                          ? Border.all(color: Ucolors.primary, width: 1.5)
+                          : null,
+                    ),
+                    child: ClipOval(
+                      child: isNetwork
+                          ? CustomCachedImage(imageUrl: imgPath, size: 40)
+                          : Image.asset(imgPath, fit: BoxFit.cover),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(name, maxLines: 2, overflow: TextOverflow.ellipsis, style: UTextStyles.medium.copyWith(color: Colors.black, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500, fontSize: 11, height: 1.1)),
+                    child: Text(
+                      name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: UTextStyles.medium.copyWith(
+                        color: Colors.black,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w500,
+                        fontSize: 11,
+                        height: 1.1,
+                      ),
+                    ),
                   ),
                   if (isSelected)
                     AnimatedScale(
                       duration: const Duration(milliseconds: 250),
                       scale: 1,
-                      child: Container(margin: const EdgeInsets.only(left: 4), padding: const EdgeInsets.all(4), decoration: const BoxDecoration(color: Ucolors.primary, shape: BoxShape.circle), child: const Icon(Icons.check, size: 12, color: Colors.white)),
+                      child: Container(
+                        margin: const EdgeInsets.only(left: 4),
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Ucolors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.check,
+                          size: 12,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                 ],
               ),
@@ -1199,7 +1707,16 @@ class PopularFundCardMobSelected extends StatelessWidget {
                             controller: amountController,
                             keyboardType: TextInputType.number,
                             onFieldSubmitted: onAmountSubmitted,
-                            decoration: InputDecoration(hintText: "Amount", contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0), border: OutlineInputBorder(borderRadius: BorderRadius.circular(8))),
+                            decoration: InputDecoration(
+                              hintText: "Amount",
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 0,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -1219,14 +1736,33 @@ class PopularFundCardMobSelected extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-          decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(20)),
-          child: Text(label, style: UTextStyles.bodySmallW500.copyWith(fontWeight: FontWeight.w600, color: Colors.grey.shade700)),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            label,
+            style: UTextStyles.bodySmallW500.copyWith(
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade700,
+            ),
+          ),
         ),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.arrow_drop_up_rounded, color: Ucolors.success, size: 20),
-            Text('${value ?? 0}%', style: UTextStyles.bodySmallW500.copyWith(color: Ucolors.success, fontWeight: FontWeight.w600)),
+            const Icon(
+              Icons.arrow_drop_up_rounded,
+              color: Ucolors.success,
+              size: 20,
+            ),
+            Text(
+              '${value ?? 0}%',
+              style: UTextStyles.bodySmallW500.copyWith(
+                color: Ucolors.success,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       ],
@@ -1244,9 +1780,19 @@ class PopularAndSelectedFund extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final allFunds = mutualController.searchFund;
-      final selectedFunds = allFunds.where((f) => goalSipController.isSelectedFund(f.baseSchemeName ?? '')).toList();
-      final popularFunds = allFunds.where((f) => !goalSipController.isSelectedFund(f.baseSchemeName ?? '')).toList();
-      final List<dynamic> displayFunds = selectedFunds.isNotEmpty ? [...selectedFunds, ...popularFunds] : popularFunds.take(15).toList();
+      final selectedFunds = allFunds
+          .where(
+            (f) => goalSipController.isSelectedFund(f.baseSchemeName ?? ''),
+          )
+          .toList();
+      final popularFunds = allFunds
+          .where(
+            (f) => !goalSipController.isSelectedFund(f.baseSchemeName ?? ''),
+          )
+          .toList();
+      final List<dynamic> displayFunds = selectedFunds.isNotEmpty
+          ? [...selectedFunds, ...popularFunds]
+          : popularFunds.take(15).toList();
 
       if (displayFunds.isEmpty) {
         return Padding(
@@ -1254,11 +1800,29 @@ class PopularAndSelectedFund extends StatelessWidget {
           child: Center(
             child: Column(
               children: [
-                Icon(Icons.account_balance_wallet, size: 42, color: Ucolors.primary),
+                Icon(
+                  Icons.account_balance_wallet,
+                  size: 42,
+                  color: Ucolors.primary,
+                ),
                 const SizedBox(height: 12),
-                Text("No Funds Available", style: TextStyle(fontFamily: FontFamily.medium, fontWeight: FontWeight.w600, fontSize: 16, color: Ucolors.dark)),
+                Text(
+                  "No Funds Available",
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    color: Ucolors.dark,
+                  ),
+                ),
                 const SizedBox(height: 6),
-                Text("Please add funds", style: TextStyle(fontFamily: FontFamily.medium, color: Colors.grey.shade600)),
+                Text(
+                  "Please add funds",
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
               ],
             ),
           ),
@@ -1296,34 +1860,68 @@ class PopularAndSelectedFund extends StatelessWidget {
                       behavior: HitTestBehavior.translucent,
                       onTap: () async {
                         FocusScope.of(context).unfocus();
-                        final isSelected = goalSipController.isSelectedFund(name);
+                        final isSelected = goalSipController.isSelectedFund(
+                          name,
+                        );
 
-                        if (!isSelected && goalSipController.savedInvestmentType.value == "sip" && goalSipController.selectedPopularFund.isEmpty) {
-                          final confirmed = await _showSipDateDialog(context, goalSipController);
+                        if (!isSelected &&
+                            goalSipController.savedInvestmentType.value ==
+                                "sip" &&
+                            goalSipController.selectedPopularFund.isEmpty) {
+                          final confirmed = await _showSipDateDialog(
+                            context,
+                            goalSipController,
+                          );
                           if (confirmed != true) return;
                         }
 
                         try {
-                          if (goalSipController.savedInvestmentType.value == "lumpsum" || goalSipController.savedInvestmentType.value == "sip") {
+                          if (goalSipController.savedInvestmentType.value ==
+                                  "lumpsum" ||
+                              goalSipController.savedInvestmentType.value ==
+                                  "sip") {
                             goalSipController.showLoading();
                           }
 
                           if (isSelected) {
-                            final goalFundId = goalSipController.getGoalFundId(fund.schemeCode?.toString() ?? '');
+                            final goalFundId = goalSipController.getGoalFundId(
+                              fund.schemeCode?.toString() ?? '',
+                            );
                             if (goalFundId != null) {
-                              await goalSipController.deleteGoalFund(id: goalFundId, isEdit: false, schemeName: fund.schemeCode?.toString() ?? '');
+                              await goalSipController.deleteGoalFund(
+                                id: goalFundId,
+                                isEdit: false,
+                                schemeName: fund.schemeCode?.toString() ?? '',
+                              );
                               goalSipController.toggleFund(name);
-                              if (goalSipController.selectedPopularFund.isNotEmpty) {
-                                if (goalSipController.savedInvestmentType.value == "lumpsum") await goalSipController.distributeMonthlyAmount();
-                                else if (goalSipController.savedInvestmentType.value == "sip") await goalSipController.distributeSipAmount();
+                              if (goalSipController
+                                  .selectedPopularFund
+                                  .isNotEmpty) {
+                                if (goalSipController
+                                        .savedInvestmentType
+                                        .value ==
+                                    "lumpsum")
+                                  await goalSipController
+                                      .distributeMonthlyAmount();
+                                else if (goalSipController
+                                        .savedInvestmentType
+                                        .value ==
+                                    "sip")
+                                  await goalSipController.distributeSipAmount();
                               }
                             }
                             return;
                           }
 
                           goalSipController.toggleFund(name);
-                          if (goalSipController.savedInvestmentType.value == "lumpsum") await goalSipController.distributeMonthlyAmount();
-                          else if (goalSipController.savedInvestmentType.value == "sip") await goalSipController.distributeSipAmount();
+                          if (goalSipController.savedInvestmentType.value ==
+                              "lumpsum")
+                            await goalSipController.distributeMonthlyAmount();
+                          else if (goalSipController
+                                  .savedInvestmentType
+                                  .value ==
+                              "sip")
+                            await goalSipController.distributeSipAmount();
                         } catch (e, stackTrace) {
                           debugPrint("Error: $e");
                           debugPrintStack(stackTrace: stackTrace);
@@ -1332,7 +1930,9 @@ class PopularAndSelectedFund extends StatelessWidget {
                         }
                       },
                       child: PopularFundCardMobSelected(
-                        borderColor: isSelected ? Ucolors.primary : Ucolors.borderColor,
+                        borderColor: isSelected
+                            ? Ucolors.primary
+                            : Ucolors.borderColor,
                         isNetwork: true,
                         imgPath: img,
                         name: name,
@@ -1341,14 +1941,34 @@ class PopularAndSelectedFund extends StatelessWidget {
                         fiveYear: fiveYear,
                         tenYear: tenYear,
                         isSelected: isSelected,
-                        showAmountField: isSelected && (goalSipController.savedInvestmentType.value == "lumpsum" || goalSipController.savedInvestmentType.value == "sip"),
-                        amountController: goalSipController.getAmountController(fund.schemeCode?.toString() ?? ''),
+                        showAmountField:
+                            isSelected &&
+                            (goalSipController.savedInvestmentType.value ==
+                                    "lumpsum" ||
+                                goalSipController.savedInvestmentType.value ==
+                                    "sip"),
+                        amountController: goalSipController.getAmountController(
+                          fund.schemeCode?.toString() ?? '',
+                        ),
                         onAmountSubmitted: (value) async {
                           final amount = double.tryParse(value) ?? 0;
-                          if (goalSipController.savedInvestmentType.value == "lumpsum") {
-                            await goalSipController.redistributeRemainingAmount(editedSchemeCode: fund.schemeCode?.toString() ?? '', editedAmount: amount);
-                          } else if (goalSipController.savedInvestmentType.value == "sip") {
-                            await goalSipController.redistributeSipAmountAfterEdit(editedSchemeCode: fund.schemeCode?.toString() ?? '', editedAmount: amount);
+                          if (goalSipController.savedInvestmentType.value ==
+                              "lumpsum") {
+                            await goalSipController.redistributeRemainingAmount(
+                              editedSchemeCode:
+                                  fund.schemeCode?.toString() ?? '',
+                              editedAmount: amount,
+                            );
+                          } else if (goalSipController
+                                  .savedInvestmentType
+                                  .value ==
+                              "sip") {
+                            await goalSipController
+                                .redistributeSipAmountAfterEdit(
+                                  editedSchemeCode:
+                                      fund.schemeCode?.toString() ?? '',
+                                  editedAmount: amount,
+                                );
                           }
                         },
                       ),
@@ -1363,7 +1983,10 @@ class PopularAndSelectedFund extends StatelessWidget {
     });
   }
 
-  Future<bool?> _showSipDateDialog(BuildContext context, GoalSipController controller) {
+  Future<bool?> _showSipDateDialog(
+    BuildContext context,
+    GoalSipController controller,
+  ) {
     RxString selectedSipDay = (controller.selectedSipDay.value).toString().obs;
     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
@@ -1374,12 +1997,28 @@ class PopularAndSelectedFund extends StatelessWidget {
       builder: (BuildContext context) {
         return SafeArea(
           child: Align(
-            alignment: isDesktop ? Alignment.bottomRight : Alignment.bottomCenter,
+            alignment: isDesktop
+                ? Alignment.bottomRight
+                : Alignment.bottomCenter,
             child: Container(
               width: isDesktop ? 350 : double.infinity,
-              margin: isDesktop ? const EdgeInsets.only(right: 30, bottom: 30) : EdgeInsets.zero,
+              margin: isDesktop
+                  ? const EdgeInsets.only(right: 30, bottom: 30)
+                  : EdgeInsets.zero,
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: isDesktop ? BorderRadius.circular(20) : const BorderRadius.vertical(top: Radius.circular(24)), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 20, offset: const Offset(0, 5))]),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: isDesktop
+                    ? BorderRadius.circular(20)
+                    : const BorderRadius.vertical(top: Radius.circular(24)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.15),
+                    blurRadius: 20,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1388,26 +2027,65 @@ class PopularAndSelectedFund extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(color: Ucolors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
-                        child: Icon(Icons.calendar_month_rounded, color: Ucolors.primary, size: 20),
+                        decoration: BoxDecoration(
+                          color: Ucolors.primary.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.calendar_month_rounded,
+                          color: Ucolors.primary,
+                          size: 20,
+                        ),
                       ),
                       const SizedBox(width: 12),
-                      const Text("Select SIP Date", style: TextStyle(fontFamily: FontFamily.medium, fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black87)),
+                      const Text(
+                        "Select SIP Date",
+                        style: TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
                   Obx(
-                        () => Container(
+                    () => Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300, width: 1.5), borderRadius: BorderRadius.circular(12), color: Colors.white),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey.shade300,
+                          width: 1.5,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.white,
+                      ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: selectedSipDay.value,
                           isExpanded: true,
-                          icon: Icon(Icons.keyboard_arrow_down_rounded, size: 24, color: Colors.grey.shade600),
+                          icon: Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            size: 24,
+                            color: Colors.grey.shade600,
+                          ),
                           dropdownColor: Colors.white,
                           borderRadius: BorderRadius.circular(16),
-                          items: List.generate(28, (i) => DropdownMenuItem(value: '${i + 1}', child: Text('Day ${i + 1} of every month', style: const TextStyle(fontFamily: FontFamily.medium, fontWeight: FontWeight.w600, fontSize: 15)))),
+                          items: List.generate(
+                            28,
+                            (i) => DropdownMenuItem(
+                              value: '${i + 1}',
+                              child: Text(
+                                'Day ${i + 1} of every month',
+                                style: const TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ),
                           onChanged: (val) {
                             if (val != null) {
                               selectedSipDay.value = val;
@@ -1424,16 +2102,43 @@ class PopularAndSelectedFund extends StatelessWidget {
                       Expanded(
                         child: TextButton(
                           onPressed: () => Navigator.pop(context, false),
-                          style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.grey.shade300))),
-                          child: Text("Cancel", style: TextStyle(fontFamily: FontFamily.medium, color: Colors.grey.shade700, fontWeight: FontWeight.w600)),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(color: Colors.grey.shade300),
+                            ),
+                          ),
+                          child: Text(
+                            "Cancel",
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              color: Colors.grey.shade700,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(backgroundColor: Ucolors.primary, elevation: 0, padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Ucolors.primary,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
                           onPressed: () => Navigator.pop(context, true),
-                          child: const Text("Confirm", style: TextStyle(fontFamily: FontFamily.medium, color: Colors.white, fontWeight: FontWeight.w600)),
+                          child: const Text(
+                            "Confirm",
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -1458,8 +2163,10 @@ class ProjectionGraph extends StatefulWidget {
 class _ProjectionGraphState extends State<ProjectionGraph> {
   int selectedView = 0;
 
-  List<FlSpot> investedSpotsFromRows(List<ReturnRow> rows) => rows.map((e) => FlSpot(double.parse(e.period), e.scheme)).toList();
-  List<FlSpot> valueSpotsFromRows(List<ReturnRow> rows) => rows.map((e) => FlSpot(double.parse(e.period), e.category)).toList();
+  List<FlSpot> investedSpotsFromRows(List<ReturnRow> rows) =>
+      rows.map((e) => FlSpot(double.parse(e.period), e.scheme)).toList();
+  List<FlSpot> valueSpotsFromRows(List<ReturnRow> rows) =>
+      rows.map((e) => FlSpot(double.parse(e.period), e.category)).toList();
 
   @override
   Widget build(BuildContext context) {
@@ -1468,19 +2175,38 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
 
     return Container(
       padding: isDesktop ? EdgeInsets.zero : const EdgeInsets.all(15),
-      decoration: isDesktop ? null : BoxDecoration(color: Ucolors.light, borderRadius: BorderRadius.circular(12)),
+      decoration: isDesktop
+          ? null
+          : BoxDecoration(
+              color: Ucolors.light,
+              borderRadius: BorderRadius.circular(12),
+            ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Projection', style: UTextStyles.medium.copyWith(fontWeight: FontWeight.w600)),
+              Text(
+                'Projection',
+                style: UTextStyles.medium.copyWith(fontWeight: FontWeight.w600),
+              ),
               Container(
-                decoration: BoxDecoration(color: const Color(0xffF3F4F6), borderRadius: BorderRadius.circular(10)),
+                decoration: BoxDecoration(
+                  color: const Color(0xffF3F4F6),
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 child: Row(
                   children: [
-                    ProjectionIcon(onTap: () => setState(() => selectedView = 0), isSelected: selectedView == 0, icon: Icons.trending_up),
-                    ProjectionIcon(onTap: () => setState(() => selectedView = 1), isSelected: selectedView == 1, icon: Icons.grid_on_sharp),
+                    ProjectionIcon(
+                      onTap: () => setState(() => selectedView = 0),
+                      isSelected: selectedView == 0,
+                      icon: Icons.trending_up,
+                    ),
+                    ProjectionIcon(
+                      onTap: () => setState(() => selectedView = 1),
+                      isSelected: selectedView == 1,
+                      icon: Icons.grid_on_sharp,
+                    ),
                   ],
                 ),
               ),
@@ -1491,14 +2217,30 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('● Invest', style: UTextStyles.small.copyWith(color: const Color(0xff868686))),
-                Text('● Value', style: UTextStyles.small.copyWith(color: const Color(0xff213C73))),
+                Text(
+                  '● Invest',
+                  style: UTextStyles.small.copyWith(
+                    color: const Color(0xff868686),
+                  ),
+                ),
+                Text(
+                  '● Value',
+                  style: UTextStyles.small.copyWith(
+                    color: const Color(0xff213C73),
+                  ),
+                ),
               ],
             ),
             const Gap(25),
             Obx(() {
-              final rows = controller.savedInvestmentType.value == "lumpsum" ? controller.buildLumpsumYearlyReport() : controller.buildYearlyReport();
-              if (rows.isEmpty) return const SizedBox(height: 250, child: Center(child: CircularProgressIndicator()));
+              final rows = controller.savedInvestmentType.value == "lumpsum"
+                  ? controller.buildLumpsumYearlyReport()
+                  : controller.buildYearlyReport();
+              if (rows.isEmpty)
+                return const SizedBox(
+                  height: 250,
+                  child: Center(child: CircularProgressIndicator()),
+                );
               return SizedBox(
                 height: 250,
                 child: SipProjectionChart(
@@ -1511,11 +2253,22 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
             }),
           ] else
             Obx(() {
-              final result = controller.savedInvestmentType.value == "lumpsum" ? controller.buildLumpsumYearlyReport() : controller.buildYearlyReport();
-              if (result.isEmpty) return const SizedBox(height: 250, child: Center(child: Text("No projection data available")));
+              final result = controller.savedInvestmentType.value == "lumpsum"
+                  ? controller.buildLumpsumYearlyReport()
+                  : controller.buildYearlyReport();
+              if (result.isEmpty)
+                return const SizedBox(
+                  height: 250,
+                  child: Center(child: Text("No projection data available")),
+                );
               return Column(
                 children: [
-                  const TableHeader(heading1: 'Year', heading2: 'Invest', heading3: 'Current', heading4: 'Profit'),
+                  const TableHeader(
+                    heading1: 'Year',
+                    heading2: 'Invest',
+                    heading3: 'Current',
+                    heading4: 'Profit',
+                  ),
                   DashedLine(color: Ucolors.borderColor, dashSpace: 0),
                   ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
@@ -1523,7 +2276,11 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
                     itemCount: result.length,
                     itemBuilder: (context, index) {
                       final row = result[index];
-                      return ReturnsTableRow(color4: Colors.green, data: row, percentage: false);
+                      return ReturnsTableRow(
+                        color4: Colors.green,
+                        data: row,
+                        percentage: false,
+                      );
                     },
                   ),
                 ],
@@ -1536,7 +2293,12 @@ class _ProjectionGraphState extends State<ProjectionGraph> {
 }
 
 class ProjectionIcon extends StatelessWidget {
-  const ProjectionIcon({super.key, required this.onTap, required this.isSelected, required this.icon});
+  const ProjectionIcon({
+    super.key,
+    required this.onTap,
+    required this.isSelected,
+    required this.icon,
+  });
   final VoidCallback onTap;
   final bool isSelected;
   final IconData icon;
@@ -1545,8 +2307,14 @@ class ProjectionIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      decoration: BoxDecoration(color: isSelected ? Colors.white : Colors.transparent, borderRadius: BorderRadius.circular(10)),
-      child: IconButton(onPressed: onTap, icon: Icon(icon, color: isSelected ? Ucolors.blue : Colors.grey)),
+      decoration: BoxDecoration(
+        color: isSelected ? Colors.white : Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: IconButton(
+        onPressed: onTap,
+        icon: Icon(icon, color: isSelected ? Ucolors.blue : Colors.grey),
+      ),
     );
   }
 }
@@ -1558,12 +2326,15 @@ class SIPSectionGoal extends GetView<GoalSipController> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Obx(
-                () => IgnorePointer(
+            () => IgnorePointer(
               ignoring: controller.isGoalSaved.value,
               child: TextFormFieldCustom(
                 title: "Goal Title",
@@ -1580,25 +2351,70 @@ class SIPSectionGoal extends GetView<GoalSipController> {
                   textInputType: TextInputType.text,
                   backgroundColor: Colors.transparent,
                   controller: controller.goalNameTextEditingController,
-                  onTap: () { if (controller.isGoalSaved.value) FocusScope.of(context).unfocus(); },
-                  onChanged: (value) { controller.setGoalName(value ?? ""); return null; },
+                  onTap: () {
+                    if (controller.isGoalSaved.value)
+                      FocusScope.of(context).unfocus();
+                  },
+                  onChanged: (value) {
+                    controller.setGoalName(value ?? "");
+                    return null;
+                  },
                   onEditingComplete: () => FocusScope.of(context).unfocus(),
-                  suffixIcon: Container(width: 30, alignment: Alignment.center, child: const Text("*", style: TextStyle(fontFamily: FontFamily.medium, color: Colors.red, fontSize: 16))),
+                  suffixIcon: Container(
+                    width: 30,
+                    alignment: Alignment.center,
+                    child: const Text(
+                      "*",
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        color: Colors.red,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
-          Obx(() => controller.goalError.isNotEmpty ? Padding(padding: const EdgeInsets.only(top: 4), child: Text(controller.goalError.value, style: TextStyle(fontFamily: FontFamily.medium, fontSize: 12, color: Ucolors.red))) : const SizedBox.shrink()),
+          Obx(
+            () => controller.goalError.isNotEmpty
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      controller.goalError.value,
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 12,
+                        color: Ucolors.red,
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink(),
+          ),
           const Gap(20),
           Obx(() {
             final isSip = controller.investmentMode.value == 'sip';
             return Container(
-              decoration: BoxDecoration(color: const Color(0xffF3F4F6), borderRadius: BorderRadius.circular(12)),
+              decoration: BoxDecoration(
+                color: const Color(0xffF3F4F6),
+                borderRadius: BorderRadius.circular(12),
+              ),
               padding: const EdgeInsets.all(4),
               child: Row(
                 children: [
-                  _TabButton(label: 'SIP', isSelected: isSip, onTap: () => controller.investmentMode.value = 'sip'),
-                  _TabButton(label: 'Lumpsum', isSelected: !isSip, onTap: () { controller.investmentMode.value = 'lumpsum'; controller.recalculateLumpsum(); }),
+                  _TabButton(
+                    label: 'SIP',
+                    isSelected: isSip,
+                    onTap: () => controller.investmentMode.value = 'sip',
+                  ),
+                  _TabButton(
+                    label: 'Lumpsum',
+                    isSelected: !isSip,
+                    onTap: () {
+                      controller.investmentMode.value = 'lumpsum';
+                      controller.recalculateLumpsum();
+                    },
+                  ),
                 ],
               ),
             );
@@ -1615,7 +2431,11 @@ class SIPSectionGoal extends GetView<GoalSipController> {
 }
 
 class _TabButton extends StatelessWidget {
-  const _TabButton({required this.label, required this.isSelected, required this.onTap});
+  const _TabButton({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
@@ -1632,9 +2452,27 @@ class _TabButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: isSelected ? Colors.white : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
-            boxShadow: isSelected ? [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 8, offset: const Offset(0, 2))] : [],
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : [],
           ),
-          child: Center(child: Text(label, style: TextStyle(fontFamily: FontFamily.medium, fontSize: 14, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500, color: isSelected ? Ucolors.primary : Colors.grey.shade500))),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                color: isSelected ? Ucolors.primary : Colors.grey.shade500,
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -1651,17 +2489,33 @@ class _SipTabContent extends GetView<GoalSipController> {
         final double availableWidth = constraints.maxWidth;
         int crossAxisCount = availableWidth < 450 ? 2 : 3;
         const double spacing = 10;
-        final double cardWidth = (availableWidth - (spacing * (crossAxisCount - 1))) / crossAxisCount;
+        final double cardWidth =
+            (availableWidth - (spacing * (crossAxisCount - 1))) /
+            crossAxisCount;
 
         return Column(
           children: [
             Obx(() {
               final double minTarget = 1000.0;
               double maxTarget = 10000000.0;
-              if (controller.targetAmount.value > maxTarget) maxTarget = controller.targetAmount.value.toDouble();
+              if (controller.targetAmount.value > maxTarget)
+                maxTarget = controller.targetAmount.value.toDouble();
               if (maxTarget <= minTarget) maxTarget = minTarget + 1.0;
-              final double safeTarget = controller.targetAmount.value.toDouble().clamp(minTarget, maxTarget);
-              return IgnorePointer(ignoring: controller.isGoalSaved.value, child: SipSliderTile2(prefix: '₹', title: 'I Need', value: safeTarget, min: minTarget, max: maxTarget, suffix: '', onChanged: controller.setTarget));
+              final double safeTarget = controller.targetAmount.value
+                  .toDouble()
+                  .clamp(minTarget, maxTarget);
+              return IgnorePointer(
+                ignoring: controller.isGoalSaved.value,
+                child: SipSliderTile2(
+                  prefix: '₹',
+                  title: 'I Need',
+                  value: safeTarget,
+                  min: minTarget,
+                  max: maxTarget,
+                  suffix: '',
+                  onChanged: controller.setTarget,
+                ),
+              );
             }),
             const Gap(16),
             Obx(() {
@@ -1670,7 +2524,17 @@ class _SipTabContent extends GetView<GoalSipController> {
               if (actualYears > maxYears) maxYears = actualYears;
               if (maxYears <= 1.0) maxYears = 2.0;
               final double safeYears = actualYears.clamp(1.0, maxYears);
-              return IgnorePointer(ignoring: controller.isGoalSaved.value, child: SipSliderTile2(title: 'Duration', value: safeYears, min: 1.0, max: maxYears, suffix: 'Yrs', onChanged: controller.setYears));
+              return IgnorePointer(
+                ignoring: controller.isGoalSaved.value,
+                child: SipSliderTile2(
+                  title: 'Duration',
+                  value: safeYears,
+                  min: 1.0,
+                  max: maxYears,
+                  suffix: 'Yrs',
+                  onChanged: controller.setYears,
+                ),
+              );
             }),
             const Gap(16),
             Obx(() {
@@ -1679,24 +2543,103 @@ class _SipTabContent extends GetView<GoalSipController> {
               if (actualRate > maxRate) maxRate = actualRate;
               if (maxRate <= 1.0) maxRate = 2.0;
               final double safeRate = actualRate.clamp(1.0, maxRate);
-              return IgnorePointer(ignoring: controller.isGoalSaved.value, child: SipSliderTile2(title: 'Expected Return', value: safeRate, min: 1.0, max: maxRate, suffix: '%', onChanged: controller.setRate));
+              return IgnorePointer(
+                ignoring: controller.isGoalSaved.value,
+                child: SipSliderTile2(
+                  title: 'Expected Return',
+                  value: safeRate,
+                  min: 1.0,
+                  max: maxRate,
+                  suffix: '%',
+                  onChanged: controller.setRate,
+                ),
+              );
             }),
             const Gap(20),
             Obx(
-                  () => Wrap(
+              () => Wrap(
                 spacing: spacing,
                 runSpacing: spacing,
                 children: [
-                  SizedBox(width: cardWidth, child: _ValueCard(title: 'Daily SIP', value: formatCurrency(controller.dailySipAmount.value), accent: false)),
-                  SizedBox(width: cardWidth, child: _ValueCard(title: 'Weekly SIP', value: formatCurrency(controller.weeklySipAmount.value), accent: false)),
-                  SizedBox(width: cardWidth, child: _ValueCard(title: 'Monthly SIP', value: formatCurrency(controller.monthlySip.value.toDouble()), accent: true)),
-                  if (controller.hasChanges.value && controller.isEdit.value) ...[
-                    SizedBox(width: cardWidth, child: _ValueCard(title: 'Existing SIP', value: formatCurrency(controller.existingSipAmount.value.toDouble()), accent: false)),
-                    SizedBox(width: cardWidth, child: _ValueCard(title: 'Additional SIP', value: formatCurrency(controller.additionalSipAmount.value.toDouble()), accent: false)),
+                  SizedBox(
+                    width: cardWidth,
+                    child: _ValueCard(
+                      title: 'Daily SIP',
+                      value: formatCurrency(controller.dailySipAmount.value),
+                      accent: false,
+                    ),
+                  ),
+                  SizedBox(
+                    width: cardWidth,
+                    child: _ValueCard(
+                      title: 'Weekly SIP',
+                      value: formatCurrency(controller.weeklySipAmount.value),
+                      accent: false,
+                    ),
+                  ),
+                  SizedBox(
+                    width: cardWidth,
+                    child: _ValueCard(
+                      title: 'Monthly SIP',
+                      value: formatCurrency(
+                        controller.monthlySip.value.toDouble(),
+                      ),
+                      accent: true,
+                    ),
+                  ),
+                  if (controller.hasChanges.value &&
+                      controller.isEdit.value) ...[
+                    SizedBox(
+                      width: cardWidth,
+                      child: _ValueCard(
+                        title: 'Existing SIP',
+                        value: formatCurrency(
+                          controller.existingSipAmount.value.toDouble(),
+                        ),
+                        accent: false,
+                      ),
+                    ),
+                    SizedBox(
+                      width: cardWidth,
+                      child: _ValueCard(
+                        title: 'Additional SIP',
+                        value: formatCurrency(
+                          controller.additionalSipAmount.value.toDouble(),
+                        ),
+                        accent: false,
+                      ),
+                    ),
                   ],
-                  SizedBox(width: cardWidth, child: _ValueCard(title: 'Invested', value: formatCurrency(controller.invested.value.toDouble()), accent: false)),
-                  SizedBox(width: cardWidth, child: _ValueCard(title: 'Future Value', value: formatCurrency(controller.targetAmount.value.toDouble()), accent: false)),
-                  SizedBox(width: cardWidth, child: _ValueCard(title: 'Total Return', value: formatCurrency(controller.totalReturn.value.toDouble()), accent: false)),
+                  SizedBox(
+                    width: cardWidth,
+                    child: _ValueCard(
+                      title: 'Invested',
+                      value: formatCurrency(
+                        controller.invested.value.toDouble(),
+                      ),
+                      accent: false,
+                    ),
+                  ),
+                  SizedBox(
+                    width: cardWidth,
+                    child: _ValueCard(
+                      title: 'Future Value',
+                      value: formatCurrency(
+                        controller.targetAmount.value.toDouble(),
+                      ),
+                      accent: false,
+                    ),
+                  ),
+                  SizedBox(
+                    width: cardWidth,
+                    child: _ValueCard(
+                      title: 'Total Return',
+                      value: formatCurrency(
+                        controller.totalReturn.value.toDouble(),
+                      ),
+                      accent: false,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -1717,17 +2660,33 @@ class _LumpsumTabContent extends GetView<GoalSipController> {
         final double availableWidth = constraints.maxWidth;
         int crossAxisCount = availableWidth < 450 ? 2 : 3;
         const double spacing = 10;
-        final double cardWidth = (availableWidth - (spacing * (crossAxisCount - 1))) / crossAxisCount;
+        final double cardWidth =
+            (availableWidth - (spacing * (crossAxisCount - 1))) /
+            crossAxisCount;
 
         return Column(
           children: [
             Obx(() {
               final double minLump = 500.0;
               double maxLump = controller.lumpsumFutureValue.value.toDouble();
-              if (controller.lumpsumAmount.value > maxLump) maxLump = controller.lumpsumAmount.value.toDouble();
+              if (controller.lumpsumAmount.value > maxLump)
+                maxLump = controller.lumpsumAmount.value.toDouble();
               if (maxLump <= minLump) maxLump = minLump + 1.0;
-              final double safeValue = controller.smartRoundOff(controller.lumpsumAmount.value).clamp(minLump, maxLump);
-              return IgnorePointer(ignoring: controller.isGoalSaved.value, child: SipSliderTile2(prefix: '₹', title: 'Invest Amount', value: safeValue, min: minLump, max: maxLump, suffix: '', onChanged: (value) => controller.setLumpsumAmount(value)));
+              final double safeValue = controller
+                  .smartRoundOff(controller.lumpsumAmount.value)
+                  .clamp(minLump, maxLump);
+              return IgnorePointer(
+                ignoring: controller.isGoalSaved.value,
+                child: SipSliderTile2(
+                  prefix: '₹',
+                  title: 'Invest Amount',
+                  value: safeValue,
+                  min: minLump,
+                  max: maxLump,
+                  suffix: '',
+                  onChanged: (value) => controller.setLumpsumAmount(value),
+                ),
+              );
             }),
             const Gap(16),
             Obx(() {
@@ -1736,7 +2695,17 @@ class _LumpsumTabContent extends GetView<GoalSipController> {
               if (actualYears > maxYears) maxYears = actualYears;
               if (maxYears <= 1.0) maxYears = 2.0;
               final double safeYears = actualYears.clamp(1.0, maxYears);
-              return IgnorePointer(ignoring: controller.isGoalSaved.value, child: SipSliderTile2(title: 'Duration', value: safeYears, min: 1.0, max: maxYears, suffix: 'Yrs', onChanged: controller.setYears));
+              return IgnorePointer(
+                ignoring: controller.isGoalSaved.value,
+                child: SipSliderTile2(
+                  title: 'Duration',
+                  value: safeYears,
+                  min: 1.0,
+                  max: maxYears,
+                  suffix: 'Yrs',
+                  onChanged: controller.setYears,
+                ),
+              );
             }),
             const Gap(16),
             Obx(() {
@@ -1745,19 +2714,71 @@ class _LumpsumTabContent extends GetView<GoalSipController> {
               if (actualRate > maxRate) maxRate = actualRate;
               if (maxRate <= 1.0) maxRate = 2.0;
               final double safeRate = actualRate.clamp(1.0, maxRate);
-              return IgnorePointer(ignoring: controller.isGoalSaved.value, child: SipSliderTile2(title: 'Expected Return', value: safeRate, min: 1.0, max: maxRate, suffix: '%', onChanged: controller.setRate));
+              return IgnorePointer(
+                ignoring: controller.isGoalSaved.value,
+                child: SipSliderTile2(
+                  title: 'Expected Return',
+                  value: safeRate,
+                  min: 1.0,
+                  max: maxRate,
+                  suffix: '%',
+                  onChanged: controller.setRate,
+                ),
+              );
             }),
             const Gap(20),
             Obx(
-                  () => Wrap(
+              () => Wrap(
                 spacing: spacing,
                 runSpacing: spacing,
                 children: [
-                  SizedBox(width: cardWidth, child: _ValueCard(title: 'Invest Once', value: formatCurrency(controller.lumpsumAmount.value.toDouble()), accent: true)),
-                  SizedBox(width: cardWidth, child: _ValueCard(title: 'Duration', value: '${controller.years.value.toInt()} Yrs', accent: false)),
-                  SizedBox(width: cardWidth, child: _ValueCard(title: 'Future Value', value: formatCurrency(controller.lumpsumFutureValue.value.toDouble()), accent: false)),
-                  SizedBox(width: cardWidth, child: _ValueCard(title: 'Total Return', value: formatCurrency(controller.lumpsumTotalReturn.value.toDouble()), accent: false)),
-                  SizedBox(width: cardWidth, child: _ValueCard(title: 'Return %', value: '${controller.lumpsumReturnPercent.value.toStringAsFixed(1)}%', accent: false)),
+                  SizedBox(
+                    width: cardWidth,
+                    child: _ValueCard(
+                      title: 'Invest Once',
+                      value: formatCurrency(
+                        controller.lumpsumAmount.value.toDouble(),
+                      ),
+                      accent: true,
+                    ),
+                  ),
+                  SizedBox(
+                    width: cardWidth,
+                    child: _ValueCard(
+                      title: 'Duration',
+                      value: '${controller.years.value.toInt()} Yrs',
+                      accent: false,
+                    ),
+                  ),
+                  SizedBox(
+                    width: cardWidth,
+                    child: _ValueCard(
+                      title: 'Future Value',
+                      value: formatCurrency(
+                        controller.lumpsumFutureValue.value.toDouble(),
+                      ),
+                      accent: false,
+                    ),
+                  ),
+                  SizedBox(
+                    width: cardWidth,
+                    child: _ValueCard(
+                      title: 'Total Return',
+                      value: formatCurrency(
+                        controller.lumpsumTotalReturn.value.toDouble(),
+                      ),
+                      accent: false,
+                    ),
+                  ),
+                  SizedBox(
+                    width: cardWidth,
+                    child: _ValueCard(
+                      title: 'Return %',
+                      value:
+                          '${controller.lumpsumReturnPercent.value.toStringAsFixed(1)}%',
+                      accent: false,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -1775,7 +2796,11 @@ class SavedGoalDetailsCard extends GetView<GoalSipController> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1784,19 +2809,39 @@ class SavedGoalDetailsCard extends GetView<GoalSipController> {
             children: [
               Expanded(
                 child: Text(
-                  controller.goalNameTextEditingController.text.isNotEmpty ? controller.goalNameTextEditingController.text : "Saved Goal",
-                  style: const TextStyle(fontFamily: FontFamily.medium, fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black87),
+                  controller.goalNameTextEditingController.text.isNotEmpty
+                      ? controller.goalNameTextEditingController.text
+                      : "Saved Goal",
+                  style: const TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               Obx(
-                    () => Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(color: Ucolors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
+                () => Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Ucolors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                   child: Text(
-                    controller.investmentMode.value == 'sip' ? "SIP" : "Lumpsum",
-                    style: const TextStyle(fontFamily: FontFamily.medium, color: Ucolors.primary, fontWeight: FontWeight.w600, fontSize: 12),
+                    controller.investmentMode.value == 'sip'
+                        ? "SIP"
+                        : "Lumpsum",
+                    style: const TextStyle(
+                      fontFamily: FontFamily.medium,
+                      color: Ucolors.primary,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ),
@@ -1808,7 +2853,9 @@ class SavedGoalDetailsCard extends GetView<GoalSipController> {
               final double availableWidth = constraints.maxWidth;
               int crossAxisCount = availableWidth < 450 ? 2 : 3;
               const double spacing = 10;
-              final double cardWidth = (availableWidth - (spacing * (crossAxisCount - 1))) / crossAxisCount;
+              final double cardWidth =
+                  (availableWidth - (spacing * (crossAxisCount - 1))) /
+                  crossAxisCount;
 
               return Obx(() {
                 final bool isSip = controller.investmentMode.value == 'sip';
@@ -1821,25 +2868,158 @@ class SavedGoalDetailsCard extends GetView<GoalSipController> {
                       spacing: spacing,
                       runSpacing: spacing,
                       children: [
-                        SizedBox(width: cardWidth, child: _ValueCard(title: 'Target Amount', value: formatCurrency(controller.targetAmount.value.toDouble()), accent: false)),
-                        SizedBox(width: cardWidth, child: _ValueCard(title: 'Duration', value: '${controller.years.value.toInt()} Yrs', accent: false)),
-                        SizedBox(width: cardWidth, child: _ValueCard(title: 'Expected Return', value: '${controller.annualRate.value.toStringAsFixed(1)}%', accent: false)),
+                        SizedBox(
+                          width: cardWidth,
+                          child: _ValueCard(
+                            title: 'Target Amount',
+                            value: formatCurrency(
+                              controller.targetAmount.value.toDouble(),
+                            ),
+                            accent: false,
+                          ),
+                        ),
+                        SizedBox(
+                          width: cardWidth,
+                          child: _ValueCard(
+                            title: 'Duration',
+                            value: '${controller.years.value.toInt()} Yrs',
+                            accent: false,
+                          ),
+                        ),
+                        SizedBox(
+                          width: cardWidth,
+                          child: _ValueCard(
+                            title: 'Expected Return',
+                            value:
+                                '${controller.annualRate.value.toStringAsFixed(1)}%',
+                            accent: false,
+                          ),
+                        ),
                         if (isSip) ...[
-                          SizedBox(width: cardWidth, child: _ValueCard(title: 'Daily SIP', value: formatCurrency(controller.dailySipAmount.value), accent: false)),
-                          SizedBox(width: cardWidth, child: _ValueCard(title: 'Weekly SIP', value: formatCurrency(controller.weeklySipAmount.value), accent: false)),
-                          SizedBox(width: cardWidth, child: _ValueCard(title: 'Monthly SIP', value: formatCurrency(controller.monthlySip.value.toDouble()), accent: true)),
-                          if (controller.hasChanges.value && controller.isEdit.value) ...[
-                            SizedBox(width: cardWidth, child: _ValueCard(title: 'Existing SIP', value: formatCurrency(controller.existingSipAmount.value.toDouble()), accent: false)),
-                            SizedBox(width: cardWidth, child: _ValueCard(title: 'Additional SIP', value: formatCurrency(controller.additionalSipAmount.value.toDouble()), accent: false)),
+                          SizedBox(
+                            width: cardWidth,
+                            child: _ValueCard(
+                              title: 'Daily SIP',
+                              value: formatCurrency(
+                                controller.dailySipAmount.value,
+                              ),
+                              accent: false,
+                            ),
+                          ),
+                          SizedBox(
+                            width: cardWidth,
+                            child: _ValueCard(
+                              title: 'Weekly SIP',
+                              value: formatCurrency(
+                                controller.weeklySipAmount.value,
+                              ),
+                              accent: false,
+                            ),
+                          ),
+                          SizedBox(
+                            width: cardWidth,
+                            child: _ValueCard(
+                              title: 'Monthly SIP',
+                              value: formatCurrency(
+                                controller.monthlySip.value.toDouble(),
+                              ),
+                              accent: true,
+                            ),
+                          ),
+                          if (controller.hasChanges.value &&
+                              controller.isEdit.value) ...[
+                            SizedBox(
+                              width: cardWidth,
+                              child: _ValueCard(
+                                title: 'Existing SIP',
+                                value: formatCurrency(
+                                  controller.existingSipAmount.value.toDouble(),
+                                ),
+                                accent: false,
+                              ),
+                            ),
+                            SizedBox(
+                              width: cardWidth,
+                              child: _ValueCard(
+                                title: 'Additional SIP',
+                                value: formatCurrency(
+                                  controller.additionalSipAmount.value
+                                      .toDouble(),
+                                ),
+                                accent: false,
+                              ),
+                            ),
                           ],
-                          SizedBox(width: cardWidth, child: _ValueCard(title: 'Invested', value: formatCurrency(controller.invested.value.toDouble()), accent: false)),
-                          SizedBox(width: cardWidth, child: _ValueCard(title: 'Future Value', value: formatCurrency(controller.targetAmount.value.toDouble()), accent: false)),
-                          SizedBox(width: cardWidth, child: _ValueCard(title: 'Total Return', value: formatCurrency(controller.totalReturn.value.toDouble()), accent: false)),
+                          SizedBox(
+                            width: cardWidth,
+                            child: _ValueCard(
+                              title: 'Invested',
+                              value: formatCurrency(
+                                controller.invested.value.toDouble(),
+                              ),
+                              accent: false,
+                            ),
+                          ),
+                          SizedBox(
+                            width: cardWidth,
+                            child: _ValueCard(
+                              title: 'Future Value',
+                              value: formatCurrency(
+                                controller.targetAmount.value.toDouble(),
+                              ),
+                              accent: false,
+                            ),
+                          ),
+                          SizedBox(
+                            width: cardWidth,
+                            child: _ValueCard(
+                              title: 'Total Return',
+                              value: formatCurrency(
+                                controller.totalReturn.value.toDouble(),
+                              ),
+                              accent: false,
+                            ),
+                          ),
                         ] else ...[
-                          SizedBox(width: cardWidth, child: _ValueCard(title: 'Invest Once', value: formatCurrency(controller.lumpsumAmount.value.toDouble()), accent: true)),
-                          SizedBox(width: cardWidth, child: _ValueCard(title: 'Future Value', value: formatCurrency(controller.lumpsumFutureValue.value.toDouble()), accent: false)),
-                          SizedBox(width: cardWidth, child: _ValueCard(title: 'Total Return', value: formatCurrency(controller.lumpsumTotalReturn.value.toDouble()), accent: false)),
-                          SizedBox(width: cardWidth, child: _ValueCard(title: 'Return %', value: '${controller.lumpsumReturnPercent.value.toStringAsFixed(1)}%', accent: false)),
+                          SizedBox(
+                            width: cardWidth,
+                            child: _ValueCard(
+                              title: 'Invest Once',
+                              value: formatCurrency(
+                                controller.lumpsumAmount.value.toDouble(),
+                              ),
+                              accent: true,
+                            ),
+                          ),
+                          SizedBox(
+                            width: cardWidth,
+                            child: _ValueCard(
+                              title: 'Future Value',
+                              value: formatCurrency(
+                                controller.lumpsumFutureValue.value.toDouble(),
+                              ),
+                              accent: false,
+                            ),
+                          ),
+                          SizedBox(
+                            width: cardWidth,
+                            child: _ValueCard(
+                              title: 'Total Return',
+                              value: formatCurrency(
+                                controller.lumpsumTotalReturn.value.toDouble(),
+                              ),
+                              accent: false,
+                            ),
+                          ),
+                          SizedBox(
+                            width: cardWidth,
+                            child: _ValueCard(
+                              title: 'Return %',
+                              value:
+                                  '${controller.lumpsumReturnPercent.value.toStringAsFixed(1)}%',
+                              accent: false,
+                            ),
+                          ),
                         ],
                       ],
                     ),
@@ -1855,7 +3035,11 @@ class SavedGoalDetailsCard extends GetView<GoalSipController> {
 }
 
 class _ValueCard extends StatelessWidget {
-  const _ValueCard({required this.title, required this.value, this.accent = false});
+  const _ValueCard({
+    required this.title,
+    required this.value,
+    this.accent = false,
+  });
   final String title;
   final String value;
   final bool accent;
@@ -1866,16 +3050,49 @@ class _ValueCard extends StatelessWidget {
       duration: const Duration(milliseconds: 250),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: accent ? Ucolors.primary.withValues(alpha: 0.06) : const Color(0xffF5F7FB),
+        color: accent
+            ? Ucolors.primary.withValues(alpha: 0.06)
+            : const Color(0xffF5F7FB),
         borderRadius: BorderRadius.circular(14),
-        border: accent ? Border.all(color: Ucolors.primary.withValues(alpha: 0.35), width: 1.2) : null,
+        border: accent
+            ? Border.all(
+                color: Ucolors.primary.withValues(alpha: 0.35),
+                width: 1.2,
+              )
+            : null,
       ),
       child: Column(
         children: [
-          Text(title, style: TextStyle(fontFamily: FontFamily.medium, color: accent ? Ucolors.primary : Colors.grey.shade600, fontSize: 12, fontWeight: accent ? FontWeight.w600 : FontWeight.w400)),
+          Text(
+            title,
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
+              color: accent ? Ucolors.primary : Colors.grey.shade600,
+              fontSize: 12,
+              fontWeight: accent ? FontWeight.w600 : FontWeight.w400,
+            ),
+          ),
           const SizedBox(height: 8),
-          Text(value, style: TextStyle(fontFamily: FontFamily.medium, fontSize: 16, fontWeight: FontWeight.w600, color: accent ? Ucolors.primary : Colors.black)),
-          Text("Approx", style: TextStyle(fontFamily: FontFamily.medium, fontSize: 8, fontWeight: FontWeight.w400, color: accent ? Ucolors.primary.withValues(alpha: 0.65) : Colors.grey.shade500)),
+          Text(
+            value,
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: accent ? Ucolors.primary : Colors.black,
+            ),
+          ),
+          Text(
+            "Approx",
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 8,
+              fontWeight: FontWeight.w400,
+              color: accent
+                  ? Ucolors.primary.withValues(alpha: 0.65)
+                  : Colors.grey.shade500,
+            ),
+          ),
         ],
       ),
     );

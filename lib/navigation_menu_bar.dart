@@ -56,6 +56,7 @@ class NavigationBarController extends GetxController {
   final RxBool isHelpExpanded = false.obs;
   final RxBool isInvestExpanded = false.obs;
   final RxString customHeaderTitle = ''.obs;
+  int _webNavigationDepth = 0;
   Timer? _camsPollingTimer;
 
   @override
@@ -236,22 +237,91 @@ class NavigationBarController extends GetxController {
     Map<String, String>? queryParameters,
     dynamic arguments,
     VoidCallback? beforeOpen,
+    bool replace = false,
   }) {
     beforeOpen?.call();
 
     final webUrl = _buildWebUrl(route, queryParameters);
 
     if (kIsWeb) {
-      pushWebPath(webUrl);
+      if (replace) {
+        replaceWebPath(webUrl);
+      } else {
+        final currentPath = currentWebPath();
+
+        if (currentPath != webUrl) {
+          pushWebPath(webUrl);
+          _webNavigationDepth++;
+        }
+      }
+
+      selectedIndex.value = _indexFromRoute(route, fullPath: webUrl);
+
+      Get.toNamed(
+        route,
+        id: 1,
+        arguments: arguments ?? queryParameters,
+        preventDuplicates: false,
+      );
+      return;
     }
 
-    Get.toNamed(
-      route,
-      id: 1,
-      arguments: arguments ?? queryParameters,
-      preventDuplicates: false,
-    );
+    // Mobile logic same
+    Get.toNamed(route, arguments: arguments ?? queryParameters);
   }
+
+  void backNested({
+    String fallbackRoute = AppRoutes.home,
+    Map<String, String>? fallbackQuery,
+  }) {
+    if (kIsWeb) {
+      if (_webNavigationDepth > 0) {
+        browserHistoryBack();
+        return;
+      }
+
+      openNestedRoute(
+        fallbackRoute,
+        queryParameters: fallbackQuery,
+        replace: true,
+      );
+      return;
+    }
+
+    // Mobile logic same
+    Get.back();
+  }
+
+  // String _buildWebUrl(String route, Map<String, String>? queryParameters) {
+  //   return Uri(
+  //     path: route,
+  //     queryParameters: queryParameters == null || queryParameters.isEmpty
+  //         ? null
+  //         : queryParameters,
+  //   ).toString();
+  // }
+
+  // void openNestedRoute(
+  //   String route, {
+  //   Map<String, String>? queryParameters,
+  //   dynamic arguments,
+  //   VoidCallback? beforeOpen,
+  // }) {
+  //   beforeOpen?.call();
+
+  //   final webUrl = _buildWebUrl(route, queryParameters);
+
+  //   if (kIsWeb) {
+  //     pushWebPath(webUrl);
+  //   }
+
+  //   Get.toNamed(
+  //     route,
+  //     id: 1,
+  //     arguments: arguments ?? queryParameters,
+  //     preventDuplicates: false,
+  //   );
+  // }
 
   // String _buildWebUrl(String route, Map<String, String>? queryParameters) {
   //   final uri = Uri(
@@ -378,6 +448,10 @@ class NavigationBarController extends GetxController {
   }
 
   void _handleBrowserBack(String path) {
+    if (_webNavigationDepth > 0) {
+      _webNavigationDepth--;
+    }
+
     final uri = Uri.parse(path.isEmpty || path == '/' ? AppRoutes.home : path);
 
     final route = uri.path.isEmpty || uri.path == '/'
@@ -388,8 +462,27 @@ class NavigationBarController extends GetxController {
 
     _applyUrlData(route, uri.queryParameters);
 
-    Get.toNamed(route, id: 1, arguments: uri.queryParameters);
+    Get.toNamed(
+      route,
+      id: 1,
+      arguments: uri.queryParameters,
+      preventDuplicates: false,
+    );
   }
+
+  // void _handleBrowserBack(String path) {
+  //   final uri = Uri.parse(path.isEmpty || path == '/' ? AppRoutes.home : path);
+
+  //   final route = uri.path.isEmpty || uri.path == '/'
+  //       ? AppRoutes.home
+  //       : uri.path;
+
+  //   selectedIndex.value = _indexFromRoute(route, fullPath: path);
+
+  //   _applyUrlData(route, uri.queryParameters);
+
+  //   Get.toNamed(route, id: 1, arguments: uri.queryParameters);
+  // }
 
   // void _handleBrowserBack(String path) {
   //   final cleanRoute = path.split('?').first;
@@ -969,6 +1062,15 @@ class NavigationMenuBar extends StatelessWidget {
       canPop: kIsWeb && controller.selectedIndex.value == 0,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
+
+        // if (controller.selectedIndex.value != 0) {
+        //   controller.changePage(0, isDesktop: isDesktop || isTablet);
+        //   return;
+        // }
+        if (kIsWeb && controller.selectedIndex.value != 0) {
+          controller.backNested();
+          return;
+        }
 
         if (controller.selectedIndex.value != 0) {
           controller.changePage(0, isDesktop: isDesktop || isTablet);

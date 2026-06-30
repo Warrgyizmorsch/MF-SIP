@@ -1,10 +1,12 @@
 // ignore_for_file: curly_braces_in_flow_control_structures, dead_null_aware_expression, dead_code
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
@@ -19,6 +21,7 @@ import 'package:my_sip/features/fund_details/presentation/controllers/comparefun
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart'
     hide parseFundManagers;
 import 'package:my_sip/features/wishlist/presentation/controller/wishlist_controller.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 
 import '../../../../../common/widget/animated/custom_footer.dart';
 import '../../../../dashboard/presentation/pages/comparison_screen.dart';
@@ -36,11 +39,21 @@ class CompareFundsPage extends GetView<CompareFundController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white.withValues(alpha:0.985),
-      appBar: AppBar(
-        centerTitle: true,
-        leading: const BackButton(),
-        title: const Text("Compare Funds",style:  TextStyle(fontFamily: FontFamily.medium))),
+      backgroundColor: Colors.white.withValues(alpha: 0.985),
+      appBar: CustomAppBarNormal(
+        title: 'Fund Comparison',
+        onpressed: () {
+          if (kIsWeb && Get.isRegistered<NavigationBarController>()) {
+            Get.find<NavigationBarController>().backNested();
+          } else {
+            Get.back();
+          }
+        },
+      ),
+      //  AppBar(
+      //   centerTitle: true,
+      //   leading: const BackButton(),
+      //   title: const Text("Compare Funds",style:  TextStyle(fontFamily: FontFamily.medium))),
       body: SingleChildScrollView(
         child: Obx(() {
           // Listen to Controller State
@@ -174,46 +187,42 @@ class CompareFundsPage extends GetView<CompareFundController> {
                 firstButtonP: fund1 == null
                     ? null
                     : () async {
-                  final purchaseArgs = SipPurchaseArgs(
-                    schemeCode: fund1.schemeCode ?? '',
-                    fundName: fund1.baseSchemeName ?? '',
-                    riskLabel: '',
-                    minSip: fund1.minSipAmount ?? 1000,
-                    minLumpsum:
-                    fund1.minLumpsum?.toInt() ?? 5000,
-                    minTopup: 5000,
-                    folio: null,
-                    imgUrl:
-                    '${Appurl.baseUrl}${fund1.amc?.amcLogoUrl}',
-                  );
+                        final purchaseArgs = SipPurchaseArgs(
+                          schemeCode: fund1.schemeCode ?? '',
+                          fundName: fund1.baseSchemeName ?? '',
+                          riskLabel: '',
+                          minSip: fund1.minSipAmount ?? 1000,
+                          minLumpsum: fund1.minLumpsum?.toInt() ?? 5000,
+                          minTopup: 5000,
+                          folio: null,
+                          imgUrl: '${Appurl.baseUrl}${fund1.amc?.amcLogoUrl}',
+                        );
 
-                  Get.to(
-                        () => SIPPurchasePage(),
-                    arguments: purchaseArgs,
-                  );
-                },
+                        Get.to(
+                          () => SIPPurchasePage(),
+                          arguments: purchaseArgs,
+                        );
+                      },
 
                 secondButtonP: fund2 == null
                     ? null
                     : () async {
-                  final purchaseArgs = SipPurchaseArgs(
-                    schemeCode: fund2.schemeCode ?? '',
-                    fundName: fund2.baseSchemeName ?? '',
-                    riskLabel: '',
-                    minSip: fund2.minSipAmount ?? 1000,
-                    minLumpsum:
-                    fund2.minLumpsum?.toInt() ?? 5000,
-                    minTopup: 5000,
-                    folio: null,
-                    imgUrl:
-                    '${Appurl.baseUrl}${fund2.amc?.amcLogoUrl}',
-                  );
+                        final purchaseArgs = SipPurchaseArgs(
+                          schemeCode: fund2.schemeCode ?? '',
+                          fundName: fund2.baseSchemeName ?? '',
+                          riskLabel: '',
+                          minSip: fund2.minSipAmount ?? 1000,
+                          minLumpsum: fund2.minLumpsum?.toInt() ?? 5000,
+                          minTopup: 5000,
+                          folio: null,
+                          imgUrl: '${Appurl.baseUrl}${fund2.amc?.amcLogoUrl}',
+                        );
 
-                  Get.to(
-                        () => SIPPurchasePage(),
-                    arguments: purchaseArgs,
-                  );
-                },
+                        Get.to(
+                          () => SIPPurchasePage(),
+                          arguments: purchaseArgs,
+                        );
+                      },
               ),
             ),
           ],
@@ -318,7 +327,8 @@ class CompareFundsPage extends GetView<CompareFundController> {
                   child: const Center(
                     child: Text(
                       "SEARCH MUTUAL FUNDS",
-                      style:  TextStyle(fontFamily: FontFamily.medium,
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
@@ -353,8 +363,10 @@ class CompareFundsPage extends GetView<CompareFundController> {
                     if (mutualFundController.isLoading.value) {
                       return Align(
                         alignment: Alignment.topCenter,
-                        child: CircularProgressIndicator(strokeWidth: 3.0,
-                          color: Ucolors.primary,),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 3.0,
+                          color: Ucolors.primary,
+                        ),
                       );
                     }
 
@@ -420,7 +432,8 @@ class CompareFundsPage extends GetView<CompareFundController> {
                             ),
                             title: Text(
                               item.baseSchemeName ?? '',
-                              style: const  TextStyle(fontFamily: FontFamily.medium,
+                              style: const TextStyle(
+                                fontFamily: FontFamily.medium,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -453,11 +466,19 @@ class CompareFundsPage extends GetView<CompareFundController> {
         children: const [
           Text(
             "Compare Funds",
-            style:  TextStyle(fontFamily: FontFamily.medium,fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           Text(
             "Detailed comparison on parameters...",
-            style:  TextStyle(fontFamily: FontFamily.medium,color: Colors.grey, fontSize: 12),
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
+              color: Colors.grey,
+              fontSize: 12,
+            ),
           ),
         ],
       ),
@@ -508,7 +529,10 @@ class CompareCard extends StatelessWidget {
                 SizedBox(height: 8),
                 Text(
                   "Add a fund",
-                  style:  TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
@@ -612,7 +636,10 @@ class FundDetailsTable extends StatelessWidget {
           child: Center(
             child: Text(
               row["title"]!,
-              style: const  TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                fontFamily: FontFamily.medium,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ),
@@ -635,7 +662,7 @@ class FundDetailsTable extends StatelessWidget {
       child: Text(
         txt,
         textAlign: TextAlign.center,
-        style: const  TextStyle(fontFamily: FontFamily.medium,fontSize: 12),
+        style: const TextStyle(fontFamily: FontFamily.medium, fontSize: 12),
       ),
     ),
   );
@@ -660,7 +687,10 @@ class CompareTable extends StatelessWidget {
               child: Center(
                 child: Text(
                   row["title"],
-                  style: const  TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -678,7 +708,13 @@ class CompareTable extends StatelessWidget {
                             // bottom: BorderSide(color: Colors.grey.shade300),
                           ),
                         ),
-                        child: Text(val, style: const  TextStyle(fontFamily: FontFamily.medium,fontSize: 13)),
+                        child: Text(
+                          val,
+                          style: const TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 13,
+                          ),
+                        ),
                       ),
                     ),
                   )
@@ -741,7 +777,10 @@ class HoldingsCompareTable extends StatelessWidget {
                   textAlign: TextAlign.center,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: const  TextStyle(fontFamily: FontFamily.medium,fontSize: 11),
+                  style: const TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 11,
+                  ),
                 ),
               ),
             ),
@@ -764,7 +803,10 @@ class HoldingsCompareTable extends StatelessWidget {
                   textAlign: TextAlign.center,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const  TextStyle(fontFamily: FontFamily.medium,fontSize: 11),
+                  style: const TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 11,
+                  ),
                 ),
               ),
             ),
@@ -819,7 +861,13 @@ class CompareExpansion extends StatelessWidget {
   Widget build(BuildContext context) => ExpansionTile(
     dense: true,
     initiallyExpanded: true, // Keep open by default
-    title: Text(title, style: const  TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600)),
+    title: Text(
+      title,
+      style: const TextStyle(
+        fontFamily: FontFamily.medium,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
     children: [child],
   );
 }
@@ -849,8 +897,12 @@ class CompareCardOption extends StatelessWidget {
         color: Colors.white,
         child: SizedBox(
           height: 130,
-          child: Center(child: CircularProgressIndicator(strokeWidth: 3.0,
-            color: Ucolors.primary,)),
+          child: Center(
+            child: CircularProgressIndicator(
+              strokeWidth: 3.0,
+              color: Ucolors.primary,
+            ),
+          ),
         ),
       );
     }
@@ -881,7 +933,8 @@ class CompareCardOption extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   "Add a fund",
-                  style:  TextStyle(fontFamily: FontFamily.medium,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontWeight: FontWeight.w500,
                     color: Colors.grey.shade700,
                   ),
@@ -896,7 +949,7 @@ class CompareCardOption extends StatelessWidget {
     return Card(
       elevation: 4,
       color: Colors.white,
-      shadowColor: Colors.black.withValues(alpha:0.1),
+      shadowColor: Colors.black.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: SizedBox(
         height: 130,
@@ -962,7 +1015,8 @@ class CompareCardOption extends StatelessWidget {
                         const SizedBox(width: 10),
                         const Text(
                           'Add to Cart',
-                          style:  TextStyle(fontFamily: FontFamily.medium,
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
                           ),
@@ -982,7 +1036,8 @@ class CompareCardOption extends StatelessWidget {
                         const SizedBox(width: 10),
                         const Text(
                           'Watchlist',
-                          style:  TextStyle(fontFamily: FontFamily.medium,
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
                           ),
@@ -999,7 +1054,8 @@ class CompareCardOption extends StatelessWidget {
                         const SizedBox(width: 10),
                         const Text(
                           'Remove',
-                          style:  TextStyle(fontFamily: FontFamily.medium,
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
                             color: Colors.red,
                             fontSize: 13,
                             fontWeight: FontWeight.w500,

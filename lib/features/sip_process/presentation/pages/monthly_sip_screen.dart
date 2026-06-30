@@ -1,11 +1,13 @@
 // ignore_for_file: unused_local_variable
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/features/freedom_sip/presentation/widgets/sip_amount_selector.dart';
 import 'package:my_sip/features/sip_process/presentation/widgets/sip_projection_chart.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 import '../../../../common/widget/animated/custom_footer.dart';
 import '../../../../common/widget/button/elevated_button.dart';
 import '../../../../core/utils/constant/colors.dart';
@@ -43,14 +45,17 @@ class MonthlySipScreen extends GetView<SipProcessController> {
   Widget _buildWebLayout(BuildContext context) {
     return Center(
       child: LayoutBuilder(
-          builder: (context, constraints) {
-            final double isWideScreen = constraints.maxWidth*0.9;
-            final double maxHeight = constraints.maxHeight*0.9;
+        builder: (context, constraints) {
+          final double isWideScreen = constraints.maxWidth * 0.9;
+          final double maxHeight = constraints.maxHeight * 0.9;
 
-            final double availableHeight = constraints.maxHeight;
+          final double availableHeight = constraints.maxHeight;
 
-            return ConstrainedBox(
-            constraints:  BoxConstraints(maxWidth: isWideScreen,maxHeight: maxHeight),
+          return ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: isWideScreen,
+              maxHeight: maxHeight,
+            ),
             child: Container(
               clipBehavior: Clip
                   .antiAlias, // Ensures the left blue panel curves with the container
@@ -80,7 +85,7 @@ class MonthlySipScreen extends GetView<SipProcessController> {
               ),
             ),
           );
-        }
+        },
       ),
     );
   }
@@ -110,7 +115,8 @@ class MonthlySipScreen extends GetView<SipProcessController> {
               const SizedBox(width: 12),
               const Text(
                 "BUILD YOUR WEALTH WITH SIP",
-                style: TextStyle(fontFamily: FontFamily.medium,
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
 
                   color: Colors.white,
                   fontSize: 12,
@@ -138,7 +144,8 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                   children: [
                     const Text(
                       "Projected Value (5Years)",
-                      style: TextStyle(fontFamily: FontFamily.medium,
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
                         color: Colors.white,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -149,7 +156,8 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                         controller.formatCurrency(
                           controller.totalProjected.value,
                         ),
-                        style: const TextStyle(fontFamily: FontFamily.medium,
+                        style: const TextStyle(
+                          fontFamily: FontFamily.medium,
                           color: Colors.white,
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
@@ -164,7 +172,8 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                   children: [
                     Text(
                       "Invested Amount",
-                      style: TextStyle(fontFamily: FontFamily.medium,
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
                         color: Colors.white.withValues(alpha: 0.8),
                         fontSize: 12,
                       ),
@@ -174,7 +183,8 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                         controller.formatCurrency(
                           controller.totalInvested.value,
                         ),
-                        style: const TextStyle(fontFamily: FontFamily.medium,
+                        style: const TextStyle(
+                          fontFamily: FontFamily.medium,
                           color: Colors.white,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -211,7 +221,8 @@ class MonthlySipScreen extends GetView<SipProcessController> {
             child: Text(
               "*Based on historical returns of ${controller.expectedReturnRate.toStringAsFixed(0)}%. Past performance is not an indicator of\nfuture returns.",
               textAlign: TextAlign.center,
-              style: TextStyle(fontFamily: FontFamily.medium,
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
                 color: Colors.white.withValues(alpha: 0.6),
                 fontSize: 10,
                 height: 1.4,
@@ -247,7 +258,15 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                 width: 140,
                 child: UElevatedButtonWeb(
                   // Using the Web optimized button
-                  onPressed: () => Get.back(id: 1),
+                  // onPressed: () => Get.back(id: 1),
+                  onPressed: () {
+                    if (kIsWeb && Get.isRegistered<NavigationBarController>()) {
+                      Get.find<NavigationBarController>().backNested();
+                    } else {
+                      Get.back();
+                    }
+                  },
+
                   outlined: true,
                   child: Text(
                     'Back',
@@ -393,13 +412,14 @@ class MonthlySipScreen extends GetView<SipProcessController> {
           },
         ),
         const SizedBox(height: 28),
-        controller.isLumpsum.value?SizedBox.shrink():
-        Text(
-          "SIP Date",
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-        ),
+        controller.isLumpsum.value
+            ? SizedBox.shrink()
+            : Text(
+                "SIP Date",
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+              ),
         const SizedBox(height: 8),
         DropdownButtonHideUnderline(
           child: DropdownButton2<String>(
@@ -413,7 +433,8 @@ class MonthlySipScreen extends GetView<SipProcessController> {
                 value: '${i + 1}',
                 child: Text(
                   '${controller.getOrdinal(i + 1)} of every month',
-                  style: const TextStyle(fontFamily: FontFamily.medium,
+                  style: const TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontWeight: FontWeight.w600,
                     fontSize: 15,
                     color: Color(0xFF142438),

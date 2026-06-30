@@ -26,6 +26,7 @@ import 'package:my_sip/features/fund_details/presentation/widgets/helper.dart';
 import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/bank_details.dart'; // Ensure this import exists for Deleteiconwithcontainer
 import 'package:my_sip/features/wishlist/presentation/controller/wishlist_controller.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../../common/widget/shimmer/shimmer.dart';
@@ -3646,7 +3647,6 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF111827),
-
                       ),
                     ),
 
@@ -4187,16 +4187,50 @@ class _ResponsiveFundCardState extends State<ResponsiveFundCard>
     );
   }
 
+  // void _openFundDetails(MutualFundListEntity entity) {
+  //   Get.delete<FundDetailsController>();
+
+  //   FundDetailsScreen.navData = {
+  //     'scheme': entity.baseSchemeName,
+  //     'imgUrl': '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
+  //     'scheme_code': entity.schemeCode.toString(),
+  //   };
+
+  //   Get.toNamed(AppRoutes.funddetails, id: 1);
+  // }
   void _openFundDetails(MutualFundListEntity entity) {
-    Get.delete<FundDetailsController>();
+    final schemeName = entity.baseSchemeName?.trim() ?? '';
+    final schemeCode = entity.schemeCode?.toString().trim() ?? '';
+    final imgUrl = '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}';
+
+    if (schemeName.isEmpty || schemeCode.isEmpty) {
+      debugPrint('Fund details missing: scheme=$schemeName code=$schemeCode');
+      return;
+    }
+
+    if (Get.isRegistered<FundDetailsController>()) {
+      Get.delete<FundDetailsController>();
+    }
 
     FundDetailsScreen.navData = {
-      'scheme': entity.baseSchemeName,
-      'imgUrl': '${Appurl.baseUrl}${entity.amc?.amcLogoUrl ?? ''}',
-      'scheme_code': entity.schemeCode.toString(),
+      'scheme': schemeName,
+      'imgUrl': imgUrl,
+      'scheme_code': schemeCode,
     };
 
-    Get.toNamed(AppRoutes.funddetails, id: 1);
+    if (kIsWeb && Get.isRegistered<NavigationBarController>()) {
+      Get.find<NavigationBarController>().openNestedRoute(
+        AppRoutes.funddetails,
+        queryParameters: {'scheme': schemeName, 'scheme_code': schemeCode},
+        arguments: {
+          'scheme': schemeName,
+          'imgUrl': imgUrl,
+          'scheme_code': schemeCode,
+        },
+      );
+    } else {
+      Get.toNamed(AppRoutes.funddetails);
+    }
   }
 
   /// =======================================================

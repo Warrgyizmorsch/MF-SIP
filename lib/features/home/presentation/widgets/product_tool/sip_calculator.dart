@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -101,8 +102,15 @@ class _SipCalculatorPageState extends State<SipCalculatorPage>
           : Colors.white.withValues(alpha: 0.96),
 
       appBar: CustomAppBarNormal(
+        onpressed: () {
+          if (kIsWeb && Get.isRegistered<NavigationBarController>()) {
+            Get.find<NavigationBarController>().backNested();
+          } else {
+            Get.back();
+          }
+        },
         title: 'SIP Calculator',
-        backIcon: true,
+        // backIcon: true,
         backgroundColor: Ucolors.light,
       ),
 
@@ -168,19 +176,21 @@ class _SipCalculatorPageState extends State<SipCalculatorPage>
           ),
         ],
       ),
-      bottomNavigationBar: isDesktop? null : UElevatedBUtton(
-       onPressed: (){
-         Get.offAllNamed(AppRoutes.navMenuBar);
-         Future.delayed(const Duration(milliseconds: 100), () {
-           if (Get.isRegistered<NavigationBarController>()) {
-             Get.find<NavigationBarController>().selectedIndex.value = 1;
-           }
-         });
-       },
-        child: Center(
-          child: Text("Explore Funds", style:  UTextStyles.buttonText),
-        ),
-      ),
+      bottomNavigationBar: isDesktop
+          ? null
+          : UElevatedBUtton(
+              onPressed: () {
+                Get.offAllNamed(AppRoutes.navMenuBar);
+                Future.delayed(const Duration(milliseconds: 100), () {
+                  if (Get.isRegistered<NavigationBarController>()) {
+                    Get.find<NavigationBarController>().selectedIndex.value = 1;
+                  }
+                });
+              },
+              child: Center(
+                child: Text("Explore Funds", style: UTextStyles.buttonText),
+              ),
+            ),
     );
   }
 

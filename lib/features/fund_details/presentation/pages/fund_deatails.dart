@@ -15,6 +15,7 @@ import 'package:my_sip/features/cart/presentation/controllers/cart_controller.da
 import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/wishlist/presentation/controller/wishlist_controller.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 import 'package:readmore/readmore.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
@@ -88,7 +89,6 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                             .riskStatisticsList
                             .isNotEmpty
                         ? FundBottomBarButton(
-                          
                             firstButton: 'Lumpsum',
                             secondButton: 'Invest now',
                             firstButtonP: () async {
@@ -693,37 +693,15 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
         backgroundColor: Ucolors.light,
         actionsPadding: 10,
         title: 'Fund Details',
+        onpressed: () {
+          if (kIsWeb && Get.isRegistered<NavigationBarController>()) {
+            Get.find<NavigationBarController>().backNested();
+          } else {
+            Get.back();
+          }
+        },
+
         action: [
-          // Obx(
-          //   () => Stack(
-          //     children: [
-          //       CompactIcon(
-          //         icon: Iconsax.shopping_cart,
-          //         onPressed: () {
-          //           Get.find<CartController>().filterGoalId.value = null;
-          //           Get.toNamed(AppRoutes.cart);
-          //         },
-          //         iconColor: Ucolors.dark,
-          //       ),
-          //       if (Get.find<CartController>().generalItemsCount > 0)
-          //         Positioned(
-          //           right: 0,
-          //           top: -5,
-          //           child: Container(
-          //             padding: const EdgeInsets.all(5),
-          //             decoration: const BoxDecoration(
-          //               color: Ucolors.red,
-          //               shape: BoxShape.circle,
-          //             ),
-          //             child: Text(
-          //               Get.find<CartController>().generalItemsCount.toString(),
-          //               style: UTextStyles.buttonText.copyWith(fontSize: 10),
-          //             ),
-          //           ),
-          //         ),
-          //     ],
-          //   ),
-          // ),
           const SizedBox(width: 8),
 
           Obx(() {
@@ -743,10 +721,7 @@ class _DesktopFundDetailsLayout extends StatelessWidget {
               onPressed: () => wishlistController.toggleWishlist(code, name),
             );
           }),
-          // CompactIcon(
-          //   icon: Iconsax.archive_tick,
-          //   onPressed: () => Get.toNamed(AppRoutes.watchlist),
-          // ),
+
           const SizedBox(width: 5),
         ],
       ),

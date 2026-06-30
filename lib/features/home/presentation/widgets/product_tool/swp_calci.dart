@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -46,8 +47,19 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
     );
 
     return Scaffold(
-      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white.withValues(alpha:0.96),
-      appBar: CustomAppBarNormal(title: 'SWP Calculator'),
+      backgroundColor: isDesktop
+          ? const Color(0xFFF5F7FA)
+          : Colors.white.withValues(alpha: 0.96),
+      appBar: CustomAppBarNormal(
+        title: 'SWP Calculator',
+        onpressed: () {
+          if (kIsWeb && Get.isRegistered<NavigationBarController>()) {
+            Get.find<NavigationBarController>().backNested();
+          } else {
+            Get.back();
+          }
+        },
+      ),
       body: SingleChildScrollView(
         padding: isDesktop
             ? const EdgeInsets.symmetric(vertical: 30, horizontal: 24)
@@ -59,41 +71,46 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
             // --- 2. Main Layout ---
             isDesktop
                 ? Center(
-              child: MaxWidthBox(
-                maxWidth: 1200,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(flex: 4, child: _buildInputs(isDesktop)),
-                    const Gap(30),
-                    Expanded(flex: 6, child: _buildResults(isDesktop, swp)),
-                  ],
-                ),
-              ),
-            )
+                    child: MaxWidthBox(
+                      maxWidth: 1200,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(flex: 4, child: _buildInputs(isDesktop)),
+                          const Gap(30),
+                          Expanded(
+                            flex: 6,
+                            child: _buildResults(isDesktop, swp),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
                 : Column(
-              children: [
-                _buildInputs(isDesktop),
-                const Gap(20),
-                _buildResults(isDesktop, swp),
-              ],
-            ),
+                    children: [
+                      _buildInputs(isDesktop),
+                      const Gap(20),
+                      _buildResults(isDesktop, swp),
+                    ],
+                  ),
           ],
         ),
       ),
-      bottomNavigationBar: isDesktop? null : UElevatedBUtton(
-        onPressed: (){
-          Get.offAllNamed(AppRoutes.navMenuBar);
-          Future.delayed(const Duration(milliseconds: 100), () {
-            if (Get.isRegistered<NavigationBarController>()) {
-              Get.find<NavigationBarController>().selectedIndex.value = 1;
-            }
-          });
-        },
-        child: Center(
-          child: Text("Explore Funds", style:  UTextStyles.buttonText),
-        ),
-      ),
+      bottomNavigationBar: isDesktop
+          ? null
+          : UElevatedBUtton(
+              onPressed: () {
+                Get.offAllNamed(AppRoutes.navMenuBar);
+                Future.delayed(const Duration(milliseconds: 100), () {
+                  if (Get.isRegistered<NavigationBarController>()) {
+                    Get.find<NavigationBarController>().selectedIndex.value = 1;
+                  }
+                });
+              },
+              child: Center(
+                child: Text("Explore Funds", style: UTextStyles.buttonText),
+              ),
+            ),
     );
   }
 
@@ -108,7 +125,14 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (isDesktop) ...[
-            const Text("Input Details", style:  TextStyle(fontFamily: FontFamily.medium,fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              "Input Details",
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const Gap(20),
           ],
           SipSliderTile2(
@@ -160,7 +184,14 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
         color: Ucolors.light,
         borderRadius: BorderRadius.circular(isDesktop ? 16 : 10),
         border: Border.all(color: Ucolors.borderside),
-        boxShadow: isDesktop ? [BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 10)] : null,
+        boxShadow: isDesktop
+            ? [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                ),
+              ]
+            : null,
       ),
       child: DefaultTabController(
         length: 2,
@@ -179,9 +210,14 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
                 dividerColor: Colors.transparent,
                 labelColor: Ucolors.primary,
                 indicator: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.white,
-                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 4)]
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 4,
+                    ),
+                  ],
                 ),
                 tabs: const [
                   Tab(text: 'Visual Rep.'),
@@ -227,7 +263,7 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
                         ),
                       ],
                       piechartcolor1: Ucolors.primary,
-                      piechartcolor2: Ucolors.primary.withValues(alpha:0.1),
+                      piechartcolor2: Ucolors.primary.withValues(alpha: 0.1),
                     ),
                   ),
 
@@ -235,7 +271,8 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
                   SingleChildScrollView(
                     scrollDirection: Axis.vertical, // Allow vertical scroll
                     child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal, // Allow horizontal scroll for table
+                      scrollDirection:
+                          Axis.horizontal, // Allow horizontal scroll for table
                       child: SizedBox(
                         width: 450, // Fixed width to ensure columns align
                         child: Column(
@@ -246,7 +283,10 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
                               heading3: "Profit",
                               heading4: "Remaining",
                             ),
-                            DashedLine(dashSpace: 0, color: Ucolors.borderColor),
+                            DashedLine(
+                              dashSpace: 0,
+                              color: Ucolors.borderColor,
+                            ),
 
                             // Using a Column here instead of ListView to work inside ScrollView
                             if (swp.report.isEmpty)
@@ -289,7 +329,11 @@ class _SwpCalciScreenState extends State<SwpCalciScreen> {
       color: Colors.white,
       borderRadius: BorderRadius.circular(16),
       boxShadow: [
-        BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 10, offset: const Offset(0, 4)),
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.05),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
       ],
       border: Border.all(color: Colors.grey.shade200),
     );

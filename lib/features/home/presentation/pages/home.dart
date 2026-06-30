@@ -1855,7 +1855,7 @@ class _WebDashboardLayout extends StatelessWidget {
     return _panel(
       title: 'Plan Your Goals',
       trailing: _viewAllButton(() {
-        Get.toNamed(AppRoutes.masterGoalsPage, id: 1);
+        Get.toNamed(AppRoutes.webMasterGoalsPage, id: 1);
       }),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -1954,7 +1954,7 @@ class _WebDashboardLayout extends StatelessWidget {
         //   arguments: {'goalType': type, 'isHome': true},
         // );
         navController.openNestedRoute(
-          AppRoutes.masterGoalsPage,
+          AppRoutes.webMasterGoalsPage,
           queryParameters: {'goalType': type, 'isHome': 'true'},
           arguments: {'goalType': type, 'isHome': true},
         );
