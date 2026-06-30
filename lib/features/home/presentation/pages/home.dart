@@ -1121,44 +1121,98 @@ class _WebDashboardLayout extends StatelessWidget {
                         subtitle: fund.schemecategory ?? "",
                         threeYear:
                             fund.returnsEntity?.threeYear?.toString() ?? '--',
+                        // onTap: () {
+                        //   final schemeName = fund.baseSchemeName?.trim() ?? '';
+                        //   final schemeCode =
+                        //       fund.schemeCode?.toString().trim() ?? '';
+
+                        //   if (schemeName.isEmpty || schemeCode.isEmpty) {
+                        //     debugPrint(
+                        //       'Fund details missing: scheme=$schemeName code=$schemeCode',
+                        //     );
+                        //     return;
+                        //   }
+
+                        //   mutualController.addToLocalRecentlyViewed(fund);
+
+                        //   navController.openNestedRoute(
+                        //     AppRoutes.funddetails,
+                        //     queryParameters: {
+                        //       'scheme': schemeName,
+                        //       'scheme_code': schemeCode,
+                        //     },
+                        //     arguments: {
+                        //       'scheme': schemeName,
+                        //       'imgUrl': img,
+                        //       'scheme_code': schemeCode,
+                        //     },
+                        //     beforeOpen: () {
+                        //       if (Get.isRegistered<FundDetailsController>()) {
+                        //         Get.delete<FundDetailsController>();
+                        //       }
+
+                        //       FundDetailsScreen.navData = {
+                        //         'scheme': schemeName,
+                        //         'imgUrl': img,
+                        //         'scheme_code': schemeCode,
+                        //       };
+                        //     },
+                        //   );
+                        // },
                         onTap: () {
-                          final schemeName = fund.baseSchemeName?.trim() ?? '';
-                          final schemeCode =
-                              fund.schemeCode?.toString().trim() ?? '';
+  final schemeName = fund.baseSchemeName?.trim() ?? '';
+  final schemeCode = fund.schemeCode?.toString().trim() ?? '';
 
-                          if (schemeName.isEmpty || schemeCode.isEmpty) {
-                            debugPrint(
-                              'Fund details missing: scheme=$schemeName code=$schemeCode',
-                            );
-                            return;
-                          }
+  if (schemeName.isEmpty || schemeCode.isEmpty) {
+    debugPrint('Fund details missing: scheme=$schemeName code=$schemeCode');
+    return;
+  }
 
-                          mutualController.addToLocalRecentlyViewed(fund);
+  mutualController.addToLocalRecentlyViewed(fund);
 
-                          navController.openNestedRoute(
-                            AppRoutes.funddetails,
-                            queryParameters: {
-                              'scheme': schemeName,
-                              'scheme_code': schemeCode,
-                            },
-                            arguments: {
-                              'scheme': schemeName,
-                              'imgUrl': img,
-                              'scheme_code': schemeCode,
-                            },
-                            beforeOpen: () {
-                              if (Get.isRegistered<FundDetailsController>()) {
-                                Get.delete<FundDetailsController>();
-                              }
+  if (kIsWeb && Get.isRegistered<NavigationBarController>()) {
+    final navController = Get.find<NavigationBarController>();
 
-                              FundDetailsScreen.navData = {
-                                'scheme': schemeName,
-                                'imgUrl': img,
-                                'scheme_code': schemeCode,
-                              };
-                            },
-                          );
-                        },
+    navController.fundDetailsParentIndex = 0; // Home parent
+
+    navController.openNestedRoute(
+      AppRoutes.funddetails,
+      navIndex: 0,
+      queryParameters: {
+        'scheme': schemeName,
+        'scheme_code': schemeCode,
+      },
+      arguments: {
+        'scheme': schemeName,
+        'imgUrl': img,
+        'scheme_code': schemeCode,
+      },
+      beforeOpen: () {
+        if (Get.isRegistered<FundDetailsController>()) {
+          Get.delete<FundDetailsController>();
+        }
+
+        FundDetailsScreen.navData = {
+          'scheme': schemeName,
+          'imgUrl': img,
+          'scheme_code': schemeCode,
+        };
+      },
+    );
+  } else {
+    if (Get.isRegistered<FundDetailsController>()) {
+      Get.delete<FundDetailsController>();
+    }
+
+    FundDetailsScreen.navData = {
+      'scheme': schemeName,
+      'imgUrl': img,
+      'scheme_code': schemeCode,
+    };
+
+    Get.toNamed(AppRoutes.funddetails);
+  }
+},
 
                         // onTap: () {
                         //   mutualController.addToLocalRecentlyViewed(fund);

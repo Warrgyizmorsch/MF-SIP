@@ -64,7 +64,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (loggedIn) {
       // User is logged in -> Go Home
-      Get.offAllNamed(AppRoutes.navMenuBar);
+      // Get.offAllNamed(AppRoutes.navMenuBar);
+      Get.offAllNamed(kIsWeb ? AppRoutes.home : AppRoutes.navMenuBar);
     } else {
       // User is NOT logged in
       if (kIsWeb) {
@@ -159,7 +160,8 @@ class _SplashScreenState extends State<SplashScreen> {
                   children: [
                     TextSpan(
                       text: 'MF SIP by ',
-                      style: TextStyle(fontFamily: FontFamily.medium,
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
                         color: Ucolors.blue,
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -167,7 +169,11 @@ class _SplashScreenState extends State<SplashScreen> {
                     ),
                     TextSpan(
                       text: 'Ridit Finworld',
-                      style: TextStyle(fontFamily: FontFamily.medium,color: Ucolors.primary, fontSize: 18),
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        color: Ucolors.primary,
+                        fontSize: 18,
+                      ),
                     ),
                   ],
                 ),

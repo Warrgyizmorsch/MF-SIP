@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -7,6 +8,7 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/explore/presentation/pages/filterpage.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 
 import '../../../../core/utils/constant/text_style.dart';
 
@@ -218,7 +220,7 @@ class _WebFilterContentState extends State<WebFilterContent> {
                   style: TextStyle(
                     fontFamily: FontFamily.regular,
                     fontWeight: FontWeight.w600,
-                    fontSize: 13
+                    fontSize: 13,
                   ),
                 ),
                 children: [SizedBox(height: 320, child: CategoriesPanel())],
@@ -233,7 +235,7 @@ class _WebFilterContentState extends State<WebFilterContent> {
                   style: TextStyle(
                     fontFamily: FontFamily.regular,
                     fontWeight: FontWeight.w600,
-                      fontSize: 13
+                    fontSize: 13,
                   ),
                 ),
                 children: [SizedBox(height: 250, child: RiskPanel())],
@@ -262,7 +264,7 @@ class _WebFilterContentState extends State<WebFilterContent> {
                   style: TextStyle(
                     fontFamily: FontFamily.regular,
                     fontWeight: FontWeight.w600,
-                      fontSize: 13
+                    fontSize: 13,
                   ),
                 ),
                 children: [SizedBox(height: 400, child: ReturnRangePanel())],
@@ -295,6 +297,11 @@ class _WebFilterContentState extends State<WebFilterContent> {
                       Get.find<MutualFundController>().syncFilterPageParams(
                         controller.buildParam(),
                       );
+                    }
+
+                    if (kIsWeb && Get.isRegistered<NavigationBarController>()) {
+                      Get.find<NavigationBarController>()
+                          .clearExploreFilterUrl();
                     }
                   },
                   style: OutlinedButton.styleFrom(

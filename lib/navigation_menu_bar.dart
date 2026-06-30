@@ -45,6 +45,7 @@ import 'package:my_sip/features/personalization/presentation/widgets/bank_detail
 import 'package:my_sip/features/personalization/presentation/widgets/nominee_list.dart';
 
 import 'common/widget/images/image_picker.dart';
+
 import 'features/personalization/presentation/widgets/download_statement.dart';
 
 class NavigationBarController extends GetxController {
@@ -56,8 +57,10 @@ class NavigationBarController extends GetxController {
   final RxBool isHelpExpanded = false.obs;
   final RxBool isInvestExpanded = false.obs;
   final RxString customHeaderTitle = ''.obs;
+  int fundDetailsParentIndex = 0;
   int _webNavigationDepth = 0;
   Timer? _camsPollingTimer;
+  String? _previousWebUrl;
 
   @override
   void onInit() {
@@ -78,6 +81,27 @@ class NavigationBarController extends GetxController {
     ) async {
       await _checkCamsStatusSilently();
     });
+  }
+
+  //   void clearExploreFilterUrl() {
+  //   if (!kIsWeb) return;
+
+  //   replaceWebPath(AppRoutes.explorePage);
+
+  //   selectedIndex.value = 1;
+
+  //   Get.toNamed(
+  //     AppRoutes.explorePage,
+  //     id: 1,
+  //     arguments: {},
+  //     preventDuplicates: false,
+  //   );
+  // }
+
+  void clearExploreFilterUrl() {
+    if (!kIsWeb) return;
+
+    replaceWebPath(AppRoutes.explorePage);
   }
 
   Future<void> _checkCamsStatusSilently() async {
@@ -179,38 +203,6 @@ class NavigationBarController extends GetxController {
     }
   }
 
-  // String get initialNestedRoute {
-  //   if (!kIsWeb) return AppRoutes.home;
-
-  //   final path = currentWebPath();
-
-  //   if (path.startsWith(AppRoutes.navMenuBar)) {
-  //     final innerPath = path.replaceFirst(AppRoutes.navMenuBar, '');
-  //     final cleanPath = innerPath.split('?').first;
-
-  //     if (cleanPath.isEmpty || cleanPath == '/') {
-  //       return AppRoutes.home;
-  //     }
-
-  //     return cleanPath;
-  //   }
-
-  //   return AppRoutes.home;
-  // }
-  // String get initialNestedRoute {
-  //   if (!kIsWeb) return AppRoutes.home;
-
-  //   final path = currentWebPath();
-  //   final cleanPath = path.split('?').first;
-
-  //   if (cleanPath.isEmpty ||
-  //       cleanPath == '/' ||
-  //       cleanPath == AppRoutes.navMenuBar) {
-  //     return AppRoutes.home;
-  //   }
-
-  //   return cleanPath;
-  // }
   String get initialNestedRoute {
     if (!kIsWeb) return AppRoutes.home;
 
@@ -237,25 +229,28 @@ class NavigationBarController extends GetxController {
     Map<String, String>? queryParameters,
     dynamic arguments,
     VoidCallback? beforeOpen,
-    bool replace = false,
+    int? navIndex,
   }) {
     beforeOpen?.call();
 
-    final webUrl = _buildWebUrl(route, queryParameters);
-
     if (kIsWeb) {
-      if (replace) {
-        replaceWebPath(webUrl);
-      } else {
-        final currentPath = currentWebPath();
+      final webUrl = Uri(
+        path: route,
+        queryParameters: queryParameters == null || queryParameters.isEmpty
+            ? null
+            : queryParameters,
+      ).toString();
 
-        if (currentPath != webUrl) {
-          pushWebPath(webUrl);
-          _webNavigationDepth++;
-        }
+      final currentUrl = currentWebPath();
+
+      if (currentUrl.isNotEmpty && currentUrl != webUrl) {
+        _previousWebUrl = currentUrl;
       }
 
-      selectedIndex.value = _indexFromRoute(route, fullPath: webUrl);
+      pushWebPath(webUrl);
+
+      selectedIndex.value =
+          navIndex ?? _indexFromRoute(route, fullPath: webUrl);
 
       Get.toNamed(
         route,
@@ -266,31 +261,154 @@ class NavigationBarController extends GetxController {
       return;
     }
 
-    // Mobile logic same
     Get.toNamed(route, arguments: arguments ?? queryParameters);
   }
+
+  // void openNestedRoute(
+  //   String route, {
+  //   Map<String, String>? queryParameters,
+  //   dynamic arguments,
+  //   VoidCallback? beforeOpen,
+  // }) {
+  //   beforeOpen?.call();
+
+  //   if (kIsWeb) {
+  //     final webUrl = _buildWebUrl(route, queryParameters);
+  //     final currentUrl = currentWebPath();
+
+  //     if (currentUrl.isNotEmpty && currentUrl != webUrl) {
+  //       _previousWebUrl = currentUrl;
+  //     }
+
+  //     pushWebPath(webUrl);
+
+  //     selectedIndex.value = _indexFromRoute(route, fullPath: webUrl);
+
+  //     Get.toNamed(
+  //       route,
+  //       id: 1,
+  //       arguments: arguments ?? queryParameters,
+  //       preventDuplicates: false,
+  //     );
+  //     return;
+  //   }
+
+  //   // Mobile logic same
+  //   Get.toNamed(route, arguments: arguments ?? queryParameters);
+  // }
+
+  void _openUrlInsideNested(String url, {bool replace = false}) {
+    final uri = Uri.parse(url.isEmpty || url == '/' ? AppRoutes.home : url);
+
+    final route = uri.path.isEmpty || uri.path == '/'
+        ? AppRoutes.home
+        : uri.path;
+
+    if (replace) {
+      replaceWebPath(url);
+    } else {
+      pushWebPath(url);
+    }
+
+    selectedIndex.value = _indexFromRoute(route, fullPath: url);
+
+    _applyUrlData(route, uri.queryParameters);
+
+    Get.toNamed(
+      route,
+      id: 1,
+      arguments: uri.queryParameters,
+      preventDuplicates: false,
+    );
+  }
+
+  // String _buildWebUrl(String route, Map<String, String>? queryParameters) {
+  //   return Uri(
+  //     path: route,
+  //     queryParameters: queryParameters == null || queryParameters.isEmpty
+  //         ? null
+  //         : queryParameters,
+  //   ).toString();
+  // }
+
+  // void openNestedRoute(
+  //   String route, {
+  //   Map<String, String>? queryParameters,
+  //   dynamic arguments,
+  //   VoidCallback? beforeOpen,
+  //   bool replace = false,
+  // }) {
+  //   beforeOpen?.call();
+
+  //   final webUrl = _buildWebUrl(route, queryParameters);
+
+  //   if (kIsWeb) {
+  //     if (replace) {
+  //       replaceWebPath(webUrl);
+  //     } else {
+  //       final currentPath = currentWebPath();
+
+  //       if (currentPath != webUrl) {
+  //         pushWebPath(webUrl);
+  //         _webNavigationDepth++;
+  //       }
+  //     }
+
+  //     selectedIndex.value = _indexFromRoute(route, fullPath: webUrl);
+
+  //     Get.toNamed(
+  //       route,
+  //       id: 1,
+  //       arguments: arguments ?? queryParameters,
+  //       preventDuplicates: false,
+  //     );
+  //     return;
+  //   }
+
+  //   // Mobile logic same
+  //   Get.toNamed(route, arguments: arguments ?? queryParameters);
+  // }
 
   void backNested({
     String fallbackRoute = AppRoutes.home,
     Map<String, String>? fallbackQuery,
   }) {
     if (kIsWeb) {
-      if (_webNavigationDepth > 0) {
-        browserHistoryBack();
-        return;
-      }
+      final fallbackUrl = _buildWebUrl(fallbackRoute, fallbackQuery);
+      final targetUrl = _previousWebUrl ?? fallbackUrl;
 
-      openNestedRoute(
-        fallbackRoute,
-        queryParameters: fallbackQuery,
-        replace: true,
-      );
+      _previousWebUrl = null;
+
+      _openUrlInsideNested(targetUrl, replace: true);
+
       return;
     }
 
     // Mobile logic same
     Get.back();
   }
+
+  // void backNested({
+  //   String fallbackRoute = AppRoutes.home,
+  //   Map<String, String>? fallbackQuery,
+  // }) {
+  //   if (kIsWeb) {
+  //     if (_webNavigationDepth > 0) {
+  //       browserHistoryBack();
+  //       return;
+  //     }
+
+  //     openNestedRoute(
+  //       fallbackRoute,
+  //       queryParameters: fallbackQuery,
+  //       replace: true,
+  //     );
+  //     return;
+  //   }
+
+  //   // Mobile logic same
+  //   Get.back();
+  // }
 
   // String _buildWebUrl(String route, Map<String, String>? queryParameters) {
   //   return Uri(
@@ -390,6 +508,8 @@ class NavigationBarController extends GetxController {
 
       case AppRoutes.explorePage:
         return 1;
+      case AppRoutes.funddetails:
+        return fundDetailsParentIndex;
 
       case AppRoutes.dashBoardPage:
         return 2;
@@ -434,7 +554,7 @@ class NavigationBarController extends GetxController {
         return 102;
 
       default:
-        return 0;
+        return selectedIndex.value;
     }
   }
 
@@ -448,10 +568,6 @@ class NavigationBarController extends GetxController {
   }
 
   void _handleBrowserBack(String path) {
-    if (_webNavigationDepth > 0) {
-      _webNavigationDepth--;
-    }
-
     final uri = Uri.parse(path.isEmpty || path == '/' ? AppRoutes.home : path);
 
     final route = uri.path.isEmpty || uri.path == '/'
@@ -469,6 +585,29 @@ class NavigationBarController extends GetxController {
       preventDuplicates: false,
     );
   }
+
+  // void _handleBrowserBack(String path) {
+  //   if (_webNavigationDepth > 0) {
+  //     _webNavigationDepth--;
+  //   }
+
+  //   final uri = Uri.parse(path.isEmpty || path == '/' ? AppRoutes.home : path);
+
+  //   final route = uri.path.isEmpty || uri.path == '/'
+  //       ? AppRoutes.home
+  //       : uri.path;
+
+  //   selectedIndex.value = _indexFromRoute(route, fullPath: path);
+
+  //   _applyUrlData(route, uri.queryParameters);
+
+  //   Get.toNamed(
+  //     route,
+  //     id: 1,
+  //     arguments: uri.queryParameters,
+  //     preventDuplicates: false,
+  //   );
+  // }
 
   // void _handleBrowserBack(String path) {
   //   final uri = Uri.parse(path.isEmpty || path == '/' ? AppRoutes.home : path);
@@ -1998,21 +2137,6 @@ class _DesktopSideNav extends StatelessWidget {
                                   ),
                                   child: Column(
                                     children: [
-                                      // _buildInvestSubItem(
-                                      //   controller,
-                                      //   "Start SIP",
-                                      //   () {
-                                      //     Get.delete<SipProcessController>();
-                                      //     SipProcessController.navIsLumpsum =
-                                      //         false;
-
-                                      //     Get.toNamed(
-                                      //       AppRoutes.startSipScreen,
-                                      //       id: 1,
-                                      //       arguments: {'isLumpsum': false},
-                                      //     );
-                                      //   },
-                                      // ),
                                       _buildInvestSubItem(
                                         controller,
                                         "Start SIP",
@@ -2029,21 +2153,7 @@ class _DesktopSideNav extends StatelessWidget {
                                           );
                                         },
                                       ),
-                                      // _buildInvestSubItem(
-                                      //   controller,
-                                      //   "Start Lumpsum",
-                                      //   () {
-                                      //     Get.delete<SipProcessController>();
-                                      //     SipProcessController.navIsLumpsum =
-                                      //         true;
 
-                                      //     Get.toNamed(
-                                      //       AppRoutes.startSipScreen,
-                                      //       id: 1,
-                                      //       arguments: {'isLumpsum': true},
-                                      //     );
-                                      //   },
-                                      // ),
                                       _buildInvestSubItem(
                                         controller,
                                         "Start Lumpsum",
@@ -2093,15 +2203,12 @@ class _DesktopSideNav extends StatelessWidget {
                                       _buildInvestSubItem(
                                         controller,
                                         "Gold Investment",
-                                        () =>
-                                            // controller
-                                            //     .navigateToExploreWithFilter(null),
-                                            controller
-                                                .navigateToExploreWithFilter(
-                                                  () => fundhouseController
-                                                      .applyGoldFilter(),
-                                                  filter: 'gold-investment',
-                                                ),
+                                        () => controller
+                                            .navigateToExploreWithFilter(
+                                              () => fundhouseController
+                                                  .applyGoldFilter(),
+                                              filter: 'gold-investment',
+                                            ),
                                       ),
                                       _buildInvestSubItem(
                                         controller,
@@ -2109,10 +2216,6 @@ class _DesktopSideNav extends StatelessWidget {
                                         () => controller.openWebRoute(
                                           AppRoutes.nfolist,
                                         ),
-                                        //  Get.toNamed(
-                                        //   AppRoutes.nfolist,
-                                        //   id: 1,
-                                        // ),
                                       ),
                                     ],
                                   ),
@@ -2123,66 +2226,6 @@ class _DesktopSideNav extends StatelessWidget {
                         );
                       }),
 
-                      // const SizedBox(height: 18),
-
-                      // if (showText) _buildSectionTitle("SETTINGS"),
-
-                      /// PROFILE
-                      // Obx(() {
-                      //   final isExpanded = controller.isProfileExpanded.value;
-
-                      //   return Column(
-                      //     children: [
-                      //       _DesktopNavItem(
-                      //         icon: Iconsax.user4,
-                      //         label: 'Profile',
-                      //         isSelected: false,
-                      //         isDesktop: showText,
-                      //         fontSize: navFontSize,
-                      //         iconSize: iconSize,
-                      //         horizontalPadding: horizontalPadding,
-                      //         trailing: showText
-                      //             ? Icon(
-                      //                 isExpanded
-                      //                     ? Icons.keyboard_arrow_up
-                      //                     : Icons.keyboard_arrow_down,
-                      //                 size: 18,
-                      //                 color: Colors.grey.shade600,
-                      //               )
-                      //             : null,
-                      //         onTap: () {
-                      //           controller.changePage(4, isDesktop: showText);
-                      //         },
-                      //       ),
-
-                      //       if (showText)
-                      //         AnimatedCrossFade(
-                      //           duration: const Duration(milliseconds: 250),
-                      //           crossFadeState: isExpanded
-                      //               ? CrossFadeState.showFirst
-                      //               : CrossFadeState.showSecond,
-                      //           firstChild: Column(
-                      //             children: [
-                      //               _buildSubItem(controller, 41, "KYC Details"),
-                      //               _buildSubItem(
-                      //                 controller,
-                      //                 42,
-                      //                 "Personal Details",
-                      //               ),
-                      //               _buildSubItem(controller, 43, "Bank Account"),
-                      //               _buildSubItem(
-                      //                 controller,
-                      //                 44,
-                      //                 "Nominee Details",
-                      //               ),
-                      //               _buildSubItem(controller, 45, "Documents"),
-                      //             ],
-                      //           ),
-                      //           secondChild: const SizedBox.shrink(),
-                      //         ),
-                      //     ],
-                      //   );
-                      // }),
                       if (showText) _buildSectionTitle("ACCOUNTS"),
                       Obx(() {
                         return _DesktopNavItem(
@@ -2222,32 +2265,7 @@ class _DesktopSideNav extends StatelessWidget {
                           horizontalPadding,
                         ),
                       ),
-                      // Obx(
-                      //   () => _buildNavItem(
-                      //     controller,
-                      //     8,
-                      //     Icons.autorenew,
-                      //     'Manage SWP',
-                      //     showText,
-                      //     navFontSize,
-                      //     iconSize,
-                      //     horizontalPadding,
-                      //   ),
-                      // ),
-                      // Obx(
-                      //   () => _buildNavItem(
-                      //     controller,
-                      //     9,
-                      //     Icons.info_outline,
-                      //     'All Orders',
-                      //     showText,
-                      //     navFontSize,
-                      //     iconSize,
-                      //     horizontalPadding,
-                      //   ),
-                      // ),
 
-                      // const SizedBox(height: 18),
                       if (showText) _buildSectionTitle("REPORTS"),
                       Obx(
                         () => _buildNavItem(
@@ -2339,38 +2357,6 @@ class _DesktopSideNav extends StatelessWidget {
     );
   }
 
-  // Widget _buildInvestSubItem(
-  //   NavigationBarController controller,
-  //   String label,
-  //   VoidCallback onTap,
-  // ) {
-  //   return InkWell(
-  //     onTap: () {
-  //       controller.customHeaderTitle.value = label;
-  //       controller.selectedIndex.value = 11;
-
-  //       controller.isInvestExpanded.value = true;
-  //       controller.isProfileExpanded.value = false;
-  //       onTap();
-  //     },
-  //     borderRadius: BorderRadius.circular(10),
-  //     child: Container(
-  //       width: double.infinity,
-  //       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-  //       child: Text(
-  //         label,
-  //         style: TextStyle(
-  //           fontSize: 13,
-  //           fontFamily: FontFamily.medium,
-  //           fontWeight: FontWeight.w400,
-  //           color: Colors.grey.shade700,
-  //           height: 1.35,
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 16, bottom: 10, top: 8),
@@ -2389,25 +2375,6 @@ class _DesktopSideNav extends StatelessWidget {
       ),
     );
   }
-
-  // Widget _buildSectionTitle(String title) {
-  //   return Padding(
-  //     padding: const EdgeInsets.only(left: 14, bottom: 10, top: 4),
-  //     child: Align(
-  //       alignment: Alignment.centerLeft,
-  //       child: Text(
-  //         title,
-  //         style: TextStyle(
-  //           fontSize: 11,
-  //           fontFamily: FontFamily.medium,
-  //           fontWeight: FontWeight.bold,
-  //           color: Colors.grey.shade500,
-  //           letterSpacing: 0.5,
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 
   Widget _buildNavItem(
     NavigationBarController controller,
@@ -2561,105 +2528,6 @@ class _DesktopNavItem extends StatelessWidget {
   }
 }
 
-// class _DesktopNavItem extends StatelessWidget {
-//   final IconData icon;
-//   final String label;
-//   final bool isSelected;
-//   final bool isDesktop;
-//   final VoidCallback onTap;
-//   final Widget? trailing;
-
-//   final double fontSize;
-//   final double iconSize;
-//   final double horizontalPadding;
-
-//   const _DesktopNavItem({
-//     required this.icon,
-//     required this.label,
-//     required this.isSelected,
-//     required this.isDesktop,
-//     required this.onTap,
-//     required this.fontSize,
-//     required this.iconSize,
-//     required this.horizontalPadding,
-//     this.trailing,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.symmetric(vertical: 0),
-
-//       child: Material(
-//         color: Colors.transparent,
-
-//         child: InkWell(
-//           onTap: onTap,
-
-//           borderRadius: BorderRadius.circular(14),
-
-//           child: AnimatedContainer(
-//             duration: const Duration(milliseconds: 220),
-
-//             padding: EdgeInsets.symmetric(
-//               vertical: 11,
-//               horizontal: horizontalPadding,
-//             ),
-
-//             decoration: BoxDecoration(
-//               color: isSelected
-//                   ? Ucolors.blue.withValues(alpha: 0.04)
-//                   : Colors.transparent,
-
-//               borderRadius: BorderRadius.circular(14),
-
-//               // border: Border.all(
-//               //   color: isSelected
-//               //       ? Ucolors.blue.withValues(alpha: 0.18)
-//               //       : Colors.transparent,
-//               // ),
-//             ),
-//             child: Row(
-//               children: [
-//                 Icon(
-//                   icon,
-//                   size: iconSize,
-//                   color: isSelected ? Ucolors.primary : Colors.grey.shade700,
-//                 ),
-
-//                 if (isDesktop) ...[
-//                   const SizedBox(width: 14),
-
-//                   Expanded(
-//                     child: Text(
-//                       label,
-
-//                       overflow: TextOverflow.ellipsis,
-
-//                       style: TextStyle(
-//                         fontSize: fontSize,
-//                         fontFamily: FontFamily.medium,
-//                         fontWeight: isSelected
-//                             ? FontWeight.w600
-//                             : FontWeight.w500,
-//                         color: isSelected
-//                             ? Ucolors.primary
-//                             : Colors.grey.shade800,
-//                       ),
-//                     ),
-//                   ),
-
-//                   if (trailing != null) trailing!,
-//                 ],
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 // 4. MOBILE BOTTOM NAV
 class _MobileBottomNavBar extends StatelessWidget {
   const _MobileBottomNavBar();
@@ -2672,32 +2540,6 @@ class _MobileBottomNavBar extends StatelessWidget {
         /// Footer
         CustomFooter(),
 
-        // Container(
-        //   width: double.infinity,
-        //   padding: const EdgeInsets.symmetric(vertical: 8),
-        //   alignment: Alignment.center,
-        //   color: Ucolors.light,
-        //   child: Column(
-        //     children: [
-        //       Text(
-        //         "AMFI registered mutual fund distributor",
-        //         style: TextStyle(
-        //           fontSize: 12,
-        //           color: Colors.grey.shade700,
-        //           fontWeight: FontWeight.w500,
-        //         ),
-        //       ),
-        //       Text(
-        //         "ARN : 104807 || Kriti Hinger",
-        //         style: TextStyle(
-        //           fontSize: 12,
-        //           color: Colors.grey.shade700,
-        //           fontWeight: FontWeight.w500,
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // ),
         SafeArea(
           top: false,
           bottom: true,
