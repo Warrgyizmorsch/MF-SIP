@@ -1,9 +1,13 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/features/dashboard/presentation/controllers/dashboard_controller.dart';
+import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
+import 'package:my_sip/features/mfu/presentation/pages/redeem_page.dart';
 
 class WebPortfolioScreen extends StatelessWidget {
   const WebPortfolioScreen({super.key});
@@ -34,7 +38,6 @@ class WebPortfolioScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              
               const SizedBox(height: 24),
 
               Container(
@@ -355,8 +358,6 @@ class _HeroMetric extends StatelessWidget {
   }
 }
 
-
-
 class _HeroCountMetric extends StatelessWidget {
   final String title;
   final String value;
@@ -421,6 +422,7 @@ class _PortfolioTableHeader extends StatelessWidget {
             child: _HeaderText('Current Value', alignRight: true),
           ),
           Expanded(flex: 2, child: _HeaderText('Gain/Loss', alignRight: true)),
+          Expanded(flex: 1, child: _HeaderText('Action', alignRight: true)),
         ],
       ),
     );
@@ -544,6 +546,89 @@ class _PortfolioTableRow extends StatelessWidget {
               isProfit: isOverallProfit,
               isVisible: isVisible,
               alignRight: true,
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Align(
+              alignment: AlignmentGeometry.centerRight,
+              child: PopupMenuButton<PortfolioMenuAction>(
+                color: Ucolors.light,
+                icon: const Icon(Icons.more_vert, color: Colors.grey),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                offset: const Offset(0, 40),
+                onSelected: (value) {
+                  switch (value) {
+                    case PortfolioMenuAction.topUp:
+                      log('top up');
+                      break;
+                    case PortfolioMenuAction.modify:
+                      log('modify');
+                      break;
+                    case PortfolioMenuAction.pause:
+                      log('pause');
+                      break;
+                    case PortfolioMenuAction.cancel:
+                      log('cancel');
+                      break;
+                    case PortfolioMenuAction.redemption:
+                      // Get.to(
+                      //   () => RedeemPage(),
+                      //   arguments: RedeemArgs(
+                      //     schemeCode: fund.schemeCode.toString(),
+                      //     schemeName: fund.fundName,
+                      //     folioNumber: '123456',
+                      //     folioType: 'Individual',
+                      //     totalUnits: 0.0,
+                      //     totalValue: 0,
+                      //     lockedUnits: 0.0,
+                      //     lockedValue: 0,
+                      //     freeUnits: 0.0,
+                      //     freeValue: 0,
+                      //     investedAmt: fund.investedAmount,
+                      //   ),
+                      // );
+                      break;
+                    case PortfolioMenuAction.switchgoal:
+                      log('switch goal');
+                      break;
+                  }
+                },
+                itemBuilder: (context) => [
+                  buildMenuItem(
+                    icon: Iconsax.card_send,
+                    text: 'Top Up',
+                    value: PortfolioMenuAction.topUp,
+                  ),
+                  buildMenuItem(
+                    icon: Iconsax.edit_2,
+                    text: 'Modify',
+                    value: PortfolioMenuAction.modify,
+                  ),
+                  buildMenuItem(
+                    icon: Iconsax.pause,
+                    text: 'Pause',
+                    value: PortfolioMenuAction.pause,
+                  ),
+                  buildMenuItem(
+                    icon: Iconsax.trash,
+                    text: 'Cancel',
+                    value: PortfolioMenuAction.cancel,
+                  ),
+                  buildMenuItem(
+                    icon: Iconsax.receipt,
+                    text: 'Redemption',
+                    value: PortfolioMenuAction.redemption,
+                  ),
+                  buildMenuItem(
+                    icon: Icons.arrow_outward,
+                    text: 'Add to Goal',
+                    value: PortfolioMenuAction.switchgoal,
+                  ),
+                ],
+              ),
             ),
           ),
         ],

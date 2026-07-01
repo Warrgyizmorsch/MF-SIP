@@ -1123,46 +1123,7 @@ class WebFundListCard extends StatelessWidget {
     );
   }
 
-  // Widget _actions(
-  //   MutualFundListEntity entity,
-  //   RxBool isPressed, {
-  //   required double actionSize,
-  //   required double investWidth,
-  //   required double investHeight,
-  //   required bool isLaptop,
-  //   required bool isSmallLaptop,
-  // }) {
-  //   return SizedBox(
-  //     width: isLaptop ? 230 : 270,
-  //     child: Row(
-  //       mainAxisAlignment: MainAxisAlignment.end,
-  //       children: [
-  //         _wishlistButton(size: actionSize),
-
-  //         SizedBox(width: isLaptop ? 8 : 12),
-
-  //         _cartButton(entity, isPressed, size: actionSize),
-
-  //         SizedBox(width: isLaptop ? 10 : 16),
-
-  //         Column(
-  //           mainAxisAlignment: MainAxisAlignment.center,
-  //           crossAxisAlignment: CrossAxisAlignment.end,
-  //           children: [
-  //             _investNowButton(
-  //               entity,
-  //               width: investWidth,
-  //               height: investHeight,
-  //               isLaptop: isLaptop,
-  //             ),
-  //             const SizedBox(height: 5),
-  //             if (!isSmallLaptop) _viewDetailsButton(isLaptop: isLaptop),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
+  
 
   Widget _wishlistButton({required double size}) {
     return Obx(() {
