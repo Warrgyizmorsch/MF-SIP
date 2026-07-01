@@ -1,722 +1,7 @@
-// // import 'dart:developer';
+// ignore_for_file: dead_code, dead_null_aware_expression
 
-// // import 'package:get/get.dart';
-// // import 'package:my_sip/features/explore/domain/entities/categories_filter_entity.dart';
-// // import 'package:my_sip/features/explore/domain/entities/fund_house_entity.dart';
-// // import 'package:my_sip/features/explore/domain/usecases/get_categories_filter_usecases.dart';
-// // import 'package:my_sip/features/explore/domain/usecases/get_fundhouse_usecase.dart';
-// // import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
-
-// // class FundhouseController extends GetxController {
-// //   final GetFundhouseUsecase _getFundhouseUsecase;
-// //   final GetCategoriesFilterUsecases getCategoriesFilterUsecases;
-
-// //   FundhouseController(
-// //     this._getFundhouseUsecase,
-// //     this.getCategoriesFilterUsecases,
-// //   );
-
-// //   final MutualFundController mutualFundController = Get.find();
-
-// //   // -------------- Filter ------------------//
-
-// //   //sort by
-// //   final sortBy = 'popularity'.obs;
-
-// //   //scheme type -- categories
-// //   final selectedSchemeTyep = <String>{}.obs;
-
-// //   //Fund house selecetion based on amc_id
-// //   final selectedAmcIds = <int>{}.obs;
-
-// //   // Risk
-// //   final selectedRisk = <String>{}.obs;
-
-// //   //Rating
-// //   // final selectedRating = <int>{}.obs;
-// //   final selectedRating = RxnInt();
-
-// //   //index fund o nlye
-// //   final indexFundOnly = false.obs;
-
-// //   // TOTAL COUNT
-// //   final selectedFundCount = 0.obs;
-
-// //   // -----------------------------------------//
-
-// //   RxBool isLoading = false.obs;
-// //   RxString errorMessage = ''.obs;
-// //   final fundlist = <FundHouseItemEntity>[].obs;
-// //   final filteredFundlist = <FundHouseItemEntity>[].obs;
-// //   final categoryList = <FundCategoryEntity>[].obs;
-// //   RxString searchQuery = ''.obs;
-
-// //   //Fund house amcName
-// //   final selectAmcname = <String>{}.obs;
-
-// //   //-----Build Param -----------//
-// //   Map<String, dynamic> buildParam() {
-// //     final params = <String, dynamic>{};
-
-// //     // params['sort_by'] = sortBy.value;
-
-// //     if (selectedSchemeTyep.isNotEmpty) {
-// //       params['scheme_category'] = selectedSchemeTyep.join(',');
-// //     }
-
-// //     if (selectedAmcIds.isNotEmpty) {
-// //       params['amc_id'] = selectedAmcIds.join(',');
-// //     }
-
-// //     if (selectedRisk.isNotEmpty) {
-// //       params['risk_level'] = selectedRisk.join(',');
-// //     }
-
-// //     if (selectedRating.value != null) {
-// //       params['rating'] = selectedRating.value;
-// //     }
-
-// //     if (indexFundOnly.value) {
-// //       // params['index_only'] = true;
-// //       params['search'] = 'index';
-// //     }
-
-// //     return params;
-// //   }
-
-// //   // Toggle Index Fund Only
-// //   void toggleIndexFund(bool value) {
-// //     indexFundOnly.value = value;
-
-// //     // Optional: If 'Index Fund' should clear other filters, un-comment below
-// //     // if (value) {
-// //     //   selectedSchemeTyep.clear();
-// //     //   selectedAmcIds.clear();
-// //     //   selectedRisk.clear();
-// //     // }
-
-// //     fetchCount(); // Refreshes the "View All" count
-// //   }
-
-// //   // ---------- COUNT API ----------
-
-// //   Future<void> fetchCount() async {
-// //     final result = await Get.find<MutualFundController>().fetchFundCount(
-// //       buildParam(),
-// //     );
-
-// //     selectedFundCount.value = result;
-// //   }
-
-// //   @override
-// //   void onInit() {
-// //     super.onInit();
-// //     fetchFundHouse();
-// //     fetchCategoryList();
-// //   }
-
-// //   //fetch fund house
-// //   Future<void> fetchFundHouse() async {
-// //     log("CONTROLLER: Successfully assigned ${fundlist.length} banks");
-
-// //     try {
-// //       isLoading(true);
-// //       errorMessage('');
-// //       final result = await _getFundhouseUsecase.call({});
-
-// //       result.fold(
-// //         (success) {
-// //           if (success.data != null) {
-// //             fundlist.assignAll(success.data!.data);
-// //             filteredFundlist.assignAll(fundlist);
-// //             log("CONTROLLER: Successfully assigned ${fundlist.length} banks");
-// //           }
-// //         },
-// //         (error) {
-// //           errorMessage.value = error.message ?? "Failed to load banks";
-// //           print("CONTROLLER ERROR: ${errorMessage.value}");
-// //         },
-// //       );
-// //     } catch (e) {
-// //       errorMessage.value = "An unexpected error occurred: $e";
-// //       print("CONTROLLER ERROR: ${errorMessage.value}");
-// //     } finally {
-// //       isLoading(false);
-// //     }
-// //   }
-
-// //   // fetch category list
-// //   Future<void> fetchCategoryList() async {
-// //     log("CONTROLLER: Successfully assigned ${categoryList.length} category");
-
-// //     try {
-// //       isLoading(true);
-// //       errorMessage('');
-// //       final result = await getCategoriesFilterUsecases.call({});
-
-// //       result.fold(
-// //         (success) {
-// //           if (success.data != null) {
-// //             categoryList.assignAll([success.data!]);
-// //             log(
-// //               "CONTROLLER: Successfully assigned ${categoryList.length} category",
-// //             );
-// //           }
-// //         },
-// //         (error) {
-// //           errorMessage.value = error.message ?? "Failed to load category";
-// //           print("CONTROLLER ERROR: ${errorMessage.value}");
-// //         },
-// //       );
-// //     } catch (e) {
-// //       errorMessage.value = "An unexpected error occurred: $e";
-// //       print("CONTROLLER ERROR: ${errorMessage.value}");
-// //     } finally {
-// //       isLoading(false);
-// //     }
-// //   }
-
-// //   void searchFundHouse(String query) {
-// //     searchQuery.value = query; // optional - for UI feedback
-
-// //     if (query.isEmpty) {
-// //       filteredFundlist.assignAll(fundlist);
-// //       return;
-// //     }
-
-// //     final lowercaseQuery = query.toLowerCase().trim();
-
-// //     filteredFundlist.assignAll(
-// //       fundlist.where((fund) {
-// //         return (fund.amcName?.toLowerCase().contains(lowercaseQuery) ??
-// //                 false) ||
-// //             (fund.amcCode?.toLowerCase().contains(lowercaseQuery) ?? false);
-// //         // Add more fields if needed:
-// //         // || (fund.amfiCode?.toLowerCase().contains(lowercaseQuery) ?? false)
-// //       }).toList(),
-// //     );
-// //   }
-
-// //   //amc toggle
-// //   void toggleSelection(int? amcId) {
-// //     if (amcId == null) return;
-
-// //     if (selectedAmcIds.contains(amcId)) {
-// //       selectedAmcIds.remove(amcId);
-// //     } else {
-// //       selectedAmcIds.add(amcId);
-// //     }
-// //     fetchCount();
-// //   }
-
-// //   //fund house categories selecetion
-// //   void toggleSchemeType(String? schemetype) {
-// //     if (schemetype == null) return;
-// //     if (selectedSchemeTyep.contains(schemetype)) {
-// //       selectedSchemeTyep.remove(schemetype);
-// //     } else {
-// //       selectedSchemeTyep.add(schemetype);
-// //     }
-// //     fetchCount();
-// //   }
-
-// //   //risk toggle
-// //   void toggleRisk(String risk) {
-// //     final key = risk.toLowerCase().replaceAll(' ', '_');
-
-// //     selectedRisk.contains(key)
-// //         ? selectedRisk.remove(key)
-// //         : selectedRisk.add(key);
-// //     fetchCount();
-// //   }
-
-// //   //rating toggle
-// //   void toggleRating(int rating) {
-// //     // if (selectedRating.value == rating) {
-// //     //   selectedRating.value = null;
-// //     // } else {
-// //     //   selectedRating.value = rating;
-// //     // }
-
-// //     selectedRating.value == rating
-// //         ? selectedRating.value = null
-// //         : selectedRating.value = rating;
-// //   }
-
-// //   // Inside FundhouseController
-
-// //   // 1. Toggle the Main Category (e.g., "Equity")
-// //   void toggleCategoryGroup(
-// //     String groupName,
-// //     List<String> groupItems,
-// //     bool? isSelected,
-// //   ) {
-// //     if (isSelected == true) {
-// //       // Logic: If selecting the Group, remove all individual sub-items
-// //       // (because "Equity" covers them all) and add just "Equity"
-// //       selectedSchemeTyep.removeAll(groupItems);
-// //       selectedSchemeTyep.add(groupName);
-// //     } else {
-// //       // Logic: If unselecting Group, just remove "Equity"
-// //       selectedSchemeTyep.remove(groupName);
-// //     }
-// //     fetchCount();
-// //   }
-
-// //   // 2. Toggle a Sub Category (e.g., "Equity: Large Cap")
-// //   void toggleSubCategory(
-// //     String subItem,
-// //     String groupName,
-// //     List<String> allGroupItems,
-// //   ) {
-// //     if (selectedSchemeTyep.contains(groupName)) {
-// //       selectedSchemeTyep.remove(groupName);
-// //       selectedSchemeTyep.addAll(allGroupItems);
-// //       selectedSchemeTyep.remove(subItem); // Remove the one we clicked
-// //     } else {
-// //       if (selectedSchemeTyep.contains(subItem)) {
-// //         selectedSchemeTyep.remove(subItem);
-// //       } else {
-// //         selectedSchemeTyep.add(subItem);
-// //       }
-// //     }
-
-// //     // Optional: If all items are now selected individually, convert them back to the Group?
-// //     // Use this if you want auto-grouping:
-// //     /*
-// //     final isAllSelected = allGroupItems.every((item) => selectedSchemeTyep.contains(item));
-// //     if (isAllSelected) {
-// //       selectedSchemeTyep.removeAll(allGroupItems);
-// //       selectedSchemeTyep.add(groupName);
-// //     }
-// //     */
-
-// //     fetchCount();
-// //   }
-// // }
-
-// import 'dart:developer';
-
-// import 'package:get/get.dart';
-// import 'package:my_sip/core/utils/helper/helpers.dart';
-// import 'package:my_sip/features/explore/domain/entities/categories_filter_entity.dart';
-// import 'package:my_sip/features/explore/domain/entities/fund_house_entity.dart';
-// import 'package:my_sip/features/explore/domain/usecases/get_categories_filter_usecases.dart';
-// import 'package:my_sip/features/explore/domain/usecases/get_fundhouse_usecase.dart';
-// import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
-
-// class FundhouseController extends GetxController {
-//   final GetFundhouseUsecase _getFundhouseUsecase;
-//   final GetCategoriesFilterUsecases getCategoriesFilterUsecases;
-
-//   FundhouseController(
-//     this._getFundhouseUsecase,
-//     this.getCategoriesFilterUsecases,
-//   );
-
-//   final MutualFundController mutualFundController = Get.find();
-
-//   // -------------- Filter ------------------//
-
-//   // sort by
-//   final sortBy = 'popularity'.obs;
-
-//   // scheme type -- categories (Single selection)
-//   final selectedSchemeType = RxnString();
-
-//   // Fund house selection based on amc_id (Single selection)
-//   final selectedAmcId = RxnInt();
-
-//   // Risk (Single selection)
-//   final selectedRisk = RxnString();
-
-//   // Rating (Already single selection)
-//   final selectedRating = RxnInt();
-
-//   // index fund only
-//   final indexFundOnly = false.obs;
-
-//   // TOTAL COUNT
-//   final selectedFundCount = 0.obs;
-
-//   final customGlobalSearch = RxnString();
-//   final bestSipValue = RxnInt();
-//   final commodityFilter = false.obs;
-//   final highReturnFilter = false.obs;
-//   // -----------------------------------------//
-
-//   RxBool isLoading = false.obs;
-//   RxString errorMessage = ''.obs;
-//   final fundlist = <FundHouseItemEntity>[].obs;
-//   final filteredFundlist = <FundHouseItemEntity>[].obs;
-//   final categoryList = <FundCategoryEntity>[].obs;
-//   RxString searchQuery = ''.obs;
-
-//   // Fund house amcName (Single selection)
-//   final selectAmcname = RxnString();
-
-//   //-----Build Param -----------//
-//   Map<String, dynamic> buildParam() {
-//     final params = <String, dynamic>{};
-
-//     // params['sort_by'] = sortBy.value;
-
-//     if (selectedSchemeType.value != null) {
-//       params['scheme_category'] = selectedSchemeType.value;
-//     }
-
-//     if (selectedAmcId.value != null) {
-//       params['amc_id'] = selectedAmcId.value;
-//     }
-
-//     if (selectedRisk.value != null) {
-//       params['risk_level'] = selectedRisk.value;
-//     }
-
-//     if (selectedRating.value != null) {
-//       params['rating'] = selectedRating.value;
-//     }
-
-//     if (indexFundOnly.value) {
-//       params['search'] = 'index';
-//     } else if (customGlobalSearch.value != null) {
-//       params['search'] = customGlobalSearch.value;
-//     }
-
-//     if (bestSipValue.value != null) {
-//       params['best_sip'] = bestSipValue.value;
-//     }
-
-//     if (commodityFilter.value) {
-//       params['asset_class'] = 'commodity';
-//     }
-
-//     return params;
-//   }
-
-//   void applyCustomSearch(String query) {
-//     _clearOtherFilters();
-//     customGlobalSearch.value = query;
-
-//     fetchCount();
-
-//     Get.find<MutualFundController>().applyFilters(buildParam());
-//   }
-
-//   void applyBestSipFilter(int value) {
-//     _clearOtherFilters();
-//     bestSipValue.value = value;
-
-//     fetchCount();
-//     Get.find<MutualFundController>().applyFilters(buildParam());
-//   }
-
-//   void applyCommodityFilter() {
-//     _clearOtherFilters();
-
-//     commodityFilter.value = true;
-//     final params = buildParam();
-//     createLog("Applying Commodity Filter with params: $params");
-
-//     fetchCount();
-//     Get.find<MutualFundController>().applyFilters(params);
-//   }
-
-//   void applyHighReturnFilter() {
-//     _clearOtherFilters();
-//     highReturnFilter.value = true;
-
-//     final params = buildParam();
-//     params['sort_order'] = 'desc';
-//     params['return_year'] = 1;
-
-//     fetchCount();
-
-//     // Send to MutualFundController to update the actual list
-//     Get.find<MutualFundController>().applyFilters(params);
-//   }
-
-//   // Toggle Index Fund Only
-//   // void toggleIndexFund(bool value) {
-//   //   indexFundOnly.value = value;
-//   //   fetchCount(); // Refreshes the "View All" count
-//   // }
-//   void toggleIndexFund(bool value) {
-//     _clearOtherFilters(); // Clear everything else
-//     indexFundOnly.value = value;
-//     fetchCount();
-//   }
-
-//   // ---------- COUNT API ----------
-
-//   Future<void> fetchCount() async {
-//     final result = await Get.find<MutualFundController>().fetchFundCount(
-//       buildParam(),
-//     );
-
-//     selectedFundCount.value = result;
-//   }
-
-//   @override
-//   void onInit() {
-//     super.onInit();
-//     fetchFundHouse();
-//     fetchCategoryList();
-//   }
-
-//   //fetch fund house
-//   Future<void> fetchFundHouse() async {
-//     log("CONTROLLER: Successfully assigned ${fundlist.length} banks");
-
-//     try {
-//       isLoading(true);
-//       errorMessage('');
-//       final result = await _getFundhouseUsecase.call({});
-
-//       result.fold(
-//         (success) {
-//           if (success.data != null) {
-//             fundlist.assignAll(success.data!.data);
-//             filteredFundlist.assignAll(fundlist);
-//             log("CONTROLLER: Successfully assigned ${fundlist.length} banks");
-//           }
-//         },
-//         (error) {
-//           errorMessage.value = error.message ?? "Failed to load banks";
-//           print("CONTROLLER ERROR: ${errorMessage.value}");
-//         },
-//       );
-//     } catch (e) {
-//       errorMessage.value = "An unexpected error occurred: $e";
-//       print("CONTROLLER ERROR: ${errorMessage.value}");
-//     } finally {
-//       isLoading(false);
-//     }
-//   }
-
-//   // fetch category list
-//   Future<void> fetchCategoryList() async {
-//     log("CONTROLLER: Successfully assigned ${categoryList.length} category");
-
-//     try {
-//       isLoading(true);
-//       errorMessage('');
-//       final result = await getCategoriesFilterUsecases.call({});
-
-//       result.fold(
-//         (success) {
-//           if (success.data != null) {
-//             categoryList.assignAll([success.data!]);
-//             log(
-//               "CONTROLLER: Successfully assigned ${categoryList.length} category",
-//             );
-//           }
-//         },
-//         (error) {
-//           errorMessage.value = error.message ?? "Failed to load category";
-//           print("CONTROLLER ERROR: ${errorMessage.value}");
-//         },
-//       );
-//     } catch (e) {
-//       errorMessage.value = "An unexpected error occurred: $e";
-//       print("CONTROLLER ERROR: ${errorMessage.value}");
-//     } finally {
-//       isLoading(false);
-//     }
-//   }
-
-//   void searchFundHouse(String query) {
-//     searchQuery.value = query; // optional - for UI feedback
-
-//     if (query.isEmpty) {
-//       filteredFundlist.assignAll(fundlist);
-//       return;
-//     }
-
-//     final lowercaseQuery = query.toLowerCase().trim();
-
-//     filteredFundlist.assignAll(
-//       fundlist.where((fund) {
-//         return (fund.amcName?.toLowerCase().contains(lowercaseQuery) ??
-//                 false) ||
-//             (fund.amcCode?.toLowerCase().contains(lowercaseQuery) ?? false);
-//       }).toList(),
-//     );
-//   }
-
-//   // amc toggle
-//   // void toggleSelection(int? amcId) {
-//   //   if (amcId == null) return;
-
-//   //   // If clicking the currently selected item, unselect it. Otherwise, select it.
-//   //   selectedAmcId.value == amcId
-//   //       ? selectedAmcId.value = null
-//   //       : selectedAmcId.value = amcId;
-
-//   //   fetchCount();
-//   // }
-//   // amc toggle
-//   void toggleSelection(int? amcId) {
-//     if (amcId == null) return;
-
-//     // Check if it's already selected before clearing
-//     bool isCurrentlySelected = selectedAmcId.value == amcId;
-
-//     _clearOtherFilters(); // Clear everything else
-
-//     // If it wasn't already selected, select it now
-//     if (!isCurrentlySelected) {
-//       selectedAmcId.value = amcId;
-//     }
-
-//     fetchCount();
-//   }
-
-//   // fund house categories selection
-//   void toggleSchemeType(String? schemetype) {
-//     if (schemetype == null) return;
-
-//     selectedSchemeType.value == schemetype
-//         ? selectedSchemeType.value = null
-//         : selectedSchemeType.value = schemetype;
-
-//     fetchCount();
-//   }
-
-//   // risk toggle
-//   // void toggleRisk(String risk) {
-//   //   final key = risk.toLowerCase().replaceAll(' ', '_');
-
-//   //   selectedRisk.value == key
-//   //       ? selectedRisk.value = null
-//   //       : selectedRisk.value = key;
-
-//   //   fetchCount();
-//   // }
-//   // risk toggle
-//   void toggleRisk(String risk) {
-//     // final key = risk.toLowerCase().replaceAll(' ', '_');
-//     final key = risk.toLowerCase();
-
-//     bool isCurrentlySelected = selectedRisk.value == key;
-
-//     _clearOtherFilters();
-
-//     if (!isCurrentlySelected) {
-//       selectedRisk.value = key;
-//     }
-
-//     fetchCount();
-//   }
-
-//   // rating toggle
-//   // void toggleRating(int rating) {
-//   //   selectedRating.value == rating
-//   //       ? selectedRating.value = null
-//   //       : selectedRating.value = rating;
-
-//   //   fetchCount();
-//   // }
-//   // rating toggle
-//   void toggleRating(int rating) {
-//     bool isCurrentlySelected = selectedRating.value == rating;
-
-//     _clearOtherFilters();
-
-//     if (!isCurrentlySelected) {
-//       selectedRating.value = rating;
-//     }
-
-//     fetchCount();
-//   }
-
-//   // Inside FundhouseController
-//   // Since only one item can be selected, we can simplify your Category/SubCategory logic drastically.
-
-//   // 1. Toggle the Main Category (e.g., "Equity")
-//   // void toggleCategoryGroup(String groupName) {
-//   //   selectedSchemeType.value == groupName
-//   //       ? selectedSchemeType.value = null
-//   //       : selectedSchemeType.value = groupName;
-
-//   //   fetchCount();
-//   // }
-//   void toggleCategoryGroup(String groupName) {
-//     bool isCurrentlySelected = selectedSchemeType.value == groupName;
-
-//     _clearOtherFilters();
-
-//     if (!isCurrentlySelected) {
-//       selectedSchemeType.value = groupName;
-//     }
-
-//     fetchCount();
-//   }
-
-//   // 2. Toggle a Sub Category (e.g., "Equity: Large Cap")
-//   // void toggleSubCategory(String subItem) {
-//   //    selectedSchemeType.value == subItem
-//   //       ? selectedSchemeType.value = null
-//   //       : selectedSchemeType.value = subItem;
-
-//   //   fetchCount();
-//   // }
-//   void toggleSubCategory(String subItem) {
-//     bool isCurrentlySelected = selectedSchemeType.value == subItem;
-
-//     _clearOtherFilters();
-
-//     if (!isCurrentlySelected) {
-//       selectedSchemeType.value = subItem;
-//     }
-
-//     fetchCount();
-//   }
-
-//   // Clear all filters
-//   // void clearAllFilters() {
-//   //   selectedSchemeType.value = null;
-//   //   selectedAmcId.value = null;
-//   //   selectedRisk.value = null;
-//   //   selectedRating.value = null;
-//   //   indexFundOnly.value = false;
-//   //   fetchCount();
-//   // }
-
-//   // --- Check if any filter is active ---
-//   bool get isFilterActive {
-//     return selectedSchemeType.value != null ||
-//         selectedAmcId.value != null ||
-//         selectedRisk.value != null ||
-//         selectedRating.value != null ||
-//         customGlobalSearch.value != null ||
-//         bestSipValue.value != null ||
-//         commodityFilter.value != false ||
-//         highReturnFilter.value != false ||
-//         indexFundOnly.value == true;
-//   }
-
-//   void _clearOtherFilters() {
-//     selectedSchemeType.value = null;
-//     selectedAmcId.value = null;
-//     selectedRisk.value = null;
-//     selectedRating.value = null;
-//     indexFundOnly.value = false;
-//     customGlobalSearch.value = null;
-//     bestSipValue.value = null;
-//     commodityFilter.value = false;
-//     highReturnFilter.value = false;
-//   }
-
-//   void clearAllFilters() {
-//     _clearOtherFilters();
-//     fetchCount();
-//   }
-// }
-
-import 'dart:developer';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/explore/domain/entities/categories_filter_entity.dart';
 import 'package:my_sip/features/explore/domain/entities/fund_house_entity.dart';
 import 'package:my_sip/features/explore/domain/usecases/get_categories_filter_usecases.dart';
@@ -731,6 +16,8 @@ class FundhouseController extends GetxController {
     this._getFundhouseUsecase,
     this.getCategoriesFilterUsecases,
   );
+
+  final mutualController = Get.find<MutualFundController>();
 
   // -------------- Multi-Select Filter State ------------------//
   final sortBy = 'All Fund'.obs;
@@ -754,6 +41,12 @@ class FundhouseController extends GetxController {
   final categoryList = <FundCategoryEntity>[].obs;
   RxString searchQuery = ''.obs;
 
+  final returnRange = const RangeValues(0, 100).obs;
+  final isReturnRangeActive = false.obs;
+  final selectedReturnFilterYear = 1.obs;
+  final minReturnController = TextEditingController(text: '0');
+  final maxReturnController = TextEditingController(text: '100');
+
   @override
   void onInit() {
     super.onInit();
@@ -773,6 +66,7 @@ class FundhouseController extends GetxController {
     if (bestSipValue.value != null) count++;
     if (commodityFilter.value != false) count++;
     if (highReturnFilter.value != false) count++;
+    if (isReturnRangeActive.value) count++;
 
     return count;
   }
@@ -795,8 +89,9 @@ class FundhouseController extends GetxController {
 
     // 3. Standard filters
     if (selectedAmcIds.isNotEmpty) params['amc_id'] = selectedAmcIds.join(',');
-    if (selectedRisks.isNotEmpty)
+    if (selectedRisks.isNotEmpty) {
       params['risk_level'] = selectedRisks.join(',');
+    }
     if (selectedRating.value != null) params['rating'] = selectedRating.value;
 
     // 4. Search operates independently now
@@ -812,43 +107,99 @@ class FundhouseController extends GetxController {
     // 6. Sorting Logic
     final mutualController = Get.find<MutualFundController>();
 
+    params['sort_order'] = 'desc';
+
+    bool isSortActive = mutualController.currentSortLabel.value != "1Y,3Y,5Y";
+
+    final riskType = mutualController.dynamicRiskType;
+
+    // }
+    if (riskType != null && !isFilterActive && !isSortActive) {
+      params['risk_type'] = riskType;
+    }
+
     if (mutualController.currentSortLabel.value != "1Y,3Y,5Y") {
       params['sort_order'] = 'desc';
       params['return_year'] = mutualController.selectedReturnYear.value;
     }
 
+    if (isReturnRangeActive.value) {
+      params['return_min'] = returnRange.value.start.toInt();
+      params['return_max'] = returnRange.value.end.toInt();
+      params['return_year'] = selectedReturnFilterYear.value;
+    }
+
     return params;
   }
-  // Map<String, dynamic> buildParam() {
-  //   final params = <String, dynamic>{};
 
-  //   if (selectedSchemeTypes.isNotEmpty)
-  //     params['scheme_category'] = selectedSchemeTypes.join(',');
-  //   if (selectedAmcIds.isNotEmpty) params['amc_id'] = selectedAmcIds.join(',');
-  //   if (selectedRisks.isNotEmpty)
-  //     params['risk_level'] = selectedRisks.join(',');
-  //   if (selectedRating.value != null) params['rating'] = selectedRating.value;
+  void setFilterReturnYear(int year) {
+    selectedReturnFilterYear.value = year;
+    if (isReturnRangeActive.value) fetchCount();
+  }
 
-  //   if (indexFundOnly.value) {
-  //     params['scheme_category'] = 'Index Fund';
-  //   } else if (customGlobalSearch.value != null) {
-  //     params['search'] = customGlobalSearch.value;
-  //   }
+  void updateRangeFromSlider(RangeValues values) {
+    returnRange.value = values;
+    isReturnRangeActive.value = true;
+    // Sync text fields
+    minReturnController.text = values.start.round().toString();
+    maxReturnController.text = values.end.round().toString();
+    // fetchCount();
+  }
 
-  //   if (bestSipValue.value != null) params['best_sip'] = bestSipValue.value;
-  //   if (commodityFilter.value) params['asset_class'] = 'commodity';
+  // void updateRangeFromText() {
+  //   double min = double.tryParse(minReturnController.text) ?? 0;
+  //   double max = double.tryParse(maxReturnController.text) ?? 100;
 
-  //   // FIX: Access MutualFundController to check the current sort label
-  //   final mutualController = Get.find<MutualFundController>();
+  //   // Validation
+  //   if (min < 0) min = 0;
+  //   if (max > 100) max = 100;
+  //   if (min > max) min = max;
 
-  //   // Only add sorting parameters if the user has explicitly selected a year sort
-  //   if (mutualController.currentSortLabel.value != "1Y,3Y,5Y") {
-  //     params['sort_order'] = 'desc';
-  //     params['return_year'] = mutualController.selectedReturnYear.value;
-  //   }
+  //   returnRange.value = RangeValues(min, max);
+  //   isReturnRangeActive.value = true;
 
-  //   return params;
+  //   // Refresh text to show validated numbers
+  //   minReturnController.text = min.round().toString();
+  //   maxReturnController.text = max.round().toString();
+  //   fetchCount();
   // }
+  void updateSliderWithoutTextReset() {
+    double min = double.tryParse(minReturnController.text) ?? 0;
+    double max = double.tryParse(maxReturnController.text) ?? 100;
+
+    if (min < 0) min = 0;
+    if (max > 300) max = 300;
+
+    // Prevent the slider from crashing if user is halfway through typing (e.g., min is 50, but max is currently '2' as they try to type '200')
+    double sliderMin = min > max ? max : min;
+
+    returnRange.value = RangeValues(sliderMin, max);
+    isReturnRangeActive.value = true;
+    fetchCount();
+  }
+
+  void formatAndApplyText() {
+    double min = double.tryParse(minReturnController.text) ?? 0;
+    double max = double.tryParse(maxReturnController.text) ?? 100;
+
+    if (min < 0) min = 0;
+    if (max > 300) max = 300;
+    if (min > max) min = max;
+
+    returnRange.value = RangeValues(min, max);
+
+    // Clean up the text fields visually
+    minReturnController.text = min.round().toString();
+    maxReturnController.text = max.round().toString();
+
+    fetchCount();
+  }
+
+  void setReturnRange(RangeValues values) {
+    returnRange.value = values;
+    isReturnRangeActive.value = true;
+    fetchCount();
+  }
 
   // ---------- Multi-Select Toggle Methods ----------
 
@@ -914,6 +265,22 @@ class FundhouseController extends GetxController {
     Get.find<MutualFundController>().applyFreshFilter({'search': query});
   }
 
+  // ---------- Quick Collection: Gold Funds ----------
+  void applyGoldFilter() {
+    // 1. Clear all existing filters
+    _clearStatesOnly();
+
+    // 2. Update the UI state so this checkbox is ticked in the Filter Page
+    selectedSchemeTypes.add('Fund of Funds-Domestic-Gold');
+
+    fetchCount();
+
+    // 3. Send the exact string to the master list controller
+    mutualController.applyFreshFilter({
+      'scheme_category': 'Fund of Funds-Domestic-Gold',
+    });
+  }
+
   void applyBestSipFilter(int value) {
     _clearStatesOnly();
     bestSipValue.value = value;
@@ -954,6 +321,27 @@ class FundhouseController extends GetxController {
     Get.find<MutualFundController>().applyFreshFilter({
       'sort_order': 'desc',
       'return_year': 1,
+    });
+  }
+
+  // ---------- Quick Collection: International Funds ----------
+  Future<void> applyInternationalFilter() async {
+    // 1. Clear all existing filters
+    _clearStatesOnly();
+
+    // 2. Update the UI state so these checkboxes are ticked if the user opens the Filter Page
+    selectedSchemeTypes.addAll([
+      'Equity: Thematic-International',
+      'Fund of Funds-Overseas',
+    ]);
+
+    await fetchCount();
+
+    // 3. Send the exact string to the master list controller
+    // (Your HTTP client like Dio or http will automatically URL-encode the colons, spaces, and commas into %3A, +, and %2C)
+    await mutualController.applyFreshFilter({
+      'scheme_category':
+          'Equity: Thematic-International,Fund of Funds-Overseas',
     });
   }
 
@@ -1022,7 +410,8 @@ class FundhouseController extends GetxController {
       bestSipValue.value != null ||
       commodityFilter.value ||
       highReturnFilter.value ||
-      indexFundOnly.value;
+      indexFundOnly.value ||
+      isReturnRangeActive.value;
 
   void _clearStatesOnly() {
     selectedSchemeTypes.clear();
@@ -1035,6 +424,10 @@ class FundhouseController extends GetxController {
     bestSipValue.value = null;
     commodityFilter.value = false;
     highReturnFilter.value = false;
+    returnRange.value = const RangeValues(0, 100);
+    isReturnRangeActive.value = false;
+    minReturnController.text = '0';
+    maxReturnController.text = '100';
   }
 
   void resetUiStatesOnly() {

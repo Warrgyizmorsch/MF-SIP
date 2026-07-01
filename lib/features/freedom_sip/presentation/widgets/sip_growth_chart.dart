@@ -1,6 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/utils/constant/text_style.dart';
+
 class SipGrowthChart extends StatefulWidget {
   const SipGrowthChart({super.key});
 
@@ -126,7 +128,7 @@ class _SipGrowthChartState extends State<SipGrowthChart> {
                     final isInvested = barSpot.barIndex == 0;
                     return LineTooltipItem(
                       '${isInvested ? "Invested" : "Value"}: ${barSpot.y}L\n',
-                      TextStyle(
+                      TextStyle(fontFamily: FontFamily.medium,
                         color: isInvested ? Colors.grey[300] : Colors.greenAccent,
                         fontWeight: FontWeight.bold,
                       ),
@@ -142,7 +144,7 @@ class _SipGrowthChartState extends State<SipGrowthChart> {
   }
 
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(
+    const style = TextStyle(fontFamily: FontFamily.medium,
       fontWeight: FontWeight.bold,
       fontSize: 12,
       color: Colors.grey,
@@ -154,7 +156,7 @@ class _SipGrowthChartState extends State<SipGrowthChart> {
   }
 
   Widget leftTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(
+    const style = TextStyle(fontFamily: FontFamily.medium,
       fontWeight: FontWeight.bold,
       fontSize: 12,
       color: Colors.grey,

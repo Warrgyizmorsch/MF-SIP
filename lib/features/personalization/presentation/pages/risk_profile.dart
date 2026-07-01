@@ -6,7 +6,7 @@ import 'package:my_sip/features/personalization/domain/usecases/personalisation_
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 
-import '../../domain/entity/risk_entity.dart';
+import '../../../../core/utils/constant/text_style.dart';
 
 class RiskProfile extends GetView<PersonalisationController> {
   const RiskProfile({super.key});
@@ -62,7 +62,7 @@ class RiskProfile extends GetView<PersonalisationController> {
                     Obx(
                       () => Text(
                         "Question ${controller.currentQuestionIndex.value + 1}",
-                        style: const TextStyle(
+                        style: const TextStyle(fontFamily: FontFamily.medium,
                           fontSize: 22,
                           fontWeight: FontWeight.w800,
                           color: Ucolors.blue,
@@ -73,7 +73,7 @@ class RiskProfile extends GetView<PersonalisationController> {
                     const SizedBox(width: 4),
                     Text(
                       "/${controller.riskQuestions.length}",
-                      style: TextStyle(
+                      style: TextStyle(fontFamily: FontFamily.medium,
                         fontSize: 16,
                         color: Colors.grey[400],
                         fontWeight: FontWeight.w600,
@@ -100,7 +100,7 @@ class RiskProfile extends GetView<PersonalisationController> {
 
               InkWell(
                 onTap: () => controller.previousPage(),
-                child: const Text('Back', style: TextStyle(color: Colors.blue)),
+                child: const Text('Back', style: TextStyle(fontFamily: FontFamily.medium,color: Colors.blue)),
               ),
 
               // --- Footer: Trust Badge ---
@@ -116,7 +116,7 @@ class RiskProfile extends GetView<PersonalisationController> {
     return AppBar(
       title: const Text(
         'Risk Assessment',
-        style: TextStyle(
+        style: TextStyle(fontFamily: FontFamily.medium,
           fontWeight: FontWeight.w700,
           fontSize: 17,
           color: Colors.black87,
@@ -174,7 +174,7 @@ class RiskProfile extends GetView<PersonalisationController> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Ucolors.blue.withOpacity(0.08),
+              color: Ucolors.blue.withValues(alpha:0.08),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -188,7 +188,7 @@ class RiskProfile extends GetView<PersonalisationController> {
           // 2. Question Text
           Text(
             question.questionText,
-            style: const TextStyle(
+            style: const TextStyle(fontFamily: FontFamily.medium,
               fontSize: 20,
               fontWeight: FontWeight.w700,
               height: 1.3,
@@ -225,7 +225,7 @@ class RiskProfile extends GetView<PersonalisationController> {
                     ),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? Ucolors.blue.withOpacity(0.05)
+                          ? Ucolors.blue.withValues(alpha:0.05)
                           : Colors.white,
                       border: Border.all(
                         color: isSelected ? Ucolors.blue : Colors.grey.shade200,
@@ -235,14 +235,14 @@ class RiskProfile extends GetView<PersonalisationController> {
                       boxShadow: isSelected
                           ? [
                               BoxShadow(
-                                color: Ucolors.blue.withOpacity(0.12),
+                                color: Ucolors.blue.withValues(alpha:0.12),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
                             ]
                           : [
                               BoxShadow(
-                                color: Colors.grey.withOpacity(0.05),
+                                color: Colors.grey.withValues(alpha:0.05),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -272,7 +272,7 @@ class RiskProfile extends GetView<PersonalisationController> {
                         Expanded(
                           child: Text(
                             option.text,
-                            style: TextStyle(
+                            style: TextStyle(fontFamily: FontFamily.medium,
                               fontSize: 15,
                               color: isSelected ? Ucolors.blue : Colors.black87,
                               fontWeight: isSelected
@@ -306,7 +306,7 @@ class RiskProfile extends GetView<PersonalisationController> {
           const SizedBox(width: 6),
           Text(
             "Encrypted & Secure Assessment",
-            style: TextStyle(
+            style: TextStyle(fontFamily: FontFamily.medium,
               color: Colors.grey.shade400,
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -373,7 +373,7 @@ class _RiskAnalyzingViewState extends State<_RiskAnalyzingView>
                     child: Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Ucolors.blue.withOpacity(0.05),
+                        color: Ucolors.blue.withValues(alpha:0.05),
                       ),
                     ),
                   ),
@@ -395,7 +395,7 @@ class _RiskAnalyzingViewState extends State<_RiskAnalyzingView>
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Ucolors.blue.withOpacity(0.1),
+                          color: Ucolors.blue.withValues(alpha:0.1),
                           blurRadius: 20,
                           spreadRadius: 5,
                         ),
@@ -432,7 +432,7 @@ class _RiskAnalyzingViewState extends State<_RiskAnalyzingView>
                   controller.analysisText.value,
                   key: ValueKey<String>(controller.analysisText.value),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: const TextStyle(fontFamily: FontFamily.medium,
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
@@ -447,7 +447,7 @@ class _RiskAnalyzingViewState extends State<_RiskAnalyzingView>
             // 3. Subtext
             Text(
               "Please do not close the app",
-              style: TextStyle(
+              style: TextStyle(fontFamily: FontFamily.medium,
                 fontSize: 13,
                 color: Colors.grey.shade400,
                 fontWeight: FontWeight.w500,

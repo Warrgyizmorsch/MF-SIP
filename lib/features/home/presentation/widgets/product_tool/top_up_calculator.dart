@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/table/table_header.dart';
@@ -10,6 +12,10 @@ import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/si
 import 'package:my_sip/features/home/presentation/widgets/product_tool/widget/piechart_with_value.dart';
 import 'package:responsive_framework/responsive_framework.dart'; // Import Responsive
 
+import '../../../../../common/widget/button/elevated_button.dart';
+import '../../../../../config/routes/app_routes.dart';
+import '../../../../../core/utils/helper/helpers.dart';
+import '../../../../../navigation_menu_bar.dart';
 import '../../../../fund_details/data/models/return_model.dart';
 import '../../../../fund_details/presentation/pages/fund_deatails.dart';
 import '../../../../fund_details/presentation/widgets/return.dart';
@@ -60,8 +66,19 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
     ];
 
     return Scaffold(
-      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white.withOpacity(0.96),
-      appBar: CustomAppBarNormal(title: 'SIP Top-Up Calculator'),
+      backgroundColor: isDesktop
+          ? const Color(0xFFF5F7FA)
+          : Colors.white.withValues(alpha: 0.96),
+      appBar: CustomAppBarNormal(
+        title: 'SIP Top-Up Calculator',
+        onpressed: () {
+          if (kIsWeb && Get.isRegistered<NavigationBarController>()) {
+            Get.find<NavigationBarController>().backNested();
+          } else {
+            Get.back();
+          }
+        },
+      ),
       body: SingleChildScrollView(
         padding: isDesktop
             ? const EdgeInsets.symmetric(vertical: 30, horizontal: 24)
@@ -77,7 +94,10 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
                     children: [
                       Expanded(flex: 4, child: _buildInputs(isDesktop)),
                       const Gap(30),
-                      Expanded(flex: 6, child: _buildResults(isDesktop, result, summaryRows)),
+                      Expanded(
+                        flex: 6,
+                        child: _buildResults(isDesktop, result, summaryRows),
+                      ),
                     ],
                   ),
                 ),
@@ -93,6 +113,21 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
           ],
         ),
       ),
+      bottomNavigationBar: isDesktop
+          ? null
+          : UElevatedBUtton(
+              onPressed: () {
+                Get.offAllNamed(AppRoutes.navMenuBar);
+                Future.delayed(const Duration(milliseconds: 100), () {
+                  if (Get.isRegistered<NavigationBarController>()) {
+                    Get.find<NavigationBarController>().selectedIndex.value = 1;
+                  }
+                });
+              },
+              child: Center(
+                child: Text("Explore Funds", style: UTextStyles.buttonText),
+              ),
+            ),
     );
   }
 
@@ -107,7 +142,14 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (isDesktop) ...[
-            const Text("Input Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              "Input Details",
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const Gap(20),
           ],
           SipSliderTile2(
@@ -119,13 +161,14 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
             prefix: '₹',
             onChanged: (value) => setState(() => baseAmount = value),
           ),
-          SipSliderTile2(
+          SipSliderTile3(
+            key: const ValueKey('sip_stepup_rate'),
             title: 'Increase SIP every year',
             value: stepUpValue,
-            min: 500,
-            max: 20000,
-            suffix: null,
-            prefix: '₹',
+            pMin: 1,
+            pMax: 30, // % Range
+            rMin: 500,
+            rMax: 50000,
             onChanged: (value) => setState(() => stepUpValue = value),
           ),
           SipSliderTile2(
@@ -152,7 +195,11 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
   // =========================================================
   // 🔹 RESULTS SECTION (Summary + Tabs)
   // =========================================================
-  Widget _buildResults(bool isDesktop, StepUpSipResult result, List<ReturnRow> summaryRows) {
+  Widget _buildResults(
+    bool isDesktop,
+    StepUpSipResult result,
+    List<ReturnRow> summaryRows,
+  ) {
     return Column(
       children: [
         // 1. SUMMARY TABLE CARD
@@ -163,13 +210,28 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Ucolors.borderside),
             boxShadow: isDesktop
-                ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))]
-                : [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 6, offset: const Offset(0, 4))],
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 6,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Normal vs Step-up Summary', style: UTextStyles.large.copyWith(fontWeight: FontWeight.bold)),
+              Text(
+                'Normal vs Step-up Summary',
+                style: UTextStyles.large.copyWith(fontWeight: FontWeight.bold),
+              ),
               const Gap(15),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -186,7 +248,7 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
                       ),
                       DashedLine(color: Colors.grey.shade300, dashSpace: 0),
                       ...summaryRows.map(
-                            (e) => ReturnsTableRow(
+                        (e) => ReturnsTableRow(
                           width: 100,
                           color4: Colors.green.shade600,
                           data: e,
@@ -210,7 +272,14 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
             color: Ucolors.light,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Ucolors.borderside),
-            boxShadow: isDesktop ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)] : null,
+            boxShadow: isDesktop
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                    ),
+                  ]
+                : null,
           ),
           child: DefaultTabController(
             length: 2,
@@ -229,9 +298,14 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
                     dividerColor: Colors.transparent,
                     labelColor: Ucolors.primary,
                     indicator: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.white,
-                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)]
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 4,
+                        ),
+                      ],
                     ),
                     tabs: const [
                       Tab(text: 'Visual Rep.'),
@@ -257,25 +331,27 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
                               inrFomat: false,
                               color: Colors.black87,
                               title: 'Step-up Invested',
-                              value: formatIndianNumber(result.stepUp.invested),
+                              value: formatCurrency(result.stepUp.invested),
                             ),
                             InvestValue(
                               color: Colors.black87,
                               title: 'Step-up Future Value',
                               inrFomat: false,
-                              value: formatIndianNumber(result.stepUp.value),
+                              value: formatCurrency(result.stepUp.value),
                             ),
                             InvestValue(
                               color: Colors.black87,
                               title: 'Step-up Profit',
                               inrFomat: false,
-                              value: formatIndianNumber(result.stepUp.profit),
+                              value: formatCurrency(result.stepUp.profit),
                             ),
                           ],
                           piechartvalue1: result.stepUp.invested,
                           piechartvalue2: result.stepUp.profit,
                           piechartcolor1: Ucolors.primary,
-                          piechartcolor2: Ucolors.primary.withOpacity(0.1),
+                          piechartcolor2: Ucolors.primary.withValues(
+                            alpha: 0.1,
+                          ),
                         ),
                       ),
 
@@ -294,7 +370,10 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
                                 heading4: 'Step-up',
                                 heading5: 'Extra',
                               ),
-                              DashedLine(color: Ucolors.borderColor, dashSpace: 0),
+                              DashedLine(
+                                color: Ucolors.borderColor,
+                                dashSpace: 0,
+                              ),
                               SizedBox(
                                 height: 350,
                                 child: ListView.builder(
@@ -335,7 +414,11 @@ class _TopUpCalculatorPageState extends State<TopUpCalculatorPage> {
       color: Colors.white,
       borderRadius: BorderRadius.circular(16),
       boxShadow: [
-        BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.05),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
       ],
       border: Border.all(color: Colors.grey.shade200),
     );

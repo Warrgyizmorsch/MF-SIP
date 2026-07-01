@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -8,20 +10,9 @@ import '../../../../core/utils/constant/colors.dart';
 import '../../../../core/utils/constant/images.dart';
 import '../../../../core/utils/constant/text.dart';
 import '../../../../core/utils/constant/text_style.dart';
-import '../../../../core/utils/helper/helpers.dart';
 import '../widgets/sip_amount_selector.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 import 'package:responsive_framework/responsive_framework.dart';
-import 'package:my_sip/common/widget/button/elevated_button.dart';
-import 'package:my_sip/common/widget/commonslider/sip_slider_with_bg.dart';
-import 'package:my_sip/config/routes/app_routes.dart';
-import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/images.dart';
-import 'package:my_sip/core/utils/constant/text.dart';
-import 'package:my_sip/core/utils/constant/text_style.dart';
-import '../widgets/sip_amount_selector.dart';
 
 class SipTenureScreen extends StatefulWidget {
   const SipTenureScreen({super.key});
@@ -157,7 +148,7 @@ class _SipTenureScreenState extends State<SipTenureScreen> {
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
+                                    color: Colors.black.withValues(alpha:0.1),
                                     blurRadius: 10,
                                     offset: const Offset(0, 5),
                                   ),
@@ -215,7 +206,7 @@ class _SipTenureScreenState extends State<SipTenureScreen> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha:0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -5),
                   ),

@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_null_aware_operator, dead_null_aware_expression, dead_code
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
@@ -16,6 +18,9 @@ class FundDetailsController extends GetxController
     with GetSingleTickerProviderStateMixin {
   // final GetFundDetailUseCase getFundDetailUseCase;
   final FundDetailsUsecases fundDetailsUsecases;
+  RxInt expandedInvestmentIndex = 0.obs;
+  RxInt expandedBasicDetailsIndex = 0.obs;
+  RxInt expandedAMCInformationIndex = 0.obs;
 
   // Arguments - initialized in constructor
   late String schemeName;
@@ -62,38 +67,116 @@ class FundDetailsController extends GetxController
       [];
 
   // Constructor to initialize arguments on each instance
+  // FundDetailsController({required this.fundDetailsUsecases}) {
+  //   // 1. Pehle humara Brahmastra (navData) check karo, agar wo khali hai tab Get.arguments uthao
+  //   final args =
+  //       FundDetailsScreen.navData ??
+  //       Get.arguments as Map<String, dynamic>? ??
+  //       {};
+
+  //   schemeName = args['scheme'] ?? 'Fund Details';
+  //   imgUrl = args['imgUrl'] ?? '--';
+  //   schemeCode = args['scheme_code'] ?? '';
+  //   email = args['email'] ?? '--';
+  //   contact = args['contact'] ?? '--';
+  //   address = args['address'] ?? '--';
+
+  //   // 2. Data nikalne ke baad Brahmastra ko wapas null kar do, taaki agle fund ke liye saaf rahe
+  //   FundDetailsScreen.navData = null;
+
+  //   createLog("Loading Fund: $schemeName with code: $schemeCode");
+
+  //   // 3. Apna API fetch call shuru karo
+  //   fetchAllData(scheme: schemeName, id: schemeCode);
+
+  //   // final args = Get.arguments as Map<String, dynamic>? ?? {};
+  //   // schemeName = args['scheme'] ?? 'Fund Details';
+  //   // imgUrl = args['imgUrl'] ?? '--';
+
+  //   // schemeCode = args['scheme_code'] ?? '';
+  //   // email = args['email'] ?? '--';
+  //   // contact = args['contact'] ?? '--';
+  //   // address = args['address'] ?? '--';
+
+  //   // fetchAllData(scheme: schemeName, id: schemeCode);
+  // }
   FundDetailsController({required this.fundDetailsUsecases}) {
-    // 1. Pehle humara Brahmastra (navData) check karo, agar wo khali hai tab Get.arguments uthao
-    final args =
-        FundDetailsScreen.navData ??
-        Get.arguments as Map<String, dynamic>? ??
-        {};
+    final Map<String, dynamic> navArgs = FundDetailsScreen.navData == null
+        ? {}
+        : Map<String, dynamic>.from(FundDetailsScreen.navData!);
 
-    schemeName = args['scheme'] ?? 'Fund Details';
-    imgUrl = args['imgUrl'] ?? '--';
-    schemeCode = args['scheme_code'] ?? '';
-    email = args['email'] ?? '--';
-    contact = args['contact'] ?? '--';
-    address = args['address'] ?? '--';
+    final Map<String, dynamic> getArgs = Get.arguments is Map
+        ? Map<String, dynamic>.from(Get.arguments as Map)
+        : {};
 
-    // 2. Data nikalne ke baad Brahmastra ko wapas null kar do, taaki agle fund ke liye saaf rahe
+    final Map<String, String> params = Map<String, String>.from(Get.parameters);
+
+    schemeName =
+        _firstValid([navArgs['scheme'], getArgs['scheme'], params['scheme']]) ??
+        '';
+
+    imgUrl =
+        _firstValid([navArgs['imgUrl'], getArgs['imgUrl'], params['imgUrl']]) ??
+        '--';
+
+    schemeCode =
+        _firstValid([
+          navArgs['scheme_code'],
+          getArgs['scheme_code'],
+          params['scheme_code'],
+        ]) ??
+        '';
+
+    email =
+        _firstValid([navArgs['email'], getArgs['email'], params['email']]) ??
+        '--';
+
+    contact =
+        _firstValid([
+          navArgs['contact'],
+          getArgs['contact'],
+          params['contact'],
+        ]) ??
+        '--';
+
+    address =
+        _firstValid([
+          navArgs['address'],
+          getArgs['address'],
+          params['address'],
+        ]) ??
+        '--';
+
     FundDetailsScreen.navData = null;
 
     createLog("Loading Fund: $schemeName with code: $schemeCode");
+    createLog("FundDetails args: $getArgs");
+    createLog("FundDetails params: $params");
 
-    // 3. Apna API fetch call shuru karo
+    if (schemeName.isEmpty || schemeCode.isEmpty) {
+      hasError.value = true;
+      errorMessage.value = 'Fund details missing. Please open the fund again.';
+      createLog(
+        "FundDetails missing data => scheme: $schemeName, code: $schemeCode",
+      );
+      return;
+    }
+
     fetchAllData(scheme: schemeName, id: schemeCode);
+  }
 
-    // final args = Get.arguments as Map<String, dynamic>? ?? {};
-    // schemeName = args['scheme'] ?? 'Fund Details';
-    // imgUrl = args['imgUrl'] ?? '--';
+  String? _firstValid(List<dynamic> values) {
+    for (final value in values) {
+      if (value == null) continue;
 
-    // schemeCode = args['scheme_code'] ?? '';
-    // email = args['email'] ?? '--';
-    // contact = args['contact'] ?? '--';
-    // address = args['address'] ?? '--';
+      final text = Uri.decodeComponent(value.toString()).trim();
 
-    // fetchAllData(scheme: schemeName, id: schemeCode);
+      if (text.isNotEmpty && text != '--' && text != 'null') {
+        return text;
+      }
+    }
+
+    return null;
   }
 
   //   Future<void> handleAddToCart() async {
@@ -129,7 +212,6 @@ class FundDetailsController extends GetxController
     );
 
     if (Get.isRegistered<NavigationBarController>()) {
-      
       Get.find<NavigationBarController>().selectedIndex.value = 100;
     }
 
@@ -147,6 +229,8 @@ class FundDetailsController extends GetxController
     await Future.wait([
       getFundDetails(scchemeName: scheme),
       getPortfolioAnalysis(scchemeName: scheme),
+      // getFundDetails(scchemeName: id),
+      // getPortfolioAnalysis(scchemeName: id),
       getShcemeNavHistory(scchemeCode: id),
     ]);
 
@@ -271,7 +355,7 @@ class FundDetailsController extends GetxController
         case '5Y':
           fromDate = now.subtract(const Duration(days: 1825));
           break;
-        case '10Y': // Optional: Handle All time if needed
+        case 'ALL': // Optional: Handle All time if needed
           fromDate = DateTime(1970);
           break;
         default:

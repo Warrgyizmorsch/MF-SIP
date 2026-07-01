@@ -52,6 +52,7 @@ dependencies:
 
   webview_flutter: ^4.10.0 # webview
   html_unescape: ^2.0.0 # webview
+  
   youtube_player_flutter: ^9.1.1
   youtube_player_iframe: ^5.2.2
   image_picker: ^1.2.1
@@ -67,6 +68,13 @@ dependencies:
   universal_html: ^2.3.0
   firebase_core: ^4.7.0
   firebase_messaging: ^16.2.0
+  google_sign_in: ^6.2.1
+  firebase_auth: ^6.1.0
+  flutter_inappwebview: ^6.1.5
+  open_filex: ^4.7.0
+  connectivity_plus: ^6.0.5
+  dropdown_button2: ^3.1.0
+
 
 
 
@@ -94,6 +102,7 @@ flutter:
     - assets/images/onboarding/
     - assets/logo/
     - assets/icon/
+    - assets/fonts/Roboto/static/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -109,27 +118,35 @@ flutter:
   # example:
 
   fonts:
-  - family: Geist
-    fonts:
-      - asset: assets/fonts/Geist-Thin.ttf
-        weight: 100
-      - asset: assets/fonts/Geist-ExtraLight.ttf
-        weight: 200
-      - asset: assets/fonts/Geist-Light.ttf
-        weight: 300
-      - asset: assets/fonts/Geist-Regular.ttf
-        weight: 400
-      - asset: assets/fonts/Geist-Medium.ttf
-        weight: 500
-      - asset: assets/fonts/Geist-SemiBold.ttf
-        weight: 600
-      - asset: assets/fonts/Geist-Bold.ttf
-        weight: 700
-      - asset: assets/fonts/Geist-ExtraBold.ttf
-        weight: 800
-      - asset: assets/fonts/Geist-Black.ttf
-        weight: 900
+    # Roboto
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto/static/Roboto-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/Roboto/static/Roboto-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Roboto/static/Roboto-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Roboto/static/Roboto-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Roboto/static/Roboto-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Roboto/static/Roboto-Black.ttf
+          weight: 900
 
+    # Inter
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter/static/Inter_18pt-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Inter/static/Inter_18pt-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter/static/Inter_18pt-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter/static/Inter_18pt-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Inter/static/Inter_18pt-Black.ttf
+          weight: 900
   # fonts:
   #   - family: Geist
   #     fonts:

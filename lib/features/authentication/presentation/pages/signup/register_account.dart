@@ -330,7 +330,6 @@ import 'package:my_sip/common/widget/top_bottom_style/top_bottom_style.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/enums/enums.dart';
-import 'package:my_sip/features/authentication/presentation/pages/login/login_page.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/sizes.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
@@ -579,7 +578,7 @@ class RegisterAccountScreen extends GetView<AuthController> {
                                     ),
                                   ),
                                   SizedBox(height: Get.height * 0.01),
-                                  const USocialButton(),
+                                   USocialButton(),
                                   SizedBox(height: Get.height * 0.02),
                                   Center(
                                     child: CreataAccountIfNot(

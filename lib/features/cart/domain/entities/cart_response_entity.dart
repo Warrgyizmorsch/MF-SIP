@@ -55,7 +55,7 @@ class CartDataEntity extends Equatable {
     this.sip,
     this.lumpsum,
     this.withGoal,
-    this.withoutGoal
+    this.withoutGoal,
   });
 
   @override
@@ -87,7 +87,13 @@ class GoalSummaryEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [totalItems, totalAmount, topUpTotal, sip, lumpsum];
+  List<Object?> get props => [
+    totalItems,
+    totalAmount,
+    topUpTotal,
+    sip,
+    lumpsum,
+  ];
 }
 
 class TransactionSummaryEntity extends Equatable {
@@ -108,6 +114,9 @@ class CartItemEntity extends Equatable {
   final int? amount;
   final String? frequency;
   final String? topUpAmount;
+  final String? capingDate;
+  final int? stepUpPercentage;
+  final String? capingAmount;
   final int? sipDay;
   final int? tenureMonths;
   final String? startDate;
@@ -140,6 +149,9 @@ class CartItemEntity extends Equatable {
     this.amount,
     this.frequency,
     this.topUpAmount,
+    this.capingAmount,
+    this.stepUpPercentage,
+    this.capingDate,
     this.sipDay,
     this.tenureMonths,
     this.startDate,
@@ -169,6 +181,9 @@ class CartItemEntity extends Equatable {
     int? amount,
     String? frequency,
     String? topUpAmount,
+    String? capingAmount,
+    String? capingDate,
+    int? stepUpPercentage,
     int? sipDay,
     int? tenureMonths,
     String? startDate,
@@ -196,6 +211,9 @@ class CartItemEntity extends Equatable {
       amount: amount ?? this.amount,
       frequency: frequency ?? this.frequency,
       topUpAmount: topUpAmount ?? this.topUpAmount,
+      capingAmount: capingAmount ?? this.capingAmount,
+      stepUpPercentage: stepUpPercentage ?? this.stepUpPercentage,
+      capingDate: capingDate ?? this.capingDate,
       sipDay: sipDay ?? this.sipDay,
       tenureMonths: tenureMonths ?? this.tenureMonths,
       startDate: startDate ?? this.startDate,
@@ -229,8 +247,11 @@ class CartItemEntity extends Equatable {
     amount,
     frequency,
     topUpAmount,
+    capingAmount,
+    capingDate,
     sipDay,
     tenureMonths,
+    stepUpPercentage,
     startDate,
     endDate,
     createdAt,
@@ -306,6 +327,9 @@ extension CartItemModelX on CartItemModel {
       amount: amount,
       frequency: frequency,
       topUpAmount: topUpAmount,
+      capingAmount: capingAmount,
+      stepUpPercentage: stepUpPercentage,
+      capingDate: capingDate,
       sipDay: sipDay,
       tenureMonths: tenureMonths,
       startDate: startDate,

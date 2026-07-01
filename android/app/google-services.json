@@ -1,26 +1,51 @@
 {
   "project_info": {
-    "project_number": "623862851986",
-    "project_id": "mf-sip-7f078",
-    "storage_bucket": "mf-sip-7f078.firebasestorage.app"
+    "project_number": "718782049570",
+    "project_id": "mfsip-3aa54",
+    "storage_bucket": "mfsip-3aa54.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:623862851986:android:d21c3e4403fca39310794b",
+        "mobilesdk_app_id": "1:718782049570:android:a87d24f3e1eb373483c97b",
         "android_client_info": {
-          "package_name": "com.example.my_sip"
+          "package_name": "com.kirtihinger.mfsip"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "718782049570-f7jb30kjjj0h6m82t76astvag5c58e04.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kirtihinger.mfsip",
+            "certificate_hash": "16c7f3f9fa35890f91cbef34d3288d45706dc46f"
+          }
+        },
+        {
+          "client_id": "718782049570-7hdmv5b6085d39c9b77bgkfc0bjhdve7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyAVJ9uoW_vXxs_PMeBX-2J_420INZWGOdE"
+          "current_key": "AIzaSyBQvPw7sdK6XQCdaIT7_RqLjtvTLTuFzJg"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "718782049570-7hdmv5b6085d39c9b77bgkfc0bjhdve7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "718782049570-1v1dj9cscjmbhhjseaighr6pt654vt7o.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.mySip"
+              }
+            }
+          ]
         }
       }
     }

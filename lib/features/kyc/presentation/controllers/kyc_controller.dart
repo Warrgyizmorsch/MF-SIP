@@ -1,3 +1,5 @@
+// ignore_for_file: body_might_complete_normally_nullable, invalid_null_aware_operator, dead_null_aware_expression, dead_code
+
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
@@ -8,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:my_sip/common/widget/animated/dialog_button.dart';
 import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
@@ -38,7 +41,7 @@ class KycController extends GetxController {
     final savedPan = session.getUserData?.panCard ?? '';
     panTextEditingController.text = savedPan;
 
-    _initializeApp();
+    // _initializeApp();
   }
 
   /// Wrapper to ensure sequential execution
@@ -164,7 +167,15 @@ class KycController extends GetxController {
     "Royalty",
     "Other",
   ];
-  final incomeSlabList = [
+  // final incomeSlabList = [
+  //   "Below 1 Lakh",
+  //   "1 Lacs - 5 Lacs",
+  //   "5 Lacs - 10 Lacs",
+  //   "10 Lacs - 25 Lacs",
+  //   "25 Lacs - 1 Cr.",
+  //   "Above 1 Cr.",
+  // ];
+  final List<String> incomeSlabList = [
     "Below 1 Lakh",
     "1 Lacs - 5 Lacs",
     "5 Lacs - 10 Lacs",
@@ -262,6 +273,10 @@ class KycController extends GetxController {
       case 0:
         // --- STEP 0: IDENTITY (DigiLocker Flow) ---
         if (step1FormKey.currentState!.validate()) {
+          bool hasLocationPermission = await _requestLocationPermission();
+          if (!hasLocationPermission) {
+            return;
+          }
           final bool? needsKyc = await checkKycStatus();
           if (needsKyc == true) {
             // final bool onboardingSuccess = await saveOnboardingData();
@@ -308,6 +323,10 @@ class KycController extends GetxController {
         // --- STEP 2: LIVE PHOTO ---
         if (!photoUploadSuccess.value) {
           Get.snackbar("Alert", "Please capture your live photo.");
+          return;
+        }
+        if (!signatureUploadSuccess.value) {
+          Get.snackbar("Alert", "Please upload your signature.");
           return;
         }
         _goToNextPage();
@@ -1530,6 +1549,7 @@ class KycController extends GetxController {
 
               if (isFullyVerified) {
                 await SessionManager.instance.setKycPending(true);
+                await SessionManager.instance.setKycVerified(false);
 
                 final userId = SessionManager.instance.getUserData?.id;
                 if (userId != null) {
@@ -1770,6 +1790,7 @@ class KycController extends GetxController {
 
         "type": "photo",
         "fileType": extension,
+        "ttl": "infinity",
       };
 
       final files = [imageBytes];
@@ -1811,9 +1832,7 @@ class KycController extends GetxController {
   // UPDATE FORM WITH USER PHOTO
   Future<void> _savePhotoToForm(String photoUrl, String merchantId) async {
     try {
-      // Strictly matching the Signzy Document payload
       final requestData = {
-        // "merchantId": merchantId,
         "merchantId":
             SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId,
 
@@ -1881,6 +1900,7 @@ class KycController extends GetxController {
 
         "type": "signature",
         "fileType": extension,
+        "ttl": "infinity",
       };
 
       final files = [imageBytes];
@@ -1903,8 +1923,6 @@ class KycController extends GetxController {
           }
 
           signatureUploadResponse.value = success.data;
-
-          // Get.snackbar("Success", "Signature Uploaded Successfully");
 
           // Save signature to KYC form
           log("image url ------------${imageUrl}");
@@ -2120,7 +2138,10 @@ class KycController extends GetxController {
 
       // final saveData = updateUserData(data);
       // 3. Save to YOUR backend
+
       await saveUserData(saveData);
+
+      ///comment for the test
 
       // if (poaExecuteResult) {
       //   // Send the Address Data as "addressProof"
@@ -2386,7 +2407,8 @@ class KycController extends GetxController {
   Future<bool> runVerificationEngine() async {
     try {
       isLoading.value = true;
-      // Get.snackbar("Verifying", "Running final compliance checks...");
+      debugPrint("[Verification Engine] Attempting to fetch token...");
+      await getTokenData();
 
       final merchantId =
           SessionManager.instance.getOnboardingData?.dbRecord?.signzyUserId ??
@@ -3049,10 +3071,32 @@ class KycController extends GetxController {
     }
   }
 
+  // String getIncomeCode(String text) {
+  //   final value = text.trim();
+
+  //   // Exact string matching based on your incomeSlabList
+  //   switch (value) {
+  //     case "Below 1 Lakh":
+  //       return "31";
+  //     case "1 Lacs - 5 Lacs":
+  //       return "32";
+  //     case "5 Lacs - 10 Lacs":
+  //       return "33";
+  //     case "10 Lacs - 25 Lacs":
+  //       return "34";
+  //     case "25 Lacs - 1 Cr.":
+  //       return "35";
+  //     case "Above 1 Cr.":
+  //       return "36";
+  //     default:
+  //       // Default fallback just in case
+  //       return "31";
+  //   }
+  // }
   String getIncomeCode(String text) {
+    // .trim() is a great safety measure to remove accidental spaces!
     final value = text.trim();
 
-    // Exact string matching based on your incomeSlabList
     switch (value) {
       case "Below 1 Lakh":
         return "31";
@@ -3067,7 +3111,7 @@ class KycController extends GetxController {
       case "Above 1 Cr.":
         return "36";
       default:
-        // Default fallback just in case
+        // Safest fallback: If something goes wrong, default to lowest income slab
         return "31";
     }
   }
@@ -3355,6 +3399,148 @@ class KycController extends GetxController {
     ifscController.clear();
     bankSelectionController.clear();
   }
+
+  Future<bool> _requestLocationPermission() async {
+    // 1. Check if GPS is physically turned on
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      await Get.dialog(
+        CustomActionDialog(
+          icon: Icons.location_off_rounded,
+          title: "Location Disabled",
+          description: "Please turn on your phone's GPS/Location.",
+          buttonText: "TURN ON",
+          onButtonPressed: () {
+            Get.back(); // Close the dialog
+            Geolocator.openLocationSettings();
+          },
+        ),
+        barrierDismissible: false, // Prevents closing by tapping outside
+      );
+      return false;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    // 2. Normal Denial - We can still ask them via the OS popup
+    if (permission == LocationPermission.denied) {
+      await Get.dialog(
+        CustomActionDialog(
+          icon: Icons.location_on_rounded,
+          title: "Location Access Required",
+          description:
+              "We need your precise location during onboarding to comply with SEBI/AML forensic guidelines and prevent fraud.",
+          buttonText: "I Understand",
+          onButtonPressed: () => Get.back(),
+        ),
+      );
+
+      // Request permission from the OS
+      permission = await Geolocator.requestPermission();
+    }
+
+    // 3. Permanent Denial - The OS has blocked the popup. MUST go to settings.
+    if (permission == LocationPermission.deniedForever) {
+      await Get.dialog(
+        CustomActionDialog(
+          icon: Icons.settings_suggest_rounded,
+          title: "Permission Blocked",
+          description:
+              "Location access was permanently denied. We cannot proceed with your KYC without this.\n\nPlease tap 'Settings', go to Permissions, and allow Location.",
+          buttonText: "Open Settings",
+          showCancelButton: true, // Shows a subtle cancel option underneath
+          onButtonPressed: () {
+            Get.back(); // Close the dialog
+            Geolocator.openAppSettings(); // Takes user directly to settings
+          },
+        ),
+        barrierDismissible: false,
+      );
+      return false; // Still return false so the API calls don't run yet
+    }
+
+    // 4. Success check
+    return permission == LocationPermission.whileInUse ||
+        permission == LocationPermission.always;
+  }
+
+  // Future<bool> _requestLocationPermission() async {
+  //   // 1. Check if GPS is physically turned on
+  //   bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  //   if (!serviceEnabled) {
+  //     Get.snackbar(
+  //       "Location Disabled",
+  //       "Please turn on your phone's GPS/Location.",
+  //       mainButton: TextButton(
+  //         onPressed: () => Geolocator.openLocationSettings(),
+  //         child: const Text("TURN ON", style: TextStyle(color: Colors.blue)),
+  //       ),
+  //     );
+  //     return false;
+  //   }
+
+  //   LocationPermission permission = await Geolocator.checkPermission();
+
+  //   // 2. Normal Denial - We can still ask them via the OS popup
+  //   if (permission == LocationPermission.denied) {
+  //     await Get.defaultDialog(
+  //       title: "Location Access Required",
+  //       middleText:
+  //           "We need your precise location during onboarding to comply with SEBI/AML forensic guidelines and prevent fraud.",
+  //       textConfirm: "I Understand",
+  //       confirmTextColor: Colors.white,
+  //       onConfirm: () => Get.back(),
+  //     );
+
+  //     // Request permission from the OS
+  //     permission = await Geolocator.requestPermission();
+  //   }
+
+  //   // 3. Permanent Denial - The OS has blocked the popup. MUST go to settings.
+  //   if (permission == LocationPermission.deniedForever) {
+  //     await Get.defaultDialog(
+  //       title: "Permission Blocked",
+  //       middleText:
+  //           "Location access was permanently denied. We cannot proceed with your KYC without this.\n\nPlease tap 'Settings', go to Permissions, and allow Location.",
+  //       textConfirm: "Open Settings",
+  //       textCancel: "Cancel",
+  //       confirmTextColor: Colors.white,
+  //       onConfirm: () {
+  //         Get.back(); // Close the dialog
+  //         Geolocator.openAppSettings(); // Takes user directly to your app's settings!
+  //       },
+  //     );
+  //     return false; // Still return false so the API calls don't run yet
+  //   }
+
+  //   // 4. Success check
+  //   return permission == LocationPermission.whileInUse ||
+  //       permission == LocationPermission.always;
+  // }
+
+  // Future<bool> _requestLocationPermission() async {
+  //   bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  //   if (!serviceEnabled) {
+  //     Get.snackbar("Location Disabled", "Please enable location services.");
+  //     return false;
+  //   }
+
+  //   LocationPermission permission = await Geolocator.checkPermission();
+  //   if (permission == LocationPermission.denied) {
+  //     // Show educational prompt before requesting the system permission
+  //     await Get.defaultDialog(
+  //       title: "Location Access Required",
+  //       middleText:
+  //           "We need your precise location during onboarding to comply with SEBI/AML forensic guidelines and prevent fraud.",
+  //       textConfirm: "I Understand",
+  //       onConfirm: () => Get.back(),
+  //     );
+  //     permission = await Geolocator.requestPermission();
+  //   }
+
+  //   return permission == LocationPermission.whileInUse ||
+  //       permission == LocationPermission.always;
+  // }
 
   Future<bool> _apiCallStep2() async {
     // 1. Check if the form is valid

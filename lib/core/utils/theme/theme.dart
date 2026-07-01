@@ -8,10 +8,6 @@ import 'package:my_sip/core/utils/theme/widget_theme/appbar_theme.dart';
 
 //     static const String _font = 'Geist'; // ✅ single source of truth
 
-
-
-
-
 //   static ThemeData lightTheme = ThemeData(
 //     useMaterial3: true,
 //     fontFamily: _font,
@@ -50,7 +46,7 @@ import 'package:my_sip/core/utils/theme/widget_theme/appbar_theme.dart';
 class Utheme {
   Utheme._();
 
-  static const String _font = 'Geist'; // ✅ single source of truth
+  static const String _font = 'Roboto';
 
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
@@ -61,23 +57,74 @@ class Utheme {
   );
 
   static TextTheme lightTextTheme = TextTheme(
-    headlineLarge:  TextStyle(fontFamily: _font, fontSize: 32.0, fontWeight: FontWeight.bold,    color: Ucolors.dark),
-    headlineMedium: TextStyle(fontFamily: _font, fontSize: 24.0, fontWeight: FontWeight.w600,   color: Ucolors.dark),
-    headlineSmall:  TextStyle(fontFamily: _font, fontSize: 18.0, fontWeight: FontWeight.w600,   color: Ucolors.dark),
+    headlineLarge: TextStyle(
+      fontFamily: _font,
+      fontSize: 32.0,
+      fontWeight: FontWeight.bold,
+      color: Ucolors.dark,
+    ),
+    headlineMedium: TextStyle(
+      fontFamily: _font,
+      fontSize: 24.0,
+      fontWeight: FontWeight.w600,
+      color: Ucolors.dark,
+    ),
+    headlineSmall: TextStyle(
+      fontFamily: _font,
+      fontSize: 18.0,
+      fontWeight: FontWeight.w600,
+      color: Ucolors.dark,
+    ),
 
-    titleLarge:  TextStyle(fontFamily: _font, fontSize: 16.0, fontWeight: FontWeight.w600, color: Ucolors.dark),
-    titleMedium: TextStyle(fontFamily: _font, fontSize: 16.0, fontWeight: FontWeight.w500, color: Ucolors.dark),
-    titleSmall:  TextStyle(fontFamily: _font, fontSize: 16.0, fontWeight: FontWeight.w400, color: Ucolors.dark),
+    titleLarge: TextStyle(
+      fontFamily: _font,
+      fontSize: 16.0,
+      fontWeight: FontWeight.w600,
+      color: Ucolors.dark,
+    ),
+    titleMedium: TextStyle(
+      fontFamily: _font,
+      fontSize: 16.0,
+      fontWeight: FontWeight.w500,
+      color: Ucolors.dark,
+    ),
+    titleSmall: TextStyle(
+      fontFamily: _font,
+      fontSize: 16.0,
+      fontWeight: FontWeight.w400,
+      color: Ucolors.dark,
+    ),
 
-    bodyLarge:  TextStyle(fontFamily: _font, fontSize: 14.0, fontWeight: FontWeight.w500,   color: Ucolors.dark),
-    bodyMedium: TextStyle(fontFamily: _font, fontSize: 14.0, fontWeight: FontWeight.normal, color: Ucolors.dark),
-    bodySmall:  TextStyle(fontFamily: _font, fontSize: 14.0, fontWeight: FontWeight.w500,   color: Ucolors.dark.withOpacity(0.5)),
+    bodyLarge: TextStyle(
+      fontFamily: _font,
+      fontSize: 14.0,
+      fontWeight: FontWeight.w500,
+      color: Ucolors.dark,
+    ),
+    bodyMedium: TextStyle(
+      fontFamily: _font,
+      fontSize: 14.0,
+      fontWeight: FontWeight.normal,
+      color: Ucolors.dark,
+    ),
+    bodySmall: TextStyle(
+      fontFamily: _font,
+      fontSize: 14.0,
+      fontWeight: FontWeight.w500,
+      color: Ucolors.dark.withValues(alpha:0.5),
+    ),
 
-    labelLarge:  TextStyle(fontFamily: _font, fontSize: 12.0, fontWeight: FontWeight.normal, color: Ucolors.dark),
-    labelMedium: TextStyle(fontFamily: _font, fontSize: 12.0, fontWeight: FontWeight.normal, color: Ucolors.dark.withOpacity(0.5)),
-
-
-
-    
+    labelLarge: TextStyle(
+      fontFamily: _font,
+      fontSize: 12.0,
+      fontWeight: FontWeight.normal,
+      color: Ucolors.dark,
+    ),
+    labelMedium: TextStyle(
+      fontFamily: _font,
+      fontSize: 12.0,
+      fontWeight: FontWeight.normal,
+      color: Ucolors.dark.withValues(alpha:0.5),
+    ),
   );
 }

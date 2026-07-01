@@ -4,11 +4,22 @@ import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
+import 'package:my_sip/features/mfu/data/model/bank_validation_res.dart';
 import 'package:my_sip/features/mfu/data/model/can_register_model.dart';
 import 'package:my_sip/features/mfu/data/model/can_status_model.dart';
+import 'package:my_sip/features/mfu/data/model/emandate_status.dart';
+import 'package:my_sip/features/mfu/data/model/mandate_model.dart';
+import 'package:my_sip/features/mfu/data/model/mandate_status_req.dart';
+import 'package:my_sip/features/mfu/data/model/mfu_call_request_base.dart';
+import 'package:my_sip/features/mfu/data/model/mfu_call_response_wrapper.dart';
+import 'package:my_sip/features/mfu/data/model/mfu_mandate_create_req.dart';
+import 'package:my_sip/features/mfu/data/model/normal_txn_model.dart';
+import 'package:my_sip/features/mfu/data/model/normal_txn_req_model.dart';
+import 'package:my_sip/features/dashboard/data/model/portfolio_model.dart';
+import 'package:my_sip/features/mfu/data/model/systematic_txn_model.dart';
+import 'package:my_sip/features/mfu/data/model/systematic_txn_req_model.dart';
+import 'package:my_sip/features/dashboard/data/model/transactionlist_model.dart';
 import 'package:my_sip/services/session_manager.dart';
-
-
 
 class MfuRemoteDataSource {
   final NetworkServicesApi _apiService;
@@ -16,16 +27,12 @@ class MfuRemoteDataSource {
 
   MfuRemoteDataSource(this._apiService, this.sessionManager);
 
-
   Future<Either<Result<MfuCanResponseModel>, ApiError>> canRegister({
     required int uid,
     String reqEvent = "CR",
   }) async {
     try {
-      final body = {
-        "uid": uid,
-        "reqEvent": reqEvent,
-      };
+      final body = {"uid": uid, "reqEvent": reqEvent};
 
       createLog("[MfuRemoteDataSource] canRegister Request: $body");
 
@@ -52,52 +59,335 @@ class MfuRemoteDataSource {
         );
       }
     } catch (e) {
-      return Right(
-        ApiError(message: 'canRegister Failed with Exception: $e'),
-      );
+      return Right(ApiError(message: 'canRegister Failed with Exception: $e'));
     }
   }
 
   // Add inside MfuRemoteDataSource
 
-/// POST /api/v1/mfu/call
-/// Body: { "endpoint": "ApiFintechCanStatusService", "apiType": "CAN-STATUS", "body": { "can": "..." } }
-Future<Either<Result<MfuCanStatusModel>, ApiError>> getCanStatus({
-  required String can,
-}) async {
-  try {
-    final body = {
-      "endpoint": "ApiFintechCanStatusService",
-      "apiType": "CAN-STATUS",
-      "body": {"can": can},
-    };
+  /// POST /api/v1/mfu/call
+  /// Body: { "endpoint": "ApiFintechCanStatusService", "apiType": "CAN-STATUS", "body": { "can": "..." } }
+  Future<Either<Result<MfuCanStatusModel>, ApiError>> getCanStatus({
+    required String can,
+  }) async {
+    try {
+      final body = {
+        "endpoint": "ApiFintechCanStatusService",
+        "apiType": "CAN-STATUS",
+        "body": {"can": can},
+      };
 
-    createLog("[MfuRemoteDataSource] getCanStatus Request: $body");
+      createLog("[MfuRemoteDataSource] getCanStatus Request: $body");
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/mfu/call",
+        data: body,
+      );
+
+      createLog("[MfuRemoteDataSource] getCanStatus Response: $resp");
+
+      if (resp != null) {
+        final result = MfuCanStatusModel.fromJson(resp);
+
+        if (result.success == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(
+              message:
+                  result.response?.respHeader?.errorMsg ?? 'CAN Status Failed',
+            ),
+          );
+        }
+      } else {
+        return Right(
+          ApiError(message: 'getCanStatus: Invalid response structure'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'getCanStatus Exception: $e'));
+    }
+  }
+
+  Future<Either<Result<MfuCanBankValidationModel>, ApiError>>
+  canBankValidation({required int uid}) async {
+    try {
+      final body = {"uid": uid};
+
+      createLog("[MfuRemoteDataSource] canBankValidation Request: $body");
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/mfu/can-bank-validation",
+        data: body,
+      );
+
+      createLog("[MfuRemoteDataSource] canBankValidation Response: $resp");
+
+      if (resp != null) {
+        final result = MfuCanBankValidationModel.fromJson(resp);
+        if (result.success == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(message: result.message ?? 'CAN Bank Validation Failed'),
+          );
+        }
+      } else {
+        return Right(
+          ApiError(message: 'canBankValidation: Invalid response structure'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'canBankValidation Exception: $e'));
+    }
+  }
+
+  // Future<Either<Result<MfuMandateCreateModel>, ApiError>> createMandate({
+  //   required int uid,
+  //   required String mandateType,
+  //   String? upi,
+  // }) async {
+  //   try {
+  //     // final body = {"uid": uid, "mandate_type": mandateType};
+  //     final Map<String, dynamic> body = {
+  //       // "uid": uid,
+  //       "uid": 9105,
+  //       "mandate_type": mandateType,
+  //     };
+  //     if (mandateType.toLowerCase() == 'upi' && upi != null && upi.isNotEmpty) {
+  //       body["vpaId"] = upi;
+  //     }
+
+  //     createLog("[MfuRemoteDataSource] createMandate Request: $body");
+
+  //     final resp = await _apiService.postApi(
+  //       "${Appurl.baseUrl}/api/v1/mfu/mandate/create",
+  //       data: body,
+  //     );
+
+  //     createLog("[MfuRemoteDataSource] createMandate Response: $resp");
+
+  //     if (resp != null) {
+  //       final result = MfuMandateCreateModel.fromJson(resp);
+  //       if (result.success == true) {
+  //         return Left(Result.success(result));
+  //       } else {
+  //         return Right(
+  //           ApiError(message: result.message ?? 'Mandate Create Failed'),
+  //         );
+  //       }
+  //     } else {
+  //       return Right(
+  //         ApiError(message: 'createMandate: Invalid response structure'),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     return Right(ApiError(message: 'createMandate Exception: $e'));
+  //   }
+  // }
+  Future<Either<Result<MfuMandateCreateModel>, ApiError>> createMandate(
+    MfuMandateCreateRequest request,
+  ) async {
+    try {
+      final body = request.toJson();
+      createLog("[MfuRemoteDataSource] createMandate Request: $body");
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/mfu/mandate/create",
+        data: body,
+      );
+
+      createLog("[MfuRemoteDataSource] createMandate Response: $resp");
+
+      if (resp != null) {
+        final result = MfuMandateCreateModel.fromJson(resp);
+        if (result.status == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(message: result.message ?? 'Mandate Create Failed'),
+          );
+        }
+      } else {
+        return Right(
+          ApiError(message: 'createMandate: Invalid response structure'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'createMandate Exception: $e'));
+    }
+  }
+
+  Future<Either<Result<MfuMandateStatusModel>, ApiError>> getMandateStatus(
+    MfuMandateStatusRequest request,
+  ) async {
+    try {
+      final body = request.toJson();
+      createLog("[MfuRemoteDataSource] getMandateStatus Request: $body");
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/mfu/mandate/status",
+        data: body,
+      );
+
+      createLog("[MfuRemoteDataSource] getMandateStatus Response: $resp");
+
+      if (resp != null) {
+        final result = MfuMandateStatusModel.fromJson(resp);
+        if (result.status == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(message: result.message ?? 'Mandate Status Failed'),
+          );
+        }
+      } else {
+        return Right(
+          ApiError(message: 'getMandateStatus: Invalid response structure'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'getMandateStatus Exception: $e'));
+    }
+  }
+
+  // Future<Either<Result<MfuMandateStatusModel>, ApiError>> getMandateStatus({
+  //   required int uid,
+  //   required String mandateType,
+  // }) async {
+  //   try {
+  //     final body = {"uid": uid, "mandate_type": mandateType};
+
+  //     createLog("[MfuRemoteDataSource] getMandateStatus Request: $body");
+
+  //     final resp = await _apiService.postApi(
+  //       "${Appurl.baseUrl}/api/v1/mfu/mandate/status",
+  //       data: body,
+  //     );
+
+  //     createLog("[MfuRemoteDataSource] getMandateStatus Response: $resp");
+
+  //     if (resp != null) {
+  //       final result = MfuMandateStatusModel.fromJson(resp);
+  //       if (result.success == true) {
+  //         return Left(Result.success(result));
+  //       } else {
+  //         return Right(
+  //           ApiError(message: result.message ?? 'Mandate Status Failed'),
+  //         );
+  //       }
+  //     } else {
+  //       return Right(
+  //         ApiError(message: 'getMandateStatus: Invalid response structure'),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     return Right(ApiError(message: 'getMandateStatus Exception: $e'));
+  //   }
+  // }
+
+  Future<Either<Result<MfuNormalTxnModel>, ApiError>> normalTransaction(
+    MfuNormalTxnRequest request,
+  ) async {
+    try {
+      final body = request.toJson();
+
+      createLog("[MfuRemoteDataSource] normalTransaction Request: $body");
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/mfu/normal-transaction",
+        data: body,
+      );
+
+      createLog("[MfuRemoteDataSource] normalTransaction Response: $resp");
+
+      if (resp != null) {
+        final result = MfuNormalTxnModel.fromJson(resp);
+        if (result.success == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(message: result.message ?? 'Transaction Failed'),
+          );
+        }
+      } else {
+        return Right(
+          ApiError(message: 'normalTransaction: Invalid response structure'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'normalTransaction Exception: $e'));
+    }
+  }
+
+  Future<Either<Result<MfuSystematicTxnModel>, ApiError>> systematicTransaction(
+    MfuSystematicTxnRequest request,
+  ) async {
+    try {
+      final body = request.toJson();
+
+      createLog("[MfuRemoteDataSource] systematicTransaction Request: $body");
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/systematic-transaction",
+        data: body,
+      );
+
+      createLog("[MfuRemoteDataSource] systematicTransaction Response: $resp");
+
+      if (resp != null) {
+        final result = MfuSystematicTxnModel.fromJson(resp);
+        if (result.success == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(
+              message: result.message ?? 'Systematic Transaction Failed',
+            ),
+          );
+        }
+      } else {
+        return Right(
+          ApiError(
+            message: 'systematicTransaction: Invalid response structure',
+          ),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'systematicTransaction Exception: $e'));
+    }
+  }
+
+  // mfu_remote_data_source.dart
+
+Future<Either<Result<MfuCallResponseWrapper>, ApiError>> mfuCall(
+  MfuCallRequestBase request,
+) async {
+  try {
+    final body = request.toRequestBody();
+    createLog("[MfuRemoteDataSource] mfuCall (${request.apiType}) → $body");
 
     final resp = await _apiService.postApi(
       "${Appurl.baseUrl}/api/v1/mfu/call",
       data: body,
     );
 
-    createLog("[MfuRemoteDataSource] getCanStatus Response: $resp");
+    createLog("[MfuRemoteDataSource] mfuCall Response → $resp");
 
     if (resp != null) {
-      final result = MfuCanStatusModel.fromJson(resp);
-
+      final result = MfuCallResponseWrapper.fromJson(resp);
       if (result.success == true) {
         return Left(Result.success(result));
       } else {
-        return Right(
-          ApiError(message: result.response?.respHeader?.errorMsg ?? 'CAN Status Failed'),
-        );
+        return Right(ApiError(message: 'MFU Call Failed [${request.apiType}]'));
       }
     } else {
-      return Right(ApiError(message: 'getCanStatus: Invalid response structure'));
+      return Right(ApiError(message: 'mfuCall: Invalid response structure'));
     }
   } catch (e) {
-    return Right(ApiError(message: 'getCanStatus Exception: $e'));
+    return Right(ApiError(message: 'mfuCall Exception: $e'));
   }
 }
 
-
+  
 }

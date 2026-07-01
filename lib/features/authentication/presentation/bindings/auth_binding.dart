@@ -3,11 +3,13 @@ import 'package:get/get_instance/src/bindings_interface.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:my_sip/core/network/network_api_service.dart';
 import 'package:my_sip/features/authentication/domain/usecases/auth_use_cases.dart';
+import 'package:my_sip/features/authentication/domain/usecases/google_sign_in_use_case.dart';
 import 'package:my_sip/features/authentication/domain/usecases/register_use_case.dart';
 import 'package:my_sip/features/authentication/domain/usecases/send_otp_use_case.dart';
 import '../../data/datasources/auth_remote_data_source.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../../domain/usecases/firebase_token_usecase.dart';
 import '../../domain/usecases/login_use_case.dart';
 import '../../domain/usecases/verify_otp_use_case.dart';
 import '../controllers/auth/auth_controller.dart';
@@ -36,7 +38,16 @@ class AuthBinding extends Bindings {
     Get.lazyPut(
       () => VerifyOtpUseCase(authRepository: Get.find<AuthRepository>()),
     );
-
+    Get.lazyPut<FcmDeviceTokenUseCase>(
+          () => FcmDeviceTokenUseCase(
+        Get.find<AuthRepository>(),
+      ),
+    );
+    Get.lazyPut<GoogleSignInUseCase>(
+          () => GoogleSignInUseCase(
+        Get.find<AuthRepository>(),
+      ),
+    );
     // 4. Wrapper Use Case (Depends on LoginUseCase)
     // Get.lazyPut(
 
@@ -55,6 +66,8 @@ class AuthBinding extends Bindings {
         registerUseCase: Get.find<RegisterUseCase>(),
         sendOtpUseCase: Get.find<SendOtpUseCase>(),
         verifyOtpUseCase: Get.find<VerifyOtpUseCase>(),
+        fcmDeviceTokenUseCase: Get.find<FcmDeviceTokenUseCase>(),
+        googleSignInUseCase: Get.find<GoogleSignInUseCase>()
       ),
       permanent: true,
     );

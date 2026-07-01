@@ -1,232 +1,6 @@
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-// import 'package:my_sip/common/style/padding.dart';
-// import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
-// import 'package:my_sip/common/widget/text/section_heading.dart';
-// import 'package:my_sip/common/widget/text/subtitle_section.dart';
-// import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
-// import 'package:my_sip/core/utils/constant/colors.dart';
-// import 'package:my_sip/core/utils/constant/images.dart';
-// import 'package:my_sip/services/session_manager.dart';
-
-// // class KycDetailsScreen extends StatelessWidget {
-// //   const KycDetailsScreen({super.key});
-
-// //   @override
-// //   Widget build(BuildContext context) {
-// //     final user = SessionManager.instance.userObs.value;
-
-// //     return Scaffold(
-// //       appBar: CustomAppBarNormal(title: 'KYC Details'),
-// //       body: Padding(
-// //         padding: UPadding.screenPadding,
-// //         child: Column(
-// //           children: [
-// //             SizedBox(height: kToolbarHeight - kToolbarHeight / 2),
-
-// //             //Profile Header
-// //             ProfileHeader(
-// //               // iconcolor: Colors.blue,
-// //               img: UImages.avatar,
-// //               name: user?.name ?? 'Guest User',
-// //               subtitle:
-// //                   'Ready to invest since ${user?.customerDetailsModel?.dob?.split('-')[0]}',
-// //               icon: Icons.verified,
-// //               onTap: () {},
-// //             ),
-// //             SizedBox(height: 24),
-
-// //             //Kyc Details
-// //             InfoCard(
-// //               title: 'Tax Status',
-// //               subtitle: user?.customerDetailsModel?.wealthSource ?? '',
-// //             ),
-// //             SizedBox(height: 5),
-// //             InfoCard(title: 'Pan Number', subtitle: user?.panCard ?? ''),
-// //           ],
-// //         ),
-// //       ),
-// //     );
-// //   }
-// // }
-
-// // class InfoCard extends StatelessWidget {
-// //   const InfoCard({
-// //     super.key,
-// //     required this.title,
-// //     required this.subtitle,
-// //     this.colum1,
-// //     this.trailing,
-// //     this.onTap,
-// //   });
-
-// //   final String title;
-// //   final String subtitle;
-// //   final Widget? colum1;
-// //   final Widget? trailing;
-// //   final VoidCallback? onTap;
-
-// //   @override
-// //   Widget build(BuildContext context) {
-// //     return Card(
-// //       // elevation: 4,
-// //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-// //       color: Ucolors.light,
-// //       child: SizedBox(
-// //         // height: Get.height * 0.07,
-// //         width: double.infinity,
-// //         child: Padding(
-// //           padding: const EdgeInsets.only(
-// //             left: 16.0,
-// //             top: 10,
-// //             bottom: 10,
-// //             right: 16,
-// //           ),
-// //           child: Row(
-// //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-// //             children: [
-// //               Column(
-// //                 crossAxisAlignment: CrossAxisAlignment.start,
-// //                 mainAxisAlignment: MainAxisAlignment.center,
-// //                 children: [
-// //                   /// Title
-// //                   SectionHeading(
-// //                     sectionTitle: title,
-// //                     fontSize: 14,
-// //                     fontWeight: FontWeight.w600,
-// //                     // height: 21 / 14,
-// //                   ),
-// //                   SizedBox(height: 5),
-
-// //                   //Subtitle
-// //                   SubtitleText(subtitle: subtitle, fontSize: 10),
-
-// //                   //New coloumn
-// //                   if (colum1 != null) ...[SizedBox(height: 5), colum1!],
-// //                 ],
-// //               ),
-
-// //               //New row
-// //               if (trailing != null) ...[const SizedBox(width: 5), trailing!],
-// //             ],
-// //           ),
-// //         ),
-// //       ),
-// //     );
-// //   }
-// // }
-// class KycDetailsScreen extends StatelessWidget {
-//   const KycDetailsScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final user = SessionManager.instance.userObs.value;
-
-//     return Scaffold(
-//       appBar: CustomAppBarNormal(title: 'KYC Details'),
-//       // 🔥 FIX: Column ko SingleChildScrollView mein wrap kiya taaki overflow na ho
-//       body: SingleChildScrollView(
-//         padding: UPadding.screenPadding,
-//         child: Column(
-//           children: [
-//             SizedBox(height: kToolbarHeight - kToolbarHeight / 2),
-
-//             //Profile Header
-//             ProfileHeader(
-//               img: user?.img ?? UImages.avatar,
-//               name: user?.name ?? 'Guest User',
-//               subtitle:
-//                   'Ready to invest since ${user?.customerDetailsModel?.dob?.split('-')[0]}',
-//               icon: Icons.verified,
-//               onTap: () {},
-//             ),
-//             SizedBox(height: 24),
-
-//             //Kyc Details
-//             InfoCard(
-//               title: 'Tax Status',
-//               subtitle: user?.customerDetailsModel?.wealthSource ?? '',
-//             ),
-//             SizedBox(height: 5),
-//             InfoCard(title: 'Pan Number', subtitle: user?.panCard ?? ''),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// class InfoCard extends StatelessWidget {
-//   const InfoCard({
-//     super.key,
-//     required this.title,
-//     required this.subtitle,
-//     this.colum1,
-//     this.trailing,
-//     this.onTap,
-//   });
-
-//   final String title;
-//   final String subtitle;
-//   final Widget? colum1;
-//   final Widget? trailing;
-//   final VoidCallback? onTap;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Card(
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-//       color: Ucolors.light,
-//       child: SizedBox(
-//         width: double.infinity,
-//         child: Padding(
-//           padding: const EdgeInsets.only(
-//             left: 16.0,
-//             top: 10,
-//             bottom: 10,
-//             right: 16,
-//           ),
-//           child: Row(
-//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//             children: [
-//               // 🔥 FIX: Is Column ko Expanded mein wrap kiya taaki lamba text screen ke bahar na bhage
-//               Expanded(
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   mainAxisAlignment: MainAxisAlignment.center,
-//                   children: [
-//                     /// Title
-//                     SectionHeading(
-//                       sectionTitle: title,
-//                       fontSize: 14,
-//                       fontWeight: FontWeight.w600,
-//                     ),
-//                     SizedBox(height: 5),
-
-//                     //Subtitle
-//                     SubtitleText(subtitle: subtitle, fontSize: 10),
-
-//                     //New coloumn
-//                     if (colum1 != null) ...[SizedBox(height: 5), colum1!],
-//                   ],
-//                 ),
-//               ),
-
-//               //New row
-//               if (trailing != null) ...[const SizedBox(width: 5), trailing!],
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart'; // Ensure GetX is imported for Obx support
+import 'package:intl/intl.dart';
 import 'package:my_sip/common/style/padding.dart';
 import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
 import 'package:my_sip/common/widget/text/section_heading.dart';
@@ -236,140 +10,7 @@ import 'package:my_sip/features/personalization/presentation/pages/profile.dart'
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/services/session_manager.dart';
-
-// class KycDetailsScreen extends StatelessWidget {
-//   const KycDetailsScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final user = SessionManager.instance.userObs.value;
-
-//     return Scaffold(
-//       appBar: CustomAppBarNormal(title: 'KYC Details'),
-//       body: SingleChildScrollView(
-//         padding: UPadding.screenPadding,
-//         child: Center(
-//           child: ConstrainedBox(
-//             constraints: const BoxConstraints(maxWidth: 600),
-//             child: Column(
-//               children: [
-//                 SizedBox(height: kToolbarHeight - kToolbarHeight / 2),
-
-//                 //Profile Header
-//                 ProfileHeader(
-//                   img: user?.img ?? UImages.avatar,
-//                   name: user?.name ?? 'Guest User',
-//                   subtitle:
-//                       'Ready to invest since ${user?.customerDetailsModel?.dob?.split('-')[0] ?? ''}',
-//                   icon: Icons.verified,
-//                   onTap: () {},
-//                 ),
-//                 const SizedBox(height: 30),
-
-//                 //Kyc Details
-//                 InfoCard(
-//                   title: 'Tax Status',
-//                   subtitle:
-//                       user?.customerDetailsModel?.wealthSource ??
-//                       'Not Available',
-//                 ),
-//                 const SizedBox(height: 10),
-//                 InfoCard(
-//                   title: 'Pan Number',
-//                   subtitle: user?.panCard ?? 'Not Available',
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// class InfoCard extends StatelessWidget {
-//   const InfoCard({
-//     super.key,
-//     required this.title,
-//     required this.subtitle,
-//     this.colum1,
-//     this.trailing,
-//     this.onTap,
-//   });
-
-//   final String title;
-//   final String subtitle;
-//   final Widget? colum1;
-//   final Widget? trailing;
-//   final VoidCallback? onTap;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Card(
-//       elevation: 0,
-//       shape: RoundedRectangleBorder(
-//         borderRadius: BorderRadius.circular(12),
-//         side: BorderSide(color: Colors.grey.shade200, width: 1),
-//       ),
-//       color: Ucolors.light,
-//       child: InkWell(
-//         onTap: onTap,
-//         borderRadius: BorderRadius.circular(12),
-//         child: SizedBox(
-//           width: double.infinity,
-//           child: Padding(
-//             padding: const EdgeInsets.all(16.0), // Padding thodi uniform kar di
-//             child: Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//               children: [
-//                 Expanded(
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     mainAxisAlignment: MainAxisAlignment.center,
-//                     children: [
-//                       /// Title
-//                       SectionHeading(
-//                         sectionTitle: title,
-//                         fontSize: 14,
-//                         fontWeight: FontWeight.w600,
-//                       ),
-//                       const SizedBox(height: 6),
-
-//                       //Subtitle
-//                       SubtitleText(
-//                         subtitle: subtitle,
-//                         fontSize: 12,
-//                       ), // Font thoda bada kiya readable banane ke liye
-//                       //New coloumn
-//                       if (colum1 != null) ...[
-//                         const SizedBox(height: 8),
-//                         colum1!,
-//                       ],
-//                     ],
-//                   ),
-//                 ),
-
-//                 //New row
-//                 if (trailing != null) ...[const SizedBox(width: 10), trailing!],
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-// import 'package:my_sip/common/style/padding.dart';
-// import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
-// import 'package:my_sip/common/widget/text/section_heading.dart';
-// import 'package:my_sip/common/widget/text/subtitle_section.dart';
-// import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
-// import 'package:my_sip/core/utils/constant/colors.dart';
-// import 'package:my_sip/core/utils/constant/images.dart';
-// import 'package:my_sip/services/session_manager.dart';
+import '../../../../core/utils/constant/text_style.dart';
 
 class KycDetailsScreen extends StatelessWidget {
   const KycDetailsScreen({super.key});
@@ -379,121 +20,386 @@ class KycDetailsScreen extends StatelessWidget {
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
     return Scaffold(
-      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
+      backgroundColor:  Ucolors.white,
       appBar: isDesktop ? null : CustomAppBarNormal(title: 'KYC Details'),
       body: SingleChildScrollView(
-        padding: isDesktop ? const EdgeInsets.all(40) : UPadding.screenPadding,
+        physics: const BouncingScrollPhysics(),
+        padding: isDesktop ? const EdgeInsets.only(top: 0) : UPadding.screenPadding,
         child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 1200), // Max web width
-            child: isDesktop
-                ? _buildWebDashboardLayout() // 💻 Desktop Layout
-                : _buildMobileLayout(), // 📱 Mobile Layout
-          ),
+          child: Obx(() => isDesktop
+              ? _buildWebDashboardLayout(context)
+              : _buildMobileLayout()),
         ),
       ),
     );
   }
 
   // =========================================
-  // 💻 WEB / DESKTOP LAYOUT (Side-by-Side)
+  // 💻 WEB / DESKTOP LAYOUT (Side-by-Side Dashboard)
   // =========================================
-  Widget _buildWebDashboardLayout() {
+  Widget _buildWebDashboardLayout(BuildContext context) {
     final user = SessionManager.instance.userObs.value;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final String readySinceYear = user?.customerDetailsModel?.dob?.split('-').firstOrNull ?? '---';
+    final String taxStatusName = ProfileUtils.getWealthSourceName(
+      int.tryParse(user?.customerDetailsModel?.wealthSource ?? ''),
+    ) ?? 'Salary';
+    final bool hasRiskProfile = user?.riskProfileModel?.profileName != null;
+    final bool isKycApproved = user?.kycStatus?.toLowerCase() == 'approved';
+    final bool isPanVerified = user?.panCard != null && user!.panCard!.isNotEmpty;
+    final bool isRiskProfileUpdated = user?.riskProfileModel != null;
+    final String aadhaarDisplay = user?.customerDetailsModel?.adhar ?? '---';
+    final bool hasAadhaar = aadhaarDisplay.isNotEmpty && aadhaarDisplay != '---';
+    final bool isVerificationComplete = isKycApproved && isPanVerified;
+    String _formatLastUpdated(String? rawDateString) {
+      if (rawDateString == null || rawDateString.isEmpty) return '---';
+
+      final parsedDate = DateTime.tryParse(rawDateString);
+      if (parsedDate == null) return '---';
+
+      // Formats into something premium and clean like: 29 Apr 2026
+      return DateFormat('dd MMM yyyy').format(parsedDate.toLocal());
+    }
+    return Column(
       children: [
-        // --- LEFT COLUMN: Profile Summary ---
-        Expanded(
-          flex: 4,
-          child: Card(
-            color: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(color: Colors.grey.shade200),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            /// Left Column: KYC Verification Overview Checklist Module
+            Container(
+              width: 280,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: const [
+                      Icon(Icons.check_circle, color: Color(0xFF1F9254), size: 20),
+                      SizedBox(width: 8),
+                      Text(
+                        'KYC Overview',
+                        style:TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF1A1D20)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text('Your KYC is verified and up to date.', style:TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600, fontSize: 12)),
+                  const SizedBox(height: 20),
+
+                  _buildWebCheckmarkItem(
+                    'KYC Verified',
+                    isValid: isKycApproved,
+                  ),
+                  _buildWebCheckmarkItem(
+                    'PAN Verified',
+                    isValid: isVerificationComplete,
+                  ),
+                  _buildWebCheckmarkItem(
+                    'Risk Profile Updated',
+                    isValid: isRiskProfileUpdated,
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  /// Premium Shield Compliance Callout
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF0F5FF),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.shield_outlined, color: Color(0xFF0066FF), size: 18),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              Text('Secure & Compliant', style:TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600, fontSize: 11, color: Color(0xFF0066FF))),
+                              SizedBox(height: 4),
+                              Text(
+                                'We use industry-leading security to protect your information.',
+                                style:TextStyle(fontFamily: FontFamily.medium,fontSize: 10, color: Color(0xFF4A5568), height: 1.4),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
+            const SizedBox(width: 24),
+
+            /// Right Column: Interactive Profile Information Cards Grid Matrix
+            Expanded(
               child: Column(
                 children: [
-                  ProfileHeader(
-                    img: user?.img ?? UImages.avatar,
-                    name: user?.name ?? 'Guest User',
-                    subtitle:
-                        'Ready to invest since ${user?.customerDetailsModel?.dob?.split('-')[0] ?? ''}',
-                    icon: Icons.verified,
-                    onTap: () {},
+                  /// Info Row Block 1
+                  Row(
+                    children: [
+                      Expanded(child: _buildWebInfoGridCard('Full Name', user?.name ?? '---')),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildWebInfoGridCard(
+                          'PAN Number',
+                          user?.panCard ?? '---',
+                          badgeText: isVerificationComplete ? 'PAN Verified' : 'Pending',
+                          isErrorBadge: !isVerificationComplete,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildWebInfoGridCard(
+                          'Aadhaar (Last 4)',
+                          aadhaarDisplay,
+                          badgeText: hasAadhaar ? 'Verified' : 'Pending',
+                          isErrorBadge: !hasAadhaar,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 20),
-                  const Divider(),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "Your account is fully verified and ready for investments.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey, fontSize: 13),
+                  const SizedBox(height: 16),
+
+                  /// Info Row Block 2
+                  Row(
+                    children: [
+                      Expanded(child: _buildWebInfoGridCard('Tax Status', taxStatusName)),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildWebInfoGridCard(
+                          'Risk Profile',
+                          user?.riskProfileModel?.profileName ?? 'Balanced',
+                          badgeText: hasRiskProfile ? 'Updated' : 'Pending',
+                          isErrorBadge: !hasRiskProfile,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildWebInfoGridCard(
+                          'Ready to invest since',
+                          readySinceYear,
+                          trailingIcon: Icons.calendar_today_outlined,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  /// Comprehensive Horizon Wide Status Field
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    padding: const EdgeInsets.all(20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Text('KYC Status', style:TextStyle(fontFamily: FontFamily.medium,fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF70767F))),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(color: const Color(0xFFE6F7ED), borderRadius: BorderRadius.circular(4)),
+                                  child:  Text(isVerificationComplete ? 'Verified' : 'Pending Verification',
+                                    style:TextStyle(fontFamily: FontFamily.medium,
+                                      color: isVerificationComplete ? const Color(0xFF1F9254) : const Color(0xFFC53929),
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,)),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              isVerificationComplete
+                                  ? 'Your KYC is complete and verified. You can continue investing without any interruptions.'
+                                  : 'Your PAN verification or KYC profile is pending. Complete both details to authorize full investment access.',
+                              style:TextStyle(fontFamily: FontFamily.medium,color: Colors.grey.shade600, fontSize: 12),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children:  [
+                            Text('Last Updated', style:TextStyle(fontFamily: FontFamily.medium,fontSize: 11, color: Color(0xFF70767F))),
+                            SizedBox(height: 4),
+                            Text(_formatLastUpdated(user?.updatedAt), style:TextStyle(fontFamily: FontFamily.medium,fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1A1D20))),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-          ),
+          ],
         ),
+        const SizedBox(height: 24),
 
-        const SizedBox(width: 30), // Gap between columns
-        // --- RIGHT COLUMN: KYC Cards Grid ---
-        Expanded(
-          flex: 8,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        /// Bottom Global Help Alert Strip
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: const Color(0xFFEFF6FF),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFDBEAFE)),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Row(
             children: [
-              // const Text(
-              //   "KYC Information",
-              //   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              // ),
-              // const SizedBox(height: 20),
-              // Grid for displaying cards side by side on Web
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2, // 2 cards in one row
-                childAspectRatio: 2.5, // Controls card height
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                children: [
-                  InfoCard(
-                    title: 'Tax Status',
-                    subtitle: ProfileUtils.getWealthSourceName(
-                      int.tryParse(
-                        user?.customerDetailsModel?.wealthSource ?? '',
-                      ),
-                    ),
-                  ),
-                  InfoCard(
-                    title: 'Pan Number',
-                    subtitle: user?.panCard ?? 'Not Available',
-                  ),
-                  InfoCard(
-                    title: 'Risk Profile',
-                    subtitle: user?.riskProfileModel?.profileName ?? 'Balanced',
-                  ),
-                  InfoCard(
-                    title: 'Aadhaar (Last 4)',
-                    subtitle: user?.customerDetailsModel?.adhar ?? 'XXXX',
-                  ),
-                ],
+              const Icon(Icons.info, color: Color(0xFF0066FF), size: 22),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text('Need to update your KYC?', style:TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF1A1D20))),
+                    SizedBox(height: 4),
+                    Text('If your details have changed, please update your information to keep your account up to date.', style:TextStyle(fontFamily: FontFamily.medium,color: Color(0xFF4A5568), fontSize: 12)),
+                  ],
+                ),
               ),
+              if (!isVerificationComplete)
+                ElevatedButton(
+                  // ✅ Open the centered web dashboard helper dialog layout frame on interaction
+                  onPressed: () => _openKycUpdateDialog(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF0066FF),
+                    elevation: 0,
+                    side: const BorderSide(color: Color(0xFFDBEAFE)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  ),
+                  child: const Text('Update KYC', style:TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w600, fontSize: 13)),
+                ),
             ],
           ),
         ),
       ],
     );
   }
+// Reusable helper logic to open a centered web dialog frame when clicked
+  void _openKycUpdateDialog(BuildContext context) {
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        backgroundColor: Colors.white,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480), // Perfect width for web popups
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Aesthetic Icon Focal Header Ring
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFEFF6FF), // Light matching blue ring highlight
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.assignment_ind_outlined,
+                    size: 32,
+                    color: Color(0xFF0066FF),
+                  ),
+                ),
+                const SizedBox(height: 24),
 
+                // Dialog Headings
+                const Text(
+                  "Update KYC Profile",
+                  style:TextStyle(fontFamily: FontFamily.medium,
+
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1A1D20),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  "To update your central KYC registration record or modify your validated identity documents, please complete the procedure via our integrated secure system mobile application workflow.",
+                  textAlign: TextAlign.center,
+                  style:TextStyle(fontFamily: FontFamily.medium,
+
+                    fontSize: 13,
+                    color: Color(0xFF70767F),
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                // Action Button Matrix
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Get.back(), // Safely close the dialog window
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: const Text(
+                        "Close",
+                        style:TextStyle(fontFamily: FontFamily.medium,
+
+                          color: Color(0xFF5F6670),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton(
+                      onPressed: () => Get.back(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0066FF),
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: const Text(
+                        "Understood",
+                        style:TextStyle(fontFamily: FontFamily.medium,
+
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      barrierDismissible: true, // Let users tap outside the popup window to drop it
+    );
+  }
   // =========================================
-  // 📱 MOBILE LAYOUT (Stacked)
+  // 📱 MOBILE LAYOUT (Preserved Setup Style)
   // =========================================
   Widget _buildMobileLayout() {
     final user = SessionManager.instance.userObs.value;
+    final String readySinceYear = user?.customerDetailsModel?.dob?.split('-').firstOrNull ?? '';
 
     return Column(
       children: [
@@ -501,47 +407,121 @@ class KycDetailsScreen extends StatelessWidget {
         ProfileHeader(
           img: user?.img ?? UImages.avatar,
           name: user?.name ?? 'Guest User',
-          subtitle:
-              'Ready to invest since ${user?.customerDetailsModel?.dob?.split('-')[0] ?? ''}',
+          subtitle: 'Ready to invest since $readySinceYear',
           icon: Icons.verified,
           onTap: () {},
+          iconColor: user?.kycStatus?.toLowerCase() == 'approved' ? Colors.green : Colors.black,
         ),
         const SizedBox(height: 30),
         InfoCard(
-          title: 'Tax Status',
-          // subtitle: user?.customerDetailsModel?.wealthSource ?? 'Not Available',
-          subtitle: ProfileUtils.getWealthSourceName(
-            int.tryParse(user?.customerDetailsModel?.wealthSource ?? ''),
-          ),
+          title: 'Kyc Status',
+          subtitle: user?.kycStatus ?? 'NO KYC',
+          trailing: user?.kycStatus?.toLowerCase() == 'approved' ? const Icon(Icons.verified, color: Colors.green) : null,
         ),
         const SizedBox(height: 10),
-        InkWell(
-          onTap: () {
-            final responseData =
-                SessionManager.instance.onboardingRespone.value;
-
-            if (responseData != null) {
-              String prettyPrint = const JsonEncoder.withIndent(
-                '  ',
-              ).convert(responseData.toJson());
-              createLog('✅ Onboarding Response:\n$prettyPrint');
-            } else {
-              log('❌ Onboarding Response is currently NULL');
-            }
-          },
-
-          child: InfoCard(
-            title: 'Pan Number',
-            subtitle:
-                SessionManager.instance.getUserData?.panCard ?? 'Not Available',
-          ),
+        InfoCard(
+          title: 'Pan Number',
+          subtitle: user?.panCard ?? 'Not Available',
         ),
       ],
     );
   }
-}
 
-// Keep your existing InfoCard here
+  // =========================================
+  // 🛠️ PRIVATE DESIGN HELPER BLOCKS
+  // =========================================
+  Widget _buildWebCheckmarkItem(String label, {required bool isValid}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Icon(
+            isValid ? Icons.check_circle : Icons.radio_button_unchecked,
+            color: isValid ? const Color(0xFF1F9254) : Colors.grey.shade400,
+            size: 16,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style:TextStyle(fontFamily: FontFamily.medium,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: isValid ? const Color(0xFF2D3136) : Colors.grey.shade500,
+              decoration: isValid ? TextDecoration.none : TextDecoration.lineThrough, // Optional visual cue
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWebInfoGridCard(
+      String label,
+      String value, {
+        String? badgeText,
+        IconData? trailingIcon,
+        bool isErrorBadge = false, // Renamed to accurately reflect status flags
+      }) {
+    return Container(
+      height: 76,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF70767F)),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF1A1D20)),
+                ),
+              ],
+            ),
+          ),
+          if (badgeText != null) ...[
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                // ✅ FIXED: Background color now changes dynamically to match status semantics
+                color: isErrorBadge ? const Color(0xFFFCE8E6) : const Color(0xFFE6F7ED),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                badgeText,
+                style:TextStyle(fontFamily: FontFamily.medium,
+                  // ✅ FIXED: Typo reference color mapping resolved
+                  color: isErrorBadge ? Ucolors.red : Ucolors.success,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+          if (trailingIcon != null) ...[
+            const SizedBox(width: 8),
+            Icon(trailingIcon, color: Colors.grey.shade400, size: 18),
+          ],
+        ],
+      ),
+    );
+  }}
+
+// Mobile Compatible Fallback Implementation Card
 class InfoCard extends StatelessWidget {
   const InfoCard({
     super.key,
@@ -580,11 +560,7 @@ class InfoCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SectionHeading(
-                      sectionTitle: title,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    SectionHeading(sectionTitle: title, fontSize: 14, fontWeight: FontWeight.w600),
                     const SizedBox(height: 6),
                     SubtitleText(subtitle: subtitle, fontSize: 12),
                     if (colum1 != null) ...[const SizedBox(height: 8), colum1!],
@@ -599,3 +575,264 @@ class InfoCard extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+// import 'package:flutter/material.dart';
+// import 'package:my_sip/common/style/padding.dart';
+// import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
+// import 'package:my_sip/common/widget/text/section_heading.dart';
+// import 'package:my_sip/common/widget/text/subtitle_section.dart';
+// import 'package:my_sip/core/utils/helper/helpers.dart';
+// import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
+// import 'package:my_sip/core/utils/constant/colors.dart';
+// import 'package:my_sip/core/utils/constant/images.dart';
+// import 'package:my_sip/services/session_manager.dart';
+//
+// import '../../../../core/utils/constant/text_style.dart';
+//
+// class KycDetailsScreen extends StatelessWidget {
+//   const KycDetailsScreen({super.key});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final bool isDesktop = MediaQuery.of(context).size.width > 800;
+//
+//     return Scaffold(
+//       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
+//       appBar: isDesktop ? null : CustomAppBarNormal(title: 'KYC Details'),
+//       body: SingleChildScrollView(
+//         padding: isDesktop ? const EdgeInsets.all(40) : UPadding.screenPadding,
+//         child: Center(
+//           child: ConstrainedBox(
+//             constraints: BoxConstraints(maxWidth: 1200), // Max web width
+//             child: isDesktop
+//                 ? _buildWebDashboardLayout() // 💻 Desktop Layout
+//                 : _buildMobileLayout(), // 📱 Mobile Layout
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+//
+//   // =========================================
+//   // 💻 WEB / DESKTOP LAYOUT (Side-by-Side)
+//   // =========================================
+//   Widget _buildWebDashboardLayout() {
+//     final user = SessionManager.instance.userObs.value;
+//     return Row(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         // --- LEFT COLUMN: Profile Summary ---
+//         Expanded(
+//           flex: 4,
+//           child: Card(
+//             color: Colors.white,
+//             elevation: 0,
+//             shape: RoundedRectangleBorder(
+//               borderRadius: BorderRadius.circular(16),
+//               side: BorderSide(color: Colors.grey.shade200),
+//             ),
+//             child: Padding(
+//               padding: const EdgeInsets.all(32.0),
+//               child: Column(
+//                 children: [
+//                   ProfileHeader(
+//                     img: user?.img ?? UImages.avatar,
+//                     name: user?.name ?? 'Guest User',
+//                     subtitle:
+//                         'Ready to invest since ${user?.customerDetailsModel?.dob?.split('-')[0] ?? ''}',
+//                     icon: Icons.verified,
+//                     onTap: () {},
+//                   ),
+//                   const SizedBox(height: 20),
+//                   const Divider(),
+//                   const SizedBox(height: 10),
+//                   const Text(
+//                     "Your account is fully verified and ready for investments.",
+//                     textAlign: TextAlign.center,
+//                     style:TextStyle(fontFamily: FontFamily.medium,
+//                       fontFamily: FontFamily.medium,
+//                       color: Colors.grey,
+//                       fontSize: 13,
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+//         ),
+//
+//         const SizedBox(width: 30), // Gap between columns
+//         // --- RIGHT COLUMN: KYC Cards Grid ---
+//         Expanded(
+//           flex: 8,
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               // const Text(
+//               //   "KYC Information",
+//               //   style:TextStyle(fontFamily: FontFamily.medium,fontFamily: FontFamily.medium,fontSize: 22, fontWeight: FontWeight.w600),
+//               // ),
+//               // const SizedBox(height: 20),
+//               // Grid for displaying cards side by side on Web
+//               GridView.count(
+//                 shrinkWrap: true,
+//                 physics: const NeverScrollableScrollPhysics(),
+//                 crossAxisCount: 2, // 2 cards in one row
+//                 childAspectRatio: 2.5, // Controls card height
+//                 crossAxisSpacing: 16,
+//                 mainAxisSpacing: 16,
+//                 children: [
+//                   InfoCard(
+//                     title: 'Tax Status',
+//                     subtitle: ProfileUtils.getWealthSourceName(
+//                       int.tryParse(
+//                         user?.customerDetailsModel?.wealthSource ?? '',
+//                       ),
+//                     ),
+//                   ),
+//                   InfoCard(
+//                     title: 'Pan Number',
+//                     subtitle: user?.panCard ?? 'Not Available',
+//                   ),
+//                   InfoCard(
+//                     title: 'Risk Profile',
+//                     subtitle: user?.riskProfileModel?.profileName ?? 'Balanced',
+//                   ),
+//                   InfoCard(
+//                     title: 'Aadhaar (Last 4)',
+//                     subtitle: user?.customerDetailsModel?.adhar ?? 'XXXX',
+//                   ),
+//                 ],
+//               ),
+//             ],
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+//
+//   // =========================================
+//   // 📱 MOBILE LAYOUT (Stacked)
+//   // =========================================
+//   Widget _buildMobileLayout() {
+//     final user = SessionManager.instance.userObs.value;
+//
+//     return Column(
+//       children: [
+//         SizedBox(height: kToolbarHeight - kToolbarHeight / 2),
+//         ProfileHeader(
+//           img: user?.img ?? UImages.avatar,
+//           name: user?.name ?? 'Guest User',
+//           subtitle:
+//               'Ready to invest since ${user?.customerDetailsModel?.dob?.split('-')[0] ?? ''}',
+//           icon: Icons.verified,
+//           onTap: () {},
+//           iconColor: user?.kycStatus?.toLowerCase() == 'approved'
+//               ? Colors.green
+//               : Colors.black,
+//         ),
+//         const SizedBox(height: 30),
+//
+//         InfoCard(
+//           title: 'Kyc Status',
+//           // subtitle: user?.customerDetailsModel?.wealthSource ?? 'Not Available',
+//           // subtitle: ProfileUtils.getWealthSourceName(
+//           //   int.tryParse(user?.customerDetailsModel?.wealthSource ?? ''),
+//           // ),
+//           subtitle: user?.kycStatus ?? 'NO KYC',
+//           trailing: user?.kycStatus?.toLowerCase() == 'approved'
+//               ? Icon(Icons.verified, color: Colors.green)
+//               : null,
+//         ),
+//         const SizedBox(height: 10),
+//         InkWell(
+//           onTap: () {
+//             // final responseData =
+//             //     SessionManager.instance.onboardingRespone.value;
+//
+//             // if (responseData != null) {
+//             //   String prettyPrint = const JsonEncoder.withIndent(
+//             //     '  ',
+//             //   ).convert(responseData.toJson());
+//             //   log('✅ Onboarding Response:\n$prettyPrint');
+//             // } else {
+//             //   log('❌ Onboarding Response is currently NULL');
+//             //   log(
+//             //     '${SessionManager.instance.tokenDataModel.value?.id}----------${SessionManager.instance.getTokenData?.id}',
+//             //   );
+//             // }
+//           },
+//
+//           child: InfoCard(
+//             title: 'Pan Number',
+//             subtitle:
+//                 SessionManager.instance.getUserData?.panCard ?? 'Not Available',
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }
+//
+// // Keep your existing InfoCard here
+// class InfoCard extends StatelessWidget {
+//   const InfoCard({
+//     super.key,
+//     required this.title,
+//     required this.subtitle,
+//     this.colum1,
+//     this.trailing,
+//     this.onTap,
+//   });
+//
+//   final String title;
+//   final String subtitle;
+//   final Widget? colum1;
+//   final Widget? trailing;
+//   final VoidCallback? onTap;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Card(
+//       elevation: 0,
+//       shape: RoundedRectangleBorder(
+//         borderRadius: BorderRadius.circular(12),
+//         side: BorderSide(color: Colors.grey.shade200, width: 1),
+//       ),
+//       color: Ucolors.light,
+//       child: InkWell(
+//         onTap: onTap,
+//         borderRadius: BorderRadius.circular(12),
+//         child: Padding(
+//           padding: const EdgeInsets.all(16.0),
+//           child: Row(
+//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//             children: [
+//               Expanded(
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   mainAxisAlignment: MainAxisAlignment.center,
+//                   children: [
+//                     SectionHeading(
+//                       sectionTitle: title,
+//                       fontSize: 14,
+//                       fontWeight: FontWeight.w600,
+//                     ),
+//                     const SizedBox(height: 6),
+//                     SubtitleText(subtitle: subtitle, fontSize: 12),
+//                     if (colum1 != null) ...[const SizedBox(height: 8), colum1!],
+//                   ],
+//                 ),
+//               ),
+//               if (trailing != null) ...[const SizedBox(width: 10), trailing!],
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }

@@ -17,15 +17,13 @@ class MutualfundRemoteDs {
   //Mutual Fund list
   Future<Either<Result<MutualFundListResponseModel>, ApiError>> getFundHouse(
     Map<String, dynamic> data,
-
-
   ) async {
     try {
       final resp = await _servicesApi.postApi(
         "${Appurl.baseUrl}/api/v1/mutual-funds",
-        
-        queryParameters: data,
 
+        queryParameters: data,
+        data: {},
       );
 
       createLog(

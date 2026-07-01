@@ -95,13 +95,13 @@ Future<void> showDOBPickerBottomSheet({
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate,
-      firstDate: DateTime(1900), // Sabse purani date limit
-      lastDate: DateTime.now(), // Future date disable kar di
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF07315C), // Aapka primary theme color
+              primary: Color(0xFF07315C),
               onPrimary: Colors.white,
               onSurface: Colors.black,
             ),
@@ -125,7 +125,7 @@ Future<void> showDOBPickerBottomSheet({
       isScrollControlled: true,
       transitionAnimationController: AnimationController(
         vsync: Navigator.of(context),
-        duration: const Duration(milliseconds: 400), // Thoda fast kiya for better UX
+        duration: const Duration(milliseconds: 400),
       ),
       builder: (_) {
         return SizedBox(
@@ -148,7 +148,7 @@ Future<void> showDOBPickerBottomSheet({
 
               const Text(
                 'Select Date Of Birth',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, fontFamily: FontFamily.medium,),
               ),
 
               Expanded(
@@ -170,7 +170,7 @@ Future<void> showDOBPickerBottomSheet({
                     Navigator.pop(context);
                   },
                   child: Center(
-                    child: Text('Select Date', style: UTextStyles.buttonText),
+                    child: Text('Select Date', style: UTextStyles.buttonText,),
                   ),
                 ),
               ),

@@ -70,8 +70,8 @@
 //     );
 //   }
 // }
-import 'dart:io' as io; // 🚀 FIX 1: dart:io ko alias diya 'io' se
-import 'package:flutter/foundation.dart'; // 🚀 FIX 2: kIsWeb use karne ke liye
+import 'dart:io' as io;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
@@ -107,9 +107,13 @@ class UCircularImage extends StatelessWidget {
   Widget _buildImageLogic() {
     final double size = radius * 2;
 
-    // 0. Safe Check: Agar image empty aayi toh direct fallback dikhao
     if (image.isEmpty) {
-      return Image.asset(UImages.avatar, fit: fit, width: size, height: size);
+      return Image.asset(
+        UImages.mfsiplogo,
+        fit: fit,
+        width: size,
+        height: size,
+      );
     }
 
     // 1. Web Image Picker Check (blob: URL)
@@ -123,7 +127,7 @@ class UCircularImage extends StatelessWidget {
       );
     }
 
-    // 2. Check Local File (🚀 SIRF MOBILE PAR CHALEGA)
+    // 2. Check Local File
     if (!kIsWeb &&
         !image.startsWith('http') &&
         !image.startsWith('storage/') &&
@@ -138,7 +142,7 @@ class UCircularImage extends StatelessWidget {
           );
         }
       } catch (e) {
-        // Agar file dhoondhne mein error aaye toh ignore karo
+        debugPrint(e.toString());
       }
     }
 
@@ -154,13 +158,11 @@ class UCircularImage extends StatelessWidget {
         width: size,
         height: size,
         errorBuilder: (context, error, stackTrace) {
-          // CORS error ya invalid URL par app crash nahi hogi, avatar dikhega!
           return _buildFallback(size);
         },
       );
     }
 
-    // 4. Fallback to Asset Image (Agar path 'assets/...' jaisa hai)
     return Image.asset(
       image,
       fit: fit,
@@ -170,15 +172,14 @@ class UCircularImage extends StatelessWidget {
     );
   }
 
-  // Helper widget taaki baar-baar fallback code repeat na karna pade
   Widget _buildFallback(double size) {
     return Image.asset(
-      UImages.avatar,
+      UImages.mfsiplogo,
       fit: fit,
       width: size,
       height: size,
       errorBuilder: (context, error, stackTrace) =>
-          Icon(Icons.person, size: radius, color: Colors.grey),
+          Icon(Icons.person, color: Colors.grey),
     );
   }
 }

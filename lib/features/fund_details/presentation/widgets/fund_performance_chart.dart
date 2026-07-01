@@ -2,6 +2,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
+import '../../../../core/utils/constant/text_style.dart';
+
 class GroupedPerformanceBarChart extends StatefulWidget {
   final List<dynamic> data;
 
@@ -26,7 +28,7 @@ class _GroupedPerformanceBarChartState
         : 12.0; // Increased width slightly for desktop
 
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(isDesktop ? 16 : 12),
@@ -34,14 +36,14 @@ class _GroupedPerformanceBarChartState
         boxShadow: isDesktop
             ? [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.03),
+                  color: Colors.black.withValues(alpha:0.03),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
               ]
             : [],
       ),
-      padding: isDesktop ? const EdgeInsets.all(24) : const EdgeInsets.all(16),
+      padding: isDesktop ? const EdgeInsets.all(24) : const EdgeInsets.all(0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min, // Important for Column
@@ -52,7 +54,7 @@ class _GroupedPerformanceBarChartState
               children: [
                 Text(
                   'Performance Comparison',
-                  style: TextStyle(
+                  style:  TextStyle(fontFamily: FontFamily.medium,
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: Colors.grey.shade900,
@@ -61,7 +63,7 @@ class _GroupedPerformanceBarChartState
                 _buildLegend(isDesktop: true, width: width),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 8),
           ],
 
           // ---------------------------------------------------------
@@ -70,7 +72,7 @@ class _GroupedPerformanceBarChartState
           SizedBox(
             height: isDesktop
                 ? 300
-                : 250, // Fixed height prevents overflow on wide screens
+                : 200, // Fixed height prevents overflow on wide screens
             child: BarChart(
               BarChartData(
                 // alignment: BarChartAlignment.spaceAround,
@@ -89,7 +91,7 @@ class _GroupedPerformanceBarChartState
                             child: FittedBox(
                               child: Text(
                                 widget.data[index].period,
-                                style: TextStyle(
+                                style:  TextStyle(fontFamily: FontFamily.medium,
                                   color: Colors.grey.shade700,
                                   fontWeight: FontWeight.w600,
                                   fontSize: isDesktop ? 12 : 10,
@@ -111,7 +113,7 @@ class _GroupedPerformanceBarChartState
                         if (value == 0) return const SizedBox();
                         return Text(
                           '${value.toInt()}%',
-                          style: TextStyle(
+                          style:  TextStyle(fontFamily: FontFamily.medium,
                             color: Colors.grey.shade500,
                             fontSize: isDesktop ? 12 : 10,
                             fontWeight: FontWeight.w500,
@@ -152,7 +154,7 @@ class _GroupedPerformanceBarChartState
                       // if (rodIndex == 2) label = 'Category';
                       return BarTooltipItem(
                         '$label\n',
-                        const TextStyle(
+                        const  TextStyle(fontFamily: FontFamily.medium,
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
@@ -160,7 +162,7 @@ class _GroupedPerformanceBarChartState
                         children: <TextSpan>[
                           TextSpan(
                             text: '${rod.toY.toStringAsFixed(2)}%',
-                            style: const TextStyle(
+                            style: const  TextStyle(fontFamily: FontFamily.medium,
                               color: Colors.yellowAccent,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -201,7 +203,7 @@ class _GroupedPerformanceBarChartState
             ),
           ),
           if (!isDesktop) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             _buildLegend(isDesktop: false, width: width),
           ],
         ],
@@ -238,7 +240,7 @@ class _GroupedPerformanceBarChartState
         const SizedBox(width: 6),
         Text(
           label,
-          style: TextStyle(
+          style:  TextStyle(fontFamily: FontFamily.medium,
             fontSize: 12,
             color: Colors.grey.shade700,
             fontWeight: FontWeight.w500,

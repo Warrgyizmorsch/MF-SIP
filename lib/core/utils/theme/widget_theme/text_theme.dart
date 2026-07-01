@@ -16,10 +16,10 @@ class Utexttheme{
 
     bodyLarge: const TextStyle().copyWith(fontSize: 14.0, fontWeight: FontWeight.w500, color: Ucolors.dark),
     bodyMedium: const TextStyle().copyWith(fontSize: 14.0, fontWeight: FontWeight.normal, color: Ucolors.dark),
-    bodySmall: const TextStyle().copyWith(fontSize: 14.0, fontWeight: FontWeight.w500, color: Ucolors.dark.withOpacity(0.5)),
+    bodySmall: const TextStyle().copyWith(fontSize: 14.0, fontWeight: FontWeight.w500, color: Ucolors.dark.withValues(alpha:0.5)),
 
     labelLarge: const TextStyle().copyWith(fontSize: 12.0, fontWeight: FontWeight.normal, color: Ucolors.dark),
-    labelMedium: const TextStyle().copyWith(fontSize: 12.0, fontWeight: FontWeight.normal, color: Ucolors.dark.withOpacity(0.5)),
+    labelMedium: const TextStyle().copyWith(fontSize: 12.0, fontWeight: FontWeight.normal, color: Ucolors.dark.withValues(alpha:0.5)),
 
   );
 
@@ -36,10 +36,10 @@ class Utexttheme{
 
     bodyLarge: const TextStyle().copyWith(fontSize: 14.0, fontWeight: FontWeight.w500, color: Ucolors.light),
     bodyMedium: const TextStyle().copyWith(fontSize: 14.0, fontWeight: FontWeight.normal, color: Ucolors.light),
-    bodySmall: const TextStyle().copyWith(fontSize: 14.0, fontWeight: FontWeight.w500, color: Ucolors.light.withOpacity(0.5)),
+    bodySmall: const TextStyle().copyWith(fontSize: 14.0, fontWeight: FontWeight.w500, color: Ucolors.light.withValues(alpha:0.5)),
 
     labelLarge: const TextStyle().copyWith(fontSize: 12.0, fontWeight: FontWeight.normal, color: Ucolors.light),
-    labelMedium: const TextStyle().copyWith(fontSize: 12.0, fontWeight: FontWeight.normal, color: Ucolors.light.withOpacity(0.5)),
+    labelMedium: const TextStyle().copyWith(fontSize: 12.0, fontWeight: FontWeight.normal, color: Ucolors.light.withValues(alpha:0.5)),
 
   );
 }

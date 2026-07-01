@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -61,7 +60,7 @@ class BottomPortion extends StatelessWidget {
       child: Center(
         child: Text(
           'Let’s Get Started',
-          style: TextStyle(color: Ucolors.light, fontSize: 16),
+          style: TextStyle(fontFamily: FontFamily.medium,color: Ucolors.light, fontSize: 16),
         ),
       ),
     );

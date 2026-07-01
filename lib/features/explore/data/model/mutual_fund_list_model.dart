@@ -29,12 +29,16 @@ class MutualFundListModel {
   final String? schemeType;
   final String? riskLevel;
   final String? schemeCode;
+  final String? schemecategory;
   final String? isin;
   final AmcModel? amc;
   final ReturnsModel? returns;
 
+  final double? nav;
+
   final int? minSipAmount;
   final int? minLumpsum;
+  final int? minTopUp;
   final List<VariantModel> variants;
 
   MutualFundListModel({
@@ -48,6 +52,9 @@ class MutualFundListModel {
     required this.variants,
     required this.minSipAmount,
     required this.minLumpsum,
+    required this.minTopUp,
+    required this.schemecategory,
+    required this.nav,
   });
 
   factory MutualFundListModel.fromJson(Map<String, dynamic> json) {
@@ -58,6 +65,9 @@ class MutualFundListModel {
       isin: json.parse<String>('isin'),
       minSipAmount: json.parse<int>('min_sip_amount'),
       minLumpsum: json.parse<int>('min_lumpsum'),
+      minTopUp: json.parse<int>('minimum_topup'),
+      nav: json.parse<double>('nav'),
+      schemecategory: json.parse<String>('scheme_category'),
       riskLevel: json.parse<String>('risk_level'),
       amc: json.parseNested('amc', (e) => AmcModel.fromJson(e)),
       returns: json.parseNested('returns', (e) => ReturnsModel.fromJson(e)),

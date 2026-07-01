@@ -24,6 +24,7 @@ class FundDetailRemoteDataSource {
     try {
       final response = await _servicesApi.postApi(
         '${Appurl.baseUrl2}/getSchemeInfoLatest',
+        // '${Appurl.baseUrl}/api/mutual-fund/details',
         queryParameters: {
           'key': 'c6b23a3f-ee3c-4b8b-a9bb-05bce1e39405',
           'scheme': data['scheme'],
@@ -58,6 +59,7 @@ class FundDetailRemoteDataSource {
     try {
       final response = await _servicesApi.postApi(
         '${Appurl.baseUrl2}/getPortfolioAnalysisNew',
+        // '${Appurl.baseUrl}/public/api/mutual-fund/portfolio-details?scheme',
         queryParameters: {
           'key': 'c6b23a3f-ee3c-4b8b-a9bb-05bce1e39405',
           'scheme': data['scheme'],
@@ -92,15 +94,17 @@ class FundDetailRemoteDataSource {
     try {
       final response = await _servicesApi.getApi(
         '${Appurl.navUrl}/${data['scheme_code']}',
-        queryParameters: {'startDate': data['startDate'], 'endDate': data['endDate']},
-        isPublic: true
-
+        queryParameters: {
+          'startDate': data['startDate'],
+          'endDate': data['endDate'],
+        },
+        isPublic: true,
       );
       createLog('Nav History remore data source --- $response ');
       final Map<String, dynamic> json = response is String
           ? jsonDecode(response)
           : response;
-      if (json['status'] == 'SUCCESS' || json['status'] == true)  {
+      if (json['status'] == 'SUCCESS' || json['status'] == true) {
         final result = NavHistoryResponseModel.fromJson(json);
         return Left(Result.success(result));
       }

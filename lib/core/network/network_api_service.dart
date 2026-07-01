@@ -16,7 +16,8 @@ class NetworkServicesApi implements BaseApiServices {
         baseUrl: baseUrl ?? 'https://your-api-url.com/api',
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
-        sendTimeout: const Duration(seconds: 30),
+        // sendTimeout: const Duration(seconds: 30),
+        sendTimeout: kIsWeb ? null : const Duration(seconds: 30),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -423,7 +424,9 @@ class _HeadersInterceptor extends Interceptor {
       createLog("[API] Request: ${options.method} ${options.uri}");
       return super.onRequest(options, handler);
     }
+    // ignore: unused_local_variable
     final version = await _getAppVersion();
+    // ignore: unused_local_variable
     final platform = _getPlatformHeader();
 
     // options.headers.addAll({

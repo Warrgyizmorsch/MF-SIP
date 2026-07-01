@@ -1,35 +1,39 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../features/home/presentation/controllers/home_controller.dart';
 
 class NotificationService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-
   Future<void> init() async {
-    // Permission
     await _firebaseMessaging.requestPermission();
 
-    // Token
+    // Token lena
     String? token = await _firebaseMessaging.getToken();
-    print("FCM Token: $token");
+
+    if (token != null) {
+      debugPrint("--- Firebase Token $token ---");
+
+    }
 
     final controller = Get.find<HomeController>();
 
-    // Foreground message
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      final title = message.notification?.title ?? "No Title";
-      final body = message.notification?.body ?? "No Body";
+      String title = message.notification?.title ?? "No Title";
+      String body = message.notification?.body ?? "No Body";
 
-      print("Foreground Message: $title");
+      if (message.notification == null && message.data.isNotEmpty) {
+        title = message.data['title'] ?? title;
+        body = message.data['body'] ?? body;
+      }
 
-      // 🔥 Send data to controller
+      debugPrint("Received JSON - Title: $title, Body: $body");
+
+      final controller = Get.find<HomeController>();
       controller.addNotification(title, body);
-    });
-
-    // Background click
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print("Notification Clicked");
     });
   }
 }

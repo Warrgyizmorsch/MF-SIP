@@ -2,9 +2,15 @@ import 'package:get/get.dart';
 import 'package:my_sip/core/network/network_api_service.dart';
 import 'package:my_sip/features/mfu/data/datasource/mfu_remote_data_source.dart';
 import 'package:my_sip/features/mfu/data/repository/mfu_repo_imple.dart';
+import 'package:my_sip/features/mfu/domain/usecases/bank_validation_usecases.dart';
 import 'package:my_sip/features/mfu/domain/usecases/can_register_usecases.dart';
 import 'package:my_sip/features/mfu/domain/usecases/can_status_usecases.dart';
+import 'package:my_sip/features/mfu/domain/usecases/emandate_status_usecases.dart';
+import 'package:my_sip/features/mfu/domain/usecases/mandate_use_cases.dart';
+import 'package:my_sip/features/mfu/domain/usecases/mfu_call_usecase.dart';
 import 'package:my_sip/features/mfu/domain/usecases/mfu_usecases.dart';
+import 'package:my_sip/features/mfu/domain/usecases/normal_txn_usecases.dart';
+import 'package:my_sip/features/mfu/domain/usecases/systematic_txn_usecases.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 
 import 'package:my_sip/services/session_manager.dart';
@@ -18,28 +24,69 @@ class MfuBindings extends Bindings {
         Get.find<NetworkServicesApi>(),
         Get.find<SessionManager>(),
       ),
+      fenix: true
     );
 
     // 2. Repository
-    Get.lazyPut(() => MfuRepositoryImpl(Get.find<MfuRemoteDataSource>()));
+    Get.lazyPut(() => MfuRepositoryImpl(Get.find<MfuRemoteDataSource>()) , fenix: true);
 
     // 3. Use Cases
     Get.lazyPut(
-      () => CanRegisterUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+      () => CanRegisterUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
     );
     Get.lazyPut(
-      () => GetCanStatusUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+      () => GetCanStatusUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
     );
+    Get.lazyPut(
+      () => MfuCanBankValidationUseCase(
+        mfuRepository: Get.find<MfuRepositoryImpl>(),
+      ), fenix: true
+    );
+
+    Get.lazyPut(
+      () =>
+          MfuMandateCreateUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
+    );
+
+    Get.lazyPut(
+      () =>
+          MfuMandateStatusUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
+    );
+
+    Get.lazyPut(
+      () => MfuNormalTxnUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
+    );
+
+    Get.lazyPut(
+      () =>
+          MfuSystematicTxnUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
+    );
+    Get.lazyPut(
+      () => MfuCallUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
+    );
+    // Get.lazyPut(
+    //   () =>
+    //       GetTransactionsUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+    // );
+    // Get.lazyPut(
+    //   () => GetPortfolioUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+    // );
 
     // 4. Use Cases Wrapper
     Get.lazyPut(
       () => MfuUseCases(
         canRegisterUseCase: Get.find<CanRegisterUseCase>(),
-        getCanStatusUseCase: Get.find<GetCanStatusUseCase>(), // 👈 add
+        getCanStatusUseCase: Get.find<GetCanStatusUseCase>(),
+        mfuCanBankValidationUseCase: Get.find<MfuCanBankValidationUseCase>(),
+        mfuMandateCreateUseCase: Get.find<MfuMandateCreateUseCase>(),
+        mfuMandateStatusUseCase: Get.find<MfuMandateStatusUseCase>(),
+        mfuNormalTxnUseCase: Get.find<MfuNormalTxnUseCase>(),
+        mfuSystematicTxnUseCase: Get.find<MfuSystematicTxnUseCase>(),
+        mfuCallUseCase: Get.find<MfuCallUseCase>(),
       ),
     );
 
     // 5. Controller
-    Get.lazyPut(() => MfuController(Get.find<MfuUseCases>()));
+    Get.lazyPut(() => MfuController(Get.find<MfuUseCases>()), fenix: true);
   }
 }

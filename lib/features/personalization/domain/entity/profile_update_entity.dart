@@ -66,7 +66,9 @@ class ProfileDataEntity extends Equatable {
   final CustomerDetailsEntity? customerDetails;
   final RiskProfileEntity? riskProfile;
   final NomineeEntity? nominee;
-  final BankAccountEntity? bankAccount;
+  // final BankAccountEntity? bankAccount;
+  final List<BankAccountEntity>? bankAccounts;
+  final MfuMandateEntity? mfuMandate;
 
   const ProfileDataEntity({
     required this.id,
@@ -108,7 +110,8 @@ class ProfileDataEntity extends Equatable {
     required this.customerDetails,
     required this.riskProfile,
     required this.nominee,
-    required this.bankAccount,
+    required this.bankAccounts,
+    required this.mfuMandate,
   });
 
   @override
@@ -153,7 +156,8 @@ class ProfileDataEntity extends Equatable {
     customerDetails,
     riskProfile,
     nominee,
-    bankAccount,
+    bankAccounts,
+    mfuMandate,
   ];
 }
 
@@ -199,7 +203,9 @@ extension ProfileDataEntityX on ProfileDataModel {
       customerDetails: customerDetails?.toEntity(),
       riskProfile: riskProfile?.toEntity(),
       nominee: nominee?.toEntity(),
-      bankAccount: bankAccount?.toEntity(),
+      // bankAccounts: bankAccounts?.toen,
+      bankAccounts: bankAccounts?.map((e) => e.toEntity()).toList(),
+      mfuMandate: mfuMandate?.toEntity(),
     );
   }
 }
@@ -251,9 +257,9 @@ class CustomerDetailsEntity extends Equatable {
     userId,
     dob,
     occupation,
-        maritalStatus,
-        fatherName,
-        motherName,
+    maritalStatus,
+    fatherName,
+    motherName,
     wealthSource,
     ageGroup,
     riskAppetite,
@@ -405,13 +411,18 @@ extension NomineeEntityX on NomineeModel {
 }
 
 class BankAccountEntity extends Equatable {
-  final int? id;
+ final int? id;
   final int? userId;
+  final String? accountType; // Added
   final String? accountHolderName;
   final String? accountNumberEncrypted;
   final String? ifscCode;
+  final String? micrCode; // Added
   final String? bankName;
   final int? verified;
+  final String? verifiedAt; // Added
+  final String? createdAt; // Added
+  final String? updatedAt; // Added
 
   const BankAccountEntity({
     required this.id,
@@ -421,17 +432,20 @@ class BankAccountEntity extends Equatable {
     required this.ifscCode,
     required this.bankName,
     required this.verified,
+  
+    this.accountType,
+  
+    this.micrCode,
+   
+    this.verifiedAt,
+    this.createdAt,
+    this.updatedAt,
   });
 
   @override
   List<Object?> get props => [
-    id,
-    userId,
-    accountHolderName,
-    accountNumberEncrypted,
-    ifscCode,
-    bankName,
-    verified,
+   id, userId, accountType, accountHolderName, accountNumberEncrypted,
+        ifscCode, micrCode, bankName, verified, verifiedAt, createdAt, updatedAt
   ];
 }
 
@@ -440,11 +454,97 @@ extension BankAccountEntityX on BankAccountModel {
     return BankAccountEntity(
       id: id,
       userId: userId,
+      accountType: accountType, // Added
       accountHolderName: accountHolderName,
       accountNumberEncrypted: accountNumberEncrypted,
       ifscCode: ifscCode,
+      micrCode: micrCode, // Added
       bankName: bankName,
       verified: verified,
+      verifiedAt: verifiedAt, // Added
+      createdAt: createdAt, // Added
+      updatedAt: updatedAt, // Added
     );
   }
+}
+
+extension MfuMandateEntityX on MfuMandateModel {
+  MfuMandateEntity toEntity() {
+    return MfuMandateEntity(
+      id: id,
+      userId: userId,
+      bankAccountId: bankAccountId,
+      startDate: startDate,
+      endDate: endDate,
+      vpaId: vpaId,
+      mandateMode: mandateMode,
+      mandateType: mandateType,
+      mumrn: mumrn,
+      mmrn: mmrn,
+      aumrn: aumrn,
+      status: status,
+      aggrStatus: aggrStatus,
+      maxAmount: maxAmount,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
+}
+
+class MfuMandateEntity extends Equatable {
+  final int? id;
+  final int? userId;
+  final int? bankAccountId;
+  final String? startDate;
+  final String? endDate;
+  final String? vpaId;
+  final String? mandateMode;
+  final String? mandateType;
+  final String? mumrn;
+  final String? mmrn;
+  final String? aumrn;
+  final String? status;
+  final String? aggrStatus;
+  final String? maxAmount;
+  final String? createdAt;
+  final String? updatedAt;
+
+  const MfuMandateEntity({
+    required this.id,
+    required this.userId,
+    required this.bankAccountId,
+    required this.startDate,
+    required this.endDate,
+    required this.vpaId,
+    required this.mandateMode,
+    required this.mandateType,
+    required this.mumrn,
+    required this.mmrn,
+    required this.aumrn,
+    required this.status,
+    required this.aggrStatus,
+    required this.maxAmount,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  @override
+  List<Object?> get props => [
+    id,
+    userId,
+    bankAccountId,
+    startDate,
+    endDate,
+    vpaId,
+    mandateMode,
+    mandateType,
+    mumrn,
+    mmrn,
+    aumrn,
+    status,
+    aggrStatus,
+    maxAmount,
+    createdAt,
+    updatedAt,
+  ];
 }

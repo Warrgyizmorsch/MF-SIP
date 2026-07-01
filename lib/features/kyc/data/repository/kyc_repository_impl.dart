@@ -12,7 +12,6 @@ import 'package:my_sip/features/kyc/domain/entity/execute_poi_step2_entity.dart'
 import 'package:my_sip/features/kyc/domain/entity/file_upload_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/get_esign_data_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/kyc_check_entity.dart';
-import 'package:my_sip/features/kyc/domain/entity/onboarding_login_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/poi_step_1_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/verify_bank_account_entity.dart';
 import 'package:my_sip/features/kyc/domain/repository/kyc_repository.dart';

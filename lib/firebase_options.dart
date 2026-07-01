@@ -41,48 +41,53 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCeZFeHXXfsZwek7bKAtmZ630aPOfw790o',
-    appId: '1:623862851986:web:f3bbe29cfc34770910794b',
-    messagingSenderId: '623862851986',
-    projectId: 'mf-sip-7f078',
-    authDomain: 'mf-sip-7f078.firebaseapp.com',
-    storageBucket: 'mf-sip-7f078.firebasestorage.app',
-    measurementId: 'G-QEDTZ7Q8W9',
+    apiKey: 'AIzaSyAjGpFFBFqRnxI1QToxAin0OHXPbigtnEo',
+    appId: '1:718782049570:web:f232211ca4b778f383c97b',
+    messagingSenderId: '718782049570',
+    projectId: 'mfsip-3aa54',
+    authDomain: 'mfsip-3aa54.firebaseapp.com',
+    storageBucket: 'mfsip-3aa54.firebasestorage.app',
+    measurementId: 'G-ZW4H57GNKB',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAVJ9uoW_vXxs_PMeBX-2J_420INZWGOdE',
-    appId: '1:623862851986:android:d21c3e4403fca39310794b',
-    messagingSenderId: '623862851986',
-    projectId: 'mf-sip-7f078',
-    storageBucket: 'mf-sip-7f078.firebasestorage.app',
+    apiKey: 'AIzaSyBQvPw7sdK6XQCdaIT7_RqLjtvTLTuFzJg',
+    appId: '1:718782049570:android:a87d24f3e1eb373483c97b',
+    messagingSenderId: '718782049570',
+    projectId: 'mfsip-3aa54',
+    storageBucket: 'mfsip-3aa54.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDb4XHug4BStaH9N558iwbvsqUnbZYNKa0',
-    appId: '1:623862851986:ios:054e8343364d084310794b',
-    messagingSenderId: '623862851986',
-    projectId: 'mf-sip-7f078',
-    storageBucket: 'mf-sip-7f078.firebasestorage.app',
-    iosBundleId: 'com.example.mySip',
+    apiKey: 'AIzaSyA3lBHxNzFkZAu-sk-0Zkt-zeLkjGknydg',
+    appId: '1:718782049570:ios:70de3f996d7fdc5583c97b',
+    messagingSenderId: '718782049570',
+    projectId: 'mfsip-3aa54',
+    storageBucket: 'mfsip-3aa54.firebasestorage.app',
+    androidClientId: '718782049570-h7ioskptkhlcn8prpdq3i1a60o8f4stf.apps.googleusercontent.com',
+    iosClientId: '718782049570-67su7tcjak5odsi9tsmbse501p0dgaq1.apps.googleusercontent.com',
+    iosBundleId: 'com.kirtihinger.mfsip',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDb4XHug4BStaH9N558iwbvsqUnbZYNKa0',
-    appId: '1:623862851986:ios:054e8343364d084310794b',
-    messagingSenderId: '623862851986',
-    projectId: 'mf-sip-7f078',
-    storageBucket: 'mf-sip-7f078.firebasestorage.app',
+    apiKey: 'AIzaSyA3lBHxNzFkZAu-sk-0Zkt-zeLkjGknydg',
+    appId: '1:718782049570:ios:ee75a1ed5d85c54783c97b',
+    messagingSenderId: '718782049570',
+    projectId: 'mfsip-3aa54',
+    storageBucket: 'mfsip-3aa54.firebasestorage.app',
+    androidClientId: '718782049570-h7ioskptkhlcn8prpdq3i1a60o8f4stf.apps.googleusercontent.com',
+    iosClientId: '718782049570-1v1dj9cscjmbhhjseaighr6pt654vt7o.apps.googleusercontent.com',
     iosBundleId: 'com.example.mySip',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCeZFeHXXfsZwek7bKAtmZ630aPOfw790o',
-    appId: '1:623862851986:web:f3cbce7c5c707bf610794b',
-    messagingSenderId: '623862851986',
-    projectId: 'mf-sip-7f078',
-    authDomain: 'mf-sip-7f078.firebaseapp.com',
-    storageBucket: 'mf-sip-7f078.firebasestorage.app',
-    measurementId: 'G-3P3RCF4WC7',
+    apiKey: 'AIzaSyAjGpFFBFqRnxI1QToxAin0OHXPbigtnEo',
+    appId: '1:718782049570:web:21d74a54b75f7f2983c97b',
+    messagingSenderId: '718782049570',
+    projectId: 'mfsip-3aa54',
+    authDomain: 'mfsip-3aa54.firebaseapp.com',
+    storageBucket: 'mfsip-3aa54.firebasestorage.app',
+    measurementId: 'G-P86TNS2LRL',
   );
+
 }

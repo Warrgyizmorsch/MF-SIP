@@ -57,7 +57,10 @@ class OtpVerificationScreen extends GetView<AuthController> {
                         // --- LEFT SIDE (Header Info / Image) ---
                         ResponsiveRowColumnItem(
                           rowFlex: 1,
-                          child: OtpTopSection(isDesktop: isDesktop),
+                          child: OtpTopSection(
+                            isDesktop: isDesktop,
+                            controller: controller,
+                          ),
                         ),
 
                         // --- RIGHT SIDE (Inputs & Buttons) ---
@@ -298,7 +301,13 @@ class OtpVerificationScreen extends GetView<AuthController> {
 }
 
 class OtpTopSection extends StatelessWidget {
-  const OtpTopSection({super.key, this.isDesktop = false});
+  const OtpTopSection({
+    super.key,
+    this.isDesktop = false,
+    required this.controller,
+  });
+
+  final AuthController controller;
 
   final bool isDesktop;
 
@@ -330,9 +339,9 @@ class OtpTopSection extends StatelessWidget {
 
           const HeadingText(title: 'Verify Your Number'),
           const SizedBox(height: 10),
-          const SubtitleText(
+          SubtitleText(
             subtitle:
-                'To verify your account, enter the 6 digit OTP code that we sent to your number.',
+                'To verify your account, Enter the 6 digit OTP code that we sent to +91${controller.mobileController.text}.',
           ),
           const SizedBox(height: 25),
         ],

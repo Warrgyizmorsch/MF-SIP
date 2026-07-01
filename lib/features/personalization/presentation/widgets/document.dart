@@ -37,6 +37,8 @@
 
 //             SizedBox(height: 10),
 
+// ignore_for_file: unused_local_variable
+
 //             InfoCard(
 //               onTap: () {},
 //               title: 'PAN Card',
@@ -83,17 +85,7 @@ import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/services/session_manager.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:my_sip/common/style/padding.dart';
-import 'package:my_sip/common/widget/appbar/custom_appbar_normal.dart';
-import 'package:my_sip/features/personalization/presentation/widgets/kyc_details.dart'; // Keeping for InfoCard on mobile
-import 'package:my_sip/features/personalization/presentation/pages/profile.dart';
-import 'package:my_sip/core/utils/constant/colors.dart';
-import 'package:my_sip/core/utils/constant/images.dart';
-import 'package:my_sip/core/utils/constant/text_style.dart';
-import 'package:my_sip/services/session_manager.dart';
 
 class DocumentScreen extends StatelessWidget {
   const DocumentScreen({super.key});
@@ -102,25 +94,17 @@ class DocumentScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = SessionManager.instance.userObs.value;
 
-    // 🚀 Check if Desktop/Web or Mobile
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
     return Scaffold(
-      backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
+      backgroundColor:Colors.white,
       appBar: isDesktop ? null : const CustomAppBarNormal(title: 'Documents'),
 
       body: SingleChildScrollView(
-        padding: isDesktop ? const EdgeInsets.all(40) : UPadding.screenPadding,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 1200,
-            ), // Max web width limit
-            child: isDesktop
-                ? _buildWebDashboardLayout() // 💻 Desktop Layout
-                : _buildMobileLayout(), // 📱 Mobile Layout
-          ),
-        ),
+        padding: isDesktop ? const EdgeInsets.symmetric(horizontal: 0, vertical: 0) : UPadding.screenPadding,
+        child: isDesktop
+            ? _buildWebDashboardLayout() // 💻 Desktop Layout
+            : _buildMobileLayout(),
       ),
     );
   }
@@ -131,127 +115,58 @@ class DocumentScreen extends StatelessWidget {
   Widget _buildWebDashboardLayout() {
     final user = SessionManager.instance.userObs.value;
 
-    return Row(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // --- LEFT COLUMN: Profile Summary ---
-        Expanded(
-          flex: 3, // Thoda chota kiya left side ko
-          child: Card(
-            color: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(color: Colors.grey.shade200),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: Column(
-                children: [
-                  // ProfileHeader(
-                  //   name: user?.name ?? 'Guest User',
-                  //   img: user?.img ?? '',
-                  //   subtitle:
-                  //       'Member since ${user?.createdAt?.split('-')[0] ?? ''}',
-                  //   icon: Icons.verified,
-                  //   onTap: () {},
-                  // ),
-                  Obx(() {
-                    final reactiveUser = SessionManager.instance.userObs.value;
-
-                    return ProfileHeader(
-                      onTap: () {},
-                      img: reactiveUser?.img ?? '',
-                      subtitle:
-                          'Member since ${user?.createdAt?.split('-')[0] ?? ''}',
-                      icon: Iconsax.export,
-                    );
-                  }),
-                  const SizedBox(height: 24),
-                  const Divider(),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: const [
-                        Icon(Icons.shield, color: Colors.green, size: 20),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            "End-to-End Encrypted",
-                            style: TextStyle(
-                              color: Colors.green,
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+        const Text(
+          "Document Vault",
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
           ),
         ),
-
-        const SizedBox(width: 32),
-
-        // --- RIGHT COLUMN: Documents Grid ---
-        Expanded(
-          flex: 8,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Document Vault",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "Manage and view your uploaded KYC documents.",
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
-              ),
-              const SizedBox(height: 24),
-
-              // 🚀 FIX: Grid Layout for Documents on Web
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2, // 2 Documents per row
-                childAspectRatio: 1.4, // Card shape
-                crossAxisSpacing: 24,
-                mainAxisSpacing: 24,
-                children: [
-                  // PAN Card Web Design
-                  _buildWebDocumentCard(
-                    title: "PAN Card",
-                    subtitle: user?.panCard ?? 'Not Available',
-                    icon: Iconsax.card,
-                    color: Colors.blue,
-                    status: "Verified",
-                    onView: () {},
-                  ),
-
-                  // Signature Web Design
-                  _buildWebDocumentCard(
-                    title: "Bank Signature",
-                    subtitle: "Individual's Signature",
-                    icon: Iconsax.edit,
-                    color: Colors.purple,
-                    status: "Uploaded",
-                    onView: () {},
-                    trailingImage:
-                        UImages.signature, // Pass the image path here
-                  ),
-                ],
-              ),
-            ],
+        const SizedBox(height: 8),
+        Text(
+          "Manage and view your uploaded KYC documents.",
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            color: Colors.grey.shade600,
+            fontSize: 14,
           ),
+        ),
+        const SizedBox(height: 24),
+
+        // 🚀 FIX: Grid Layout for Documents on Web
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 2, // 2 Documents per row
+          childAspectRatio:4,
+          crossAxisSpacing: 24,
+          mainAxisSpacing: 24,
+          children: [
+            // PAN Card Web Design
+            _buildWebDocumentCard(
+              title: "PAN Card",
+              subtitle: user?.panCard ?? 'Not Available',
+              icon: Iconsax.card,
+              color: Colors.blue,
+              status: "Verified",
+              onView: () {},
+            ),
+
+            // Signature Web Design
+            _buildWebDocumentCard(
+              title: "Bank Signature",
+              subtitle: "Individual's Signature",
+              icon: Iconsax.edit,
+              color: Colors.purple,
+              status: "Uploaded",
+              onView: () {},
+              trailingImage: UImages.signature, // Pass the image path here
+            ),
+          ],
         ),
       ],
     );
@@ -270,99 +185,138 @@ class DocumentScreen extends StatelessWidget {
     String? trailingImage,
   }) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)), // Clean slate border
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
+            color: const Color(0xFF0F172A).withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Icon & Status Badge
+          // --- Header Core Details ---
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Compact Premium Icon Box
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  color: color.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: color, size: 28),
+                child: Icon(icon, color: color, size: 20),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
+              const SizedBox(width: 12),
+
+              // Text Blocks
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF0F172A),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        color: const Color(0xFF64748B),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: title.toLowerCase().contains("pan") ? 1.0 : 0.1,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
+              ),
+              const SizedBox(width: 8),
+
+              // Sharp Minimalist Status Badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
+                  color: const Color(0xFFF0FDF4), // Emerald tint
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: const Color(0xFFDCFCE7)),
                 ),
                 child: Text(
-                  status,
+                  status.toUpperCase(),
                   style: const TextStyle(
-                    color: Colors.green,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
+                    fontFamily: FontFamily.medium,
+                    color: Color(0xFF16A34A), // Deep professional green
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
 
-          // Title & Value
-          Text(
-            title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: TextStyle(
-              color: Colors.grey.shade600,
-              fontSize: 14,
-              letterSpacing: title == "PAN Card" ? 1.5 : 0,
-            ),
-          ),
-
-          const Spacer(),
-          const Divider(),
-          const SizedBox(height: 8),
-
-          // Action & Trailing Image
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // --- Bottom Action Section ---
+          Column(
             children: [
-              TextButton.icon(
-                onPressed: onView,
-                icon: const Icon(Icons.remove_red_eye, size: 18),
-                label: const Text("View Document"),
-                style: TextButton.styleFrom(
-                  foregroundColor: Ucolors.blue,
-                  padding: EdgeInsets.zero,
-                ),
-              ),
-              if (trailingImage != null)
-                SizedBox(
-                  width: 50,
-                  height: 30,
-                  child: Image.asset(
-                    trailingImage,
-                    fit: BoxFit.contain,
-                    color: Colors.grey.shade400,
+              const Divider(color: Color(0xFFF1F5F9), thickness: 1, height: 1),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: onView,
+                    style: TextButton.styleFrom(
+                      foregroundColor: Ucolors.blue,
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.visibility_outlined, size: 15),
+                        SizedBox(width: 6),
+                        Text(
+                          "View Document",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+                  if (trailingImage != null)
+                    Opacity(
+                      opacity: 0.8,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: Image.asset(
+                          trailingImage,
+                          width: 32,
+                          height: 20,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ],
           ),
         ],
@@ -492,7 +446,7 @@ class DocumentScreen extends StatelessWidget {
 //                   const Text(
 //                     "Your documents are securely encrypted and stored as per regulatory guidelines.",
 //                     textAlign: TextAlign.center,
-//                     style: TextStyle(color: Colors.grey, fontSize: 13),
+//                     style: TextStyle(fontFamily: FontFamily.medium,color: Colors.grey, fontSize: 13),
 //                   ),
 //                 ],
 //               ),
@@ -509,7 +463,7 @@ class DocumentScreen extends StatelessWidget {
 //             children: [
 //               const Text(
 //                 "Uploaded Documents",
-//                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+//                 style: TextStyle(fontFamily: FontFamily.medium,fontSize: 22, fontWeight: FontWeight.w600),
 //               ),
 //               const SizedBox(height: 24),
 

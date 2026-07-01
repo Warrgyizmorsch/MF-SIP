@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/utils/constant/text_style.dart';
+
 Future<String?> showSelectionBottomSheet({
   required BuildContext context,
   required String title,
@@ -29,8 +31,8 @@ Future<String?> showSelectionBottomSheet({
   //   Navigator.pop(context, value);
   // }
   void selectItem(String value) {
+    debugPrint("Item tapped in BottomSheet: $value");
     controller.text = value;
-    // 🚀 THE MAGIC FIX: rootNavigator: true se sirf BottomSheet band hoga, KYC page nahi hilega!
     Navigator.of(context, rootNavigator: true).pop(value);
   }
 
@@ -70,6 +72,7 @@ Future<String?> showSelectionBottomSheet({
                             title,
                             style: const TextStyle(
                               fontSize: 20,
+                              fontFamily: FontFamily.medium,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -203,6 +206,7 @@ Future<String?> showSelectionBottomSheet({
                       title,
                       style: const TextStyle(
                         fontSize: 18,
+                        fontFamily: FontFamily.medium,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

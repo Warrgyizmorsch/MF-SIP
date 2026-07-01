@@ -124,7 +124,7 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
                 Positioned(
                   left: 10,
                   bottom: 10,
-                  child: Text('🚗', style: TextStyle(fontSize: 30)),
+                  child: Text('🚗', style: TextStyle(fontFamily: FontFamily.medium,fontSize: 30)),
                 ),
                 percentage
                     ? Positioned(
@@ -132,7 +132,7 @@ class CircularGoalIndicatorDetails extends StatelessWidget {
                         bottom: 0,
                         child: Text(
                           '33%',
-                          style: TextStyle(
+                          style: TextStyle(fontFamily: FontFamily.medium,
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
                           ),

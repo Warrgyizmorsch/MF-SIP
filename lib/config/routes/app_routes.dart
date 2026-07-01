@@ -20,6 +20,8 @@ class AppRoutes {
   static const selectFundsScreen = '/selectFundsScreen';
   static const personaldetails = '/personaldetails';
   static const ihavegoal = '/ihavegoal';
+  static const masterGoalsPage = '/masterGoalsPage';
+  static const webMasterGoalsPage = '/webMasterGoalsPage';
   static const successfullcreategoal = '/successfullcreategoal';
   static const goalviewcard = '/goalviewcard';
   static const goaldetails = '/goaldetails';
@@ -47,4 +49,12 @@ class AppRoutes {
   static const bankDetails = '/bankDetails';
   static const videoList = '/videoList';
   static const additionalInfo = '/additionalInfo';
+  static const investNow = '/investNow';
+  static const investNowPage = '/investNowPage';
+  static const downloadStatement = '/downloadStatement';
+  static const myTransactionsweb = '/my-transactions';
+  static const managePortfolioweb = '/manage-portfolio';
+  static String webShell(String innerRoute) {
+    return innerRoute;
+  }
 }

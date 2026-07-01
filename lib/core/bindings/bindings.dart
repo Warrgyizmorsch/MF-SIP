@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:my_sip/features/authentication/domain/usecases/google_sign_in_use_case.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/auth/auth_controller.dart';
 import 'package:my_sip/features/cart/data/datasources/cart_remote_ds.dart';
 import 'package:my_sip/features/cart/data/repositories/cart_repo_imp.dart';
@@ -24,10 +25,14 @@ import '../../features/authentication/data/datasources/auth_remote_data_source.d
 import '../../features/authentication/data/repositories/auth_repository_impl.dart';
 import '../../features/authentication/domain/repositories/auth_repository.dart';
 import '../../features/authentication/domain/usecases/auth_use_cases.dart';
+import '../../features/authentication/domain/usecases/firebase_token_usecase.dart';
 import '../../features/authentication/domain/usecases/login_use_case.dart';
 import '../../features/authentication/domain/usecases/register_use_case.dart';
 import '../../features/authentication/domain/usecases/send_otp_use_case.dart';
 import '../../features/authentication/domain/usecases/verify_otp_use_case.dart';
+import '../../features/home/presentation/controllers/home_controller.dart';
+import '../../features/personalization/presentation/controllers/personalisation_controller.dart';
+import '../../services/firebase_services.dart';
 import '../network/network_api_service.dart';
 
 class UBinding extends Bindings {
@@ -65,14 +70,31 @@ class UBinding extends Bindings {
     Get.lazyPut(
       () => VerifyOtpUseCase(authRepository: Get.find<AuthRepository>()),
     );
+    // Register dependencies BEFORE runApp
 
-   
+    Get.lazyPut(
+      () => HomeController(),
+    );
+     Get.put(NotificationService()).init();
+
+    Get.lazyPut<FcmDeviceTokenUseCase>(
+          () => FcmDeviceTokenUseCase(
+        Get.find<AuthRepository>(),
+      ),
+    );
+    Get.lazyPut<GoogleSignInUseCase>(
+          () => GoogleSignInUseCase(
+        Get.find<AuthRepository>(),
+      ),
+    );
     Get.put<AuthUseCases>(
       AuthUseCases(
         loginUseCase: Get.find<LoginUseCase>(),
         registerUseCase: Get.find<RegisterUseCase>(),
         sendOtpUseCase: Get.find<SendOtpUseCase>(),
         verifyOtpUseCase: Get.find<VerifyOtpUseCase>(),
+        fcmDeviceTokenUseCase: Get.find<FcmDeviceTokenUseCase>(),
+        googleSignInUseCase: Get.find<GoogleSignInUseCase>(),
       ),
       permanent: true,
     );
@@ -139,8 +161,9 @@ class UBinding extends Bindings {
 
     // // Goal controller
     // Get.lazyPut(() => GoalSipController(goalUseCases: Get.find<>()), fenix: true);
-
-    // Get.lazyPut(() => PersonalisationController(Get.find()));
-
+    Get.lazyPut<PersonalisationController>(
+          () => PersonalisationController(Get.find()),
+      fenix: true, // This allows it to be recreated after being disposed
+    );
   }
 }

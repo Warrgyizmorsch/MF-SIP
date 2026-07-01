@@ -1,12 +1,18 @@
-import 'dart:developer';
+// ignore_for_file: dead_null_aware_expression, dead_code
 
+import 'dart:developer';
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:image_picker/image_picker.dart';
+import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
@@ -19,251 +25,59 @@ import 'package:my_sip/services/session_manager.dart';
 
 import 'dart:async';
 
-// class PersonalisationController extends GetxController {
-//   final PersonalisationUseCases _useCases;
-
-//   @override
-//   void onInit() {
-//     super.onInit();
-//     // Fetch data once when the controller is initialized
-//     loadRiskQuestions();
-//   }
-
-//   // API Risk Question ------ //
-
-//   // --- Reactive State ---
-//   final isLoading = false.obs;
-//   final questions = <QuestionEnitity>[].obs;
-//   final selectedAnswersApi = <int, OptionsEntity>{}.obs;
-
-//   Future<void> loadRiskQuestions() async {
-//     // Prevent multiple API calls if data exists
-//     if (questions.isNotEmpty) return;
-
-//     isLoading(true);
-
-//     // Using the specific usecase from your wrapper
-//     final result = await _useCases.getRiskquestionUseCases.call({});
-
-//     result.fold(
-//       (entity) {
-//         questions.assignAll(entity.data!.data);
-//         isLoading(false);
-//         log('risk questions ----- $questions');
-//       },
-//       (failure) {
-//         isLoading(false);
-//         Get.snackbar("Error", "Could not load questions");
-//       },
-//     );
-//   }
-
-//   // Track user choices
-//   void selectOptionApi(int questionId, OptionsEntity option) {
-//     selectedAnswersApi[questionId] = option;
-//   }
-
-//   // UI State
-//   final PageController pageController = PageController();
-
-//   // Observables for Progress & Selection
-//   var currentQuestionIndex = 0.obs;
-//   var selectedAnswers = <int, String>{}.obs;
-
-//   // Observables for Analysis Screen
-//   var isAnalyzing = false.obs;
-//   var analysisText = "Initializing analysis...".obs;
-
-//   final List<RiskQuestion> riskQuestions = [
-//     RiskQuestion(
-//       id: 1,
-//       question:
-//           "Your Income (Only from Salary, Profession or business and not from investments) is :",
-//       options: [
-//         RiskOption(id: 'a', text: "Much more than household expense."),
-//         RiskOption(id: 'b', text: "Almost equal to household expenses."),
-//         RiskOption(
-//           id: 'c',
-//           text:
-//               "Less than household expenses that you have to borrow or depend on your investments.",
-//         ),
-//         RiskOption(
-//           id: 'd',
-//           text:
-//               "There is no income in form of salary or professional income and you are entirely dependent on income from investments.",
-//         ),
-//       ],
-//     ),
-//     RiskQuestion(
-//       id: 2,
-//       question: "How much debt outstanding you have as % of total investments?",
-//       options: [
-//         RiskOption(id: 'a', text: "More than 75%."),
-//         RiskOption(id: 'b', text: "Between 50% and 75%."),
-//         RiskOption(id: 'c', text: "Between 25% and 50%."),
-//         RiskOption(id: 'd', text: "Less than 25%."),
-//       ],
-//     ),
-//     RiskQuestion(
-//       id: 3,
-//       question:
-//           "Number of people (other than yourself) dependent on your income?",
-//       options: [
-//         RiskOption(id: 'a', text: "None"),
-//         RiskOption(id: 'b', text: "1 or 2"),
-//         RiskOption(id: 'c', text: "3 to 5"),
-//         RiskOption(id: 'd', text: "More than 5."),
-//       ],
-//     ),
-//     RiskQuestion(
-//       id: 4,
-//       question:
-//           "Approximately when would you need the money being invested right now?",
-//       options: [
-//         RiskOption(id: 'a', text: "Within 3 years."),
-//         RiskOption(id: 'b', text: "Between 3 and 5 years."),
-//         RiskOption(id: 'c', text: "In 5 to 10 years."),
-//         RiskOption(id: 'd', text: "More than 10 years."),
-//       ],
-//     ),
-//     RiskQuestion(
-//       id: 5,
-//       question: "What has been your experience with investments?",
-//       options: [
-//         RiskOption(
-//           id: 'a',
-//           text:
-//               "I have been very comfortable with my investments and I know all that I need to know.",
-//         ),
-//         RiskOption(
-//           id: 'b',
-//           text:
-//               "I have been investing for a long time but I do not understand much.",
-//         ),
-//         RiskOption(
-//           id: 'c',
-//           text: "I only rely on my advisor and do not ask any questions.",
-//         ),
-//         RiskOption(
-//           id: 'd',
-//           text:
-//               "I only invest in bank deposits and Govt. guaranteed investment schemes.",
-//         ),
-//       ],
-//     ),
-//     RiskQuestion(
-//       id: 6,
-//       question: "What is your view regarding the stability of your income?",
-//       options: [
-//         RiskOption(id: 'a', text: "Very Stable"),
-//         RiskOption(id: 'b', text: "Not so Stable"),
-//         RiskOption(id: 'c', text: "Uncertain"),
-//         RiskOption(id: 'd', text: "I do not have any professional income."),
-//       ],
-//     ),
-//     RiskQuestion(
-//       id: 7,
-//       question: "You have three investment options to choose from:",
-//       options: [
-//         RiskOption(
-//           id: 'a',
-//           text:
-//               "Where the value of your investment may go up and down significantly on a monthly basis. However, there is a possibility to be able to improve your living standard.",
-//         ),
-//         RiskOption(
-//           id: 'b',
-//           text:
-//               "The value of investment may go up and down but not as much as option A. You may barely be able to maintain your lifestyle with such an investment approach",
-//         ),
-//         RiskOption(
-//           id: 'c',
-//           text:
-//               "The value of your portfolio will see a slow and steady increase, but your ability to maintain your living standards will be seriously hampered",
-//         ),
-//       ],
-//     ),
-//   ];
-
-//   PersonalisationController(this._useCases);
-
-//   @override
-//   void onClose() {
-//     pageController.dispose();
-//     super.onClose();
-//   }
-
-//   void selectOption(int questionId, String optionId) {
-//     selectedAnswers[questionId] = optionId;
-
-//     Future.delayed(const Duration(milliseconds: 300), () {
-//       nextPage();
-//     });
-//   }
-
-//   void nextPage() {
-//     if (currentQuestionIndex.value < riskQuestions.length - 1) {
-//       pageController.nextPage(
-//         duration: const Duration(milliseconds: 500),
-//         curve: Curves.easeInOutCubic,
-//       );
-//     } else {
-//       startRiskAnalysis();
-//     }
-//   }
-
-//   void previousPage() {
-//     if (currentQuestionIndex.value > 0) {
-//       pageController.previousPage(
-//         duration: const Duration(milliseconds: 400),
-//         curve: Curves.easeInOut,
-//       );
-//     } else {
-//       Get.back();
-//     }
-//   }
-
-//   void onPageChanged(int index) {
-//     currentQuestionIndex.value = index;
-//   }
-
-//   void startRiskAnalysis() async {
-//     isAnalyzing.value = true;
-
-//     analysisText.value = "Securing your responses...";
-//     await Future.delayed(const Duration(milliseconds: 1500));
-
-//     analysisText.value = "Analyzing financial patterns...";
-//     await Future.delayed(const Duration(milliseconds: 1500));
-
-//     analysisText.value = "Calculating risk appetite...";
-//     await Future.delayed(const Duration(milliseconds: 1500));
-
-//     analysisText.value = "Finalizing your profile...";
-//     await Future.delayed(const Duration(milliseconds: 1000));
-
-//     isAnalyzing.value = false;
-//     submitRiskProfile();
-//   }
-
-//   void submitRiskProfile() {
-//     Get.back();
-//     Get.snackbar(
-//       "Assessment Complete",
-//       "Your risk profile has been generated successfully.",
-//       backgroundColor: Colors.green.shade50,
-//       colorText: Colors.green.shade800,
-//       icon: Icon(Icons.check_circle, color: Colors.green.shade800),
-//     );
-//   }
-// }
 import 'package:my_sip/features/personalization/domain/entity/profile_update_entity.dart'
     as profileEntity;
+import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
 
 class PersonalisationController extends GetxController {
   final PersonalisationUseCases _useCases;
   PersonalisationController(this._useCases);
 
   PersonalisationUseCases get useCases => _useCases;
+
+  @override
+  void onInit() {
+    super.onInit();
+    panController.addListener(_onPanTextChanged);
+    loadRiskQuestions();
+    _checkPanEditPermission();
+    // fetchBanks();
+    fetchUserDetails();
+    bankIfscController.addListener(() {
+      final text = bankIfscController.text;
+      if (text.length == 11) {
+        _fetchBankDetailsFromIFSC(text);
+      } else {
+        resolvedBranch.value = '';
+      }
+    });
+
+    bankNameController.addListener(() {
+      if (bankNameController.text.isNotEmpty) {
+        if (bankIfscController.text.isNotEmpty &&
+            bankNameController.text != autoFetchedBank.value) {
+          bankIfscController.clear();
+          resolvedBranch.value = '';
+          autoFetchedBank.value = '';
+
+          Future.delayed(const Duration(milliseconds: 600), () {
+            Get.closeAllSnackbars();
+
+            ULoaders.warning(
+              title: "Bank Changed",
+              message:
+                  "Please enter the IFSC code for your newly selected bank.",
+            );
+          });
+        } else {
+          print(
+            "❌ Conditions not met. Either IFSC is empty, or the bank names match.",
+          );
+        }
+      }
+    });
+  }
 
   final panKeyboardType = TextInputType.text.obs;
   final FocusNode panFocusNode = FocusNode();
@@ -279,6 +93,9 @@ class PersonalisationController extends GetxController {
   final riskResult = Rxn<RiskResultModel>();
   final applock = false.obs;
   final canEditPan = false.obs;
+  // 1. ADD THESE TWO LINES AT THE TOP OF THE CONTROLLER
+  bool _isRegisteringCan = false;
+  bool _hasAttemptedCanReg = false;
 
   // --- Onboarding Status Flags ---
   final isKycPending = false.obs;
@@ -300,6 +117,31 @@ class PersonalisationController extends GetxController {
   final isNomineeMinor = false.obs;
   final GlobalKey<FormState> nomineeFormKey = GlobalKey<FormState>();
   final nomineeList = Rxn<NomineeResponseEntity>();
+
+  final userData = Rxn<profileEntity.ProfileDataEntity>();
+
+  // ------------ Mandate status  -------------        /////
+  // 1. Check if a mandate is currently processing
+  bool get hasPendingMandate {
+    final status = userData.value?.mfuMandate?.status?.toLowerCase();
+    return status == 'pending';
+  }
+
+  // 2. Check if a mandate is fully approved and active
+  bool get hasApprovedMandate {
+    final status = userData.value?.mfuMandate?.status?.toLowerCase();
+    return status == 'approved' || status == 'success' || status == 'initiated';
+  }
+
+  // 3. Grab the MMRN or MMURN to pass into the SIP API
+  String? get activeMmrn {
+    return userData.value?.mfuMandate?.mmrn;
+  }
+
+  String? get activeMmurn {
+    return userData.value?.mfuMandate?.mumrn;
+  }
+
   final nomineeDocumentSelectionList = [
     "Pan",
     "Aadhaar",
@@ -410,7 +252,8 @@ class PersonalisationController extends GetxController {
   final bankErrorMessage = ''.obs;
   // --- Linked Bank Account State ---
   final isLinkedBankLoading = false.obs;
-  final linkedBankAccount = Rxn<dynamic>();
+  // final linkedBankAccount = Rxn<dynamic>();
+  final linkedBankAccounts = <profileEntity.BankAccountEntity>[].obs;
 
   final RxBool isFetchingIFSC = false.obs;
   final RxString resolvedBranch = ''.obs;
@@ -424,6 +267,8 @@ class PersonalisationController extends GetxController {
   final bankMicrController = TextEditingController();
   final bankAccHdNameController = TextEditingController();
   final bankAccountType = 'SB'.obs; // SB = Savings, CA = Current
+  bool get canAddMoreBanks => linkedBankAccounts.length < 3;
+  final isDeletingBank = <int, bool>{}.obs;
 
   void clearBankFields() {
     bankNameController.clear();
@@ -434,6 +279,7 @@ class PersonalisationController extends GetxController {
     autoFetchedBank.value = '';
     resolvedBranch.value = '';
     isFetchingIFSC.value = false;
+    bankAccHdNameController.clear();
   }
 
   Future<void> fetchBanks() async {
@@ -482,8 +328,21 @@ class PersonalisationController extends GetxController {
 
           if (profileData != null) {
             // 1. Check Bank Account
-            linkedBankAccount.value = profileData.bankAccount;
-            hasBank.value = profileData.bankAccount != null;
+            userData.value = profileData;
+            // linkedBankAccount.value = profileData.bankAccount;
+            // hasBank.value = profileData.bankAccount != null;
+            // final hasBanks =
+            //     profileData.bankAccounts != null &&
+            //     profileData.bankAccounts!.isNotEmpty;
+            // linkedBankAccount.value = hasBanks
+            //     ? profileData.bankAccounts!.first
+            //     : null;
+            if (profileData.bankAccounts != null) {
+              linkedBankAccounts.assignAll(profileData.bankAccounts!);
+            } else {
+              linkedBankAccounts.clear(); // Empty the list if null
+            }
+            hasBank.value = linkedBankAccounts.isNotEmpty;
 
             // 2. Check KYC Status (Using toLowerCase to be safe against API text changes)
             final kyc = profileData.kycStatus?.toLowerCase() ?? '';
@@ -514,11 +373,11 @@ class PersonalisationController extends GetxController {
             log('Has Nominee: ${hasNominee.value}');
             log('Has Risk Profile: ${hasRiskProfile.value}');
 
-            _checkAndTriggerCanRegistration();
+            checkAndTriggerCanRegistration();
             final mfuController = Get.find<MfuController>();
             mfuController.resumePollingIfNeeded();
           } else {
-            linkedBankAccount.value = null;
+            linkedBankAccounts.clear();
           }
         },
         (error) {
@@ -534,11 +393,53 @@ class PersonalisationController extends GetxController {
   }
 
   // ------------ Can Check and Create -------------  //
-  void _checkAndTriggerCanRegistration() {
-    // ✅ CAN already exists on server → skip forever
+  // void _checkAndTriggerCanRegistration() {
+  //   // ✅ CAN already exists on server → skip forever
+  //   final existingCan = session.getUserData?.canNumber ?? '';
+  //   if (existingCan.isNotEmpty) {
+  //     log("[CAN] Already exists ($existingCan) — skipping registration");
+  //     return;
+  //   }
+
+  //   final kycDone = isKycVerified.value;
+  //   final bankDone = hasBank.value;
+  //   final personalDetailsDone = hasPersonalDetails.value;
+
+  //   log(
+  //     "[CAN] Check → KYC: $kycDone | Bank: $bankDone | PersonalDetails: $personalDetailsDone",
+  //   );
+
+  //   if (kycDone && bankDone && personalDetailsDone) {
+  //     log("[CAN] ✅ All conditions met — triggering CAN registration");
+  //     _triggerCanRegistration();
+  //   } else {
+  //     final missing = [
+  //       if (!kycDone) 'KYC',
+  //       if (!bankDone) 'Bank',
+  //       if (!personalDetailsDone) 'Personal Details',
+  //     ].join(', ');
+  //     log("[CAN] ⏳ Skipped — missing: $missing");
+  //   }
+  // }
+  void checkAndTriggerCanRegistration({bool isManualTrigger = false}) {
+    // 2. ADD THIS GUARD CHECK AT THE TOP OF THE FUNCTION
+    // if (_isRegisteringCan || _hasAttemptedCanReg) {
+    //   return;
+    // }
+    if (_isRegisteringCan) {
+      log("[CAN] Already registering, please wait...");
+      return;
+    }
+    if (!isManualTrigger && _hasAttemptedCanReg) {
+      return;
+    }
+
     final existingCan = session.getUserData?.canNumber ?? '';
-    if (existingCan.isNotEmpty) {
-      log("[CAN] Already exists ($existingCan) — skipping registration");
+    final exitstingCan1 = userData.value?.canNumber ?? '';
+    if (existingCan.isNotEmpty || exitstingCan1.isNotEmpty) {
+      log(
+        "[CAN] Already exists ($existingCan --- $exitstingCan1) — skipping registration",
+      );
       return;
     }
 
@@ -554,6 +455,12 @@ class PersonalisationController extends GetxController {
       log("[CAN] ✅ All conditions met — triggering CAN registration");
       _triggerCanRegistration();
     } else {
+      if (isManualTrigger) {
+        CustomSnackbar.warning(
+          title: 'Action Required',
+          message: 'Please complete KYC, Bank, and Personal Details first.',
+        );
+      }
       final missing = [
         if (!kycDone) 'KYC',
         if (!bankDone) 'Bank',
@@ -563,33 +470,89 @@ class PersonalisationController extends GetxController {
     }
   }
 
+  // Future<void> _triggerCanRegistration() async {
+  //   try {
+  //     final mfuController = Get.find<MfuController>();
+  //     await mfuController.canRegister(reqEvent: "CR");
+
+  //     if (mfuController.errorMessage.value.isEmpty) {
+  //       // ✅ Refresh session so canNumber is populated from server
+  //       // await session.refreshUserData();
+  //       final canNumber = mfuController.mfuCanResponse.value?.can ?? '';
+  //       if (canNumber.isNotEmpty) {
+  //         final currentUser = session.getUserData;
+  //         if (currentUser != null) {
+  //           await session.updateUserData(
+  //             currentUser.copyWith(canNumber: canNumber),
+  //           );
+  //         }
+  //       }
+
+  //       log("[CAN] ✅ Registered — CAN: $canNumber");
+
+  //       await fetchUserDetails();
+  //       Get.find<MfuController>().resumePollingIfNeeded();
+  //     } else {
+  //       log("[CAN] ❌ Failed: ${mfuController.errorMessage.value}");
+  //     }
+  //   } catch (e) {
+  //     log("[CAN] ❌ Exception: $e");
+  //   }
+  // }
   Future<void> _triggerCanRegistration() async {
+    // 3. LOCK THE GUARDS
+    _isRegisteringCan = true;
+    _hasAttemptedCanReg = true;
+
     try {
       final mfuController = Get.find<MfuController>();
       await mfuController.canRegister(reqEvent: "CR");
 
-      if (mfuController.errorMessage.value.isEmpty) {
-        // ✅ Refresh session so canNumber is populated from server
-        // await session.refreshUserData();
-        final canNumber = mfuController.mfuCanResponse.value?.can ?? '';
-        if (canNumber.isNotEmpty) {
-          final currentUser = session.getUserData;
-          if (currentUser != null) {
-            await session.updateUserData(
-              currentUser.copyWith(canNumber: canNumber),
-            );
-          }
+      final canResponse = mfuController.mfuCanResponse.value;
+      final canNumber = canResponse?.can ?? '';
+
+      // 4. CHECK IF CAN NUMBER ACTUALLY CAME BACK
+      if (canNumber.isNotEmpty) {
+        final currentUser = session.getUserData;
+        if (currentUser != null) {
+          await session.updateUserData(
+            currentUser.copyWith(canNumber: canNumber),
+          );
         }
 
         log("[CAN] ✅ Registered — CAN: $canNumber");
 
         await fetchUserDetails();
-        Get.find<MfuController>().resumePollingIfNeeded();
+        mfuController.resumePollingIfNeeded();
       } else {
-        log("[CAN] ❌ Failed: ${mfuController.errorMessage.value}");
+        // 5. EXTRACT THE INNER MFU ERROR (e.g., "First Nominee ID is Invalid")
+        final mfuErrorMsg =
+            canResponse?.canRegistrationResponse?.respHeader?.errorMsg;
+        String actualError = mfuErrorMsg != null && mfuErrorMsg.isNotEmpty
+            ? mfuErrorMsg
+            : mfuController.errorMessage.value;
+
+        actualError = actualError
+            .replaceAll('canRegister Failed with Exception:', '')
+            .replaceAll('Fetch Error:', '')
+            .replaceAll('Exception:', '')
+            .trim(); //
+
+        log("[CAN] ❌ Failed to generate CAN: $actualError");
+
+        // 6. SHOW THE ERROR TO THE USER
+        if (actualError.isNotEmpty) {
+          CustomSnackbar.warning(
+            title: 'Registration Issue',
+            message: actualError,
+          );
+        }
       }
     } catch (e) {
       log("[CAN] ❌ Exception: $e");
+    } finally {
+      // 7. UNLOCK THE RUNNING GUARD
+      _isRegisteringCan = false;
     }
   }
 
@@ -634,47 +597,52 @@ class PersonalisationController extends GetxController {
         bankIfscController.text.isEmpty ||
         bankAccHdNameController.text.isEmpty ||
         bankNameController.text.isEmpty) {
-      Get.snackbar("Required", "Please fill all bank details");
+      CustomSnackbar.warning(
+        title: "Required",
+        message: "Please fill all bank details",
+      );
       return;
     }
 
     isBankAdding.value = true;
 
     try {
-      final Map<String, dynamic> data = {
-        "id": session.getUserData?.id,
-        "account_holder_name": bankAccHdNameController.text,
-        "account_number": bankAccountNumberController.text.trim(),
-        "ifsc_code": bankIfscController.text.trim().toUpperCase(),
-        "bank_name": bankNameController.text.trim(),
-        "micr_code": bankMicrController.text.trim(),
-        "account_type": bankAccountType.value,
-      };
+      final uid = session.getUserData?.id ?? 0;
+      if (uid == 0) {
+        Get.snackbar("Error", "User session not found.");
+        isBankAdding.value = false;
+        return;
+      }
 
-      log("Submitting Bank Data: $data");
+      log("Submitting Bank Data: $uid");
 
-      final result = await _useCases.updateProfileUsecases.call(data);
-      fetchUserDetails();
+      // final result = await _useCases.updateProfileUsecases.call(data);
+      final result = await _useCases.addBankUseCase.call(
+        uid: uid,
+        accountHolderName: bankAccHdNameController.text,
+        accountNumber: bankAccountNumberController.text.trim(),
+        ifscCode: bankIfscController.text.trim().toUpperCase(),
+        micrCode: bankMicrController.text.trim(),
+        accountType: bankAccountType.value,
+        bankName: bankNameController.text.trim(),
+      );
 
-      result.fold(
-        (success) {
+      await result.fold(
+        (success) async {
+          log("✅ Bank added successfully: ${success.data?.message}");
+          await fetchUserDetails();
           clearBankFields();
+
           Get.back();
-          // fetchUserDetails();
-          if (success.data?.data?.bankAccount != null) {
-            linkedBankAccount.value = success.data!.data?.bankAccount;
-          } else {
-            // Fallback just in case
-            fetchUserDetails();
-          }
-          Get.snackbar(
-            "Success",
-            "Bank account added successfully",
-            backgroundColor: Colors.green.shade50,
-            colorText: Colors.green.shade900,
+          isBankAdding.value = false;
+
+          CustomSnackbar.success(
+            title: "Success",
+            message: "Bank account added successfully",
           );
         },
-        (error) {
+        (error) async {
+          isBankAdding.value = false;
           Get.snackbar(
             "Error",
             error.message ?? "Failed to add bank account",
@@ -686,10 +654,112 @@ class PersonalisationController extends GetxController {
     } catch (e) {
       log("Bank Addition Error: $e");
       Get.snackbar("Error", "Something went wrong while adding bank");
-    } finally {
       isBankAdding.value = false;
     }
+    // finally {
+    //   isBankAdding.value = false;
+    // }
   }
+
+  Future<void> deleteBank(int bankId) async {
+    // 1. Set loading state for this specific bank ID
+    isDeletingBank[bankId] = true;
+
+    final uid = session.getUserData?.id ?? 0;
+
+    // 2. Show loading overlay
+    Get.dialog(
+      const Center(child: CircularProgressIndicator()),
+      barrierDismissible: false,
+    );
+
+    try {
+      final result = await _useCases.deleteBankUseCase(
+        uid: uid,
+        bankId: bankId,
+      );
+
+      result.fold(
+        (success) {
+          final data = success.data?.data;
+
+          // 3. Update local state
+          linkedBankAccounts.removeWhere((bank) => bank.id == bankId);
+          hasBank.value = linkedBankAccounts.isNotEmpty;
+
+          Get.back(); // Close loading dialog
+          CustomSnackbar.success(
+            title: "Success",
+            message: success.data?.message ?? "Bank deleted successfully",
+          );
+
+          // 4. Refresh profile to ensure full data sync with server
+          fetchUserDetails();
+
+          if (data != null) {
+            "[Bank] Remaining: ${data.count}/${data.maxAllowed} | Can add more: ${data.canAddMore}";
+          }
+        },
+        (error) {
+          Get.back(); // Close loading dialog
+          CustomSnackbar.error(
+            title: "Error", // Fixed title
+            message: error.message ?? "Failed to delete bank",
+          );
+        },
+      );
+    } catch (e) {
+      Get.back();
+      log("Delete Bank Exception: $e");
+    } finally {
+      // 5. Clean up loading state
+      isDeletingBank.remove(bankId);
+    }
+  }
+
+  // Future<void> deleteBank(int bankId) async {
+  //   isDeletingBank[bankId] = true;
+
+  //   final uid = session.getUserData?.id ?? 0;
+  //   Get.dialog(
+  //     const Center(child: CircularProgressIndicator()),
+  //     barrierDismissible: false,
+  //   );
+
+  //   final result = await _useCases.deleteBankUseCase(uid: uid, bankId: bankId);
+
+  //   result.fold(
+  //     (success) {
+  //       final data = success.data?.data;
+  //       linkedBankAccounts.removeWhere((bank) => bank.id == bankId);
+  //       hasBank.value = linkedBankAccounts.isNotEmpty;
+  //       Get.back(); // Close loading dialog
+  //       CustomSnackbar.success(
+  //         title: "Success",
+  //         message: success.data?.message ?? "Bank deleted successfully",
+  //       );
+
+  //       // ✅ Refresh profile to update bank list
+  //       fetchUserDetails();
+
+  //       // ✅ Show remaining slots info
+  //       if (data != null) {
+  //         log(
+  //           "[Bank] Remaining: ${data.count}/${data.maxAllowed} | Can add more: ${data.canAddMore}",
+  //         );
+  //       }
+  //     },
+  //     (error) {
+  //       Get.back(); // Close loading dialog
+  //       CustomSnackbar.error(
+  //         title: "Success",
+  //         message: error.message ?? "Failed to delete bank",
+  //       );
+  //     },
+  //   );
+
+  //   isDeletingBank[bankId] = false;
+  // }
 
   Future<void> _fetchBankDetailsFromIFSC(String ifsc) async {
     try {
@@ -812,6 +882,8 @@ class PersonalisationController extends GetxController {
               email: apiData.data?.email,
               image: apiData.data?.image,
               panCard: apiData.data?.panCard,
+              kycStatus: apiData.data?.kycStatus,
+
               // ... map other fields
             );
 
@@ -858,12 +930,16 @@ class PersonalisationController extends GetxController {
         'father_name': fatherNameTextEditingController.text,
         'mother_name': motherNameTextEditingController.text,
 
-        'occupation': selectedOccupation.value == "Other"
-            ? occupationOtherTextEditingController.text
-            : selectedOccupation.value,
-        'wealth_source': wealthSource.text,
-        'yearly_income': getYearlyIncomeAsInt(yearlyIncome.text),
+        // 'occupation': selectedOccupation.value == "Other"
+        //     ? occupationOtherTextEditingController.text
+        //     : selectedOccupation.value,
 
+        // 'wealth_source': wealthSource.text,
+        // 'yearly_income': getYearlyIncomeAsInt(yearlyIncome.text),
+        'wealth_source': getWealthSourceId(wealthSource.text),
+        'yearly_income': getIncomeSlabId(yearlyIncome.text),
+
+        'occupation': getOccupationId(occupationTextEditingController.text),
         'pin_code': pinCodeTextEditingController.text,
         "city": cityTextEditingController.text,
 
@@ -906,16 +982,24 @@ class PersonalisationController extends GetxController {
 
   void _checkPanEditPermission() {
     final status = session.getUserData?.kycStatus?.toLowerCase();
+    final isVerified = session.isKycVerified.value;
+    final isPending = session.isKycPending.value;
 
-    if (status == 'approved' || status == 'pending') {
+    if (status == 'approved' ||
+        isVerified ||
+        isKycVerified.value ||
+        isPending ||
+        status == 'pending') {
       //   || status == 'timed out'    add for testing
       canEditPan.value = false;
+      debugPrint("🔒 PAN STATUS: LOCKED (canEditPan is ${canEditPan.value})");
     }
     // else if (status == 'not started' || status == null || status.isEmpty) {
     //   canEditPan.value = true;
     // }
     else {
       canEditPan.value = true;
+      print("🔓 PAN STATUS: UNLOCKED (canEditPan is ${canEditPan.value})");
     }
   }
 
@@ -933,62 +1017,6 @@ class PersonalisationController extends GetxController {
   }
 
   double get remainingAllocation => 100.0 - currentTotalAllocation;
-
-  @override
-  void onInit() {
-    super.onInit();
-    panController.addListener(_onPanTextChanged);
-    loadRiskQuestions();
-    _checkPanEditPermission();
-    fetchBanks();
-    fetchUserDetails();
-    bankIfscController.addListener(() {
-      final text = bankIfscController.text;
-      if (text.length == 11) {
-        _fetchBankDetailsFromIFSC(text);
-      } else {
-        resolvedBranch.value = '';
-      }
-    });
-    // bankNameController.addListener(() {
-    //   if (bankNameController.text.isNotEmpty &&
-    //       bankNameController.text != autoFetchedBank.value) {
-
-    //     bankIfscController.clear();
-    //     resolvedBranch.value = '';
-    //     autoFetchedBank.value = '';
-
-    //     ULoaders.warning(
-    //       title: "Bank Changed",
-    //       message: "Please enter the IFSC code for your newly selected bank.",
-    //     );
-    //   }
-    // });
-    bankNameController.addListener(() {
-      if (bankNameController.text.isNotEmpty) {
-        if (bankIfscController.text.isNotEmpty &&
-            bankNameController.text != autoFetchedBank.value) {
-          bankIfscController.clear();
-          resolvedBranch.value = '';
-          autoFetchedBank.value = '';
-
-          Future.delayed(const Duration(milliseconds: 600), () {
-            Get.closeAllSnackbars();
-
-            ULoaders.warning(
-              title: "Bank Changed",
-              message:
-                  "Please enter the IFSC code for your newly selected bank.",
-            );
-          });
-        } else {
-          print(
-            "❌ Conditions not met. Either IFSC is empty, or the bank names match.",
-          );
-        }
-      }
-    });
-  }
 
   void _onPanTextChanged() {
     final text = panController.text;
@@ -1076,6 +1104,13 @@ class PersonalisationController extends GetxController {
 
   void onPageChanged(int index) {
     currentQuestionIndex.value = index;
+  }
+
+  void showLoading() {
+    Get.dialog(
+      const Center(child: CircularProgressIndicator(color: Ucolors.primary)),
+      barrierDismissible: false,
+    );
   }
 
   // --- Analysis Logic ---
@@ -1180,14 +1215,20 @@ class PersonalisationController extends GetxController {
 
   Future<void> addNominee() async {
     if (nomineeFormKey.currentState?.validate() != true) {
-      Get.snackbar("Required", "Please fill all the fields");
+      CustomSnackbar.warning(
+        title: "Required",
+        message: "Please fill all the fields",
+      );
       return;
     }
 
     // Additional validation for Guardian
     if (isNomineeMinor.value &&
         nomineeMinorsGuardianTextEditingController.text.isEmpty) {
-      Get.snackbar("Required", "Guardian Name is required for minors");
+      CustomSnackbar.warning(
+        title: "Required",
+        message: "Guardian Name is required for minors",
+      );
       return;
     }
 
@@ -1204,8 +1245,8 @@ class PersonalisationController extends GetxController {
         "name": nomineeNameTextEditingController.text,
         "relation": nomineeRelationTextEditingController.text,
         "dob": nomineeDobTextEditingController.text,
-        "allocation_percent": 100,
-        // nomineeAllocationPercentTextEditingController.text,
+        "allocation_percent":
+            nomineeAllocationPercentTextEditingController.text,
         // Send 1 if minor, 0 if not
         "is_minor": isNomineeMinor.value ? 1 : 0,
         "guardian_name": nomineeMinorsGuardianTextEditingController.text,
@@ -1221,15 +1262,20 @@ class PersonalisationController extends GetxController {
       final result = await _useCases.addNomineeUseCase.call(requestData);
       fetchUserDetails();
 
+      Get.back();
+
       result.fold(
         (success) {
           getNominee();
           _clearNomineeFields();
 
-          Get.back();
-          Get.snackbar("Success", "Nominee added successfully");
+          // Get.snackbar("Success", "Nominee added successfully");
+          CustomSnackbar.success(
+            title: 'Success',
+            message: 'Nominee added successfully',
+          );
 
-          // Get.back();
+          Get.back();
         },
         (failure) {
           Get.snackbar("Error Adding Nominee", failure.message);
@@ -1259,7 +1305,11 @@ class PersonalisationController extends GetxController {
         (success) {
           // 2. Refresh list on success
           getNominee();
-          Get.snackbar("Success", "Nominee deleted successfully");
+          // Get.snackbar("Success", "Nominee deleted successfully");
+          CustomSnackbar.error(
+            title: 'Success',
+            message: 'Nominee deleted successfully',
+          );
         },
         (failure) {
           Get.snackbar("Error Deleting Nominee", failure.message);
@@ -1396,6 +1446,463 @@ class PersonalisationController extends GetxController {
   String getOccupationName(int? id) {
     if (id == null || id <= 0 || id > occupationList.length) return '';
     return occupationList[id - 1];
+  }
+
+  /////////   capital gain Statement    ------        DownLoad Statement                   //////////////
+
+  final isCapitalGain = false.obs;
+  final isRequestingAccountStatement = false.obs;
+
+  // Statement type: 0 = PAN, 1 = Folio
+  final statementTypeIndex = 0.obs;
+
+  final startDate = Rx<DateTime?>(null);
+  final endDate = Rx<DateTime?>(null);
+
+  // PAN input
+  final panControllerDownload = TextEditingController(text: 'ABCDE1234F');
+
+  // Folio / scheme selections (mock values)
+  final selectedFolio = 'CGFOLIO13001'.obs;
+  final selectedScheme = 'Growth Fund - Direct'.obs;
+
+  // Duration: 0=Current FY, 1=Previous FY, 2=Full Statement, 3=Custom
+  final selectedDuration = 0.obs;
+
+  final List<String> durations = [
+    'Current FY',
+    'Previous FY',
+    'Full Statement',
+    'Custom',
+  ];
+
+  void selectStatementType(int index) => statementTypeIndex.value = index;
+  // void selectDuration(int index) => selectedDuration.value = index;
+  void selectDuration(int index) {
+    selectedDuration.value = index;
+    // Optional: Clear dates if they switch away from custom
+    if (index != 3) {
+      startDate.value = null;
+      endDate.value = null;
+    }
+  }
+
+  void setStatementMode({required bool isCapital}) {
+    debugPrint("isCapital :$isCapital");
+
+    isCapitalGain.value = isCapital;
+    debugPrint("isCapitalGain.value :${isCapitalGain.value}");
+
+    // Optional: Reset other variables to default when opening the screen
+    isCapital ? statementTypeIndex.value = 1 : statementTypeIndex.value = 0;
+    // panController.text = 'ABCDE1234F';
+  }
+
+  // void onDownload() {
+  //   if (selectedDuration.value == 3 &&
+  //       (startDate.value == null || endDate.value == null)) {
+  //     CustomSnackbar.warning(
+  //       title: 'Missing Info',
+  //       message: 'Please select both start and end dates',
+  //     );
+  //     return;
+  //   }
+  //   CustomSnackbar.success(title: 'Download', message: 'Generating statement…');
+  // }
+  void onDownload() {
+    // Validation for custom dates
+    if (selectedDuration.value == 3 &&
+        (startDate.value == null || endDate.value == null)) {
+      Get.snackbar('Missing Info', 'Please select both start and end dates');
+      return;
+    }
+
+    final dates = _getStartAndEndDates();
+
+    if (isCapitalGain.value) {
+      requestCapitalGainStatement(
+        type: "download",
+        email: null,
+        folioNo: selectedFolio.value, // passing the dynamically selected folio
+        startDate: dates['start']!,
+        endDate: dates['end']!,
+      );
+    } else {
+      // Handle normal account statement download here
+      requestAccountStatement(
+        type: "download", // Change to "email" if user selects email
+        email: null, // Pass user's email if type == "email"
+        // folioNo: "CGFOLIO13001",
+        // startDate: "2020-01-01",
+        // endDate: "2030-01-01",
+        folioNo: selectedFolio.value, // passing the dynamically selected folio
+        startDate: dates['start']!,
+        endDate: dates['end']!,
+      );
+    }
+  }
+
+  // void onEmail() {
+  //   if (selectedDuration.value == 3 &&
+  //       (startDate.value == null || endDate.value == null)) {
+  //     CustomSnackbar.warning(
+  //       title: 'Missing Info',
+  //       message: 'Please select both start and end dates',
+  //     );
+  //     return;
+  //   }
+  //   CustomSnackbar.show(
+  //     title: 'Email',
+  //     message: 'Statement sent to ****@gmail.com',
+  //   );
+  // }
+  void onEmail() {
+    if (selectedDuration.value == 3 &&
+        (startDate.value == null || endDate.value == null)) {
+      Get.snackbar('Missing Info', 'Please select both start and end dates');
+      return;
+    }
+
+    final dates = _getStartAndEndDates();
+
+    if (isCapitalGain.value) {
+      requestCapitalGainStatement(
+        type: "email",
+        email: userData
+            .value
+            ?.email, // Replace with user's actual registered email
+        folioNo: selectedFolio.value,
+        startDate: dates['start']!,
+        endDate: dates['end']!,
+      );
+    } else {
+      // Handle normal account statement email here
+      requestAccountStatement(
+        type: "email", // Change to "email" if user selects email
+        email: userData.value?.email, // Pass user's email if type == "email"
+        // folioNo: "CGFOLIO13001",
+        // startDate: "2020-01-01",
+        // endDate: "2030-01-01",
+        folioNo: selectedFolio.value,
+        startDate: dates['start']!,
+        endDate: dates['end']!,
+      );
+    }
+  }
+
+  // Date Picker Logic
+  Future<void> pickDate(BuildContext context, bool isStart) async {
+    final initialDate = isStart
+        ? (startDate.value ?? DateTime.now())
+        : (endDate.value ?? DateTime.now());
+
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Ucolors.primary3,
+              onPrimary: Ucolors.onPrimary,
+              onSurface: Ucolors.onSurface,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      if (isStart) {
+        startDate.value = pickedDate;
+        // Auto-clear end date if it's before the new start date
+        if (endDate.value != null && endDate.value!.isBefore(pickedDate)) {
+          endDate.value = null;
+        }
+      } else {
+        // Prevent end date from being before start date
+        if (startDate.value != null && pickedDate.isBefore(startDate.value!)) {
+          CustomSnackbar.error(
+            title: 'Invalid Date',
+            message: 'End date cannot be before start date',
+          );
+          return;
+        }
+        endDate.value = pickedDate;
+      }
+    }
+  }
+
+  // Helper to show date in UI
+  String formatDate(DateTime? date) {
+    if (date == null) return 'DD/MM/YYYY';
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
+
+  ////////////    --------------           ////////////
+  final isRequestingStatement = false.obs;
+
+  // Calculate dates based on the selected duration (Current FY, Prev FY, etc.)
+  String _formatForApi(DateTime? date) {
+    if (date == null) return "";
+    return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+  }
+
+  Map<String, String> _getStartAndEndDates() {
+    DateTime now = DateTime.now();
+    DateTime start;
+    DateTime end;
+
+    if (selectedDuration.value == 3) {
+      // Custom Dates
+      return {
+        "start": _formatForApi(startDate.value),
+        "end": _formatForApi(endDate.value),
+      };
+    } else if (selectedDuration.value == 0) {
+      // Current FY (April 1st to Today)
+      int startYear = now.month >= 4 ? now.year : now.year - 1;
+      start = DateTime(startYear, 4, 1);
+      end = now;
+    } else if (selectedDuration.value == 1) {
+      // Previous FY
+      int startYear = now.month >= 4 ? now.year - 1 : now.year - 2;
+      start = DateTime(startYear, 4, 1);
+      end = DateTime(startYear + 1, 3, 31);
+    } else {
+      // Full Statement (Fallback to a default old date)
+      start = DateTime(2000, 1, 1);
+      end = now;
+    }
+
+    return {"start": _formatForApi(start), "end": _formatForApi(end)};
+  }
+
+  // ── IN-APP DOWNLOAD TO PUBLIC FOLDER ──────────────────────
+  Future<void> _downloadAndSavePdf(String url, String folio) async {
+    try {
+      CustomSnackbar.info(
+        title: 'Downloading',
+        message: 'Please wait while your statement downloads...',
+      );
+
+      // 1. Determine the correct public directory based on the OS
+      Directory? directory;
+      if (Platform.isAndroid) {
+        // Target the public Downloads folder on Android
+        directory = Directory('/storage/emulated/0/Download');
+        if (!await directory.exists()) {
+          // Fallback if standard Downloads folder doesn't exist
+          directory = (await getExternalStorageDirectory());
+        }
+      } else if (Platform.isIOS) {
+        // Target the Documents folder on iOS (needs Info.plist update below)
+        directory = await getApplicationDocumentsDirectory();
+      }
+
+      if (directory == null) {
+        CustomSnackbar.error(
+          title: 'Error',
+          message: 'Could not access device storage.',
+        );
+        return;
+      }
+
+      // 2. Create a unique filename and path
+      final String fileName = isCapitalGain.value
+          ? "CapitalGain_${folio}_${DateTime.now().millisecondsSinceEpoch}.pdf"
+          : "AccountStatement_${folio}_${DateTime.now().millisecondsSinceEpoch}.pdf";
+
+      final String savePath = '${directory.path}/$fileName';
+
+      // 3. Download the file using Dio
+      final dio = Dio();
+      await dio.download(url, savePath);
+
+      log("[MfuController] File saved successfully to: $savePath");
+
+      // 4. Open the file natively on the device
+      final result = await OpenFilex.open(savePath);
+
+      if (result.type != ResultType.done) {
+        CustomSnackbar.success(
+          title: 'Saved to Downloads',
+          message: 'File downloaded successfully to your Downloads folder.',
+        );
+      }
+    } catch (e) {
+      log("[MfuController] Download error: $e");
+      CustomSnackbar.error(
+        title: 'Error',
+        message: 'Failed to download the PDF file.',
+      );
+    }
+  }
+
+  // Future<void> _downloadAndSavePdf(String url, String folio) async {
+  //   try {
+  //     // 1. Get the app's local document directory
+  //     final Directory dir = await getApplicationDocumentsDirectory();
+
+  //     // 2. Create a unique filename
+  //     final String fileName =
+  //         "CapitalGain_${folio}_${DateTime.now().millisecondsSinceEpoch}.pdf";
+  //     final String savePath = '${dir.path}/$fileName';
+
+  //     // 3. Download the file using Dio
+  //     Get.snackbar(
+  //       'Downloading',
+  //       'Please wait while your statement downloads...',
+  //       snackPosition: SnackPosition.BOTTOM,
+  //     );
+
+  //     final dio = Dio();
+  //     await dio.download(
+  //       url,
+  //       savePath,
+  //       onReceiveProgress: (received, total) {
+  //         if (total != -1) {
+  //           // Optional: You could track download progress here
+  //           final progress = (received / total * 100).toStringAsFixed(0);
+  //           log("Downloading: $progress%");
+  //         }
+  //       },
+  //     );
+
+  //     log("[MfuController] File saved to: $savePath");
+
+  //     // 4. Open the file natively on the device
+  //     final result = await OpenFilex.open(savePath);
+
+  //     if (result.type != ResultType.done) {
+  //       Get.snackbar(
+  //         'Notice',
+  //         'File downloaded, but could not find a PDF viewer to open it.',
+  //       );
+  //     }
+  //   } catch (e) {
+  //     log("[MfuController] Download error: $e");
+  //     Get.snackbar(
+  //       'Error',
+  //       'Failed to download the PDF file.',
+  //       snackPosition: SnackPosition.BOTTOM,
+  //     );
+  //   }
+  // }
+
+  Future<void> requestCapitalGainStatement({
+    required String type, // "email" or "download"
+    String? email,
+    required String folioNo,
+    required String startDate,
+    required String endDate,
+  }) async {
+    isRequestingStatement.value = true;
+
+    final uid = session.getUserData?.id ?? 0;
+
+    ULoaders.showLoading(message: "Processing Capital Gain Statement...");
+
+    // Make the API call
+    final result = await _useCases.requestCapitalGainStatementUseCase(
+      uid: 13001, // for testing
+      // uid: uid,
+      type: type,
+      email: email,
+      folioNo: folioNo,
+      startDate: startDate,
+      endDate: endDate,
+    );
+
+    result.fold(
+      (success) async {
+        // Marked async to await the url launch
+        final data = success.data;
+
+        if (data != null) {
+          if (data.isDownload && data.downloadUrl.isNotEmpty) {
+            ULoaders.stopLoading();
+            log("[MfuController] Download link ready: ${data.downloadUrl}");
+            await _downloadAndSavePdf(data.downloadUrl, folioNo);
+          } else if (data.isEmail) {
+            ULoaders.stopLoading();
+            log("[MfuController] Email sent to: ${data.emailTo}");
+            CustomSnackbar.success(
+              title: 'Success',
+              message:
+                  'Statement sent to ${data.emailTo} successfully.' ??
+                  data.message,
+            );
+          }
+        } else {
+          ULoaders.stopLoading();
+        }
+      },
+      (error) {
+        ULoaders.stopLoading();
+        CustomSnackbar.error(title: 'Error', message: error.message);
+      },
+    );
+
+    isRequestingStatement.value = false;
+  }
+
+  Future<void> requestAccountStatement({
+    required String type, // "email" or "download"
+    String? email,
+    required String folioNo,
+    required String startDate,
+    required String endDate,
+  }) async {
+    isRequestingAccountStatement.value = true;
+
+    ULoaders.showLoading(message: "Processing Account Statement...");
+
+    final uid = session.getUserData?.id ?? 0;
+
+    final result = await useCases.requestAccountStatementUseCase(
+      uid: 13001, // for testing
+      // uid: uid,
+      type: type,
+      email: email,
+      folioNo: folioNo,
+      startDate: startDate,
+      endDate: endDate,
+    );
+
+    result.fold(
+      (success) async {
+        final data = success.data;
+
+        if (data != null) {
+          if (data.isDownload && data.downloadUrl.isNotEmpty) {
+            ULoaders.stopLoading();
+            log("[MfuController] Download link ready: ${data.downloadUrl}");
+            await _downloadAndSavePdf(data.downloadUrl, folioNo);
+          } else if (data.isEmail) {
+            ULoaders.stopLoading();
+            log("[MfuController] Email sent to: ${data.emailTo}");
+            CustomSnackbar.success(
+              title: 'Success',
+              message:
+                  'Statement sent to ${data.emailTo} successfully.' ??
+                  data.message,
+            );
+          }
+        } else {
+          ULoaders.stopLoading();
+        }
+      },
+      (error) {
+        ULoaders.stopLoading();
+        Get.snackbar('Error', error.message);
+      },
+    );
+
+    isRequestingAccountStatement.value = false;
   }
 
   // On close

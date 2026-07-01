@@ -1,19 +1,22 @@
+// ignore_for_file: prefer_final_fields, dead_null_aware_expression, dead_code
+
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/features/explore/domain/entities/mutual_fund_list_entity.dart';
 import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_usecases.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
+import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
+import 'package:my_sip/services/session_manager.dart';
 
 class MutualFundController extends GetxController {
   final GetMutualFundListUsecases _getMutualFundListUsecases;
 
   MutualFundController(this._getMutualFundListUsecases);
 
-  // =========================================================
-  //  1. OBSERVABLE STATE (For UI)
-  // =========================================================
   RxBool isLoading = false.obs; // Full screen loader (Initial/Search/Filter)
   RxBool isMoreLoading = false.obs; // Bottom loader (Pagination)
   RxString errorMessage = ''.obs;
@@ -35,6 +38,9 @@ class MutualFundController extends GetxController {
   bool canLoadMore = true;
   Timer? _debounce;
 
+  final currentPopularIndex = 0.obs;
+  Timer? _carouselTimer;
+
   // ✅ CRITICAL: These variables "remember" what the user is looking at
   String _currentSearchQuery = "";
   Map<String, dynamic> _currentFilters = {};
@@ -44,6 +50,8 @@ class MutualFundController extends GetxController {
     super.onInit();
     // resetToDefaultStateOnly(); // Wipes memory without calling API
     fetchData();
+    _loadRecentlyViewed();
+    // _startPopularFundsCarousel();
   }
 
   void setSearchFocus(bool focus) {
@@ -54,51 +62,128 @@ class MutualFundController extends GetxController {
 
   /// ACTION A: User types in Search Bar
   /// Usage: onChanged: (val) => controller.onSearchQueryChanged(val)
+  int _searchRequestId = 0;
   void onSearchQueryChanged(String query) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    if (_debounce?.isActive ?? false) {
+      _debounce!.cancel();
+    }
 
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      _currentSearchQuery = query.trim();
+    _debounce = Timer(const Duration(milliseconds: 500), () async {
+      final String searchText = query.trim();
 
-      ///       ----------------------       //
-      if (_currentSearchQuery.isNotEmpty) {
+      _currentSearchQuery = searchText;
+
+      if (_currentSearchQuery.toLowerCase() == 'international') {
         if (Get.isRegistered<FundhouseController>()) {
           final fundhouse = Get.find<FundhouseController>();
+
           fundhouse.resetUiStatesOnly();
+          _currentFilters.clear();
+
+          await fundhouse.applyInternationalFilter();
+          return;
+        }
+      }
+
+      if (_currentSearchQuery.isNotEmpty) {
+        if (Get.isRegistered<FundhouseController>()) {
+          Get.find<FundhouseController>().resetUiStatesOnly();
         }
 
         _currentFilters.clear();
       }
 
-      /// ---------------------------------  ///
-      _resetAndFetch(); // Start over from Page 1
+      currentPage = 1;
+      canLoadMore = true;
+      searchFund.clear();
+
+      await _resetAndFetch();
     });
   }
 
-  /// ACTION B: User applies Filters from Filter Page
-  /// Usage: controller.applyFilters(resultMap)
-  // void applyFilters(Map<String, dynamic> newFilters) {
-
-  //   if (newFilters.containsKey('return_year')) {
-  //     selectedReturnYear.value = newFilters['return_year'];
-  //   }
-  //   _currentFilters = newFilters; // Save filters
-  //   _resetAndFetch(); // Start over from Page 1
-  // }
-  // void applyFilters(Map<String, dynamic> newFilters) {
-  //   // 1. Update UI state if return_year is changed
-  //   if (newFilters.containsKey('return_year')) {
-  //     selectedReturnYear.value = newFilters['return_year'];
-  //     // Sync the Sort Chip label based on the year
-  //     currentSortLabel.value = "${newFilters['return_year']}Y Returns";
-
+  // void onSearchQueryChanged(String query) {
+  //   if (_debounce?.isActive ?? false) {
+  //     _debounce!.cancel();
   //   }
 
-  //   // 2. MERGE: This is the key. Use addAll so it doesn't delete existing AMC/Category filters
-  //   _currentFilters.addAll(newFilters);
+  //   _debounce = Timer(const Duration(milliseconds: 500), () async {
+  //     final String searchText = query.trim();
+  //     final int requestId = ++_searchRequestId;
 
-  //   _resetAndFetch();
+  //     _currentSearchQuery = searchText;
+
+  //     // Special case: International
+  //     if (_currentSearchQuery.toLowerCase() == 'international') {
+  //       if (Get.isRegistered<FundhouseController>()) {
+  //         final fundhouse = Get.find<FundhouseController>();
+
+  //         fundhouse.resetUiStatesOnly();
+  //         _currentFilters.clear();
+
+  //         await fundhouse.applyInternationalFilter();
+
+  //         update();
+  //         return;
+  //       }
+  //     }
+
+  //     // When searching, clear filter UI state
+  //     if (_currentSearchQuery.isNotEmpty) {
+  //       if (Get.isRegistered<FundhouseController>()) {
+  //         Get.find<FundhouseController>().resetUiStatesOnly();
+  //       }
+
+  //       _currentFilters.clear();
+  //     }
+
+  //     // Reset pagination/list before API call
+  //     currentPage = 1;
+  //     canLoadMore = true;
+  //     searchFund.clear();
+
+  //     update();
+
+  //     await _resetAndFetch();
+
+  //     // Ignore old response if user typed something newer
+  //     if (requestId != _searchRequestId) {
+  //       return;
+  //     }
+
+  //     update();
+  //   });
   // }
+
+  // void onSearchQueryChanged(String query) {
+  //   if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+  //   _debounce = Timer(const Duration(milliseconds: 500), () {
+  //     _currentSearchQuery = query.trim();
+
+  //     if (_currentSearchQuery.toLowerCase() == 'international') {
+  //       if (Get.isRegistered<FundhouseController>()) {
+  //         // Trigger the specific filter logic instead of a text search
+  //         Get.find<FundhouseController>().applyInternationalFilter();
+  //         return; // Exit early so we don't run the generic search below
+  //       }
+  //     }
+
+  //     ///       ----------------------       //
+  //     if (_currentSearchQuery.isNotEmpty) {
+  //       if (Get.isRegistered<FundhouseController>()) {
+  //         final fundhouse = Get.find<FundhouseController>();
+  //         fundhouse.resetUiStatesOnly();
+  //       }
+
+  //       _currentFilters.clear();
+  //     }
+
+  //     /// ---------------------------------  ///
+  //     _resetAndFetch(); // Start over from Page 1
+  //   });
+  //   update();
+  // }
+
   void applyFilters(Map<String, dynamic> newFilters) {
     // Update internal memory with cumulative filters
     _currentFilters.addAll(newFilters);
@@ -170,6 +255,9 @@ class MutualFundController extends GetxController {
     _currentFilters.remove('risk_level');
     _currentFilters.remove('rating');
     _currentFilters.remove('search'); // Used for index funds only
+    _currentFilters.remove('return_min'); // ADD THIS
+    _currentFilters.remove('return_max');
+    _currentFilters.remove('return_year');
 
     // 2. Merge the newly selected parameters from FundhouseController
     _currentFilters.addAll(newParams);
@@ -178,18 +266,6 @@ class MutualFundController extends GetxController {
     _resetAndFetch();
   }
 
-  // void resetToDefault() {
-  //   _currentSearchQuery = "";
-  //   _currentFilters
-  //       .clear(); // Wipes the filter map for {{baseURL}}/api/v1/mutual-funds
-  //   selectedReturnYear.value = 3;
-
-  //   // Synchronize with FundhouseController to uncheck all checkboxes
-  //   if (Get.isRegistered<FundhouseController>()) {
-  //     Get.find<FundhouseController>().clearAllFilters();
-  //   }
-  //   _resetAndFetch();
-  // }
   void resetToDefault() {
     _currentSearchQuery = "";
     _currentFilters
@@ -209,7 +285,7 @@ class MutualFundController extends GetxController {
     fetchData(isLoadMore: true);
   }
 
-  void applyFreshFilter(Map<String, dynamic> newFilters) {
+  Future<void> applyFreshFilter(Map<String, dynamic> newFilters) async {
     _currentSearchQuery = ""; // Clear search bar text
     _currentFilters.clear(); // WIPE everything (AMC, Category, Risk, Sort)
 
@@ -220,13 +296,15 @@ class MutualFundController extends GetxController {
     // Apply the new specific filter from Home
     _currentFilters.addAll(newFilters);
 
-    _resetAndFetch();
+    await _resetAndFetch();
   }
+
+  int _activeFetchToken = 0;
 
   // =========================================================
   //  4. CORE DATA FETCHING (The "Master Merge")
   // =========================================================
-  Future<void> fetchData({bool isLoadMore = false}) async {
+  Future<void> fetchData({bool isLoadMore = false, int? fetchToken}) async {
     // 1. Guard Clauses (Prevent duplicate/invalid calls)
     if (isLoadMore) {
       if (isMoreLoading.value || !canLoadMore) return;
@@ -239,12 +317,15 @@ class MutualFundController extends GetxController {
       if (isLoadMore) isMoreLoading.value = true;
 
       // 2. Prepare Page Number
-      final int pageToFetch = isLoadMore ? currentPage + 1 : 1;
+      // final int pageToFetch = isLoadMore ? currentPage + 1 : 1;
 
       // 3. MERGE PARAMETERS (Page + Search + Filters)
       final Map<String, dynamic> apiParams = {};
 
-      apiParams['page'] = pageToFetch;
+      // apiParams['page'] = pageToFetch;
+      if (isLoadMore) {
+        apiParams['page'] = currentPage + 1;
+      }
 
       // Add Search if exists
       if (_currentSearchQuery.isNotEmpty) {
@@ -254,8 +335,29 @@ class MutualFundController extends GetxController {
       // Add Filters if exist
       apiParams.addAll(_currentFilters);
 
+      apiParams['sort_order'] ??= 'desc';
+
+      bool hasActiveFilters =
+          _currentSearchQuery.isNotEmpty || _currentFilters.isNotEmpty;
+
+      // final riskType = dynamicRiskType;
+      // if (riskType != null) {
+      //   apiParams['risk_type'] = riskType;
+      // }
+      final riskType = dynamicRiskType;
+      if (riskType != null && !hasActiveFilters) {
+        apiParams['risk_type'] = riskType;
+      }
+
       // 4. Call API
+      log("FETCH CTRL HASH: ${identityHashCode(this)}");
       final result = await _getMutualFundListUsecases.call(apiParams);
+      log("FETCH CTRL HASH: ${identityHashCode(this)}");
+      if (!isLoadMore &&
+          fetchToken != null &&
+          fetchToken != _activeFetchToken) {
+        return;
+      }
 
       result.fold(
         (success) {
@@ -268,11 +370,16 @@ class MutualFundController extends GetxController {
           if (isLoadMore) {
             // Append Mode (Pagination)
             searchFund.addAll(newData);
+            searchFund.refresh();
+
             currentPage++;
           } else {
             // Replace Mode (New Search/Filter)
             searchFund.assignAll(newData);
+            searchFund.refresh();
+
             currentPage = 1;
+            currentPopularIndex.value = 0;
           }
 
           // 5. Update "Can Load More" flag
@@ -284,6 +391,10 @@ class MutualFundController extends GetxController {
 
           log(
             "Fetched Page: $currentPage | Search: $_currentSearchQuery | Items: ${newData.length}",
+          );
+          log("UI LIST COUNT: ${searchFund.length}");
+          log(
+            "FIRST FUND: ${searchFund.isNotEmpty ? searchFund.first.baseSchemeName : 'empty'}",
           );
         },
         (error) {
@@ -298,15 +409,13 @@ class MutualFundController extends GetxController {
     }
   }
 
-  // =========================================================
-  //  5. HELPERS
-  // =========================================================
-
   /// Resets pagination variables and triggers a fresh fetch
-  void _resetAndFetch() {
+  Future<void> _resetAndFetch() async {
     currentPage = 1;
     canLoadMore = true;
-    fetchData(isLoadMore: false);
+    final int fetchToken = ++_activeFetchToken;
+
+    await fetchData(isLoadMore: false, fetchToken: fetchToken);
   }
 
   /// Helper for Filter Page (Gets count without affecting main list)
@@ -347,8 +456,150 @@ class MutualFundController extends GetxController {
     await fetchData(isLoadMore: false);
   }
 
+  /// Recently Viewed
+  final recentlyViewedFunds = <MutualFundListEntity>[].obs;
+
+  void addToRecentlyViewed(MutualFundListEntity fund) {
+    // 1. Remove the fund if it's already in the list to avoid duplicates
+    recentlyViewedFunds.removeWhere(
+      (item) => item.schemeCode == fund.schemeCode,
+    );
+
+    // 2. Insert it at the top (most recent first)
+    recentlyViewedFunds.insert(0, fund);
+
+    // 3. Optional: Cap the list at 10 items to save memory
+    if (recentlyViewedFunds.length > 10) {
+      recentlyViewedFunds.removeLast();
+    }
+  }
+
+  // 1. Convert Entity -> Minimal Map -> JSON String -> Save
+  Future<void> _saveRecentlyViewed() async {
+    try {
+      final List<Map<String, dynamic>> simplifiedList = recentlyViewedFunds.map(
+        (fund) {
+          return {
+            'schemeCode': fund.schemeCode,
+            'baseSchemeName': fund.baseSchemeName,
+            'amcLogoUrl': fund.amc?.amcLogoUrl,
+            'email': fund.amc?.email,
+            'contact': fund.amc?.contact,
+            'address': fund.amc?.address,
+            'threeYear': fund.returnsEntity?.threeYear,
+          };
+        },
+      ).toList();
+
+      final String jsonString = jsonEncode(simplifiedList);
+      await SessionManager.instance.saveRecentFunds(jsonString);
+    } catch (e) {
+      debugPrint("Error saving recently viewed funds: $e");
+    }
+  }
+
+  // 2. Load -> Parse JSON -> Map -> Rebuild Minimal Entity
+  Future<void> _loadRecentlyViewed() async {
+    final String? jsonString = await SessionManager.instance.getRecentFunds();
+
+    if (jsonString != null && jsonString.isNotEmpty) {
+      try {
+        final List<dynamic> decodedList = jsonDecode(jsonString);
+
+        recentlyViewedFunds.value = decodedList.map((item) {
+          // Rebuild the Entity with ONLY the data the UI needs
+          // Everything else is left as null or empty to save memory
+          return MutualFundListEntity(
+            nav: null,
+            schemecategory: null,
+            minTopUp: null,
+            schemeCode: item['schemeCode'],
+            baseSchemeName: item['baseSchemeName'],
+            schemeType: null,
+            riskLevel: null,
+            isin: null,
+            minSipAmount: null,
+            minLumpsum: null,
+            variants: const [], // Empty list for required field
+            amc: AmcEntity(
+              id: null,
+              amcName: null,
+              amcLogoUrl: item['amcLogoUrl'],
+              email: item['email'],
+              contact: item['contact'],
+              address: item['address'],
+            ),
+            returnsEntity: ReturnsEntity(threeYear: item['threeYear']),
+          );
+        }).toList();
+      } catch (e) {
+        debugPrint("Error loading recently viewed funds: $e");
+      }
+    }
+  }
+
+  // 3. User taps a fund -> Add to list and Save
+  void addToLocalRecentlyViewed(MutualFundListEntity fund) {
+    // Remove if already exists to avoid duplicates
+    recentlyViewedFunds.removeWhere(
+      (item) => item.schemeCode == fund.schemeCode,
+    );
+
+    // Insert at the top (most recent first)
+    recentlyViewedFunds.insert(0, fund);
+
+    // Cap the list at 10 items to save memory
+    if (recentlyViewedFunds.length > 10) {
+      recentlyViewedFunds.removeLast();
+    }
+
+    // 🚀 Save the optimized list locally
+    _saveRecentlyViewed();
+  }
+
+  void removeFromRecentlyViewed(String schemeCode) {
+    recentlyViewedFunds.removeWhere(
+      (fund) => fund.schemeCode.toString() == schemeCode,
+    );
+
+    _saveRecentlyViewed();
+  }
+
+  // 🚀 Call this to instantly move to the next group of 4
+  void nextPopularGroup() {
+    if (searchFund.isEmpty) return;
+
+    final maxGroups = (searchFund.length / 4).ceil();
+    if (maxGroups <= 1) return;
+
+    currentPopularIndex.value = (currentPopularIndex.value + 1) % maxGroups;
+  }
+
+  String? get dynamicRiskType {
+    // 1. Try to get it from the Controller
+    if (Get.isRegistered<PersonalisationController>()) {
+      final controllerRisk =
+          Get.find<PersonalisationController>().riskResult.value?.profileName;
+      if (controllerRisk != null && controllerRisk.isNotEmpty) {
+        return controllerRisk;
+      }
+    }
+
+    // 2. Try to get it from Local Session
+    final sessionRisk =
+        SessionManager.instance.getUserData?.riskProfileModel?.profileName;
+    if (sessionRisk != null && sessionRisk.isNotEmpty) {
+      return sessionRisk;
+    }
+
+    // 3. Not available - Return null instead of 'Balanced'
+    return null;
+  }
+
   @override
   void onClose() {
+    // _carouselTimer?.cancel();
+    // _debounce?.cancel();
     _debounce?.cancel();
     super.onClose();
   }

@@ -8,6 +8,8 @@ import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/features/fund_details/presentation/widgets/helper.dart';
 import 'package:my_sip/features/nfo/domain/entity/nfo_list_entity.dart';
 
+import '../../../../core/utils/constant/text_style.dart';
+
 class NfoDetailModel {
   final String fundName;
   final String planType;
@@ -58,7 +60,7 @@ final myApiData = NfoDetailModel(
 );
 
 class NfoDetailsPage1 extends StatelessWidget {
-  const NfoDetailsPage1({Key? key}) : super(key: key);
+  const NfoDetailsPage1({super.key});
 
   // Theme Colors
   static const Color primaryColor = Color(0xFF1E40AF);
@@ -111,13 +113,14 @@ class NfoDetailsPage1 extends StatelessWidget {
       appBar: isDesktop
           ? null
           : AppBar(
-              backgroundColor: Colors.white.withOpacity(0.9),
+              backgroundColor: Colors.white.withValues(alpha: 0.9),
               elevation: 0,
               centerTitle: true,
               iconTheme: const IconThemeData(color: textDark),
               title: const Text(
                 'NFO Detail',
                 style: TextStyle(
+                  fontFamily: FontFamily.medium,
                   color: textDark,
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -144,85 +147,85 @@ class NfoDetailsPage1 extends StatelessWidget {
   // 💻 WEB / DESKTOP LAYOUT (2-Column)
   // =========================================
   Widget _buildWebLayout(LaunchDataEntity nfoData, BuildContext context) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1100), // Max width for Web
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
             ),
-            padding: const EdgeInsets.all(40),
-            child: Column(
+          ],
+        ),
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // --- Web Header ---
+            Text(
+              "NFO Details",
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: textDark,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Review all information before investing in this New Fund Offering.",
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                color: textMuted,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            // --- 2 Column Split ---
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // --- Web Header ---
-                Text(
-                  "NFO Details",
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: textDark,
+                // Left Column
+                Expanded(
+                  flex: 5,
+                  child: Column(
+                    children: [
+                      _buildMainDetailsCard(nfoData),
+                      const SizedBox(height: 24),
+                      _buildAmcCard(nfoData),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  "Review all information before investing in this New Fund Offering.",
-                  style: TextStyle(color: textMuted, fontSize: 14),
+                const SizedBox(width: 32),
+
+                // Right Column
+                Expanded(
+                  flex: 6,
+                  child: Column(
+                    children: [
+                      _buildMinimumInvestmentSection(nfoData),
+                      const SizedBox(height: 24),
+                      _buildFundDetailsSection(nfoData),
+                      const SizedBox(height: 24),
+                      _buildExitLoadAndTaxSection(nfoData),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 32),
-
-                // --- 2 Column Split ---
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Left Column
-                    Expanded(
-                      flex: 5,
-                      child: Column(
-                        children: [
-                          _buildMainDetailsCard(nfoData),
-                          const SizedBox(height: 24),
-                          _buildAmcCard(nfoData),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 32),
-
-                    // Right Column
-                    Expanded(
-                      flex: 6,
-                      child: Column(
-                        children: [
-                          _buildMinimumInvestmentSection(nfoData),
-                          const SizedBox(height: 24),
-                          _buildFundDetailsSection(nfoData),
-                          const SizedBox(height: 24),
-                          _buildExitLoadAndTaxSection(nfoData),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 40),
-                const Divider(color: borderColor),
-                const SizedBox(height: 24),
-
-                // --- Action Buttons (Web) ---
-                _buildBottomBar(context, isWeb: true),
               ],
             ),
-          ),
+
+            const SizedBox(height: 40),
+            const Divider(color: borderColor),
+            const SizedBox(height: 24),
+
+            // --- Action Buttons (Web) ---
+            _buildBottomBar(context, isWeb: true),
+          ],
         ),
       ),
     );
@@ -265,7 +268,7 @@ class NfoDetailsPage1 extends StatelessWidget {
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -277,6 +280,7 @@ class NfoDetailsPage1 extends StatelessWidget {
           const Text(
             'AMC Details',
             style: TextStyle(
+              fontFamily: FontFamily.medium,
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: textDark,
@@ -306,6 +310,7 @@ class NfoDetailsPage1 extends StatelessWidget {
                     Text(
                       nfo.nfoAmcEntity?.amcName ?? '',
                       style: const TextStyle(
+                        fontFamily: FontFamily.medium,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: textDark,
@@ -316,6 +321,7 @@ class NfoDetailsPage1 extends StatelessWidget {
                     const Text(
                       'FUND HOUSE',
                       style: TextStyle(
+                        fontFamily: FontFamily.medium,
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                         color: textMuted,
@@ -339,6 +345,7 @@ class NfoDetailsPage1 extends StatelessWidget {
                 const Text(
                   'CONTACT DETAILS',
                   style: TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                     color: textMuted,
@@ -359,6 +366,7 @@ class NfoDetailsPage1 extends StatelessWidget {
                       child: Text(
                         nfo.nfoAmcEntity?.address ?? '',
                         style: const TextStyle(
+                          fontFamily: FontFamily.medium,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: textDark,
@@ -381,6 +389,7 @@ class NfoDetailsPage1 extends StatelessWidget {
                       child: Text(
                         nfo.nfoAmcEntity?.email ?? '',
                         style: const TextStyle(
+                          fontFamily: FontFamily.medium,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: primaryColor,
@@ -403,6 +412,7 @@ class NfoDetailsPage1 extends StatelessWidget {
                     Text(
                       nfo.nfoAmcEntity?.contactNo ?? '',
                       style: const TextStyle(
+                        fontFamily: FontFamily.medium,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: textDark,
@@ -427,7 +437,7 @@ class NfoDetailsPage1 extends StatelessWidget {
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -443,7 +453,7 @@ class NfoDetailsPage1 extends StatelessWidget {
               height: 192,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.blue.shade500.withOpacity(0.1),
+                color: Colors.blue.shade500.withValues(alpha: 0.1),
               ),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
@@ -480,6 +490,7 @@ class NfoDetailsPage1 extends StatelessWidget {
                           Text(
                             nfo.schemeName ?? '--',
                             style: const TextStyle(
+                              fontFamily: FontFamily.medium,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: textDark,
@@ -490,6 +501,7 @@ class NfoDetailsPage1 extends StatelessWidget {
                           Text(
                             '${nfo.schemeCategory ?? '--'} • ${nfo.assetClass ?? '--'}',
                             style: const TextStyle(
+                              fontFamily: FontFamily.medium,
                               fontSize: 14,
                               color: textMuted,
                               fontWeight: FontWeight.w500,
@@ -579,6 +591,7 @@ class NfoDetailsPage1 extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
+            fontFamily: FontFamily.medium,
             fontSize: 10,
             color: textMuted,
             letterSpacing: 0.5,
@@ -589,6 +602,7 @@ class NfoDetailsPage1 extends StatelessWidget {
         Text(
           parsedData[0],
           style: const TextStyle(
+            fontFamily: FontFamily.medium,
             fontSize: 12,
             fontWeight: FontWeight.w600,
             color: textDark,
@@ -597,7 +611,11 @@ class NfoDetailsPage1 extends StatelessWidget {
         if (parsedData[1].isNotEmpty)
           Text(
             parsedData[1],
-            style: const TextStyle(fontSize: 10, color: textMuted),
+            style: const TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 10,
+              color: textMuted,
+            ),
           ),
       ],
     );
@@ -621,6 +639,7 @@ class NfoDetailsPage1 extends StatelessWidget {
             const Text(
               'Minimum Investment',
               style: TextStyle(
+                fontFamily: FontFamily.medium,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: textDark,
@@ -669,7 +688,7 @@ class NfoDetailsPage1 extends StatelessWidget {
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -685,6 +704,7 @@ class NfoDetailsPage1 extends StatelessWidget {
               Text(
                 type,
                 style: const TextStyle(
+                  fontFamily: FontFamily.medium,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: textMuted,
@@ -697,6 +717,7 @@ class NfoDetailsPage1 extends StatelessWidget {
           Text(
             amount,
             style: const TextStyle(
+              fontFamily: FontFamily.medium,
               fontSize: 20,
               fontWeight: FontWeight.bold,
               color: textDark,
@@ -705,7 +726,11 @@ class NfoDetailsPage1 extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style: const TextStyle(fontSize: 11, color: textMuted),
+            style: const TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 11,
+              color: textMuted,
+            ),
           ),
         ],
       ),
@@ -721,7 +746,7 @@ class NfoDetailsPage1 extends StatelessWidget {
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -733,6 +758,7 @@ class NfoDetailsPage1 extends StatelessWidget {
           const Text(
             'Fund Details',
             style: TextStyle(
+              fontFamily: FontFamily.medium,
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: textDark,
@@ -770,12 +796,20 @@ class NfoDetailsPage1 extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontSize: 14, color: textMuted)),
+          Text(
+            label,
+            style: const TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 14,
+              color: textMuted,
+            ),
+          ),
           Flexible(
             child: Text(
               value,
               textAlign: TextAlign.right,
               style: const TextStyle(
+                fontFamily: FontFamily.medium,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: textDark,
@@ -801,6 +835,7 @@ class NfoDetailsPage1 extends StatelessWidget {
           const Text(
             'Exit Load & Tax Implications',
             style: TextStyle(
+              fontFamily: FontFamily.medium,
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: textDark,
@@ -852,6 +887,7 @@ class NfoDetailsPage1 extends StatelessWidget {
               Text(
                 title,
                 style: const TextStyle(
+                  fontFamily: FontFamily.medium,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: textDark,
@@ -861,6 +897,7 @@ class NfoDetailsPage1 extends StatelessWidget {
               Text(
                 description,
                 style: const TextStyle(
+                  fontFamily: FontFamily.medium,
                   fontSize: 13,
                   color: textMuted,
                   height: 1.4,
@@ -891,7 +928,7 @@ class NfoDetailsPage1 extends StatelessWidget {
   //           ? null
   //           : [
   //               BoxShadow(
-  //                 color: Colors.black.withOpacity(0.05),
+  //                 color: Colors.black.withValues(alpha:0.05),
   //                 blurRadius: 10,
   //                 offset: const Offset(0, -4),
   //               ),
@@ -917,7 +954,7 @@ class NfoDetailsPage1 extends StatelessWidget {
   //               ),
   //               child: const Text(
   //                 'Back',
-  //                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+  //                 style: TextStyle(fontFamily: FontFamily.medium,fontSize: 15, fontWeight: FontWeight.bold),
   //               ),
   //             ),
   //           ),
@@ -937,7 +974,7 @@ class NfoDetailsPage1 extends StatelessWidget {
   //               ),
   //               child: const Text(
   //                 'Back',
-  //                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+  //                 style: TextStyle(fontFamily: FontFamily.medium,fontSize: 15, fontWeight: FontWeight.bold),
   //               ),
   //             ),
   //           ),
@@ -954,14 +991,14 @@ class NfoDetailsPage1 extends StatelessWidget {
   //                 foregroundColor: Colors.white,
   //                 padding: const EdgeInsets.symmetric(vertical: 16),
   //                 elevation: 4,
-  //                 shadowColor: primaryColor.withOpacity(0.4),
+  //                 shadowColor: primaryColor.withValues(alpha:0.4),
   //                 shape: RoundedRectangleBorder(
   //                   borderRadius: BorderRadius.circular(12),
   //                 ),
   //               ),
   //               child: const Text(
   //                 'Invest Now',
-  //                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+  //                 style: TextStyle(fontFamily: FontFamily.medium,fontSize: 15, fontWeight: FontWeight.bold),
   //               ),
   //             ),
   //           ),
@@ -980,12 +1017,16 @@ class NfoDetailsPage1 extends StatelessWidget {
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 16),
         elevation: 4,
-        shadowColor: primaryColor.withOpacity(0.4),
+        shadowColor: primaryColor.withValues(alpha: 0.4),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       child: const Text(
         'Invest Now',
-        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+        style: TextStyle(
+          fontFamily: FontFamily.medium,
+          fontSize: 15,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
 
@@ -1005,7 +1046,7 @@ class NfoDetailsPage1 extends StatelessWidget {
             ? null
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, -4),
                 ),
@@ -1031,7 +1072,11 @@ class NfoDetailsPage1 extends StatelessWidget {
                 ),
                 child: const Text(
                   'Back',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -1051,7 +1096,11 @@ class NfoDetailsPage1 extends StatelessWidget {
                 ),
                 child: const Text(
                   'Back',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -1087,6 +1136,7 @@ class NfoDetailsPage1 extends StatelessWidget {
           Text(
             text,
             style: TextStyle(
+              fontFamily: FontFamily.medium,
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: textColor,
@@ -1155,13 +1205,13 @@ class NfoDetailsPage1 extends StatelessWidget {
 //     return Scaffold(
 //       backgroundColor: backgroundColor,
 //       appBar: AppBar(
-//         backgroundColor: Colors.white.withOpacity(0.9),
+//         backgroundColor: Colors.white.withValues(alpha:0.9),
 //         elevation: 0,
 //         centerTitle: true,
 //         iconTheme: const IconThemeData(color: textDark),
 //         title: const Text(
 //           'NFO Detail',
-//           style: TextStyle(
+//           style: TextStyle(fontFamily: FontFamily.medium,
 //             color: textDark,
 //             fontSize: 18,
 //             fontWeight: FontWeight.w600,
@@ -1211,7 +1261,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //         border: Border.all(color: const Color(0xFFF3F4F6)), // borderColor
 //         boxShadow: [
 //           BoxShadow(
-//             color: Colors.black.withOpacity(0.02),
+//             color: Colors.black.withValues(alpha:0.02),
 //             blurRadius: 8,
 //             offset: const Offset(0, 2),
 //           ),
@@ -1223,7 +1273,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //           // Header
 //           const Text(
 //             'AMC Details',
-//             style: TextStyle(
+//             style: TextStyle(fontFamily: FontFamily.medium,
 //               fontSize: 16,
 //               fontWeight: FontWeight.bold,
 //               color: Color(0xFF1F2937), // textDark
@@ -1255,7 +1305,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //                   children: [
 //                     Text(
 //                       nfo.nfoAmcEntity?.amcName ?? '',
-//                       style: TextStyle(
+//                       style: TextStyle(fontFamily: FontFamily.medium,
 //                         fontSize: 14,
 //                         fontWeight: FontWeight.bold,
 //                         color: Color(0xFF1F2937), // textDark
@@ -1265,7 +1315,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //                     SizedBox(height: 2),
 //                     Text(
 //                       'FUND HOUSE',
-//                       style: TextStyle(
+//                       style: TextStyle(fontFamily: FontFamily.medium,
 //                         fontSize: 10,
 //                         fontWeight: FontWeight.w600,
 //                         color: Color(0xFF6B7280), // textMuted
@@ -1290,7 +1340,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //               children: [
 //                 const Text(
 //                   'CONTACT DETAILS',
-//                   style: TextStyle(
+//                   style: TextStyle(fontFamily: FontFamily.medium,
 //                     fontSize: 10,
 //                     fontWeight: FontWeight.bold,
 //                     color: Color(0xFF6B7280), // textMuted
@@ -1312,7 +1362,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //                     Expanded(
 //                       child: Text(
 //                         nfo.nfoAmcEntity?.address ?? '',
-//                         style: TextStyle(
+//                         style: TextStyle(fontFamily: FontFamily.medium,
 //                           fontSize: 12,
 //                           fontWeight: FontWeight.w500,
 //                           color: Color(0xFF1F2937), // textDark
@@ -1336,7 +1386,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //                     Expanded(
 //                       child: Text(
 //                         nfo.nfoAmcEntity?.email ?? '',
-//                         style: TextStyle(
+//                         style: TextStyle(fontFamily: FontFamily.medium,
 //                           fontSize: 12,
 //                           fontWeight: FontWeight.w600,
 //                           color: Color(0xFF1E40AF), // primaryColor
@@ -1360,7 +1410,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //                     SizedBox(width: 12),
 //                     Text(
 //                       nfo.nfoAmcEntity?.contactNo ?? '',
-//                       style: TextStyle(
+//                       style: TextStyle(fontFamily: FontFamily.medium,
 //                         fontSize: 12,
 //                         fontWeight: FontWeight.w600,
 //                         color: Color(0xFF1F2937), // textDark
@@ -1385,7 +1435,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //         borderRadius: BorderRadius.circular(24),
 //         boxShadow: [
 //           BoxShadow(
-//             color: Colors.black.withOpacity(0.05),
+//             color: Colors.black.withValues(alpha:0.05),
 //             blurRadius: 20,
 //             offset: const Offset(0, 4),
 //           ),
@@ -1402,7 +1452,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //               height: 192,
 //               decoration: BoxDecoration(
 //                 shape: BoxShape.circle,
-//                 color: Colors.blue.shade500.withOpacity(0.1),
+//                 color: Colors.blue.shade500.withValues(alpha:0.1),
 //               ),
 //               child: BackdropFilter(
 //                 filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
@@ -1429,7 +1479,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //                         border: Border.all(color: borderColor),
 //                         boxShadow: [
 //                           BoxShadow(
-//                             color: Colors.black.withOpacity(0.02),
+//                             color: Colors.black.withValues(alpha:0.02),
 //                             blurRadius: 4,
 //                             offset: const Offset(0, 2),
 //                           ),
@@ -1447,7 +1497,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //                         children: [
 //                           Text(
 //                             nfo.schemeName ?? '--',
-//                             style: const TextStyle(
+//                             style: const TextStyle(fontFamily: FontFamily.medium,
 //                               fontSize: 18,
 //                               fontWeight: FontWeight.bold,
 //                               color: textDark,
@@ -1457,7 +1507,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //                           const SizedBox(height: 4),
 //                           Text(
 //                             '${nfo.schemeCategory ?? '--'} • ${nfo.assetClass ?? '--'}',
-//                             style: const TextStyle(
+//                             style: const TextStyle(fontFamily: FontFamily.medium,
 //                               fontSize: 14,
 //                               color: textMuted,
 //                               fontWeight: FontWeight.w500,
@@ -1555,7 +1605,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //       children: [
 //         Text(
 //           label,
-//           style: const TextStyle(
+//           style: const TextStyle(fontFamily: FontFamily.medium,
 //             fontSize: 10,
 //             color: textMuted,
 //             letterSpacing: 0.5,
@@ -1565,7 +1615,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //         const SizedBox(height: 4),
 //         Text(
 //           dayMonth,
-//           style: const TextStyle(
+//           style: const TextStyle(fontFamily: FontFamily.medium,
 //             fontSize: 12,
 //             fontWeight: FontWeight.w600,
 //             color: textDark,
@@ -1577,7 +1627,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //         if (year.isNotEmpty)
 //           Text(
 //             year,
-//             style: const TextStyle(fontSize: 10, color: textMuted),
+//             style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 10, color: textMuted),
 //             textAlign: alignment == CrossAxisAlignment.end
 //                 ? TextAlign.right
 //                 : TextAlign.left,
@@ -1596,7 +1646,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //   //     children: [
 //   //       Text(
 //   //         label,
-//   //         style: const TextStyle(
+//   //         style: const TextStyle(fontFamily: FontFamily.medium,
 //   //           fontSize: 10,
 //   //           color: textMuted,
 //   //           letterSpacing: 0.5,
@@ -1606,7 +1656,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //   //       const SizedBox(height: 4),
 //   //       Text(
 //   //         dateText,
-//   //         style: const TextStyle(
+//   //         style: const TextStyle(fontFamily: FontFamily.medium,
 //   //           fontSize: 12,
 //   //           fontWeight: FontWeight.w600,
 //   //           color: textDark,
@@ -1637,7 +1687,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //             const SizedBox(width: 8),
 //             const Text(
 //               'Minimum Investment',
-//               style: TextStyle(
+//               style: TextStyle(fontFamily: FontFamily.medium,
 //                 fontSize: 16,
 //                 fontWeight: FontWeight.bold,
 //                 color: textDark,
@@ -1686,7 +1736,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //         border: Border.all(color: borderColor),
 //         boxShadow: [
 //           BoxShadow(
-//             color: Colors.black.withOpacity(0.02),
+//             color: Colors.black.withValues(alpha:0.02),
 //             blurRadius: 4,
 //             offset: const Offset(0, 2),
 //           ),
@@ -1701,7 +1751,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //               const SizedBox(width: 6),
 //               Text(
 //                 type,
-//                 style: const TextStyle(
+//                 style: const TextStyle(fontFamily: FontFamily.medium,
 //                   fontSize: 12,
 //                   fontWeight: FontWeight.w600,
 //                   color: textMuted,
@@ -1713,7 +1763,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //           const SizedBox(height: 12),
 //           Text(
 //             amount,
-//             style: const TextStyle(
+//             style: const TextStyle(fontFamily: FontFamily.medium,
 //               fontSize: 20,
 //               fontWeight: FontWeight.bold,
 //               color: textDark,
@@ -1722,7 +1772,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //           const SizedBox(height: 4),
 //           Text(
 //             subtitle,
-//             style: const TextStyle(fontSize: 11, color: textMuted),
+//             style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 11, color: textMuted),
 //           ),
 //         ],
 //       ),
@@ -1739,7 +1789,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //         border: Border.all(color: borderColor),
 //         boxShadow: [
 //           BoxShadow(
-//             color: Colors.black.withOpacity(0.02),
+//             color: Colors.black.withValues(alpha:0.02),
 //             blurRadius: 8,
 //             offset: const Offset(0, 2),
 //           ),
@@ -1750,7 +1800,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //         children: [
 //           const Text(
 //             'Fund Details',
-//             style: TextStyle(
+//             style: TextStyle(fontFamily: FontFamily.medium,
 //               fontSize: 16,
 //               fontWeight: FontWeight.bold,
 //               color: textDark,
@@ -1788,12 +1838,12 @@ class NfoDetailsPage1 extends StatelessWidget {
 //       child: Row(
 //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //         children: [
-//           Text(label, style: const TextStyle(fontSize: 14, color: textMuted)),
+//           Text(label, style: const TextStyle(fontFamily: FontFamily.medium,fontSize: 14, color: textMuted)),
 //           Flexible(
 //             child: Text(
 //               value,
 //               textAlign: TextAlign.right,
-//               style: const TextStyle(
+//               style: const TextStyle(fontFamily: FontFamily.medium,
 //                 fontSize: 14,
 //                 fontWeight: FontWeight.w600,
 //                 color: textDark,
@@ -1820,7 +1870,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //         children: [
 //           const Text(
 //             'Exit Load & Tax Implications',
-//             style: TextStyle(
+//             style: TextStyle(fontFamily: FontFamily.medium,
 //               fontSize: 16,
 //               fontWeight: FontWeight.bold,
 //               color: textDark,
@@ -1871,7 +1921,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //             children: [
 //               Text(
 //                 title,
-//                 style: const TextStyle(
+//                 style: const TextStyle(fontFamily: FontFamily.medium,
 //                   fontSize: 14,
 //                   fontWeight: FontWeight.w600,
 //                   color: textDark,
@@ -1880,7 +1930,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //               const SizedBox(height: 4),
 //               Text(
 //                 description,
-//                 style: const TextStyle(
+//                 style: const TextStyle(fontFamily: FontFamily.medium,
 //                   fontSize: 13,
 //                   color: textMuted,
 //                   height: 1.4,
@@ -1902,7 +1952,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //         border: const Border(top: BorderSide(color: borderColor)),
 //         boxShadow: [
 //           BoxShadow(
-//             color: Colors.black.withOpacity(0.05),
+//             color: Colors.black.withValues(alpha:0.05),
 //             blurRadius: 10,
 //             offset: const Offset(0, -4),
 //           ),
@@ -1923,7 +1973,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //               ),
 //               child: const Text(
 //                 'Buy SIP',
-//                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+//                 style: TextStyle(fontFamily: FontFamily.medium,fontSize: 15, fontWeight: FontWeight.bold),
 //               ),
 //             ),
 //           ),
@@ -1936,14 +1986,14 @@ class NfoDetailsPage1 extends StatelessWidget {
 //                 foregroundColor: Colors.white,
 //                 padding: const EdgeInsets.symmetric(vertical: 16),
 //                 elevation: 4,
-//                 shadowColor: primaryColor.withOpacity(0.4),
+//                 shadowColor: primaryColor.withValues(alpha:0.4),
 //                 shape: RoundedRectangleBorder(
 //                   borderRadius: BorderRadius.circular(12),
 //                 ),
 //               ),
 //               child: const Text(
 //                 'Buy Lumpsum',
-//                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+//                 style: TextStyle(fontFamily: FontFamily.medium,fontSize: 15, fontWeight: FontWeight.bold),
 //               ),
 //             ),
 //           ),
@@ -1971,7 +2021,7 @@ class NfoDetailsPage1 extends StatelessWidget {
 //           const SizedBox(width: 4),
 //           Text(
 //             text,
-//             style: TextStyle(
+//             style: TextStyle(fontFamily: FontFamily.medium,
 //               fontSize: 12,
 //               fontWeight: FontWeight.w600,
 //               color: textColor,
@@ -2005,13 +2055,14 @@ class NfoDetailsPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white.withOpacity(0.9),
+        backgroundColor: Colors.white.withValues(alpha: 0.9),
         elevation: 0,
         centerTitle: true,
         iconTheme: const IconThemeData(color: textDark),
         title: const Text(
           'NFO Detail',
           style: TextStyle(
+            fontFamily: FontFamily.medium,
             color: textDark,
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -2045,7 +2096,7 @@ class NfoDetailsPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -2079,6 +2130,7 @@ class NfoDetailsPage extends StatelessWidget {
                     Text(
                       nfo.schemeName ?? 'Unknown Fund',
                       style: const TextStyle(
+                        fontFamily: FontFamily.medium,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: textDark,
@@ -2089,6 +2141,7 @@ class NfoDetailsPage extends StatelessWidget {
                     Text(
                       nfo.planType ?? nfo.schemeCategory ?? 'Regular Plan',
                       style: const TextStyle(
+                        fontFamily: FontFamily.medium,
                         fontSize: 14,
                         color: textMuted,
                         fontWeight: FontWeight.w500,
@@ -2134,12 +2187,17 @@ class NfoDetailsPage extends StatelessWidget {
                   children: [
                     const Text(
                       'Launch Date',
-                      style: TextStyle(fontSize: 12, color: textMuted),
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 12,
+                        color: textMuted,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       nfo.nfoOpenDate ?? '--',
                       style: const TextStyle(
+                        fontFamily: FontFamily.medium,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: textDark,
@@ -2152,12 +2210,17 @@ class NfoDetailsPage extends StatelessWidget {
                   children: [
                     const Text(
                       'End Date',
-                      style: TextStyle(fontSize: 12, color: textMuted),
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 12,
+                        color: textMuted,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       nfo.nfoCloseDate ?? '--',
                       style: const TextStyle(
+                        fontFamily: FontFamily.medium,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: textDark,
@@ -2192,6 +2255,7 @@ class NfoDetailsPage extends StatelessWidget {
             const Text(
               'Minimum Investment',
               style: TextStyle(
+                fontFamily: FontFamily.medium,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: textDark,
@@ -2235,11 +2299,16 @@ class NfoDetailsPage extends StatelessWidget {
             children: [
               const Text(
                 'Additional Investment',
-                style: TextStyle(fontSize: 14, color: textMuted),
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 14,
+                  color: textMuted,
+                ),
               ),
               Text(
                 '₹${nfo.minimumTopup ?? "-"}',
                 style: const TextStyle(
+                  fontFamily: FontFamily.medium,
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
                   color: textDark,
@@ -2275,6 +2344,7 @@ class NfoDetailsPage extends StatelessWidget {
               Text(
                 type,
                 style: const TextStyle(
+                  fontFamily: FontFamily.medium,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: textMuted,
@@ -2287,6 +2357,7 @@ class NfoDetailsPage extends StatelessWidget {
           Text(
             amount,
             style: const TextStyle(
+              fontFamily: FontFamily.medium,
               fontSize: 22,
               fontWeight: FontWeight.bold,
               color: textDark,
@@ -2295,7 +2366,11 @@ class NfoDetailsPage extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style: const TextStyle(fontSize: 11, color: textMuted),
+            style: const TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 11,
+              color: textMuted,
+            ),
           ),
         ],
       ),
@@ -2317,6 +2392,7 @@ class NfoDetailsPage extends StatelessWidget {
           const Text(
             'Exit Load & Tax Implications',
             style: TextStyle(
+              fontFamily: FontFamily.medium,
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: textDark,
@@ -2378,6 +2454,7 @@ class NfoDetailsPage extends StatelessWidget {
               Text(
                 title,
                 style: const TextStyle(
+                  fontFamily: FontFamily.medium,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: textDark,
@@ -2387,6 +2464,7 @@ class NfoDetailsPage extends StatelessWidget {
               Text(
                 description,
                 style: const TextStyle(
+                  fontFamily: FontFamily.medium,
                   fontSize: 13,
                   color: textMuted,
                   height: 1.4,
@@ -2408,7 +2486,7 @@ class NfoDetailsPage extends StatelessWidget {
         border: const Border(top: BorderSide(color: borderColor)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -4),
           ),
@@ -2429,7 +2507,11 @@ class NfoDetailsPage extends StatelessWidget {
               ),
               child: const Text(
                 'Buy SIP',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -2442,14 +2524,18 @@ class NfoDetailsPage extends StatelessWidget {
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 elevation: 4,
-                shadowColor: primaryColor.withOpacity(0.4),
+                shadowColor: primaryColor.withValues(alpha: 0.4),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
               child: const Text(
                 'Buy Lumpsum',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -2478,6 +2564,7 @@ class NfoDetailsPage extends StatelessWidget {
           Text(
             text,
             style: TextStyle(
+              fontFamily: FontFamily.medium,
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: textColor,
@@ -2492,7 +2579,7 @@ class NfoDetailsPage extends StatelessWidget {
 class NfoDetailScreen extends StatelessWidget {
   final NfoDetailModel nfoData;
 
-  const NfoDetailScreen({Key? key, required this.nfoData}) : super(key: key);
+  const NfoDetailScreen({super.key, required this.nfoData});
 
   // Theme Colors
   static const Color primaryColor = Color(0xFF1E40AF);
@@ -2508,13 +2595,14 @@ class NfoDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white.withOpacity(0.9),
+        backgroundColor: Colors.white.withValues(alpha: 0.9),
         elevation: 0,
         centerTitle: true,
         iconTheme: const IconThemeData(color: textDark),
         title: const Text(
           'NFO Detail',
           style: TextStyle(
+            fontFamily: FontFamily.medium,
             color: textDark,
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -2555,7 +2643,7 @@ class NfoDetailScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -2576,7 +2664,7 @@ class NfoDetailScreen extends StatelessWidget {
                   border: Border.all(color: borderColor),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
+                      color: Colors.black.withValues(alpha: 0.02),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -2596,6 +2684,7 @@ class NfoDetailScreen extends StatelessWidget {
                     Text(
                       nfoData.fundName,
                       style: const TextStyle(
+                        fontFamily: FontFamily.medium,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: textDark,
@@ -2606,6 +2695,7 @@ class NfoDetailScreen extends StatelessWidget {
                     Text(
                       nfoData.planType,
                       style: const TextStyle(
+                        fontFamily: FontFamily.medium,
                         fontSize: 14,
                         color: textMuted,
                         fontWeight: FontWeight.w500,
@@ -2657,12 +2747,17 @@ class NfoDetailScreen extends StatelessWidget {
                   children: [
                     const Text(
                       'Launch Date',
-                      style: TextStyle(fontSize: 12, color: textMuted),
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 12,
+                        color: textMuted,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       nfoData.launchDate,
                       style: const TextStyle(
+                        fontFamily: FontFamily.medium,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: textDark,
@@ -2675,12 +2770,17 @@ class NfoDetailScreen extends StatelessWidget {
                   children: [
                     const Text(
                       'End Date',
-                      style: TextStyle(fontSize: 12, color: textMuted),
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 12,
+                        color: textMuted,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       nfoData.endDate,
                       style: const TextStyle(
+                        fontFamily: FontFamily.medium,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: textDark,
@@ -2715,6 +2815,7 @@ class NfoDetailScreen extends StatelessWidget {
             const Text(
               'Minimum Investment',
               style: TextStyle(
+                fontFamily: FontFamily.medium,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: textDark,
@@ -2757,11 +2858,16 @@ class NfoDetailScreen extends StatelessWidget {
             children: [
               const Text(
                 'Additional Investment',
-                style: TextStyle(fontSize: 14, color: textMuted),
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 14,
+                  color: textMuted,
+                ),
               ),
               Text(
                 nfoData.additionalInvestment,
                 style: const TextStyle(
+                  fontFamily: FontFamily.medium,
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
                   color: textDark,
@@ -2797,6 +2903,7 @@ class NfoDetailScreen extends StatelessWidget {
               Text(
                 type,
                 style: const TextStyle(
+                  fontFamily: FontFamily.medium,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: textMuted,
@@ -2809,6 +2916,7 @@ class NfoDetailScreen extends StatelessWidget {
           Text(
             amount,
             style: const TextStyle(
+              fontFamily: FontFamily.medium,
               fontSize: 22,
               fontWeight: FontWeight.bold,
               color: textDark,
@@ -2817,7 +2925,11 @@ class NfoDetailScreen extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style: const TextStyle(fontSize: 11, color: textMuted),
+            style: const TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 11,
+              color: textMuted,
+            ),
           ),
         ],
       ),
@@ -2839,6 +2951,7 @@ class NfoDetailScreen extends StatelessWidget {
           const Text(
             'Exit Load & Tax Implications',
             style: TextStyle(
+              fontFamily: FontFamily.medium,
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: textDark,
@@ -2897,6 +3010,7 @@ class NfoDetailScreen extends StatelessWidget {
               Text(
                 title,
                 style: const TextStyle(
+                  fontFamily: FontFamily.medium,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: textDark,
@@ -2906,6 +3020,7 @@ class NfoDetailScreen extends StatelessWidget {
               Text(
                 description,
                 style: const TextStyle(
+                  fontFamily: FontFamily.medium,
                   fontSize: 13,
                   color: textMuted,
                   height: 1.4,
@@ -2927,7 +3042,7 @@ class NfoDetailScreen extends StatelessWidget {
         border: const Border(top: BorderSide(color: borderColor)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -4),
           ),
@@ -2948,7 +3063,11 @@ class NfoDetailScreen extends StatelessWidget {
               ),
               child: const Text(
                 'Buy SIP',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -2961,14 +3080,18 @@ class NfoDetailScreen extends StatelessWidget {
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 elevation: 4,
-                shadowColor: primaryColor.withOpacity(0.4),
+                shadowColor: primaryColor.withValues(alpha: 0.4),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
               child: const Text(
                 'Buy Lumpsum',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -2997,6 +3120,7 @@ class NfoDetailScreen extends StatelessWidget {
           Text(
             text,
             style: TextStyle(
+              fontFamily: FontFamily.medium,
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: textColor,

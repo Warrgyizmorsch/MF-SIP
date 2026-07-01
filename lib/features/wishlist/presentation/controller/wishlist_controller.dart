@@ -25,7 +25,23 @@ class WishlistController extends GetxController {
   final RxString deletingItemId = ''.obs;
 
   final Rxn<WishlistEntity> wishlistResponseEntity = Rxn<WishlistEntity>();
+  bool isFavorite(String schemeCode) {
+    return wishlistResponseEntity.value?.data?.any(
+            (item) => item.schemeCode == schemeCode
+    ) ?? false;
+  }
+  Future<void> toggleWishlist(String schemeCode, String schemeName) async {
+    // Find if it exists locally first
+    final existingItem = wishlistResponseEntity.value?.data?.firstWhereOrNull(
+            (item) => item.schemeCode == schemeCode
+    );
 
+    if (existingItem != null) {
+      await removeFromWishlist(existingItem.wishlistId.toString());
+    } else {
+      await addToWishList(schemeCode, schemeName);
+    }
+  }
   // add to wishlist
   Future<void> addToWishList(String schemeCode, String schemeName) async {
     final userId = SessionManager.instance.getUserData?.id;
@@ -50,9 +66,7 @@ class WishlistController extends GetxController {
         },
         (failure) {
           // Check if the backend also reports a duplicate (Safety Check)
-          if (failure.message.toString().contains(
-            "Already added to wishlist",
-          )) {
+          if (failure.message.toString().contains("already added")) {
             showCustomToast(
               title: "Already in Wishlist",
               message: schemeName,
@@ -61,7 +75,8 @@ class WishlistController extends GetxController {
             );
           } else {
             showCustomToast(
-              title: "Error",
+              title: "Something went wrong}",
+
               message: failure.message.toString(),
               backgroundColor: Colors.red.shade700,
               icon: Icons.error_outline,

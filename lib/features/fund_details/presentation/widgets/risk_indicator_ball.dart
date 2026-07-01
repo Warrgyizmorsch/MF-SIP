@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
+import '../../../../core/utils/constant/text_style.dart';
+
 class RiskLegendItem extends StatelessWidget {
   final Color color;
   final String label;
@@ -19,15 +21,15 @@ class RiskLegendItem extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: isDesktop ? 16 : 12,
-          height: isDesktop ? 16 : 12,
+          width: isDesktop ? 16 : 9,
+          height: isDesktop ? 16 : 9,
           decoration: BoxDecoration(
             color: color,
             shape: BoxShape.circle,
             boxShadow: isDesktop
                 ? [
               BoxShadow(
-                color: color.withOpacity(0.3),
+                color: color.withValues(alpha:0.3),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               )
@@ -35,11 +37,11 @@ class RiskLegendItem extends StatelessWidget {
                 : null,
           ),
         ),
-        SizedBox(width: isDesktop ? 10 : 8),
+        SizedBox(width: isDesktop ? 10 : 4),
         Text(
           label,
-          style: TextStyle(
-            fontSize: isDesktop ? 14 : 14,
+          style:  TextStyle(fontFamily: FontFamily.medium,
+            fontSize: isDesktop ? 14 : 11,
             color: isDesktop ? Colors.grey.shade700 : Colors.grey,
             fontWeight: isDesktop ? FontWeight.w500 : FontWeight.w500,
           ),

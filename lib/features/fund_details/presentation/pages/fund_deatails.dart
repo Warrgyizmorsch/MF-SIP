@@ -1,13 +1,21 @@
-import 'dart:developer';
+// ignore_for_file: unnecessary_to_list_in_spreads, dead_null_aware_expression, dead_code, unused_local_variable, unused_element_parameter, unnecessary_non_null_assertion
 
+import 'dart:developer';
+import 'dart:ui';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:my_sip/common/widget/animated/custom_footer.dart';
 import 'package:my_sip/common/widget/animated/empty_filled.dart';
+import 'package:my_sip/core/utils/helper/purchase_scenario.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
+import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
+import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/wishlist/presentation/controller/wishlist_controller.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 import 'package:readmore/readmore.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
@@ -47,15 +55,19 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
     return Scaffold(
       backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.grey[50],
       body: Obx(() {
-        if (controller.isLoading.value)
+        if (controller.isLoading.value) {
           return _buildLoading(context, isDesktop);
+        }
         if (controller.hasError.value) return _buildError(context, isDesktop);
         if (controller.fundDetail.value?.riskStatisticsList.isEmpty ?? true) {
           return _buildEmpty(context, isDesktop);
         }
 
         return isDesktop
-            ? _DesktopFundDetailsLayout(controller: controller)
+            ? _DesktopFundDetailsLayout(
+                controller: controller,
+                cartController: cartController,
+              )
             : _MobileFundDetailsLayout(controller: controller);
       }),
       bottomNavigationBar: isDesktop
@@ -64,138 +76,241 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
               if (controller.isLoading.value || controller.hasError.value) {
                 return const SizedBox.shrink();
               }
-              return SafeArea(
-                top: false,
-                child:
-                    controller.fundDetail.value!.riskStatisticsList.isNotEmpty
-                    ? BottomBarButton(
-                        firstButton: 'Lumpsum',
-                        secondButton: 'Start SIP',
-                        firstButtonP: () async {
-                          // await controller.addToCart(
-                          //     entity.schemeCode ?? '',
-                          //     entity.baseSchemeName ?? '',
-                          //     entity.minSipAmount ?? 0,
-                          //     null,
-                          //   );
-                          //   await controller.fetchCart();
-                          await cartController.addToCart(
-                            controller.schemeCode,
-                            controller.schemeName,
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CustomFooter(),
+                  SafeArea(
+                    top: false,
+                    child:
+                        controller
+                            .fundDetail
+                            .value!
+                            .riskStatisticsList
+                            .isNotEmpty
+                        ? FundBottomBarButton(
+                            firstButton: 'Lumpsum',
+                            secondButton: 'Invest now',
+                            firstButtonP: () async {
+                              await cartController.addToCart(
+                                controller.schemeCode,
+                                controller.schemeName,
 
-                            controller.fundDetail.value?.minimumInvestment
-                                    .toInt() ??
-                                5000,
-                            transType: 'lumpsum',
+                                controller.fundDetail.value?.minimumInvestment
+                                        .toInt() ??
+                                    5000,
+                                transType: 'lumpsum',
 
-                            null,
-                          );
-                          Get.toNamed(AppRoutes.cart);
-                        },
-                        secondButtonP: () async {
-                          await cartController.addToCart(
-                            controller.schemeCode,
-                            controller.schemeName,
-                            controller.fundDetail.value?.sipMinimumAmount ??
-                                1000,
-                            transType: 'sip',
+                                null,
+                              );
+                            },
+                            secondButtonP: () async {
+                              GatekeeperHelper.runWithPrerequisites(
+                                onSuccess: () {
+                                  // This ONLY runs if KYC, Bank, CAN, and Mandate are all good!
+                                  final argVal = controller.fundDetail.value;
 
-                            null,
-                          );
-                          Get.toNamed(AppRoutes.cart);
-                        },
-                      )
-                    : const SizedBox.shrink(),
+                                  final purchaseArgs = SipPurchaseArgs(
+                                    schemeCode: controller.schemeCode,
+                                    fundName: controller.schemeName,
+                                    category: argVal?.schemeCategory ?? "",
+                                    riskLabel: argVal?.riskometerValue ?? "",
+                                    minSip: argVal?.sipMinimumAmount ?? 1000,
+                                    minLumpsum:
+                                        argVal?.minimumInvestment.toInt() ??
+                                        1000,
+                                    minTopup:
+                                        argVal?.minimumTopup.toInt() ?? 5000,
+                                    folio: null,
+                                    imgUrl: controller.imgUrl,
+                                  );
+
+                                  Get.to(
+                                    () => SIPPurchasePage(),
+                                    arguments: purchaseArgs,
+                                  );
+                                },
+                              );
+                            },
+                            // secondButtonP: () async {
+                            //   final userCtrl =
+                            //       Get.find<PersonalisationController>();
+
+                            //   if (!userCtrl.hasApprovedMandate) {
+                            //     Get.dialog(
+                            //       AlertDialog(
+                            //         shape: RoundedRectangleBorder(
+                            //           borderRadius: BorderRadius.circular(12),
+                            //         ),
+                            //         title: const Text('Auto Pay Required'),
+                            //         content: const Text(
+                            //           'Please set up your Auto Pay mandate to continue with your purchase.',
+                            //         ),
+                            //         actions: [
+                            //           TextButton(
+                            //             onPressed: () => Get.back(),
+                            //             child: const Text(
+                            //               'Close',
+                            //               style: TextStyle(color: Colors.grey),
+                            //             ),
+                            //           ),
+                            //           TextButton(
+                            //             onPressed: () {
+                            //               Get.back(); // Close dialog
+
+                            //               Get.toNamed(
+                            //                 AppRoutes.paymentScreen,
+                            //                 arguments: {
+                            //                   'isMandate': true,
+                            //                   'amount': '100000',
+                            //                 },
+                            //               );
+                            //             },
+                            //             child: const Text(
+                            //               'Set Up Auto Pay',
+                            //               style: TextStyle(
+                            //                 color: Color.fromARGB(
+                            //                   255,
+                            //                   7,
+                            //                   72,
+                            //                   125,
+                            //                 ),
+                            //               ),
+                            //             ),
+                            //           ),
+                            //         ],
+                            //       ),
+                            //       barrierDismissible: false,
+                            //     );
+                            //     return;
+                            //   }
+
+                            //   final argVal = controller.fundDetail.value;
+
+                            //   final purchaseArgs = SipPurchaseArgs(
+                            //     schemeCode: controller.schemeCode,
+                            //     fundName: controller
+                            //         .schemeName, // Replace with variable
+                            //     category:
+                            //         argVal?.schemeCategory ??
+                            //         "", // Replace with variable
+                            //     riskLabel:
+                            //         argVal?.riskometerValue ??
+                            //         "", // Replace with variable
+                            //     minSip:
+                            //         argVal?.sipMinimumAmount ??
+                            //         1000, // Replace with variable from API
+                            //     minLumpsum:
+                            //         argVal?.minimumInvestment.toInt() ??
+                            //         1000, // Replace with variable from API
+                            //     minTopup:
+                            //         argVal?.minimumTopup.toInt() ??
+                            //         5000, // Replace with variable from API
+                            //     folio: null,
+                            //     imgUrl: controller
+                            //         .imgUrl, // Pass folio if the user already has one, otherwise null
+                            //   );
+
+                            //   Get.to(
+                            //     () => SIPPurchasePage(),
+                            //     arguments: purchaseArgs,
+                            //   );
+
+                            // },
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                ],
               );
             }),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: isDesktop
-          ? null
-          : Obx(() {
-              if (controller.isLoading.value || controller.hasError.value) {
-                return const SizedBox.shrink();
-              }
-
-              return Container(
-                height: 48,
-                width: 48,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                  border: Border.all(color: Colors.grey.shade300, width: 1),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: PopupMenuButton<int>(
-                  padding: EdgeInsets.zero,
-                  icon: const Icon(Icons.more_horiz, color: Ucolors.primary),
-                  offset: const Offset(0, -115),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  color: Colors.white,
-                  elevation: 4,
-                  onSelected: (value) async {
-                    if (value == 0) {
-                      await Get.find<WishlistController>().addToWishList(
-                        controller.schemeCode.toString(),
-                        controller.schemeName.toString(),
-                      );
-                    } else if (value == 1) {
-                      await cartController.addToCart(
-                        controller.schemeCode,
-                        controller.schemeName,
-                        controller.fundDetail.value?.sipMinimumAmount ?? 1000,
-                        transType: 'sip',
-
-                        null,
-                      );
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: 0,
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.bookmark_border,
-                            size: 20,
-                            color: Colors.grey.shade800,
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'Add to Watchlist',
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 1,
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.shopping_cart_outlined,
-                            size: 20,
-                            color: Colors.grey.shade800,
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'Add to Cart',
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
+      // floatingActionButton: isDesktop
+      //     ? null
+      //     : Obx(() {
+      //         if (controller.isLoading.value || controller.hasError.value) {
+      //           return const SizedBox.shrink();
+      //         }
+      //
+      //         return Container(
+      //           height: 48,
+      //           width: 48,
+      //           decoration: BoxDecoration(
+      //             shape: BoxShape.circle,
+      //             color: Colors.white,
+      //             border: Border.all(color: Colors.grey.shade300, width: 1),
+      //             boxShadow: [
+      //               BoxShadow(
+      //                 color: Colors.black.withValues(alpha:0.1),
+      //                 blurRadius: 12,
+      //                 offset: const Offset(0, 4),
+      //               ),
+      //             ],
+      //           ),
+      //           child: PopupMenuButton<int>(
+      //             padding: EdgeInsets.zero,
+      //             icon: const Icon(Icons.more_horiz, color: Ucolors.primary),
+      //             offset: const Offset(0, -115),
+      //             shape: RoundedRectangleBorder(
+      //               borderRadius: BorderRadius.circular(12),
+      //             ),
+      //             color: Colors.white,
+      //             elevation: 4,
+      //             onSelected: (value) async {
+      //               if (value == 0) {
+      //                 await Get.find<WishlistController>().addToWishList(
+      //                   controller.schemeCode.toString(),
+      //                   controller.schemeName.toString(),
+      //                 );
+      //               } else if (value == 1) {
+      //                 await cartController.addToCart(
+      //                   controller.schemeCode,
+      //                   controller.schemeName,
+      //                   controller.fundDetail.value?.sipMinimumAmount ?? 1000,
+      //                   transType: 'sip',
+      //
+      //                   null,
+      //                 );
+      //               }
+      //             },
+      //             itemBuilder: (context) => [
+      //               PopupMenuItem(
+      //                 value: 0,
+      //                 child: Row(
+      //                   children: [
+      //                     Icon(
+      //                       Icons.bookmark_border,
+      //                       size: 20,
+      //                       color: Colors.grey.shade800,
+      //                     ),
+      //                     const SizedBox(width: 12),
+      //                     const Text(
+      //                       'Add to Watchlist',
+      //                       style:  TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w500),
+      //                     ),
+      //                   ],
+      //                 ),
+      //               ),
+      //               PopupMenuItem(
+      //                 value: 1,
+      //                 child: Row(
+      //                   children: [
+      //                     Icon(
+      //                       Icons.shopping_cart_outlined,
+      //                       size: 20,
+      //                       color: Colors.grey.shade800,
+      //                     ),
+      //                     const SizedBox(width: 12),
+      //                     const Text(
+      //                       'Add to Cart',
+      //                       style:  TextStyle(fontFamily: FontFamily.medium,fontWeight: FontWeight.w500),
+      //                     ),
+      //                   ],
+      //                 ),
+      //               ),
+      //             ],
+      //           ),
+      //         );
+      //       }),
     );
   }
 
@@ -216,7 +331,11 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
             const Gap(20),
             Text(
               'Loading fund details...',
-              style: TextStyle(fontSize: 16, color: Ucolors.primary),
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: 16,
+                color: Ucolors.primary,
+              ),
             ),
           ],
         ),
@@ -235,7 +354,10 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
                 const Gap(16),
                 Text(
                   'Loading fund details...',
-                  style: TextStyle(color: Ucolors.darkgrey),
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    color: Ucolors.darkgrey,
+                  ),
                 ),
               ],
             ),
@@ -267,6 +389,7 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
             Text(
               'Failed to load fund details',
               style: TextStyle(
+                fontFamily: FontFamily.medium,
                 fontSize: isDesktop ? 20 : 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -275,6 +398,7 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
             Text(
               controller.errorMessage.value,
               style: TextStyle(
+                fontFamily: FontFamily.medium,
                 fontSize: isDesktop ? 16 : 14,
                 color: Colors.grey.shade700,
               ),
@@ -323,6 +447,7 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
             Text(
               "Data not available",
               style: TextStyle(
+                fontFamily: FontFamily.medium,
                 fontSize: isDesktop ? 18 : 16,
                 color: Colors.grey.shade600,
               ),
@@ -342,16 +467,33 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
         actionsPadding: 10,
         title: 'Fund Details',
         action: [
-          CompactIcon(
-            icon: Iconsax.shopping_cart,
-            onPressed: () => Get.toNamed(AppRoutes.cart),
-          ),
+          // CompactIcon(
+          //   icon: Iconsax.shopping_cart,
+          //   onPressed: () => Get.toNamed(AppRoutes.cart),
+          // ),
+          Obx(() {
+            final wishlistController = Get.find<WishlistController>();
+
+            // Assuming controller is your Detail/Item controller
+            final String code = controller.schemeCode;
+            final String name = controller.schemeName;
+
+            final bool isFav = wishlistController.isFavorite(code);
+
+            return CompactIcon(
+              icon: isFav ? Iconsax.heart5 : Iconsax.heart,
+              iconColor: isFav
+                  ? Colors.red
+                  : Ucolors.darkgrey, // Using your Ucolors constant
+              onPressed: () => wishlistController.toggleWishlist(code, name),
+            );
+          }),
           const SizedBox(width: 5),
 
-          CompactIcon(
-            icon: Iconsax.archive_tick,
-            onPressed: () => Get.toNamed(AppRoutes.watchlist),
-          ),
+          // CompactIcon(
+          //   icon: Iconsax.archive_tick,
+          //   onPressed: () => Get.toNamed(AppRoutes.watchlist),
+          // ),
           const SizedBox(width: 5),
         ],
       ),
@@ -362,147 +504,2046 @@ class FundDetailsScreen extends GetView<FundDetailsController> {
 // ==========================================
 // 💻 DESKTOP LAYOUT - No Tabs, Card Grid
 // ==========================================
+// class _DesktopFundDetailsLayout extends StatelessWidget {
+//   final FundDetailsController controller;
+//   const _DesktopFundDetailsLayout({required this.controller});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final fund = controller.fundDetail.value;
+//     final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+//
+//     return Row(
+//       children: [
+//         SizedBox(
+//           width: 260,
+//           child: _DesktopSidebar(controller: controller,),
+//         ),
+//         Expanded(
+//           child: CustomScrollView(
+//             controller: controller.scrollController,
+//             slivers: [
+//               _buildAppBar(),
+//
+//               SliverToBoxAdapter(
+//                 child: Center(
+//                   child: Column(
+//                     children: [
+//                       // Performance Section (Full Width)
+//
+//                       // const Gap(32),
+//
+//                       // Two Column Grid
+//                       Row(
+//                         crossAxisAlignment: CrossAxisAlignment.start,
+//                         spacing: 20,
+//                         children: [
+//                           // LEFT COLUMN (60%)
+//                           Expanded(
+//                             flex: 6,
+//                             child: Column(
+//                               children: [
+//                                 // Fund Header Card
+//                                 _DesktopFundHeader(
+//                                   fund: fund,
+//                                   controller: controller,
+//                                 ),
+//                                 const Gap(24),
+//                                 _DesktopPerformanceSection(controller: controller),
+//                                 const Gap(24),
+//                                 _DesktopOverviewCard(fund: fund),
+//                                 const Gap(24),
+//
+//                                 // const Gap(24),
+//                               ],
+//                             ),
+//                           ),
+//
+//                           // RIGHT COLUMN (40%)
+//                           Expanded(
+//                             flex: 4,
+//                             child: Column(
+//                               children: [
+//                                 _DesktopQuickLookCard(fund: fund),
+//                                 const Gap(24),
+//                                 // const Gap(50),
+//                                 _DesktopActionCard(fund: fund),
+//                                 const Gap(24),
+//
+//                                 _DesktopAllocationCard(controller: controller),
+//                                 const Gap(24),
+//                               ],
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                       _DesktopReturnsCard(controller: controller),
+//                       const Gap(24),
+//
+//                       const Gap(32),
+//                       _DesktopRiskCard(controller: controller),
+//                       const Gap(24),
+//                       _DesktopAboutCard(fund: fund),
+//                       const Gap(24),
+//                       _DesktopComparisonSection(controller: controller),
+//                       const Gap(24),
+//                       _DesktopInvestmentDetailsCard(fund: fund),
+//                     ],
+//                   ),
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+//
+//   Widget _buildAppBar() {
+//     return SliverAppBar(
+//       automaticallyImplyLeading: false,
+//       pinned: true,
+//       flexibleSpace: WebCustomAppBarNormal(
+//         backgroundColor: Ucolors.light,
+//         actionsPadding: 10,
+//         title: 'Fund Details',
+//         action: [
+//           // CompactIcon(
+//           //   icon: Iconsax.shopping_cart,
+//           //   onPressed: () => Get.toNamed(AppRoutes.cart),
+//           // ),
+//           Obx(() {
+//             final wishlistController = Get.find<WishlistController>();
+//
+//             // Assuming controller is your Detail/Item controller
+//             final String code = controller.schemeCode;
+//             final String name = controller.schemeName;
+//
+//             final bool isFav = wishlistController.isFavorite(code);
+//
+//             return CompactIcon(
+//               icon: isFav ? Iconsax.heart5 : Iconsax.heart,
+//               iconColor: isFav
+//                   ? Colors.red
+//                   : Ucolors.darkgrey, // Using your Ucolors constant
+//               onPressed: () => wishlistController.toggleWishlist(code, name),
+//             );
+//           }),
+//           const SizedBox(width: 5),
+//
+//           // CompactIcon(
+//           //   icon: Iconsax.archive_tick,
+//           //   onPressed: () => Get.toNamed(AppRoutes.watchlist),
+//           // ),
+//           const SizedBox(width: 5),
+//         ],
+//       ),
+//     );
+//   }
+// }
 class _DesktopFundDetailsLayout extends StatelessWidget {
   final FundDetailsController controller;
-  const _DesktopFundDetailsLayout({required this.controller});
+  final CartController cartController;
+  const _DesktopFundDetailsLayout({
+    required this.controller,
+    required this.cartController,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final fund = controller.fundDetail.value;
-    final bool isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
-
-    return Column(
-      children: [
-        // Desktop Header
-        if (!isDesktop)
-          Container(
-            height: 80,
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                IconButton(
-                  onPressed: () => Get.back(),
-                  icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-                ),
-                const Gap(16),
-                Expanded(
-                  child: Text(
-                    "Fund Details",
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const Gap(16),
-                IconButton(
-                  onPressed: () => Get.toNamed(AppRoutes.watchlist),
-                  icon: const Icon(Iconsax.archive_tick),
-                ),
-                const Gap(8),
-                IconButton(
-                  onPressed: () => Get.toNamed(AppRoutes.cart),
-                  icon: const Icon(Iconsax.shopping_cart),
-                ),
-              ],
+    return CustomScrollView(
+      controller: controller.scrollController,
+      slivers: [
+        _buildAppBar(),
+        const SliverToBoxAdapter(child: SizedBox(height: 20)),
+        _buildFundHeader(context),
+        const SliverToBoxAdapter(child: SizedBox(height: 10)),
+        GetBuilder<FundDetailsController>(
+          id: 'tabs',
+          builder: (controller) => SliverPersistentHeader(
+            pinned: true,
+            delegate: WebSliverPageTabs(
+              selectedIndex: controller.tabController.index,
+              onTap: (index) => controller.scrollToIndex(index),
             ),
           ),
-
-        // Main Content
-        Expanded(
-          child: SingleChildScrollView(
-            controller: controller.scrollController,
-            padding: const EdgeInsets.all(32),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1600),
-                child: Column(
-                  children: [
-                    // Performance Section (Full Width)
-
-                    // const Gap(32),
-
-                    // Two Column Grid
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 20,
-                      children: [
-                        // LEFT COLUMN (60%)
-                        Expanded(
-                          flex: 6,
-                          child: Column(
-                            children: [
-                              // Fund Header Card
-                              _DesktopFundHeader(
-                                fund: fund,
-                                controller: controller,
-                              ),
-                              const Gap(24),
-                              _DesktopPerformanceSection(
-                                controller: controller,
-                              ),
-                              const Gap(24),
-                              _DesktopOverviewCard(fund: fund),
-                              const Gap(24),
-
-                              // const Gap(24),
-                            ],
-                          ),
-                        ),
-
-                        // RIGHT COLUMN (40%)
-                        Expanded(
-                          flex: 4,
-                          child: Column(
-                            children: [
-                              _DesktopQuickLookCard(fund: fund),
-                              const Gap(24),
-                              // const Gap(50),
-                              _DesktopActionCard(fund: fund),
-                              const Gap(24),
-
-                              _DesktopAllocationCard(controller: controller),
-                              const Gap(24),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    _DesktopReturnsCard(controller: controller),
-                    const Gap(24),
-
-                    const Gap(32),
-                    _DesktopRiskCard(controller: controller),
-                    const Gap(24),
-                    _DesktopAboutCard(fund: fund),
-                    const Gap(24),
-                    _DesktopComparisonSection(controller: controller),
-                    const Gap(24),
-                    _DesktopInvestmentDetailsCard(fund: fund),
-                  ],
-                ),
-              ),
+        ),
+        const SliverToBoxAdapter(child: SizedBox(height: 10)),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: WebOverviewScreen(
+              overViewKey: controller.overViewKey,
+              returnsKey: controller.returnsKey,
+              riskKey: controller.riskKey,
+              portfolioKey: controller.portfolioKey,
+              infoKey: controller.infoKey,
             ),
           ),
         ),
       ],
     );
   }
+
+  Widget _buildAppBar() {
+    return SliverAppBar(
+      automaticallyImplyLeading: false,
+      pinned: true,
+      flexibleSpace: CustomAppBarNormal(
+        backgroundColor: Ucolors.light,
+        actionsPadding: 10,
+        title: 'Fund Details',
+        onpressed: () {
+          if (kIsWeb && Get.isRegistered<NavigationBarController>()) {
+            Get.find<NavigationBarController>().backNested();
+          } else {
+            Get.back();
+          }
+        },
+
+        action: [
+          const SizedBox(width: 8),
+
+          Obx(() {
+            final wishlistController = Get.find<WishlistController>();
+
+            // Assuming controller is your Detail/Item controller
+            final String code = controller.schemeCode;
+            final String name = controller.schemeName;
+
+            final bool isFav = wishlistController.isFavorite(code);
+
+            return CompactIcon(
+              icon: isFav ? Iconsax.heart5 : Iconsax.heart,
+              iconColor: isFav
+                  ? Colors.red
+                  : Ucolors.darkgrey, // Using your Ucolors constant
+              onPressed: () => wishlistController.toggleWishlist(code, name),
+            );
+          }),
+
+          const SizedBox(width: 5),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFundHeader(BuildContext context) {
+    return SliverPadding(
+      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+      sliver: SliverToBoxAdapter(
+        child: Obx(() {
+          final fund = controller.fundDetail.value;
+
+          final bool isOpen = fund?.schemeStatus == 'Open Ended Schemes';
+
+          final width = MediaQuery.of(context).size.width;
+
+          final bool isMobile = width < 700;
+
+          return IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                /// ================= LEFT CARD =================
+                Expanded(
+                  flex: 7,
+                  child: Card(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(color: Colors.grey.shade200, width: 1),
+                    ),
+                    color: Ucolors.light,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.grey.shade100,
+                                width: 2,
+                              ),
+                            ),
+                            child: ClipOval(
+                              child: CustomCachedImage(
+                                imageUrl: controller.imgUrl,
+                                height: 48,
+                                width: 48,
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(width: 14),
+
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  fund?.schemeName ?? 'Loading Fund Name...',
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium!
+                                      .copyWith(
+                                        fontWeight: FontWeight.w700,
+                                        height: 1.2,
+                                        color: Colors.black87,
+                                      ),
+                                ),
+
+                                const SizedBox(height: 6),
+
+                                Text(
+                                  fund?.schemeCategory ?? 'Mutual Fund',
+                                  style: TextStyle(
+                                    fontFamily: FontFamily.medium,
+                                    fontSize: 12,
+                                    color: Colors.grey.shade600,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 10),
+
+                                Wrap(
+                                  spacing: 10,
+                                  runSpacing: 8,
+                                  children: [
+                                    _buildModernBadge(
+                                      label:
+                                          fund?.riskometerValue ?? 'High Risk',
+                                      color: _getRiskColor(
+                                        fund?.riskometerValue ?? '',
+                                      ),
+                                      icon: Icons.speed_rounded,
+                                    ),
+
+                                    _buildModernBadge(
+                                      label: isOpen ? 'OPEN' : 'CLOSED',
+                                      color: isOpen
+                                          ? Ucolors.success
+                                          : Ucolors.red,
+                                      icon: Icons.lens,
+                                      isDot: true,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                if (!isMobile) const SizedBox(width: 12),
+
+                /// ================= RIGHT CARD =================
+                if (controller.fundDetail.value!.riskStatisticsList.isNotEmpty)
+                  Expanded(
+                    flex: 3,
+                    child: Card(
+                      elevation: 0,
+                      color: Ucolors.light,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: BorderSide(color: Colors.grey.shade200, width: 1),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Center(
+                          child: FundBottomBarButton(
+                            firstButton: 'Lumpsum',
+                            secondButton: 'Invest now',
+
+                            firstButtonP: () async {
+                              await cartController.addToCart(
+                                controller.schemeCode,
+                                controller.schemeName,
+                                controller.fundDetail.value?.minimumInvestment
+                                        .toInt() ??
+                                    5000,
+                                transType: 'lumpsum',
+                                null,
+                              );
+                            },
+
+                            secondButtonP: () async {
+                              GatekeeperHelper.runWithPrerequisites(
+                                onSuccess: () {
+                                  // This ONLY runs if KYC, Bank, CAN, and Mandate are all good!
+                                  final argVal = controller.fundDetail.value;
+
+                                  final purchaseArgs = SipPurchaseArgs(
+                                    schemeCode: controller.schemeCode,
+                                    fundName: controller.schemeName,
+                                    category: argVal?.schemeCategory ?? "",
+                                    riskLabel: argVal?.riskometerValue ?? "",
+                                    minSip: argVal?.sipMinimumAmount ?? 1000,
+                                    minLumpsum:
+                                        argVal?.minimumInvestment.toInt() ??
+                                        1000,
+                                    minTopup:
+                                        argVal?.minimumTopup.toInt() ?? 5000,
+                                    folio: null,
+                                    imgUrl: controller.imgUrl,
+                                  );
+
+                                  SIPPurchasePage.tempData = purchaseArgs;
+
+                                  Get.toNamed(
+                                    AppRoutes.investNowPage,
+                                    // id: 1,
+                                    id: kIsWeb ? 1 : null,
+
+                                    arguments: purchaseArgs,
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildModernBadge({
+    required String label,
+    required Color color,
+    IconData? icon,
+    bool isDot = false,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isDot)
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: Icon(Icons.circle, size: 8, color: color),
+            )
+          else if (icon != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: Icon(icon, size: 14, color: color),
+            ),
+          Text(
+            label.toUpperCase(),
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
+              color: color,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  // Widget _buildFundHeader(BuildContext context) {
+  //   return SliverPadding(
+  //     padding: const EdgeInsets.symmetric(horizontal: 20),
+  //     sliver: SliverToBoxAdapter(
+  //       child: Obx(() {
+  //         final fund = controller.fundDetail.value;
+  //         return Column(
+  //           children: [
+  //             Row(
+  //               children: [
+  //                 ClipOval(
+  //                   child: CustomCachedImage(imageUrl: controller.imgUrl),
+  //                 ),
+  //                 const SizedBox(width: 10),
+  //                 Expanded(
+  //                   child: Text(
+  //                     fund?.schemeName ?? '',
+  //                     maxLines: 2,
+  //                     overflow: TextOverflow.ellipsis,
+  //                     style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+  //                       fontWeight: FontWeight.w600,
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //             const SizedBox(height: 12),
+  //             Row(
+  //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //               children: [
+  //                 _metaText(fund?.schemeCategory ?? 'Equity'),
+  //                 _dot(),
+  //                 _metaText(
+  //                   fund?.riskometerValue.toUpperCase() ?? 'Very High',
+  //                   color: _getRiskColor(fund?.riskometerValue ?? ''),
+  //                 ),
+  //                 _dot(),
+  //                 _metaText('STATUS:'),
+  //                 _metaText(
+  //                   fund?.schemeStatus.toUpperCase().split(" ")[0] ?? 'Open',
+  //                   color: (fund?.schemeStatus == 'Open Ended Schemes')
+  //                       ? Ucolors.success
+  //                       : Ucolors.red,
+  //                   fontWeight: FontWeight.bold,
+  //                 ),
+  //               ],
+  //             ),
+  //           ],
+  //         );
+  //       }),
+  //     ),
+  //   );
+  // }
+
+  Color _getRiskColor(String risk) {
+    final riskLower = risk.toLowerCase();
+    if (riskLower.contains('very high')) return Ucolors.red;
+    if (riskLower.contains('high')) return Colors.orange;
+    if (riskLower.contains('moderate')) return Colors.yellow[700]!;
+    if (riskLower.contains('low')) return Ucolors.success;
+    return Ucolors.darkgrey;
+  }
 }
 
+class WebOverviewScreen extends GetView<FundDetailsController> {
+  final GlobalKey overViewKey;
+  final GlobalKey returnsKey;
+  final GlobalKey riskKey;
+  final GlobalKey portfolioKey;
+  final GlobalKey infoKey;
+
+  const WebOverviewScreen({
+    super.key,
+    required this.overViewKey,
+    required this.returnsKey,
+    required this.riskKey,
+    required this.portfolioKey,
+    required this.infoKey,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+
+    // One Single Outer Obx to safely observe changes for all fundamental details
+    return Obx(() {
+      final fund = controller.fundDetail.value;
+      final managers = parseFundManagers(fund?.schemeManager);
+      final risk = getRiskMeter(fund?.riskometerValue);
+      final portfolioEntity = controller.portfolioAnalysis.value;
+      final navEntity = controller.navHistorydata.value;
+      final hasNavError = controller.navHistoryHasError.value;
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ==========================================
+          // SECTION 1: CHART & STATS OVERVIEW
+          // ==========================================
+          _buildResponsiveLayout(
+            context: context,
+            leftChild: CustomContainer(
+              height: 430,
+              topPadding: 15,
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      StatItem1(
+                        title: 'Nav',
+                        amount: '₹${fund?.nav.toStringAsFixed(2)}',
+                        percentage: '',
+                      ),
+                      StatItem1(
+                        title: 'Returns (1Y)',
+                        amount: fund?.schemePerformanceList.isNotEmpty == true
+                            ? fund!.schemePerformanceList[0].oneYearReturn
+                                  .toString()
+                            : '',
+                        amountColor: Ucolors.success,
+                        percentage: '%',
+                      ),
+                      StatItem1(
+                        title: 'BenchMark (1Y)',
+                        amount:
+                            fund?.navChangePercentage.toStringAsFixed(2) ?? '',
+                        percentage: '%',
+                        amountColor: Ucolors.success,
+                      ),
+                    ],
+                  ),
+                  const Gap(12),
+
+                  // Safe reactive conditional check for NAV graph data
+                  Builder(
+                    builder: (context) {
+                      if (navEntity == null ||
+                          navEntity.data.isEmpty ||
+                          hasNavError) {
+                        return _buildChartErrorPlaceholder();
+                      }
+                      return SchemeLineChart(
+                        navData: navEntity.data.reversed.toList(),
+                      );
+                    },
+                  ),
+                  const Gap(12),
+                  const PeriodSelector(),
+                ],
+              ),
+            ),
+            rightChild: SizedBox(
+              height: 430,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isDesktop ? 20 : 0,
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: Ucolors.light,
+                          border: Border.all(color: Ucolors.borderColor),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                key: overViewKey,
+                                padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                                child: const USectionHeading(
+                                  title: 'Fund Overview',
+                                  showActionButton: false,
+                                ),
+                              ),
+                              _twoColumnRow(
+                                leftTitle: 'Min SIP',
+                                leftValue:
+                                    '₹ ${fund?.sipMinimumAmount.toString()}',
+                                rightTitle: 'Min lumpsum',
+                                rightValue:
+                                    '₹ ${fund?.minimumInvestment.toString()}',
+                              ),
+                              const SizedBox(height: 10),
+                              _twoColumnRow(
+                                leftTitle: 'Expense Ratio',
+                                leftValue:
+                                    '${fund?.expenseRatioPercentage.toString()}%',
+                                rightTitle: 'AUM',
+                                rightValue:
+                                    '₹ ${fund?.schemeAssets.toString()} Cr',
+                              ),
+                              const SizedBox(height: 10),
+                              _twoColumnRow(
+                                leftTitle: 'Lock In',
+                                leftValue: 'No Lock-in',
+                                rightTitle: 'Launch Date',
+                                rightValue:
+                                    fund?.schemeInceptionDate.toString() ?? '',
+                              ),
+                              const SizedBox(height: 10),
+                              const Text(
+                                'Exit Load:',
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              ReadMoreText(
+                                fund?.exitLoad.toString() ?? '',
+                                trimMode: TrimMode.Line,
+                                trimLines: 2,
+                                trimCollapsedText: 'Show More',
+                                trimExpandedText: 'Show Less',
+                                colorClickableText: Ucolors.primary,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Gap(8),
+                  CustomContainer(
+                    topPadding: 15,
+                    bottomPadding: 15,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                          child: const USectionHeading(
+                            title: 'Quick look',
+                            showActionButton: false,
+                          ),
+                        ),
+                        _twoColumnRow(
+                          leftTitle: '5Y CAGR',
+                          color: Ucolors.success,
+                          leftValue: '20.23%',
+                          rightTitle: '5Y SIP Return',
+                          rightValue:
+                              fund?.schemePerformanceList.isNotEmpty == true
+                              ? '${fund!.schemePerformanceList[0].fiveYearReturn.toString()} %'
+                              : '',
+                          color2: Ucolors.success,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const Gap(8),
+
+          // ==========================================
+          // SECTION 2: TRAILING RETURNS & PERFORMANCE GRAPH
+          // ==========================================
+          if (fund != null) ...[
+            Builder(
+              builder: (context) {
+                final returnss = controller.buildTrailingReturns(fund);
+                return _buildResponsiveLayout(
+                  context: context,
+                  leftChild: CustomContainer(
+                    topPadding: 15,
+                    bottomPadding: 15,
+                    child: DefaultTabController(
+                      length: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            key: returnsKey,
+                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                            child: const USectionHeading(
+                              title: 'Trailing Returns',
+                              showActionButton: false,
+                            ),
+                          ),
+                          _buildPillTabBar(
+                            tabs: const [
+                              Tab(text: "Table"),
+                              Tab(text: "Graph"),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            height: 450,
+                            child: TabBarView(
+                              children: [
+                                SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      TableHeader(
+                                        heading1: 'Period',
+                                        heading2: 'Scheme',
+                                        heading3: 'Category',
+                                        heading4: 'Benchmark',
+                                      ),
+                                      DashedLine(color: Colors.grey.shade200),
+                                      ...returnss.map(
+                                        (row) => ReturnsTableRow(data: row),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      GroupedPerformanceBarChart(
+                                        data: returnss,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        "Returns vs Benchmark",
+                                        style: TextStyle(
+                                          fontFamily: FontFamily.medium,
+                                          fontSize: 12,
+                                          color: Colors.grey.shade500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  rightChild: CustomContainer(
+                    topPadding: 15,
+                    bottomPadding: 15,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                          child: const USectionHeading(
+                            title: 'Fund Performance',
+                            showActionButton: false,
+                          ),
+                        ),
+                        SizedBox(
+                          height: isDesktop ? 490 : 300,
+                          child: returnss.isEmpty
+                              ? const Center(child: CircularProgressIndicator())
+                              : YearlyReturnsChart(yearlyData: returnss),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+            const Gap(8),
+          ],
+
+          // ==========================================
+          // SECTION 3: FUND ALLOCATION & RISK ANALYSIS
+          // ==========================================
+          _buildResponsiveLayout(
+            context: context,
+            leftChild: CustomContainer(
+              topPadding: 15,
+              bottomPadding: 4,
+              child: Column(
+                children: [
+                  Padding(
+                    key: portfolioKey,
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+                    child: const USectionHeading(
+                      title: 'Fund Allocation',
+                      showActionButton: false,
+                    ),
+                  ),
+                  _buildPortfolioSection(portfolioEntity),
+                ],
+              ),
+            ),
+            rightChild: CustomContainer(
+              topPadding: 15,
+              bottomPadding: 4,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    key: riskKey,
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                    child: const USectionHeading(
+                      title: 'Risk Analysis',
+                      showActionButton: false,
+                    ),
+                  ),
+                  _twoColumnRow(
+                    leftTitle: 'Risk-o-Meter',
+                    leftValue: fund?.riskometerValue.toString() ?? '',
+                    rightTitle: 'Volatile',
+                    rightValue: fund?.riskStatisticsList.isNotEmpty == true
+                        ? fund!.riskStatisticsList[0].volatilityCm3Year
+                              .toString()
+                        : '',
+                    color: risk.color,
+                  ),
+                  const Gap(10),
+                  _twoColumnRow(
+                    leftTitle: 'Shape Ratio:',
+                    leftValue: fund?.riskStatisticsList.isNotEmpty == true
+                        ? fund!.riskStatisticsList[0].sharpeRatioCm3Year
+                              .toString()
+                        : '',
+                    rightTitle: 'Beta',
+                    rightValue: fund?.riskStatisticsList.isNotEmpty == true
+                        ? fund!.riskStatisticsList[0].beteCm1Y.toString()
+                        : '',
+                  ),
+                  const Gap(12),
+                  DashedLine(color: Colors.grey.shade400),
+                  SpeedometerGauge(
+                    value: risk.needleValue.toDouble(),
+                    scrollController: controller.scrollController,
+                  ),
+                  Text(
+                    'Your Principle Will be at:',
+                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    fund?.riskometerValue.toString() ?? '',
+                    style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: risk.color,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    'Suitable for aggressive investors and investors with very high-risk tolerance.',
+                    textAlign: TextAlign.center,
+                    style: UTextStyles.small.copyWith(color: Ucolors.darkgrey),
+                  ),
+                  const Gap(8),
+                  DashedLine(color: Colors.grey.shade400),
+                  const Gap(8),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          RiskLegendItem(
+                            color: Colors.green,
+                            label: 'Very Low',
+                          ),
+                          SizedBox(height: 8),
+                          RiskLegendItem(color: Colors.orange, label: 'Medium'),
+                          SizedBox(height: 8),
+                          RiskLegendItem(
+                            color: Colors.redAccent,
+                            label: 'High',
+                          ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          RiskLegendItem(
+                            color: Colors.lightGreen,
+                            label: 'Low',
+                          ),
+                          SizedBox(height: 8),
+                          RiskLegendItem(
+                            color: Colors.amber,
+                            label: 'Moderate High',
+                          ),
+                          SizedBox(height: 8),
+                          RiskLegendItem(color: Colors.red, label: 'Very High'),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const Gap(8),
+                ],
+              ),
+            ),
+          ),
+          const Gap(8),
+
+          // ==========================================
+          // SECTION 4: COMPARISONS & RELATED FUNDS
+          // ==========================================
+          if (fund != null) ...[
+            CustomContainer(
+              topPadding: 15,
+              bottomPadding: 15,
+              child: Column(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                    child: USectionHeading(
+                      title: 'Fund Comparison',
+                      showActionButton: false,
+                    ),
+                  ),
+
+                  Container(
+                    height: MediaQuery.of(context).size.height < 700
+                        ? 190
+                        : 180,
+                    alignment: Alignment.center,
+                    child: ScrollConfiguration(
+                      behavior: const MaterialScrollBehavior().copyWith(
+                        dragDevices: {
+                          PointerDeviceKind.touch,
+                          PointerDeviceKind.mouse,
+                        },
+                      ),
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: fund.schemePeerComparisonList.length - 1,
+                        itemBuilder: (context, index) {
+                          final item = fund.schemePeerComparisonList[index + 1];
+
+                          return Container(
+                            width: isDesktop
+                                ? MediaQuery.of(context).size.width * 0.20
+                                : MediaQuery.of(context).size.width * 0.90,
+                            margin: const EdgeInsets.only(right: 12),
+                            child: GestureDetector(
+                              onTap: () {
+                                Get.toNamed(
+                                  AppRoutes.comparefund,
+                                  arguments: {
+                                    'name': controller.schemeName,
+                                    'imgUrl': controller.imgUrl,
+                                    'name2': item.schemeName,
+                                  },
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(
+                                    color: Colors.grey.shade200,
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    FundComparisonItem(
+                                      imgUrl: controller.imgUrl,
+                                      fund1: fund.schemeName,
+                                      year:
+                                          fund
+                                                  .schemePerformanceList
+                                                  .isNotEmpty ==
+                                              true
+                                          ? fund
+                                                .schemePerformanceList[0]
+                                                .threeYearReturn
+                                                .toString()
+                                          : '',
+                                    ),
+
+                                    const SizedBox(height: 6),
+
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: DashedLine(
+                                            color: Colors.grey.shade300,
+                                          ),
+                                        ),
+
+                                        Container(
+                                          margin: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                          ),
+                                          padding: const EdgeInsets.all(5),
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: Colors.blue,
+                                              width: 1.2,
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            'VS',
+                                            style: TextStyle(
+                                              fontFamily: FontFamily.medium,
+                                              color: Colors.grey,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+
+                                        Expanded(
+                                          child: DashedLine(
+                                            color: Colors.grey.shade300,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+
+                                    const SizedBox(height: 6),
+
+                                    FundComparisonItem(
+                                      year: item.threeYearReturn.toString(),
+                                      fund1: item.schemeName.toString(),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Gap(8),
+            CustomContainer(
+              topPadding: 15,
+              bottomPadding: 15,
+              child: Column(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(0, 0, 0, 8),
+                    child: USectionHeading(
+                      title: 'Related Funds',
+                      showActionButton: false,
+                    ),
+                  ),
+
+                  SizedBox(
+                    height: 100,
+                    child: ScrollConfiguration(
+                      behavior: const MaterialScrollBehavior().copyWith(
+                        dragDevices: {
+                          PointerDeviceKind.touch,
+                          PointerDeviceKind.mouse,
+                        },
+                      ),
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: fund.schemePeerComparisonList.length - 1,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(width: 16),
+                        itemBuilder: (context, index) {
+                          final item = fund.schemePeerComparisonList[index + 1];
+
+                          return GestureDetector(
+                            onTap: () {
+                              controller.loadNewFund(
+                                item.schemeName,
+                                fund.schemeAmfiCode,
+                              );
+
+                              debugPrint("Opening ${item.schemeName}");
+                            },
+                            child: Container(
+                              width: isDesktop
+                                  ? 320
+                                  : MediaQuery.of(context).size.width * 0.75,
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade50,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey.shade200),
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      ClipOval(
+                                        child: Image.asset(
+                                          UImages.imp,
+                                          height: 32,
+                                          width: 32,
+                                        ),
+                                      ),
+
+                                      const SizedBox(width: 10),
+
+                                      Expanded(
+                                        child: Text(
+                                          item.schemeName,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontFamily: FontFamily.medium,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                                  const Spacer(),
+
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      _buildMiniStat(
+                                        '1Y',
+                                        '${item.oneYearReturn}%',
+                                      ),
+
+                                      _buildMiniStat(
+                                        '3Y',
+                                        '${item.threeYearReturn}%',
+                                      ),
+
+                                      _buildMiniStat(
+                                        '5Y',
+                                        '${item.fiveYearReturn}%',
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const Gap(8),
+          ],
+          _buildResponsiveLayout(
+            context: context,
+            leftChild: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: CustomContainer(
+                topPadding: 20,
+                bottomPadding: 4,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      key: infoKey,
+                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                      child: const USectionHeading(
+                        title: 'About this Fund',
+                        showActionButton: false,
+                      ),
+                    ),
+                    ReadMoreText(
+                      style: UTextStyles.medium,
+                      fund?.schemeObjective.toString() ?? '',
+                      trimMode: TrimMode.Line,
+                      trimLines: 5,
+                      trimCollapsedText: 'Show More',
+                      trimExpandedText: 'Show Less',
+                      colorClickableText: Ucolors.primary,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Fund Manager',
+                      style: UTextStyles.large.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    if (managers.isNotEmpty)
+                      ...managers.asMap().entries.map((entry) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (entry.key > 0)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 2,
+                                ),
+                                child: DashedLine(
+                                  color: Colors.grey.shade300,
+                                  dashSpace: 4,
+                                ),
+                              ),
+                            fundManager(entry.value),
+                          ],
+                        );
+                      }).toList()
+                    else
+                      const Text("No manager details available"),
+                  ],
+                ),
+              ),
+            ),
+            rightChild: _buildExpansionCard(
+              context: context,
+              title: "Investment Details",
+              isActive: controller.expandedInvestmentIndex.value == 1,
+              onTapChanged: (expanded) {
+                controller.expandedInvestmentIndex.value = expanded ? 1 : -1;
+                if (expanded) {
+                  controller.expandedBasicDetailsIndex.value = -1;
+                  controller.expandedAMCInformationIndex.value = -1;
+                }
+              },
+              children: [
+                _buildDetailRow(
+                  'Fund Size',
+                  '₹${fund?.schemeAssets} Cr.',
+                  Icons.bar_chart_outlined,
+                ),
+                _buildDashedDivider(),
+                _buildDetailRow(
+                  'Min. Inv',
+                  '₹${fund?.minimumInvestment}',
+                  Icons.circle_outlined,
+                ),
+                _buildDashedDivider(),
+                _buildDetailRow(
+                  'Min. Sip Inv',
+                  '₹${fund?.sipMinimumAmount}',
+                  Icons.change_circle_outlined,
+                ),
+                _buildDashedDivider(),
+                _buildDetailRow(
+                  'Expense Ratio',
+                  '${fund?.expenseRatioPercentage}%',
+                  Icons.pie_chart_outline,
+                ),
+              ],
+            ),
+          ),
+          _buildResponsiveLayout(
+            context: context,
+            leftChild: _buildExpansionCard(
+              context: context,
+              title: "Basic Details",
+              isActive: controller.expandedBasicDetailsIndex.value == 2,
+              onTapChanged: (expanded) {
+                controller.expandedBasicDetailsIndex.value = expanded ? 2 : -1;
+                if (expanded) {
+                  controller.expandedInvestmentIndex.value = -1;
+                  controller.expandedAMCInformationIndex.value = -1;
+                }
+              },
+              children: [
+                investmentDetailSection(
+                  'Category',
+                  fund?.schemeCategory ?? '',
+                  Icons.category,
+                ),
+                DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                investmentDetailSection(
+                  'Inv. Plan',
+                  fund?.schemeName.contains('-') == true
+                      ? fund!.schemeName.split('-')[1].trim()
+                      : 'Nil',
+                  Icons.travel_explore_rounded,
+                ),
+                DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                investmentDetailSection(
+                  'Launched IN',
+                  fund?.schemeInceptionDate.toString() ?? '',
+                  Icons.calendar_month_sharp,
+                ),
+                DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                investmentDetailSection(
+                  'Bench Mark',
+                  fund?.schemeBenchmark.toString() ?? '',
+                  Icons.track_changes,
+                ),
+                DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                investmentDetailSection(
+                  'Fund Type',
+                  fund?.schemeStatus.split(' ')[0].toString() ?? '',
+                  Icons.library_books,
+                ),
+              ],
+            ),
+            rightChild: _buildExpansionCard(
+              context: context,
+              title: "AMC Information",
+              isActive: controller.expandedAMCInformationIndex.value == 3,
+              onTapChanged: (expanded) {
+                controller.expandedAMCInformationIndex.value = expanded
+                    ? 3
+                    : -1;
+                if (expanded) {
+                  controller.expandedInvestmentIndex.value = -1;
+                  controller.expandedBasicDetailsIndex.value = -1;
+                }
+              },
+              children: [
+                investmentDetailSection(
+                  'AMC',
+                  fund?.schemeCompany.toString() ?? '',
+                  Icons.bar_chart_rounded,
+                ),
+                DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                investmentDetailSection(
+                  'Email',
+                  controller.email,
+                  Icons.mail_outline,
+                ),
+                DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                investmentDetailSection(
+                  'Office No',
+                  controller.contact,
+                  Icons.home_work_outlined,
+                ),
+                DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                investmentDetailSection(
+                  'Address',
+                  controller.address,
+                  Icons.location_on_outlined,
+                ),
+              ],
+            ),
+          ),
+
+          const Gap(8),
+        ],
+      );
+    });
+  }
+
+  // ==========================================
+  // HELPER REFACTORING & CLEANUP METHODS
+  // ==========================================
+
+  Widget _buildResponsiveLayout({
+    required BuildContext context,
+    required Widget leftChild,
+    required Widget rightChild,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+
+        final bool isDesktop = width >= 1100;
+        final bool isTablet = width >= 700 && width < 1100;
+
+        // Desktop
+        if (isDesktop) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(flex: 6, child: leftChild),
+              Expanded(flex: 4, child: rightChild),
+            ],
+          );
+        }
+
+        // Tablet
+        if (isTablet) {
+          return Column(children: [leftChild, const Gap(12), rightChild]);
+        }
+
+        // Mobile
+        return Column(children: [leftChild, const Gap(8), rightChild]);
+      },
+    );
+  }
+
+  Widget _buildPillTabBar({required List<Tab> tabs}) {
+    return Container(
+      height: 35,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: TabBar(
+        indicator: BoxDecoration(
+          color: Ucolors.primary,
+          borderRadius: BorderRadius.circular(25),
+        ),
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.grey.shade600,
+        labelStyle: const TextStyle(
+          fontFamily: FontFamily.medium,
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+        dividerColor: Colors.transparent,
+        indicatorSize: TabBarIndicatorSize.tab,
+        padding: EdgeInsets.zero,
+        labelPadding: EdgeInsets.zero,
+        tabs: tabs,
+      ),
+    );
+  }
+
+  Widget _buildExpansionCard({
+    required BuildContext context,
+    required String title,
+    required bool isActive,
+    required ValueChanged<bool> onTapChanged,
+    required List<Widget> children,
+  }) {
+    final bool isDesktop = MediaQuery.of(context).size.width >= 1100;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12.0, 4.0, 12.0, 0.0),
+      child: Card(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: Colors.grey.shade200, width: 1),
+        ),
+        color: Ucolors.light,
+        child: Theme(
+          data: ThemeData().copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            // Web/Desktop me default open
+            initiallyExpanded: isDesktop ? true : isActive,
+
+            onExpansionChanged: onTapChanged,
+            tilePadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 0,
+            ),
+
+            childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+
+            title: Text(
+              title,
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: 15,
+                color: Ucolors.dark,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+
+            children: [
+              Divider(height: 1, color: Colors.grey.shade100),
+
+              ...children,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPortfolioSection(var entity) {
+    // 1. Cast the map data explicitly to Map<String, double> to prevent type inference errors
+    final Map<String, double> assetMap = Map<String, double>.from(
+      entity?.assetAllocation ?? {},
+    );
+
+    // 2. Now the compiler knows exactly that 'e' is a MapEntry<String, double>
+    final assetList =
+        assetMap.entries
+            .where((MapEntry<String, double> e) => e.value > 0)
+            .toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+
+    final mcap = entity?.mcapAllocation;
+
+    // 3. Apply explicit typing to the Market Cap list items to prevent the same issue here
+    final List<MapEntry<String, double>> mcapList = [
+      if ((mcap?.marketCapLargecapPercent ?? 0) > 0)
+        MapEntry(
+          'Large Cap',
+          (mcap!.marketCapLargecapPercent as num).toDouble(),
+        ),
+      if ((mcap?.marketCapMidcapPercent ?? 0) > 0)
+        MapEntry('Mid Cap', (mcap!.marketCapMidcapPercent as num).toDouble()),
+      if ((mcap?.marketCapSmallcapPercent ?? 0) > 0)
+        MapEntry(
+          'Small Cap',
+          (mcap!.marketCapSmallcapPercent as num).toDouble(),
+        ),
+    ];
+
+    if (controller.isPortfolioLoading.value) {
+      return const SizedBox(
+        height: 250,
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return DefaultTabController(
+      length: 2,
+      child: Column(
+        children: [
+          _buildPillTabBar(
+            tabs: const [
+              Tab(text: "Asset Allocation"),
+              Tab(text: "Market Cap"),
+            ],
+          ),
+          const Gap(10),
+          Divider(color: Colors.grey.shade200),
+          SizedBox(
+            height: 340,
+            child: TabBarView(
+              children: [
+                _buildAllocationTab(assetList, "Assets"),
+                _buildAllocationTab(mcapList, "Market\nCap"),
+              ],
+            ),
+          ),
+          DashedLine(dashSpace: 0, color: Colors.grey.shade200),
+          const Gap(20),
+          DefaultTabController(
+            animationDuration: const Duration(milliseconds: 200),
+            length: 2,
+            child: Column(
+              children: [
+                _buildPillTabBar(
+                  tabs: const [
+                    Tab(text: "Top 10 Sector"),
+                    Tab(text: "Top 10 Stock"),
+                  ],
+                ),
+                SizedBox(
+                  height: 400,
+                  child: TabBarView(
+                    children: [_buildSectorTab(entity), _buildStockTab(entity)],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAllocationTab(
+    List<MapEntry<String, dynamic>> data,
+    String centerText,
+  ) {
+    if (data.isEmpty) {
+      return AnimatedEmptyState(
+        icon: Iconsax.ghost,
+        title: 'No Market Cap Data',
+        message:
+            "The AMC hasn't disclosed the Market Cap for this fund, or it may not be applicable to this scheme",
+      );
+    }
+
+    final List<Color> colors = [
+      Colors.indigo.shade600,
+      Colors.blue.shade600,
+      Colors.greenAccent.shade700,
+      Colors.orangeAccent,
+      Colors.purpleAccent,
+      Colors.redAccent,
+    ];
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(top: 20, bottom: 10),
+      child: Column(
+        children: [
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                height: 180,
+                width: 180,
+                child: PieChart(
+                  PieChartData(
+                    centerSpaceColor: Colors.grey.shade200,
+                    sectionsSpace: 0,
+                    centerSpaceRadius: 50,
+                    sections: List.generate(data.length, (index) {
+                      return PieChartSectionData(
+                        showTitle: false,
+                        value: data[index].value,
+                        color: colors[index % colors.length],
+                        radius: 35,
+                      );
+                    }),
+                  ),
+                ),
+              ),
+              Text(
+                centerText,
+                textAlign: TextAlign.center,
+                style: UTextStyles.medium.copyWith(
+                  color: Ucolors.dark,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+          const Gap(12),
+          ...List.generate(data.length, (index) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 4.0),
+              child: marketCapPercentage(
+                data[index].key,
+                '${data[index].value.toStringAsFixed(2)}%',
+                colors[index % colors.length],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectorTab(var entity) {
+    final names = entity?.sectorNamesString ?? [];
+    final values = entity?.sectorValuesString ?? [];
+
+    if (entity == null || names.isEmpty || values.isEmpty) {
+      return AnimatedEmptyState(
+        title: 'No Sector Data',
+        message:
+            "The AMC hasn't disclosed the holdings for this fund, or it may not be applicable to this scheme",
+      );
+    }
+
+    int count = names.length < values.length ? names.length : values.length;
+    List<MapEntry<String, double>> combinedList = [];
+    for (int i = 0; i < count; i++) {
+      combinedList.add(MapEntry(names[i], values[i]));
+    }
+    combinedList.sort((a, b) => b.value.compareTo(a.value));
+    final top10Items = combinedList.take(10).toList();
+
+    return SingleChildScrollView(
+      child: Column(
+        children: top10Items.map((entry) {
+          return Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: PercentageBar(
+              title: entry.key,
+              percentage: entry.value,
+              color: Colors.blue,
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildStockTab(var entity) {
+    final names = entity?.schemePortfolioHoldingsNamesString ?? [];
+    final values = entity?.schemePortfolioHoldingsValuesString ?? [];
+
+    if (entity == null || names.isEmpty || values.isEmpty) {
+      return AnimatedEmptyState(
+        title: 'No Stock Data',
+        message:
+            "The AMC hasn't disclosed the holdings for this fund, or it may not be applicable to this scheme",
+      );
+    }
+
+    int count = names.length < values.length ? names.length : values.length;
+    final dateRegex = RegExp(r'\d{1,2}[/-]\d{1,2}[/-]\d{2,4}');
+    final percentageRegex = RegExp(r'\d+(\.\d+)?\s*%');
+    final faceValueRegex = RegExp(
+      r'\s+(EQ|NEW|FV|RS\.?|RE\.?|Rs\.?|Re\.?)\b.*$',
+      caseSensitive: false,
+    );
+    final punctuationRegex = RegExp(r'[()\[\]\-]');
+
+    List<MapEntry<String, double>> holdings = [];
+
+    for (int i = 0; i < count; i++) {
+      String cleanName = names[i]
+          .replaceAll(dateRegex, '')
+          .replaceAll(percentageRegex, '')
+          .replaceAll(faceValueRegex, '')
+          .replaceAll(punctuationRegex, ' ')
+          .replaceAll(RegExp(r'\s+'), ' ')
+          .trim();
+
+      if (cleanName.isNotEmpty) {
+        holdings.add(MapEntry(cleanName, values[i]));
+      }
+    }
+
+    holdings.sort((a, b) => b.value.compareTo(a.value));
+    final top10Items = holdings.take(10).toList();
+
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: Column(
+        children: [
+          const Gap(10),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Stock Allocation',
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  color: Ucolors.darkgrey,
+                ),
+              ),
+              Text(
+                'Holding %',
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  color: Ucolors.darkgrey,
+                ),
+              ),
+            ],
+          ),
+          const Gap(10),
+          const DashedLine(dashSpace: 0, color: Ucolors.borderColor),
+          const Gap(10),
+          ...top10Items.map((item) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: PercentageBar(
+                title: item.key,
+                percentage: item.value,
+                color: Colors.blue,
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChartErrorPlaceholder() {
+    return Container(
+      height: 280,
+      width: double.infinity,
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 8,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: Icon(
+              Icons.show_chart_rounded,
+              size: 28,
+              color: Colors.grey.shade400,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Chart Unavailable',
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade800,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            "We couldn't fetch the NAV history right now.",
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 12,
+              color: Colors.grey.shade500,
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextButton.icon(
+            onPressed: () {
+              controller.getShcemeNavHistory(
+                scchemeCode: controller.schemeCode,
+                period: controller.selectedPeriod.value,
+              );
+            },
+            icon: Icon(
+              Icons.refresh_rounded,
+              size: 16,
+              color: Colors.blue.shade700,
+            ),
+            label: Text(
+              'Retry',
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.blue.shade700,
+              ),
+            ),
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.blue.shade50,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMiniStat(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 10,
+            color: Colors.grey.shade600,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 12,
+            color: Colors.green.shade800,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: Colors.grey.shade600),
+          const SizedBox(width: 10),
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
+              color: Colors.grey.shade700,
+              fontSize: 12,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            value,
+            style: const TextStyle(
+              fontFamily: FontFamily.medium,
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDashedDivider() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: DashedLine(dashSpace: 3, color: Colors.grey.shade300),
+    );
+  }
+
+  Widget marketCapPercentage(String title, String value, Color? color) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          '● $title',
+          style: UTextStyles.medium.copyWith(
+            color: color,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Text(
+          value,
+          style: UTextStyles.medium.copyWith(
+            color: color,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget investmentDetailSection(String title, String value, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: Colors.blue.shade800, size: 16),
+          const SizedBox(width: 10),
+          Expanded(
+            flex: 2,
+            child: Text(
+              title,
+              style: UTextStyles.medium.copyWith(
+                fontWeight: FontWeight.w400,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 3,
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              softWrap: true,
+              style: UTextStyles.medium.copyWith(
+                fontWeight: FontWeight.w600,
+                color: Ucolors.dark,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget fundManager(String name) {
+    return ListTile(
+      dense: true,
+      contentPadding: EdgeInsets.zero,
+      leading: CircleAvatar(
+        radius: 15,
+        backgroundColor: Ucolors.skyblue1,
+        child: Icon(Icons.person, color: Ucolors.dark, size: 13),
+      ),
+      title: Text(
+        name,
+        style: UTextStyles.medium.copyWith(
+          fontWeight: FontWeight.w600,
+          color: Ucolors.dark,
+        ),
+      ),
+      trailing: CompactIcon(
+        icon: Icons.arrow_forward_ios_rounded,
+        iconColor: Ucolors.darkgrey,
+        iconSize: 12,
+        onPressed: () {},
+      ),
+    );
+  }
+}
 // Desktop Header Card
+// ==========================================
+// DESKTOP HEADER CARD
+// ==========================================
+
 class _DesktopFundHeader extends StatelessWidget {
   final dynamic fund;
   final FundDetailsController controller;
@@ -511,58 +2552,216 @@ class _DesktopFundHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Obx(() {
+      final fund = controller.fundDetail.value;
+
+      final bool isOpen = fund?.schemeStatus == 'Open Ended Schemes';
+
+      return Container(
+        padding: const EdgeInsets.all(28),
+
+        decoration: BoxDecoration(
+          color: Colors.white,
+
+          borderRadius: BorderRadius.circular(22),
+
+          border: Border.all(color: Colors.grey.shade200),
+
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: .04),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+
+          children: [
+            /// =====================================
+            /// LOGO
+            /// =====================================
+            Container(
+              width: 82,
+              height: 82,
+
+              padding: const EdgeInsets.all(4),
+
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+
+                color: Colors.white,
+
+                border: Border.all(color: Colors.grey.shade200, width: 2),
+
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: .03),
+                    blurRadius: 8,
+                  ),
+                ],
+              ),
+
+              child: ClipOval(
+                child: CustomCachedImage(imageUrl: controller.imgUrl),
+              ),
+            ),
+
+            const Gap(24),
+
+            /// =====================================
+            /// FUND INFO
+            /// =====================================
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+
+                children: [
+                  /// FUND NAME
+                  Text(
+                    fund?.schemeName ?? 'Loading Fund Name...',
+
+                    maxLines: 3,
+
+                    overflow: TextOverflow.ellipsis,
+
+                    style: const TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 26,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1B1B1B),
+                      height: 1.3,
+                    ),
+                  ),
+
+                  const Gap(10),
+
+                  /// CATEGORY
+                  Text(
+                    fund?.schemeCategory ?? 'Mutual Fund',
+
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 14,
+                      color: Colors.grey.shade700,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+
+                  const Gap(18),
+
+                  /// BADGES
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+
+                    children: [
+                      _buildModernBadge(
+                        label: fund?.riskometerValue ?? 'High Risk',
+
+                        color: _getRiskColor(fund?.riskometerValue ?? ''),
+
+                        icon: Icons.speed_rounded,
+                      ),
+
+                      _buildModernBadge(
+                        label: isOpen ? 'OPEN' : 'CLOSED',
+
+                        color: isOpen ? Ucolors.success : Ucolors.red,
+
+                        icon: Icons.lens,
+                        isDot: true,
+                      ),
+
+                      _buildModernBadge(
+                        label: fund?.schemeName ?? 'Growth',
+
+                        color: Ucolors.primary,
+                        icon: Icons.auto_graph_rounded,
+                      ),
+                    ],
+                  ),
+
+                  const Gap(20),
+
+                  /// EXTRA INFO
+                  // Row(
+                  //   children: [
+                  //
+                  //     _infoTile(
+                  //       title: "Fund House",
+                  //       value:
+                  //       fund?.fundHouse ??
+                  //           'N/A',
+                  //     ),
+                  //
+                  //     const Gap(28),
+                  //
+                  //     _infoTile(
+                  //       title: "Benchmark",
+                  //       value:
+                  //       fund?.b ??
+                  //           'N/A',
+                  //     ),
+                  //   ],
+                  // ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  // ==========================================
+  // MODERN BADGE
+  // ==========================================
+
+  Widget _buildModernBadge({
+    required String label,
+    required Color color,
+    required IconData icon,
+    bool isDot = false,
+  }) {
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: color.withValues(alpha: .08),
+
+        borderRadius: BorderRadius.circular(30),
+
+        border: Border.all(color: color.withValues(alpha: .18)),
       ),
+
       child: Row(
+        mainAxisSize: MainAxisSize.min,
+
         children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey.shade200, width: 2),
-            ),
-            child: ClipOval(
-              child: CustomCachedImage(imageUrl: controller.imgUrl),
-            ),
-          ),
-          const Gap(24),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  fund?.schemeName ?? '',
-                  style: AppTextStyles.bodyLargeBold(color: Colors.black),
-                ),
-                const Gap(12),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 8,
-                  children: [
-                    _buildBadge(
-                      fund?.schemeCategory ?? 'Equity',
-                      Ucolors.primary,
-                    ),
-                    _buildBadge(
-                      fund?.riskometerValue ?? 'High',
-                      _getRiskColor(fund?.riskometerValue ?? ''),
-                    ),
-                    _buildBadge('OPEN', Ucolors.success),
-                  ],
-                ),
-              ],
+          if (isDot)
+            Container(
+              width: 8,
+              height: 8,
+
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            )
+          else
+            Icon(icon, size: 15, color: color),
+
+          const Gap(8),
+
+          Text(
+            label.toUpperCase(),
+
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: color,
+              letterSpacing: .4,
             ),
           ),
         ],
@@ -570,32 +2769,73 @@ class _DesktopFundHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildBadge(String text, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Text(
-        text.toUpperCase(),
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-          color: color,
-          letterSpacing: 0.5,
+  // ==========================================
+  // INFO TILE
+  // ==========================================
+
+  Widget _infoTile({required String title, required String value}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+
+      children: [
+        Text(
+          title,
+
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 12,
+            color: Colors.grey.shade500,
+            fontWeight: FontWeight.w500,
+          ),
         ),
-      ),
+
+        const Gap(6),
+
+        SizedBox(
+          width: 220,
+
+          child: Text(
+            value,
+
+            maxLines: 1,
+
+            overflow: TextOverflow.ellipsis,
+
+            style: const TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF222222),
+            ),
+          ),
+        ),
+      ],
     );
   }
+
+  // ==========================================
+  // RISK COLOR
+  // ==========================================
 
   Color _getRiskColor(String risk) {
     final riskLower = risk.toLowerCase();
-    if (riskLower.contains('very high')) return Ucolors.red;
-    if (riskLower.contains('high')) return Colors.orange;
-    if (riskLower.contains('moderate')) return Colors.yellow[700]!;
-    if (riskLower.contains('low')) return Ucolors.success;
+
+    if (riskLower.contains('very high')) {
+      return Ucolors.red;
+    }
+
+    if (riskLower.contains('high')) {
+      return Colors.orange;
+    }
+
+    if (riskLower.contains('moderate')) {
+      return Colors.amber.shade700;
+    }
+
+    if (riskLower.contains('low')) {
+      return Ucolors.success;
+    }
+
     return Ucolors.darkgrey;
   }
 }
@@ -690,7 +2930,7 @@ class _DesktopPerformanceSection extends StatelessWidget {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
+                              color: Colors.black.withValues(alpha: 0.04),
                               blurRadius: 8,
                               spreadRadius: 2,
                             ),
@@ -709,6 +2949,7 @@ class _DesktopPerformanceSection extends StatelessWidget {
                       Text(
                         'Chart Unavailable',
                         style: TextStyle(
+                          fontFamily: FontFamily.medium,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: Colors.grey.shade800,
@@ -718,8 +2959,9 @@ class _DesktopPerformanceSection extends StatelessWidget {
 
                       // 3. Subtle Subtitle
                       Text(
-                        'We couldn\'t fetch the NAV history right now.',
+                        "We couldn't fetch the NAV history right now.",
                         style: TextStyle(
+                          fontFamily: FontFamily.medium,
                           fontSize: 12,
                           color: Colors.grey.shade500,
                         ),
@@ -729,7 +2971,6 @@ class _DesktopPerformanceSection extends StatelessWidget {
                       // 4. Actionable Retry Button
                       TextButton.icon(
                         onPressed: () {
-                          // Trigger the fetch method again using the existing variables
                           controller.getShcemeNavHistory(
                             scchemeCode: controller.schemeCode,
                             period: controller.selectedPeriod.value,
@@ -743,6 +2984,7 @@ class _DesktopPerformanceSection extends StatelessWidget {
                         label: Text(
                           'Retry',
                           style: TextStyle(
+                            fontFamily: FontFamily.medium,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: Colors
@@ -795,6 +3037,7 @@ class _DesktopPerformanceSection extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
+            fontFamily: FontFamily.medium,
             fontSize: 13,
             color: Colors.grey.shade600,
             fontWeight: FontWeight.w500,
@@ -809,6 +3052,7 @@ class _DesktopPerformanceSection extends StatelessWidget {
             Text(
               value,
               style: TextStyle(
+                fontFamily: FontFamily.medium,
                 fontSize: 28,
                 fontWeight: FontWeight.w700,
                 color: color,
@@ -818,6 +3062,7 @@ class _DesktopPerformanceSection extends StatelessWidget {
               Text(
                 suffix,
                 style: TextStyle(
+                  fontFamily: FontFamily.medium,
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                   color: color,
@@ -862,6 +3107,7 @@ class _DesktopOverviewCard extends StatelessWidget {
                 Text(
                   'Exit Load:',
                   style: TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: Colors.grey.shade700,
@@ -876,6 +3122,7 @@ class _DesktopOverviewCard extends StatelessWidget {
                   trimExpandedText: 'Show Less',
                   colorClickableText: Ucolors.primary,
                   style: TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontSize: 14,
                     color: Colors.grey.shade600,
                     height: 1.5,
@@ -908,6 +3155,7 @@ class _DesktopOverviewCard extends StatelessWidget {
             Text(
               item['label'],
               style: TextStyle(
+                fontFamily: FontFamily.medium,
                 fontSize: 13,
                 color: Colors.grey.shade600,
                 fontWeight: FontWeight.w500,
@@ -917,6 +3165,7 @@ class _DesktopOverviewCard extends StatelessWidget {
             Text(
               item['value'],
               style: TextStyle(
+                fontFamily: FontFamily.medium,
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: Colors.grey.shade900,
@@ -962,7 +3211,7 @@ class _DesktopReturnsCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(18),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
+                        color: Colors.black.withValues(alpha: 0.06),
                         blurRadius: 8,
                       ),
                     ],
@@ -970,6 +3219,7 @@ class _DesktopReturnsCard extends StatelessWidget {
                   labelColor: Colors.grey.shade900,
                   unselectedLabelColor: Colors.grey.shade600,
                   labelStyle: const TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
                   ),
@@ -1018,28 +3268,44 @@ class _DesktopReturnsCard extends StatelessWidget {
             width: 120,
             child: Text(
               'Period',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+              ),
             ),
           ),
           const Expanded(
             child: Text(
               'Scheme',
               textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+              ),
             ),
           ),
           const Expanded(
             child: Text(
               'Category',
               textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+              ),
             ),
           ),
           const Expanded(
             child: Text(
               'Benchmark',
               textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+              ),
             ),
           ),
         ],
@@ -1052,7 +3318,7 @@ class _DesktopReturnsCard extends StatelessWidget {
 class _DesktopRiskCard extends StatelessWidget {
   final FundDetailsController controller;
 
-  const _DesktopRiskCard({super.key, required this.controller});
+  const _DesktopRiskCard({required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -1061,6 +3327,8 @@ class _DesktopRiskCard extends StatelessWidget {
       final risk = getRiskMeter(fund?.riskometerValue);
       final hasReturns = controller.yearlyReturns.isNotEmpty;
 
+      if (fund == null) return const SizedBox();
+      final data = controller.buildTrailingReturns(fund);
       return _DesktopCard(
         title: 'Risk Analysis',
         child: Row(
@@ -1076,6 +3344,7 @@ class _DesktopRiskCard extends StatelessWidget {
                     Text(
                       'Yearly Returns',
                       style: TextStyle(
+                        fontFamily: FontFamily.medium,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Colors.grey.shade800,
@@ -1084,10 +3353,8 @@ class _DesktopRiskCard extends StatelessWidget {
                     const Gap(24),
                     // Give chart a fixed height or aspect ratio
                     SizedBox(
-                      height: 300,
-                      child: YearlyReturnsChart(
-                        yearlyData: controller.yearlyReturns,
-                      ),
+                      height: 500,
+                      child: YearlyReturnsChart(yearlyData: data),
                     ),
                   ],
                 ),
@@ -1108,6 +3375,7 @@ class _DesktopRiskCard extends StatelessWidget {
                   Text(
                     'Risk Level',
                     style: TextStyle(
+                      fontFamily: FontFamily.medium,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.grey.shade800,
@@ -1119,12 +3387,17 @@ class _DesktopRiskCard extends StatelessWidget {
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [risk.color.withOpacity(0.08), Colors.white],
+                        colors: [
+                          risk.color.withValues(alpha: 0.08),
+                          Colors.white,
+                        ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                       ),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: risk.color.withOpacity(0.3)),
+                      border: Border.all(
+                        color: risk.color.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: Column(
                       children: [
@@ -1203,6 +3476,7 @@ class _DesktopRiskCard extends StatelessWidget {
                         Text(
                           risk.label,
                           style: TextStyle(
+                            fontFamily: FontFamily.medium,
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
                             color: risk.color,
@@ -1213,6 +3487,7 @@ class _DesktopRiskCard extends StatelessWidget {
                         Text(
                           "Investors with high risk appetite",
                           style: TextStyle(
+                            fontFamily: FontFamily.medium,
                             fontSize: 12,
                             color: Colors.grey.shade600,
                           ),
@@ -1267,14 +3542,14 @@ class _DesktopActionCard extends StatelessWidget {
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Ucolors.primary, Ucolors.primary.withOpacity(0.8)],
+          colors: [Ucolors.primary, Ucolors.primary.withValues(alpha: 0.8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Ucolors.primary.withOpacity(0.3),
+            color: Ucolors.primary.withValues(alpha: 0.3),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
@@ -1286,7 +3561,8 @@ class _DesktopActionCard extends StatelessWidget {
           Text(
             "Current NAV",
             style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
+              fontFamily: FontFamily.medium,
+              color: Colors.white.withValues(alpha: 0.9),
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
@@ -1295,6 +3571,7 @@ class _DesktopActionCard extends StatelessWidget {
           Text(
             "₹ ${fund?.nav}",
             style: const TextStyle(
+              fontFamily: FontFamily.medium,
               fontSize: 36,
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -1304,12 +3581,13 @@ class _DesktopActionCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               "${fund?.navChangePercentage}% (1D)",
               style: const TextStyle(
+                fontFamily: FontFamily.medium,
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
@@ -1353,7 +3631,11 @@ class _DesktopActionCard extends StatelessWidget {
               ),
               child: const Text(
                 "Start SIP",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),
@@ -1377,7 +3659,11 @@ class _DesktopActionCard extends StatelessWidget {
               ),
               child: const Text(
                 "Lumpsum Invest",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontFamily: FontFamily.medium,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),
@@ -1418,6 +3704,7 @@ class _DesktopQuickLookCard extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
+            fontFamily: FontFamily.medium,
             fontSize: 14,
             color: Colors.grey.shade600,
             fontWeight: FontWeight.w500,
@@ -1426,6 +3713,7 @@ class _DesktopQuickLookCard extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
+            fontFamily: FontFamily.medium,
             fontSize: 20,
             fontWeight: FontWeight.w700,
             color: color,
@@ -1489,7 +3777,7 @@ class _DesktopAllocationCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(18),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
+                        color: Colors.black.withValues(alpha: 0.06),
                         blurRadius: 8,
                       ),
                     ],
@@ -1497,6 +3785,7 @@ class _DesktopAllocationCard extends StatelessWidget {
                   labelColor: Colors.grey.shade900,
                   unselectedLabelColor: Colors.grey.shade600,
                   labelStyle: const TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
                   ),
@@ -1572,6 +3861,7 @@ class _DesktopAllocationCard extends StatelessWidget {
                   centerText,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                   ),
@@ -1632,6 +3922,7 @@ class _DesktopAllocationCard extends StatelessWidget {
                 const Text(
                   'Stock Name',
                   style: TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: Colors.grey,
@@ -1640,6 +3931,7 @@ class _DesktopAllocationCard extends StatelessWidget {
                 const Text(
                   'Holding %',
                   style: TextStyle(
+                    fontFamily: FontFamily.medium,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: Colors.grey,
@@ -1704,6 +3996,7 @@ class _DesktopAboutCard extends StatelessWidget {
             trimExpandedText: 'Show Less',
             colorClickableText: Ucolors.primary,
             style: TextStyle(
+              fontFamily: FontFamily.medium,
               fontSize: 15,
               height: 1.6,
               color: Colors.grey.shade700,
@@ -1712,7 +4005,11 @@ class _DesktopAboutCard extends StatelessWidget {
           const Gap(24),
           const Text(
             'Fund Manager(s)',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const Gap(16),
           if (managers.isNotEmpty)
@@ -1726,7 +4023,10 @@ class _DesktopAboutCard extends StatelessWidget {
           else
             Text(
               'No manager details available',
-              style: TextStyle(color: Colors.grey.shade600),
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                color: Colors.grey.shade600,
+              ),
             ),
         ],
       ),
@@ -1749,6 +4049,7 @@ class _DesktopAboutCard extends StatelessWidget {
           Text(
             name,
             style: TextStyle(
+              fontFamily: FontFamily.medium,
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: Colors.blue.shade700,
@@ -1790,7 +4091,7 @@ class _DesktopComparisonSection extends StatelessWidget {
                 onTap: () {
                   log('${fund.schemeName}--------------------');
                   log('${controller.imgUrl}--------------------');
-                  log('tap fund comapare');
+                  log('tap fund compare');
                   Get.toNamed(
                     AppRoutes.comparefund,
 
@@ -1815,8 +4116,8 @@ class _DesktopComparisonSection extends StatelessWidget {
                     children: [
                       FundComparisonItem(
                         imgUrl: controller.imgUrl,
-                        fund1: fund?.schemeName,
-                        year: fund?.schemePerformanceList[0].threeYearReturn
+                        fund1: fund.schemeName,
+                        year: fund.schemePerformanceList[0].threeYearReturn
                             .toString(),
                       ),
                       SizedBox(height: 5),
@@ -1841,6 +4142,7 @@ class _DesktopComparisonSection extends StatelessWidget {
                             child: const Text(
                               'VS',
                               style: TextStyle(
+                                fontFamily: FontFamily.medium,
                                 color: Colors.grey,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -1861,7 +4163,7 @@ class _DesktopComparisonSection extends StatelessWidget {
                             .threeYearReturn
                             .toString(),
                         fund1: fund
-                            ?.schemePeerComparisonList[index + 1]
+                            .schemePeerComparisonList[index + 1]
                             .schemeName
                             .toString(),
                       ),
@@ -1874,7 +4176,7 @@ class _DesktopComparisonSection extends StatelessWidget {
                         child: OutlinedButton(
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(
-                              color: Ucolors.primary.withOpacity(0.5),
+                              color: Ucolors.primary.withValues(alpha: 0.5),
                             ),
                           ),
                           // onPressed: () => Get.toNamed(AppRoutes.comparefund ),
@@ -1885,14 +4187,14 @@ class _DesktopComparisonSection extends StatelessWidget {
                               Text(
                                 'Compare Funds',
                                 style: UTextStyles.buttonText.copyWith(
-                                  // color: Ucolors.primary.withOpacity(0.5),
+                                  // color: Ucolors.primary.withValues(alpha:0.5),
                                   color: Ucolors.primary,
                                 ),
                               ),
                               SizedBox(width: 10),
                               Icon(
                                 Icons.arrow_forward,
-                                color: Ucolors.primary.withOpacity(0.5),
+                                color: Ucolors.primary.withValues(alpha: 0.5),
                               ),
                             ],
                           ),
@@ -1914,12 +4216,17 @@ class _DesktopComparisonSection extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 12,
+            color: Colors.grey.shade600,
+          ),
         ),
         const Gap(4),
         Text(
           value,
           style: TextStyle(
+            fontFamily: FontFamily.medium,
             fontSize: 16,
             fontWeight: FontWeight.w700,
             color: color,
@@ -1963,6 +4270,7 @@ class _DesktopInvestmentDetailsCard extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
+            fontFamily: FontFamily.medium,
             fontSize: 14,
             color: Colors.grey.shade600,
             fontWeight: FontWeight.w500,
@@ -1970,7 +4278,11 @@ class _DesktopInvestmentDetailsCard extends StatelessWidget {
         ),
         Text(
           value,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+          style: const TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ],
     );
@@ -1995,7 +4307,7 @@ class _DesktopCard extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -2010,6 +4322,7 @@ class _DesktopCard extends StatelessWidget {
               Text(
                 title,
                 style: const TextStyle(
+                  fontFamily: FontFamily.medium,
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
                 ),
@@ -2089,43 +4402,59 @@ class _MobileFundDetailsLayout extends StatelessWidget {
         actionsPadding: 10,
         title: 'Fund Details',
         action: [
-          Obx(
-            () => Stack(
-              children: [
-                CompactIcon(
-                  icon: Iconsax.shopping_cart,
-                  onPressed: () {
-                    Get.find<CartController>().filterGoalId.value = null;
-                    Get.toNamed(AppRoutes.cart);
-                  },
-                  iconColor: Ucolors.dark,
-                ),
-                if (Get.find<CartController>().generalItemsCount > 0)
-                  Positioned(
-                    right: 0,
-                    top: -5,
-                    child: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: const BoxDecoration(
-                        color: Ucolors.red,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(
-                        Get.find<CartController>().generalItemsCount.toString(),
-                        style: UTextStyles.buttonText.copyWith(fontSize: 10),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-
+          // Obx(
+          //   () => Stack(
+          //     children: [
+          //       CompactIcon(
+          //         icon: Iconsax.shopping_cart,
+          //         onPressed: () {
+          //           Get.find<CartController>().filterGoalId.value = null;
+          //           Get.toNamed(AppRoutes.cart);
+          //         },
+          //         iconColor: Ucolors.dark,
+          //       ),
+          //       if (Get.find<CartController>().generalItemsCount > 0)
+          //         Positioned(
+          //           right: 0,
+          //           top: -5,
+          //           child: Container(
+          //             padding: const EdgeInsets.all(5),
+          //             decoration: const BoxDecoration(
+          //               color: Ucolors.red,
+          //               shape: BoxShape.circle,
+          //             ),
+          //             child: Text(
+          //               Get.find<CartController>().generalItemsCount.toString(),
+          //               style: UTextStyles.buttonText.copyWith(fontSize: 10),
+          //             ),
+          //           ),
+          //         ),
+          //     ],
+          //   ),
+          // ),
           const SizedBox(width: 8),
 
-          CompactIcon(
-            icon: Iconsax.archive_tick,
-            onPressed: () => Get.toNamed(AppRoutes.watchlist),
-          ),
+          Obx(() {
+            final wishlistController = Get.find<WishlistController>();
+
+            // Assuming controller is your Detail/Item controller
+            final String code = controller.schemeCode;
+            final String name = controller.schemeName;
+
+            final bool isFav = wishlistController.isFavorite(code);
+
+            return CompactIcon(
+              icon: isFav ? Iconsax.heart5 : Iconsax.heart,
+              iconColor: isFav
+                  ? Colors.red
+                  : Ucolors.darkgrey, // Using your Ucolors constant
+              onPressed: () => wishlistController.toggleWishlist(code, name),
+            );
+          }),
+          // CompactIcon(
+          //   icon: Iconsax.archive_tick,
+          //   onPressed: () => Get.toNamed(AppRoutes.watchlist),
+          // ),
           const SizedBox(width: 5),
         ],
       ),
@@ -2134,57 +4463,201 @@ class _MobileFundDetailsLayout extends StatelessWidget {
 
   Widget _buildFundHeader(BuildContext context) {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
       sliver: SliverToBoxAdapter(
         child: Obx(() {
           final fund = controller.fundDetail.value;
-          return Column(
-            children: [
-              Row(
+          final bool isOpen = fund?.schemeStatus == 'Open Ended Schemes';
+
+          return Card(
+            elevation: 0, // Lower elevation + Border is more modern
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(
+                color: Colors.grey.shade200,
+                width: 1,
+              ), // Clean border
+            ),
+            color: Ucolors.light,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ClipOval(
-                    child: CustomCachedImage(imageUrl: controller.imgUrl),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      fund?.schemeName ?? '',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                        fontWeight: FontWeight.w600,
+                  // 1. Logo and Name Row
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.grey.shade100,
+                            width: 2,
+                          ),
+                        ),
+                        child: ClipOval(
+                          child: CustomCachedImage(
+                            imageUrl: controller.imgUrl,
+                            height: 48,
+                            width: 48,
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              fund?.schemeName ?? 'Loading Fund Name...',
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleMedium!
+                                  .copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    height: 1.2,
+                                    color: Colors.black87,
+                                  ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              fund?.schemeCategory ?? 'Mutual Fund',
+                              style: TextStyle(
+                                fontFamily: FontFamily.medium,
+                                fontSize: 12,
+                                color: Colors.grey.shade600,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                _buildModernBadge(
+                                  label: fund?.riskometerValue ?? 'High Risk',
+                                  color: _getRiskColor(
+                                    fund?.riskometerValue ?? '',
+                                  ),
+                                  icon: Icons.speed_rounded,
+                                ),
+                                const SizedBox(width: 10),
+                                _buildModernBadge(
+                                  label: isOpen ? 'OPEN' : 'CLOSED',
+                                  color: isOpen ? Ucolors.success : Ucolors.red,
+                                  icon: Icons.lens,
+                                  isDot: true,
+                                ),
+                                const Spacer(),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _metaText(fund?.schemeCategory ?? 'Equity'),
-                  _dot(),
-                  _metaText(
-                    fund?.riskometerValue.toUpperCase() ?? 'Very High',
-                    color: _getRiskColor(fund?.riskometerValue ?? ''),
-                  ),
-                  _dot(),
-                  _metaText('STATUS:'),
-                  _metaText(
-                    fund?.schemeStatus.toUpperCase().split(" ")[0] ?? 'Open',
-                    color: (fund?.schemeStatus == 'Open Ended Schemes')
-                        ? Ucolors.success
-                        : Ucolors.red,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ],
-              ),
-            ],
+            ),
           );
         }),
       ),
     );
   }
+
+  Widget _buildModernBadge({
+    required String label,
+    required Color color,
+    IconData? icon,
+    bool isDot = false,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isDot)
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: Icon(Icons.circle, size: 8, color: color),
+            )
+          else if (icon != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: Icon(icon, size: 14, color: color),
+            ),
+          Text(
+            label.toUpperCase(),
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
+              color: color,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  // Widget _buildFundHeader(BuildContext context) {
+  //   return SliverPadding(
+  //     padding: const EdgeInsets.symmetric(horizontal: 20),
+  //     sliver: SliverToBoxAdapter(
+  //       child: Obx(() {
+  //         final fund = controller.fundDetail.value;
+  //         return Column(
+  //           children: [
+  //             Row(
+  //               children: [
+  //                 ClipOval(
+  //                   child: CustomCachedImage(imageUrl: controller.imgUrl),
+  //                 ),
+  //                 const SizedBox(width: 10),
+  //                 Expanded(
+  //                   child: Text(
+  //                     fund?.schemeName ?? '',
+  //                     maxLines: 2,
+  //                     overflow: TextOverflow.ellipsis,
+  //                     style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+  //                       fontWeight: FontWeight.w600,
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //             const SizedBox(height: 12),
+  //             Row(
+  //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //               children: [
+  //                 _metaText(fund?.schemeCategory ?? 'Equity'),
+  //                 _dot(),
+  //                 _metaText(
+  //                   fund?.riskometerValue.toUpperCase() ?? 'Very High',
+  //                   color: _getRiskColor(fund?.riskometerValue ?? ''),
+  //                 ),
+  //                 _dot(),
+  //                 _metaText('STATUS:'),
+  //                 _metaText(
+  //                   fund?.schemeStatus.toUpperCase().split(" ")[0] ?? 'Open',
+  //                   color: (fund?.schemeStatus == 'Open Ended Schemes')
+  //                       ? Ucolors.success
+  //                       : Ucolors.red,
+  //                   fontWeight: FontWeight.bold,
+  //                 ),
+  //               ],
+  //             ),
+  //           ],
+  //         );
+  //       }),
+  //     ),
+  //   );
+  // }
 
   Color _getRiskColor(String risk) {
     final riskLower = risk.toLowerCase();
@@ -2213,7 +4686,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size;
     final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Obx(() {
@@ -2262,25 +4734,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
                 // Inside your screen/view
                 Obx(() {
                   final navEntity = controller.navHistorydata.value;
-
-                  if (controller.isNavHistoryLoading.value) {
-                    return UShimmerEffect(
-                      radius: 0,
-                      width: double.infinity,
-                      height: 220,
-                    );
-                  }
-
-                  // // Check if data is loaded
-                  // if (controller.navHistoryHasError.value ||
-                  //     navEntity == null ||
-                  //     navEntity.data.isEmpty) {
-                  //   return SizedBox(
-                  //     height: 220,
-                  //     child: Center(child: Text('Chart Data Unavailable')),
-                  //   );
-                  // }
-                  // Check if data is loaded
                   if (controller.navHistoryHasError.value ||
                       navEntity == null ||
                       navEntity.data.isEmpty) {
@@ -2301,7 +4754,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.04),
+                                  color: Colors.black.withValues(alpha: 0.04),
                                   blurRadius: 8,
                                   spreadRadius: 2,
                                 ),
@@ -2320,6 +4773,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                           Text(
                             'Chart Unavailable',
                             style: TextStyle(
+                              fontFamily: FontFamily.medium,
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: Colors.grey.shade800,
@@ -2329,8 +4783,9 @@ class OverviewScreen extends GetView<FundDetailsController> {
 
                           // 3. Subtle Subtitle
                           Text(
-                            'We couldn\'t fetch the NAV history right now.',
+                            "We couldn't fetch the NAV history right now.",
                             style: TextStyle(
+                              fontFamily: FontFamily.medium,
                               fontSize: 12,
                               color: Colors.grey.shade500,
                             ),
@@ -2340,7 +4795,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
                           // 4. Actionable Retry Button
                           TextButton.icon(
                             onPressed: () {
-                              // Trigger the fetch method again using the existing variables
                               controller.getShcemeNavHistory(
                                 scchemeCode: controller.schemeCode,
                                 period: controller.selectedPeriod.value,
@@ -2354,6 +4808,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                             label: Text(
                               'Retry',
                               style: TextStyle(
+                                fontFamily: FontFamily.medium,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color: Colors
@@ -2392,15 +4847,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
           ),
 
           // --- Fund Overview Section ---
-          Padding(
-            key: overViewKey,
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-            child: const USectionHeading(
-              title: 'Fund Overview',
-              showActionButton: false,
-            ),
-          ),
-
+          const Gap(8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Container(
@@ -2413,6 +4860,14 @@ class OverviewScreen extends GetView<FundDetailsController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Padding(
+                    key: overViewKey,
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                    child: const USectionHeading(
+                      title: 'Fund Overview',
+                      showActionButton: false,
+                    ),
+                  ),
                   _twoColumnRow(
                     leftTitle: 'Min SIP',
                     leftValue: '₹ ${fund?.sipMinimumAmount.toString()}',
@@ -2436,7 +4891,11 @@ class OverviewScreen extends GetView<FundDetailsController> {
                   const SizedBox(height: 10),
                   const Text(
                     'Exit Load:',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
                   ),
                   ReadMoreText(
                     fund?.exitLoad.toString() ??
@@ -2451,60 +4910,33 @@ class OverviewScreen extends GetView<FundDetailsController> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 5),
-            child: const USectionHeading(
-              title: 'Quick look',
-              showActionButton: false,
-            ),
-          ),
+          const Gap(8),
           CustomContainer(
-            bottomPadding: 10,
-            topPadding: 10,
-            child: _twoColumnRow(
-              leftTitle: '5Y CAGR',
-              color: Ucolors.success,
-              leftValue: '20.23%',
-              rightTitle: '5Y SIP Return',
-              rightValue:
-                  '${fund?.schemePerformanceList[0].fiveYearReturn.toString()} %',
-              color2: Ucolors.success,
+            topPadding: 15,
+            bottomPadding: 15,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                  child: const USectionHeading(
+                    title: 'Quick look',
+                    showActionButton: false,
+                  ),
+                ),
+                _twoColumnRow(
+                  leftTitle: '5Y CAGR',
+                  color: Ucolors.success,
+                  leftValue: '20.23%',
+                  rightTitle: '5Y SIP Return',
+                  rightValue:
+                      '${fund?.schemePerformanceList[0].fiveYearReturn.toString()} %',
+                  color2: Ucolors.success,
+                ),
+              ],
             ),
           ),
-          // Gap(10),
-          Padding(
-            key: returnsKey,
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-            child: const USectionHeading(
-              title: 'Trailing Returns',
-              showActionButton: false,
-            ),
-          ),
-          // Obx(() {
-          //   final fund = controller.fundDetail.value;
-          //   if (fund == null) return SizedBox();
+          const Gap(8),
 
-          //   final returnss = controller.buildTrailingReturns(fund);
-          //   return CustomContainer(
-          //     child: Column(
-          //       children: [
-          //         // returnsTableHeader(),
-          //         SizedBox(height: 20),
-          //         GroupedPerformanceBarChart(data: returnss),
-          //         SizedBox(height: 20), // <--- Pass your list here
-          //         TableHeader(
-          //           heading1: 'Period',
-          //           heading2: 'Scheme',
-          //           heading3: 'Category',
-          //           heading4: 'Benchmark',
-          //         ),
-          //         DashedLine(color: Colors.grey.shade200),
-
-          //         ...returnss.map((row) => ReturnsTableRow(data: row)),
-          //       ],
-          //     ),
-          //   );
-          // }),
           Obx(() {
             final fund = controller.fundDetail.value;
             if (fund == null) return const SizedBox();
@@ -2512,12 +4944,21 @@ class OverviewScreen extends GetView<FundDetailsController> {
             final returnss = controller.buildTrailingReturns(fund);
 
             return CustomContainer(
+              topPadding: 15,
+              bottomPadding: 15,
               child: DefaultTabController(
                 length: 2, // 1. Graph, 2. Table
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 15),
+                    Padding(
+                      key: returnsKey,
+                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                      child: const USectionHeading(
+                        title: 'Trailing Returns',
+                        showActionButton: false,
+                      ),
+                    ),
                     // Pill Tab Bar
                     Container(
                       height: 35,
@@ -2535,6 +4976,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                         labelColor: Colors.white,
                         unselectedLabelColor: Colors.grey.shade600,
                         labelStyle: const TextStyle(
+                          fontFamily: FontFamily.medium,
                           fontWeight: FontWeight.w600,
                           fontSize: 12,
                         ),
@@ -2549,12 +4991,12 @@ class OverviewScreen extends GetView<FundDetailsController> {
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 8),
 
                     // --- TAB VIEW CONTENT ---
                     SizedBox(
                       height:
-                          400, // Fixed height to accommodate the larger view (Table)
+                          300, // Fixed height to accommodate the larger view (Table)
                       child: TabBarView(
                         children: [
                           // TAB 2: Graph VIEW
@@ -2576,15 +5018,16 @@ class OverviewScreen extends GetView<FundDetailsController> {
                           ),
                           // TAB 1: Table VIEW
                           Padding(
-                            padding: const EdgeInsets.only(bottom: 20),
+                            padding: const EdgeInsets.only(bottom: 0),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 GroupedPerformanceBarChart(data: returnss),
-                                const SizedBox(height: 10),
+                                const SizedBox(height: 4),
                                 Text(
                                   "Returns vs Benchmark",
                                   style: TextStyle(
+                                    fontFamily: FontFamily.medium,
                                     fontSize: 12,
                                     color: Colors.grey.shade500,
                                   ),
@@ -2601,43 +5044,54 @@ class OverviewScreen extends GetView<FundDetailsController> {
             );
           }),
 
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 5),
-            child: const USectionHeading(
-              title: 'Fund Performance',
-              showActionButton: false,
-            ),
-          ),
+          const Gap(8),
           CustomContainer(
-            child: SizedBox(
-              height: isDesktop ? 500 : 160,
-              // child: ReturnsBarChart(data: yearlyData),
-              // child: ,
-              child: Obx(() {
-                final data = controller.yearlyReturns;
-                if (data.isEmpty) {
-                  return const CircularProgressIndicator(); // or loader
-                }
-                return YearlyReturnsChart(yearlyData: data);
-              }),
+            topPadding: 15,
+            bottomPadding: 4,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                  child: const USectionHeading(
+                    title: 'Fund Performance',
+                    showActionButton: false,
+                  ),
+                ),
+                SizedBox(
+                  height: isDesktop ? 500 : 300,
+                  // child: ReturnsBarChart(data: yearlyData),
+                  // child: ,
+                  child: Obx(() {
+                    final fund = controller.fundDetail.value;
+                    if (fund == null) return const SizedBox();
+                    final data = controller.buildTrailingReturns(fund);
+                    if (data.isEmpty) {
+                      return const CircularProgressIndicator(); // or loader
+                    }
+                    return YearlyReturnsChart(yearlyData: data);
+                  }),
+                ),
+              ],
             ),
           ),
 
           // --- Risk Analysis Section ---
-          Padding(
-            key: riskKey,
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-            child: const USectionHeading(
-              title: 'Risk Analysis',
-              showActionButton: false,
-            ),
-          ),
-
+          const Gap(8),
           CustomContainer(
+            topPadding: 15,
+            bottomPadding: 4,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Gap(15),
+                Padding(
+                  key: riskKey,
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                  child: const USectionHeading(
+                    title: 'Risk Analysis',
+                    showActionButton: false,
+                  ),
+                ),
+                // Gap(15),
                 _twoColumnRow(
                   leftTitle: 'Risk-o-Meter',
                   leftValue: fund?.riskometerValue.toString() ?? '',
@@ -2666,6 +5120,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
 
                 SpeedometerGauge(
                   value: risk.needleValue.toDouble(),
+                  scrollController: controller.scrollController,
                 ), // Updated to show high risk
                 Text(
                   'Your Principle Will be at:',
@@ -2680,7 +5135,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                     fontWeight: FontWeight.bold,
 
                     color: risk.color,
-                    fontSize: 18,
+                    fontSize: 16,
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -2689,20 +5144,20 @@ class OverviewScreen extends GetView<FundDetailsController> {
                   textAlign: TextAlign.center,
                   style: UTextStyles.small.copyWith(color: Ucolors.darkgrey),
                 ),
-                const Gap(14),
+                const Gap(8),
                 DashedLine(color: Colors.grey.shade400),
-                Gap(12),
+                Gap(8),
 
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: const [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         RiskLegendItem(color: Colors.green, label: 'Very Low'),
-                        SizedBox(height: 14),
+                        SizedBox(height: 8),
                         RiskLegendItem(color: Colors.orange, label: 'Medium'),
-                        SizedBox(height: 14),
+                        SizedBox(height: 8),
                         RiskLegendItem(color: Colors.redAccent, label: 'High'),
                       ],
                     ),
@@ -2710,33 +5165,36 @@ class OverviewScreen extends GetView<FundDetailsController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         RiskLegendItem(color: Colors.lightGreen, label: 'Low'),
-                        SizedBox(height: 14),
+                        SizedBox(height: 8),
                         RiskLegendItem(
                           color: Colors.amber,
                           label: 'Moderate High',
                         ),
-                        SizedBox(height: 14),
+                        SizedBox(height: 8),
                         RiskLegendItem(color: Colors.red, label: 'Very High'),
                       ],
                     ),
                   ],
                 ),
+                Gap(8),
               ],
             ),
           ),
 
-          Padding(
-            key: portfolioKey,
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-            child: const USectionHeading(
-              title: 'Fund Allocation',
-              showActionButton: false,
-            ),
-          ),
-
+          const Gap(8),
           CustomContainer(
+            topPadding: 15,
+            bottomPadding: 4,
             child: Column(
               children: [
+                Padding(
+                  key: portfolioKey,
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+                  child: const USectionHeading(
+                    title: 'Fund Allocation',
+                    showActionButton: false,
+                  ),
+                ),
                 Builder(
                   builder: (context) {
                     // 1. Get Data
@@ -2781,12 +5239,12 @@ class OverviewScreen extends GetView<FundDetailsController> {
 
                           title: 'No Market Cap Data',
                           message:
-                              'The AMC hasnt disclosed the Market Cap for this fund, or it may not be applicable to this scheme',
+                              "The AMC hasn't disclosed the Market Cap for this fund, or it may not be applicable to this scheme",
                         ); // <-- So much cleaner!
                       }
 
                       final List<Color> colors = [
-                        Colors.indigo.shade900,
+                        Colors.indigo.shade600,
                         Colors.blue.shade600,
                         Colors.greenAccent.shade700,
                         Colors.orangeAccent,
@@ -2795,7 +5253,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                       ];
 
                       return SingleChildScrollView(
-                        padding: const EdgeInsets.only(top: 20, bottom: 20),
+                        padding: const EdgeInsets.only(top: 20, bottom: 10),
                         child: Column(
                           children: [
                             // --- PIE CHART ---
@@ -2839,11 +5297,11 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                 ),
                               ],
                             ),
-                            const Gap(20),
+                            const Gap(8),
                             // --- LEGEND LIST ---
                             ...List.generate(data.length, (index) {
                               return Padding(
-                                padding: const EdgeInsets.only(bottom: 8.0),
+                                padding: const EdgeInsets.only(bottom: 4.0),
                                 child: marketCapPercentage(
                                   data[index].key,
                                   '${data[index].value.toStringAsFixed(2)}%',
@@ -2861,34 +5319,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
                       length: 2, // Two Tabs
                       child: Column(
                         children: [
-                          const Gap(10),
-                          // --- TAB BAR ---
-                          // Container(
-                          //   height: 35,
-                          //   decoration: BoxDecoration(
-                          //     color: Colors.grey.shade100,
-                          //     borderRadius: BorderRadius.circular(25),
-                          //   ),
-                          //   child: TabBar(
-                          //     indicator: BoxDecoration(
-                          //       color: Ucolors.primary, // Active Color
-                          //       borderRadius: BorderRadius.circular(25),
-                          //     ),
-                          //     labelColor: Colors.white,
-                          //     unselectedLabelColor: Colors.grey.shade600,
-                          //     labelStyle: const TextStyle(
-                          //       fontWeight: FontWeight.w600,
-                          //       fontSize: 13,
-                          //     ),
-                          //     dividerColor:
-                          //         Colors.transparent, // Remove underline
-                          //     indicatorSize: TabBarIndicatorSize.tab,
-                          //     tabs: const [
-                          //       Tab(text: "Asset Allocation"),
-                          //       Tab(text: "Market Cap"),
-                          //     ],
-                          //   ),
-                          // ),
                           Container(
                             height: 35,
                             // width: 160,
@@ -2905,6 +5335,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                               labelColor: Colors.white,
                               unselectedLabelColor: Colors.grey.shade600,
                               labelStyle: const TextStyle(
+                                fontFamily: FontFamily.medium,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 12,
                               ),
@@ -2924,7 +5355,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
 
                           // --- TAB VIEWS ---
                           SizedBox(
-                            height: 400, // Fixed height for the content area
+                            height: 340, // Fixed height for the content area
                             child: TabBarView(
                               children: [
                                 // Tab 1: Asset Allocation
@@ -2951,31 +5382,6 @@ class OverviewScreen extends GetView<FundDetailsController> {
 
                   child: Column(
                     children: [
-                      // Container(
-                      //   height: 40,
-                      //   decoration: BoxDecoration(
-                      //     color: Colors.grey.shade100,
-                      //     borderRadius: BorderRadius.circular(25),
-                      //   ),
-                      //   child: TabBar(
-                      //     indicator: BoxDecoration(
-                      //       color: Ucolors.primary, // Active Color
-                      //       borderRadius: BorderRadius.circular(25),
-                      //     ),
-                      //     labelColor: Colors.white,
-                      //     unselectedLabelColor: Colors.grey.shade600,
-                      //     labelStyle: const TextStyle(
-                      //       fontWeight: FontWeight.w600,
-                      //       fontSize: 13,
-                      //     ),
-                      //     dividerColor: Colors.transparent, // Remove underline
-                      //     indicatorSize: TabBarIndicatorSize.tab,
-                      //     tabs: const [
-                      //       Tab(text: "Top 5 Sector"),
-                      //       Tab(text: "Top 5 Stock"),
-                      //     ],
-                      //   ),
-                      // ),
                       Container(
                         height: 35,
                         // width: 160,
@@ -2992,6 +5398,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                           labelColor: Colors.white,
                           unselectedLabelColor: Colors.grey.shade600,
                           labelStyle: const TextStyle(
+                            fontFamily: FontFamily.medium,
                             fontWeight: FontWeight.w600,
                             fontSize: 12,
                           ),
@@ -3008,7 +5415,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
 
                       /// Tab bar for top 5 sector and top 5 stock
                       SizedBox(
-                        height: 450,
+                        height: 400,
                         child: TabBarView(
                           children: [
                             // Top 5 sector
@@ -3030,96 +5437,16 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                   );
                                 }
 
-                                // 3. Empty Check
-                                // if (entity == null ||
-                                //     names.isEmpty ||
-                                //     values.isEmpty) {
-                                //   return Container(
-                                //     height: 200,
-                                //     alignment: Alignment.center,
-                                //     child: const Text(
-                                //       "No Sector Data Available",
-                                //       style: TextStyle(color: Colors.grey),
-                                //     ),
-                                //   );
-                                // }
-
-                                // 3. Empty State Check
                                 if (entity == null ||
                                     names.isEmpty ||
                                     values.isEmpty) {
                                   return AnimatedEmptyState(
                                     title: 'No Sector Data',
                                     message:
-                                        'The AMC hasnt disclosed the holdings for this fund, or it may not be applicable to this scheme',
+                                        "The AMC hasn't disclosed the holdings for this fund, or it may not be applicable to this scheme",
                                   ); // <-- So much cleaner!
                                 }
-                                // 3. Empty State Check
-                                // if (entity == null ||
-                                //     names.isEmpty ||
-                                //     values.isEmpty) {
-                                //   return Container(
-                                //     height:
-                                //         300, // Give it enough height to look intentional
-                                //     width: double.infinity,
-                                //     padding: const EdgeInsets.symmetric(
-                                //       horizontal: 24,
-                                //       vertical: 32,
-                                //     ),
-                                //     child: Column(
-                                //       mainAxisAlignment:
-                                //           MainAxisAlignment.center,
-                                //       children: [
-                                //         // 1. Soft Icon Background
-                                //         Container(
-                                //           padding: const EdgeInsets.all(20),
-                                //           decoration: BoxDecoration(
-                                //             color: Ucolors.darkgrey.withOpacity(
-                                //               0.05,
-                                //             ), // Very subtle grey circle
-                                //             shape: BoxShape.circle,
-                                //           ),
-                                //           child: Icon(
-                                //             Iconsax
-                                //                 .chart_fail, // Or Iconsax.document_text, Iconsax.box_remove
-                                //             size: 48,
-                                //             color: Ucolors.darkgrey.withOpacity(
-                                //               0.5,
-                                //             ),
-                                //           ),
-                                //         ),
-                                //         const SizedBox(height: 20),
 
-                                //         // 2. Friendly Heading
-                                //         const Text(
-                                //           "No Portfolio Data",
-                                //           style: TextStyle(
-                                //             fontSize: 16,
-                                //             fontWeight: FontWeight.w600,
-                                //             color: Colors.black87,
-                                //           ),
-                                //         ),
-                                //         const SizedBox(height: 8),
-
-                                //         // 3. Reassuring Subtitle
-                                //         const Text(
-                                //           "The AMC hasn't disclosed the holdings for this fund, or it may not be applicable to this scheme category.",
-                                //           textAlign: TextAlign.center,
-                                //           style: TextStyle(
-                                //             fontSize: 13,
-                                //             fontWeight: FontWeight.w400,
-                                //             color: Colors.grey,
-                                //             height:
-                                //                 1.4, // Makes multi-line text easier to read
-                                //           ),
-                                //         ),
-                                //       ],
-                                //     ),
-                                //   );
-                                // }
-
-                                // 4. Combine, Sort, and Limit to Top 5
-                                // Safety: use the smaller length to avoid crashes
                                 int count = names.length < values.length
                                     ? names.length
                                     : values.length;
@@ -3201,7 +5528,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                 //     alignment: Alignment.center,
                                 //     child: const Text(
                                 //       "No Holdings Data Available",
-                                //       style: TextStyle(color: Colors.grey),
+                                //       style:  TextStyle(fontFamily: FontFamily.medium,color: Colors.grey),
                                 //     ),
                                 //   );
                                 // }
@@ -3211,7 +5538,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                   return AnimatedEmptyState(
                                     title: 'No Sector Data',
                                     message:
-                                        'The AMC hasnt disclosed the holdings for this fund, or it may not be applicable to this scheme',
+                                        "The AMC hasn't disclosed the holdings for this fund, or it may not be applicable to this scheme",
                                   ); // <-- So much cleaner!
                                 }
 
@@ -3297,6 +5624,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                           Text(
                                             'Stock Allocation',
                                             style: TextStyle(
+                                              fontFamily: FontFamily.medium,
                                               fontSize: 12,
                                               fontWeight: FontWeight.w400,
                                               color: Ucolors.darkgrey,
@@ -3305,6 +5633,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
                                           Text(
                                             'Holding %',
                                             style: TextStyle(
+                                              fontFamily: FontFamily.medium,
                                               fontSize: 12,
                                               fontWeight: FontWeight.w400,
                                               color: Ucolors.darkgrey,
@@ -3358,357 +5687,283 @@ class OverviewScreen extends GetView<FundDetailsController> {
           ),
 
           // --- Fund Comparison Section ---
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 20, 16, 10),
-            child: USectionHeading(
-              title: 'Fund Comparison',
-              showActionButton: false,
-            ),
-          ),
-          SizedBox(
-            height: MediaQuery.of(context).size.height < 700 ? 182 : 267,
+          // const Gap(8),
+          // SizedBox(
+          //   height: MediaQuery.of(context).size.height < 700 ? 182 : 260,
 
-            child: ListView.builder(
-              // itemCount: 10,
-              itemCount: fund!.schemePeerComparisonList.length - 1,
-              scrollDirection: Axis.horizontal,
+          //   child: ListView.builder(
+          //     // itemCount: 10,
+          //     itemCount: fund!.schemePeerComparisonList.length - 1,
+          //     scrollDirection: Axis.horizontal,
 
-              itemBuilder: (context, index) => SizedBox(
-                width: MediaQuery.of(context).size.width * 0.97,
-                child: GestureDetector(
-                  onTap: () {
-                    log('${fund.schemeName}--------------------');
-                    log('${controller.imgUrl}--------------------');
-                    log('tap fund comapare');
-                    Get.toNamed(
-                      AppRoutes.comparefund,
+          //     itemBuilder: (context, index) => SizedBox(
+          //       width: MediaQuery.of(context).size.width * 0.97,
+          //       child: GestureDetector(
+          //         onTap: () {
+          //           log('${fund.schemeName}--------------------');
+          //           log('${controller.imgUrl}--------------------');
+          //           log('tap fund compare');
+          //           Get.toNamed(
+          //             AppRoutes.comparefund,
 
-                      // arguments: {
-                      //   'name': fund.schemeName,
-                      //   'name2':
-                      //       fund.schemePeerComparisonList[index + 1].schemeName,
-                      // },
-                      arguments: {
-                        'name': controller.schemeName,
-                        'imgUrl': controller.imgUrl,
-                        'name2':
-                            fund.schemePeerComparisonList[index + 1].schemeName,
-                      },
-                    );
-                  },
-                  child: CustomContainer(
-                    bottomPadding: 8,
-                    topPadding: 15,
-                    child: Column(
-                      // mainAxisSize: MainAxisSize.min,
-                      children: [
-                        FundComparisonItem(
-                          imgUrl: controller.imgUrl,
-                          fund1: fund?.schemeName,
-                          year: fund?.schemePerformanceList[0].threeYearReturn
-                              .toString(),
-                        ),
-                        SizedBox(height: 5),
-                        Row(
-                          children: [
-                            // Left dashed line
-                            Expanded(
-                              child: DashedLine(color: Colors.grey.shade300),
-                            ),
+          //             // arguments: {
+          //             //   'name': fund.schemeName,
+          //             //   'name2':
+          //             //       fund.schemePeerComparisonList[index + 1].schemeName,
+          //             // },
+          //             arguments: {
+          //               'name': controller.schemeName,
+          //               'imgUrl': controller.imgUrl,
+          //               'name2':
+          //                   fund.schemePeerComparisonList[index + 1].schemeName,
+          //             },
+          //           );
+          //         },
+          //         child: CustomContainer(
+          //           bottomPadding: 0,
+          //           topPadding: 15,
+          //           child: Column(
+          //             mainAxisSize: MainAxisSize.min,
+          //             children: [
+          //               const Padding(
+          //                 padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+          //                 child: USectionHeading(
+          //                   title: 'Fund Comparison',
+          //                   showActionButton: false,
+          //                 ),
+          //               ),
+          //               FundComparisonItem(
+          //                 imgUrl: controller.imgUrl,
+          //                 fund1: fund.schemeName,
+          //                 year: fund.schemePerformanceList[0].threeYearReturn
+          //                     .toString(),
+          //               ),
+          //               SizedBox(height: 3),
+          //               Row(
+          //                 children: [
+          //                   // Left dashed line
+          //                   Expanded(
+          //                     child: DashedLine(color: Colors.grey.shade300),
+          //                   ),
 
-                            // VS circlef
-                            Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 8),
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.blue,
-                                  width: 1.5,
-                                ),
-                              ),
-                              child: const Text(
-                                'VS',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
+          //                   Container(
+          //                     margin: const EdgeInsets.symmetric(horizontal: 6),
+          //                     padding: const EdgeInsets.all(5),
+          //                     decoration: BoxDecoration(
+          //                       shape: BoxShape.circle,
+          //                       border: Border.all(
+          //                         color: Colors.blue,
+          //                         width: 1.2,
+          //                       ),
+          //                     ),
+          //                     child: const Text(
+          //                       'VS',
+          //                       style: TextStyle(
+          //                         fontFamily: FontFamily.medium,
+          //                         color: Colors.grey,
+          //                         fontSize: 10,
+          //                         fontWeight: FontWeight.w600,
+          //                       ),
+          //                     ),
+          //                   ),
 
-                            // Right dashed line
-                            Expanded(
-                              child: DashedLine(color: Colors.grey.shade300),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 5),
+          //                   // Right dashed line
+          //                   Expanded(
+          //                     child: DashedLine(color: Colors.grey.shade300),
+          //                   ),
+          //                 ],
+          //               ),
+          //               SizedBox(height: 5),
 
-                        FundComparisonItem(
-                          year: fund
-                              .schemePeerComparisonList[index + 1]
-                              .threeYearReturn
-                              .toString(),
-                          fund1: fund
-                              ?.schemePeerComparisonList[index + 1]
-                              .schemeName
-                              .toString(),
-                        ),
+          //               FundComparisonItem(
+          //                 year: fund
+          //                     .schemePeerComparisonList[index + 1]
+          //                     .threeYearReturn
+          //                     .toString(),
+          //                 fund1: fund
+          //                     .schemePeerComparisonList[index + 1]
+          //                     .schemeName
+          //                     .toString(),
+          //               ),
 
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            // horizontal: 60.0,
-                            vertical: 15,
-                          ),
-                          child: OutlinedButton(
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(
-                                color: Ucolors.primary.withOpacity(0.5),
-                              ),
-                            ),
-                            // onPressed: () => Get.toNamed(AppRoutes.comparefund ),
-                            onPressed: null,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Compare Funds',
-                                  style: UTextStyles.buttonText.copyWith(
-                                    // color: Ucolors.primary.withOpacity(0.5),
-                                    color: Ucolors.primary,
-                                  ),
-                                ),
-                                SizedBox(width: 10),
-                                Icon(
-                                  Icons.arrow_forward,
-                                  color: Ucolors.primary.withOpacity(0.5),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // Padding(
-          //   padding: const EdgeInsets.symmetric(horizontal: 60.0, vertical: 15),
-          //   child: OutlinedButton(
-          //     style: OutlinedButton.styleFrom(
-          //       side: BorderSide(color: Ucolors.primary.withOpacity(0.5)),
-          //     ),
-          //     onPressed: () => Get.toNamed(AppRoutes.comparefund),
-          //     child: Row(
-          //       mainAxisAlignment: MainAxisAlignment.center,
-          //       children: [
-          //         Text(
-          //           'Compare Funds',
-          //           style: UTextStyles.buttonText.copyWith(
-          //             color: Ucolors.primary.withOpacity(0.5),
+          //               Padding(
+          //                 padding: const EdgeInsets.symmetric(
+          //                   // horizontal: 60.0,
+          //                   vertical: 8,
+          //                 ),
+          //                 child: OutlinedButton(
+          //                   style: OutlinedButton.styleFrom(
+          //                     side: BorderSide(
+          //                       color: Ucolors.primary.withValues(alpha: 0.5),
+          //                     ),
+          //                   ),
+          //                   // onPressed: () => Get.toNamed(AppRoutes.comparefund ),
+          //                   onPressed: null,
+          //                   child: Row(
+          //                     mainAxisAlignment: MainAxisAlignment.center,
+          //                     children: [
+          //                       Text(
+          //                         'Compare Funds',
+          //                         style: UTextStyles.buttonText.copyWith(
+          //                           // color: Ucolors.primary.withValues(alpha:0.5),
+          //                           color: Ucolors.primary,
+          //                         ),
+          //                       ),
+          //                       SizedBox(width: 10),
+          //                       Icon(
+          //                         Icons.arrow_forward,
+          //                         color: Ucolors.primary.withValues(alpha: 0.5),
+          //                       ),
+          //                     ],
+          //                   ),
+          //                 ),
+          //               ),
+          //             ],
           //           ),
           //         ),
-          //         SizedBox(width: 10),
-          //         Icon(
-          //           Icons.arrow_forward,
-          //           color: Ucolors.primary.withOpacity(0.5),
-          //         ),
-          //       ],
+          //       ),
           //     ),
           //   ),
           // ),
+          // const Gap(8),
 
-          // --- Related Funds Section ---
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-            child: const USectionHeading(
-              title: 'Related Funds',
-              showActionButton: false,
-            ),
-          ),
+          // CustomContainer(
+          //   topPadding: 15,
+          //   bottomPadding: 15,
+          //   child: Column(
+          //     children: [
+          //       Padding(
+          //         padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+          //         child: const USectionHeading(
+          //           title: 'Related Funds',
+          //           showActionButton: false,
+          //         ),
+          //       ),
 
-          // Add your Related Funds list here
-          SizedBox(
-            height: 150,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: fund.schemePeerComparisonList.length - 1,
-              separatorBuilder: (context, index) => SizedBox(width: 0),
-              itemBuilder: (context, index) => SizedBox(
-                width: MediaQuery.of(context).size.width * 0.9,
+          //       /// 📜 The Horizontal List inside the card
+          //       SizedBox(
+          //         height: 100, // Adjusted height
+          //         child: ListView.separated(
+          //           scrollDirection: Axis.horizontal,
+          //           // padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          //           itemCount: fund.schemePeerComparisonList.length - 1,
+          //           separatorBuilder: (context, index) =>
+          //               const SizedBox(width: 16),
+          //           itemBuilder: (context, index) {
+          //             final item = fund.schemePeerComparisonList[index + 1];
 
-                child: GestureDetector(
-                  // onTap: () => Get.toNamed(AppRoutes.funddetails),
-                  onTap: () {
-                    final scheme = fund
-                        .schemePeerComparisonList[index + 1]
-                        .schemeName
-                        .toString();
-                    final schemeCode = fund.schemeAmfiCode;
-                    final controller = Get.find<FundDetailsController>();
+          //             return GestureDetector(
+          //               onTap: () {
+          //                 final controller = Get.find<FundDetailsController>();
+          //                 controller.loadNewFund(
+          //                   item.schemeName,
+          //                   fund.schemeAmfiCode,
+          //                 );
+          //                 debugPrint("Opening ${item.schemeName}");
+          //               },
+          //               child: Container(
+          //                 width: MediaQuery.of(context).size.width * 0.75,
+          //                 padding: const EdgeInsets.all(12),
+          //                 decoration: BoxDecoration(
+          //                   color: Colors
+          //                       .grey
+          //                       .shade50, // Subtle contrast from parent
+          //                   borderRadius: BorderRadius.circular(12),
+          //                   border: Border.all(color: Colors.grey.shade200),
+          //                 ),
+          //                 child: Column(
+          //                   children: [
+          //                     /// Top Row (Icon + Title)
+          //                     Row(
+          //                       children: [
+          //                         Container(
+          //                           height: 32,
+          //                           width: 32,
+          //                           decoration: const BoxDecoration(
+          //                             shape: BoxShape.circle,
+          //                           ),
+          //                           child: ClipOval(
+          //                             child: Image.asset(UImages.imp),
+          //                           ),
+          //                         ),
+          //                         const SizedBox(width: 10),
+          //                         Expanded(
+          //                           child: Text(
+          //                             item.schemeName,
+          //                             maxLines: 2,
+          //                             overflow: TextOverflow.ellipsis,
+          //                             style: const TextStyle(
+          //                               fontFamily: FontFamily.medium,
+          //                               fontSize: 13,
+          //                               fontWeight: FontWeight.w600,
+          //                             ),
+          //                           ),
+          //                         ),
+          //                       ],
+          //                     ),
+          //                     const Spacer(),
 
-                    controller.loadNewFund(scheme, schemeCode);
-
-                    // Get.offNamed(
-                    //   AppRoutes.funddetails,
-
-                    //   arguments: {'scheme': scheme, 'imgUrl': Appurl.baseUrl2},
-                    // );
-                    debugPrint("Opening ${fund.schemeName}");
-                  },
-
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        /// 🔹 Top Row (Icon + Title + Menu)
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // / Fund Icon
-                            Container(
-                              height: 40,
-                              width: 40,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.grey.shade100,
-                              ),
-                              child: ClipOval(
-                                child: Image.asset(
-                                  UImages.imp,
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                            ),
-
-                            // CircleAvatar(backgroundImage: AssetImage(UImages.sbi)),
-                            const SizedBox(width: 12),
-
-                            /// Title + Subtitle
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    maxLines: 2,
-                                    fund
-                                        .schemePeerComparisonList[index + 1]
-                                        .schemeName,
-                                    // 'Nippon India Large Cap Fund- Growth Plan- Growth Option',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      height: 1.3,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            /// Menu
-                            // const Icon(Icons.more_vert, color: Colors.grey),
-                          ],
-                        ),
-
-                        const SizedBox(height: 10),
-
-                        /// 🔹 Bottom Stats
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            StatItem1(
-                              title: '1Y Returns',
-                              amount:
-                                  '${fund.schemePeerComparisonList[index].oneYearReturn.toString()}%',
-                              //  fund
-                              //     .schemePeerComparisonList[index]
-                              //     .oneYearReturn
-                              //     .toString(),
-                              percentage: '',
-                              amountColor: Colors.green.shade800,
-
-                              percentageColor: Ucolors.success,
-                            ),
-                            StatItem1(
-                              percentage: '',
-                              title: '3Y Returns',
-                              // amount: '43%',
-                              amount:
-                                  '${fund.schemePeerComparisonList[index].threeYearReturn.toString()}%',
-                              amountColor: Colors.green.shade800,
-                              percentageColor: Ucolors.success,
-                            ),
-
-                            StatItem1(
-                              percentage: '',
-                              title: '5Y Returns',
-                              amountColor: Colors.green.shade800,
-
-                              percentageColor: Ucolors.success,
-
-                              amount:
-                                  '${fund.schemePeerComparisonList[index].fiveYearReturn.toString()}%',
-
-                              // '35%',
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            key: infoKey,
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
-            child: const USectionHeading(
-              title: 'About this Fund',
-              showActionButton: false,
-            ),
-          ),
+          //                     /// Stats Row
+          //                     Row(
+          //                       mainAxisAlignment:
+          //                           MainAxisAlignment.spaceBetween,
+          //                       children: [
+          //                         _buildMiniStat(
+          //                           '1Y',
+          //                           '${item.oneYearReturn}%',
+          //                         ),
+          //                         _buildMiniStat(
+          //                           '3Y',
+          //                           '${item.threeYearReturn}%',
+          //                         ),
+          //                         _buildMiniStat(
+          //                           '5Y',
+          //                           '${item.fiveYearReturn}%',
+          //                         ),
+          //                       ],
+          //                     ),
+          //                   ],
+          //                 ),
+          //               ),
+          //             );
+          //           },
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          const Gap(8),
           CustomContainer(
             topPadding: 15,
+            bottomPadding: 4,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Padding(
+                  key: infoKey,
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                  child: const USectionHeading(
+                    title: 'About this Fund',
+                    showActionButton: false,
+                  ),
+                ),
                 ReadMoreText(
                   style: UTextStyles.medium,
                   fund?.schemeObjective.toString() ?? '',
-                  // 'Quant Small Cap Fund - Direct Plan - Growth is a Small Cap scheme. The fund is currently managed by Jeetu Vechha. This content is a placeholder — you can replace it with your API description.',
                   trimMode: TrimMode.Line,
                   trimLines: 2,
                   trimCollapsedText: 'Show More',
                   trimExpandedText: 'Show Less',
                   colorClickableText: Ucolors.primary,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
                 Text(
                   'Fund Manager',
                   style: UTextStyles.large.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 4),
 
                 if (managers.isNotEmpty)
                   ...managers.asMap().entries.map((entry) {
@@ -3721,10 +5976,10 @@ class OverviewScreen extends GetView<FundDetailsController> {
                         // Show Divider ONLY if it's NOT the first item
                         if (index > 0)
                           Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            padding: const EdgeInsets.symmetric(vertical: 2),
                             child: DashedLine(
                               color: Colors.grey.shade300,
-                              dashSpace: 5, // Adjust styling as needed
+                              dashSpace: 4, // Adjust styling as needed
                             ),
                           ),
 
@@ -3741,138 +5996,220 @@ class OverviewScreen extends GetView<FundDetailsController> {
           ),
 
           ///Investment Details
-          SizedBox(
-            width: double.infinity,
-            child: ExpansionTile(
-              // maintainState: true,
-              shape: Border(),
-              collapsedShape: Border(),
-              // dense: true,
-              title: Text('Invesment Details'),
-              children: [
-                CustomContainer(
-                  bottomPadding: 0,
-                  child: Column(
-                    children: [
-                      investmentDetailSection(
-                        'Fund Size',
-                        '₹${fund?.schemeAssets?.toString()} Cr.' ?? '',
-                        Icons.bar_chart_outlined,
-                      ),
-                      // Divider(height: 0),
-                      DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                      investmentDetailSection(
-                        'Min. Inv',
-                        '₹ ${fund?.minimumInvestment.toString()}',
-                        Icons.circle,
-                      ),
-
-                      DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                      investmentDetailSection(
-                        'Min. Sip Inv',
-                        '₹ ${fund?.sipMinimumAmount.toString()}',
-                        Icons.change_circle_outlined,
-                      ),
-
-                      DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                      investmentDetailSection(
-                        'Min. Topup',
-                        '₹ ${fund?.minimumTopup.toString()}',
-                        Icons.curtains_closed_outlined,
-                      ),
-
-                      DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                      investmentDetailSection(
-                        'Turn over',
-                        '23',
-                        Icons.lightbulb_circle_outlined,
-                      ),
-                      DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                      investmentDetailSection(
-                        'Expense Ratio',
-                        fund?.expenseRatioPercentage.toString() ?? '',
-                        Icons.pie_chart_outline,
-                      ),
-                      DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                      investmentDetailSection(
-                        'Exit Load',
-                        fund?.exitLoad.toString() ?? '',
-                        Icons.logout_outlined,
-                      ),
-                    ],
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12.0, 6.0, 12.0, 0.0),
+            child: Card(
+              elevation: 0, // Lower elevation + Border is more modern
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(
+                  color: Colors.grey.shade200,
+                  width: 1,
+                ), // Clean border
+              ),
+              color: Ucolors.light,
+              child: Theme(
+                // This removes the splash/highlight and the persistent borders ExpansionTile adds
+                data: Theme.of(
+                  context,
+                ).copyWith(dividerColor: Colors.transparent),
+                child: ExpansionTile(
+                  key: ValueKey(1),
+                  initiallyExpanded:
+                      controller.expandedInvestmentIndex.value == 1,
+                  onExpansionChanged: (expanded) {
+                    if (expanded) {
+                      controller.expandedInvestmentIndex.value = 1;
+                      controller.expandedBasicDetailsIndex.value = -1;
+                    }
+                  },
+                  tilePadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 0,
                   ),
-                ),
-              ],
-            ),
-          ),
+                  childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+                  title: Text(
+                    "Investment Details",
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 15,
+                      color: Ucolors.dark,
+                      fontWeight: FontWeight.w600, // Semibold
+                    ),
+                  ),
 
-          ///Basic Details
-          ExpansionTile(
-            shape: Border(),
-            collapsedShape: Border(),
-            // dense: true,
-            title: Text('Basic Details'),
-            children: [
-              CustomContainer(
-                bottomPadding: 0,
-                child: Column(
                   children: [
-                    investmentDetailSection(
-                      'Category',
-                      // fund?.schemeCategory.split(':')[0].toString() ?? '',
-                      fund?.schemeCategory ?? '',
-                      Icons.category,
-                    ),
-
-                    // DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                    // investmentDetailSection('KRA', 'KARVY', Icons.circle),
-                    DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                    investmentDetailSection(
-                      'Inv. Plan',
-                      // fund?.schemeName.split('-')[1].toString() ?? '',
-                      fund.schemeName.contains('-') == true
-                          ? fund.schemeName.split('-')[1].trim()
-                          : 'Nil',
-
-                      // fund.schemeName,
-                      Icons.travel_explore_rounded,
-                    ),
-                    DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                    investmentDetailSection(
-                      'Launched IN',
-                      fund?.schemeInceptionDate.toString() ?? '',
-                      Icons.calendar_month_sharp,
-                    ),
-                    DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                    investmentDetailSection(
-                      'Bench Mark',
-
-                      fund?.schemeBenchmark.toString() ?? '',
-                      Icons.track_changes,
-                    ),
-                    DashedLine(dashSpace: 0, color: Colors.grey.shade300),
-                    investmentDetailSection(
-                      'Fund Type',
-
-                      fund?.schemeStatus.split(' ')[0].toString() ?? '',
-                      Icons.library_books,
+                    // Clean Divider between Header and Content
+                    Divider(height: 1, color: Colors.grey.shade100),
+                    Column(
+                      children: [
+                        _buildDetailRow(
+                          'Fund Size',
+                          '₹${fund?.schemeAssets} Cr.',
+                          Icons.bar_chart_outlined,
+                        ),
+                        _buildDashedDivider(),
+                        _buildDetailRow(
+                          'Min. Inv',
+                          '₹${fund?.minimumInvestment}',
+                          Icons.circle_outlined,
+                        ),
+                        _buildDashedDivider(),
+                        _buildDetailRow(
+                          'Min. Sip Inv',
+                          '₹${fund?.sipMinimumAmount}',
+                          Icons.change_circle_outlined,
+                        ),
+                        _buildDashedDivider(),
+                        _buildDetailRow(
+                          'Expense Ratio',
+                          '${fund?.expenseRatioPercentage}%',
+                          Icons.pie_chart_outline,
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-            ],
+            ),
           ),
 
+          ///Basic Details
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12.0, 4.0, 12.0, 0.0),
+            child: Card(
+              elevation: 0, // Lower elevation + Border is more modern
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(
+                  color: Colors.grey.shade200,
+                  width: 1,
+                ), // Clean border
+              ),
+              color: Ucolors.light,
+              child: Theme(
+                // This removes the splash/highlight and the persistent borders ExpansionTile adds
+                data: Theme.of(
+                  context,
+                ).copyWith(dividerColor: Colors.transparent),
+                child: ExpansionTile(
+                  key: ValueKey(2),
+                  initiallyExpanded:
+                      controller.expandedBasicDetailsIndex.value == 2,
+                  onExpansionChanged: (expanded) {
+                    if (expanded) {
+                      controller.expandedInvestmentIndex.value = -1;
+                      controller.expandedBasicDetailsIndex.value = 2;
+                    }
+                  },
+                  tilePadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 0,
+                  ),
+                  childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+                  title: Text(
+                    "Basic Details",
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 15,
+                      color: Ucolors.dark,
+                      fontWeight: FontWeight.w600, // Semibold
+                    ),
+                  ),
+
+                  children: [
+                    Column(
+                      children: [
+                        investmentDetailSection(
+                          'Category',
+                          // fund?.schemeCategory.split(':')[0].toString() ?? '',
+                          fund?.schemeCategory ?? '',
+                          Icons.category,
+                        ),
+
+                        // DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                        // investmentDetailSection('KRA', 'KARVY', Icons.circle),
+                        DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                        investmentDetailSection(
+                          'Inv. Plan',
+                          // fund?.schemeName.split('-')[1].toString() ?? '',
+                          fund?.schemeName.contains('-') == true
+                              ? fund!.schemeName.split('-')[1].trim()
+                              : 'Nil',
+
+                          // fund.schemeName,
+                          Icons.travel_explore_rounded,
+                        ),
+                        DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                        investmentDetailSection(
+                          'Launched IN',
+                          fund?.schemeInceptionDate.toString() ?? '',
+                          Icons.calendar_month_sharp,
+                        ),
+                        DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                        investmentDetailSection(
+                          'Bench Mark',
+
+                          fund?.schemeBenchmark.toString() ?? '',
+                          Icons.track_changes,
+                        ),
+                        DashedLine(dashSpace: 0, color: Colors.grey.shade300),
+                        investmentDetailSection(
+                          'Fund Type',
+
+                          fund?.schemeStatus.split(' ')[0].toString() ?? '',
+                          Icons.library_books,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
           //AMC Information
-          ExpansionTile(
-            shape: Border(),
-            collapsedShape: Border(),
-            // dense: true,
-            title: Text('AMC Information'),
-            children: [
-              CustomContainer(
-                bottomPadding: 0,
-                child: Column(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12.0, 4.0, 12.0, 0.0),
+            child: Card(
+              elevation: 0, // Lower elevation + Border is more modern
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(
+                  color: Colors.grey.shade200,
+                  width: 1,
+                ), // Clean border
+              ),
+              color: Ucolors.light,
+              child: Theme(
+                // This removes the splash/highlight and the persistent borders ExpansionTile adds
+                data: Theme.of(
+                  context,
+                ).copyWith(dividerColor: Colors.transparent),
+                child: ExpansionTile(
+                  key: ValueKey(3),
+                  initiallyExpanded:
+                      controller.expandedAMCInformationIndex.value == 3,
+                  onExpansionChanged: (expanded) {
+                    if (expanded) {
+                      controller.expandedInvestmentIndex.value = -1;
+                      controller.expandedAMCInformationIndex.value = 3;
+                    }
+                  },
+                  tilePadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 0,
+                  ),
+                  childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+                  title: Text(
+                    "AMC Information",
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 15,
+                      color: Ucolors.dark,
+                      fontWeight: FontWeight.w600, // Semibold
+                    ),
+                  ),
+
                   children: [
                     investmentDetailSection(
                       'AMC',
@@ -3910,11 +6247,75 @@ class OverviewScreen extends GetView<FundDetailsController> {
                   ],
                 ),
               ),
-            ],
+            ),
           ),
         ],
       );
     });
+  }
+
+  Widget _buildMiniStat(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 10,
+            color: Colors.grey.shade600,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 12,
+            color: Colors.green.shade800,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Professional Helper Methods to keep code clean
+  Widget _buildDetailRow(String label, String value, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: Colors.grey.shade600),
+          const SizedBox(width: 10),
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: FontFamily.medium,
+              color: Colors.grey.shade700,
+              fontSize: 12,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            value,
+            style: const TextStyle(
+              fontFamily: FontFamily.medium,
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDashedDivider() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: DashedLine(dashSpace: 3, color: Colors.grey.shade300),
+    );
   }
 
   Widget marketCapPercentage(String title, String value, Color? color) {
@@ -3971,7 +6372,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: Colors.blue.shade800, size: 18),
+          Icon(icon, color: Colors.blue.shade800, size: 16),
           const SizedBox(width: 10),
 
           /// LEFT TITLE
@@ -3979,7 +6380,10 @@ class OverviewScreen extends GetView<FundDetailsController> {
             flex: 2,
             child: Text(
               title,
-              style: UTextStyles.medium.copyWith(fontWeight: FontWeight.w400),
+              style: UTextStyles.medium.copyWith(
+                fontWeight: FontWeight.w400,
+                fontSize: 12,
+              ),
             ),
           ),
 
@@ -4007,6 +6411,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
   Widget fundManager(String name) {
     return ListTile(
       dense: true,
+      contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
       leading: CircleAvatar(
         radius: 15,
         backgroundColor: Ucolors.skyblue1,
@@ -4022,7 +6427,7 @@ class OverviewScreen extends GetView<FundDetailsController> {
       trailing: CompactIcon(
         icon: Icons.arrow_forward_ios_rounded,
         iconColor: Ucolors.darkgrey,
-        iconSize: 15,
+        iconSize: 12,
 
         onPressed: () {},
       ),
@@ -4084,8 +6489,8 @@ class FundComparisonItem extends StatelessWidget {
           children: [
             // / Fund Icon
             Container(
-              height: 40,
-              width: 40,
+              height: 25,
+              width: 25,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.grey.shade100,
@@ -4109,7 +6514,8 @@ class FundComparisonItem extends StatelessWidget {
                 fund1 ??
                     'Nippon India Large Cap Fund- Growth Plan- Growth Option',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontFamily: FontFamily.medium,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                   height: 1.3,
                 ),
@@ -4126,6 +6532,7 @@ class FundComparisonItem extends StatelessWidget {
               TextSpan(
                 text: '3Y Return :',
                 style: TextStyle(
+                  fontFamily: FontFamily.medium,
                   fontSize: 10,
                   fontWeight: FontWeight.w500,
                   color: Ucolors.darkgrey,
@@ -4135,6 +6542,7 @@ class FundComparisonItem extends StatelessWidget {
               TextSpan(
                 text: '$year%',
                 style: TextStyle(
+                  fontFamily: FontFamily.medium,
                   fontSize: 10,
                   fontWeight: FontWeight.w500,
                   color: Ucolors.success,
@@ -4148,16 +6556,79 @@ class FundComparisonItem extends StatelessWidget {
   }
 }
 
-class SpeedometerGauge extends StatelessWidget {
+class SpeedometerGauge extends StatefulWidget {
   final double value; // 0–100
+  final ScrollController scrollController;
 
-  const SpeedometerGauge({super.key, required this.value});
+  const SpeedometerGauge({
+    super.key,
+    required this.value,
+    required this.scrollController,
+  });
+
+  @override
+  State<SpeedometerGauge> createState() => _SpeedometerGaugeState();
+}
+
+class _SpeedometerGaugeState extends State<SpeedometerGauge> {
+  double currentPointerValue = 0;
+  final GlobalKey _gaugeKey = GlobalKey();
+  bool _isOnScreen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.scrollController.addListener(_checkVisibility);
+  }
+
+  @override
+  void dispose() {
+    widget.scrollController.removeListener(_checkVisibility);
+    super.dispose();
+  }
+
+  void _checkVisibility() {
+    if (!mounted) return;
+
+    final RenderObject? renderObject = _gaugeKey.currentContext
+        ?.findRenderObject();
+    if (renderObject is RenderBox) {
+      final position = renderObject.localToGlobal(Offset.zero);
+      final screenHeight = MediaQuery.of(context).size.height;
+
+      bool currentlyVisible =
+          position.dy < screenHeight - 50 && position.dy > -100;
+
+      if (currentlyVisible && !_isOnScreen) {
+        setState(() {
+          _isOnScreen = true;
+          currentPointerValue = widget.value;
+        });
+      } else if (!currentlyVisible && _isOnScreen) {
+        setState(() {
+          _isOnScreen = false;
+          currentPointerValue = 0;
+        });
+      }
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant SpeedometerGauge oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value != widget.value && _isOnScreen) {
+      setState(() {
+        currentPointerValue = widget.value;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
     return SizedBox(
-      height: 130,
-
+      key: _gaugeKey,
+      height: isDesktop ? 250 : 130,
       child: SfRadialGauge(
         axes: [
           RadialAxis(
@@ -4169,173 +6640,234 @@ class SpeedometerGauge extends StatelessWidget {
             radiusFactor: 1,
             showTicks: false,
             showLabels: false,
-
-            axisLineStyle: const AxisLineStyle(
-              thickness: 0,
-              color: Colors.transparent,
-            ),
-
+            axisLineStyle: const AxisLineStyle(thickness: 0),
             ranges: [
-              GaugeRange(
-                startValue: 0,
-                endValue: 18,
-                color: Colors.green,
-                startWidth: 14,
-                endWidth: 14,
-              ),
-              GaugeRange(
-                startValue: 18,
-                endValue: 20,
-                color: Colors.transparent,
-              ),
-
-              GaugeRange(
-                startValue: 20,
-                endValue: 38,
-                color: Colors.lightGreen,
-                startWidth: 14,
-                endWidth: 14,
-              ),
-              GaugeRange(
-                startValue: 38,
-                endValue: 40,
-                color: Colors.transparent,
-              ),
-
-              GaugeRange(
-                startValue: 40,
-                endValue: 58,
-                color: Colors.amber,
-                startWidth: 14,
-                endWidth: 14,
-              ),
-              GaugeRange(
-                startValue: 58,
-                endValue: 60,
-                color: Colors.transparent,
-              ),
-
-              GaugeRange(
-                startValue: 60,
-                endValue: 78,
-                color: Colors.orange,
-                startWidth: 14,
-                endWidth: 14,
-              ),
-              GaugeRange(
-                startValue: 78,
-                endValue: 80,
-                color: Colors.transparent,
-              ),
-
-              GaugeRange(
-                startValue: 80,
-                endValue: 100,
-                color: Colors.red,
-                startWidth: 14,
-                endWidth: 14,
-              ),
+              _buildRange(0, 18, Colors.green),
+              _buildRange(20, 38, Colors.lightGreen),
+              _buildRange(40, 58, Colors.amber),
+              _buildRange(60, 78, Colors.orange),
+              _buildRange(80, 100, Colors.red),
             ],
-
             pointers: [
               NeedlePointer(
-                value: value,
-                needleLength: 0.6,
+                value: currentPointerValue,
+                enableAnimation: true,
+                animationDuration: 2000,
+                animationType: AnimationType.easeOutBack,
+                needleLength: 0.7,
                 needleStartWidth: 1,
-                needleEndWidth: 4,
+                needleEndWidth: 5,
                 needleColor: Colors.black,
                 knobStyle: const KnobStyle(
                   color: Colors.black,
-                  knobRadius: 0.06,
+                  knobRadius: 0.07,
                 ),
               ),
             ],
           ),
         ],
       ),
+    );
+  }
 
-      //  SfRadialGauge(
-      //   // backgroundColor: Colors.green,
-      //   axes: [
-      //     RadialAxis(
-      //       // interval: 3,
-      //       radiusFactor: 1,
-      //       centerY: 0.8,
-
-      //       // centerX: 0,
-      //       minimum: 0,
-      //       maximum: 100,
-      //       startAngle: 180,
-      //       endAngle: 0,
-      //       showTicks: false,
-      //       showLabels: false,
-
-      //       axisLineStyle: const AxisLineStyle(
-      //         thickness: 0.15,
-
-      //         thicknessUnit: GaugeSizeUnit.factor,
-      //         color: Colors.transparent,
-      //       ),
-
-      //       // COLOR SEGMENTS
-      //       ranges: [
-      //         GaugeRange(
-      //           startValue: 0,
-      //           endValue: 20,
-      //           color: Colors.green,
-      //           startWidth: 15,
-      //           endWidth: 15,
-      //         ),
-      //         GaugeRange(
-      //           startValue: 20,
-      //           endValue: 40,
-      //           color: Colors.lightGreen,
-      //           startWidth: 15,
-      //           endWidth: 15,
-      //         ),
-      //         GaugeRange(
-      //           startValue: 40,
-      //           endValue: 60,
-      //           color: Colors.yellow,
-      //           startWidth: 15,
-      //           endWidth: 15,
-      //         ),
-      //         GaugeRange(
-      //           startValue: 60,
-      //           endValue: 80,
-      //           color: Colors.orange,
-      //           startWidth: 15,
-      //           endWidth: 15,
-      //         ),
-      //         GaugeRange(
-      //           startValue: 80,
-      //           endValue: 100,
-      //           color: Colors.red,
-      //           startWidth: 15,
-      //           endWidth: 15,
-      //         ),
-      //       ],
-
-      //       // NEEDLE
-      //       pointers: [
-      //         NeedlePointer(
-      //           value: value,
-      //           needleLength: 0.6,
-      //           needleStartWidth: 1,
-      //           needleEndWidth: 4,
-      //           needleColor: Colors.black,
-      //           knobStyle: const KnobStyle(
-      //             color: Colors.black,
-      //             knobRadius: 0.06,
-      //           ),
-      //         ),
-      //       ],
-      //     ),
-      //   ],
-      // ),
+  GaugeRange _buildRange(double start, double end, Color color) {
+    return GaugeRange(
+      startValue: start,
+      endValue: end,
+      color: color,
+      startWidth: 14,
+      endWidth: 14,
     );
   }
 }
+// class SpeedometerGauge extends StatelessWidget {
+//   final double value; // 0–100
+//
+//   const SpeedometerGauge({super.key, required this.value});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return SizedBox(
+//       height: 130,
+//
+//       child: SfRadialGauge(
+//         axes: [
+//           RadialAxis(
+//             minimum: 0,
+//             maximum: 100,
+//             startAngle: 180,
+//             endAngle: 0,
+//             centerY: 0.8,
+//             radiusFactor: 1,
+//             showTicks: false,
+//             showLabels: false,
+//
+//             axisLineStyle: const AxisLineStyle(
+//               thickness: 0,
+//               color: Colors.transparent,
+//             ),
+//
+//             ranges: [
+//               GaugeRange(
+//                 startValue: 0,
+//                 endValue: 18,
+//                 color: Colors.green,
+//                 startWidth: 14,
+//                 endWidth: 14,
+//               ),
+//               GaugeRange(
+//                 startValue: 18,
+//                 endValue: 20,
+//                 color: Colors.transparent,
+//               ),
+//
+//               GaugeRange(
+//                 startValue: 20,
+//                 endValue: 38,
+//                 color: Colors.lightGreen,
+//                 startWidth: 14,
+//                 endWidth: 14,
+//               ),
+//               GaugeRange(
+//                 startValue: 38,
+//                 endValue: 40,
+//                 color: Colors.transparent,
+//               ),
+//
+//               GaugeRange(
+//                 startValue: 40,
+//                 endValue: 58,
+//                 color: Colors.amber,
+//                 startWidth: 14,
+//                 endWidth: 14,
+//               ),
+//               GaugeRange(
+//                 startValue: 58,
+//                 endValue: 60,
+//                 color: Colors.transparent,
+//               ),
+//
+//               GaugeRange(
+//                 startValue: 60,
+//                 endValue: 78,
+//                 color: Colors.orange,
+//                 startWidth: 14,
+//                 endWidth: 14,
+//               ),
+//               GaugeRange(
+//                 startValue: 78,
+//                 endValue: 80,
+//                 color: Colors.transparent,
+//               ),
+//
+//               GaugeRange(
+//                 startValue: 80,
+//                 endValue: 100,
+//                 color: Colors.red,
+//                 startWidth: 14,
+//                 endWidth: 14,
+//               ),
+//             ],
+//
+//             pointers: [
+//               NeedlePointer(
+//                 value: value,
+//                 needleLength: 0.6,
+//                 needleStartWidth: 1,
+//                 needleEndWidth: 4,
+//                 needleColor: Colors.black,
+//                 knobStyle: const KnobStyle(
+//                   color: Colors.black,
+//                   knobRadius: 0.06,
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ],
+//       ),
+//
+//       //  SfRadialGauge(
+//       //   // backgroundColor: Colors.green,
+//       //   axes: [
+//       //     RadialAxis(
+//       //       // interval: 3,
+//       //       radiusFactor: 1,
+//       //       centerY: 0.8,
+//
+//       //       // centerX: 0,
+//       //       minimum: 0,
+//       //       maximum: 100,
+//       //       startAngle: 180,
+//       //       endAngle: 0,
+//       //       showTicks: false,
+//       //       showLabels: false,
+//
+//       //       axisLineStyle: const AxisLineStyle(
+//       //         thickness: 0.15,
+//
+//       //         thicknessUnit: GaugeSizeUnit.factor,
+//       //         color: Colors.transparent,
+//       //       ),
+//
+//       //       // COLOR SEGMENTS
+//       //       ranges: [
+//       //         GaugeRange(
+//       //           startValue: 0,
+//       //           endValue: 20,
+//       //           color: Colors.green,
+//       //           startWidth: 15,
+//       //           endWidth: 15,
+//       //         ),
+//       //         GaugeRange(
+//       //           startValue: 20,
+//       //           endValue: 40,
+//       //           color: Colors.lightGreen,
+//       //           startWidth: 15,
+//       //           endWidth: 15,
+//       //         ),
+//       //         GaugeRange(
+//       //           startValue: 40,
+//       //           endValue: 60,
+//       //           color: Colors.yellow,
+//       //           startWidth: 15,
+//       //           endWidth: 15,
+//       //         ),
+//       //         GaugeRange(
+//       //           startValue: 60,
+//       //           endValue: 80,
+//       //           color: Colors.orange,
+//       //           startWidth: 15,
+//       //           endWidth: 15,
+//       //         ),
+//       //         GaugeRange(
+//       //           startValue: 80,
+//       //           endValue: 100,
+//       //           color: Colors.red,
+//       //           startWidth: 15,
+//       //           endWidth: 15,
+//       //         ),
+//       //       ],
+//
+//       //       // NEEDLE
+//       //       pointers: [
+//       //         NeedlePointer(
+//       //           value: value,
+//       //           needleLength: 0.6,
+//       //           needleStartWidth: 1,
+//       //           needleEndWidth: 4,
+//       //           needleColor: Colors.black,
+//       //           knobStyle: const KnobStyle(
+//       //             color: Colors.black,
+//       //             knobRadius: 0.06,
+//       //           ),
+//       //         ),
+//       //       ],
+//       //     ),
+//       //   ],
+//       // ),
+//     );
+//   }
+// }
 
 class CustomContainer extends StatelessWidget {
   const CustomContainer({
@@ -4391,18 +6923,276 @@ Widget _infoItem(String title, String value, Color? color) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(title, style: TextStyle(fontSize: 12, color: Ucolors.darkgrey)),
-      const SizedBox(height: 4),
+      Text(
+        title,
+        style: TextStyle(
+          fontFamily: FontFamily.medium,
+          fontSize: 12,
+          color: Ucolors.darkgrey,
+        ),
+      ),
+      const SizedBox(height: 8),
       Text(
         value,
         style: TextStyle(
-          fontSize: 15,
+          fontFamily: FontFamily.medium,
+          fontSize: 12,
           fontWeight: FontWeight.w500,
           color: color,
         ),
       ),
     ],
   );
+}
+
+class DesktopSideTabs extends StatelessWidget {
+  final int selectedIndex;
+  final ValueChanged<int> onTap;
+
+  const DesktopSideTabs({
+    super.key,
+    required this.selectedIndex,
+    required this.onTap,
+  });
+
+  static final ScrollController _scrollController = ScrollController();
+
+  final List<String> tabs = const [
+    'Overview',
+    'Returns',
+    'Risk',
+    'Portfolio',
+    'Information',
+  ];
+
+  void _scrollToActiveTab() {
+    if (_scrollController.hasClients) {
+      final offset = selectedIndex * 72.0;
+
+      _scrollController.animateTo(
+        offset.clamp(0.0, _scrollController.position.maxScrollExtent),
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToActiveTab());
+
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.12,
+      decoration: BoxDecoration(
+        color: Ucolors.light,
+        border: Border(right: BorderSide(color: Colors.grey.shade200)),
+      ),
+      child: Column(
+        children: [
+          Container(
+            height: 50,
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Text(
+              'Fund Sections',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ),
+
+          Expanded(
+            child: ListView.separated(
+              controller: _scrollController,
+              padding: const EdgeInsets.all(16),
+              itemCount: tabs.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (context, index) {
+                final bool isSelected = selectedIndex == index;
+
+                return InkWell(
+                  borderRadius: BorderRadius.circular(14),
+                  onTap: () => onTap(index),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 220),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? Ucolors.primary.withValues(alpha: .08)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: isSelected
+                            ? Ucolors.primary
+                            : Colors.grey.shade200,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          height: 10,
+                          width: 10,
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? Ucolors.primary
+                                : Colors.grey.shade400,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+
+                        const SizedBox(width: 14),
+
+                        Expanded(
+                          child: Text(
+                            tabs[index],
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              fontSize: 14,
+                              fontWeight: isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              color: isSelected
+                                  ? Ucolors.primary
+                                  : Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class WebSliverPageTabs extends SliverPersistentHeaderDelegate {
+  final int selectedIndex;
+  final ValueChanged<int> onTap;
+
+  static final ScrollController _scrollController = ScrollController();
+
+  WebSliverPageTabs({required this.selectedIndex, required this.onTap});
+
+  final tabs = const [
+    'Overview',
+    'Returns',
+    'Risk',
+    'Portfolio',
+    'Information',
+  ];
+
+  void _scrollToActiveTab() {
+    if (_scrollController.hasClients) {
+      double offset = selectedIndex * 120.0;
+
+      double target = offset.clamp(
+        0.0,
+        _scrollController.position.maxScrollExtent,
+      );
+
+      _scrollController.animateTo(
+        target,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  @override
+  bool shouldRebuild(covariant WebSliverPageTabs oldDelegate) {
+    return oldDelegate.selectedIndex != selectedIndex;
+  }
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToActiveTab());
+
+    final isDesktop = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+
+    final width = MediaQuery.of(context).size.width;
+
+    final bool isMobile = width < 700;
+    final bool isTablet = width >= 700 && width < 1100;
+
+    final double horizontalMargin = isMobile
+        ? 12
+        : isTablet
+        ? 40
+        : width * 0.12;
+
+    return Material(
+      color: Ucolors.light,
+      elevation: overlapsContent ? 2 : 0,
+      child: Container(
+        height: 80,
+        width: Get.width,
+        margin: EdgeInsets.symmetric(horizontal: horizontalMargin, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(20),
+        ),
+
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(tabs.length, (index) {
+            final isSelected = index == selectedIndex;
+
+            return Expanded(
+              child: GestureDetector(
+                onTap: () => onTap(index),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+
+                  decoration: BoxDecoration(
+                    color: isSelected ? Colors.white : Colors.transparent,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    tabs[index],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: isDesktop ? 14 : 12,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                      color: isSelected
+                          ? Ucolors.primary
+                          : Colors.grey.shade700,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+
+  @override
+  double get maxExtent => 50;
+
+  @override
+  double get minExtent => 50;
 }
 
 class SliverPageTabs extends SliverPersistentHeaderDelegate {
@@ -4449,50 +7239,67 @@ class SliverPageTabs extends SliverPersistentHeaderDelegate {
   ) {
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToActiveTab());
 
-    return Container(
-      // ---------------------------------------------------------
-      // 👇 FIX: Give it a fixed height so the ListView doesn't crash
-      // ---------------------------------------------------------
-      height: 50,
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(25),
-      ),
-      margin: const EdgeInsets.symmetric(horizontal: 10),
-      child: ListView.separated(
-        controller: _scrollController,
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        itemCount: tabs.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (context, index) {
-          final isSelected = index == selectedIndex;
+    return Material(
+      color: Ucolors.light,
+      elevation: overlapsContent ? 2 : 0,
+      child: Container(
+        height: 50,
+        color: Colors.transparent,
 
-          return GestureDetector(
-            onTap: () => onTap(index),
-            child: Center(
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: isSelected ? Colors.white : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  tabs[index],
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected ? Ucolors.primary : Colors.grey.shade700,
+        padding: const EdgeInsets.symmetric(
+          vertical: 4,
+        ), // Outer spacing from screen edges
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 8,
+          ), // Outer spacing from screen edges
+          margin: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: ListView.separated(
+            controller: _scrollController,
+            scrollDirection: Axis.horizontal,
+
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            itemCount: tabs.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 4),
+            itemBuilder: (context, index) {
+              final isSelected = index == selectedIndex;
+
+              return GestureDetector(
+                onTap: () => onTap(index),
+                child: Center(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.white : Colors.transparent,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      tabs[index],
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        fontSize: 12,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w500,
+                        color: isSelected
+                            ? Ucolors.primary
+                            : Colors.grey.shade700,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          );
-        },
+              );
+            },
+          ),
+        ),
       ),
     );
   }
@@ -4505,7 +7312,14 @@ class SliverPageTabs extends SliverPersistentHeaderDelegate {
 }
 
 Widget _dot() {
-  return const Text('•', style: TextStyle(fontSize: 12, color: Colors.grey));
+  return const Text(
+    '•',
+    style: TextStyle(
+      fontFamily: FontFamily.medium,
+      fontSize: 12,
+      color: Colors.grey,
+    ),
+  );
 }
 
 Widget _metaText(
@@ -4515,6 +7329,326 @@ Widget _metaText(
 }) {
   return Text(
     text,
-    style: TextStyle(fontSize: 12, color: color, fontWeight: fontWeight),
+    style: TextStyle(
+      fontFamily: FontFamily.medium,
+      fontSize: 10,
+      color: color,
+      fontWeight: fontWeight,
+    ),
   );
+}
+
+class AnimatedPortfolioAllocation extends StatefulWidget {
+  final dynamic entity;
+  final bool isLoading;
+  final ScrollController scrollController;
+
+  const AnimatedPortfolioAllocation({
+    super.key,
+    required this.entity,
+    required this.isLoading,
+    required this.scrollController,
+  });
+
+  @override
+  State<AnimatedPortfolioAllocation> createState() =>
+      _AnimatedPortfolioAllocationState();
+}
+
+class _AnimatedPortfolioAllocationState
+    extends State<AnimatedPortfolioAllocation> {
+  final GlobalKey _chartKey = GlobalKey();
+  bool _hasAnimated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Scroll listener attach karna
+    widget.scrollController.addListener(_checkVisibility);
+  }
+
+  @override
+  void dispose() {
+    widget.scrollController.removeListener(_checkVisibility);
+    super.dispose();
+  }
+
+  void _checkVisibility() {
+    if (_hasAnimated) return;
+
+    // Widget ki screen position check karna
+    final RenderObject? renderObject = _chartKey.currentContext
+        ?.findRenderObject();
+    if (renderObject is RenderBox) {
+      final position = renderObject.localToGlobal(Offset.zero);
+      final screenHeight = MediaQuery.of(context).size.height;
+
+      if (position.dy < screenHeight - 100) {
+        setState(() {
+          _hasAnimated = true;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.isLoading) {
+      return const SizedBox(
+        height: 250,
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // --- Data Extraction Logic ---
+    final assetMap = widget.entity?.assetAllocation ?? {};
+    final assetList =
+        assetMap.entries.where((e) => (e.value as num) > 0).toList()
+          ..sort((a, b) => (b.value as num).compareTo(a.value as num));
+
+    final mcap = widget.entity?.mcapAllocation;
+    final mcapList = [
+      if ((mcap?.marketCapLargecapPercent ?? 0) > 0)
+        MapEntry('Large Cap', mcap!.marketCapLargecapPercent),
+      if ((mcap?.marketCapMidcapPercent ?? 0) > 0)
+        MapEntry('Mid Cap', mcap!.marketCapMidcapPercent),
+      if ((mcap?.marketCapSmallcapPercent ?? 0) > 0)
+        MapEntry('Small Cap', mcap!.marketCapSmallcapPercent),
+    ];
+
+    return DefaultTabController(
+      length: 2,
+      child: Column(
+        key: _chartKey,
+        children: [
+          const Gap(8),
+          _buildTabBarUI(),
+          const Gap(4),
+          Divider(color: Colors.grey.shade200),
+          SizedBox(
+            height: 330,
+            child: TabBarView(
+              children: [
+                _buildAllocationTab(_hasAnimated ? assetList : [], "Assets"),
+                _buildAllocationTab(
+                  _hasAnimated ? mcapList : [],
+                  "Market\nCap",
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAllocationTab(
+    List<MapEntry<String, dynamic>> data,
+    String centerText,
+  ) {
+    if (!_hasAnimated) {
+      return const SizedBox(
+        height: 300,
+        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      );
+    }
+
+    if (data.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Iconsax.ghost, size: 40, color: Colors.grey.shade400),
+            const Gap(10),
+            const Text(
+              "No data available",
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Chart ke colors ki list
+    final List<Color> colors = [
+      const Color(0xff0280C0),
+      Colors.indigo.shade600,
+      Colors.greenAccent.shade700,
+      Colors.orangeAccent,
+      Colors.purpleAccent,
+      Colors.teal,
+    ];
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(top: 20, bottom: 10),
+      physics: const NeverScrollableScrollPhysics(),
+      child: Column(
+        children: [
+          // --- PIE CHART WITH STACK ---
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                height: 200,
+                width: 200,
+                child: PieChart(
+                  key: ValueKey(data.length + (_hasAnimated ? 1 : 0)),
+
+                  duration: const Duration(
+                    milliseconds: 1200,
+                  ), // Animation speed
+                  curve: Curves.easeInOutBack, // Smooth bounce effect
+
+                  PieChartData(
+                    centerSpaceRadius: 50,
+                    sectionsSpace: 2,
+                    centerSpaceColor: Colors.white,
+                    sections: List.generate(data.length, (index) {
+                      final value = (data[index].value as num).toDouble();
+                      return PieChartSectionData(
+                        showTitle: false,
+                        value: value,
+                        color: colors[index % colors.length],
+                        radius: 40,
+                      );
+                    }),
+                  ),
+                ),
+              ),
+              // Center Text
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    centerText,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          const Gap(24),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: List.generate(data.length, (index) {
+                final String title = data[index].key;
+                final String percentage =
+                    '${(data[index].value as num).toStringAsFixed(2)}%';
+                final Color color = colors[index % colors.length];
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: color,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const Gap(10),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 12,
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Text(
+                        percentage,
+                        style: const TextStyle(
+                          fontFamily: FontFamily.medium,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabBarUI() {
+    return Container(
+      height: 35,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: TabBar(
+        indicator: BoxDecoration(
+          color: const Color(0xff0280C0),
+          borderRadius: BorderRadius.circular(25),
+        ),
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.grey.shade600,
+        labelStyle: const TextStyle(
+          fontFamily: FontFamily.medium,
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+        dividerColor: Colors.transparent,
+        indicatorSize: TabBarIndicatorSize.tab,
+        tabs: const [
+          Tab(text: "Asset Allocation"),
+          Tab(text: "Market Cap"),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegendRow(String title, String value, Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Row(
+        children: [
+          Container(
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const Gap(8),
+          Text(
+            title,
+            style: const TextStyle(fontFamily: FontFamily.medium, fontSize: 12),
+          ),
+          const Spacer(),
+          Text(
+            value,
+            style: const TextStyle(
+              fontFamily: FontFamily.medium,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

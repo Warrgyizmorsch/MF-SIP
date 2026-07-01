@@ -254,7 +254,7 @@ class KycRemoteDataSource {
         return Right(
           ApiError(
             message:
-                'executePennyDrop Failed: Invalid response structure ${resp}',
+                'executePennyDrop Failed: Invalid response structure $resp',
           ),
         );
       }
@@ -577,7 +577,11 @@ class KycRemoteDataSource {
         data: {"onboardingId": onboardingId},
         headers: {
           'Authorization':
-              'KRez5eYAnjnakPeuGiaBxbVjCyaosEBxBFMoGVYwQXFIsFngc4N3MQbxlyNCcCwB',
+              sessionManager.getTokenData?.id ??
+              sessionManager.tokenDataModel.value?.id ??
+              '',
+          // 'Authorization':
+          //     'XSUsWE1fTdUIx1ypg6i9A7A5CNu9rT0PGjfARQWH6OwmUlrFVpOXdNTUNVvAGy4R',
         },
       );
 

@@ -93,6 +93,7 @@ class LoginPage extends GetView<AuthController> {
                                     ),
                                     SizedBox(height: 20),
                                   ],
+                                  SizedBox(height: 20),
                                   Obx(
                                     () => CustomTextField(
                                       minLength: 10,
@@ -184,13 +185,14 @@ class LoginPage extends GetView<AuthController> {
                                     firstPart: 'Dont have an account? ',
                                     textButton: 'Create Account',
                                     voidCallback: () {
-                                        // Get.toNamed(
-                                        //   AppRoutes.registerAccountScreen,
-                                        // ),
-                                        controller.resetAuthForms(); 
-                                        Get.offNamed(
-                                          AppRoutes.registerAccountScreen,
-                                        );}
+                                      // Get.toNamed(
+                                      //   AppRoutes.registerAccountScreen,
+                                      // ),
+                                      controller.resetAuthForms();
+                                      Get.offNamed(
+                                        AppRoutes.registerAccountScreen,
+                                      );
+                                    },
                                   ),
                                   SizedBox(height: Get.height * 0.02),
                                   TermAndPolicy(),

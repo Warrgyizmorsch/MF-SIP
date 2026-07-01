@@ -220,7 +220,7 @@
 //           border: Border.all(color: Colors.grey.shade200),
 //           boxShadow: [
 //             BoxShadow(
-//               color: Colors.black.withOpacity(0.02),
+//               color: Colors.black.withValues(alpha:0.02),
 //               blurRadius: 8,
 //               offset: const Offset(0, 2),
 //             ),
@@ -249,7 +249,7 @@
 //                             children: [
 //                               Text(
 //                                 title,
-//                                 style: const TextStyle(
+//                                 style: const TextStyle(fontFamily: FontFamily.medium,
 //                                   fontSize: 15,
 //                                   fontWeight: FontWeight.bold,
 //                                   color: Color(0xFF0F172A),
@@ -259,7 +259,7 @@
 //                               const SizedBox(height: 4),
 //                               Text(
 //                                 subtitle,
-//                                 style: TextStyle(
+//                                 style: TextStyle(fontFamily: FontFamily.medium,
 //                                   fontSize: 12,
 //                                   color: Colors.grey.shade500,
 //                                 ),
@@ -298,7 +298,7 @@
 //                                 children: [
 //                                   Text(
 //                                     'LAUNCH',
-//                                     style: TextStyle(
+//                                     style: TextStyle(fontFamily: FontFamily.medium,
 //                                       fontSize: 10,
 //                                       fontWeight: FontWeight.w600,
 //                                       color: Colors.grey.shade400,
@@ -307,7 +307,7 @@
 //                                   ),
 //                                   Text(
 //                                     launchDate,
-//                                     style: const TextStyle(
+//                                     style: const TextStyle(fontFamily: FontFamily.medium,
 //                                       fontSize: 14,
 //                                       fontWeight: FontWeight.bold,
 //                                       color: Color(0xFF334155),
@@ -334,7 +334,7 @@
 //                                 children: [
 //                                   Text(
 //                                     'CLOSING',
-//                                     style: TextStyle(
+//                                     style: TextStyle(fontFamily: FontFamily.medium,
 //                                       fontSize: 10,
 //                                       fontWeight: FontWeight.w600,
 //                                       color: Colors.grey.shade400,
@@ -343,7 +343,7 @@
 //                                   ),
 //                                   Text(
 //                                     closingDate,
-//                                     style: const TextStyle(
+//                                     style: const TextStyle(fontFamily: FontFamily.medium,
 //                                       fontSize: 14,
 //                                       fontWeight: FontWeight.bold,
 //                                       color: Color(0xFF334155), // slate-700
@@ -367,7 +367,7 @@
 //                   //   child: ElevatedButton(
 //                   //     onPressed: onInvestTap,
 //                   //     style: ElevatedButton.styleFrom(
-//                   //       backgroundColor: primaryColor.withOpacity(0.1),
+//                   //       backgroundColor: primaryColor.withValues(alpha:0.1),
 //                   //       foregroundColor: primaryColor,
 //                   //       elevation: 0,
 //                   //       shape: RoundedRectangleBorder(
@@ -376,7 +376,7 @@
 //                   //     ),
 //                   //     child: const Text(
 //                   //       'Invest Now',
-//                   //       style: TextStyle(
+//                   //       style: TextStyle(fontFamily: FontFamily.medium,
 //                   //         fontWeight: FontWeight.bold,
 //                   //         fontSize: 14,
 //                   //       ),
@@ -415,7 +415,7 @@
 //                 ),
 //                 child: Text(
 //                   tagText.toUpperCase(),
-//                   style: TextStyle(
+//                   style: TextStyle(fontFamily: FontFamily.medium,
 //                     color: tagColor,
 //                     fontSize: 10,
 //                     fontWeight: FontWeight.bold,
@@ -430,7 +430,8 @@
 //     );
 //   }
 // }
-import 'dart:developer';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/animated/empty_filled.dart';
@@ -442,6 +443,7 @@ import 'package:my_sip/core/utils/constant/appUrl.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
 import 'package:my_sip/features/nfo/presentation/controller/nfo_controller.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 
 class NfoListPage extends GetView<NfoController> {
   const NfoListPage({super.key});
@@ -453,9 +455,17 @@ class NfoListPage extends GetView<NfoController> {
     return Scaffold(
       backgroundColor: isDesktop ? Colors.transparent : Colors.grey.shade50,
 
-      appBar: isDesktop
-          ? null
-          : CustomAppBarNormal(title: 'NFO', backgroundColor: Colors.white),
+      appBar: CustomAppBarNormal(
+        title: 'NFO List',
+        backgroundColor: Colors.white,
+        onpressed: () {
+          if (kIsWeb && Get.isRegistered<NavigationBarController>()) {
+            Get.find<NavigationBarController>().backNested();
+          } else {
+            Get.back();
+          }
+        },
+      ),
 
       body: SafeArea(
         child: isDesktop
@@ -466,44 +476,43 @@ class NfoListPage extends GetView<NfoController> {
   }
 
   Widget _buildWebLayout(BuildContext context) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 900),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
             ),
-            padding: const EdgeInsets.all(40),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // --- Web Header ---
-                Text(
-                  "New Fund Offerings (NFO)",
-                  style: AppTextStyles.h2(color: Colors.black87),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  "Invest early in the latest mutual fund schemes.",
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
-                ),
-                const SizedBox(height: 32),
+          ],
+        ),
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // --- Web Header ---
+            Text(
+              "New Fund Offerings (NFO)",
+              style: AppTextStyles.h2(color: Colors.black87),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Invest early in the latest mutual fund schemes.",
+              style: TextStyle(
+                fontFamily: FontFamily.medium,
+                color: Colors.grey.shade600,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 32),
 
-                // --- Content List ---
-                _buildNfoContent(isWeb: true),
-              ],
-            ),
-          ),
+            // --- Content List ---
+            _buildNfoContent(isWeb: true),
+          ],
         ),
       ),
     );
@@ -646,7 +655,7 @@ class NfoCard extends StatelessWidget {
           border: Border.all(color: Colors.grey.shade200),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -678,6 +687,7 @@ class NfoCard extends StatelessWidget {
                               Text(
                                 title,
                                 style: const TextStyle(
+                                  fontFamily: FontFamily.medium,
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF0F172A),
@@ -688,6 +698,7 @@ class NfoCard extends StatelessWidget {
                               Text(
                                 subtitle,
                                 style: TextStyle(
+                                  fontFamily: FontFamily.medium,
                                   fontSize: 12,
                                   color: Colors.grey.shade500,
                                 ),
@@ -726,6 +737,7 @@ class NfoCard extends StatelessWidget {
                                   Text(
                                     'LAUNCH',
                                     style: TextStyle(
+                                      fontFamily: FontFamily.medium,
                                       fontSize: 10,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.grey.shade400,
@@ -735,6 +747,7 @@ class NfoCard extends StatelessWidget {
                                   Text(
                                     launchDate,
                                     style: const TextStyle(
+                                      fontFamily: FontFamily.medium,
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                       color: Color(0xFF334155),
@@ -761,6 +774,7 @@ class NfoCard extends StatelessWidget {
                                   Text(
                                     'CLOSING',
                                     style: TextStyle(
+                                      fontFamily: FontFamily.medium,
                                       fontSize: 10,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.grey.shade400,
@@ -770,6 +784,7 @@ class NfoCard extends StatelessWidget {
                                   Text(
                                     closingDate,
                                     style: const TextStyle(
+                                      fontFamily: FontFamily.medium,
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                       color: Color(0xFF334155),
@@ -805,6 +820,7 @@ class NfoCard extends StatelessWidget {
                 child: Text(
                   tagText.toUpperCase(),
                   style: TextStyle(
+                    fontFamily: FontFamily.medium,
                     color: tagColor,
                     fontSize: 10,
                     fontWeight: FontWeight.bold,

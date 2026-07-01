@@ -52,12 +52,15 @@
 //   }
 // }
 
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
+import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
+import 'package:my_sip/services/no_internet_widget.dart';
 import 'package:my_sip/services/session_manager.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'config/routes/app_pages.dart';
@@ -170,75 +173,85 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           initialBinding: UBinding(),
           getPages: AppPages.pages(),
           initialRoute: AppRoutes.splash,
+          routingCallback: (routing) {
+            if (routing?.current == AppRoutes.navMenuBar &&
+                routing?.isBack == true) {
+              if (Get.isRegistered<MutualFundController>()) {
+                Get.find<MutualFundController>().nextPopularGroup();
+              }
+            }
+          },
           builder: (context, widget) {
-            return MediaQuery(
-              data: MediaQuery.of(
-                context,
-              ).copyWith(textScaler: TextScaler.noScaling),
-              child: ResponsiveBreakpoints.builder(
-                child: Obx(
-                  () => Stack(
-                    children: [
-                      // This is your background app
-                      widget!,
-
-                      // The system UI pop-up will appear over this blank screen
-                      // if (!_hasUnlockedThisSession)
-                      if (session.isAppLockEnabled.value &&
-                          !_hasUnlockedThisSession)
-                        Material(
-                          color: Colors.transparent,
-                          child: Container(
-                            color: Colors.white,
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Image.asset(
-                                    UImages.imp,
-                                    alignment: Alignment.center,
-                                    height: 100,
-                                    width: 100,
+            final mediaQueryData = MediaQuery.of(context);
+            return NoInternetWidget(
+              child: MediaQuery(
+                data: mediaQueryData.copyWith(textScaler: TextScaler.noScaling),
+                child: ResponsiveBreakpoints.builder(
+                  child: Obx(
+                    () => SafeArea(
+                      top: false,
+                      child: Stack(
+                        children: [
+                          // This is your background app
+                          widget!,
+              
+                          // The system UI pop-up will appear over this blank screen
+                          // if (!_hasUnlockedThisSession)
+                          if (session.isAppLockEnabled.value &&
+                              !_hasUnlockedThisSession)
+                            Material(
+                              color: Colors.transparent,
+                              child: Container(
+                                color: Colors.white,
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                        UImages.imp,
+                                        alignment: Alignment.center,
+                                        height: 100,
+                                        width: 100,
+                                      ),
+                                      const SizedBox(height: 20),
+                                      const Text(
+                                        "MF SIP Secured",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 30),
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Ucolors.blue,
+                                        ),
+                                        onPressed: _authenticate,
+                                        child: const Text(
+                                          "Unlock with Biometrics",
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 20),
-                                  const Text(
-                                    "MF SIP Secured",
-                                    style: TextStyle(
-                                      fontFamily: 'Geist',
-
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 30),
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Ucolors.blue,
-                                    ),
-                                    onPressed: _authenticate,
-                                    child: const Text(
-                                      "Unlock with Biometrics",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                    ],
+                        ],
+                      ),
+                    ),
                   ),
+                  breakpoints: [
+                    const Breakpoint(start: 0, end: 450, name: MOBILE),
+                    const Breakpoint(start: 451, end: 800, name: TABLET),
+                    const Breakpoint(start: 801, end: 1920, name: DESKTOP),
+                    const Breakpoint(
+                      start: 1921,
+                      end: double.infinity,
+                      name: '4K',
+                    ),
+                  ],
                 ),
-                breakpoints: [
-                  const Breakpoint(start: 0, end: 450, name: MOBILE),
-                  const Breakpoint(start: 451, end: 800, name: TABLET),
-                  const Breakpoint(start: 801, end: 1920, name: DESKTOP),
-                  const Breakpoint(
-                    start: 1921,
-                    end: double.infinity,
-                    name: '4K',
-                  ),
-                ],
               ),
             );
           },

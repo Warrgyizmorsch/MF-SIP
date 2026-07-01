@@ -1,19 +1,15 @@
 import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
-import 'package:my_sip/core/utils/helper/helpers.dart';
-import 'package:my_sip/features/authentication/data/models/auth_model.dart';
 import 'package:my_sip/features/onboarding/presentation/pages/welcome_page.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/images.dart';
-import 'package:my_sip/navigation_menu_bar.dart';
 import 'package:my_sip/services/session_manager.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../../core/utils/constant/text_style.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -68,7 +64,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (loggedIn) {
       // User is logged in -> Go Home
-      Get.offAllNamed(AppRoutes.navMenuBar);
+      // Get.offAllNamed(AppRoutes.navMenuBar);
+      Get.offAllNamed(kIsWeb ? AppRoutes.home : AppRoutes.navMenuBar);
     } else {
       // User is NOT logged in
       if (kIsWeb) {
@@ -164,6 +161,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     TextSpan(
                       text: 'MF SIP by ',
                       style: TextStyle(
+                        fontFamily: FontFamily.medium,
                         color: Ucolors.blue,
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -171,7 +169,11 @@ class _SplashScreenState extends State<SplashScreen> {
                     ),
                     TextSpan(
                       text: 'Ridit Finworld',
-                      style: TextStyle(color: Ucolors.primary, fontSize: 18),
+                      style: TextStyle(
+                        fontFamily: FontFamily.medium,
+                        color: Ucolors.primary,
+                        fontSize: 18,
+                      ),
                     ),
                   ],
                 ),

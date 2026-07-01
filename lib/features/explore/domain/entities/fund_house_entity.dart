@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_null_aware_operator
+
 import 'package:equatable/equatable.dart';
 import 'package:my_sip/features/explore/data/model/fund_house_model.dart';
 

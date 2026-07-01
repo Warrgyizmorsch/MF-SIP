@@ -2,7 +2,11 @@ import 'package:dartz/dartz.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
+import 'package:my_sip/features/personalization/domain/entity/account_statement_entity.dart';
+import 'package:my_sip/features/personalization/domain/entity/add_bank_response_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/bank_entity.dart';
+import 'package:my_sip/features/personalization/domain/entity/capital_gs_entity.dart';
+import 'package:my_sip/features/personalization/domain/entity/delete_bank_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/nominee_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/profile_update_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/risk_question_entity.dart';
@@ -195,6 +199,113 @@ class PersonalisationRepositoryImpl extends PersonalisationRepository {
       return Right(
         ApiError(message: 'Profile Update Failed with Exception $e'),
       );
+    }
+  }
+
+  @override
+  Future<Either<Result<CapitalGainStatementEntity>, ApiError>>
+  requestCapitalGainStatement({
+    required int uid,
+    required String type,
+    String? email,
+    required String folioNo,
+    required String startDate,
+    required String endDate,
+  }) async {
+    try {
+      final response = await _remoteDataSource.requestCapitalGainStatement(
+        uid: uid,
+        type: type,
+        email: email,
+        folioNo: folioNo,
+        startDate: startDate,
+        endDate: endDate,
+      );
+
+      return response.fold(
+        (successResult) => Left(Result.success(successResult.data!.toEntity())),
+        (error) => Right(error),
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Result<AccountStatementEntity>, ApiError>>
+  requestAccountStatement({
+    required int uid,
+    required String type,
+    String? email,
+    required String folioNo,
+    required String startDate,
+    required String endDate,
+  }) async {
+    try {
+      final response = await _remoteDataSource.requestAccountStatement(
+        uid: uid,
+        type: type,
+        email: email,
+        folioNo: folioNo,
+        startDate: startDate,
+        endDate: endDate,
+      );
+
+      return response.fold(
+        (successResult) => Left(Result.success(successResult.data!.toEntity())),
+        (error) => Right(error),
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Result<AddBankResponseEntity>, ApiError>> addBankAccount({
+    required int uid,
+    required String accountHolderName,
+    required String accountNumber,
+    required String ifscCode,
+    required String micrCode,
+    required String accountType,
+    required String bankName,
+  }) async {
+    try {
+      final response = await _remoteDataSource.addBankAccount(
+        uid: uid,
+        accountHolderName: accountHolderName,
+        accountNumber: accountNumber,
+        ifscCode: ifscCode,
+        micrCode: micrCode,
+        accountType: accountType,
+        bankName: bankName,
+      );
+
+      return response.fold(
+        (successResult) => Left(Result.success(successResult.data!.toEntity())),
+        (error) => Right(error),
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Result<DeleteBankEntity>, ApiError>> deleteBank({
+    required int uid,
+    required int bankId,
+  }) async {
+    try {
+      final response = await _remoteDataSource.deleteBank(
+        uid: uid,
+        bankId: bankId,
+      );
+      return response.fold(
+        (successResult) => Left(Result.success(successResult.data!.toEntity())),
+        (error) => Right(error),
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
     }
   }
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable
+
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -148,8 +150,170 @@ class ComparisonScreen extends StatelessWidget {
   }
 }
 
+class FundBottomBarButton extends StatelessWidget {
+  const FundBottomBarButton({
+    super.key,
+    required this.firstButton,
+    required this.secondButton,
+    this.firstButtonP,
+    this.secondButtonP,
+    this.isLoading = false,
+  });
+
+  final String firstButton;
+  final String secondButton;
+  final VoidCallback? firstButtonP;
+  final VoidCallback? secondButtonP;
+  final bool isLoading;
+
+  @override
+  Widget build(BuildContext context) {
+    // Better way to handle Safe Area: Use a Container with a bottom-only padding
+    // derived from MediaQuery, or wrap in a SafeArea widget.
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        16,
+        12,
+        16,
+        bottomPadding > 0 ? bottomPadding : 16,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            offset: const Offset(0, -4),
+            blurRadius: 10,
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Secondary Button (Outlined)
+          Expanded(
+            flex: 2,
+            child: UElevatedButton2(
+              onPressed: isLoading ? null : firstButtonP,
+              outlined: true,
+              width: double.infinity,
+              // height: 50, // Standardize height for both
+              child: Icon(Icons.shopping_cart_outlined),
+              // child: Text(
+              //   firstButton,
+              //   style: const TextStyle(fontFamily: FontFamily.medium,
+              //     color: Colors.black87,
+              //     fontWeight: FontWeight.w600,
+              //     fontSize: 14,
+              //   ),
+              // ),
+            ),
+          ),
+
+          const SizedBox(width: 12), // Tighter spacing for a cleaner look
+          // Primary Button (Gradient/Solid)
+          Expanded(
+            flex: 8,
+            child: UElevatedButton2(
+              color: Ucolors.primary,
+              onPressed: isLoading ? null : secondButtonP,
+              // height: 50,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2.5,
+                        ),
+                      )
+                    : Text(
+                        secondButton,
+                        key: const ValueKey('btn_text'),
+                        style: const TextStyle(
+                          fontFamily: FontFamily.medium,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                      ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class BottomBarButton extends StatelessWidget {
   const BottomBarButton({
+    super.key,
+    required this.firstButton,
+    required this.secondButton,
+    this.firstButtonP,
+    this.secondButtonP,
+    this.isLoading = false, // <--- Add this
+  });
+
+  final String firstButton;
+  final String secondButton;
+  final VoidCallback? firstButtonP;
+  final VoidCallback? secondButtonP;
+  final bool isLoading; // <--- Add this for
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewPadding.bottom;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+      child: Row(
+        children: [
+          Expanded(
+            child: UElevatedBUtton(
+              onPressed: isLoading ? null : firstButtonP, // Disable if loading
+              // height: 52,
+              outlined: true,
+              child: Center(
+                child: Text(
+                  firstButton,
+                  style: TextStyle(
+                    fontFamily: FontFamily.medium,
+                    color: Ucolors.dark,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: UElevatedBUtton(
+              onPressed: isLoading ? null : secondButtonP, // Disable if loading
+              // height: 52,
+              child: isLoading
+                  ? Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : Center(
+                      child: Text(secondButton, style: UTextStyles.buttonText),
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class BottomBarButtonGoalDetails extends StatelessWidget {
+  const BottomBarButtonGoalDetails({
     super.key,
     required this.firstButton,
     required this.secondButton,
@@ -169,16 +333,16 @@ class BottomBarButton extends StatelessWidget {
     final bottomInset = MediaQuery.of(context).viewPadding.bottom;
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+      padding: EdgeInsets.fromLTRB(16, 0, 16, 4),
       child: Row(
         children: [
           Expanded(
             child: UElevatedBUtton(
               onPressed: isLoading ? null : firstButtonP, // Disable if loading
-              height: 52,
-              outlined: true,
+              // height: 52,
+              // outlined: true,
               child: Center(
-                child: Text(firstButton, style: TextStyle(color: Ucolors.dark)),
+                child: Text(firstButton, style: UTextStyles.buttonText),
               ),
             ),
           ),
@@ -186,7 +350,7 @@ class BottomBarButton extends StatelessWidget {
           Expanded(
             child: UElevatedBUtton(
               onPressed: isLoading ? null : secondButtonP, // Disable if loading
-              height: 52,
+              // height: 52,
               child: isLoading
                   ? const SizedBox(
                       height: 10,
@@ -217,16 +381,16 @@ class BottomBarButton extends StatelessWidget {
 //     this.firstButtonP,
 //     this.secondButtonP,
 //   });
-
+//
 //   final String firstButton;
 //   final String secondButton;
 //   final VoidCallback? firstButtonP;
 //   final VoidCallback? secondButtonP;
-
+//
 //   @override
 //   Widget build(BuildContext context) {
 //     final bottomInset = MediaQuery.of(context).viewPadding.bottom;
-
+//
 //     return Padding(
 //       padding: EdgeInsets.fromLTRB(
 //         16,
@@ -245,19 +409,19 @@ class BottomBarButton extends StatelessWidget {
 //               child: Row(
 //                 mainAxisAlignment: MainAxisAlignment.center,
 //                 children: [
-//                   Text(firstButton, style: TextStyle(color: Ucolors.dark)),
+//                   Text(firstButton, style: TextStyle(fontFamily: FontFamily.medium,color: Ucolors.dark)),
 //                 ],
 //               ),
 //             ),
 //           ),
 //           SizedBox(width: 16),
-
+//
 //           Expanded(
 //             child: UElevatedBUtton(
 //               onPressed: secondButtonP,
-
+//
 //               height: 52,
-
+//
 //               child: Row(
 //                 mainAxisAlignment: MainAxisAlignment.center,
 //                 children: [Text(secondButton, style: UTextStyles.buttonText)],
