@@ -21,6 +21,7 @@ import 'package:my_sip/features/personalization/domain/entity/bank_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/nominee_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/risk_question_entity.dart';
 import 'package:my_sip/features/personalization/domain/usecases/personalisation_use_cases.dart';
+import 'package:my_sip/navigation_menu_bar.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 import 'dart:async';
@@ -1098,7 +1099,11 @@ class PersonalisationController extends GetxController {
         curve: Curves.easeInOutCubic,
       );
     } else {
-      Get.back();
+      if (kIsWeb && Get.isRegistered<NavigationBarController>()) {
+        Get.find<NavigationBarController>().backNested();
+      } else {
+        Get.back();
+      }
     }
   }
 
