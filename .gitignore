@@ -120,3 +120,4 @@ app.*.symbols
 .idea/libraries/Flutter_Plugins.xml
 .idea/workspace.xml
 .idea/workspace.xml
+findings.md
