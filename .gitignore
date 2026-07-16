@@ -121,3 +121,7 @@ app.*.symbols
 .idea/workspace.xml
 .idea/workspace.xml
 findings.md
+docs/mfu/MF Utility Fintech Transaction API Specification V2.9.xlsx
+docs/mfu/Scheme Master Data Structure Specifications v2.3.docx
+docs/mfu/UAT-Test-Data.xlsx
+docs/kyc/signzy_doc.pdf
