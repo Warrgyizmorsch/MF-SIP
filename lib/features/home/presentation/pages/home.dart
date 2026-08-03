@@ -2356,7 +2356,6 @@ class _WebDashboardLayout extends StatelessWidget {
     );
   }
 
-
   Widget _emptyMiniState({
     required IconData icon,
     required String title,
@@ -2914,18 +2913,6 @@ class _MobileLayout extends StatelessWidget {
                     onTapAction = () => Get.toNamed(AppRoutes.riskProfile);
                   }
                   // 3. If Nominee is missing (even if KYC is pending)
-                  else if (noNominee) {
-                    bgColor = Ucolors.light;
-                    iconColor = Ucolors.blue;
-                    titleColor = Ucolors.blue;
-                    subTextColor = Colors.grey;
-                    leftIcon = Icons.family_restroom;
-                    customLeftIcon = null;
-                    rightIcon = Icons.arrow_forward_ios;
-                    titleText = 'Add a Nominee';
-                    subText = 'Secure your investments for your family';
-                    onTapAction = () => Get.toNamed(AppRoutes.nomineeDetail);
-                  }
                   // 4. If Bank is missing (even if KYC is pending)
                   else if (noBank) {
                     bgColor = Ucolors.primary;
@@ -2938,6 +2925,17 @@ class _MobileLayout extends StatelessWidget {
                     titleText = 'Add Bank Account';
                     subText = 'Link your bank for fast transactions';
                     onTapAction = () => Get.toNamed(AppRoutes.addanotherbank);
+                  } else if (noNominee) {
+                    bgColor = Ucolors.light;
+                    iconColor = Ucolors.blue;
+                    titleColor = Ucolors.blue;
+                    subTextColor = Colors.grey;
+                    leftIcon = Icons.family_restroom;
+                    customLeftIcon = null;
+                    rightIcon = Icons.arrow_forward_ios;
+                    titleText = 'Add a Nominee';
+                    subText = 'Secure your investments for your family';
+                    onTapAction = () => Get.toNamed(AppRoutes.nomineeDetail);
                   }
                   // 5. If everything else is done, but KYC is STILL pending!
                   else if (isPending && !isVerified) {

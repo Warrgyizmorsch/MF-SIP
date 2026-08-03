@@ -37,7 +37,7 @@ class MfuRemoteDataSource {
       createLog("[MfuRemoteDataSource] canRegister Request: $body");
 
       final resp = await _apiService.postApi(
-        "${Appurl.baseUrl}/api/v1/mfu/can-register",
+        "${Appurl.baseUrl}/api/v1/onboarding/can-setup",
         data: body,
       );
 
@@ -360,34 +360,34 @@ class MfuRemoteDataSource {
 
   // mfu_remote_data_source.dart
 
-Future<Either<Result<MfuCallResponseWrapper>, ApiError>> mfuCall(
-  MfuCallRequestBase request,
-) async {
-  try {
-    final body = request.toRequestBody();
-    createLog("[MfuRemoteDataSource] mfuCall (${request.apiType}) → $body");
+  Future<Either<Result<MfuCallResponseWrapper>, ApiError>> mfuCall(
+    MfuCallRequestBase request,
+  ) async {
+    try {
+      final body = request.toRequestBody();
+      createLog("[MfuRemoteDataSource] mfuCall (${request.apiType}) → $body");
 
-    final resp = await _apiService.postApi(
-      "${Appurl.baseUrl}/api/v1/mfu/call",
-      data: body,
-    );
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/mfu/call",
+        data: body,
+      );
 
-    createLog("[MfuRemoteDataSource] mfuCall Response → $resp");
+      createLog("[MfuRemoteDataSource] mfuCall Response → $resp");
 
-    if (resp != null) {
-      final result = MfuCallResponseWrapper.fromJson(resp);
-      if (result.success == true) {
-        return Left(Result.success(result));
+      if (resp != null) {
+        final result = MfuCallResponseWrapper.fromJson(resp);
+        if (result.success == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(message: 'MFU Call Failed [${request.apiType}]'),
+          );
+        }
       } else {
-        return Right(ApiError(message: 'MFU Call Failed [${request.apiType}]'));
+        return Right(ApiError(message: 'mfuCall: Invalid response structure'));
       }
-    } else {
-      return Right(ApiError(message: 'mfuCall: Invalid response structure'));
+    } catch (e) {
+      return Right(ApiError(message: 'mfuCall Exception: $e'));
     }
-  } catch (e) {
-    return Right(ApiError(message: 'mfuCall Exception: $e'));
   }
-}
-
-  
 }
