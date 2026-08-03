@@ -1354,9 +1354,7 @@ class PersonalisationController extends GetxController {
       wealthSource.text = getWealthSourceName(
         int.tryParse(details.wealthSource ?? ''),
       );
-      log(
-        "${details.wealthSource}   --------------------- Wealth Source ${wealthSource.text}",
-      );
+
       // yearlyIncome.text = details.yearlyIncome?.toString() ?? '';
       yearlyIncome.text = getIncomeSlabName(
         int.tryParse(details.yearlyIncome ?? ''),
@@ -1368,20 +1366,20 @@ class PersonalisationController extends GetxController {
 
       // The UI hint says "City, State, Pincode", so we format it if it's split in the backend
       String fullAddress = details.address ?? '';
-      // if (details.city != null && details.city!.isNotEmpty) {
-      //   fullAddress += ', ${details.city}';
-      // }
-      // if (details.state != null && details.state!.isNotEmpty) {
-      //   fullAddress += ', ${details.state}';
-      // }
-      // if (details.pincode != null && details.pincode!.isNotEmpty) {
-      //   fullAddress += ' - ${details.pincode}';
-      // }
+      if (details.city != null && details.city!.isNotEmpty) {
+        fullAddress += '${details.city}';
+      }
+      if (details.state != null && details.state!.isNotEmpty) {
+        fullAddress += ', ${details.state}';
+      }
+      if (details.pincode != null && details.pincode!.isNotEmpty) {
+        fullAddress += ' - ${details.pincode}';
+      }
 
       // Clean up leading commas if address was initially null
       // if (fullAddress.startsWith(', ')) fullAddress = fullAddress.substring(2);
 
-      addressController.text = fullAddress;
+      addressController.text = details.address ?? fullAddress ?? '';
     }
   }
 
