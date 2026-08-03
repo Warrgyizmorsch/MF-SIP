@@ -2874,8 +2874,22 @@ class _MobileLayout extends StatelessWidget {
                     );
                   }
 
-                  // 1. If KYC hasn't even been started or failed
-                  if (!isVerified && !isPending) {
+                  // 0. If KYC is rejected/failed (has error from CAMS)
+                  if (!isVerified &&
+                      !isPending &&
+                      controller.kycErrorMessage.isNotEmpty) {
+                    bgColor = Colors.red.shade50;
+                    iconColor = Colors.red.shade700;
+                    titleColor = Colors.red.shade900;
+                    subTextColor = Colors.red.shade800;
+                    leftIcon = Icons.error_outline_rounded;
+                    rightIcon = Icons.arrow_forward_ios;
+                    titleText = 'KYC Verification Failed';
+                    subText = controller.kycErrorMessage;
+                    onTapAction = () => Get.toNamed(AppRoutes.kycScreen);
+                  }
+                  // 1. If KYC hasn't even been started or is not verified
+                  else if (!isVerified && !isPending) {
                     bgColor = Ucolors.light;
                     iconColor = Colors.black;
                     titleColor = Ucolors.dark;
@@ -2914,7 +2928,8 @@ class _MobileLayout extends StatelessWidget {
                   }
                   // 3. If Nominee is missing (even if KYC is pending)
                   // 4. If Bank is missing (even if KYC is pending)
-                  else if (noBank) {
+                 
+                   else if (noBank) {
                     bgColor = Ucolors.primary;
                     iconColor = Ucolors.light;
                     titleColor = Ucolors.light;
@@ -2925,7 +2940,8 @@ class _MobileLayout extends StatelessWidget {
                     titleText = 'Add Bank Account';
                     subText = 'Link your bank for fast transactions';
                     onTapAction = () => Get.toNamed(AppRoutes.addanotherbank);
-                  } else if (noNominee) {
+                  }
+                   else if (noNominee) {
                     bgColor = Ucolors.light;
                     iconColor = Ucolors.blue;
                     titleColor = Ucolors.blue;
@@ -2937,8 +2953,7 @@ class _MobileLayout extends StatelessWidget {
                     subText = 'Secure your investments for your family';
                     onTapAction = () => Get.toNamed(AppRoutes.nomineeDetail);
                   }
-                  // 5. If everything else is done, but KYC is STILL pending!
-                  else if (isPending && !isVerified) {
+                   else if (isPending && !isVerified) {
                     bgColor = Colors.orange.shade50;
                     iconColor = Colors.orange.shade700;
                     titleColor = Colors.orange.shade900;
@@ -2953,7 +2968,9 @@ class _MobileLayout extends StatelessWidget {
                       message:
                           "Your KYC is currently under review by CAMS. Please check back shortly.",
                     );
-                  } else if (noCan) {
+                  }
+                  // 5. If everything else is done, but KYC is STILL pending!
+                  else if (noCan) {
                     bgColor = Colors.purple.shade50;
                     iconColor = Colors.purple.shade700;
                     titleColor = Colors.purple.shade900;

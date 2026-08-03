@@ -101,6 +101,7 @@ class PersonalisationController extends GetxController {
   // --- Onboarding Status Flags ---
   final isKycPending = false.obs;
   final isKycVerified = false.obs;
+  String get kycErrorMessage => session.kycError.value;
   final hasRiskProfile = false.obs;
   final hasNominee = false.obs;
   final hasBank = false.obs;

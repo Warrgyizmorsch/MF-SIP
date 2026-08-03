@@ -1,7 +1,4 @@
-// ignore_for_file: unused_local_variable
-
 import 'dart:async';
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
@@ -22,12 +19,11 @@ import 'package:my_sip/features/dashboard/presentation/pages/dashboard.dart';
 import 'package:my_sip/features/explore/presentation/controller/fundhouse_controller.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/explore/presentation/pages/explore.dart';
-import 'package:my_sip/features/explore/presentation/widget/webfilterpage.dart';
 import 'package:my_sip/features/fund_details/presentation/pages/fund_deatails.dart';
 import 'package:my_sip/features/goal/presentation/pages/goal.dart';
 import 'package:my_sip/features/home/presentation/pages/home.dart';
-import 'package:my_sip/features/kyc/data/datasource/kyc_remote_data_source.dart';
 import 'package:my_sip/features/kyc/presentation/controllers/kyc_controller.dart';
+import 'package:my_sip/features/kyc/domain/usecases/check_cams_status_usecase.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/document.dart';
 import 'package:my_sip/features/personalization/presentation/widgets/personal_details.dart';
@@ -132,72 +128,89 @@ class NavigationBarController extends GetxController {
           }
         }
       }
-      final kycDataSource = Get.find<KycRemoteDataSource>();
-      final String status = await kycDataSource.checkCamsStatus(onboardingId);
-      final statusLower = status.toLowerCase();
 
-      //  SUCCESS
-      if (statusLower == "success" || statusLower == "approved") {
-        _camsPollingTimer?.cancel();
-
-        await SessionManager.instance.handleKycApproved();
-
-        // 2. Update UI instantly!
-        if (Get.isRegistered<PersonalisationController>()) {
-          final controller = Get.find<PersonalisationController>();
-          controller.isKycPending.value = false;
-          controller.isKycVerified.value = true;
-        }
-
-        // 🚀 3. SYNC WITH BACKEND
-        final updateData = {'id': userId, 'kyc_status': 'Approved'};
-        // Fire and forget (or await if you want to be totally safe)
-        await Get.find<PersonalisationController>()
-            .useCases
-            .updateProfileUsecases
-            .call(updateData);
-
-        Get.snackbar(
-          "KYC Approved! 🎉",
-          "Your account is fully verified. You can now start investing.",
-          backgroundColor: Colors.green.shade50,
-          colorText: Colors.green.shade900,
+      if (!Get.isRegistered<CheckCamsStatusUseCase>()) {
+        debugPrint(
+          "[CAMS Check] CheckCamsStatusUseCase is not registered yet. Skipping.",
         );
+        return;
       }
-      // ❌ REJECTED
-      else if (statusLower == "rejected" ||
-          statusLower == "failed" ||
-          statusLower == "fail") {
-        _camsPollingTimer?.cancel();
 
-        // 1. Update Device Storage
-        await SessionManager.instance.setKycPending(false);
-        await SessionManager.instance.setKycVerified(false);
+      final checkCamsUseCase = Get.find<CheckCamsStatusUseCase>();
+      final eitherResult = await checkCamsUseCase.call(onboardingId);
 
-        // 2. Update UI instantly!
-        if (Get.isRegistered<PersonalisationController>()) {
-          final controller = Get.find<PersonalisationController>();
-          controller.isKycPending.value = false;
-          controller.isKycVerified.value = false;
-        }
+      await eitherResult.fold(
+        (successResult) async {
+          final entity = successResult.data;
+          final statusLower = entity?.status.toLowerCase() ?? "inprogress";
 
-        // 🚀 3. SYNC WITH BACKEND
-        final updateData = {
-          'id': userId,
-          'kyc_status': 'Rejected', // Or 'Failed', depending on your DB
-        };
-        await Get.find<PersonalisationController>()
-            .useCases
-            .updateProfileUsecases
-            .call(updateData);
+          // 1. SUCCESSFUL SUBMISSION (inserted into CAMS database successfully)
+          if (statusLower == "success") {
+            _camsPollingTimer?.cancel();
 
-        Get.snackbar(
-          "KYC Update",
-          "There was an issue with your verification. Please try again.",
-          backgroundColor: Colors.red.shade50,
-          colorText: Colors.red.shade900,
-        );
-      }
+            // Submission completed, waiting for KRA review (Pending = true)
+            await SessionManager.instance.setKycPending(true);
+            await SessionManager.instance.setKycVerified(false);
+            await SessionManager.instance.setKycError('');
+
+            if (Get.isRegistered<PersonalisationController>()) {
+              final controller = Get.find<PersonalisationController>();
+              controller.isKycPending.value = true;
+              controller.isKycVerified.value = false;
+            }
+
+            // Sync with backend (Set status to 'Submitted' / 'Under Review')
+            final updateData = {'id': userId, 'kyc_status': 'Submitted'};
+            await Get.find<PersonalisationController>()
+                .useCases
+                .updateProfileUsecases
+                .call(updateData);
+
+            Get.snackbar(
+              "Application Submitted! ⏳",
+              "Your KYC details are successfully submitted to CAMS and are under review. Validation takes 2-3 working days.",
+              backgroundColor: Colors.blue.shade50,
+              colorText: Colors.blue.shade900,
+              duration: const Duration(seconds: 6),
+            );
+          }
+          // 2. FAILED SUBMISSION (submission rejected / failed)
+          else if (statusLower == "failed") {
+            _camsPollingTimer?.cancel();
+
+            final errMsg = entity?.errorMessage.isNotEmpty == true
+                ? entity!.errorMessage
+                : "KYC verification failed.";
+
+            await SessionManager.instance.setKycPending(false);
+            await SessionManager.instance.setKycVerified(false);
+            await SessionManager.instance.setKycError(errMsg);
+
+            if (Get.isRegistered<PersonalisationController>()) {
+              final controller = Get.find<PersonalisationController>();
+              controller.isKycPending.value = false;
+              controller.isKycVerified.value = false;
+            }
+
+            final updateData = {'id': userId, 'kyc_status': 'Rejected'};
+            await Get.find<PersonalisationController>()
+                .useCases
+                .updateProfileUsecases
+                .call(updateData);
+
+            Get.snackbar(
+              "KYC Verification Failed",
+              errMsg,
+              backgroundColor: Colors.red.shade50,
+              colorText: Colors.red.shade900,
+              duration: const Duration(seconds: 8),
+            );
+          }
+        },
+        (apiError) {
+          debugPrint("checkCamsStatus UseCase error: ${apiError.message}");
+        },
+      );
     } catch (e) {
       debugPrint("Silent CAMS Check Exception: $e");
     }

@@ -16,6 +16,9 @@ import 'package:my_sip/features/explore/domain/repositories/mutual_fund_reposito
 import 'package:my_sip/features/explore/domain/usecases/get_mutual_fund_list_usecases.dart';
 import 'package:my_sip/features/explore/presentation/controller/mutual_fund_controller.dart';
 import 'package:my_sip/features/kyc/data/datasource/kyc_remote_data_source.dart';
+import 'package:my_sip/features/kyc/data/repository/kyc_repository_impl.dart';
+import 'package:my_sip/features/kyc/domain/repository/kyc_repository.dart';
+import 'package:my_sip/features/kyc/domain/usecases/check_cams_status_usecase.dart';
 import 'package:my_sip/features/onboarding/presentation/controller/onboarding_controller.dart';
 import 'package:my_sip/features/authentication/presentation/controllers/questions/question_controller.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
@@ -48,8 +51,17 @@ class UBinding extends Bindings {
       fenix: true,
     );
 
-    Get.lazyPut(() => NavigationBarController(), fenix: true);
+    Get.lazyPut<KycRepository>(
+      () => KycRepositoryImpl(Get.find<KycRemoteDataSource>()),
+      fenix: true,
+    );
 
+    Get.lazyPut(
+      () => CheckCamsStatusUseCase(Get.find<KycRepository>()),
+      fenix: true,
+    );
+
+    Get.lazyPut(() => NavigationBarController(), fenix: true);
 
     // 1. Data Source (Lowest Level)
     Get.lazyPut<AuthRemoteDataSource>(
@@ -72,20 +84,14 @@ class UBinding extends Bindings {
     );
     // Register dependencies BEFORE runApp
 
-    Get.lazyPut(
-      () => HomeController(),
-    );
-     Get.put(NotificationService()).init();
+    Get.lazyPut(() => HomeController());
+    Get.put(NotificationService()).init();
 
     Get.lazyPut<FcmDeviceTokenUseCase>(
-          () => FcmDeviceTokenUseCase(
-        Get.find<AuthRepository>(),
-      ),
+      () => FcmDeviceTokenUseCase(Get.find<AuthRepository>()),
     );
     Get.lazyPut<GoogleSignInUseCase>(
-          () => GoogleSignInUseCase(
-        Get.find<AuthRepository>(),
-      ),
+      () => GoogleSignInUseCase(Get.find<AuthRepository>()),
     );
     Get.put<AuthUseCases>(
       AuthUseCases(
@@ -99,7 +105,6 @@ class UBinding extends Bindings {
       permanent: true,
     );
 
-    
     Get.put<AuthController>(
       AuthController(authUseCases: Get.find<AuthUseCases>()),
       permanent: true,
@@ -110,8 +115,6 @@ class UBinding extends Bindings {
       () => OnboardingController(),
       fenix: true,
     );
-
-    
 
     Get.lazyPut(() => MutualfundRemoteDs(Get.find()), fenix: true);
 
@@ -162,7 +165,7 @@ class UBinding extends Bindings {
     // // Goal controller
     // Get.lazyPut(() => GoalSipController(goalUseCases: Get.find<>()), fenix: true);
     Get.lazyPut<PersonalisationController>(
-          () => PersonalisationController(Get.find()),
+      () => PersonalisationController(Get.find()),
       fenix: true, // This allows it to be recreated after being disposed
     );
   }

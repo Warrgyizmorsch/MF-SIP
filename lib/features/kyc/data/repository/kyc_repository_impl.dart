@@ -14,6 +14,7 @@ import 'package:my_sip/features/kyc/domain/entity/get_esign_data_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/kyc_check_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/poi_step_1_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/verify_bank_account_entity.dart';
+import 'package:my_sip/features/kyc/domain/entity/cams_response_entity.dart';
 import 'package:my_sip/features/kyc/domain/repository/kyc_repository.dart';
 import 'package:my_sip/features/personalization/domain/entity/bank_entity.dart';
 
@@ -24,7 +25,6 @@ class KycRepositoryImpl extends KycRepository {
 
   KycRepositoryImpl(this._remoteDataSource);
 
-
   @override
   Future<Either<Result<KycCheckEntity>, ApiError>> checkKycStatus(
     Map<String, dynamic> data,
@@ -34,8 +34,7 @@ class KycRepositoryImpl extends KycRepository {
 
       return response.fold(
         (successResult) {
-          
-          final entity = successResult.data!.toEntity(); 
+          final entity = successResult.data!.toEntity();
           return Left(Result.success(entity));
         },
         (error) {
@@ -419,5 +418,20 @@ class KycRepositoryImpl extends KycRepository {
     Map<String, dynamic> data,
   ) async {
     return await _remoteDataSource.executeVerificationEngine(data);
+  }
+
+  @override
+  Future<Either<Result<CamsResponseEntity>, ApiError>> checkCamsStatus(
+    String onboardingId,
+  ) async {
+    try {
+      final response = await _remoteDataSource.checkCamsStatus(onboardingId);
+      return response.fold(
+        (successResult) => Left(Result.success(successResult.data!.toEntity())),
+        (error) => Right(error),
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
   }
 }

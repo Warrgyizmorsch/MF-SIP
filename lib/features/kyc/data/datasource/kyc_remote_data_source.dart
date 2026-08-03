@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
 import 'package:my_sip/core/utils/constant/appUrl.dart';
+import 'package:my_sip/features/kyc/data/model/cams_response_model.dart';
 import 'package:my_sip/features/kyc/data/model/bank_verification_model.dart';
 import 'package:my_sip/features/kyc/data/model/contractPdf_model.dart';
 import 'package:my_sip/features/kyc/data/model/create_esign_url_model.dart';
@@ -556,11 +558,12 @@ class KycRemoteDataSource {
       return Right(ApiError(message: 'Onboarding failed with exception:$e'));
     }
   }
-
   // ===========================================================================
   //  CAMS POLLING
   // ===========================================================================
-  Future<String> checkCamsStatus(String onboardingId) async {
+  Future<Either<Result<CamsResponseModel>, ApiError>> checkCamsStatus(
+    String onboardingId,
+  ) async {
     try {
       final signzyToken =
           sessionManager.getOnboardingData?.sessionToken ??
@@ -568,10 +571,9 @@ class KycRemoteDataSource {
 
       if (signzyToken == null) {
         createLog("[Kyc Remote Data Source] Error: Signzy Token is null");
-        return "error";
+        return Right(ApiError(message: "Signzy Token is null"));
       }
 
-      // Using your custom NetworkServicesApi
       final resp = await _apiService.postApi(
         '${Appurl.kycUrl}/api/onboardings/pullCamsResponse',
         data: {"onboardingId": onboardingId},
@@ -580,21 +582,24 @@ class KycRemoteDataSource {
               sessionManager.getTokenData?.id ??
               sessionManager.tokenDataModel.value?.id ??
               '',
-          // 'Authorization':
-          //     'XSUsWE1fTdUIx1ypg6i9A7A5CNu9rT0PGjfARQWH6OwmUlrFVpOXdNTUNVvAGy4R',
         },
       );
 
       createLog("[Kyc Remote Data Source] CAMS Background Check: $resp");
 
-      if (resp != null && resp['camsResponse'] != null) {
-        return resp['camsResponse']['status']?.toString() ?? "inProgress";
+      if (resp != null) {
+        final result = CamsResponseModel.fromJson(resp);
+        return Left(Result.success(result));
+      } else {
+        return Right(
+          ApiError(
+            message: 'checkCamsStatus Failed: Invalid response structure',
+          ),
+        );
       }
-
-      return "inProgress";
     } catch (e) {
       createLog("[Kyc Remote Data Source] pullCamsResponse API Exception: $e");
-      return "error";
+      return Right(ApiError(message: 'checkCamsStatus Exception: $e'));
     }
   }
 }

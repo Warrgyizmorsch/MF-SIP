@@ -10,6 +10,7 @@ import 'package:my_sip/features/kyc/domain/entity/get_esign_data_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/kyc_check_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/poi_step_1_entity.dart';
 import 'package:my_sip/features/kyc/domain/entity/verify_bank_account_entity.dart';
+import 'package:my_sip/features/kyc/domain/entity/cams_response_entity.dart';
 import 'package:my_sip/features/personalization/domain/entity/bank_entity.dart';
 
 import '../../../../core/utils/api/api_error.dart';
@@ -18,6 +19,10 @@ import '../../data/model/token_data_model.dart';
 import '../entity/execute_poi_step2_entity.dart';
 
 abstract class KycRepository {
+  Future<Either<Result<CamsResponseEntity>, ApiError>> checkCamsStatus(
+    String onboardingId,
+  );
+
   Future<Either<Result<BankResponseListEntity>, ApiError>> getAllBanks(
     Map<String, dynamic> data,
   );
@@ -60,7 +65,7 @@ abstract class KycRepository {
   Future<Either<Result<OnboardingResponse>, ApiError>> saveOnboardingData(
     Map<String, dynamic> data,
   );
-  
+
   Future<Either<Result<bool>, ApiError>> executeVerificationEngine(
     Map<String, dynamic> data,
   );

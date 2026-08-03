@@ -17,6 +17,7 @@ import 'package:my_sip/features/kyc/domain/usecases/update_form_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/upload_to_signZy_use_case.dart';
 import 'package:my_sip/features/kyc/domain/usecases/verification_engine_usecases.dart';
 import 'package:my_sip/features/kyc/domain/usecases/verify_amount_usecases.dart';
+import 'package:my_sip/features/kyc/domain/usecases/check_cams_status_usecase.dart';
 import 'package:my_sip/features/kyc/presentation/controllers/kyc_controller.dart';
 
 import '../../../../services/session_manager.dart';
@@ -39,6 +40,11 @@ class KycBindings extends Bindings {
     Get.lazyPut(() => KycRepositoryImpl(Get.find<KycRemoteDataSource>()));
 
     // 3. Use Cases
+
+    Get.lazyPut(
+      () => CheckCamsStatusUseCase(Get.find<KycRepositoryImpl>()),
+      fenix: true,
+    );
 
     Get.lazyPut(() => CheckKycUseCase(Get.find<KycRepositoryImpl>()));
 
@@ -93,6 +99,7 @@ class KycBindings extends Bindings {
     // 4. Main UseCase Wrapper
     Get.lazyPut(
       () => KycUseCases(
+        checkCamsStatusUseCase: Get.find<CheckCamsStatusUseCase>(),
         checkKycUseCase: Get.find<CheckKycUseCase>(),
         saveOnboardingDataUseCase: Get.find<SaveOnboardingDataUseCase>(),
         getAllBanksUseCases: Get.find<GetAllBanksUseCases>(),

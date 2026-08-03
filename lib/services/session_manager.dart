@@ -46,10 +46,9 @@ class SessionManager extends GetxService {
   // UserModel? _userData;
   final Rxn<UserModel> _userData = Rxn<UserModel>();
 
-  //kyc check
   final RxBool isKycVerified = false.obs;
   final RxBool isKycPending = false.obs;
-
+  final RxString kycError = ''.obs;
   final StreamController<String?> _controller =
       StreamController<String?>.broadcast();
   Stream<String?> get accessTokenStream => _controller.stream;
@@ -130,6 +129,9 @@ class SessionManager extends GetxService {
 
       final kycPendingVal = _prefs?.getBool('kyc_pending');
       isKycPending.value = kycPendingVal ?? false;
+
+      final kycErrorVal = _prefs?.getString('kyc_error');
+      kycError.value = kycErrorVal ?? '';
     } else {
       await getSession();
     }
@@ -166,6 +168,16 @@ class SessionManager extends GetxService {
       await _prefs!.setBool('kyc_pending', value);
     } else {
       await _secureStorage!.write(key: 'kyc_pending', value: value.toString());
+    }
+  }
+
+  Future<void> setKycError(String value) async {
+    kycError.value = value;
+    if (kIsWeb) {
+      await _ensurePrefsInitialized();
+      await _prefs!.setString('kyc_error', value);
+    } else {
+      await _secureStorage!.write(key: 'kyc_error', value: value);
     }
   }
 
@@ -384,6 +396,10 @@ class SessionManager extends GetxService {
       if (kycPendingVal != null) {
         isKycPending.value = kycPendingVal == 'true';
       }
+      final kycErrorVal = await _secureStorage?.read(key: 'kyc_error');
+      if (kycErrorVal != null) {
+        kycError.value = kycErrorVal;
+      }
     }
     // 4. Update the Observable
     if (appLockString != null) {
@@ -470,6 +486,7 @@ class SessionManager extends GetxService {
       await _secureStorage!.write(key: 'recent_viewed_list', value: jsonString);
     }
   }
+
   Future<String?> getRecentFunds() async {
     if (kIsWeb) {
       await _ensurePrefsInitialized();
@@ -497,6 +514,7 @@ class SessionManager extends GetxService {
 
     isKycVerified.value = false;
     isKycPending.value = false;
+    kycError.value = '';
 
     if (kIsWeb) {
       await _ensurePrefsInitialized();
@@ -513,6 +531,7 @@ class SessionManager extends GetxService {
         _prefs!.remove('onBoardingData'),
         _prefs!.remove('kyc_verified'),
         _prefs!.remove('kyc_pending'),
+        _prefs!.remove('kyc_error'),
       ]);
     } else {
       await Future.wait([
@@ -525,6 +544,7 @@ class SessionManager extends GetxService {
         _secureStorage!.delete(key: 'onBoardingData'),
         _secureStorage!.delete(key: 'kyc_verified'),
         _secureStorage!.delete(key: 'kyc_pending'),
+        _secureStorage!.delete(key: 'kyc_error'),
       ]);
     }
 
