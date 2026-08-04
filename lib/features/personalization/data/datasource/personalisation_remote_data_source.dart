@@ -364,7 +364,7 @@ class PersonalisationRemoteDataSource {
         "micr_code": micrCode,
         "account_type": accountType,
         "bank_name": bankName,
-        "bank_proof_type": bankProofType,
+        "proof": bankProofType,
       };
 
       createLog("[KycRemoteDataSource] addBankAccount Request fields: $fields");
@@ -382,7 +382,7 @@ class PersonalisationRemoteDataSource {
         fields: fields,
         files: files,
         fileNames: fileNames,
-        fileFieldName: "bank_proof",
+        fileFieldName: "proof_image",
       );
 
       createLog("[KycRemoteDataSource] addBankAccount Response: $resp");
