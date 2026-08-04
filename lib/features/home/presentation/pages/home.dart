@@ -2928,8 +2928,7 @@ class _MobileLayout extends StatelessWidget {
                   }
                   // 3. If Nominee is missing (even if KYC is pending)
                   // 4. If Bank is missing (even if KYC is pending)
-                 
-                   else if (noBank) {
+                  else if (noBank) {
                     bgColor = Ucolors.primary;
                     iconColor = Ucolors.light;
                     titleColor = Ucolors.light;
@@ -2940,8 +2939,7 @@ class _MobileLayout extends StatelessWidget {
                     titleText = 'Add Bank Account';
                     subText = 'Link your bank for fast transactions';
                     onTapAction = () => Get.toNamed(AppRoutes.addanotherbank);
-                  }
-                   else if (noNominee) {
+                  } else if (noNominee) {
                     bgColor = Ucolors.light;
                     iconColor = Ucolors.blue;
                     titleColor = Ucolors.blue;
@@ -2952,8 +2950,7 @@ class _MobileLayout extends StatelessWidget {
                     titleText = 'Add a Nominee';
                     subText = 'Secure your investments for your family';
                     onTapAction = () => Get.toNamed(AppRoutes.nomineeDetail);
-                  }
-                   else if (isPending && !isVerified) {
+                  } else if (isPending && !isVerified) {
                     bgColor = Colors.orange.shade50;
                     iconColor = Colors.orange.shade700;
                     titleColor = Colors.orange.shade900;
@@ -3034,6 +3031,27 @@ class _MobileLayout extends StatelessWidget {
                     return const SizedBox.shrink(); // Fallback
                   }
 
+                  // --- PROGRESS CALCULATION ---
+                  final isRejected =
+                      !isVerified &&
+                      !isPending &&
+                      controller.kycErrorMessage.isNotEmpty;
+                  final showProgressCard = !isAllComplete && !isRejected;
+
+                  const int totalSteps = 7;
+                  int completedSteps = 0;
+                  if (isVerified) completedSteps++;
+                  if (!noPersonalDetails) completedSteps++;
+                  if (!noRiskProfile) completedSteps++;
+                  if (!noBank) completedSteps++;
+                  if (!noNominee) completedSteps++;
+                  if (!noCan) completedSteps++;
+                  if (!noMandate) completedSteps++;
+
+                  final double progressFraction =
+                      completedSteps / totalSteps.toDouble();
+                  final int percentage = (progressFraction * 100).toInt();
+
                   // --- UI RENDER ---
                   return Positioned(
                     left: 20,
@@ -3044,63 +3062,149 @@ class _MobileLayout extends StatelessWidget {
                         onTap: onTapAction,
                         child: Container(
                           height: size.height * 0.13,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                           decoration: BoxDecoration(
-                            color: bgColor,
-                            borderRadius: BorderRadius.circular(15),
+                            color: showProgressCard ? null : bgColor,
+                            gradient: showProgressCard
+                                ? const LinearGradient(
+                                    colors: [
+                                      Color(0xFF2C3E50),
+                                      Color(0xFF3498DB),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  )
+                                : null,
+                            borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.15),
-                                blurRadius: 5,
+                                color: Colors.black.withValues(alpha: 0.12),
+                                blurRadius: 8,
                                 offset: const Offset(0, 4),
                               ),
                             ],
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 15,
-                              vertical: 10,
-                            ),
-                            child: Row(
-                              children: [
-                                customLeftIcon ??
-                                    Icon(leftIcon, size: 24, color: iconColor),
-                                const SizedBox(width: 15),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'Onboarding task',
-                                        style: UTextStyles.medium.copyWith(
-                                          // fontSize: 12,
-                                          color: subTextColor,
+                          child: Row(
+                            children: [
+                              showProgressCard
+                                  ? Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        SizedBox(
+                                          width: 38,
+                                          height: 38,
+                                          child: CircularProgressIndicator(
+                                            value: progressFraction,
+                                            strokeWidth: 3.5,
+                                            backgroundColor: Colors.white
+                                                .withValues(alpha: 0.18),
+                                            valueColor:
+                                                const AlwaysStoppedAnimation<
+                                                  Color
+                                                >(Colors.white),
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        titleText,
-                                        style: UTextStyles.medium.copyWith(
-                                          fontWeight: FontWeight.w500,
-                                          color: titleColor,
-                                          // fontSize: 14,
+                                        Text(
+                                          "$percentage%",
+                                          style: UTextStyles.caption.copyWith(
+                                            fontSize: 9,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        subText,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: UTextStyles.caption.copyWith(
-                                          fontSize: 10,
-                                          color: subTextColor,
+                                      ],
+                                    )
+                                  : (customLeftIcon ??
+                                        Icon(
+                                          leftIcon,
+                                          size: 24,
+                                          color: iconColor,
+                                        )),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Onboarding Task',
+                                          style: UTextStyles.medium.copyWith(
+                                            fontSize: 11,
+                                            color: showProgressCard
+                                                ? Colors.white.withValues(
+                                                    alpha: 0.8,
+                                                  )
+                                                : subTextColor,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
+                                        const SizedBox(width: 8),
+                                        if (showProgressCard)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 6,
+                                              vertical: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white.withValues(
+                                                alpha: 0.15,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: Text(
+                                              "$completedSteps/$totalSteps steps",
+                                              style: UTextStyles.caption
+                                                  .copyWith(
+                                                    fontSize: 9,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      titleText,
+                                      style: UTextStyles.medium.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: showProgressCard
+                                            ? Colors.white
+                                            : titleColor,
+                                        fontSize: 13,
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                    Text(
+                                      subText,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: UTextStyles.caption.copyWith(
+                                        fontSize: 10,
+                                        color: showProgressCard
+                                            ? Colors.white.withValues(
+                                                alpha: 0.9,
+                                              )
+                                            : subTextColor,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                Icon(rightIcon, size: 14, color: iconColor),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(width: 8),
+                              Icon(
+                                rightIcon,
+                                size: 14,
+                                color: showProgressCard
+                                    ? Colors.white
+                                    : iconColor,
+                              ),
+                            ],
                           ),
                         ),
                       ),
