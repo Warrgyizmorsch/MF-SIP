@@ -1,5 +1,6 @@
 // features/kyc/domain/usecases/add_bank_usecase.dart
 
+import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
@@ -19,6 +20,9 @@ class AddBankUseCase {
     required String micrCode,
     required String accountType,
     required String bankName,
+    required String bankProofType,
+    required Uint8List? bankProofBytes,
+    required String? bankProofFileName,
   }) async {
     return await personalisationRepository.addBankAccount(
       uid: uid,
@@ -28,6 +32,9 @@ class AddBankUseCase {
       micrCode: micrCode,
       accountType: accountType,
       bankName: bankName,
+      bankProofType: bankProofType,
+      bankProofBytes: bankProofBytes,
+      bankProofFileName: bankProofFileName,
     );
   }
 }

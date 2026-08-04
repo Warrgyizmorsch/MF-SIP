@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
@@ -350,23 +351,38 @@ class PersonalisationRemoteDataSource {
     required String micrCode,
     required String accountType,
     required String bankName,
+    required String bankProofType,
+    required Uint8List? bankProofBytes,
+    required String? bankProofFileName,
   }) async {
     try {
-      final body = {
-        "uid": uid,
+      final fields = {
+        "uid": uid.toString(),
         "account_holder_name": accountHolderName,
         "account_number": accountNumber,
         "ifsc_code": ifscCode,
         "micr_code": micrCode,
         "account_type": accountType,
         "bank_name": bankName,
+        "bank_proof_type": bankProofType,
       };
 
-      createLog("[KycRemoteDataSource] addBankAccount Request: $body");
+      createLog("[KycRemoteDataSource] addBankAccount Request fields: $fields");
 
-      final resp = await _apiService.postApi(
-        "${Appurl.baseUrl}/api/v1/bank/add",
-        data: body,
+      List<Uint8List> files = [];
+      List<String> fileNames = [];
+
+      if (bankProofBytes != null && bankProofFileName != null) {
+        files.add(bankProofBytes);
+        fileNames.add(bankProofFileName);
+      }
+
+      final resp = await _apiService.postMultipart(
+        url: "${Appurl.baseUrl}/api/v1/bank/add",
+        fields: fields,
+        files: files,
+        fileNames: fileNames,
+        fileFieldName: "bank_proof",
       );
 
       createLog("[KycRemoteDataSource] addBankAccount Response: $resp");

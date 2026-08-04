@@ -43,7 +43,7 @@ class MfuCanResponseModel {
 
   factory MfuCanResponseModel.fromJson(Map<String, dynamic> json) {
     return MfuCanResponseModel(
-      status: json.parse<bool>('status'),
+      status: json.parse<bool>('status') ?? json.parse<bool>('success'),
       message: json.parse<String>('message'),
       can: json.parse<String>('can'),
       canStatus: json.parse<String>('can_status'),
@@ -59,15 +59,18 @@ class MfuCanResponseModel {
       nomVerifyLinkH3: json.parse<String>('nom_verify_link_h3'),
       canRegistrationResponse: json['can_registration_response'] != null
           ? CanRegistrationResponseModel.fromJson(
-              json['can_registration_response'] as Map<String, dynamic>)
+              json['can_registration_response'] as Map<String, dynamic>,
+            )
           : null,
       canValidationResponse: json['can_validation_response'] != null
           ? CanValidationResponseModel.fromJson(
-              json['can_validation_response'] as Map<String, dynamic>)
+              json['can_validation_response'] as Map<String, dynamic>,
+            )
           : null,
       canStatusResponse: json['can_status_response'] != null
           ? CanStatusResponseModel.fromJson(
-              json['can_status_response'] as Map<String, dynamic>)
+              json['can_status_response'] as Map<String, dynamic>,
+            )
           : null,
     );
   }
@@ -81,12 +84,7 @@ class RespHeaderModel {
   final String? errorCode;
   final String? errorMsg;
 
-  RespHeaderModel({
-    this.respFlag,
-    this.respTs,
-    this.errorCode,
-    this.errorMsg,
-  });
+  RespHeaderModel({this.respFlag, this.respTs, this.errorCode, this.errorMsg});
 
   factory RespHeaderModel.fromJson(Map<String, dynamic> json) {
     return RespHeaderModel(
@@ -113,7 +111,8 @@ class CanRegistrationResponseModel {
           : null,
       respBody: json['respBody'] != null
           ? CanRegistrationRespBodyModel.fromJson(
-              json['respBody'] as Map<String, dynamic>)
+              json['respBody'] as Map<String, dynamic>,
+            )
           : null,
     );
   }
@@ -160,7 +159,8 @@ class CanValidationResponseModel {
           : null,
       respBody: json['respBody'] != null
           ? CanValidationRespBodyModel.fromJson(
-              json['respBody'] as Map<String, dynamic>)
+              json['respBody'] as Map<String, dynamic>,
+            )
           : null,
     );
   }
@@ -216,7 +216,8 @@ class CanStatusResponseModel {
           : null,
       respBody: json['respBody'] != null
           ? CanStatusRespBodyModel.fromJson(
-              json['respBody'] as Map<String, dynamic>)
+              json['respBody'] as Map<String, dynamic>,
+            )
           : null,
     );
   }

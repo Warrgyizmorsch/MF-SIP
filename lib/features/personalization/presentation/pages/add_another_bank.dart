@@ -12,6 +12,8 @@ import 'package:my_sip/common/widget/text_form/text_form_field.dart';
 import 'package:my_sip/core/utils/constant/colors.dart';
 import 'package:my_sip/core/utils/constant/text_style.dart';
 import 'package:my_sip/core/utils/helper/helpers.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:my_sip/common/widget/images/image_picker.dart';
 import 'package:my_sip/features/authentication/presentation/pages/signup/register_account.dart';
 
 // Ensure this path points to your actual PersonalisationController
@@ -193,7 +195,6 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
         ),
         const Gap(20),
 
-      
         Text(
           'Account Type',
           style: TextStyle(
@@ -244,6 +245,240 @@ class AddAnotherBankPage extends GetView<PersonalisationController> {
             ],
           ),
         ),
+        const Gap(20),
+
+        Text(
+          'Bank Proof Type',
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey.shade700,
+          ),
+        ),
+        const Gap(8),
+        Obx(() {
+          final selectedOption = controller.bankProofOptions.firstWhereOrNull(
+            (e) => e["code"] == controller.bankProofType.value,
+          );
+          final selectedLabel = selectedOption != null
+              ? selectedOption["label"]!
+              : '';
+          final proofTypeController = TextEditingController(
+            text: selectedLabel,
+          );
+
+          return InkWell(
+            onTap: () async {
+              FocusScope.of(context).unfocus();
+
+              final selected = await showSelectionBottomSheet(
+                controller: proofTypeController,
+                context: context,
+                title: 'Select Bank Proof Type',
+                items: controller.bankProofOptions
+                    .map((e) => e["label"]!)
+                    .toList(),
+                selectedValue: selectedLabel.isNotEmpty ? selectedLabel : null,
+              );
+
+              if (selected != null) {
+                final match = controller.bankProofOptions.firstWhereOrNull(
+                  (e) => e["label"] == selected,
+                );
+                if (match != null) {
+                  controller.bankProofType.value = match["code"]!;
+                }
+              }
+            },
+            child: AbsorbPointer(
+              absorbing: true,
+              child: UTextFormField(
+                sufixIcon: Icons.arrow_drop_down,
+                controller: proofTypeController,
+                prefixIcon: Iconsax.document_text,
+                hintText: 'Select Bank Proof Type',
+              ),
+            ),
+          );
+        }),
+        const Gap(20),
+
+        Text(
+          'Bank Proof Document',
+          style: TextStyle(
+            fontFamily: FontFamily.medium,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey.shade700,
+          ),
+        ),
+        const Gap(8),
+        Obx(() {
+          final hasFile = controller.bankProofPath.value.isNotEmpty;
+
+          return GestureDetector(
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                builder: (context) => SafeArea(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                          'Select File Source',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: FontFamily.medium,
+                          ),
+                        ),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.camera_alt_outlined),
+                        title: const Text(
+                          'Camera',
+                          style: TextStyle(fontFamily: FontFamily.medium),
+                        ),
+                        onTap: () {
+                          Get.back();
+                          controller.pickBankProof(ImageSource.camera);
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.image_outlined),
+                        title: const Text(
+                          'Gallery',
+                          style: TextStyle(fontFamily: FontFamily.medium),
+                        ),
+                        onTap: () {
+                          Get.back();
+                          controller.pickBankProof(ImageSource.gallery);
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(
+                          Icons.picture_as_pdf_outlined,
+                          color: Colors.red,
+                        ),
+                        title: const Text(
+                          'Document (PDF / File)',
+                          style: TextStyle(fontFamily: FontFamily.medium),
+                        ),
+                        onTap: () {
+                          Get.back();
+                          controller.pickBankProofPdf();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: hasFile ? Ucolors.primary : Colors.grey.shade300,
+                  style: BorderStyle.solid,
+                ),
+              ),
+              child: hasFile
+                  ? Row(
+                      children: [
+                        Icon(
+                          controller.bankProofFileName.value
+                                  .toLowerCase()
+                                  .endsWith('.pdf')
+                              ? Icons.picture_as_pdf
+                              : Icons.insert_drive_file,
+                          color:
+                              controller.bankProofFileName.value
+                                  .toLowerCase()
+                                  .endsWith('.pdf')
+                              ? Colors.red
+                              : Ucolors.primary,
+                          size: 32,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                controller.bankProofFileName.value,
+                                style: const TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              const Text(
+                                'Tap to change file',
+                                style: TextStyle(
+                                  fontFamily: FontFamily.medium,
+                                  fontSize: 11,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            color: Colors.red,
+                          ),
+                          onPressed: () {
+                            controller.bankProofPath.value = '';
+                            controller.bankProofBytes.value = null;
+                            controller.bankProofFileName.value = '';
+                          },
+                        ),
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        Icon(
+                          Icons.cloud_upload_outlined,
+                          size: 36,
+                          color: Colors.grey.shade400,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Upload Bank Proof Copy',
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 13,
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Supported formats: JPG, PNG (Max 1MB)',
+                          style: TextStyle(
+                            fontFamily: FontFamily.medium,
+                            fontSize: 11,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
+          );
+        }),
 
         const Gap(40),
 

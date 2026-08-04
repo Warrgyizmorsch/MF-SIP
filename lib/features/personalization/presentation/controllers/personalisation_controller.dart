@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:my_sip/common/widget/animated/custom_toast.dart';
 import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
@@ -261,6 +262,56 @@ class PersonalisationController extends GetxController {
   final RxString resolvedBranch = ''.obs;
   final RxString autoFetchedBank = ''.obs;
 
+  // --- Bank Proof Selection & Upload ---
+  final RxString bankProofType = ''.obs; // '14', '15', '77', '78'
+  final RxString bankProofPath = ''.obs; // local image file path
+  final Rx<Uint8List?> bankProofBytes = Rx<Uint8List?>(null);
+  final RxString bankProofFileName = ''.obs;
+
+  final List<Map<String, String>> bankProofOptions = [
+    {"code": "14", "label": "Latest Bank Passbook"},
+    {"code": "15", "label": "Latest Bank Account Statement"},
+    {"code": "77", "label": "Cheque Copy"},
+    {"code": "78", "label": "Bank Letter"},
+  ];
+
+  Future<void> pickBankProof(ImageSource source) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(
+      source: source,
+      imageQuality: 50,
+      maxHeight: 1024,
+      maxWidth: 1024,
+    );
+    if (image != null) {
+      bankProofPath.value = image.path;
+      bankProofFileName.value = image.name;
+      bankProofBytes.value = await image.readAsBytes();
+    }
+  }
+
+  Future<void> pickBankProofPdf() async {
+    try {
+      final result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'png', 'jpeg'],
+      );
+      if (result != null && result.files.single.path != null) {
+        final file = result.files.single;
+        bankProofPath.value = file.path!;
+        bankProofFileName.value = file.name;
+        if (file.bytes != null) {
+          bankProofBytes.value = file.bytes;
+        } else {
+          final ioFile = File(file.path!);
+          bankProofBytes.value = await ioFile.readAsBytes();
+        }
+      }
+    } catch (e) {
+      log("Error picking file: $e");
+    }
+  }
+
   // ------------------------ Add Bank Account State --------------------------///
   final isBankAdding = false.obs;
   final bankNameController = TextEditingController();
@@ -282,6 +333,12 @@ class PersonalisationController extends GetxController {
     resolvedBranch.value = '';
     isFetchingIFSC.value = false;
     bankAccHdNameController.clear();
+
+    // Clear proof fields
+    bankProofType.value = '';
+    bankProofPath.value = '';
+    bankProofBytes.value = null;
+    bankProofFileName.value = '';
   }
 
   Future<void> fetchBanks() async {
@@ -610,6 +667,22 @@ class PersonalisationController extends GetxController {
       return;
     }
 
+    if (bankProofType.value.isEmpty) {
+      CustomSnackbar.warning(
+        title: "Required",
+        message: "Please select a bank proof type",
+      );
+      return;
+    }
+
+    if (bankProofBytes.value == null) {
+      CustomSnackbar.warning(
+        title: "Required",
+        message: "Please upload a bank proof document",
+      );
+      return;
+    }
+
     isBankAdding.value = true;
 
     try {
@@ -620,8 +693,6 @@ class PersonalisationController extends GetxController {
         return;
       }
 
-      log("Submitting Bank Data: $uid");
-
       // final result = await _useCases.updateProfileUsecases.call(data);
       final result = await _useCases.addBankUseCase.call(
         uid: uid,
@@ -631,6 +702,9 @@ class PersonalisationController extends GetxController {
         micrCode: bankMicrController.text.trim(),
         accountType: bankAccountType.value,
         bankName: bankNameController.text.trim(),
+        bankProofType: bankProofType.value,
+        bankProofBytes: bankProofBytes.value,
+        bankProofFileName: bankProofFileName.value,
       );
 
       await result.fold(

@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
 import 'package:my_sip/features/personalization/data/model/risk_result_model.dart';
 import 'package:my_sip/features/personalization/domain/entity/account_statement_entity.dart';
@@ -64,6 +65,9 @@ abstract class PersonalisationRepository {
     required String micrCode,
     required String accountType,
     required String bankName,
+    required String bankProofType,
+    required Uint8List? bankProofBytes,
+    required String? bankProofFileName,
   });
 
   Future<Either<Result<DeleteBankEntity>, ApiError>> deleteBank({

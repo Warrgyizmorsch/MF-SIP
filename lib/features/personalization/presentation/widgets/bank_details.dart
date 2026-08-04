@@ -24,7 +24,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
     return Scaffold(
-      backgroundColor:  Colors.white,
+      backgroundColor: Colors.white,
       appBar: isDesktop
           ? null
           : const CustomAppBarNormal(title: 'Bank Details'),
@@ -111,7 +111,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
 
               // 2. EMPTY STATE (No Bank Accounts)
               if (bankCount == 0) {
-                return _buildEmptyState(isDesktop,context);
+                return _buildEmptyState(isDesktop, context);
               }
 
               // 3. DATA STATE (1, 2, or 3 Banks Exist)
@@ -136,8 +136,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                               }
                             },
                             bankName: bank.bankName ?? 'Unknown',
-                            cardNumber:
-                                bank.accountNumberEncrypted ?? '****',
+                            cardNumber: bank.accountNumberEncrypted ?? '****',
                             ifsccode: bank.ifscCode ?? '',
                             isVerified: bank.verified == 1,
                             bankLogo: UImages.sbi,
@@ -227,10 +226,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                         onPressed: () {
                           Get.toNamed(
                             AppRoutes.paymentScreen,
-                            arguments: {
-                              'isMandate': true,
-                              'amount': '100000',
-                            },
+                            arguments: {'isMandate': true, 'amount': '100000'},
                           );
                         },
                         child: const Center(
@@ -253,6 +249,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
       ),
     );
   }
+
   Widget _buildEmptyState(bool isDesktop, BuildContext context) {
     return Container(
       width: double.infinity,
@@ -260,9 +257,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0xFFE5E7EB),
-        ),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -274,17 +269,13 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
               color: Color(0xFFF3F4F6),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              Icons.groups_2_outlined,
-              size: 50,
-              color: Colors.grey.shade400,
-            ),
+            child: Icon(Iconsax.bank, size: 40, color: Colors.grey.shade400),
           ),
 
           const SizedBox(height: 24),
 
           const Text(
-            "No Nominees Added Yet",
+            "No Bank Accounts Linked",
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w600,
@@ -294,32 +285,31 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
 
           const SizedBox(height: 8),
 
-          Text(
-            "Please assign up to 100% allocation across your structural nominees.",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade600,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              "Please link a bank account to enable mutual fund purchases and automatic SIP setups.",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
             ),
           ),
 
           const SizedBox(height: 28),
 
           ElevatedButton(
-            onPressed: () =>
-                Get.toNamed(AppRoutes.nomineeDetail, id: 1),
+            onPressed: () {
+              controller.clearBankFields();
+              Get.toNamed(AppRoutes.addanotherbank, id: isDesktop ? 1 : null);
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: Ucolors.blue,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 16,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
             child: const Text(
-              "Add Your First Nominee",
+              "Link Bank Account",
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
@@ -330,6 +320,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
       ),
     );
   }
+
   void _confirmDelete(BuildContext context, int bankid, String bankName) {
     DialogHelper.showPrerequisiteDialog(
       title: 'Delete Bank',

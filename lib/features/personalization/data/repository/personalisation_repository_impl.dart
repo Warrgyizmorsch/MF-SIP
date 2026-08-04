@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
 import 'package:my_sip/core/utils/api/api_error.dart';
 import 'package:my_sip/core/utils/api/api_result.dart';
@@ -269,6 +270,9 @@ class PersonalisationRepositoryImpl extends PersonalisationRepository {
     required String micrCode,
     required String accountType,
     required String bankName,
+    required String bankProofType,
+    required Uint8List? bankProofBytes,
+    required String? bankProofFileName,
   }) async {
     try {
       final response = await _remoteDataSource.addBankAccount(
@@ -279,6 +283,9 @@ class PersonalisationRepositoryImpl extends PersonalisationRepository {
         micrCode: micrCode,
         accountType: accountType,
         bankName: bankName,
+        bankProofType: bankProofType,
+        bankProofBytes: bankProofBytes,
+        bankProofFileName: bankProofFileName,
       );
 
       return response.fold(
