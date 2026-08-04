@@ -65,10 +65,28 @@ class NavigationBarController extends GetxController {
     if (kIsWeb) {
       listenWebBack(_handleBrowserBack);
     }
+
+    // React dynamically to KYC pending transitions in the active session
+    ever(SessionManager.instance.isKycPending, (bool pending) {
+      if (pending) {
+        if (_camsPollingTimer == null || !_camsPollingTimer!.isActive) {
+          debugPrint("[NavigationBarController] isKycPending became true. Starting polling timer.");
+          _startBackgroundCamsCheck();
+        }
+      } else {
+        if (_camsPollingTimer != null) {
+          debugPrint("[NavigationBarController] isKycPending became false. Cancelling polling timer.");
+          _camsPollingTimer?.cancel();
+          _camsPollingTimer = null;
+        }
+      }
+    });
+
     if (SessionManager.instance.isKycPending.value) {
       _startBackgroundCamsCheck();
     }
   }
+
 
   void _startBackgroundCamsCheck() {
     _checkCamsStatusSilently();

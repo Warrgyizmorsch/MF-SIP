@@ -612,6 +612,7 @@ class KycController extends GetxController {
               // 1. Update Device Storage
               await SessionManager.instance.setKycPending(false);
               await SessionManager.instance.setKycVerified(true);
+              await SessionManager.instance.setKycError('');
 
               // 2. Update UI instantly & Sync with Backend
               if (Get.isRegistered<PersonalisationController>()) {
@@ -1549,6 +1550,7 @@ class KycController extends GetxController {
               ULoaders.stopLoading();
 
               if (isFullyVerified) {
+                await SessionManager.instance.setKycError('');
                 await SessionManager.instance.setKycPending(true);
                 await SessionManager.instance.setKycVerified(false);
 

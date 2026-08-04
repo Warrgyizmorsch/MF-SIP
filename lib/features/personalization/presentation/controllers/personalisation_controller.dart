@@ -348,7 +348,11 @@ class PersonalisationController extends GetxController {
 
             // 2. Check KYC Status (Using toLowerCase to be safe against API text changes)
             final kyc = profileData.kycStatus?.toLowerCase() ?? '';
-            isKycPending.value = kyc == 'pending' || kyc == 'in progress';
+            isKycPending.value =
+                kyc == 'pending' ||
+                kyc == 'in progress' ||
+                kyc == 'submitted' ||
+                kyc == 'under review';
             isKycVerified.value = kyc == 'approved' || kyc == 'verified';
 
             // 3. Check Risk Profile (True if riskProfile object exists OR a score exists)
