@@ -2835,7 +2835,12 @@ class _MobileLayout extends StatelessWidget {
                       !controller.hasPersonalDetails.value;
 
                   final canNumber = controller.userData.value?.canNumber ?? '';
-                  final noCan = canNumber.isEmpty;
+                  final userCanStatus =
+                      (controller.userData.value?.canStatus ?? '')
+                          .trim()
+                          .toLowerCase();
+
+                  final noCan = canNumber.isEmpty || userCanStatus == 'pending';
 
                   final noMandate = !controller.hasApprovedMandate;
 
@@ -2972,19 +2977,22 @@ class _MobileLayout extends StatelessWidget {
                     iconColor = Colors.purple.shade700;
                     titleColor = Colors.purple.shade900;
                     subTextColor = Colors.purple.shade800;
-                    leftIcon = Icons.app_registration_rounded;
+                    leftIcon = Icons.auto_awesome_rounded;
                     customLeftIcon = null;
                     rightIcon = Icons.arrow_forward_ios;
-                    titleText = 'Generate MFU CAN';
-                    subText = 'Required to process your mutual fund orders';
+                    titleText = 'Setting Up Investment Account';
+                    subText = 'Final activation in progress. Almost ready! 🚀';
 
                     onTapAction = () {
-                      log('Manual CAN generation clicked');
                       Get.find<PersonalisationController>()
                           .checkAndTriggerCanRegistration(
                             isManualTrigger: true,
                           );
-                      // controller.checkAndTriggerCanRegistration();
+                      ULoaders.info(
+                        title: "Account Activation In Progress 🎉",
+                        message:
+                            "Your profile and bank details are complete! We are carrying out the final investment account activation in the background. No action is needed from your end.",
+                      );
                     };
                   } else if (noMandate) {
                     bgColor = Colors.indigo.shade50;

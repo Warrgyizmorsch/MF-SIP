@@ -71,7 +71,28 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                       ),
                       const Gap(16),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          final canNumber =
+                              controller.session.getUserData?.canNumber ?? '';
+                          final canStatus =
+                              (controller.session.getUserData?.canStatus ?? '')
+                                  .trim()
+                                  .toLowerCase();
+
+                          if (canNumber.isEmpty || canStatus == 'pending') {
+                            ULoaders.warning(
+                              title: "Account Activation Pending",
+                              message:
+                                  "Your investment account is currently being set up by MF Utility. Auto Pay setup will unlock as soon as account activation completes.",
+                            );
+                            return;
+                          }
+
+                          Get.toNamed(
+                            AppRoutes.paymentScreen,
+                            arguments: {'isMandate': true, 'amount': '100000'},
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Ucolors.blue,
                           padding: const EdgeInsets.symmetric(
@@ -224,6 +245,22 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                       UElevatedBUtton(
                         outlined: true,
                         onPressed: () {
+                          final canNumber =
+                              controller.session.getUserData?.canNumber ?? '';
+                          final canStatus =
+                              (controller.session.getUserData?.canStatus ?? '')
+                                  .trim()
+                                  .toLowerCase();
+
+                          if (canNumber.isEmpty || canStatus == 'pending') {
+                            ULoaders.warning(
+                              title: "Account Activation Pending",
+                              message:
+                                  "Your investment account is currently being set up by MF Utility. Auto Pay setup will unlock as soon as account activation completes.",
+                            );
+                            return;
+                          }
+
                           Get.toNamed(
                             AppRoutes.paymentScreen,
                             arguments: {'isMandate': true, 'amount': '100000'},
