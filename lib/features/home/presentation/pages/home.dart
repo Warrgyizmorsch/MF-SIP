@@ -2958,12 +2958,12 @@ class _MobileLayout extends StatelessWidget {
                     leftIcon = Icons.hourglass_top;
                     customLeftIcon = null;
                     rightIcon = Icons.access_time;
-                    titleText = 'KYC in Progress';
-                    subText = 'CAMS is reviewing your details ⏳';
+                    titleText = 'KYC Under Verification';
+                    subText = 'Takes 2-3 business days for approval ⏳';
                     onTapAction = () => ULoaders.info(
-                      title: "Processing",
+                      title: "KYC Verification In Progress",
                       message:
-                          "Your KYC is currently under review by CAMS. Please check back shortly.",
+                          "Your KYC documents have been submitted to KRA/CAMS. Verification typically takes 2-3 business days. You can continue completing your bank details, nominee, and risk profile in the meantime.",
                     );
                   }
                   // 5. If everything else is done, but KYC is STILL pending!
