@@ -71,6 +71,8 @@ abstract class KycRepository {
   );
 
   Future<Either<Result<KycCheckEntity>, ApiError>> checkKycStatus(
-    Map<String, dynamic> data,
-  );
+    Map<String, dynamic> data, {
+    Uint8List? panCardImageBytes,
+    String? panCardImageName,
+  });
 }

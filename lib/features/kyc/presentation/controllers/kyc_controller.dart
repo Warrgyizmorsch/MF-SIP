@@ -252,6 +252,26 @@ class KycController extends GetxController {
 
   final panKeyboardType = TextInputType.name.obs;
 
+  // --- PAN Card Image State ---
+  final Rx<Uint8List?> panCardImageBytes = Rx<Uint8List?>(null);
+  final RxString panCardImageName = ''.obs;
+  final RxString panCardImagePath = ''.obs;
+
+  Future<void> pickPanCardImage(ImageSource source) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(
+      source: source,
+      imageQuality: 50,
+      maxHeight: 1024,
+      maxWidth: 1024,
+    );
+    if (image != null) {
+      panCardImagePath.value = image.path;
+      panCardImageName.value = image.name;
+      panCardImageBytes.value = await image.readAsBytes();
+    }
+  }
+
   KycController(this.kycUseCases);
 
   final updateUserData = Get.find<UpdateProfileUsecases>();
@@ -273,6 +293,30 @@ class KycController extends GetxController {
       case 0:
         // --- STEP 0: IDENTITY (DigiLocker Flow) ---
         if (step1FormKey.currentState!.validate()) {
+          if (selectedTaxStatus.value.isEmpty) {
+            ULoaders.warning(
+              title: 'Required Field',
+              message: 'Please select your Tax Status',
+            );
+            return;
+          }
+
+          if (selectedModeOfHolding.value.isEmpty) {
+            ULoaders.warning(
+              title: 'Required Field',
+              message: 'Please select your Mode of Holding',
+            );
+            return;
+          }
+
+          if (panCardImageBytes.value == null) {
+            ULoaders.warning(
+              title: 'Document Required',
+              message: 'Please upload a clear copy of your PAN card document',
+            );
+            return;
+          }
+
           bool hasLocationPermission = await _requestLocationPermission();
           if (!hasLocationPermission) {
             return;
@@ -583,19 +627,33 @@ class KycController extends GetxController {
 
   Future<bool?> checkKycStatus() async {
     try {
+      if (panCardImageBytes.value == null) {
+        ULoaders.warning(
+          title: 'Document Required',
+          message: 'Please upload a clear copy of your PAN card document',
+        );
+        return false;
+      }
+
       isLoading.value = true;
       ULoaders.showLoading(message: "Verifying PAN Details...");
 
       // 1. Translate the UI values for the backend API
       final requestData = {
-        "uid": session.getUserData?.id,
+        "uid": session.getUserData?.id?.toString() ?? '',
         "pan_card": panTextEditingController.text.toUpperCase(),
         "modeOfHld": getModeOfHldCode(selectedModeOfHolding.value),
         "resdStatus": getResdStatusCode(selectedTaxStatus.value),
       };
 
       // 2. Call the UseCase
-      final result = await kycUseCases.checkKycUseCase.call(requestData);
+      final result = await kycUseCases.checkKycUseCase.call(
+        requestData,
+        panCardImageBytes: panCardImageBytes.value,
+        panCardImageName: panCardImageName.value.isNotEmpty
+            ? panCardImageName.value
+            : "pan_card_image.jpg",
+      );
       ULoaders.stopLoading();
 
       // 3. Handle the Fold (Left = Success Result, Right = ApiError)

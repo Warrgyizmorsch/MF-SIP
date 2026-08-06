@@ -30,16 +30,38 @@ class KycRemoteDataSource {
 
   // CHECK KYC STATUS API
   Future<Either<Result<KycCheckModel>, ApiError>> checkKycStatus(
-    Map<String, dynamic> data,
-  ) async {
+    Map<String, dynamic> data, {
+    Uint8List? panCardImageBytes,
+    String? panCardImageName,
+  }) async {
     try {
-      final resp = await _apiService.postApi(
-        "${Appurl.baseUrl}/api/v1/check-kyc",
-        data: data,
-        // headers: {
-        //   'Content-Type': 'application/json',
-        // },
-      );
+      final Map<String, dynamic> stringifiedFields = {};
+      data.forEach((key, value) {
+        if (value != null) {
+          stringifiedFields[key] = value.toString();
+        }
+      });
+
+      dynamic resp;
+      if (panCardImageBytes != null) {
+        final List<Uint8List> files = [panCardImageBytes];
+        final List<String> fileNames = [
+          panCardImageName ?? "pan_card_image.jpg",
+        ];
+
+        resp = await _apiService.postMultipart(
+          url: "${Appurl.baseUrl}/api/v1/check-kyc",
+          fields: stringifiedFields,
+          files: files,
+          fileNames: fileNames,
+          fileFieldName: "pan_card_image",
+        );
+      } else {
+        resp = await _apiService.postApi(
+          "${Appurl.baseUrl}/api/v1/check-kyc",
+          data: data,
+        );
+      }
 
       createLog("[Kyc Remote Data Source] checkKycStatus Response: $resp");
 
@@ -558,6 +580,7 @@ class KycRemoteDataSource {
       return Right(ApiError(message: 'Onboarding failed with exception:$e'));
     }
   }
+
   // ===========================================================================
   //  CAMS POLLING
   // ===========================================================================

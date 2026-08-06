@@ -1861,6 +1861,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/button/elevated_button.dart';
 import 'package:my_sip/common/widget/images/custom_cached_image.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:my_sip/common/widget/images/image_picker.dart';
 import 'package:my_sip/common/widget/showbottomsheet/showbottomsheet.dart';
 import 'package:my_sip/common/widget/text_form/text_field_component.dart';
@@ -2101,7 +2102,7 @@ class KycScreen extends GetView<KycController> {
             controller: controller.pageController,
             physics: const NeverScrollableScrollPhysics(),
             children: [
-              SingleChildScrollView(child: _buildPage1(controller)),
+              SingleChildScrollView(child: _buildPage1(controller, context)),
               SingleChildScrollView(
                 child: _buildPage2(controller, context: context),
               ),
@@ -2127,7 +2128,7 @@ class KycScreen extends GetView<KycController> {
     );
   }
 
-  Widget _buildPage1(KycController controller) {
+  Widget _buildPage1(KycController controller, BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20),
       child: Form(
@@ -2200,6 +2201,124 @@ class KycScreen extends GetView<KycController> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  Text(
+                    "PAN CARD DOCUMENT",
+                    style: TextStyle(
+                      fontFamily: FontFamily.medium,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Obx(() {
+                    final hasImage =
+                        controller.panCardImagePath.value.isNotEmpty;
+
+                    return GestureDetector(
+                      onTap: () {
+                        UImagePicker.showImageSourceOptions(
+                          context: context,
+                          onImageSelected: (source) =>
+                              controller.pickPanCardImage(source),
+                        );
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                          horizontal: 16,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: hasImage
+                                ? Ucolors.primary
+                                : Colors.grey.shade300,
+                          ),
+                        ),
+                        child: hasImage
+                            ? Row(
+                                children: [
+                                  const Icon(
+                                    Icons.credit_card,
+                                    color: Ucolors.primary,
+                                    size: 28,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          controller.panCardImageName.value,
+                                          style: const TextStyle(
+                                            fontFamily: FontFamily.medium,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: 2),
+                                        const Text(
+                                          'Tap to change PAN image',
+                                          style: TextStyle(
+                                            fontFamily: FontFamily.medium,
+                                            fontSize: 10,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.red,
+                                    ),
+                                    onPressed: () {
+                                      controller.panCardImagePath.value = '';
+                                      controller.panCardImageBytes.value = null;
+                                      controller.panCardImageName.value = '';
+                                    },
+                                  ),
+                                ],
+                              )
+                            : Column(
+                                children: [
+                                  Icon(
+                                    Icons.add_a_photo_outlined,
+                                    size: 32,
+                                    color: Colors.grey.shade400,
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    'Upload / Capture PAN Card Copy',
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.medium,
+                                      fontSize: 12,
+                                      color: Colors.grey.shade700,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Clear photo of PAN card (JPG, PNG)',
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.medium,
+                                      fontSize: 10,
+                                      color: Colors.grey.shade500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                      ),
+                    );
+                  }),
                 ],
               ),
             ),
@@ -5465,6 +5584,116 @@ class KycScreen extends GetView<KycController> {
                       inputFormatters: [PanCardFormatter()],
                     ),
                   ),
+                ),
+                _buildFieldWrapper(
+                  label: "PAN Card Document",
+                  child: Obx(() {
+                    final hasImage =
+                        controller.panCardImagePath.value.isNotEmpty;
+
+                    return GestureDetector(
+                      onTap: () {
+                        UImagePicker.showImageSourceOptions(
+                          context: context,
+                          onImageSelected: (source) =>
+                              controller.pickPanCardImage(source),
+                        );
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                          horizontal: 16,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: hasImage
+                                ? Ucolors.primary
+                                : Colors.grey.shade300,
+                          ),
+                        ),
+                        child: hasImage
+                            ? Row(
+                                children: [
+                                  const Icon(
+                                    Icons.credit_card,
+                                    color: Ucolors.primary,
+                                    size: 28,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          controller.panCardImageName.value,
+                                          style: const TextStyle(
+                                            fontFamily: FontFamily.medium,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: 2),
+                                        const Text(
+                                          'Tap to change PAN image',
+                                          style: TextStyle(
+                                            fontFamily: FontFamily.medium,
+                                            fontSize: 10,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.red,
+                                    ),
+                                    onPressed: () {
+                                      controller.panCardImagePath.value = '';
+                                      controller.panCardImageBytes.value = null;
+                                      controller.panCardImageName.value = '';
+                                    },
+                                  ),
+                                ],
+                              )
+                            : Column(
+                                children: [
+                                  Icon(
+                                    Icons.add_a_photo_outlined,
+                                    size: 32,
+                                    color: Colors.grey.shade400,
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    'Upload / Capture PAN Card Copy',
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.medium,
+                                      fontSize: 12,
+                                      color: Colors.grey.shade700,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Clear photo of PAN card (JPG, PNG)',
+                                    style: TextStyle(
+                                      fontFamily: FontFamily.medium,
+                                      fontSize: 10,
+                                      color: Colors.grey.shade500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                      ),
+                    );
+                  }),
                 ),
               ],
             ),

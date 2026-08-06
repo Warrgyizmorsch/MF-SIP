@@ -240,7 +240,9 @@ class NetworkServicesApi implements BaseApiServices {
       final formData = FormData();
 
       fields.forEach((key, value) {
-        formData.fields.add(MapEntry(key, value));
+        if (value != null) {
+          formData.fields.add(MapEntry(key, value.toString()));
+        }
       });
 
       for (int i = 0; i < files.length; i++) {

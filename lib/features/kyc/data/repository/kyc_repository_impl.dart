@@ -27,10 +27,16 @@ class KycRepositoryImpl extends KycRepository {
 
   @override
   Future<Either<Result<KycCheckEntity>, ApiError>> checkKycStatus(
-    Map<String, dynamic> data,
-  ) async {
+    Map<String, dynamic> data, {
+    Uint8List? panCardImageBytes,
+    String? panCardImageName,
+  }) async {
     try {
-      final response = await _remoteDataSource.checkKycStatus(data);
+      final response = await _remoteDataSource.checkKycStatus(
+        data,
+        panCardImageBytes: panCardImageBytes,
+        panCardImageName: panCardImageName,
+      );
 
       return response.fold(
         (successResult) {
