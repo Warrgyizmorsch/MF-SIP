@@ -393,7 +393,7 @@ class NomineeDetailsScreen extends GetView<PersonalisationController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SmallHeading(
-          smallheading: 'Phone Number (Optional)',
+          smallheading: 'Phone Number',
           fontWeight: FontWeight.w600,
         ),
         const SizedBox(height: 5),
