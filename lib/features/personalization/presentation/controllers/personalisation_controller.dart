@@ -743,6 +743,15 @@ class PersonalisationController extends GetxController {
   }
 
   Future<void> deleteBank(int bankId) async {
+    if (linkedBankAccounts.length <= 1) {
+      ULoaders.warning(
+        title: "Bank Account Required",
+        message:
+            "You must keep at least one bank account for investments. Please add a new bank account before deleting this one.",
+      );
+      return;
+    }
+
     // 1. Set loading state for this specific bank ID
     isDeletingBank[bankId] = true;
 

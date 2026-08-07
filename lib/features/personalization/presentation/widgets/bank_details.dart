@@ -147,6 +147,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                           child: BankCard(
                             onDelete: () {
                               if (bank.id != null) {
+                                debugPrint(bank.id.toString());
                                 _confirmDelete(
                                   context,
                                   bank.id!,
@@ -359,6 +360,20 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
   }
 
   void _confirmDelete(BuildContext context, int bankid, String bankName) {
+    if (controller.linkedBankAccounts.length <= 1) {
+      DialogHelper.showPrerequisiteDialog(
+        title: 'Bank Account Required',
+        message:
+            'You must keep at least one bank account linked for mutual fund payouts and SIP orders. Please add a new bank account before removing this one.',
+        buttonText: 'Add New Bank',
+        onTap: () {
+          Get.back();
+          Get.toNamed(AppRoutes.addanotherbank);
+        },
+      );
+      return;
+    }
+
     DialogHelper.showPrerequisiteDialog(
       title: 'Delete Bank',
       message: 'Are you sure you want to delete $bankName?',
@@ -368,18 +383,6 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
         controller.deleteBank(bankid);
       },
     );
-
-    // Get.defaultDialog(
-    //   title: "Delete Bank",
-    //   middleText: "Are you sure you want to delete $bankName?",
-    //   textCancel: "Cancel",
-    //   textConfirm: "Delete",
-    //   confirmTextColor: Colors.white,
-    //   onConfirm: () {
-    //     Get.back(); // Close dialog
-    //     controller.deleteBank(bankid);
-    //   },
-    // );
   }
 }
 
