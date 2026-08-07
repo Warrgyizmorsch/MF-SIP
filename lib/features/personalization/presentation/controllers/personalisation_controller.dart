@@ -570,7 +570,7 @@ class PersonalisationController extends GetxController {
 
     try {
       final mfuController = Get.find<MfuController>();
-      await mfuController.canRegister(reqEvent: "CR");
+      await mfuController.canRegister();
 
       final canResponse = mfuController.mfuCanResponse.value;
       final canNumber = canResponse?.can ?? '';

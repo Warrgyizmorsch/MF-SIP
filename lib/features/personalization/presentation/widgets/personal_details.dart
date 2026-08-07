@@ -47,7 +47,7 @@ class PersonalDetailsScreen extends GetView<AuthController> {
     final bool isDesktop = MediaQuery.of(context).size.width > 850;
 
     return Scaffold(
-      backgroundColor:  Colors.white,
+      backgroundColor: Colors.white,
       appBar: isDesktop ? null : CustomAppBarNormal(title: 'Personal Info'),
 
       // 🚀 FIX: Removed bottomNavigationBar for Web. It feels unnatural on desktop.
@@ -104,7 +104,7 @@ class PersonalDetailsScreen extends GetView<AuthController> {
                   ),
                 ),
                 Obx(
-                      () => ElevatedButton(
+                  () => ElevatedButton(
                     onPressed: personalisationController.isLoading.value
                         ? null
                         : () => personalisationController.updateProfile(),
@@ -120,20 +120,20 @@ class PersonalDetailsScreen extends GetView<AuthController> {
                     ),
                     child: personalisationController.isLoading.value
                         ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
                         : const Text(
-                      "Save Changes",
-                      style: TextStyle(
-                        fontFamily: FontFamily.medium,
-                        color: Colors.white,
-                      ),
-                    ),
+                            "Save Changes",
+                            style: TextStyle(
+                              fontFamily: FontFamily.medium,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
               ],
@@ -179,7 +179,6 @@ class PersonalDetailsScreen extends GetView<AuthController> {
               ],
             ),
             const SizedBox(height: 40),
-
           ],
         ),
       ),
@@ -231,7 +230,7 @@ class PersonalDetailsScreen extends GetView<AuthController> {
       final reactiveUser = SessionManager.instance.userObs.value;
       String displayImage = personalisationController.imagePath.isNotEmpty
           ? personalisationController.imagePath.value
-          : (reactiveUser?.img ?? UImages.avatar);
+          : (reactiveUser?.img ?? UImages.mfsiplogo);
 
       return ProfileHeader(
         onTap: () => UImagePicker.showImageSourceOptions(
@@ -239,6 +238,7 @@ class PersonalDetailsScreen extends GetView<AuthController> {
           onImageSelected: (source) =>
               personalisationController.pickImage(source),
         ),
+
         img: displayImage,
         subtitle: 'Change Photo',
         icon: Iconsax.export,

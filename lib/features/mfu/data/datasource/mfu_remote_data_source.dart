@@ -27,18 +27,12 @@ class MfuRemoteDataSource {
 
   MfuRemoteDataSource(this._apiService, this.sessionManager);
 
-  Future<Either<Result<MfuCanResponseModel>, ApiError>> canRegister({
-    required int uid,
-    String reqEvent = "CR",
-  }) async {
+  Future<Either<Result<MfuCanResponseModel>, ApiError>> canRegister() async {
     try {
-      final body = {"uid": uid, "reqEvent": reqEvent};
-
-      createLog("[MfuRemoteDataSource] canRegister Request: $body");
+      createLog("[MfuRemoteDataSource] Initiating token-only CAN setup...");
 
       final resp = await _apiService.postApi(
         "${Appurl.baseUrl}/api/v1/onboarding/can-setup",
-        data: body,
       );
 
       createLog("[MfuRemoteDataSource] canRegister Response: $resp");

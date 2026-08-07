@@ -9,10 +9,7 @@ class CanRegisterUseCase {
 
   CanRegisterUseCase({required this.mfuRepository});
 
-  Future<Either<Result<MfuCanResponseEntity>, ApiError>> call({
-    required int uid,
-    String reqEvent = "CR",
-  }) async {
-    return await mfuRepository.canRegister(uid: uid, reqEvent: reqEvent);
+  Future<Either<Result<MfuCanResponseEntity>, ApiError>> call() async {
+    return await mfuRepository.canRegister();
   }
 }

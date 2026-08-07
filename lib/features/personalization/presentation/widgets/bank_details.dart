@@ -75,11 +75,14 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                           final canNumber =
                               controller.session.getUserData?.canNumber ?? '';
                           final canStatus =
-                              (controller.session.getUserData?.canStatus ?? '')
+                              (controller.userData.value?.canStatus ?? '')
                                   .trim()
                                   .toLowerCase();
 
-                          if (canNumber.isEmpty || canStatus == 'pending') {
+                          if (canNumber.isEmpty ||
+                              canStatus == 'pending' ||
+                              canStatus == 'verified' ||
+                              canStatus == 'verified') {
                             ULoaders.warning(
                               title: "Account Activation Pending",
                               message:
@@ -253,7 +256,10 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                                   .trim()
                                   .toLowerCase();
 
-                          if (canNumber.isEmpty || canStatus == 'pending') {
+                          if (canNumber.isEmpty ||
+                              canStatus == 'pending' ||
+                              canStatus == 'verified' ||
+                              canStatus == 'on hold') {
                             ULoaders.warning(
                               title: "Account Activation Pending",
                               message:

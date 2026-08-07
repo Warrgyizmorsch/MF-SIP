@@ -23,15 +23,9 @@ class MfuRepositoryImpl extends MfuRepository {
   MfuRepositoryImpl(this._remoteDataSource);
 
   @override
-  Future<Either<Result<MfuCanResponseEntity>, ApiError>> canRegister({
-    required int uid,
-    String reqEvent = "CR",
-  }) async {
+  Future<Either<Result<MfuCanResponseEntity>, ApiError>> canRegister() async {
     try {
-      final response = await _remoteDataSource.canRegister(
-        uid: uid,
-        reqEvent: reqEvent,
-      );
+      final response = await _remoteDataSource.canRegister();
 
       return response.fold((successResult) {
         final entity = successResult.data!.toEntity();

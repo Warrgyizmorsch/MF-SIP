@@ -433,16 +433,11 @@ class MfuController extends GetxController {
 
   //   isLoading.value = false;
   // }
-  Future<void> canRegister({String reqEvent = "CR"}) async {
+  Future<void> canRegister() async {
     isLoading.value = true;
     errorMessage.value = '';
 
-    final uid = session.getUserData?.id ?? 0;
-
-    final result = await mfuUseCases.canRegisterUseCase(
-      uid: uid,
-      reqEvent: reqEvent,
-    );
+    final result = await mfuUseCases.canRegisterUseCase();
 
     result.fold(
       (success) {

@@ -16,10 +16,7 @@ import 'package:my_sip/features/mfu/domain/entity/normal_txn_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/systematic_txn_entity.dart';
 
 abstract class MfuRepository {
-  Future<Either<Result<MfuCanResponseEntity>, ApiError>> canRegister({
-    required int uid,
-    String reqEvent,
-  });
+  Future<Either<Result<MfuCanResponseEntity>, ApiError>> canRegister();
 
   Future<Either<Result<MfuCanStatusEntity>, ApiError>> getCanStatus({
     required String can,

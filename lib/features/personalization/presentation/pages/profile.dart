@@ -80,7 +80,6 @@ class _MobileProfileLayout extends StatelessWidget {
                     ? controller.imagePath.value
                     : (reactiveUser?.img ?? UImages.mfsiplogo);
 
-                log(user1?.img ?? ' not ');
 
                 return ProfileHeader(
                   // onTap: () => controller.pickImage(
