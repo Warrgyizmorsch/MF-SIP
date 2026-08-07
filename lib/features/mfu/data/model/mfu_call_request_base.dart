@@ -9,16 +9,15 @@ sealed class MfuCallRequestBase {
 
   /// Final body sent to API — never override this
   Map<String, dynamic> toRequestBody() => {
-        "apiType": apiType,
-        "payload": buildPayload(),
-      };
+    "apiType": apiType,
+    "payload": buildPayload(),
+  };
 }
-
 
 class MfuCanStatusRequest extends MfuCallRequestBase {
   final String can;
 
-   MfuCanStatusRequest({required this.can});
+  MfuCanStatusRequest({required this.can});
 
   @override
   String get apiType => "CAN-STATUS";
@@ -27,15 +26,13 @@ class MfuCanStatusRequest extends MfuCallRequestBase {
   Map<String, dynamic> buildPayload() => {"can": can};
 }
 
-
-
 class MfuCanValRequest extends MfuCallRequestBase {
   final String can;
   final String pan;
   final String dob;
   final String emailId;
 
-   MfuCanValRequest({
+  MfuCanValRequest({
     required this.can,
     required this.pan,
     required this.dob,
@@ -47,9 +44,9 @@ class MfuCanValRequest extends MfuCallRequestBase {
 
   @override
   Map<String, dynamic> buildPayload() => {
-        "can": can,
-        "pan": pan,
-        "dob": dob,
-        "emailId": emailId,
-      };
+    "can": can,
+    "pan": pan,
+    "dob": dob,
+    "emailId": emailId,
+  };
 }

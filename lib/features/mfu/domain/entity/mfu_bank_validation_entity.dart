@@ -45,7 +45,14 @@ class MfuCanBankValidationDataEntity extends Equatable {
   bool get isBankExist => bankExistFlag == 'Y';
 
   @override
-  List<Object?> get props => [uid, can, accountNo, ifscCode, micrNo, bankExistFlag];
+  List<Object?> get props => [
+    uid,
+    can,
+    accountNo,
+    ifscCode,
+    micrNo,
+    bankExistFlag,
+  ];
 }
 
 class MfuCanBankValidationMfuResponseEntity extends Equatable {
@@ -67,8 +74,12 @@ class MfuCanBankValidationMfuResponseEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        respFlag, respTs, errorCode, errorMsg, bankExistFlag,
-      ];
+    respFlag,
+    respTs,
+    errorCode,
+    errorMsg,
+    bankExistFlag,
+  ];
 }
 
 // ─── Mappers ──────────────────────────────────────────────────────────────────

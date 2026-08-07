@@ -7,14 +7,21 @@ class FundModel {
   final String sipReturns;
   final double rating;
 
-  FundModel({required this.icon, required this.name, required this.riskType, required this.sipReturns, required this.rating});
+  FundModel({
+    required this.icon,
+    required this.name,
+    required this.riskType,
+    required this.sipReturns,
+    required this.rating,
+  });
 
   factory FundModel.fromJson(Map<String, dynamic> json) {
     return FundModel(
-        icon: json.parse<String>('icon') ?? '',
-        name: json.parse<String>('name') ?? '',
-        riskType: json.parse<String>('riskType') ?? '',
-        sipReturns: json.parse<String>('sipReturns') ?? '',
-        rating: json.parse<double>('rating') ?? 0.0);
+      icon: json.parse<String>('icon') ?? '',
+      name: json.parse<String>('name') ?? '',
+      riskType: json.parse<String>('riskType') ?? '',
+      sipReturns: json.parse<String>('sipReturns') ?? '',
+      rating: json.parse<double>('rating') ?? 0.0,
+    );
   }
 }

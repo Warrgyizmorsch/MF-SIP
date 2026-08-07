@@ -621,8 +621,8 @@ class MfuController extends GetxController {
                 //     mandateCreateResponse.value?.enachResponse?.mmrn ?? '';
                 // final mumrn =
                 //     mandateCreateResponse.value?.upiResponse?.mumrn ?? '';
-                final freshMmrn = success.data?.enachResponse?.mmrn ?? '';
-                final freshMumrn = success.data?.upiResponse?.mumrn ?? '';
+                final freshMmrn = success.data?.mmrn ?? '';
+                final freshMumrn = success.data?.mumrn ?? '';
                 if (mandateType == 'upi') {
                   if (freshMumrn.isEmpty) {
                     CustomSnackbar.error(
@@ -633,7 +633,6 @@ class MfuController extends GetxController {
                   }
                   await getMandateStatus(
                     MfuMandateStatusRequest.upi(
-                      // userId: uid,
                       userId: uid,
                       can: can,
                       mumrn: freshMumrn,
@@ -649,7 +648,6 @@ class MfuController extends GetxController {
                   }
                   await getMandateStatus(
                     MfuMandateStatusRequest.enach(
-                      // userId: 9105,
                       userId: uid,
                       can: can,
                       mmrn: freshMmrn,
@@ -1276,7 +1274,6 @@ class _PopupWebViewState extends State<_PopupWebView> {
 
 */
 
-
 /* 
   Can 
 final isLoadingCanStatus = false.obs;
@@ -1364,6 +1361,5 @@ Obx(() {
 //////  ---------   
 
 */
-
 
 /// Generic

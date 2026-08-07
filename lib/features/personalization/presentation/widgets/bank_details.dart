@@ -214,7 +214,7 @@ class BankDetailsScreen extends GetView<PersonalisationController> {
                 return Column(
                   children: [
                     const Gap(10),
-                    if (controller.hasApprovedMandate)
+                    if (!controller.hasApprovedMandate)
                       UElevatedBUtton(
                         outlined: true,
                         child: const Center(

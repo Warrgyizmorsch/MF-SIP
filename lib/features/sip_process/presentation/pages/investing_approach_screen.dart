@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -37,14 +36,17 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
 
     return Center(
       // Padding ensures it doesn't touch the edges on smaller web screens
-      child:LayoutBuilder(
-          builder: (context, constraints) {
-            final double isWideScreen = constraints.maxWidth*0.9;
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final double isWideScreen = constraints.maxWidth * 0.9;
 
-            final double availableHeight = constraints.maxHeight*0.9;
+          final double availableHeight = constraints.maxHeight * 0.9;
 
-            return ConstrainedBox(
-              constraints:  BoxConstraints(maxWidth: isWideScreen,maxHeight: availableHeight),
+          return ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: isWideScreen,
+              maxHeight: availableHeight,
+            ),
             child: Container(
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
@@ -63,20 +65,14 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Left Blue Panel (Your Profile)
-                  Expanded(
-                    flex: 4,
-                    child: _buildLeftProfilePanel(session),
-                  ),
+                  Expanded(flex: 4, child: _buildLeftProfilePanel(session)),
                   // Right White Panel (Strategy Selection)
-                  Expanded(
-                    flex: 6,
-                    child: _buildRightSelectionPanel(context),
-                  ),
+                  Expanded(flex: 6, child: _buildRightSelectionPanel(context)),
                 ],
               ),
             ),
           );
-        }
+        },
       ),
     );
   }
@@ -96,13 +92,18 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                   border: Border.all(color: Colors.white, width: 1.5),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: const Icon(Icons.trending_up, color: Colors.white, size: 18),
+                child: const Icon(
+                  Icons.trending_up,
+                  color: Colors.white,
+                  size: 18,
+                ),
               ),
               const SizedBox(width: 12),
               const Text(
                 "BUILD YOUR WEALTH WITH SIP",
                 style: TextStyle(
-                  fontFamily: FontFamily.medium, // Make sure your font family is imported
+                  fontFamily: FontFamily
+                      .medium, // Make sure your font family is imported
                   color: Colors.white,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -139,11 +140,11 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
           _buildProfileDetailCard(
             icon: Icons.shield_outlined,
             title: "Risk Appetite",
-            value:  session.riskScoreObs.value?.profileName ?? '',
+            value: session.riskScoreObs.value?.profileName ?? '',
           ),
           const SizedBox(height: 16),
           Obx(
-                () => _buildProfileDetailCard(
+            () => _buildProfileDetailCard(
               icon: Icons.money,
               title: "Monthly SIP",
               // Assuming you have formatCurrency available in your controller
@@ -163,9 +164,13 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1), // Updated to withValues for newer Flutter versions
+        color: Colors.white.withValues(
+          alpha: 0.1,
+        ), // Updated to withValues for newer Flutter versions
         border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-        borderRadius: BorderRadius.circular(12), // Match the inner card rounding of the example
+        borderRadius: BorderRadius.circular(
+          12,
+        ), // Match the inner card rounding of the example
       ),
       child: Row(
         children: [
@@ -197,7 +202,6 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
     );
   }
 
-
   Widget _buildRightSelectionPanel(BuildContext context) {
     return Container(
       color: Colors.white,
@@ -216,10 +220,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
           const SizedBox(height: 8),
           Text(
             "How would you like to build your portfolio?",
-            style: TextStyle(
-              fontSize: 15,
-              color: Colors.grey.shade600,
-            ),
+            style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
           ),
           const SizedBox(height: 20),
 
@@ -230,12 +231,13 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
               children: [
                 Expanded(
                   child: Obx(
-                        () => _buildStrategyCard(
+                    () => _buildStrategyCard(
                       index: 0,
                       isSelected: controller.selectedApproach.value == 0,
                       icon: Icons.bar_chart,
                       title: "Best High Growth Funds",
-                      description: "Select from top-rated individual funds suggested by our analysts for maximum returns.",
+                      description:
+                          "Select from top-rated individual funds suggested by our analysts for maximum returns.",
                       features: ["15-18% Hist. Returns", "Direct Plans"],
                       onTap: () => controller.selectApproach(0),
                     ),
@@ -244,12 +246,13 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                 const SizedBox(width: 20),
                 Expanded(
                   child: Obx(
-                        () => _buildStrategyCard(
+                    () => _buildStrategyCard(
                       index: 1,
                       isSelected: controller.selectedApproach.value == 1,
                       icon: Icons.pie_chart_outline,
                       title: "Curated Portfolio",
-                      description: "A ready-made basket of funds diversified across sectors to minimize risk.",
+                      description:
+                          "A ready-made basket of funds diversified across sectors to minimize risk.",
                       features: ["Auto-Rebalancing", "Expert Managed"],
                       onTap: () => controller.selectApproach(1),
                     ),
@@ -276,9 +279,7 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                   child: Center(
                     child: Text(
                       'Back',
-                      style: AppTextStyles.bodyMedium(
-                        color: Ucolors.primary,
-                      ),
+                      style: AppTextStyles.bodyMedium(color: Ucolors.primary),
                     ),
                   ),
                 ),
@@ -287,13 +288,12 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
               SizedBox(
                 width: 200,
                 child: UElevatedButtonWeb(
-                  onPressed: () => Get.toNamed(AppRoutes.selectFundsScreen, id: 1),
+                  onPressed: () =>
+                      Get.toNamed(AppRoutes.selectFundsScreen, id: 1),
                   child: Center(
                     child: Text(
                       'Continue',
-                      style: AppTextStyles.bodyMedium(
-                        color: Colors.white,
-                      ),
+                      style: AppTextStyles.bodyMedium(color: Colors.white),
                     ),
                   ),
                 ),
@@ -336,7 +336,9 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF0B598F) : const Color(0xFFF0F4F8),
+                    color: isSelected
+                        ? const Color(0xFF0B598F)
+                        : const Color(0xFFF0F4F8),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -346,8 +348,12 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
                   ),
                 ),
                 Icon(
-                  isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                  color: isSelected ? const Color(0xFF0B598F) : Colors.grey.shade300,
+                  isSelected
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_unchecked,
+                  color: isSelected
+                      ? const Color(0xFF0B598F)
+                      : Colors.grey.shade300,
                 ),
               ],
             ),
@@ -374,22 +380,26 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
             const Spacer(),
 
             // Checkmark Features
-            ...features.map((feature) => Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Row(
-                children: [
-                  const Icon(Icons.check, size: 16, color: Colors.green),
-                  const SizedBox(width: 8),
-                  Text(
-                    feature,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade700,
+            ...features
+                .map(
+                  (feature) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check, size: 16, color: Colors.green),
+                        const SizedBox(width: 8),
+                        Text(
+                          feature,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            )).toList(),
+                )
+                .toList(),
           ],
         ),
       ),
@@ -423,7 +433,9 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
         ElevatedButton(
           onPressed: () {}, // Connect to Get.toNamed()
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0073C6), // Bright blue matching image
+            backgroundColor: const Color(
+              0xFF0073C6,
+            ), // Bright blue matching image
             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
@@ -448,7 +460,6 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
       ],
     );
   }
-
 
   Widget _buildMobileLayout(BuildContext context) {
     final session = SessionManager.instance;
@@ -801,9 +812,6 @@ class InvestingApproachScreen extends GetView<SipProcessController> {
     );
   }
 }
-
-
-
 
 // import 'package:flutter/material.dart';
 // import 'package:flutter_svg/svg.dart';

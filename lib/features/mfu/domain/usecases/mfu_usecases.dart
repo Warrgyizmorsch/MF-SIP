@@ -17,8 +17,7 @@ class MfuUseCases {
   final MfuCanBankValidationUseCase mfuCanBankValidationUseCase;
   // final GetTransactionsUseCase getTransactionsUseCase;
   // final GetPortfolioUseCase getPortfolioUseCase; // 👈
-  final MfuCallUseCase mfuCallUseCase ;
- 
+  final MfuCallUseCase mfuCallUseCase;
 
   MfuUseCases({
     required this.canRegisterUseCase,

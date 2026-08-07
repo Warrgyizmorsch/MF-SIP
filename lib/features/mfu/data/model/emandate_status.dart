@@ -1,4 +1,3 @@
-
 // import 'package:my_sip/core/utils/helper/custom_json_parser.dart';
 
 // class MfuMandateStatusModel {
@@ -26,7 +25,6 @@
 //     );
 //   }
 // }
-
 
 // features/mfu/data/model/mfu_mandate_status_model.dart
 
@@ -73,7 +71,8 @@ class MfuMandateStatusModel {
       mandateStatus: json.parse<String>('mandate_status'),
       response: json['response'] != null
           ? MfuMandateStatusResponseModel.fromJson(
-              json['response'] as Map<String, dynamic>)
+              json['response'] as Map<String, dynamic>,
+            )
           : null,
     );
   }

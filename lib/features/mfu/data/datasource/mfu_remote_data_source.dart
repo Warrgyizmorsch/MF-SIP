@@ -193,7 +193,7 @@ class MfuRemoteDataSource {
       createLog("[MfuRemoteDataSource] createMandate Request: $body");
 
       final resp = await _apiService.postApi(
-        "${Appurl.baseUrl}/api/v1/mfu/mandate/create",
+        "${Appurl.baseUrl}/api/v1/onboarding/mandate-setup",
         data: body,
       );
 
@@ -201,7 +201,7 @@ class MfuRemoteDataSource {
 
       if (resp != null) {
         final result = MfuMandateCreateModel.fromJson(resp);
-        if (result.status == true) {
+        if (result.status == true || result.success == true) {
           return Left(Result.success(result));
         } else {
           return Right(

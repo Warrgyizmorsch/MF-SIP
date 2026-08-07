@@ -44,10 +44,19 @@ class MfuCanValEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        respFlag, respTs, errorCode, errorMsg,
-        isValidCan, isValidPan, isValidDob, isValidEmail,
-        canStatus, allowForTrans, accountCategory, canModeOfHolding,
-      ];
+    respFlag,
+    respTs,
+    errorCode,
+    errorMsg,
+    isValidCan,
+    isValidPan,
+    isValidDob,
+    isValidEmail,
+    canStatus,
+    allowForTrans,
+    accountCategory,
+    canModeOfHolding,
+  ];
 }
 
 extension MfuCanValResponseMapper on MfuCanValResponse {

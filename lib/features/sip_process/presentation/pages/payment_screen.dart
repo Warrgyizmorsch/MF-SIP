@@ -899,25 +899,14 @@ void _showMandateSheet(BuildContext context, String amount) {
 
                         await controller.createMandate(
                           MfuMandateCreateRequest.upi(
-                            uid: 9105,
-                            amount: 100000, // Use the amount from PaymentScreen
-                            // vpaId: upiId,
-                            vpaId: 'MFUYES14157AZA01@yesbankltd',
-                            endDate:
-                                "2036-05-24", // Adjust as per your requirement
+                            workflowType: "C",
+                            upiId: upiId,
                           ),
                         );
                       } else {
                         // eNACH
                         await controller.createMandate(
-                          MfuMandateCreateRequest.enach(
-                            uid: 9105,
-                            amount: 100000,
-                            startDate: DateTime.now().toString().split(
-                              ' ',
-                            )[0], // Dynamic Start Date
-                            endDate: "2036-05-24",
-                          ),
+                          MfuMandateCreateRequest.enach(regMode: "PN"),
                         );
                       }
 

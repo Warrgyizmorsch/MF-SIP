@@ -12,11 +12,11 @@ class MfuCanValResponse {
     return MfuCanValResponse(
       respHeader: json['respHeader'] != null
           ? MfuCanValRespHeader.fromJson(
-              json['respHeader'] as Map<String, dynamic>)
+              json['respHeader'] as Map<String, dynamic>,
+            )
           : null,
       respBody: json['respBody'] != null
-          ? MfuCanValRespBody.fromJson(
-              json['respBody'] as Map<String, dynamic>)
+          ? MfuCanValRespBody.fromJson(json['respBody'] as Map<String, dynamic>)
           : null,
     );
   }
@@ -29,7 +29,10 @@ class MfuCanValRespHeader {
   final String? errorMsg;
 
   MfuCanValRespHeader({
-    this.respFlag, this.respTs, this.errorCode, this.errorMsg,
+    this.respFlag,
+    this.respTs,
+    this.errorCode,
+    this.errorMsg,
   });
 
   factory MfuCanValRespHeader.fromJson(Map<String, dynamic> json) {
@@ -53,10 +56,14 @@ class MfuCanValRespBody {
   final String? canModeOfHolding;
 
   MfuCanValRespBody({
-    this.isValidCan, this.isValidPan,
-    this.isValidDob, this.isValidEmail,
-    this.canStatus, this.allowForTrans,
-    this.accountCategory, this.canModeOfHolding,
+    this.isValidCan,
+    this.isValidPan,
+    this.isValidDob,
+    this.isValidEmail,
+    this.canStatus,
+    this.allowForTrans,
+    this.accountCategory,
+    this.canModeOfHolding,
   });
 
   factory MfuCanValRespBody.fromJson(Map<String, dynamic> json) {

@@ -133,7 +133,8 @@ class PersonalisationController extends GetxController {
   // 2. Check if a mandate is fully approved and active
   bool get hasApprovedMandate {
     final status = userData.value?.mfuMandate?.status?.toLowerCase();
-    return status == 'approved' || status == 'success' || status == 'initiated';
+    return status == 'approved' || status == 'success';
+    //  || status == 'initiated';
   }
 
   // 3. Grab the MMRN or MMURN to pass into the SIP API

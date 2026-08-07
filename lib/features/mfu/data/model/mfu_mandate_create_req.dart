@@ -1,44 +1,47 @@
-
 class MfuMandateCreateRequest {
-  final int uid;
   final String mandateType;
-  final double amount;
+  final int? bankId;
 
   // eNACH only
-  final String? regMode;
-  final String? startDate;
+  final String? regMode; // "PN" (NetBanking) or "PD" (Debit Card)
 
   // UPI only
-  final String? workflowType;
-  final String? vpaId;
+  final String? workflowType; // "C" (Approval Link) or "I" (Deep Link)
+  final String? upiId;
 
-  // shared
+  // optional legacy fields
+  final int? uid;
+  final double? amount;
+  final String? startDate;
   final String? endDate;
 
   MfuMandateCreateRequest._({
-    required this.uid,
     required this.mandateType,
-    required this.amount,
+    this.bankId,
     this.regMode,
-    this.startDate,
     this.workflowType,
-    this.vpaId,
+    this.upiId,
+    this.uid,
+    this.amount,
+    this.startDate,
     this.endDate,
   });
 
   // ── eNACH ─────────────────────────────────────────────────────────────────
   factory MfuMandateCreateRequest.enach({
-    required int uid,
-    required double amount,
-    required String startDate,
-    required String endDate,
-    String regMode = "PD",
+    String regMode = "PN",
+    int? bankId,
+    int? uid,
+    double? amount,
+    String? startDate,
+    String? endDate,
   }) {
     return MfuMandateCreateRequest._(
-      uid: uid,
       mandateType: "enach",
-      amount: amount,
       regMode: regMode,
+      bankId: bankId,
+      uid: uid,
+      amount: amount,
       startDate: startDate,
       endDate: endDate,
     );
@@ -46,33 +49,36 @@ class MfuMandateCreateRequest {
 
   // ── UPI ───────────────────────────────────────────────────────────────────
   factory MfuMandateCreateRequest.upi({
-    required int uid,
-    required double amount,
-    required String vpaId,
-    required String endDate,
-    String workflowType = "I",
+    String workflowType = "C",
+    String? upiId,
+    int? bankId,
+    int? uid,
+    double? amount,
+    String? endDate,
   }) {
     return MfuMandateCreateRequest._(
-      uid: uid,
       mandateType: "upi",
-      amount: amount,
-      vpaId: vpaId,
-      endDate: endDate,
       workflowType: workflowType,
+      upiId: upiId,
+      bankId: bankId,
+      uid: uid,
+      amount: amount,
+      endDate: endDate,
     );
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {
-      "uid": uid,
-      "mandate_type": mandateType,
-      "amount": amount,
-    };
+    final Map<String, dynamic> data = {"mandate_type": mandateType};
 
-    if (regMode != null) data["regMode"] = regMode;
+    if (bankId != null) data["bank_id"] = bankId;
+    if (regMode != null) data["reg_mode"] = regMode;
+    if (workflowType != null) data["workflow_type"] = workflowType;
+    if (upiId != null && upiId!.isNotEmpty) data["upi_id"] = upiId;
+
+    // Optional legacy fields for backward compatibility
+    if (uid != null) data["uid"] = uid;
+    if (amount != null) data["amount"] = amount;
     if (startDate != null) data["startDate"] = startDate;
-    if (workflowType != null) data["workflowType"] = workflowType;
-    if (vpaId != null) data["vpaId"] = vpaId;
     if (endDate != null) data["endDate"] = endDate;
 
     return data;

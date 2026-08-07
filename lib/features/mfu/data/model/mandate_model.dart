@@ -133,9 +133,14 @@ import 'package:my_sip/core/utils/helper/custom_json_parser.dart';
 
 class MfuMandateCreateModel {
   final bool? status;
+  final bool? success;
   final String? message;
   final String? mandateType;
   final String? can;
+  final String? approveLink;
+  final String? deepLink;
+  final String? mumrn;
+  final String? mmrn;
   final MfuMandateDetailModel? mandate;
 
   // eNACH response
@@ -146,9 +151,14 @@ class MfuMandateCreateModel {
 
   MfuMandateCreateModel({
     this.status,
+    this.success,
     this.message,
     this.mandateType,
     this.can,
+    this.approveLink,
+    this.deepLink,
+    this.mumrn,
+    this.mmrn,
     this.mandate,
     this.enachResponse,
     this.upiResponse,
@@ -158,8 +168,6 @@ class MfuMandateCreateModel {
     final type = json['mandate_type']?.toString() ?? '';
     final responseJson = json['response'] as Map<String, dynamic>?;
 
-    // eNACH response has respHeader + respBody
-    // UPI response has respFlag directly
     MfuMandateEnachResponseModel? enachResp;
     MfuMandateUpiResponseModel? upiResp;
 
@@ -171,14 +179,33 @@ class MfuMandateCreateModel {
       }
     }
 
+    final String rawApproveLink =
+        (json.parse<String>('approve_link') ??
+                json.parse<String>('action_url') ??
+                json.parse<String>('redirect_url') ??
+                '')
+            .trim();
+    final String rawDeepLink = (json.parse<String>('deep_link') ?? '').trim();
+    final String rawMumrn = (json.parse<String>('mumrn') ?? '').trim();
+    final String rawMmrn = (json.parse<String>('mmrn') ?? '').trim();
+
+    final bool statusValue =
+        json.parse<bool>('status') ?? json.parse<bool>('success') ?? true;
+
     return MfuMandateCreateModel(
-      status: json.parse<bool>('status'),
+      status: statusValue,
+      success: json.parse<bool>('success') ?? statusValue,
       message: json.parse<String>('message'),
       mandateType: json.parse<String>('mandate_type'),
       can: json.parse<String>('can'),
+      approveLink: rawApproveLink.isNotEmpty ? rawApproveLink : null,
+      deepLink: rawDeepLink.isNotEmpty ? rawDeepLink : null,
+      mumrn: rawMumrn.isNotEmpty ? rawMumrn : null,
+      mmrn: rawMmrn.isNotEmpty ? rawMmrn : null,
       mandate: json['mandate'] != null
           ? MfuMandateDetailModel.fromJson(
-              json['mandate'] as Map<String, dynamic>)
+              json['mandate'] as Map<String, dynamic>,
+            )
           : null,
       enachResponse: enachResp,
       upiResponse: upiResp,
@@ -256,11 +283,13 @@ class MfuMandateEnachResponseModel {
     return MfuMandateEnachResponseModel(
       respHeader: json['respHeader'] != null
           ? MfuMandateEnachRespHeaderModel.fromJson(
-              json['respHeader'] as Map<String, dynamic>)
+              json['respHeader'] as Map<String, dynamic>,
+            )
           : null,
       respBody: json['respBody'] != null
           ? MfuMandateEnachRespBodyModel.fromJson(
-              json['respBody'] as Map<String, dynamic>)
+              json['respBody'] as Map<String, dynamic>,
+            )
           : null,
     );
   }

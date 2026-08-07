@@ -1,5 +1,3 @@
-
-
 // ignore_for_file: unused_local_variable
 
 import 'dart:math' as math;
@@ -69,6 +67,7 @@ class SipProcessController extends GetxController
         return '${number}th';
     }
   }
+
   void setInvestmentMode(bool lumpsum) {
     isLumpsum.value = lumpsum;
     if (lumpsum) {
@@ -314,7 +313,6 @@ class SipProcessController extends GetxController
       setInvestmentMode(Get.arguments['isLumpsum']);
     }
 
-    
     fetchFundsByApproach();
     _calculateSipProjection();
     ever(amount, (_) => _calculateSipProjection());

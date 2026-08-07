@@ -1,5 +1,3 @@
-
-
 import 'package:dartz/dartz.dart';
 import 'package:my_sip/features/sip_process/domain/repository/sip_process_repository.dart';
 
@@ -12,7 +10,7 @@ class GetFundListUsecase {
 
   GetFundListUsecase(this._sipProcessRepository);
 
-  Future<Either<Result<List<FundEntity>>,ApiError>>call() async {
+  Future<Either<Result<List<FundEntity>>, ApiError>> call() async {
     return await _sipProcessRepository.getFundList();
   }
 }

@@ -34,9 +34,16 @@ class MfuCanStatusEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        respFlag, respTs, errorCode, errorMsg,
-        can, proofUpdlnk, msg, canStatus, blockRespList,
-      ];
+    respFlag,
+    respTs,
+    errorCode,
+    errorMsg,
+    can,
+    proofUpdlnk,
+    msg,
+    canStatus,
+    blockRespList,
+  ];
 }
 
 class MfuCanStatusBlockEntity extends Equatable {
@@ -71,14 +78,17 @@ extension MfuCanStatusResponseMapper on MfuCanStatusResponse {
       proofUpdlnk: respBody?.proofUpdlnk ?? '',
       msg: respBody?.msg ?? '',
       canStatus: respBody?.canStatus ?? '',
-      blockRespList: respBody?.blockRespList
-              ?.map((e) => MfuCanStatusBlockEntity(
-                    blockName: e.blockName ?? '',
-                    blockSubName: e.blockSubName ?? '',
-                    seqNo: e.seqNo ?? '',
-                    rspType: e.rspType ?? '',
-                    rspCode: e.rspCode ?? '',
-                  ))
+      blockRespList:
+          respBody?.blockRespList
+              ?.map(
+                (e) => MfuCanStatusBlockEntity(
+                  blockName: e.blockName ?? '',
+                  blockSubName: e.blockSubName ?? '',
+                  seqNo: e.seqNo ?? '',
+                  rspType: e.rspType ?? '',
+                  rspCode: e.rspCode ?? '',
+                ),
+              )
               .toList() ??
           [],
     );

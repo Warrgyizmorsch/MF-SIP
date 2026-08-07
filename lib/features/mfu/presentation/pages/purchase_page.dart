@@ -830,7 +830,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor:Ucolors.white,
+        backgroundColor: Ucolors.white,
         body: Stack(
           children: [
             Positioned.fill(
@@ -910,7 +910,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                         ),
                         const SizedBox(width: 24),
                         Expanded(
-                         flex: 4,
+                          flex: 4,
                           child: SingleChildScrollView(
                             padding: const EdgeInsets.only(bottom: 32),
                             child: Column(
@@ -918,9 +918,8 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                                 _buildDesktopSummaryCard(),
                                 const SizedBox(height: 18),
                                 Obx(
-                                  () => _InfoBanner(
-                                    invType: _c.sipInvType.value,
-                                  ),
+                                  () =>
+                                      _InfoBanner(invType: _c.sipInvType.value),
                                 ),
                               ],
                             ),
@@ -2161,9 +2160,6 @@ class _BottomCta extends StatelessWidget {
 // Step-up section and its sub-widgets are purely presentational — unchanged.
 // (_StepUpSection, _SegmentToggle, _SmallToggle, _NumberField,
 //  _DatePickerField, _FieldWrap — copy as-is from the original file)
-
-
-
 
 // import 'dart:ui';
 

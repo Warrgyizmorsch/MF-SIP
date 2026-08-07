@@ -24,45 +24,56 @@ class MfuBindings extends Bindings {
         Get.find<NetworkServicesApi>(),
         Get.find<SessionManager>(),
       ),
-      fenix: true
+      fenix: true,
     );
 
     // 2. Repository
-    Get.lazyPut(() => MfuRepositoryImpl(Get.find<MfuRemoteDataSource>()) , fenix: true);
+    Get.lazyPut(
+      () => MfuRepositoryImpl(Get.find<MfuRemoteDataSource>()),
+      fenix: true,
+    );
 
     // 3. Use Cases
     Get.lazyPut(
-      () => CanRegisterUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
+      () => CanRegisterUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+      fenix: true,
     );
     Get.lazyPut(
-      () => GetCanStatusUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
+      () => GetCanStatusUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+      fenix: true,
     );
     Get.lazyPut(
       () => MfuCanBankValidationUseCase(
         mfuRepository: Get.find<MfuRepositoryImpl>(),
-      ), fenix: true
+      ),
+      fenix: true,
     );
 
     Get.lazyPut(
       () =>
-          MfuMandateCreateUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
+          MfuMandateCreateUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+      fenix: true,
     );
 
     Get.lazyPut(
       () =>
-          MfuMandateStatusUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
+          MfuMandateStatusUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+      fenix: true,
     );
 
     Get.lazyPut(
-      () => MfuNormalTxnUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
+      () => MfuNormalTxnUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+      fenix: true,
     );
 
     Get.lazyPut(
       () =>
-          MfuSystematicTxnUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
+          MfuSystematicTxnUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+      fenix: true,
     );
     Get.lazyPut(
-      () => MfuCallUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()), fenix: true
+      () => MfuCallUseCase(mfuRepository: Get.find<MfuRepositoryImpl>()),
+      fenix: true,
     );
     // Get.lazyPut(
     //   () =>

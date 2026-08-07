@@ -13,10 +13,14 @@ class MfuCanStatusModel {
     return MfuCanStatusModel(
       success: json.parse<bool>('success'),
       request: json['request'] != null
-          ? MfuCanStatusRequestModel.fromJson(json['request'] as Map<String, dynamic>)
+          ? MfuCanStatusRequestModel.fromJson(
+              json['request'] as Map<String, dynamic>,
+            )
           : null,
       response: json['response'] != null
-          ? MfuCanStatusApiResponseModel.fromJson(json['response'] as Map<String, dynamic>)
+          ? MfuCanStatusApiResponseModel.fromJson(
+              json['response'] as Map<String, dynamic>,
+            )
           : null,
     );
   }
@@ -31,10 +35,14 @@ class MfuCanStatusRequestModel {
   factory MfuCanStatusRequestModel.fromJson(Map<String, dynamic> json) {
     return MfuCanStatusRequestModel(
       reqHeader: json['reqHeader'] != null
-          ? MfuCanStatusReqHeaderModel.fromJson(json['reqHeader'] as Map<String, dynamic>)
+          ? MfuCanStatusReqHeaderModel.fromJson(
+              json['reqHeader'] as Map<String, dynamic>,
+            )
           : null,
       reqBody: json['reqBody'] != null
-          ? MfuCanStatusReqBodyModel.fromJson(json['reqBody'] as Map<String, dynamic>)
+          ? MfuCanStatusReqBodyModel.fromJson(
+              json['reqBody'] as Map<String, dynamic>,
+            )
           : null,
     );
   }
@@ -85,10 +93,14 @@ class MfuCanStatusApiResponseModel {
   factory MfuCanStatusApiResponseModel.fromJson(Map<String, dynamic> json) {
     return MfuCanStatusApiResponseModel(
       respHeader: json['respHeader'] != null
-          ? MfuCanStatusRespHeaderModel.fromJson(json['respHeader'] as Map<String, dynamic>)
+          ? MfuCanStatusRespHeaderModel.fromJson(
+              json['respHeader'] as Map<String, dynamic>,
+            )
           : null,
       respBody: json['respBody'] != null
-          ? MfuCanStatusRespBodyModel.fromJson(json['respBody'] as Map<String, dynamic>)
+          ? MfuCanStatusRespBodyModel.fromJson(
+              json['respBody'] as Map<String, dynamic>,
+            )
           : null,
     );
   }
@@ -140,7 +152,8 @@ class MfuCanStatusRespBodyModel {
       canStatus: json.parse<String>('canStatus'),
       blockRespList: json.parseListOf<MfuCanStatusBlockRespModel>(
         'blockRespList',
-        (item) => MfuCanStatusBlockRespModel.fromJson(item as Map<String, dynamic>),
+        (item) =>
+            MfuCanStatusBlockRespModel.fromJson(item as Map<String, dynamic>),
       ),
     );
   }

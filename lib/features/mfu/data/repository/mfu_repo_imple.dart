@@ -170,19 +170,17 @@ class MfuRepositoryImpl extends MfuRepository {
   }
 
   @override
-Future<Either<Result<MfuCallResponseWrapper>, ApiError>> mfuCall(
-  MfuCallRequestBase request,
-) async {
-  try {
-    final response = await _remoteDataSource.mfuCall(request);
-    return response.fold(
-      (success) => Left(Result.success(success.data!)),
-      (error) => Right(error),
-    );
-  } catch (e) {
-    return Right(ApiError(message: e.toString()));
+  Future<Either<Result<MfuCallResponseWrapper>, ApiError>> mfuCall(
+    MfuCallRequestBase request,
+  ) async {
+    try {
+      final response = await _remoteDataSource.mfuCall(request);
+      return response.fold(
+        (success) => Left(Result.success(success.data!)),
+        (error) => Right(error),
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
   }
-}
-
-
 }

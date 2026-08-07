@@ -12,11 +12,13 @@ class MfuCanStatusResponse {
     return MfuCanStatusResponse(
       respHeader: json['respHeader'] != null
           ? MfuCanStatusRespHeader.fromJson(
-              json['respHeader'] as Map<String, dynamic>)
+              json['respHeader'] as Map<String, dynamic>,
+            )
           : null,
       respBody: json['respBody'] != null
           ? MfuCanStatusRespBody.fromJson(
-              json['respBody'] as Map<String, dynamic>)
+              json['respBody'] as Map<String, dynamic>,
+            )
           : null,
     );
   }
@@ -29,7 +31,10 @@ class MfuCanStatusRespHeader {
   final String? errorMsg;
 
   MfuCanStatusRespHeader({
-    this.respFlag, this.respTs, this.errorCode, this.errorMsg,
+    this.respFlag,
+    this.respTs,
+    this.errorCode,
+    this.errorMsg,
   });
 
   factory MfuCanStatusRespHeader.fromJson(Map<String, dynamic> json) {
@@ -50,8 +55,11 @@ class MfuCanStatusRespBody {
   final List<MfuCanStatusBlockResp>? blockRespList;
 
   MfuCanStatusRespBody({
-    this.can, this.proofUpdlnk, this.msg,
-    this.canStatus, this.blockRespList,
+    this.can,
+    this.proofUpdlnk,
+    this.msg,
+    this.canStatus,
+    this.blockRespList,
   });
 
   factory MfuCanStatusRespBody.fromJson(Map<String, dynamic> json) {
@@ -76,8 +84,11 @@ class MfuCanStatusBlockResp {
   final String? rspCode;
 
   MfuCanStatusBlockResp({
-    this.blockName, this.blockSubName,
-    this.seqNo, this.rspType, this.rspCode,
+    this.blockName,
+    this.blockSubName,
+    this.seqNo,
+    this.rspType,
+    this.rspCode,
   });
 
   factory MfuCanStatusBlockResp.fromJson(Map<String, dynamic> json) {

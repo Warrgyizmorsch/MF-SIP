@@ -13,9 +13,6 @@ class CanRegisterUseCase {
     required int uid,
     String reqEvent = "CR",
   }) async {
-    return await mfuRepository.canRegister(
-      uid: uid,
-      reqEvent: reqEvent,
-    );
+    return await mfuRepository.canRegister(uid: uid, reqEvent: reqEvent);
   }
 }

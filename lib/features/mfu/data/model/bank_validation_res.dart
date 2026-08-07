@@ -1,4 +1,3 @@
-
 import 'package:my_sip/core/utils/helper/custom_json_parser.dart';
 
 class MfuCanBankValidationModel {
@@ -23,11 +22,13 @@ class MfuCanBankValidationModel {
       stage: json.parse<String>('stage'),
       data: json['data'] != null
           ? MfuCanBankValidationDataModel.fromJson(
-              json['data'] as Map<String, dynamic>)
+              json['data'] as Map<String, dynamic>,
+            )
           : null,
       mfuResponse: json['mfu_response'] != null
           ? MfuCanBankValidationMfuResponseModel.fromJson(
-              json['mfu_response'] as Map<String, dynamic>)
+              json['mfu_response'] as Map<String, dynamic>,
+            )
           : null,
     );
   }
@@ -69,15 +70,18 @@ class MfuCanBankValidationMfuResponseModel {
   MfuCanBankValidationMfuResponseModel({this.respHeader, this.respBody});
 
   factory MfuCanBankValidationMfuResponseModel.fromJson(
-      Map<String, dynamic> json) {
+    Map<String, dynamic> json,
+  ) {
     return MfuCanBankValidationMfuResponseModel(
       respHeader: json['respHeader'] != null
           ? MfuCanBankValidationRespHeaderModel.fromJson(
-              json['respHeader'] as Map<String, dynamic>)
+              json['respHeader'] as Map<String, dynamic>,
+            )
           : null,
       respBody: json['respBody'] != null
           ? MfuCanBankValidationRespBodyModel.fromJson(
-              json['respBody'] as Map<String, dynamic>)
+              json['respBody'] as Map<String, dynamic>,
+            )
           : null,
     );
   }
@@ -97,7 +101,8 @@ class MfuCanBankValidationRespHeaderModel {
   });
 
   factory MfuCanBankValidationRespHeaderModel.fromJson(
-      Map<String, dynamic> json) {
+    Map<String, dynamic> json,
+  ) {
     return MfuCanBankValidationRespHeaderModel(
       respFlag: json.parse<String>('respFlag'),
       respTs: json.parse<String>('respTs'),
@@ -113,7 +118,8 @@ class MfuCanBankValidationRespBodyModel {
   MfuCanBankValidationRespBodyModel({this.bankExistFlag});
 
   factory MfuCanBankValidationRespBodyModel.fromJson(
-      Map<String, dynamic> json) {
+    Map<String, dynamic> json,
+  ) {
     return MfuCanBankValidationRespBodyModel(
       bankExistFlag: json.parse<String>('bankExistFlag'),
     );

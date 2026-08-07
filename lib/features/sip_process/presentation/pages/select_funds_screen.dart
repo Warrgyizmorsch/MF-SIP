@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -55,19 +54,20 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
     );
   }
 
-
   Widget _buildWebLayout(BuildContext context) {
     return Center(
       child: LayoutBuilder(
-          builder: (context, constraints) {
-            final double isWideScreen = constraints.maxWidth*0.9;
+        builder: (context, constraints) {
+          final double isWideScreen = constraints.maxWidth * 0.9;
 
-            final double availableHeight = constraints.maxHeight*0.9;
+          final double availableHeight = constraints.maxHeight * 0.9;
 
-            return ConstrainedBox(
-              constraints:  BoxConstraints(maxWidth: isWideScreen,maxHeight: availableHeight),
+          return ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: isWideScreen,
+              maxHeight: availableHeight,
+            ),
             child: Container(
-
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -84,26 +84,20 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Left Blue Panel (Your Profile Summary)
-                  Expanded(
-                    flex: 4,
-                    child: _buildLeftProfilePanel(),
-                  ),
+                  Expanded(flex: 4, child: _buildLeftProfilePanel()),
 
                   // Right White Panel (Fund Selection)
-                  Expanded(
-                    flex: 6,
-                    child: _buildRightWhitePanel(context),
-                  ),
+                  Expanded(flex: 6, child: _buildRightWhitePanel(context)),
                 ],
               ),
             ),
           );
-        }
+        },
       ),
     );
   }
 
-// --- LEFT PANEL: PROFILE SYSTEM ---
+  // --- LEFT PANEL: PROFILE SYSTEM ---
   Widget _buildLeftProfilePanel() {
     return Container(
       color: const Color(0xFF0061A0),
@@ -119,7 +113,11 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                   border: Border.all(color: Colors.white, width: 1.5),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: const Icon(Icons.trending_up, color: Colors.white, size: 18),
+                child: const Icon(
+                  Icons.trending_up,
+                  color: Colors.white,
+                  size: 18,
+                ),
               ),
               const SizedBox(width: 12),
               const Text(
@@ -141,7 +139,11 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
               SizedBox(width: 10),
               Text(
                 "Your Profile",
-                style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -159,7 +161,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
           ),
           const SizedBox(height: 16),
           Obx(
-                () => _buildProfileDetailCard(
+            () => _buildProfileDetailCard(
               icon: Icons.money,
               title: "Monthly SIP",
               value: controller.formatCurrency(controller.amount.value),
@@ -189,9 +191,22 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12)),
+              Text(
+                title,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.7),
+                  fontSize: 12,
+                ),
+              ),
               const SizedBox(height: 4),
-              Text(value, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)),
+              Text(
+                value,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
           ),
         ],
@@ -199,7 +214,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
     );
   }
 
-// --- RIGHT PANEL: FUND SELECTION SYSTEM ---
+  // --- RIGHT PANEL: FUND SELECTION SYSTEM ---
   Widget _buildRightWhitePanel(BuildContext context) {
     return Container(
       color: Colors.white,
@@ -207,23 +222,28 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           const Text(
             "Select Funds",
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: Color(0xFF142438)),
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF142438),
+            ),
           ),
           const SizedBox(height: 8),
           // Make sure your dynamic profile styling matches here
           Text(
             "Based on your High risk profile. Choose one or more funds and enter how much you want to invest in each.",
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade600, height: 1.4),
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade600,
+              height: 1.4,
+            ),
           ),
           const SizedBox(height: 24),
 
           // Scrollable Fund Container List Box
-          Expanded(
-            child: _buildWebFundList(),
-          ),
+          Expanded(child: _buildWebFundList()),
           const SizedBox(height: 8),
           Divider(color: Colors.grey.shade200),
           const SizedBox(height: 8),
@@ -237,11 +257,13 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
     );
   }
 
-// --- FUND RENDERING LOOP ---
+  // --- FUND RENDERING LOOP ---
   Widget _buildWebFundList() {
     return controller.obx(
-          (state) => ListView.separated(
-        padding: const EdgeInsets.only(right: 8), // Padding allowance for scrollbar gap
+      (state) => ListView.separated(
+        padding: const EdgeInsets.only(
+          right: 8,
+        ), // Padding allowance for scrollbar gap
         itemCount: state?.length ?? 0,
         separatorBuilder: (context, index) => const SizedBox(height: 16),
         itemBuilder: (context, index) {
@@ -259,7 +281,9 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
   Widget _buildWebFundCard(MutualFundListEntity fund, int index) {
     return Obx(() {
       final isSelected = controller.isSelected(fund.schemeCode ?? "");
-      final textController = controller.getTextController(fund.schemeCode ?? "");
+      final textController = controller.getTextController(
+        fund.schemeCode ?? "",
+      );
 
       return AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -280,7 +304,10 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Ucolors.primary.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(6),
@@ -300,10 +327,12 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                   child: Checkbox(
                     value: isSelected,
                     activeColor: Ucolors.primary,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
                     onChanged: (val) => controller.toggleSelection(fund),
                   ),
-                )
+                ),
               ],
             ),
             const SizedBox(height: 4),
@@ -402,11 +431,10 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                       ),
                     ),
                   ],
-                )
+                ),
               ],
             ),
             const SizedBox(height: 4),
-
 
             // --- 5. Bottom Row: Contextual Amount Input Box (Cleaned up style) ---
             if (isSelected) ...[
@@ -430,7 +458,9 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                       keyboardType: TextInputType.number,
                       height: 40, // Reduced to clean 40px bounding box
                       borderRadius: 8,
-                      bgColor: const Color(0xFFF1F5F9), // Perfectly smooth light grey/blue backdrop tint
+                      bgColor: const Color(
+                        0xFFF1F5F9,
+                      ), // Perfectly smooth light grey/blue backdrop tint
                       borderColor: const Color(0xFFCBD5E1),
                       focusedBorderColor: Ucolors.primary,
                       onChanged: (val) => controller.updateFundAmount(
@@ -441,7 +471,8 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                         if (value == null || value.isEmpty) return "Required";
                         final enteredAmount = int.tryParse(value) ?? 0;
                         final minAmount = fund.minSipAmount ?? 500;
-                        if (enteredAmount < minAmount) return "Min. ₹$minAmount";
+                        if (enteredAmount < minAmount)
+                          return "Min. ₹$minAmount";
                         if (enteredAmount % 100 != 0) return "Multiple of ₹100";
                         return null;
                       },
@@ -462,32 +493,49 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
                               // Increment button (+100)
                               InkWell(
                                 onTap: () {
-                                  int current = int.tryParse(textController.text) ?? 0;
+                                  int current =
+                                      int.tryParse(textController.text) ?? 0;
                                   int nextValue = current + 100;
                                   textController.text = nextValue.toString();
-                                  controller.updateFundAmount(fund.schemeCode ?? "", nextValue.toString());
+                                  controller.updateFundAmount(
+                                    fund.schemeCode ?? "",
+                                    nextValue.toString(),
+                                  );
                                 },
-                                child: const Icon(Icons.keyboard_arrow_up_rounded, size: 11, color: Color(0xFF64748B)),
+                                child: const Icon(
+                                  Icons.keyboard_arrow_up_rounded,
+                                  size: 11,
+                                  color: Color(0xFF64748B),
+                                ),
                               ),
                               const SizedBox(height: 1),
                               // Decrement button (-100)
                               InkWell(
                                 onTap: () {
-                                  int current = int.tryParse(textController.text) ?? 0;
+                                  int current =
+                                      int.tryParse(textController.text) ?? 0;
                                   int minLimit = fund.minSipAmount ?? 500;
                                   int nextValue = current - 100;
                                   if (nextValue >= minLimit) {
                                     textController.text = nextValue.toString();
-                                    controller.updateFundAmount(fund.schemeCode ?? "", nextValue.toString());
+                                    controller.updateFundAmount(
+                                      fund.schemeCode ?? "",
+                                      nextValue.toString(),
+                                    );
                                   }
                                 },
-                                child: const Icon(Icons.keyboard_arrow_down_rounded, size: 11, color: Color(0xFF64748B)),
+                                child: const Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                  size: 11,
+                                  color: Color(0xFF64748B),
+                                ),
                               ),
                             ],
                           ),
                           const SizedBox(width: 8),
                         ],
-                      ),                    ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -498,7 +546,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
     });
   }
 
-// --- CONTEXT CALCULATOR STATS BAR ---
+  // --- CONTEXT CALCULATOR STATS BAR ---
   Widget _buildInvestedAmountRow() {
     return Obx(() {
       final totalAmount = controller.totalSelectedAmount;
@@ -507,18 +555,26 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
         children: [
           const Text(
             "Invested Amount",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF142438)),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF142438),
+            ),
           ),
           Text(
             controller.formatCurrency(totalAmount),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF142438)),
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF142438),
+            ),
           ),
         ],
       );
     });
   }
 
-// --- NAV BUTTON PANELS ---
+  // --- NAV BUTTON PANELS ---
   Widget _buildWebActionButtons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -529,15 +585,20 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
             onPressed: () => Get.back(id: 1),
             outlined: true,
             child: Center(
-              child: Text('Back', style: AppTextStyles.bodyMedium(color: Ucolors.primary)),
+              child: Text(
+                'Back',
+                style: AppTextStyles.bodyMedium(color: Ucolors.primary),
+              ),
             ),
           ),
         ),
         Obx(
-              () => SizedBox(
+          () => SizedBox(
             width: 160,
             child: UElevatedButtonWeb(
-              onPressed: controller.selectedFunds.isNotEmpty ? controller.proceedToCart : null,
+              onPressed: controller.selectedFunds.isNotEmpty
+                  ? controller.proceedToCart
+                  : null,
               color: controller.selectedFunds.isNotEmpty
                   ? Ucolors.primary
                   : Colors.grey.shade400,
@@ -558,7 +619,7 @@ class _SelectFundsScreenState extends State<SelectFundsScreen> {
               ),
             ),
           ),
-        )
+        ),
       ],
     );
   }
@@ -1696,12 +1757,6 @@ class _FilterChip extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
 
 // // import 'package:flutter/material.dart';
 // // import 'package:fl_chart/fl_chart.dart';

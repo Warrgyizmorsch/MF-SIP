@@ -38,7 +38,6 @@
 //   }
 // }
 
-
 // features/mfu/domain/entity/mfu_mandate_status_entity.dart
 
 import 'package:equatable/equatable.dart';
@@ -81,9 +80,18 @@ class MfuMandateStatusEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        status, message, mandateId, userId, mandateMode, can,
-        mumrn, mmrn, aumrn, mandateStatus, response,
-      ];
+    status,
+    message,
+    mandateId,
+    userId,
+    mandateMode,
+    can,
+    mumrn,
+    mmrn,
+    aumrn,
+    mandateStatus,
+    response,
+  ];
 }
 
 class MfuMandateStatusResponseEntity extends Equatable {
@@ -109,8 +117,14 @@ class MfuMandateStatusResponseEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        respFlag, respCode, respMsg, aumrn, prn, regStatus, aggrStatus,
-      ];
+    respFlag,
+    respCode,
+    respMsg,
+    aumrn,
+    prn,
+    regStatus,
+    aggrStatus,
+  ];
 }
 
 // ─── Mappers ──────────────────────────────────────────────────────────────────

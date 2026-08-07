@@ -12,7 +12,6 @@ import '../../domain/repository/sip_process_repository.dart';
 
 class SipProcessRepositoryImpl extends SipProcessRepository {
   final SipProcessDataSource _sipProcessDataSource;
-  
 
   SipProcessRepositoryImpl(this._sipProcessDataSource);
 
@@ -21,90 +20,123 @@ class SipProcessRepositoryImpl extends SipProcessRepository {
     final result = await _sipProcessDataSource.getSipFunds();
 
     return result.fold(
-          (success) {
+      (success) {
         if (success.isSuccess) {
           if (success.data?.isEmpty ?? true) {
-            return Left(Result.success([
-              FundEntity(icon: UImages.motilal,
+            return Left(
+              Result.success([
+                FundEntity(
+                  icon: UImages.motilal,
                   name: "Motilal Ostwal Small Cap Fund",
                   riskType: "Very High Risk",
                   sipReturns: "29.89%",
-                  rating: 5.0),
-              FundEntity(icon: UImages.motilal,
+                  rating: 5.0,
+                ),
+                FundEntity(
+                  icon: UImages.motilal,
                   name: "Motilal Ostwal Small Cap Fund",
                   riskType: "Very High Risk",
                   sipReturns: "29.89%",
-                  rating: 5.0),
-              FundEntity(icon: UImages.motilal,
+                  rating: 5.0,
+                ),
+                FundEntity(
+                  icon: UImages.motilal,
                   name: "Motilal Ostwal Small Cap Fund",
                   riskType: "Very High Risk",
                   sipReturns: "29.89%",
-                  rating: 5.0),
-              FundEntity(icon: UImages.motilal,
+                  rating: 5.0,
+                ),
+                FundEntity(
+                  icon: UImages.motilal,
                   name: "Motilal Ostwal Small Cap Fund",
                   riskType: "Very High Risk",
                   sipReturns: "29.89%",
-                  rating: 5.0),
-              FundEntity(icon: UImages.motilal,
+                  rating: 5.0,
+                ),
+                FundEntity(
+                  icon: UImages.motilal,
                   name: "Motilal Ostwal Small Cap Fund",
                   riskType: "Very High Risk",
                   sipReturns: "29.89%",
-                  rating: 5.0),
-              FundEntity(icon: UImages.motilal,
+                  rating: 5.0,
+                ),
+                FundEntity(
+                  icon: UImages.motilal,
                   name: "Motilal Ostwal Small Cap Fund",
                   riskType: "Very High Risk",
                   sipReturns: "29.89%",
-                  rating: 5.0),
-            ]));
+                  rating: 5.0,
+                ),
+              ]),
+            );
           } else {
-            final list = success.data!.map((e) =>
-                FundEntity(icon: e.icon,
+            final list = success.data!
+                .map(
+                  (e) => FundEntity(
+                    icon: e.icon,
                     name: e.name,
                     riskType: e.riskType,
                     sipReturns: e.sipReturns,
-                    rating: e.rating)).toList();
-
+                    rating: e.rating,
+                  ),
+                )
+                .toList();
 
             return Left(Result.success(list));
           }
         } else {
           return Right(
-              ApiError(message: success.errorMessage ?? "Unknown logic error"));
+            ApiError(message: success.errorMessage ?? "Unknown logic error"),
+          );
         }
       },
-          (error) {
-            return Left(Result.success([
-              FundEntity(icon: UImages.motilal,
-                  name: "Motilal Ostwal Small Cap Fund",
-                  riskType: "Very High Risk",
-                  sipReturns: "29.89%",
-                  rating: 5.0),
-              FundEntity(icon: UImages.motilal,
-                  name: "Motilal Ostwal Small Cap Fund",
-                  riskType: "Very High Risk",
-                  sipReturns: "29.89%",
-                  rating: 5.0),
-              FundEntity(icon: UImages.motilal,
-                  name: "Motilal Ostwal Small Cap Fund",
-                  riskType: "Very High Risk",
-                  sipReturns: "29.89%",
-                  rating: 5.0),
-              FundEntity(icon: UImages.motilal,
-                  name: "Motilal Ostwal Small Cap Fund",
-                  riskType: "Very High Risk",
-                  sipReturns: "29.89%",
-                  rating: 5.0),
-              FundEntity(icon: UImages.motilal,
-                  name: "Motilal Ostwal Small Cap Fund",
-                  riskType: "Very High Risk",
-                  sipReturns: "29.89%",
-                  rating: 5.0),
-              FundEntity(icon: UImages.motilal,
-                  name: "Motilal Ostwal Small Cap Fund",
-                  riskType: "Very High Risk",
-                  sipReturns: "29.89%",
-                  rating: 5.0),
-            ]));
+      (error) {
+        return Left(
+          Result.success([
+            FundEntity(
+              icon: UImages.motilal,
+              name: "Motilal Ostwal Small Cap Fund",
+              riskType: "Very High Risk",
+              sipReturns: "29.89%",
+              rating: 5.0,
+            ),
+            FundEntity(
+              icon: UImages.motilal,
+              name: "Motilal Ostwal Small Cap Fund",
+              riskType: "Very High Risk",
+              sipReturns: "29.89%",
+              rating: 5.0,
+            ),
+            FundEntity(
+              icon: UImages.motilal,
+              name: "Motilal Ostwal Small Cap Fund",
+              riskType: "Very High Risk",
+              sipReturns: "29.89%",
+              rating: 5.0,
+            ),
+            FundEntity(
+              icon: UImages.motilal,
+              name: "Motilal Ostwal Small Cap Fund",
+              riskType: "Very High Risk",
+              sipReturns: "29.89%",
+              rating: 5.0,
+            ),
+            FundEntity(
+              icon: UImages.motilal,
+              name: "Motilal Ostwal Small Cap Fund",
+              riskType: "Very High Risk",
+              sipReturns: "29.89%",
+              rating: 5.0,
+            ),
+            FundEntity(
+              icon: UImages.motilal,
+              name: "Motilal Ostwal Small Cap Fund",
+              riskType: "Very High Risk",
+              sipReturns: "29.89%",
+              rating: 5.0,
+            ),
+          ]),
+        );
         // return Right(ApiError(message: error.message.toString()));
       },
     );

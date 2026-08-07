@@ -47,11 +47,23 @@ class MfuSystematicTxnEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        success, message, txnType, txtType, investmentType,
-        mfuTxnType, entGroupRefNo, ordCreatedFlag, mfuGorn,
-        corn, orderStatus, paymentLink, approvalLink,
-        appLinkPri, mfuItrn, errors,
-      ];
+    success,
+    message,
+    txnType,
+    txtType,
+    investmentType,
+    mfuTxnType,
+    entGroupRefNo,
+    ordCreatedFlag,
+    mfuGorn,
+    corn,
+    orderStatus,
+    paymentLink,
+    approvalLink,
+    appLinkPri,
+    mfuItrn,
+    errors,
+  ];
 }
 
 extension MfuSystematicTxnMapper on MfuSystematicTxnModel {

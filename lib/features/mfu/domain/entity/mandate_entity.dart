@@ -22,7 +22,7 @@
 //     this.status,
 //     this.approveLink,
 //     this.deepLink,
-  
+
 //     this.plainBody,
 //     this.response,
 //   });
@@ -33,7 +33,7 @@
 
 //   @override
 //   List<Object?> get props => [
-//         success, message, mandateId, mandateType, 
+//         success, message, mandateId, mandateType,
 //         plainBody, response,
 //       ];
 // }
@@ -161,6 +161,10 @@ class MfuMandateCreateEntity extends Equatable {
   final String message;
   final String mandateType;
   final String can;
+  final String topApproveLink;
+  final String deepLink;
+  final String topMumrn;
+  final String topMmrn;
   final MfuMandateDetailEntity? mandate;
   final MfuMandateEnachResponseEntity? enachResponse;
   final MfuMandateUpiResponseEntity? upiResponse;
@@ -170,6 +174,10 @@ class MfuMandateCreateEntity extends Equatable {
     required this.message,
     required this.mandateType,
     required this.can,
+    this.topApproveLink = '',
+    this.deepLink = '',
+    this.topMumrn = '',
+    this.topMmrn = '',
     this.mandate,
     this.enachResponse,
     this.upiResponse,
@@ -180,13 +188,31 @@ class MfuMandateCreateEntity extends Equatable {
 
   // Unified approve link regardless of type
   String get approveLink {
+    if (topApproveLink.isNotEmpty) return topApproveLink;
     if (isEnach) return enachResponse?.approveLink ?? '';
     if (isUpi) return upiResponse?.approveLink ?? '';
     return '';
   }
 
+  String get mumrn {
+    if (topMumrn.isNotEmpty) return topMumrn;
+    if (mandate?.mumrn.isNotEmpty == true) return mandate!.mumrn;
+    if (upiResponse?.mumrn.isNotEmpty == true) return upiResponse!.mumrn;
+    return '';
+  }
+
+  String get mmrn {
+    if (topMmrn.isNotEmpty) return topMmrn;
+    if (mandate?.mmrn.isNotEmpty == true) return mandate!.mmrn;
+    if (enachResponse?.mmrn.isNotEmpty == true) {
+      return enachResponse!.mmrn;
+    }
+    return '';
+  }
+
   // Unified success check
   bool get isSuccess {
+    if (status) return true;
     if (isEnach) return enachResponse?.isSuccess ?? false;
     if (isUpi) return upiResponse?.isSuccess ?? false;
     return false;
@@ -194,9 +220,18 @@ class MfuMandateCreateEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        status, message, mandateType, can,
-        mandate, enachResponse, upiResponse,
-      ];
+    status,
+    message,
+    mandateType,
+    can,
+    topApproveLink,
+    deepLink,
+    topMumrn,
+    topMmrn,
+    mandate,
+    enachResponse,
+    upiResponse,
+  ];
 }
 
 // ─── Mandate Detail Entity ────────────────────────────────────────────────────
@@ -241,10 +276,22 @@ class MfuMandateDetailEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id, userId, bankAccountId, startDate, endDate, vpaId,
-        mandateMode, mandateType, mumrn, mmrn, aumrn,
-        maxAmount, status, createdAt, updatedAt,
-      ];
+    id,
+    userId,
+    bankAccountId,
+    startDate,
+    endDate,
+    vpaId,
+    mandateMode,
+    mandateType,
+    mumrn,
+    mmrn,
+    aumrn,
+    maxAmount,
+    status,
+    createdAt,
+    updatedAt,
+  ];
 }
 
 // ─── eNACH Response Entity ────────────────────────────────────────────────────
@@ -270,8 +317,13 @@ class MfuMandateEnachResponseEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        respFlag, respTs, errorCode, errorMsg, mmrn, approveLink,
-      ];
+    respFlag,
+    respTs,
+    errorCode,
+    errorMsg,
+    mmrn,
+    approveLink,
+  ];
 }
 
 // ─── UPI Response Entity ──────────────────────────────────────────────────────
@@ -297,8 +349,13 @@ class MfuMandateUpiResponseEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        respFlag, respCode, respMsg, mumrn, approveLink, deepLink,
-      ];
+    respFlag,
+    respCode,
+    respMsg,
+    mumrn,
+    approveLink,
+    deepLink,
+  ];
 }
 
 // ─── Mappers ──────────────────────────────────────────────────────────────────
@@ -306,10 +363,14 @@ class MfuMandateUpiResponseEntity extends Equatable {
 extension MfuMandateCreateMapper on MfuMandateCreateModel {
   MfuMandateCreateEntity toEntity() {
     return MfuMandateCreateEntity(
-      status: status ?? false,
+      status: status ?? success ?? false,
       message: message ?? '',
       mandateType: mandateType ?? '',
       can: can ?? '',
+      topApproveLink: approveLink ?? '',
+      deepLink: deepLink ?? '',
+      topMumrn: mumrn ?? '',
+      topMmrn: mmrn ?? '',
       mandate: mandate?.toEntity(),
       enachResponse: enachResponse?.toEntity(),
       upiResponse: upiResponse?.toEntity(),

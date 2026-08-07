@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:my_sip/features/mfu/data/model/can_register_model.dart';
 
-
 class MfuCanResponseEntity extends Equatable {
   final bool status;
   final String message;
@@ -43,12 +42,24 @@ class MfuCanResponseEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        status, message, can, canStatus, canStatusMessage,
-        canValidFlag, canValidPan, canValidDob, canValidEmail,
-        canAllowForTrans, proofUploadLink,
-        nomVerifyLinkH1, nomVerifyLinkH2, nomVerifyLinkH3,
-        canRegistrationResponse, canValidationResponse, canStatusResponse,
-      ];
+    status,
+    message,
+    can,
+    canStatus,
+    canStatusMessage,
+    canValidFlag,
+    canValidPan,
+    canValidDob,
+    canValidEmail,
+    canAllowForTrans,
+    proofUploadLink,
+    nomVerifyLinkH1,
+    nomVerifyLinkH2,
+    nomVerifyLinkH3,
+    canRegistrationResponse,
+    canValidationResponse,
+    canStatusResponse,
+  ];
 }
 
 // ─── Shared: RespHeader Entity ────────────────────────────────────────────────
@@ -100,7 +111,13 @@ class CanRegistrationRespBodyEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [can, proofUploadLink, nomVerifyLinkH1, nomVerifyLinkH2, nomVerifyLinkH3];
+  List<Object?> get props => [
+    can,
+    proofUploadLink,
+    nomVerifyLinkH1,
+    nomVerifyLinkH2,
+    nomVerifyLinkH3,
+  ];
 }
 
 // ─── CAN Validation Entities ──────────────────────────────────────────────────
@@ -138,9 +155,15 @@ class CanValidationRespBodyEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        isValidCan, isValidPan, isValidDob, isValidEmail,
-        canStatus, allowForTrans, accountCategory, canModeOfHolding,
-      ];
+    isValidCan,
+    isValidPan,
+    isValidDob,
+    isValidEmail,
+    canStatus,
+    allowForTrans,
+    accountCategory,
+    canModeOfHolding,
+  ];
 }
 
 // ─── CAN Status Entities ──────────────────────────────────────────────────────

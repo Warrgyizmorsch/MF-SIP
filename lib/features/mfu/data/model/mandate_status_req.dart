@@ -4,8 +4,8 @@ class MfuMandateStatusRequest {
   final int userId;
   final String mandateMode;
   final String can;
-  final String? mmrn;   // eNACH
-  final String? mumrn;  // UPI
+  final String? mmrn; // eNACH
+  final String? mumrn; // UPI
 
   MfuMandateStatusRequest._({
     required this.userId,

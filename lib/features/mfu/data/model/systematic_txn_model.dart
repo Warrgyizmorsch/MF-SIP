@@ -1,4 +1,3 @@
-
 import 'package:my_sip/core/utils/helper/custom_json_parser.dart';
 
 class MfuSystematicTxnModel {
