@@ -2771,9 +2771,9 @@ class _MobileLayout extends StatelessWidget {
             child: Stack(
               alignment: Alignment.topCenter,
               children: [
-                SizedBox(height: size.height * 0.3),
+                SizedBox(height: size.height * 0.325),
                 Container(
-                  height: size.height * 0.21,
+                  height: size.height * 0.22,
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment(-0.8, -1.0),
