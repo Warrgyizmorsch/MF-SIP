@@ -2841,9 +2841,7 @@ class _MobileLayout extends StatelessWidget {
                           .toLowerCase();
 
                   final noCan =
-                      canNumber.isEmpty ||
-                      userCanStatus == 'pending' ||
-                      userCanStatus == 'verified' || userCanStatus == 'on hold';
+                      canNumber.isEmpty || userCanStatus != 'approved';
 
                   final noMandate = !controller.hasApprovedMandate;
 

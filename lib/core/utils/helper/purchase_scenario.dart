@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:my_sip/common/widget/animated/dialog_button.dart';
 import 'package:my_sip/config/routes/app_routes.dart';
+import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
 import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 
 class GatekeeperHelper {
@@ -54,13 +55,32 @@ class GatekeeperHelper {
       return;
     }
 
-    // 🛑 4. Check CAN (Common Account Number) Status
+    // 🛑 4. Check CAN (Common Account Number) Status & Approval
     final userData = userCtrl.userData.value;
-    final String? canNumber = userData?.canNumber;
+    final String canNumber = userData?.canNumber ?? '';
+    final String canStatus = (userData?.canStatus ?? '').trim().toLowerCase();
     final String? canError = userData?.canErrorMessage;
 
-    if (canNumber == null || canNumber.isEmpty) {
-      if (canError != null && canError.isNotEmpty) {
+    final bool isCanApproved = canNumber.isNotEmpty && canStatus == 'approved';
+
+    if (!isCanApproved) {
+      if (canStatus.contains('pending') ||
+          canStatus.contains('hold') ||
+          canStatus.contains('process') ||
+          canStatus == 'verified') {
+        DialogHelper.showPrerequisiteDialog(
+          title: 'Account Activation Pending',
+          message:
+              'Your investment account (CAN) is currently being set up by MF Utility. Orders will unlock as soon as account activation completes.',
+          buttonText: 'Check Status',
+          onTap: () {
+            Get.back();
+            if (Get.isRegistered<MfuController>()) {
+              Get.find<MfuController>().getCanStatus();
+            }
+          },
+        );
+      } else if (canError != null && canError.isNotEmpty) {
         DialogHelper.showPrerequisiteDialog(
           title: 'CAN Registration Failed',
           message:
@@ -73,13 +93,13 @@ class GatekeeperHelper {
         );
       } else {
         DialogHelper.showPrerequisiteDialog(
-          title: 'CAN Registration Pending',
+          title: 'Investment Account Required',
           message:
-              'Your Common Account Number (CAN) has not been generated or approved yet. This is mandatory for mutual fund investments.',
-          buttonText: 'Check Status',
+              'Your Common Account Number (CAN) is required to process mutual fund orders.',
+          buttonText: 'Activate Account',
           onTap: () {
             Get.back();
-            Get.toNamed(AppRoutes.profilePage, id: isDesktop ? 1 : null);
+            userCtrl.checkAndTriggerCanRegistration(isManualTrigger: true);
           },
         );
       }

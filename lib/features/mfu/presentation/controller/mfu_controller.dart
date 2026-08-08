@@ -20,8 +20,10 @@ import 'package:my_sip/features/mfu/domain/entity/mandate_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/mfu_bank_validation_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/normal_txn_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/systematic_txn_entity.dart';
+import 'package:my_sip/common/widget/animated/popups.dart';
 import 'package:my_sip/features/mfu/domain/usecases/mfu_usecases.dart';
 import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
+import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/services/session_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -37,6 +39,7 @@ class MfuController extends GetxController {
   void onInit() {
     super.onInit();
     redeemAmountCtrl.addListener(_onRedeemAmountTyped);
+    resumePollingIfNeeded();
   }
 
   // ─── State ───────────────────────────────────────────────────────────────────
@@ -78,7 +81,7 @@ class MfuController extends GetxController {
   String get canNumber => mfuCanResponse.value?.can ?? '';
   String get canStatus => mfuCanResponse.value?.canStatus ?? '';
   String get canStatusMessage => mfuCanResponse.value?.canStatusMessage ?? '';
-  bool get isCanPending => canStatus.toLowerCase() == 'pending';
+  bool get isCanPending => canStatus.toLowerCase() != 'approved';
 
   List<BlockRespEntity> get blockRespList =>
       mfuCanResponse.value?.canStatusResponse?.respBody?.blockRespList ?? [];
@@ -472,10 +475,27 @@ class MfuController extends GetxController {
       (success) {
         canStatusResponse.value = success.data;
         log("[MfuController] CAN Status: ${success.data?.canStatus}");
+
+        final rawStatus = (success.data?.canStatus ?? '').trim().toLowerCase();
+        final isApproved = rawStatus == 'approved';
+
+        if (isApproved) {
+          _stopCanStatusPolling();
+
+          if (Get.isRegistered<PersonalisationController>()) {
+            Get.find<PersonalisationController>().fetchUserDetails();
+          }
+
+          ULoaders.success(
+            title: "Account Activated! 🎉",
+            message:
+                "Your investment account (CAN) is approved. You can now set up Auto Pay!",
+          );
+        }
       },
       (error) {
         errorMessage.value = error.message ?? 'Something went wrong';
-        Get.snackbar('MFU Error', errorMessage.value);
+        log("[MfuController] CAN Status Error: ${errorMessage.value}");
       },
     );
 
@@ -519,7 +539,7 @@ class MfuController extends GetxController {
     final canNumber = session.getUserData?.canNumber ?? '';
     final canStatus = session.getUserData?.canStatus?.toLowerCase() ?? '';
 
-    if (canNumber.isNotEmpty && canStatus == 'pending') {
+    if (canNumber.isNotEmpty && canStatus != 'approved') {
       log("[MfuController] 🔄 Resuming CAN status polling on app start");
       _startCanStatusPolling();
     }
