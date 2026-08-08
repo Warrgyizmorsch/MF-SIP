@@ -10,7 +10,8 @@ class UImages {
   static const String topRight3 = 'assets/logo/Vector 29.png';
   static const String topRight4 = 'assets/logo/Ellipse 265.png';
   static const String mfsiplogo = 'assets/logo/mfsiplogo.svg';
-  static const String profileBackground = 'assets/images/profile_background.png';
+  static const String profileBackground =
+      'assets/images/profile_background.png';
   static const String homeBackground = 'assets/images/home_background.png';
 
   //Onboarding
@@ -76,6 +77,8 @@ class UImages {
 
   static const String savingbank = 'assets/icon/savingbank1.png';
   static const String equity = 'assets/icon/equity.png';
+  static const String box = 'assets/icon/Box.svg';
+  static const String coin = 'assets/icon/Coin.svg';
 
   // static const String eye = 'assets/icon/eye.png';
 

@@ -3014,28 +3014,150 @@ class _MobileLayout extends StatelessWidget {
                   }
                   // 6. SUCCESS STATE (All Tasks Complete & KYC Verified!)
                   else if (isAllComplete) {
-                    bgColor = const Color(0xFFE8F5E9); // Very light green
-                    iconColor = const Color(0xFF2E7D32); // Deep premium green
-                    titleColor = const Color(0xFF1B5E20);
-                    subTextColor = const Color(0xFF388E3C);
-                    customLeftIcon = Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade100,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.rocket_launch_rounded,
-                        color: iconColor,
-                        size: 20,
+                    return Positioned(
+                      left: 16,
+                      right: 16,
+                      bottom: 0,
+                      child: Center(
+                        child: GestureDetector(
+                          onTap: () {
+                            navController.changePage(1, isDesktop: false);
+                          },
+                          child: Container(
+                            height: 124,
+                            clipBehavior: Clip.none,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(
+                                    0xFF07315C,
+                                  ).withValues(alpha: 0.08),
+                                  blurRadius: 16,
+                                  spreadRadius: 2,
+                                  offset: const Offset(0, 6),
+                                ),
+                              ],
+                            ),
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                // Soft Mint/Cyan Radial Glow (Bottom-Right)
+                                Positioned(
+                                  right: 0,
+                                  bottom: 0,
+                                  child: Container(
+                                    width: 140,
+                                    height: 70,
+                                    decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.only(
+                                        bottomRight: Radius.circular(20),
+                                      ),
+                                      gradient: RadialGradient(
+                                        center: Alignment.bottomRight,
+                                        radius: 1.2,
+                                        colors: [
+                                          const Color(0xFFE6FAF3),
+                                          Colors.white.withValues(alpha: 0.0),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                // Gold Sparkles & Stars
+                                const Positioned(
+                                  left: 175,
+                                  top: 18,
+                                  child: Icon(
+                                    Icons.star_rounded,
+                                    color: Color(0xFFF7CC33),
+                                    size: 10,
+                                  ),
+                                ),
+                                const Positioned(
+                                  left: 160,
+                                  top: 38,
+                                  child: CircleAvatar(
+                                    radius: 3,
+                                    backgroundColor: Color(0xFFFFEDAD),
+                                  ),
+                                ),
+                                const Positioned(
+                                  right: 135,
+                                  top: 30,
+                                  child: Icon(
+                                    Icons.star_rounded,
+                                    color: Color(0xFFF7CC33),
+                                    size: 12,
+                                  ),
+                                ),
+
+                                // Text Content
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: 20,
+                                    top: 16,
+                                    bottom: 14,
+                                    right: 135,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Start your SIP with\njust 100rs',
+                                        style: UTextStyles.medium.copyWith(
+                                          fontSize: 16,
+                                          height: 1.2,
+                                          fontWeight: FontWeight.w800,
+                                          color: const Color(0xFF0280C0),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        'Build wealth systematically with disciplined monthly investments',
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: UTextStyles.caption.copyWith(
+                                          fontSize: 10.5,
+                                          height: 1.3,
+                                          color: const Color(0xFF64748B),
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                // Box SVG (Bottom-Right)
+                                Positioned(
+                                  right: 10,
+                                  bottom: 0,
+                                  child: SvgPicture.asset(
+                                    'assets/icon/Box.svg',
+                                    width: 140,
+                                  ),
+                                ),
+
+                                // Coin SVG (Popping Top-Right Border)
+                                Positioned(
+                                  top: -22,
+                                  right: 18,
+                                  child: SvgPicture.asset(
+                                    'assets/icon/Coin.svg',
+                                    width: 85,
+                                    height: 85,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                     );
-                    rightIcon = Icons.arrow_forward_rounded;
-                    titleText = 'Ready to Invest! 🎉';
-                    subText = 'Your profile is 100% complete.';
-                    onTapAction = () {
-                      navController.changePage(1, isDesktop: false);
-                    };
                   } else {
                     return const SizedBox.shrink(); // Fallback
                   }
@@ -3076,17 +3198,21 @@ class _MobileLayout extends StatelessWidget {
                             vertical: 14,
                           ),
                           decoration: BoxDecoration(
-                            color: showProgressCard ? null : bgColor,
-                            gradient: showProgressCard
-                                ? const LinearGradient(
-                                    colors: [
-                                      Color(0xFF2C3E50),
-                                      Color(0xFF3498DB),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  )
-                                : null,
+                            color: (showProgressCard || isAllComplete)
+                                ? null
+                                : bgColor,
+                            gradient: isAllComplete
+                                ? Ucolors.gradientBlue
+                                : (showProgressCard
+                                      ? const LinearGradient(
+                                          colors: [
+                                            Color(0xFF2C3E50),
+                                            Color(0xFF3498DB),
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        )
+                                      : null),
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
@@ -3141,12 +3267,16 @@ class _MobileLayout extends StatelessWidget {
                                     Row(
                                       children: [
                                         Text(
-                                          'Onboarding Task',
+                                          isAllComplete
+                                              ? '🔥 Account 100% Verified'
+                                              : 'Onboarding Task',
                                           style: UTextStyles.medium.copyWith(
                                             fontSize: 11,
-                                            color: showProgressCard
+                                            color:
+                                                (showProgressCard ||
+                                                    isAllComplete)
                                                 ? Colors.white.withValues(
-                                                    alpha: 0.8,
+                                                    alpha: 0.85,
                                                   )
                                                 : subTextColor,
                                             fontWeight: FontWeight.w600,
