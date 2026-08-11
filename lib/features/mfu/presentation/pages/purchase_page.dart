@@ -849,9 +849,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
                   () => _BottomCta(
                     amount: _c.sipAmount.value,
                     invType: _c.sipInvType.value,
-                    isLoading:
-                        _c.isSubmittingTxn.value ||
-                        _c.isSubmittingSystematicTxn.value,
+                    isLoading: _c.isSubmittingAny,
                     isValid: _c.sipIsValid,
                     onInvest: _c.onSipInvest,
                   ),
@@ -1120,8 +1118,7 @@ class _SIPPurchasePageState extends State<SIPPurchasePage>
     return Obx(() {
       final type = _c.sipInvType.value;
       final amount = _c.sipAmount.value;
-      final isLoading =
-          _c.isSubmittingTxn.value || _c.isSubmittingSystematicTxn.value;
+      final isLoading = _c.isSubmittingAny;
       final canTap = _c.sipIsValid && !isLoading;
 
       return Container(

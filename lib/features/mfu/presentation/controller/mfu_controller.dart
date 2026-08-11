@@ -90,6 +90,13 @@ class MfuController extends GetxController {
 
   // ─── Convenience Getters ─────────────────────────────────────────────────────
 
+  bool get isSubmittingAny =>
+      isSubmittingTxn.value ||
+      isSubmittingSystematicTxn.value ||
+      isSubmittingLumpsum.value ||
+      isSubmittingSip.value ||
+      isSubmittingStepUp.value;
+
   String get canNumber => mfuCanResponse.value?.can ?? '';
   String get canStatus => mfuCanResponse.value?.canStatus ?? '';
   String get canStatusMessage => mfuCanResponse.value?.canStatusMessage ?? '';
@@ -928,6 +935,22 @@ class MfuController extends GetxController {
     return '${_toWords(n ~/ 10000000)} Crore${n % 10000000 > 0 ? ' ${_toWords(n % 10000000)}' : ''}';
   }
 
+  /// Opens MFU payment/order confirmation approval link (InAppWebView on mobile, external browser tab on Web)
+  void openApprovalLink(
+    String url, {
+    String title = 'Order Confirmation',
+  }) async {
+    if (url.isEmpty) return;
+    if (kIsWeb) {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    } else {
+      Get.to(() => MandateWebView(url: url, title: title));
+    }
+  }
+
   /// Flow 1: Lumpsum Purchase (`POST /api/v1/invest/lumpsum`)
   Future<void> executeLumpsum({
     required String schemeCode,
@@ -958,17 +981,21 @@ class MfuController extends GetxController {
 
         if (onSuccess != null && data != null) {
           onSuccess(data);
+          if (data.approvalLink != null && data.approvalLink!.isNotEmpty) {
+            openApprovalLink(data.approvalLink!, title: 'Confirm Investment');
+          }
         } else if (data?.approvalLink != null &&
             data!.approvalLink!.isNotEmpty) {
-          CustomSnackbar.success(
-            title: 'Lumpsum Submitted 🎉',
-            message: 'Opening MFU approval page for payment confirmation.',
-          );
+          // CustomSnackbar.success(
+          //   title: 'Lumpsum Submitted 🎉',
+          //   message: 'Opening MFU approval page for payment confirmation.',
+          // );
+          openApprovalLink(data.approvalLink!, title: 'Confirm Investment');
         } else {
-          CustomSnackbar.success(
-            title: 'Lumpsum Order Placed 🎉',
-            message: 'Reference (GORN): ${data?.mfuGorn ?? "N/A"}',
-          );
+          // CustomSnackbar.success(
+          //   title: 'Lumpsum Order Placed 🎉',
+          //   message: 'Reference (GORN): ${data?.mfuGorn ?? "N/A"}',
+          // );
         }
       },
       (error) {
@@ -1016,17 +1043,21 @@ class MfuController extends GetxController {
 
         if (onSuccess != null && data != null) {
           onSuccess(data);
+          if (data.approvalLink != null && data.approvalLink!.isNotEmpty) {
+            openApprovalLink(data.approvalLink!, title: 'Confirm SIP Order');
+          }
         } else if (data?.approvalLink != null &&
             data!.approvalLink!.isNotEmpty) {
-          CustomSnackbar.success(
-            title: 'SIP Submitted 🎉',
-            message: 'Opening MFU approval page for SIP confirmation.',
-          );
+          // CustomSnackbar.success(
+          //   title: 'SIP Submitted 🎉',
+          //   message: 'Opening MFU approval page for SIP confirmation.',
+          // );
+          openApprovalLink(data.approvalLink!, title: 'Confirm SIP Order');
         } else {
-          CustomSnackbar.success(
-            title: 'SIP Registered 🎉',
-            message: 'Reference (GORN): ${data?.mfuGorn ?? "N/A"}',
-          );
+          // CustomSnackbar.success(
+          //   title: 'SIP Registered 🎉',
+          //   message: 'Reference (GORN): ${data?.mfuGorn ?? "N/A"}',
+          // );
         }
       },
       (error) {
@@ -1073,11 +1104,11 @@ class MfuController extends GetxController {
         if (onSuccess != null && data != null) {
           onSuccess(data);
         } else {
-          CustomSnackbar.success(
-            title: 'SIP Step-Up Requested 🎉',
-            message:
-                'Order ID: ${data?.mfuOrderId ?? "N/A"} | Status: ${data?.orderStatus ?? "RQ"}',
-          );
+          // CustomSnackbar.success(
+          //   title: 'SIP Step-Up Requested 🎉',
+          //   message:
+          //       'Order ID: ${data?.mfuOrderId ?? "N/A"} | Status: ${data?.orderStatus ?? "RQ"}',
+          // );
         }
       },
       (error) {
@@ -1104,7 +1135,13 @@ class MfuController extends GetxController {
 
 class MandateWebView extends StatefulWidget {
   final String url;
-  const MandateWebView({super.key, required this.url});
+  final String title;
+
+  const MandateWebView({
+    super.key,
+    required this.url,
+    this.title = 'Approve Mandate',
+  });
 
   @override
   State<MandateWebView> createState() => _MandateWebViewState();
@@ -1141,7 +1178,7 @@ class _MandateWebViewState extends State<MandateWebView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Approve Mandate"),
+        title: Text(widget.title),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Get.back(result: 'check_status'),
@@ -1153,8 +1190,11 @@ class _MandateWebViewState extends State<MandateWebView> {
 
         onCreateWindow: (controller, action) async {
           final result = await Get.to(
-            () =>
-                _PopupWebView(windowId: action.windowId, desktopUA: _desktopUA),
+            () => _PopupWebView(
+              windowId: action.windowId,
+              desktopUA: _desktopUA,
+              title: widget.title,
+            ),
           );
           if (mounted) Get.back(result: result ?? 'check_status');
           return true;
@@ -1174,7 +1214,13 @@ class _MandateWebViewState extends State<MandateWebView> {
 class _PopupWebView extends StatefulWidget {
   final int windowId;
   final String desktopUA;
-  const _PopupWebView({required this.windowId, required this.desktopUA});
+  final String title;
+
+  const _PopupWebView({
+    required this.windowId,
+    required this.desktopUA,
+    this.title = 'Order Confirmation',
+  });
 
   @override
   State<_PopupWebView> createState() => _PopupWebViewState();
@@ -1187,7 +1233,7 @@ class _PopupWebViewState extends State<_PopupWebView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Approve Mandate"),
+        title: Text(widget.title),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Get.back(result: 'check_status'),
