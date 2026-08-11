@@ -12,6 +12,12 @@ import 'package:my_sip/features/mfu/domain/entity/can_status_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/emandate_status_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/mandate_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/mfu_bank_validation_entity.dart';
+import 'package:my_sip/features/mfu/data/model/lumpsum_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/lumpsum_res_model.dart';
+import 'package:my_sip/features/mfu/data/model/sip_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/sip_res_model.dart';
+import 'package:my_sip/features/mfu/data/model/stepup_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/stepup_res_model.dart';
 import 'package:my_sip/features/mfu/domain/entity/normal_txn_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/systematic_txn_entity.dart';
 
@@ -52,5 +58,15 @@ abstract class MfuRepository {
 
   Future<Either<Result<MfuCallResponseWrapper>, ApiError>> mfuCall(
     MfuCallRequestBase request,
+  );
+
+  Future<Either<Result<LumpsumResModel>, ApiError>> postLumpsum(
+    LumpsumReqModel request,
+  );
+
+  Future<Either<Result<SipResModel>, ApiError>> postSip(SipReqModel request);
+
+  Future<Either<Result<StepUpResModel>, ApiError>> postStepUp(
+    StepUpReqModel request,
   );
 }

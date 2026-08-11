@@ -7,6 +7,10 @@ import 'package:my_sip/features/mfu/domain/usecases/mfu_call_usecase.dart';
 import 'package:my_sip/features/mfu/domain/usecases/normal_txn_usecases.dart';
 import 'package:my_sip/features/mfu/domain/usecases/systematic_txn_usecases.dart';
 
+import 'package:my_sip/features/mfu/domain/usecases/post_lumpsum_usecase.dart';
+import 'package:my_sip/features/mfu/domain/usecases/post_sip_usecase.dart';
+import 'package:my_sip/features/mfu/domain/usecases/post_stepup_usecase.dart';
+
 class MfuUseCases {
   final CanRegisterUseCase canRegisterUseCase;
   final GetCanStatusUseCase getCanStatusUseCase;
@@ -18,6 +22,9 @@ class MfuUseCases {
   // final GetTransactionsUseCase getTransactionsUseCase;
   // final GetPortfolioUseCase getPortfolioUseCase; // 👈
   final MfuCallUseCase mfuCallUseCase;
+  final PostLumpsumUseCase postLumpsumUseCase;
+  final PostSipUseCase postSipUseCase;
+  final PostStepUpUseCase postStepUpUseCase;
 
   MfuUseCases({
     required this.canRegisterUseCase,
@@ -30,5 +37,8 @@ class MfuUseCases {
     // required this.getTransactionsUseCase,
     // required this.getPortfolioUseCase,
     required this.mfuCallUseCase,
+    required this.postLumpsumUseCase,
+    required this.postSipUseCase,
+    required this.postStepUpUseCase,
   });
 }

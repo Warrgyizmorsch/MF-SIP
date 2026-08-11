@@ -17,6 +17,12 @@ import 'package:my_sip/features/mfu/domain/entity/can_register_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/can_status_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/emandate_status_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/mandate_entity.dart';
+import 'package:my_sip/features/mfu/data/model/lumpsum_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/lumpsum_res_model.dart';
+import 'package:my_sip/features/mfu/data/model/sip_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/sip_res_model.dart';
+import 'package:my_sip/features/mfu/data/model/stepup_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/stepup_res_model.dart';
 import 'package:my_sip/features/mfu/domain/entity/mfu_bank_validation_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/normal_txn_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/systematic_txn_entity.dart';
@@ -53,6 +59,12 @@ class MfuController extends GetxController {
   final isSubmittingTxn = false.obs;
   final isSubmittingSystematicTxn = false.obs;
   final isValidatingCanBank = false.obs;
+  final isSubmittingLumpsum = false.obs;
+  final lumpsumResponse = Rxn<LumpsumResModel>();
+  final isSubmittingSip = false.obs;
+  final sipResponse = Rxn<SipResModel>();
+  final isSubmittingStepUp = false.obs;
+  final stepUpResponse = Rxn<StepUpResModel>();
 
   // ─── Redeem State ────────────────────────────────────────────────────────────
 
@@ -287,7 +299,7 @@ class MfuController extends GetxController {
   // ─── Invest ───────────────────────────────────────────────────────────────────
 
   void onSipInvest() {
-    // 1. Validate everything
+    // 1. Validate inputs
     final aErr = _validateSipAmount(sipAmount.value);
     final sErr = sipInvType.value == InvType.stepup ? _validateStepUp() : null;
     final cErr = sipInvType.value == InvType.stepup ? _validateCap() : null;
@@ -295,99 +307,60 @@ class MfuController extends GetxController {
     sipAmountError.value = aErr;
     sipStepUpError.value = sErr;
     sipCapError.value = cErr;
-    final uid = session.getUserData?.id ?? 0;
 
     if (aErr != null || sErr != null || cErr != null) return;
 
     final args = sipArgs.value;
+    final schemeCode = args.schemeCode;
+    final amount = sipAmount.value.toDouble();
+    final day = formatMfuSipDay();
+    final folio = args.folio ?? 'NEW';
 
-    if (sipInvType.value == InvType.sip || sipInvType.value == InvType.stepup) {
-      final now = DateTime.now();
-      DateTime startDate = DateTime(now.year, now.month + 1, sipDay.value);
-
-      // MFU 30-Day Minimum Gap Rule
-      if (startDate.difference(now).inDays < 30) {
-        startDate = DateTime(now.year, now.month + 2, sipDay.value);
-      }
-      final endDate = DateTime(
-        startDate.year + 30,
-        startDate.month,
-        startDate.day,
+    // 2. Dispatch investment API based on selected InvType
+    if (sipInvType.value == InvType.lumpsum) {
+      executeLumpsum(schemeCode: schemeCode, amount: amount, folio: folio);
+    } else if (sipInvType.value == InvType.sip) {
+      executeSip(
+        schemeCode: schemeCode,
+        amount: amount,
+        day: day,
+        frequency: 'M',
       );
-
-      String freqCode = 'M';
-      if (sipFreq.value == SipFrequency.weekly) freqCode = 'W';
-      if (sipFreq.value == SipFrequency.daily) freqCode = 'D';
-
-      systematicTransaction(
-        MfuSystematicTxnRequest.sip(
-          // uid: session.getUserData?.id ?? 7,
-          uid: 7,
-          // can: session.getUserData?.canNumber ?? '14167AZA01',
-          can: '14167AZA01',
-          schemeCode: "012",
-          // schemeCode: args.schemeCode,
-          folio: '',
-          // folio: args.folio ?? '',
-          amount: sipAmount.value,
-          // frequency: freqCode,
-          frequency: "M",
-          day: "10",
-          // day: formatMfuSipDay(),
-          startMonth: startDate.month.toString().padLeft(2, '0'),
-          startYear: startDate.year.toString(),
-          endMonth: endDate.month.toString().padLeft(2, '0'),
-          endYear: endDate.year.toString(),
-          paymentMode: 'DM',
-          accType: 'SB',
-          accNo: '654321',
-          ifsc: 'ABHY0065002',
-          micr: '400065002',
-          mandateRefNo: 'PRNUAT001',
-        ),
-      );
-    } else if (sipInvType.value == InvType.lumpsum) {
-      final folio = args.folio ?? 'NEW';
-
-      final schemeItem = MfuTxnScheme(
-        schemeCode: "012", // ✅ Dynamic scheme code
-        // schemeCode: args.schemeCode, // ✅ Dynamic scheme code
-        folio: folio,
-        amount: sipAmount.value.toDouble(),
-        divOpt: 'N',
-      );
-
-      normalTransaction(
-        MfuNormalTxnRequest.lumpsumMultiple(uid: uid, schemes: [schemeItem]),
+    } else if (sipInvType.value == InvType.stepup) {
+      executeStepUp(
+        schemeCode: schemeCode,
+        amount: amount,
+        day: day,
+        frequency: 'M',
       );
     }
-
-    // else if (sipInvType.value == InvType.lumpsum) {
-    //   final folio = args.folio;
-    //   if (folio != null && folio.isNotEmpty) {
-    //     normalTransaction(
-    //       MfuNormalTxnRequest.lumpsumExistingFolio(
-    //         // uid: 9105,
-    //         uid: session.getUserData?.id ?? 0,
-    //         schemeCode: args.schemeCode,
-    //         amount: sipAmount.value.toDouble(),
-    //         folio: folio,
-    //       ),
-    //     );
-    //   } else {
-    //     normalTransaction(
-    //       MfuNormalTxnRequest.lumpsumNewFolio(
-    //         // uid: 9105,
-    //         uid: session.getUserData?.id ?? 0,
-
-    //         schemeCode: "012",
-    //         // schemeCode: args.schemeCode,
-    //         amount: sipAmount.value.toDouble(),
-    //       ),
-    //     );
-    //   }
-    // }
   }
+
+  // else if (sipInvType.value == InvType.lumpsum) {
+  //   final folio = args.folio;
+  //   if (folio != null && folio.isNotEmpty) {
+  //     normalTransaction(
+  //       MfuNormalTxnRequest.lumpsumExistingFolio(
+  //         // uid: 9105,
+  //         uid: session.getUserData?.id ?? 0,
+  //         schemeCode: args.schemeCode,
+  //         amount: sipAmount.value.toDouble(),
+  //         folio: folio,
+  //       ),
+  //     );
+  //   } else {
+  //     normalTransaction(
+  //       MfuNormalTxnRequest.lumpsumNewFolio(
+  //         // uid: 9105,
+  //         uid: session.getUserData?.id ?? 0,
+
+  //         schemeCode: "012",
+  //         // schemeCode: args.schemeCode,
+  //         amount: sipAmount.value.toDouble(),
+  //       ),
+  //     );
+  //   }
+  // }
 
   ////////////////          ----------------------------           //////////////////
 
@@ -903,7 +876,7 @@ class MfuController extends GetxController {
   }
 
   // ─── Number to Words Formatter ───────────────────────────────────────────────
-  static const _ones = [
+  final List<String> _ones = const [
     '',
     'One',
     'Two',
@@ -925,7 +898,7 @@ class MfuController extends GetxController {
     'Eighteen',
     'Nineteen',
   ];
-  static const _tens = [
+  final List<String> _tens = const [
     '',
     '',
     'Twenty',
@@ -953,6 +926,171 @@ class MfuController extends GetxController {
       return '${_toWords(n ~/ 100000)} Lakh${n % 100000 > 0 ? ' ${_toWords(n % 100000)}' : ''}';
     }
     return '${_toWords(n ~/ 10000000)} Crore${n % 10000000 > 0 ? ' ${_toWords(n % 10000000)}' : ''}';
+  }
+
+  /// Flow 1: Lumpsum Purchase (`POST /api/v1/invest/lumpsum`)
+  Future<void> executeLumpsum({
+    required String schemeCode,
+    required double amount,
+    String folio = 'NEW',
+    int? goalId,
+    Function(LumpsumResModel)? onSuccess,
+  }) async {
+    isSubmittingLumpsum.value = true;
+    errorMessage.value = '';
+
+    final req = LumpsumReqModel(
+      schemeCode: schemeCode,
+      amount: amount,
+      folio: folio,
+      goalId: goalId,
+    );
+
+    final res = await mfuUseCases.postLumpsumUseCase(req);
+
+    res.fold(
+      (success) {
+        final data = success.data;
+        lumpsumResponse.value = data;
+        log(
+          "[MfuController] Lumpsum Success → Order ID: ${data?.mfuOrderId} | GORN: ${data?.mfuGorn} | Status: ${data?.orderStatus}",
+        );
+
+        if (onSuccess != null && data != null) {
+          onSuccess(data);
+        } else if (data?.approvalLink != null &&
+            data!.approvalLink!.isNotEmpty) {
+          CustomSnackbar.success(
+            title: 'Lumpsum Submitted 🎉',
+            message: 'Opening MFU approval page for payment confirmation.',
+          );
+        } else {
+          CustomSnackbar.success(
+            title: 'Lumpsum Order Placed 🎉',
+            message: 'Reference (GORN): ${data?.mfuGorn ?? "N/A"}',
+          );
+        }
+      },
+      (error) {
+        errorMessage.value = error.message;
+        log("[MfuController] Lumpsum Error → ${error.message}");
+        CustomSnackbar.error(
+          title: 'Lumpsum Purchase Failed',
+          message: error.message,
+        );
+      },
+    );
+
+    isSubmittingLumpsum.value = false;
+  }
+
+  /// Flow 2: SIP Registration (`POST /api/v1/invest/sip`)
+  Future<void> executeSip({
+    required String schemeCode,
+    required double amount,
+    required String day,
+    String frequency = 'M',
+    int? goalId,
+    Function(SipResModel)? onSuccess,
+  }) async {
+    isSubmittingSip.value = true;
+    errorMessage.value = '';
+
+    final req = SipReqModel(
+      schemeCode: schemeCode,
+      amount: amount,
+      day: day,
+      frequency: frequency,
+      goalId: goalId,
+    );
+
+    final res = await mfuUseCases.postSipUseCase(req);
+
+    res.fold(
+      (success) {
+        final data = success.data;
+        sipResponse.value = data;
+        log(
+          "[MfuController] SIP Success → Order ID: ${data?.mfuOrderId} | GORN: ${data?.mfuGorn} | Status: ${data?.orderStatus}",
+        );
+
+        if (onSuccess != null && data != null) {
+          onSuccess(data);
+        } else if (data?.approvalLink != null &&
+            data!.approvalLink!.isNotEmpty) {
+          CustomSnackbar.success(
+            title: 'SIP Submitted 🎉',
+            message: 'Opening MFU approval page for SIP confirmation.',
+          );
+        } else {
+          CustomSnackbar.success(
+            title: 'SIP Registered 🎉',
+            message: 'Reference (GORN): ${data?.mfuGorn ?? "N/A"}',
+          );
+        }
+      },
+      (error) {
+        errorMessage.value = error.message;
+        log("[MfuController] SIP Error → ${error.message}");
+        CustomSnackbar.error(
+          title: 'SIP Registration Failed',
+          message: error.message,
+        );
+      },
+    );
+
+    isSubmittingSip.value = false;
+  }
+
+  /// Flow 3: SIP Step-Up (`POST /api/v1/invest/stepup`)
+  Future<void> executeStepUp({
+    required String schemeCode,
+    required double amount,
+    required String day,
+    String frequency = 'M',
+    Function(StepUpResModel)? onSuccess,
+  }) async {
+    isSubmittingStepUp.value = true;
+    errorMessage.value = '';
+
+    final req = StepUpReqModel(
+      schemeCode: schemeCode,
+      amount: amount,
+      day: day,
+      frequency: frequency,
+    );
+
+    final res = await mfuUseCases.postStepUpUseCase(req);
+
+    res.fold(
+      (success) {
+        final data = success.data;
+        stepUpResponse.value = data;
+        log(
+          "[MfuController] StepUp Success → Order ID: ${data?.mfuOrderId} | Status: ${data?.orderStatus}",
+        );
+
+        if (onSuccess != null && data != null) {
+          onSuccess(data);
+        } else {
+          CustomSnackbar.success(
+            title: 'SIP Step-Up Requested 🎉',
+            message:
+                'Order ID: ${data?.mfuOrderId ?? "N/A"} | Status: ${data?.orderStatus ?? "RQ"}',
+          );
+        }
+      },
+      (error) {
+        errorMessage.value = error.message;
+        log("[MfuController] StepUp Error → ${error.message}");
+        CustomSnackbar.error(
+          title: 'SIP Step-Up Failed',
+          message: error.message,
+        );
+      },
+    );
+
+    isSubmittingStepUp.value = false;
   }
 
   @override
@@ -1162,219 +1300,3 @@ class _PopupWebViewState extends State<_PopupWebView> {
     );
   }
 }
-
-/*
-
-// class MandateWebView extends StatefulWidget {
-//   final String url;
-
-//   const MandateWebView({super.key, required this.url});
-
-//   @override
-//   State<MandateWebView> createState() => _MandateWebViewState();
-// }
-
-// class _MandateWebViewState extends State<MandateWebView> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: const Text("Approve Mandate")),
-//       body: InAppWebView(
-//         initialUrlRequest: URLRequest(url: WebUri(widget.url)),
-
-//         // --- 1. CRITICAL WEBVIEW SETTINGS ---
-//         initialSettings: InAppWebViewSettings(
-//           javaScriptEnabled: true,
-//           domStorageEnabled: true,
-
-//           // Allow BillDesk and NPCI to keep session cookies
-//           thirdPartyCookiesEnabled: true,
-
-//           // Allow NPCI to trigger its JavaScript redirects
-//           javaScriptCanOpenWindowsAutomatically: true,
-//           supportMultipleWindows: true,
-
-//           // Spoof the User-Agent to look like a real Chrome browser on an Android device
-//           userAgent:
-//               "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36",
-//         ),
-
-//         onCloseWindow: (controller) {
-//           debugPrint(
-//             "NPCI/Bank portal called window.close(). Closing WebView.",
-//           );
-//           // Close the screen and return to your app
-//           Get.back(result: 'window_closed');
-//         },
-
-//         // --- 2. HANDLE NEW WINDOW REQUESTS ---
-//         // If NPCI tries to open the bank portal in a "new tab",
-//         // we force it to load inside our current WebView window instead.
-//         onCreateWindow: (controller, createWindowAction) async {
-//           if (createWindowAction.request.url != null) {
-//             await controller.loadUrl(urlRequest: createWindowAction.request);
-//             return true; // We handled it
-//           }
-//           return false;
-//         },
-
-//         // --- 3. HANDLE INTENT URLs (UPI / Bank Apps) ---
-//         // Sometimes eNACH prompts the user to open their UPI app
-//         shouldOverrideUrlLoading: (controller, navigationAction) async {
-//           var uri = navigationAction.request.url!;
-//           var scheme = uri.scheme.toLowerCase();
-
-//           // If the URL is NOT a standard webpage (e.g., upi://, intent://, paytm://)
-//           if (!['http', 'https', 'about', 'data'].contains(scheme)) {
-//             if (await canLaunchUrl(uri)) {
-//               // Open the external banking app
-//               await launchUrl(uri, mode: LaunchMode.externalApplication);
-//               return NavigationActionPolicy.CANCEL;
-//             }
-//           }
-
-//           return NavigationActionPolicy.ALLOW;
-//         },
-
-//         // --- 4. INTERCEPT YOUR FINAL REDIRECT ---
-//         onLoadStart: (controller, url) {
-//           final currentUrl = url.toString();
-
-//           // Replace these with whatever your backend returns upon completion
-//           if (currentUrl.contains("your-app-success-url.com")) {
-//             Get.back(result: 'success');
-//           } else if (currentUrl.contains("your-app-failure-url.com")) {
-//             Get.back(result: 'failed');
-//           }
-//         },
-
-//         // (Keep the SSL bypass logic here ONLY if you are still testing on the IP address)
-//         onReceivedServerTrustAuthRequest: (controller, challenge) async {
-//           return ServerTrustAuthResponse(
-//             action: ServerTrustAuthResponseAction.PROCEED,
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
-
-// class MandateWebView extends StatelessWidget {
-//   final String url;
-
-//   const MandateWebView({super.key, required this.url});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: const Text("Mandate Approval")),
-//       body: InAppWebView(
-//         initialUrlRequest: URLRequest(url: WebUri(url)),
-//         initialSettings: InAppWebViewSettings(
-//           javaScriptEnabled: true,
-//           // This allows content from IP addresses or mismatched certificates
-//           allowContentAccess: true,
-//           allowFileAccess: true,
-//         ),
-//         onReceivedServerTrustAuthRequest: (controller, challenge) async {
-//           // This is the "Advanced -> Proceed" equivalent
-//           return ServerTrustAuthResponse(
-//             action: ServerTrustAuthResponseAction.PROCEED,
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
-
-*/
-
-/* 
-  Can 
-final isLoadingCanStatus = false.obs;
-final canStatusEntity = Rxn<MfuCanStatusEntity>();
-
-Future<void> getCanStatus({required String can}) async {
-  isLoadingCanStatus.value = true;
-  errorMessage.value = '';
-
-  await _mfuCall<MfuCanStatusEntity>(
-    request: MfuCanStatusRequest(can: can),
-    parser: (raw) => MfuCanStatusResponse.fromJson(raw).toEntity(),
-    onSuccess: (entity) {
-      canStatusEntity.value = entity;
-      log("[MfuController] CAN Status: ${entity.canStatus} | ${entity.msg}");
-
-      // Resume polling logic if still pending
-      if (entity.isPending) {
-        _startPolling();
-      } else {
-        _stopPolling();
-      }
-    },
-  );
-
-  isLoadingCanStatus.value = false;
-}
-controller.getCanStatus(can: session.getUserData?.canNumber ?? '');
-
-Obx(() {
-  final status = controller.canStatusEntity.value;
-  // status?.canStatus  → "Pending"
-  // status?.isApproved → bool
-  // status?.hasBlocks  → show error blocks
-  // status?.blockRespList → list of issues
-});
-
-----------   Can Val  ---------- 
-final isLoadingCanVal = false.obs;
-final canValEntity = Rxn<MfuCanValEntity>();
-
-Future<void> validateCan({
-  required String can,
-  required String pan,
-  required String dob,
-  required String emailId,
-}) async {
-  isLoadingCanVal.value = true;
-  errorMessage.value = '';
-
-  await _mfuCall<MfuCanValEntity>(
-    request: MfuCanValRequest(
-      can: can,
-      pan: pan,
-      dob: dob,
-      emailId: emailId,
-    ),
-    parser: (raw) => MfuCanValResponse.fromJson(raw).toEntity(),
-    onSuccess: (entity) {
-      canValEntity.value = entity;
-      log("[MfuController] CAN-VAL → canValid: ${entity.canValid} | panValid: ${entity.panValid} | status: ${entity.canStatus}");
-    },
-  );
-
-  isLoadingCanVal.value = false;
-}
-
-controller.validateCan(
-  can: "14163BEA01",
-  pan: "PPPPP5555P",
-  dob: "1970-06-01",
-  emailId: "user@gmail.com",
-);
-
-Obx(() {
-  final val = controller.canValEntity.value;
-  // val?.canValid      → true
-  // val?.panValid      → true
-  // val?.emailValid    → false
-  // val?.isApproved    → true (canStatus == "AP")
-  // val?.canAllowTrans → false
-});
-
-
-//////  ---------   
-
-*/
-
-/// Generic

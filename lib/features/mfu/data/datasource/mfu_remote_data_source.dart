@@ -15,10 +15,14 @@ import 'package:my_sip/features/mfu/data/model/mfu_call_response_wrapper.dart';
 import 'package:my_sip/features/mfu/data/model/mfu_mandate_create_req.dart';
 import 'package:my_sip/features/mfu/data/model/normal_txn_model.dart';
 import 'package:my_sip/features/mfu/data/model/normal_txn_req_model.dart';
-import 'package:my_sip/features/dashboard/data/model/portfolio_model.dart';
 import 'package:my_sip/features/mfu/data/model/systematic_txn_model.dart';
 import 'package:my_sip/features/mfu/data/model/systematic_txn_req_model.dart';
-import 'package:my_sip/features/dashboard/data/model/transactionlist_model.dart';
+import 'package:my_sip/features/mfu/data/model/lumpsum_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/lumpsum_res_model.dart';
+import 'package:my_sip/features/mfu/data/model/sip_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/sip_res_model.dart';
+import 'package:my_sip/features/mfu/data/model/stepup_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/stepup_res_model.dart';
 import 'package:my_sip/services/session_manager.dart';
 
 class MfuRemoteDataSource {
@@ -382,6 +386,101 @@ class MfuRemoteDataSource {
       }
     } catch (e) {
       return Right(ApiError(message: 'mfuCall Exception: $e'));
+    }
+  }
+
+  /// POST /api/v1/invest/lumpsum
+  Future<Either<Result<LumpsumResModel>, ApiError>> postLumpsum(
+    LumpsumReqModel req,
+  ) async {
+    try {
+      createLog("[MfuRemoteDataSource] postLumpsum Request: ${req.toJson()}");
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/invest/lumpsum",
+        data: req.toJson(),
+      );
+
+      createLog("[MfuRemoteDataSource] postLumpsum Response: $resp");
+
+      if (resp != null) {
+        final result = LumpsumResModel.fromJson(resp);
+        if (result.success == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(message: result.message ?? 'Lumpsum purchase failed'),
+          );
+        }
+      } else {
+        return Right(
+          ApiError(message: 'postLumpsum: Invalid response structure'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'postLumpsum Exception: $e'));
+    }
+  }
+
+  /// POST /api/v1/invest/sip
+  Future<Either<Result<SipResModel>, ApiError>> postSip(SipReqModel req) async {
+    try {
+      createLog("[MfuRemoteDataSource] postSip Request: ${req.toJson()}");
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/invest/sip",
+        data: req.toJson(),
+      );
+
+      createLog("[MfuRemoteDataSource] postSip Response: $resp");
+
+      if (resp != null) {
+        final result = SipResModel.fromJson(resp);
+        if (result.success == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(message: result.message ?? 'SIP registration failed'),
+          );
+        }
+      } else {
+        return Right(ApiError(message: 'postSip: Invalid response structure'));
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'postSip Exception: $e'));
+    }
+  }
+
+  /// POST /api/v1/invest/stepup
+  Future<Either<Result<StepUpResModel>, ApiError>> postStepUp(
+    StepUpReqModel req,
+  ) async {
+    try {
+      createLog("[MfuRemoteDataSource] postStepUp Request: ${req.toJson()}");
+
+      final resp = await _apiService.postApi(
+        "${Appurl.baseUrl}/api/v1/invest/stepup",
+        data: req.toJson(),
+      );
+
+      createLog("[MfuRemoteDataSource] postStepUp Response: $resp");
+
+      if (resp != null) {
+        final result = StepUpResModel.fromJson(resp);
+        if (result.success == true) {
+          return Left(Result.success(result));
+        } else {
+          return Right(
+            ApiError(message: result.message ?? 'SIP Step-Up failed'),
+          );
+        }
+      } else {
+        return Right(
+          ApiError(message: 'postStepUp: Invalid response structure'),
+        );
+      }
+    } catch (e) {
+      return Right(ApiError(message: 'postStepUp Exception: $e'));
     }
   }
 }

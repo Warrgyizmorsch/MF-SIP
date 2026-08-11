@@ -15,6 +15,12 @@ import 'package:my_sip/features/mfu/domain/entity/mandate_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/mfu_bank_validation_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/normal_txn_entity.dart';
 import 'package:my_sip/features/mfu/domain/entity/systematic_txn_entity.dart';
+import 'package:my_sip/features/mfu/data/model/lumpsum_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/lumpsum_res_model.dart';
+import 'package:my_sip/features/mfu/data/model/sip_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/sip_res_model.dart';
+import 'package:my_sip/features/mfu/data/model/stepup_req_model.dart';
+import 'package:my_sip/features/mfu/data/model/stepup_res_model.dart';
 import 'package:my_sip/features/mfu/domain/repository/mfu_repository_abstract.dart';
 
 class MfuRepositoryImpl extends MfuRepository {
@@ -169,6 +175,51 @@ class MfuRepositoryImpl extends MfuRepository {
   ) async {
     try {
       final response = await _remoteDataSource.mfuCall(request);
+      return response.fold(
+        (success) => Left(Result.success(success.data!)),
+        (error) => Right(error),
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Result<LumpsumResModel>, ApiError>> postLumpsum(
+    LumpsumReqModel request,
+  ) async {
+    try {
+      final response = await _remoteDataSource.postLumpsum(request);
+      return response.fold(
+        (success) => Left(Result.success(success.data!)),
+        (error) => Right(error),
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Result<SipResModel>, ApiError>> postSip(
+    SipReqModel request,
+  ) async {
+    try {
+      final response = await _remoteDataSource.postSip(request);
+      return response.fold(
+        (success) => Left(Result.success(success.data!)),
+        (error) => Right(error),
+      );
+    } catch (e) {
+      return Right(ApiError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Result<StepUpResModel>, ApiError>> postStepUp(
+    StepUpReqModel request,
+  ) async {
+    try {
+      final response = await _remoteDataSource.postStepUp(request);
       return response.fold(
         (success) => Left(Result.success(success.data!)),
         (error) => Right(error),
