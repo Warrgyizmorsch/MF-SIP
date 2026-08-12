@@ -2015,8 +2015,11 @@ class CartPage extends GetView<CartController> {
     );
   }
 
-  void _handlePurchase() {
-    if (!controller.isCartValid1) return;
+  void _handlePurchase({bool isLumpsum = false}) {
+    final targetItems = isLumpsum
+        ? controller.lumpsumItems
+        : controller.sipAndStepUpItems;
+    if (!controller.isListValid(targetItems)) return;
 
     final bool isDesktop = Get.width > 800;
 
@@ -2074,12 +2077,8 @@ class CartPage extends GetView<CartController> {
               'We could not generate your CAN because: \n\n"$canError"\n\nPlease resolve this issue to proceed.',
           buttonText: 'Try Again',
           onTap: () {
-            // Get.back();
-
             userCtrl.checkAndTriggerCanRegistration(isManualTrigger: true);
             Get.back();
-
-            // Get.toNamed(AppRoutes.profilePage, id: isDesktop ? 1 : null);
           },
         );
       }
@@ -2092,13 +2091,12 @@ class CartPage extends GetView<CartController> {
           buttonText: 'Check Status',
           onTap: () {
             Get.back();
-            // Get.toNamed(AppRoutes.profilePage, id: isDesktop ? 1 : null);
           },
         );
       }
       return;
     }
-    if (!userCtrl.hasApprovedMandate) {
+    if (!isLumpsum && !userCtrl.hasApprovedMandate) {
       _showPrerequisiteDialog(
         title: 'Auto Pay Required',
         message:
@@ -2120,11 +2118,17 @@ class CartPage extends GetView<CartController> {
       return;
     }
 
+    final int targetAmount = isLumpsum
+        ? controller.totalLumpsumAmount
+        : controller.totalSipStepUpAmount;
+
     Get.toNamed(
       AppRoutes.paymentScreen,
       arguments: {
         'isMandate': false,
-        'amount': controller.totalAmount.toString(),
+        'isLumpsum': isLumpsum,
+        'checkoutType': isLumpsum ? 'lumpsum' : 'sip_stepup',
+        'amount': targetAmount.toString(),
       },
       id: isDesktop ? 1 : null,
     );
@@ -2188,136 +2192,191 @@ class CartPage extends GetView<CartController> {
 
     return GetBuilder<CartController>(
       builder: (controller) {
-        return Scaffold(
-          // backgroundColor: isDesktop ? const Color(0xFFF5F7FA) : Colors.white,
-          appBar: isDesktop ? null : const CustomAppBarNormal(title: 'Cart'),
-
-          persistentFooterDecoration: isDesktop ? null : const BoxDecoration(),
-          persistentFooterButtons: isDesktop
-              ? null
-              : [const TermAndPolicy(term: 'By Proceeding I accept the ')],
-          bottomNavigationBar: isDesktop
-              ? null
-              : SafeArea(
-                  top: false,
-                  child: Obx(() {
-                    final isLoading =
-                        (controller.isLoading.value &&
-                            controller.items.isEmpty) ||
-                        controller.isInitLoading.value;
-
-                    return CartBottomBar(
-                      isValid: controller.isCartValid1,
-                      amount: isLoading
-                          ? '0'
-                          : controller.totalAmount.toString(),
-                      ontap: _handlePurchase,
-                    );
-                  }),
-                ),
-
-          body: GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
-            behavior: HitTestBehavior.translucent,
-            child: Obx(() {
-              final items = controller.displayedItems;
-
-              if (controller.isLoading.value && items.isEmpty ||
-                  controller.isInitLoading.value) {
-                return Center(child: CircularProgressIndicator());
-              }
-
-              // --- EMPTY STATE ---
-              if (items.isEmpty) {
-                return SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Center(
-                        child: controller.filterGoalId.value != null
-                            ? const Text("No funds for this goal")
-                            : const AnimatedEmptyState(
-                                title: "Your Cart is Empty",
-                                message:
-                                    "Looks like you haven't added any funds yet. Go explore!",
-                                icon: Icons.shopping_cart_outlined,
-                              ),
-                      ),
-
-                      InkWell(
-                        onTap: () {
-                          Get.toNamed(
-                            AppRoutes.explorePage,
-                            id: kIsWeb ? 1 : null,
-                          );
-                        },
-                        borderRadius: BorderRadius.circular(8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Explore more funds',
-                              style: AppTextStyles.bodyMediumBold().copyWith(
-                                color: Ucolors.primary,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            const Icon(
-                              Icons.arrow_forward_rounded,
-                              size: 18,
-                              color: Ucolors.primary,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 60),
-                      _buildRecentlyViewed(),
-                    ],
-                  ),
-                );
-              }
-
-              // --- DESKTOP / WEB SINGLE CHECKOUT LAYOUT ---
-              if (isDesktop) {
-                return _buildDesktopCheckout(context, items);
-              }
-              // --- MOBILE LAYOUT ---
-              return CustomScrollView(
-                physics: const BouncingScrollPhysics(),
-                slivers: [
-                  // 1. Your Cart Items (Scrolls normally)
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        return CartItemCard(
-                          index: index,
-                          itemEntity: items[index],
-                        );
-                      }, childCount: items.length),
+        return DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            appBar: isDesktop
+                ? null
+                : CustomAppBarNormal(
+                    title: 'Cart',
+                    bottom: TabBar(
+                      onTap: (index) {
+                        controller.activeTabIndex.value = index;
+                      },
+                      labelColor: Ucolors.primary,
+                      unselectedLabelColor: Colors.grey,
+                      indicatorColor: Ucolors.primary,
+                      tabs: const [
+                        Tab(text: 'SIP & Step-Up'),
+                        Tab(text: 'Lumpsum Orders'),
+                      ],
                     ),
                   ),
 
-                  if (items.length <= 2)
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const SizedBox(height: 20),
-                          DistributionRemainderCard(),
-                          const SizedBox(height: 20),
-                          _buildRecentlyViewed(),
-                        ],
-                      ),
+            persistentFooterDecoration: isDesktop
+                ? null
+                : const BoxDecoration(),
+            persistentFooterButtons: isDesktop
+                ? null
+                : [const TermAndPolicy(term: 'By Proceeding I accept the ')],
+            bottomNavigationBar: isDesktop
+                ? null
+                : SafeArea(
+                    top: false,
+                    child: Obx(() {
+                      final isLoading =
+                          (controller.isLoading.value &&
+                              controller.items.isEmpty) ||
+                          controller.isInitLoading.value;
+                      final isLumpsumTab = controller.activeTabIndex.value == 1;
+                      final targetItems = isLumpsumTab
+                          ? controller.lumpsumItems
+                          : controller.sipAndStepUpItems;
+                      final targetAmount = isLumpsumTab
+                          ? controller.totalLumpsumAmount
+                          : controller.totalSipStepUpAmount;
+
+                      return CartBottomBar(
+                        isValid: controller.isListValid(targetItems),
+                        amount: isLoading ? '0' : targetAmount.toString(),
+                        ontap: () => _handlePurchase(isLumpsum: isLumpsumTab),
+                      );
+                    }),
+                  ),
+
+            body: GestureDetector(
+              onTap: () => FocusScope.of(context).unfocus(),
+              behavior: HitTestBehavior.translucent,
+              child: TabBarView(
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  Obx(
+                    () => _buildTabCartView(
+                      context,
+                      controller.sipAndStepUpItems,
+                      isDesktop,
+                      isLumpsum: false,
                     ),
+                  ),
+                  Obx(
+                    () => _buildTabCartView(
+                      context,
+                      controller.lumpsumItems,
+                      isDesktop,
+                      isLumpsum: true,
+                    ),
+                  ),
                 ],
-              );
-            }),
+              ),
+            ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildTabCartView(
+    BuildContext context,
+    List<CartItemEntity> items,
+    bool isDesktop, {
+    required bool isLumpsum,
+  }) {
+    if (controller.isLoading.value && controller.items.isEmpty ||
+        controller.isInitLoading.value) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    // --- EMPTY STATE ---
+    if (items.isEmpty) {
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 40),
+            Center(
+              child: controller.filterGoalId.value != null
+                  ? const Text("No funds for this goal")
+                  : AnimatedEmptyState(
+                      title: isLumpsum
+                          ? "No Lumpsum Orders"
+                          : "No SIP & Step-Up Orders",
+                      message: isLumpsum
+                          ? "You have no lumpsum investment orders in your cart."
+                          : "You have no SIP or Step-Up orders in your cart. Go explore!",
+                      icon: Icons.shopping_cart_outlined,
+                    ),
+            ),
+            const SizedBox(height: 16),
+            InkWell(
+              onTap: () {
+                Get.toNamed(AppRoutes.explorePage, id: kIsWeb ? 1 : null);
+              },
+              borderRadius: BorderRadius.circular(8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Explore more funds',
+                    style: AppTextStyles.bodyMediumBold().copyWith(
+                      color: Ucolors.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  const Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 18,
+                    color: Ucolors.primary,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 60),
+            _buildRecentlyViewed(),
+          ],
+        ),
+      );
+    }
+
+    // --- DESKTOP / WEB SINGLE CHECKOUT LAYOUT ---
+    if (isDesktop) {
+      return _buildDesktopCheckout(context, items);
+    }
+
+    // --- MOBILE LAYOUT ---
+    return CustomScrollView(
+      physics: const BouncingScrollPhysics(),
+      slivers: [
+        // 1. Your Cart Items (Scrolls normally)
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              return CartItemCard(
+                key: ValueKey(
+                  items[index].id ?? items[index].schemeCode ?? index,
+                ),
+                index: index,
+                itemEntity: items[index],
+              );
+            }, childCount: items.length),
+          ),
+        ),
+
+        if (items.length <= 2)
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                const SizedBox(height: 20),
+                DistributionRemainderCard(),
+                const SizedBox(height: 20),
+                _buildRecentlyViewed(),
+              ],
+            ),
+          ),
+      ],
     );
   }
 
@@ -2580,6 +2639,11 @@ class CartPage extends GetView<CartController> {
                         ...List.generate(
                           items.length,
                           (index) => CartItemCard(
+                            key: ValueKey(
+                              items[index].id ??
+                                  items[index].schemeCode ??
+                                  index,
+                            ),
                             index: index,
                             itemEntity: items[index],
                           ),
@@ -2592,7 +2656,7 @@ class CartPage extends GetView<CartController> {
               ),
             ),
             Gap(24),
-            Expanded(flex:4,child: _buildWebCheckoutSummary(items)),
+            Expanded(flex: 4, child: _buildWebCheckoutSummary(items)),
           ],
         ),
       ),
@@ -3655,7 +3719,6 @@ class FundHeader extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-
             ],
           ),
         ),

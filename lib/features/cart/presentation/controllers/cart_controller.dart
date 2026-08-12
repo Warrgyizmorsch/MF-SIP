@@ -27,6 +27,7 @@ class CartController extends GetxController {
   var goalId = RxnInt(); // Nullable reactive int
 
   var investmentAmount = 0.0.obs;
+  RxInt activeTabIndex = 0.obs;
 
   int roundToNearest100(int amount) {
     final remainder = amount % 100;
@@ -39,7 +40,6 @@ class CartController extends GetxController {
   }
 
   Future<void> distributeMonthlyAmount() async {
-
     final items = displayedItems;
 
     if (items.isEmpty || monthlyAmount.value <= 0) {
@@ -49,15 +49,13 @@ class CartController extends GetxController {
     final int count = items.length;
 
     // STEP 1 → Round total to nearest 100
-    final int roundedTotal =
-    roundToNearest100(monthlyAmount.value);
+    final int roundedTotal = roundToNearest100(monthlyAmount.value);
 
     // STEP 2 → Equal divide
     double dividedAmount = roundedTotal / count;
 
     // STEP 3 → Round each divided amount to nearest 100
-    int baseAmount =
-    roundToNearest100(dividedAmount.round());
+    int baseAmount = roundToNearest100(dividedAmount.round());
 
     final List<int> assignedAmounts = [];
 
@@ -66,8 +64,7 @@ class CartController extends GetxController {
       assignedAmounts.add(baseAmount);
     }
 
-    int totalAssigned =
-    assignedAmounts.fold(0, (a, b) => a + b);
+    int totalAssigned = assignedAmounts.fold(0, (a, b) => a + b);
 
     // STEP 5 → Fix difference
     int difference = roundedTotal - totalAssigned;
@@ -76,18 +73,16 @@ class CartController extends GetxController {
       assignedAmounts[count - 1] += difference;
     }
 
-    totalAssigned =
-        assignedAmounts.fold(0, (a, b) => a + b);
+    totalAssigned = assignedAmounts.fold(0, (a, b) => a + b);
 
-    distributionRemainder.value =
-        monthlyAmount.value - totalAssigned;
+    distributionRemainder.value = monthlyAmount.value - totalAssigned;
 
     debugPrint(
       "Original Total: ${monthlyAmount.value}\n"
-          "Rounded Total: $roundedTotal\n"
-          "Assigned Amounts: $assignedAmounts\n"
-          "Total Assigned: $totalAssigned\n"
-          "Remainder: ${distributionRemainder.value}",
+      "Rounded Total: $roundedTotal\n"
+      "Assigned Amounts: $assignedAmounts\n"
+      "Total Assigned: $totalAssigned\n"
+      "Remainder: ${distributionRemainder.value}",
     );
 
     // STEP 6 → API Update
@@ -109,7 +104,6 @@ class CartController extends GetxController {
     }
     return double.tryParse(item.minSipAmount ?? '0')?.toInt() ?? 0;
   }
-
 
   setInvestmentDetails({
     required String code,
@@ -139,7 +133,9 @@ class CartController extends GetxController {
     super.onInit();
 
     await _loadArgs();
-    debugPrint("Monthly Amount ${monthlyAmount.value} and Goal ID: ${filterGoalId.value} and isGoal:${isFromGoal.value} detected. Distributing...");
+    debugPrint(
+      "Monthly Amount ${monthlyAmount.value} and Goal ID: ${filterGoalId.value} and isGoal:${isFromGoal.value} detected. Distributing...",
+    );
 
     if ((filterGoalId.value != null && filterGoalId.value != 0) &&
         monthlyAmount.value > 0) {
@@ -151,7 +147,6 @@ class CartController extends GetxController {
     } else {
       await fetchCart();
     }
-
   }
 
   int get totalAmount {
@@ -198,8 +193,7 @@ class CartController extends GetxController {
 
     // Monthly Amount
     if (args['monthlyAmount'] != null) {
-      monthlyAmount.value =
-          int.tryParse(args['monthlyAmount'].toString()) ?? 0;
+      monthlyAmount.value = int.tryParse(args['monthlyAmount'].toString()) ?? 0;
     }
 
     // Goal Data
@@ -216,10 +210,10 @@ class CartController extends GetxController {
 
     debugPrint(
       "Cart Page Arguments: $args\n"
-          "Monthly Amount: ${monthlyAmount.value}\n"
-          "Goal Id: ${filterGoalId.value}\n"
-          "isFromGoal: ${isFromGoal.value}\n"
-          "Invest Now: ${investmentAmount.value}",
+      "Monthly Amount: ${monthlyAmount.value}\n"
+      "Goal Id: ${filterGoalId.value}\n"
+      "isFromGoal: ${isFromGoal.value}\n"
+      "Invest Now: ${investmentAmount.value}",
     );
   }
 
@@ -245,6 +239,30 @@ class CartController extends GetxController {
     return allItems.where((item) => item.goalId == null).toList();
   }
 
+  // ─── Segmented Cart Getters ──────────────────────────────────────────────────
+
+  List<CartItemEntity> get sipAndStepUpItems {
+    return displayedItems.where((item) {
+      final type = item.transType?.toLowerCase() ?? 'sip';
+      return type == 'sip' || type == 'stepup';
+    }).toList();
+  }
+
+  List<CartItemEntity> get lumpsumItems {
+    return displayedItems.where((item) {
+      final type = item.transType?.toLowerCase() ?? 'sip';
+      return type == 'lumpsum';
+    }).toList();
+  }
+
+  int get totalSipStepUpAmount {
+    return sipAndStepUpItems.fold(0, (sum, item) => sum + (item.amount ?? 0));
+  }
+
+  int get totalLumpsumAmount {
+    return lumpsumItems.fold(0, (sum, item) => sum + (item.amount ?? 0));
+  }
+
   CartController(this.cartUsecases);
 
   ///////
@@ -254,6 +272,7 @@ class CartController extends GetxController {
   void setItemError(int itemId, bool hasError) {
     itemErrors[itemId] = hasError;
   }
+
   void clearCart() {
     cartResponseEntity.value = null;
 
@@ -291,6 +310,7 @@ class CartController extends GetxController {
 
     fundDetail.value = null;
   }
+
   void setMonthlyAmount(int value) {
     monthlyAmount.value = value;
   }
@@ -459,9 +479,14 @@ class CartController extends GetxController {
   }
 
   // Fetch Cart (Truth from server)
-  Future<void> fetchCart() async {
+  Future<void> fetchCart({bool showFullLoader = false}) async {
     try {
-      isLoading(true);
+      if (showFullLoader || cartResponseEntity.value == null) {
+        isLoading(true);
+      } else {
+        isSyncing(true);
+      }
+
       final result = await cartUsecases.getCartListUsecases.call({
         "user_id": SessionManager.instance.getUserData!.id,
       });
@@ -472,6 +497,7 @@ class CartController extends GetxController {
       );
     } finally {
       isLoading(false);
+      isSyncing(false);
     }
   }
 
@@ -527,12 +553,14 @@ class CartController extends GetxController {
       if (capingAmount != null) "caping_amount": capingAmount,
       if (stepUpPercentage != null) "step_up_percentage": stepUpPercentage,
     });
-    debugPrint("Optimistically updating item $itemId locally with new values$itemId : $amount");
+    debugPrint(
+      "Optimistically updating item $itemId locally with new values$itemId : $amount",
+    );
 
     result.fold(
       (success) async {
         if (shouldFetchCart) {
-          await fetchCart();
+          await fetchCart(showFullLoader: false);
         }
       },
       (failure) {
@@ -602,20 +630,15 @@ class CartController extends GetxController {
     }
   }
 
-  bool get isCartValid1 {
-    // 1. Check if any active UI field has an error
-    if (itemErrors.values.any((hasError) => hasError)) {
-      return false;
-    }
-
-    final currentItems = displayedItems;
+  bool isListValid(List<CartItemEntity> currentItems) {
     if (currentItems.isEmpty) return false;
 
     for (var item in currentItems) {
+      if (item.id != null && itemErrors[item.id] == true) return false;
+
       int amt = item.amount ?? 0;
       String type = item.transType?.toLowerCase() ?? 'sip';
 
-      // 🔥 FIX 1: Safely parse decimal strings like "500.00" to int 500
       int minSip =
           double.tryParse(item.minSipAmount?.toString() ?? '0')?.toInt() ?? 500;
       int minLumpsum =
@@ -626,7 +649,6 @@ class CartController extends GetxController {
       if (amt % 100 != 0) return false;
 
       if (type == 'stepup') {
-        // 🔥 FIX 2: Safely parse Step-Up string values
         int topup =
             double.tryParse(item.topUpAmount?.toString() ?? '0')?.toInt() ?? 0;
         int minTop =
@@ -637,6 +659,18 @@ class CartController extends GetxController {
       }
     }
     return true;
+  }
+
+  bool get isCartValid1 {
+    // 1. Check if any active UI field has an error
+    if (itemErrors.values.any((hasError) => hasError)) {
+      return false;
+    }
+
+    final currentItems = activeTabIndex.value == 0
+        ? sipAndStepUpItems
+        : lumpsumItems;
+    return isListValid(currentItems);
   }
 
   //////  -------------------------  ///////////////////
@@ -673,7 +707,7 @@ void showCustomToast1({
       style: const TextStyle(color: Colors.white, fontSize: 12),
     ),
     icon: Icon(icon, color: Colors.white, size: 28),
-    backgroundColor: backgroundColor.withValues(alpha:0.9),
+    backgroundColor: backgroundColor.withValues(alpha: 0.9),
     borderRadius: 15,
     margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 80),
     // snackPosition: SnackPosition.BOTTOM,
@@ -706,7 +740,7 @@ void showCustomToast({
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: backgroundColor.withValues(alpha:0.9),
+          color: backgroundColor.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(25),
         ),
         child: Row(

@@ -73,7 +73,8 @@ class CustomAppBarNormal extends StatelessWidget
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  Size get preferredSize =>
+      Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0.0));
 }
 
 class WebCustomAppBarNormal extends StatelessWidget
@@ -155,5 +156,6 @@ class WebCustomAppBarNormal extends StatelessWidget
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(80);
+  Size get preferredSize =>
+      Size.fromHeight(80.0 + (bottom?.preferredSize.height ?? 0.0));
 }
