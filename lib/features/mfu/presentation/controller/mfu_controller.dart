@@ -377,20 +377,66 @@ class MfuController extends GetxController {
     // upiId.value = '';
   }
 
+  // Future<void> verifyUpi() async {
+  //   if (upiId.value.isEmpty) {
+  //     showCustomToast(
+  //       title: 'Enter UPI Id',
+  //       message: '',
+  //       backgroundColor: Colors.red,
+  //       icon: Icons.warning,
+  //     );
+  //     return;
+  //   }
+  //   isVerifying.value = true;
+  //   await Future.delayed(const Duration(seconds: 2));
+  //   isVerified.value = true;
+  //   isVerifying.value = false;
+  // }
   Future<void> verifyUpi() async {
-    if (upiId.value.isEmpty) {
+    final currentUpi = upiId.value.trim();
+
+    // 1. Check if empty
+    if (currentUpi.isEmpty) {
       showCustomToast(
-        title: 'Enter UPI Id',
-        message: '',
+        title: 'Required',
+        message: 'Please enter a UPI ID',
         backgroundColor: Colors.red,
         icon: Icons.warning,
       );
       return;
     }
+
+    // 2. Frontend Validation using Regex
+    // Allows alphanumeric, dot, hyphen, and underscore before '@'
+    // Requires standard bank handle characters after '@'
+    final RegExp upiRegex = RegExp(r'^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$');
+
+    if (!upiRegex.hasMatch(currentUpi)) {
+      showCustomToast(
+        title: 'Invalid Format',
+        message: 'Please enter a valid UPI ID (e.g., 9876543210@ybl)',
+        backgroundColor: Colors.orange, // Orange for validation warning
+        icon: Icons.error_outline,
+      );
+      return; // Stop execution, don't proceed to "verification"
+    }
+
+    // 3. Fake Verification (Since you have no backend yet)
     isVerifying.value = true;
+
+    // Simulate network delay for good UX
     await Future.delayed(const Duration(seconds: 2));
+
     isVerified.value = true;
     isVerifying.value = false;
+
+    // Optional: Show Success Toast
+    showCustomToast(
+      title: 'Success',
+      message: 'UPI ID Verified Successfully',
+      backgroundColor: Colors.green,
+      icon: Icons.check_circle,
+    );
   }
 
   // ─── Actions ─────────────────────────────────────────────────────────────────

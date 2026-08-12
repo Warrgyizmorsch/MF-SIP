@@ -55,7 +55,8 @@ class MfuTransactionEntity extends Equatable {
 
   bool get isPending => status.toLowerCase() == 'pending';
   bool get isFailed => status.toLowerCase() == 'failed';
-  bool get isSuccess => status.toLowerCase() == 'success';
+  bool get isSuccess =>
+      status.toLowerCase() == 'success' || status.toLowerCase() == 'accepted';
   bool get isSip => investmentType.toLowerCase() == 'sip';
   bool get isNormal => investmentType.toLowerCase() == 'normal';
   bool get isRedeem => txtType.toLowerCase() == 'redeem';

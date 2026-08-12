@@ -23,7 +23,7 @@ void createLog(dynamic message) {
   }
 
   // --- Define a title and line prefix ---
-  const String logTitle = "[MF App Log]";
+  const String logTitle = "[MFSIP Log]";
   const String linePrefix = "│ "; // Box-drawing character
 
   // --- Define borders (you can change the length) ---
@@ -67,6 +67,7 @@ class UHelperFunction {
     }
   }
 }
+
 String formatCurrency(double amount) {
   final absAmount = amount.abs();
 
@@ -83,6 +84,7 @@ String formatCurrency(double amount) {
     return "₹${amount.toStringAsFixed(0)}";
   }
 }
+
 ///////////////// -------------- Extract Fund Manager ----------- //////////////////
 List<String> parseFundManagers(String? raw) {
   if (raw == null || raw.trim().isEmpty) {
@@ -264,7 +266,7 @@ class IfscTextInputFormatter extends TextInputFormatter {
     // 4. Enforce the strict IFSC Pattern character by character
     for (int i = 0; i < newText.length; i++) {
       String char = newText[i];
-      
+
       if (i < 4) {
         // First 4 characters MUST be letters
         if (!RegExp(r'[A-Z]').hasMatch(char)) return oldValue;
@@ -459,43 +461,43 @@ class DocumentFormatterFactory {
 }
 
 int getYearlyIncomeAsInt(String text) {
-    final value = text.trim();
+  final value = text.trim();
 
-    // Translate the dropdown string into a raw integer for your database
-    switch (value) {
-      case "Below 1 Lakh":
-        return 90000; // Using 90,000 as seen in your success log
-      case "1 Lacs - 5 Lacs":
-        return 500000;
-      case "5 Lacs - 10 Lacs":
-        return 1000000;
-      case "10 Lacs - 25 Lacs":
-        return 2500000;
-      case "25 Lacs - 1 Cr.":
-        return 10000000;
-      case "Above 1 Cr.":
-        return 50000000;
-      default:
-        return 0;
-    }
+  // Translate the dropdown string into a raw integer for your database
+  switch (value) {
+    case "Below 1 Lakh":
+      return 90000; // Using 90,000 as seen in your success log
+    case "1 Lacs - 5 Lacs":
+      return 500000;
+    case "5 Lacs - 10 Lacs":
+      return 1000000;
+    case "10 Lacs - 25 Lacs":
+      return 2500000;
+    case "25 Lacs - 1 Cr.":
+      return 10000000;
+    case "Above 1 Cr.":
+      return 50000000;
+    default:
+      return 0;
   }
+}
 
-  // Reverses the SQL date back to UI format
-  String formatToUIDate(String? sqlDate) {
-    if (sqlDate == null || sqlDate.isEmpty) return '';
-    try {
-      List<String> parts = sqlDate.split('-');
-      if (parts.length == 3) {
-        String year = parts[0];
-        String month = parts[1];
-        String day = parts[2];
-        return '$day/$month/$year'; // Returns DD/MM/YYYY
-      }
-    } catch (e) {
-      return sqlDate; // Fallback
+// Reverses the SQL date back to UI format
+String formatToUIDate(String? sqlDate) {
+  if (sqlDate == null || sqlDate.isEmpty) return '';
+  try {
+    List<String> parts = sqlDate.split('-');
+    if (parts.length == 3) {
+      String year = parts[0];
+      String month = parts[1];
+      String day = parts[2];
+      return '$day/$month/$year'; // Returns DD/MM/YYYY
     }
-    return sqlDate;
+  } catch (e) {
+    return sqlDate; // Fallback
   }
+  return sqlDate;
+}
 
 String formatToSqlDate(String dateStr) {
   // Converts DD/MM/YYYY to YYYY-MM-DD
@@ -515,21 +517,39 @@ class ProfileUtils {
   // 📋 CENTRALIZED LISTS
   // ==========================================
   static const List<String> wealthSources = [
-    "Salary", "Business Income", "Gift", "Ancestral Property", 
-    "Rental Income", "Prize money", "Royalty", "Other"
+    "Salary",
+    "Business Income",
+    "Gift",
+    "Ancestral Property",
+    "Rental Income",
+    "Prize money",
+    "Royalty",
+    "Other",
   ];
 
   static const List<String> incomeSlabList = [
-    "Below 1 Lakh", "1 Lacs - 5 Lacs", "5 Lacs - 10 Lacs", 
-    "10 Lacs - 25 Lacs", "25 Lacs - 1 Cr.", "Above 1 Cr."
+    "Below 1 Lakh",
+    "1 Lacs - 5 Lacs",
+    "5 Lacs - 10 Lacs",
+    "10 Lacs - 25 Lacs",
+    "25 Lacs - 1 Cr.",
+    "Above 1 Cr.",
   ];
 
   static const List<String> occupationList = [
-    "Business", "Service", "Retired Professional", "Professional", "Other"
+    "Business",
+    "Service",
+    "Retired Professional",
+    "Professional",
+    "Other",
   ];
 
   static const List<String> maritalStatusList = [
-    "UNMARRIED", "MARRIED", "DIVORCED", "WIDOWED", "OTHERS"
+    "UNMARRIED",
+    "MARRIED",
+    "DIVORCED",
+    "WIDOWED",
+    "OTHERS",
   ];
 
   // ==========================================
@@ -558,7 +578,7 @@ class ProfileUtils {
   // ==========================================
   static String getWealthSourceName(int? id) {
     if (id == null || id <= 0 || id > wealthSources.length) return '---';
-    return wealthSources[id - 1]; 
+    return wealthSources[id - 1];
   }
 
   static String getIncomeSlabName(int? id) {
@@ -579,10 +599,10 @@ class ProfileUtils {
     try {
       List<String> parts = dob.split('/');
       if (parts.length == 3) {
-        return '${parts[2]}-${parts[1]}-${parts[0]}'; 
+        return '${parts[2]}-${parts[1]}-${parts[0]}';
       }
     } catch (e) {
-      return dob; 
+      return dob;
     }
     return dob;
   }
@@ -592,10 +612,10 @@ class ProfileUtils {
     try {
       List<String> parts = sqlDate.split('-');
       if (parts.length == 3) {
-        return '${parts[2]}/${parts[1]}/${parts[0]}'; 
+        return '${parts[2]}/${parts[1]}/${parts[0]}';
       }
     } catch (e) {
-      return sqlDate; 
+      return sqlDate;
     }
     return sqlDate;
   }
