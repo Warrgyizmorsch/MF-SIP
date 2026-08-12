@@ -1123,8 +1123,6 @@ class WebFundListCard extends StatelessWidget {
     );
   }
 
-  
-
   Widget _wishlistButton({required double size}) {
     return Obx(() {
       final wishlistController = Get.find<WishlistController>();
@@ -2753,6 +2751,7 @@ class MutualFundCard extends StatelessWidget {
                 'scheme': entity.baseSchemeName,
                 'imgUrl': "${Appurl.baseUrl}${entity.amc?.amcLogoUrl}" ?? '',
                 'scheme_code': entity.schemeCode.toString(),
+                'isin': entity.isin ?? entity.baseSchemeName ?? '',
                 'email': entity.amc?.email,
                 'address': entity.amc?.address,
                 'contact': entity.amc?.contact,

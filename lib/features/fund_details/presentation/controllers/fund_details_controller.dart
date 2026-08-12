@@ -30,6 +30,7 @@ class FundDetailsController extends GetxController
   late String email;
   late String contact;
   late String address;
+  late String isin;
 
   // Controllers
   late TabController tabController;
@@ -146,6 +147,8 @@ class FundDetailsController extends GetxController
           params['address'],
         ]) ??
         '--';
+    isin =
+        _firstValid([navArgs['isin'], getArgs['isin'], params['isin']]) ?? '--';
 
     FundDetailsScreen.navData = null;
 
@@ -162,7 +165,7 @@ class FundDetailsController extends GetxController
       return;
     }
 
-    fetchAllData(scheme: schemeName, id: schemeCode);
+    fetchAllData(scheme: schemeName, id: schemeCode, isin: isin);
   }
 
   String? _firstValid(List<dynamic> values) {
@@ -221,14 +224,15 @@ class FundDetailsController extends GetxController
   Future<void> fetchAllData({
     required String scheme,
     required String id,
+    required String isin,
   }) async {
     // Optional: Set global loading state if you want to block the whole UI
     // isLoading.value = true;
 
     // Run both requests in parallel
     await Future.wait([
-      getFundDetails(scchemeName: scheme),
-      getPortfolioAnalysis(scchemeName: scheme),
+      getFundDetails(scchemeName: isin),
+      getPortfolioAnalysis(scchemeName: isin),
       // getFundDetails(scchemeName: id),
       // getPortfolioAnalysis(scchemeName: id),
       getShcemeNavHistory(scchemeCode: id),
@@ -255,7 +259,7 @@ class FundDetailsController extends GetxController
       errorMessage.value = '';
 
       final result = await fundDetailsUsecases.fundDetailUseCase.getSchemeInfo({
-        'scheme': scchemeName,
+        'isin': scchemeName,
       });
 
       result.fold(
@@ -287,7 +291,7 @@ class FundDetailsController extends GetxController
       errorMessage.value = '';
 
       final result = await fundDetailsUsecases.portfolioAnalysisUsecases
-          .getPortfolioAnlysis({'scheme': scchemeName});
+          .getPortfolioAnlysis({'isin': scchemeName});
 
       result.fold(
         (success) {
@@ -406,7 +410,7 @@ class FundDetailsController extends GetxController
     // getFundDetails(scchemeName: newScheme);
     // fundDetail.value = null;
     // portfolioAnalysis.value = null;
-    fetchAllData(scheme: newScheme, id: schemeCode);
+    fetchAllData(scheme: newScheme, id: schemeCode, isin: isin);
 
     scrollController.jumpTo(0); // optional: scroll to top
   }
@@ -414,7 +418,7 @@ class FundDetailsController extends GetxController
   // Method to retry fetching fund details
   void retryFetchingDetails() {
     // getFundDetails(scchemeName: schemeName);
-    fetchAllData(scheme: schemeName, id: schemeCode);
+    fetchAllData(scheme: schemeName, id: schemeCode, isin: isin);
   }
 
   void _onScroll() {

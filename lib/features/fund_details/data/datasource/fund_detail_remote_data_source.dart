@@ -27,7 +27,7 @@ class FundDetailRemoteDataSource {
         // '${Appurl.baseUrl}/api/mutual-fund/details',
         queryParameters: {
           'key': 'c6b23a3f-ee3c-4b8b-a9bb-05bce1e39405',
-          'scheme': data['scheme'],
+          'isin': data['isin'],
         },
       );
       createLog(
@@ -62,7 +62,7 @@ class FundDetailRemoteDataSource {
         // '${Appurl.baseUrl}/public/api/mutual-fund/portfolio-details?scheme',
         queryParameters: {
           'key': 'c6b23a3f-ee3c-4b8b-a9bb-05bce1e39405',
-          'scheme': data['scheme'],
+          'isin': data['isin'],
         },
       );
       createLog(

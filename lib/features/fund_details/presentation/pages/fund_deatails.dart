@@ -13,7 +13,6 @@ import 'package:my_sip/common/widget/animated/empty_filled.dart';
 import 'package:my_sip/core/utils/helper/purchase_scenario.dart';
 import 'package:my_sip/features/cart/presentation/controllers/cart_controller.dart';
 import 'package:my_sip/features/mfu/presentation/pages/purchase_page.dart';
-import 'package:my_sip/features/personalization/presentation/controllers/personalisation_controller.dart';
 import 'package:my_sip/features/wishlist/presentation/controller/wishlist_controller.dart';
 import 'package:my_sip/navigation_menu_bar.dart';
 import 'package:readmore/readmore.dart';
