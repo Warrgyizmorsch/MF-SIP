@@ -10,6 +10,10 @@ import 'package:my_sip/features/cart/domain/entities/cart_response_entity.dart';
 import 'package:my_sip/features/cart/domain/usecases/cart_usecases.dart';
 import 'package:my_sip/services/session_manager.dart';
 
+import 'package:my_sip/common/widget/animated/custom_toast.dart';
+import 'package:my_sip/features/mfu/data/model/lumpsum_req_model.dart';
+import 'package:my_sip/features/mfu/presentation/controller/mfu_controller.dart';
+
 import '../../../fund_details/domain/entity/fund_detail_entity.dart';
 
 class CartController extends GetxController {
@@ -261,6 +265,40 @@ class CartController extends GetxController {
 
   int get totalLumpsumAmount {
     return lumpsumItems.fold(0, (sum, item) => sum + (item.amount ?? 0));
+  }
+
+  List<LumpsumFundItemModel> get lumpsumFundItems {
+    return lumpsumItems.map((item) {
+      return LumpsumFundItemModel(
+        schemeCode: item.schemeCode?.toString() ?? '',
+        amount: item.amount ?? 1000,
+        folio: 'NEW',
+      );
+    }).toList();
+  }
+
+  Future<void> checkoutLumpsum() async {
+    final funds = lumpsumFundItems;
+    if (funds.isEmpty) {
+      CustomSnackbar.error(
+        title: 'Empty Cart',
+        message: 'No lumpsum items found in your cart.',
+      );
+      return;
+    }
+
+    final mfuCtrl = Get.find<MfuController>();
+
+    await mfuCtrl.executeLumpsum(
+      funds: funds,
+      onSuccess: (res) {
+        // CustomSnackbar.success(
+        //   title: 'Lumpsum Order Placed 🎉',
+        //   message: '${funds.length} lumpsum order(s) submitted successfully.',
+        // );
+        fetchCart(showFullLoader: false);
+      },
+    );
   }
 
   CartController(this.cartUsecases);

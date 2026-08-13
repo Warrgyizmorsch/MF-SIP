@@ -2113,6 +2113,11 @@ class CartPage extends GetView<CartController> {
       );
       return;
     }
+    if (isLumpsum) {
+      controller.checkoutLumpsum();
+      return;
+    }
+
     if (isDesktop) {
       _processInlineCartPayment();
       return;
